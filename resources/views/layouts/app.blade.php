@@ -548,6 +548,24 @@
             margin-top: 3px;
         }
 
+        .admin-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #16a34a;
+    margin-top: 3px;
+}
+
+.online-dot {
+    width: 7px;
+    height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+}
+
 
         /* =========================================================
            PAGE CONTENT
@@ -1446,25 +1464,24 @@
 
                 <div class="admin-profile">
 
-                    <div class="admin-avatar">
-                        A
-                    </div>
+    <div class="admin-avatar">
+        A
+    </div>
 
-                    <div class="admin-info">
+    <div class="admin-info">
 
-                        <div class="admin-name">
-                            Admin
-                        </div>
+        <div class="admin-name">
+            Admin
+        </div>
 
-                        <div class="admin-role">
-                            Administrator
-                        </div>
+        <div class="admin-status">
+            <span class="online-dot"></span>
+            Online
+        </div>
 
-                    </div>
+    </div>
 
-                </div>
-
-            </div>
+</div>
 
         </header>
 
