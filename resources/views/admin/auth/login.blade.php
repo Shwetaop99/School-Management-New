@@ -1237,13 +1237,6 @@
                 </label>
 
 
-                <a
-                    href="#"
-                    class="forgot"
-                >
-                    Forgot password?
-                </a>
-
             </div>
 
 

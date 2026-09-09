@@ -1,1261 +1,717 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Set Up 2FA | Gurukul Vidyalaya</title>
 
-
     <style>
-
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
 
         body {
-
             font-family: Arial, Helvetica, sans-serif;
-
+            background: #f3f6fb;
             min-height: 100vh;
-
-            background: #eef3f9;
-
             display: flex;
-
-            justify-content: center;
-
             align-items: center;
-
-            padding: 30px;
+            justify-content: center;
+            padding: 24px;
+            color: #102a56;
         }
 
+        .page-wrapper {
+            width: 100%;
+            max-width: 1100px;
+        }
 
-        /* =========================================
-           MAIN CONTAINER
-        ========================================= */
-
-        .login-container {
-
-            width: 1100px;
-
-            max-width: 100%;
-
-            min-height: 650px;
-
-            background: white;
-
-            border-radius: 16px;
-
+        .auth-container {
+            width: 100%;
+            min-height: 680px;
+            background: #ffffff;
+            border-radius: 14px;
             overflow: hidden;
-
             display: flex;
-
-            box-shadow:
-                0 20px 50px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 12px 40px rgba(25, 65, 120, 0.12);
         }
 
-
         /* =========================================
-           LEFT PANEL
+           LEFT SIDE
         ========================================= */
 
         .left-panel {
-
             width: 50%;
-
             position: relative;
-
             overflow: hidden;
-
-            padding: 48px 55px;
-
+            background: linear-gradient(
+                145deg,
+                #176df5 0%,
+                #159ad9 55%,
+                #29b7c2 100%
+            );
             color: white;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #1769ff 0%,
-                    #1689ed 52%,
-                    #24b7c8 100%
-                );
+            padding: 42px 38px;
+            display: flex;
+            flex-direction: column;
         }
 
-
-        /* =========================================
-           DECORATIVE CIRCLES
-        ========================================= */
-
-        .top-circle {
-
-            position: absolute;
-
-            width: 300px;
-
-            height: 300px;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.10);
-
-            top: -150px;
-
-            right: -100px;
-        }
-
-
-        .bottom-circle {
-
-            position: absolute;
-
-            width: 350px;
-
-            height: 350px;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.07);
-
-            bottom: -230px;
-
-            left: -150px;
-        }
-
-
-        /* =========================================
-           DOT PATTERN
-        ========================================= */
+        /* Decorative dots */
 
         .dots {
-
             position: absolute;
+            top: 28px;
+            left: 28px;
+            width: 80px;
+            height: 70px;
 
-            top: 38px;
-
-            left: 38px;
-
-            width: 65px;
-
-            height: 55px;
-
-            background-image:
-                radial-gradient(
-                    rgba(255,255,255,0.35) 2px,
-                    transparent 2px
-                );
+            background-image: radial-gradient(
+                rgba(255,255,255,0.35) 2px,
+                transparent 2px
+            );
 
             background-size: 10px 10px;
+            opacity: 0.8;
         }
 
+        /* Decorative circle */
 
-        /* =========================================
-           ICON
-        ========================================= */
+        .blue-circle {
+            position: absolute;
+            top: -90px;
+            right: -80px;
 
-        .admin-icon {
-    width: 76px;
-    height: 76px;
+            width: 210px;
+            height: 210px;
 
-    border: 3px solid rgba(255,255,255,0.95);
-
-    border-radius: 17px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    margin-top: 38px;
-    margin-bottom: 27px;
-
-    position: relative;
-    z-index: 5;
-
-    overflow: hidden;
-
-    background: rgba(255,255,255,0.12);
-}
-
-.admin-icon img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: contain;
-
-    padding: 6px;
-}
-
-
-        /* =========================================
-           LEFT CONTENT
-        ========================================= */
-
-        .left-panel h1 {
-
-            position: relative;
-
-            z-index: 5;
-
-            font-size: 40px;
-
-            line-height: 1.15;
-
-            margin-bottom: 24px;
-
-            font-weight: 700;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
         }
 
+        /* Logo */
 
-        .description {
+        .logo-box {
+            width: 120px;
+            height: 120px;
 
-            position: relative;
-
-            z-index: 5;
-
-            max-width: 470px;
-
-            font-size: 17px;
-
-            line-height: 1.7;
-
-            color: rgba(255,255,255,0.95);
-
-            margin-bottom: 24px;
-        }
-
-
-        /* =========================================
-           DIVIDER
-        ========================================= */
-
-        .divider {
-
-            position: relative;
-
-            z-index: 5;
-
-            width: 45px;
-
-            height: 2px;
-
-            background: rgba(255,255,255,0.8);
-
-            margin-bottom: 26px;
-        }
-
-
-        /* =========================================
-           FEATURES
-        ========================================= */
-
-        .features {
-
-            position: relative;
-
-            z-index: 5;
-
-            list-style: none;
+            background: #ffffff;
+            border-radius: 25px;
 
             display: flex;
-
-            flex-direction: column;
-
-            gap: 17px;
-        }
-
-
-        .features li {
-
-            display: flex;
-
             align-items: center;
+            justify-content: center;
 
-            gap: 13px;
+            margin-top: 28px;
+            margin-bottom: 32px;
+
+            position: relative;
+            z-index: 5;
+
+            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+        }
+
+        .logo-box img {
+            width: 92px;
+            height: 92px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .left-title {
+            position: relative;
+            z-index: 5;
+            font-size: 31px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .left-subtitle {
+            position: relative;
+            z-index: 5;
 
             font-size: 15px;
+            line-height: 1.6;
 
-            color: white;
+            max-width: 300px;
+
+            color: rgba(255,255,255,0.92);
+
+            margin-bottom: 30px;
         }
 
+        /* Features */
+
+        .features {
+            position: relative;
+            z-index: 5;
+
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            font-size: 14px;
+            color: #ffffff;
+        }
 
         .check {
+            width: 32px;
+            height: 32px;
 
-            width: 27px;
-
-            height: 27px;
-
-            min-width: 27px;
-
-            border: 2px solid rgba(255,255,255,0.9);
-
+            border: 2px solid rgba(255,255,255,0.95);
             border-radius: 50%;
 
             display: flex;
-
             align-items: center;
-
             justify-content: center;
 
-            font-size: 15px;
+            font-size: 18px;
+            flex-shrink: 0;
         }
 
+        /* Simple school illustration */
 
-        /* =========================================
-           SCHOOL ILLUSTRATION
-        ========================================= */
-
-        .school-illustration {
-
+        .school-scene {
             position: absolute;
-
+            bottom: 0;
             left: 0;
 
+            width: 100%;
+            height: 290px;
+
+            opacity: 0.28;
+        }
+
+        .ground {
+            position: absolute;
             bottom: 0;
+            left: 0;
 
             width: 100%;
+            height: 115px;
 
-            height: 48%;
+            background: rgba(255,255,255,0.20);
 
-            z-index: 2;
-
-            opacity: 0.38;
-
-            pointer-events: none;
+            border-radius: 50% 50% 0 0;
         }
 
+        .school {
+            position: absolute;
 
-        .school-illustration svg {
+            bottom: 18px;
+            left: 17%;
 
-            width: 100%;
+            width: 66%;
+            height: 125px;
 
-            height: 100%;
-
-            display: block;
+            background: rgba(255,255,255,0.65);
         }
 
+        .school-roof {
+            position: absolute;
+
+            bottom: 143px;
+            left: 27%;
+
+            width: 46%;
+            height: 75px;
+
+            background: rgba(255,255,255,0.72);
+
+            clip-path: polygon(
+                50% 0,
+                100% 100%,
+                0 100%
+            );
+        }
+
+        .school-door {
+            position: absolute;
+
+            bottom: 18px;
+            left: 46%;
+
+            width: 8%;
+            height: 72px;
+
+            background: rgba(35,130,220,0.45);
+        }
+
+        .school-window {
+            position: absolute;
+
+            bottom: 65px;
+
+            width: 38px;
+            height: 45px;
+
+            background: rgba(35,130,220,0.38);
+        }
+
+        .window-one {
+            left: 25%;
+        }
+
+        .window-two {
+            left: 35%;
+        }
+
+        .window-three {
+            right: 35%;
+        }
+
+        .window-four {
+            right: 25%;
+        }
 
         /* =========================================
-           RIGHT PANEL
+           RIGHT SIDE
         ========================================= */
 
         .right-panel {
-
             width: 50%;
-
-            padding: 55px 70px;
+            padding: 48px 58px;
 
             display: flex;
-
             flex-direction: column;
-
             justify-content: center;
+
+            background: #ffffff;
         }
 
+        .right-panel h1 {
+            font-size: 29px;
+            line-height: 1.2;
 
-        .welcome-title {
-
-            color: #172554;
-
-            font-size: 32px;
+            color: #102a56;
 
             margin-bottom: 9px;
         }
 
-
-        .welcome-text {
-
-            color: #64748b;
-
-            font-size: 15px;
-
+        .intro {
+            color: #6c7f9c;
+            font-size: 14px;
             line-height: 1.6;
-
-            margin-bottom: 22px;
+            margin-bottom: 24px;
         }
 
+        /* Error */
 
-        /* =========================================
-           INFO BOX
-        ========================================= */
+        .error-box {
+            background: #fff0f1;
+            border: 1px solid #ffc7cc;
 
-        .info-box {
+            color: #dc3545;
 
-            display: flex;
-
-            align-items: flex-start;
-
-            gap: 15px;
-
-            padding: 18px 20px;
-
-            border: 1px solid #d6e4ff;
-
-            border-radius: 10px;
-
-            background: #f2f7ff;
-
-            margin-bottom: 22px;
-        }
-
-
-        .info-icon {
-
-            width: 42px;
-
-            height: 42px;
-
-            min-width: 42px;
-
-            border-radius: 50%;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            background: #1769ff;
-
-            color: white;
-
-            font-size: 19px;
-        }
-
-
-        .info-box strong {
-
-            display: block;
-
-            color: #172554;
-
-            font-size: 15px;
-
-            margin-bottom: 5px;
-        }
-
-
-        .info-box span {
-
-            color: #64748b;
+            padding: 12px 14px;
+            border-radius: 7px;
 
             font-size: 13px;
 
-            line-height: 1.6;
+            margin-bottom: 20px;
         }
 
-
-        /* =========================================
-           QR CODE
-        ========================================= */
+        /* QR */
 
         .qr-wrapper {
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
 
-            margin: 4px 0 20px;
+            margin: 4px 0 18px;
         }
 
-
         .qr-box {
+            width: 190px;
+            height: 190px;
 
-            width: 210px;
-
-            height: 210px;
+            border: 1px solid #e0e6ef;
+            border-radius: 10px;
 
             display: flex;
-
             align-items: center;
-
             justify-content: center;
 
             background: #ffffff;
 
-            border: 1px solid #dbe3ef;
+            padding: 12px;
 
-            border-radius: 10px;
-
-            padding: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
-
-        .qr-box svg {
-
-            width: 190px;
-
-            height: 190px;
-
-            display: block;
+        .qr-box svg,
+        .qr-box img {
+            max-width: 100%;
+            max-height: 100%;
         }
 
+        /* Secret */
 
-        /* =========================================
-           SECRET
-        ========================================= */
-
-        .secret-label {
-
-            display: block;
-
-            color: #172554;
-
-            font-size: 13px;
-
+        .secret-title {
+            font-size: 12px;
             font-weight: 700;
+            color: #102a56;
 
             margin-bottom: 7px;
         }
 
-
         .secret {
+            background: #f5f7fa;
 
-            background: #f8fafc;
-
-            border: 1px solid #dbe3ef;
+            border: 1px solid #e1e6ee;
 
             border-radius: 7px;
 
             padding: 11px 13px;
 
-            color: #475569;
-
             font-family: monospace;
-
             font-size: 12px;
 
-            text-align: center;
+            color: #536783;
 
             word-break: break-all;
 
             margin-bottom: 18px;
         }
 
+        /* Instructions */
 
-        /* =========================================
-           ERROR MESSAGE
-        ========================================= */
-
-        .error-box {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-            background: #fff1f2;
-
-            border: 1px solid #fecdd3;
-
-            color: #dc2626;
-
-            padding: 13px 15px;
-
-            border-radius: 7px;
+        .instruction {
+            color: #687b96;
 
             font-size: 13px;
+            line-height: 1.55;
 
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
+        /* OTP */
 
-        /* =========================================
-           FORM
-        ========================================= */
-
-        .form-group {
-
-            margin-bottom: 18px;
-        }
-
-
-        .form-group label {
-
-            display: block;
-
-            color: #172554;
-
-            font-size: 14px;
-
-            font-weight: 700;
-
-            margin-bottom: 8px;
-        }
-
-
-        .code-input {
-
+        .otp-input {
             width: 100%;
 
-            height: 60px;
+            height: 52px;
 
-            border: 1px solid #dbe3ef;
-
+            border: 1px solid #d6dfeb;
             border-radius: 8px;
-
-            text-align: center;
-
-            font-size: 27px;
-
-            letter-spacing: 14px;
-
-            color: #172554;
 
             outline: none;
 
-            padding-left: 14px;
+            font-size: 22px;
+            font-weight: 600;
+
+            color: #102a56;
+
+            text-align: center;
+
+            letter-spacing: 8px;
+
+            margin-bottom: 14px;
 
             transition: 0.2s;
         }
 
+        .otp-input:focus {
+            border-color: #2377f5;
 
-        .code-input::placeholder {
-
-            color: #94a3b8;
-
-            letter-spacing: 14px;
+            box-shadow: 0 0 0 3px rgba(35,119,245,0.10);
         }
 
-
-        .code-input:focus {
-
-            border-color: #2477f9;
-
-            box-shadow:
-                0 0 0 3px rgba(36,119,249,0.10);
+        .otp-input::placeholder {
+            color: #a9b5c5;
+            letter-spacing: 5px;
         }
 
+        /* Button */
 
-        /* =========================================
-           VERIFY BUTTON
-        ========================================= */
-
-        .login-button {
-
+        .verify-button {
             width: 100%;
 
-            height: 54px;
+            height: 49px;
 
             border: none;
+            border-radius: 7px;
 
-            border-radius: 8px;
+            background: linear-gradient(
+                90deg,
+                #2865f3,
+                #159dd9
+            );
 
-            background:
-                linear-gradient(
-                    90deg,
-                    #1769ff,
-                    #1da5df
-                );
+            color: #ffffff;
 
-            color: white;
-
-            font-size: 15px;
-
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 600;
 
             cursor: pointer;
 
-            box-shadow:
-                0 8px 20px rgba(23,105,255,0.25);
+            transition: 0.2s;
 
-            transition: all 0.2s ease;
-
-            margin-top: 4px;
+            box-shadow: 0 6px 15px rgba(40,101,243,0.20);
         }
 
+        .verify-button:hover {
+            transform: translateY(-1px);
 
-        .login-button:hover {
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 12px 25px rgba(23,105,255,0.32);
+            box-shadow: 0 8px 18px rgba(40,101,243,0.28);
         }
 
+        /* Footer */
 
-        .login-button span {
-
-            margin-left: 8px;
-
-            font-size: 18px;
-        }
-
-
-        /* =========================================
-           HELP TEXT
-        ========================================= */
-
-        .help-text {
-
-            display: flex;
-
-            gap: 10px;
-
-            margin-top: 20px;
-
-            color: #64748b;
-
-            font-size: 12px;
-
-            line-height: 1.6;
-        }
-
-
-        .help-icon {
-
-            min-width: 20px;
-
-            font-size: 15px;
-
-            color: #94a3b8;
-        }
-
-
-        /* =========================================
-           FOOTER
-        ========================================= */
-
-        .system-name {
-
+        .security-note {
             text-align: center;
 
-            margin-top: 20px;
+            margin-top: 18px;
 
-            color: #94a3b8;
+            font-size: 11px;
 
-            font-size: 12px;
+            color: #9aa8ba;
         }
-
 
         /* =========================================
            RESPONSIVE
         ========================================= */
 
-        @media (max-width: 900px) {
+        @media (max-width: 850px) {
 
             body {
-
-                padding: 20px;
+                padding: 15px;
             }
 
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .left-panel,
+            .right-panel {
+                width: 100%;
+            }
 
             .left-panel {
-
-                display: none;
+                min-height: 390px;
+                padding: 30px;
             }
 
+            .logo-box {
+                width: 90px;
+                height: 90px;
+                border-radius: 18px;
+                margin-bottom: 20px;
+            }
+
+            .logo-box img {
+                width: 70px;
+                height: 70px;
+            }
+
+            .left-title {
+                font-size: 25px;
+            }
+
+            .features {
+                gap: 12px;
+            }
+
+            .feature {
+                font-size: 13px;
+            }
 
             .right-panel {
-
-                width: 100%;
-
-                padding: 55px 50px;
-            }
-
-
-            .login-container {
-
-                max-width: 550px;
+                padding: 35px 30px;
             }
         }
-
 
         @media (max-width: 500px) {
 
-            body {
-
-                padding: 10px;
+            .left-panel {
+                min-height: 350px;
             }
-
 
             .right-panel {
-
-                padding: 40px 25px;
+                padding: 30px 20px;
             }
 
-
-            .welcome-title {
-
-                font-size: 27px;
+            .right-panel h1 {
+                font-size: 25px;
             }
-
-
-            .code-input {
-
-                font-size: 22px;
-
-                letter-spacing: 9px;
-            }
-
 
             .qr-box {
-
-                width: 190px;
-
-                height: 190px;
-            }
-
-
-            .qr-box svg {
-
                 width: 170px;
-
                 height: 170px;
             }
         }
-
     </style>
-
 </head>
-
 
 <body>
 
+<div class="page-wrapper">
 
-<div class="login-container">
+    <div class="auth-container">
 
+        <!-- =====================================
+             LEFT PANEL
+        ====================================== -->
 
-    <!-- =====================================================
-         LEFT PANEL
-    ====================================================== -->
+        <div class="left-panel">
 
-    <div class="left-panel">
+            <div class="dots"></div>
 
+            <div class="blue-circle"></div>
 
-        <div class="top-circle"></div>
+            <!-- Gurukul Vidyalaya Logo -->
 
-        <div class="bottom-circle"></div>
+            <div class="logo-box">
+                <img
+                    src="{{ asset('images/gurukullogo.png') }}"
+                    alt="Gurukul Vidyalaya Logo"
+                >
+            </div>
 
-        <div class="dots"></div>
+            <h2 class="left-title">
+                Gurukul Vidyalaya
+            </h2>
 
+            <p class="left-subtitle">
+                Secure school management for
+                administrators, teachers and staff.
+            </p>
 
-        <div class="admin-icon">
-    <img
-        src="{{ asset('images/gurukullogo.png') }}"
-        alt="Gurukul Vidyalaya Logo"
-    >
-</div>
+            <div class="features">
 
+                <div class="feature">
+                    <div class="check">✓</div>
+                    <span>Manage students and teachers</span>
+                </div>
 
-        <h1>
-            Gurukul Vidyalaya
-        </h1>
+                <div class="feature">
+                    <div class="check">✓</div>
+                    <span>Manage attendance and fees</span>
+                </div>
 
+                <div class="feature">
+                    <div class="check">✓</div>
+                    <span>View school results and reports</span>
+                </div>
 
-        <p class="description">
+                <div class="feature">
+                    <div class="check">✓</div>
+                    <span>Protected with two-factor authentication</span>
+                </div>
 
-            Secure school management
-            with an additional layer of
-            two-factor authentication.
+            </div>
 
-        </p>
+            <!-- School illustration -->
 
+            <div class="school-scene">
 
-        <div class="divider"></div>
+                <div class="ground"></div>
 
+                <div class="school"></div>
 
-        <ul class="features">
+                <div class="school-roof"></div>
 
+                <div class="school-door"></div>
 
-            <li>
+                <div class="school-window window-one"></div>
+                <div class="school-window window-two"></div>
+                <div class="school-window window-three"></div>
+                <div class="school-window window-four"></div>
 
-                <span class="check">
-                    ✓
-                </span>
+            </div>
 
-                Secure administrator access
-
-            </li>
-
-
-            <li>
-
-                <span class="check">
-                    ✓
-                </span>
-
-                Google Authenticator support
-
-            </li>
-
-
-            <li>
-
-                <span class="check">
-                    ✓
-                </span>
-
-                Time-based security codes
-
-            </li>
-
-
-            <li>
-
-                <span class="check">
-                    ✓
-                </span>
-
-                Enhanced account protection
-
-            </li>
+        </div>
 
 
-        </ul>
+        <!-- =====================================
+             RIGHT PANEL
+        ====================================== -->
+
+        <div class="right-panel">
+
+            <h1>
+                Set Up Two-Factor Authentication
+            </h1>
+
+            <p class="intro">
+                Secure your Gurukul Vidyalaya account by
+                connecting it with Google Authenticator.
+            </p>
 
 
-        <!-- SCHOOL ILLUSTRATION -->
+            @if ($errors->any())
 
-        <div class="school-illustration">
+                <div class="error-box">
+                    {{ $errors->first() }}
+                </div>
 
-            <svg
-                viewBox="0 0 600 300"
-                preserveAspectRatio="none"
-                xmlns="http://www.w3.org/2000/svg"
+            @endif
+
+
+            <p class="instruction">
+                Open Google Authenticator on your mobile
+                and scan the QR code below.
+            </p>
+
+
+            <!-- QR CODE -->
+
+            <div class="qr-wrapper">
+
+                <div class="qr-box">
+
+                    {!! $qrCodeUrl !!}
+
+                </div>
+
+            </div>
+
+
+            <p class="instruction">
+                Can't scan the QR code? Enter the secret
+                key manually in your authenticator app.
+            </p>
+
+
+            <!-- SECRET -->
+
+            <div class="secret-title">
+                Manual Setup Key
+            </div>
+
+            <div class="secret">
+                {{ $secret }}
+            </div>
+
+
+            <p class="instruction">
+                After adding the account, enter the
+                6-digit verification code generated by
+                Google Authenticator.
+            </p>
+
+
+            <!-- VERIFY FORM -->
+
+            <form
+                method="POST"
+                action="{{ route('admin.2fa.verify') }}"
             >
 
-                <!-- Ground -->
-
-                <path
-                    d="M0 270
-                       Q120 250 220 270
-                       T420 265
-                       T600 270
-                       V300
-                       H0Z"
-                    fill="white"
-                />
-
-
-                <!-- Main building -->
-
-                <rect
-                    x="170"
-                    y="125"
-                    width="260"
-                    height="145"
-                    rx="3"
-                    fill="white"
-                />
-
-
-                <!-- Roof -->
-
-                <path
-                    d="M145 130
-                       L300 45
-                       L455 130
-                       Z"
-                    fill="white"
-                />
-
-
-                <!-- Entrance -->
-
-                <rect
-                    x="270"
-                    y="190"
-                    width="60"
-                    height="80"
-                    fill="#1769ff"
-                />
-
-
-                <!-- Door top -->
-
-                <path
-                    d="M270 190
-                       Q300 160 330 190
-                       Z"
-                    fill="#1769ff"
-                />
-
-
-                <!-- Windows -->
-
-                <rect
-                    x="200"
-                    y="155"
-                    width="42"
-                    height="42"
-                    fill="#1769ff"
-                />
-
-                <rect
-                    x="358"
-                    y="155"
-                    width="42"
-                    height="42"
-                    fill="#1769ff"
-                />
-
-
-                <rect
-                    x="200"
-                    y="215"
-                    width="42"
-                    height="35"
-                    fill="#1769ff"
-                />
-
-                <rect
-                    x="358"
-                    y="215"
-                    width="42"
-                    height="35"
-                    fill="#1769ff"
-                />
-
-
-                <!-- Clock -->
-
-                <circle
-                    cx="300"
-                    cy="103"
-                    r="24"
-                    fill="white"
-                />
-
-                <circle
-                    cx="300"
-                    cy="103"
-                    r="20"
-                    fill="#1769ff"
-                />
-
-                <line
-                    x1="300"
-                    y1="103"
-                    x2="300"
-                    y2="91"
-                    stroke="white"
-                    stroke-width="3"
-                />
-
-                <line
-                    x1="300"
-                    y1="103"
-                    x2="311"
-                    y2="108"
-                    stroke="white"
-                    stroke-width="3"
-                />
-
-
-                <!-- Trees -->
-
-                <circle
-                    cx="105"
-                    cy="205"
-                    r="35"
-                    fill="white"
-                />
-
-                <rect
-                    x="98"
-                    y="230"
-                    width="14"
-                    height="40"
-                    fill="white"
-                />
-
-
-                <circle
-                    cx="495"
-                    cy="205"
-                    r="35"
-                    fill="white"
-                />
-
-                <rect
-                    x="488"
-                    y="230"
-                    width="14"
-                    height="40"
-                    fill="white"
-                />
-
-
-                <!-- Clouds -->
-
-                <circle
-                    cx="75"
-                    cy="155"
-                    r="20"
-                    fill="white"
-                />
-
-                <circle
-                    cx="100"
-                    cy="145"
-                    r="28"
-                    fill="white"
-                />
-
-                <circle
-                    cx="130"
-                    cy="155"
-                    r="20"
-                    fill="white"
-                />
-
-
-                <circle
-                    cx="470"
-                    cy="125"
-                    r="18"
-                    fill="white"
-                />
-
-                <circle
-                    cx="495"
-                    cy="115"
-                    r="25"
-                    fill="white"
-                />
-
-                <circle
-                    cx="525"
-                    cy="125"
-                    r="18"
-                    fill="white"
-                />
-
-            </svg>
-
-        </div>
-
-
-    </div>
-
-
-
-    <!-- =====================================================
-         RIGHT PANEL
-    ====================================================== -->
-
-    <div class="right-panel">
-
-
-        <h2 class="welcome-title">
-            Set Up Two-Factor Authentication
-        </h2>
-
-
-        <p class="welcome-text">
-
-            Scan this QR code using
-            <strong>Google Authenticator</strong>
-            or another authenticator app.
-
-        </p>
-
-
-        <!-- INFO -->
-
-        <div class="info-box">
-
-            <div class="info-icon">
-                🔐
-            </div>
-
-            <div>
-
-                <strong>
-                    Secure your administrator account
-                </strong>
-
-                <span>
-                    Scan the QR code below to connect
-                    your authenticator app with
-                    Gurukul Vidyalaya.
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- QR CODE -->
-
-        <div class="qr-wrapper">
-
-            <div class="qr-box">
-
-                {!! $qrCodeUrl !!}
-
-            </div>
-
-        </div>
-
-
-        <!-- SECRET -->
-
-        <span class="secret-label">
-
-            Can't scan the QR code?
-
-        </span>
-
-
-        <div class="secret">
-
-            {{ $secret }}
-
-        </div>
-
-
-        <!-- ERRORS -->
-
-        @if ($errors->any())
-
-            <div class="error-box">
-
-                <span>!</span>
-
-                {{ $errors->first() }}
-
-            </div>
-
-        @endif
-
-
-        <!-- VERIFICATION FORM -->
-
-        <form
-            method="POST"
-            action="{{ route('admin.2fa.verify') }}"
-        >
-
-            @csrf
-
-
-            <div class="form-group">
-
-                <label for="code">
-
-                    Enter the 6-digit code
-                    from Google Authenticator
-
-                </label>
-
+                @csrf
 
                 <input
-                    id="code"
-                    class="code-input"
                     type="text"
                     name="code"
+                    class="otp-input"
                     inputmode="numeric"
                     maxlength="6"
                     pattern="[0-9]{6}"
@@ -1264,54 +720,25 @@
                     required
                 >
 
-            </div>
+                <button
+                    type="submit"
+                    class="verify-button"
+                >
+                    Verify & Continue →
+                </button>
+
+            </form>
 
 
-            <button
-                type="submit"
-                class="login-button"
-            >
-
-                Verify & Continue
-
-                <span>
-                    →
-                </span>
-
-            </button>
-
-
-        </form>
-
-
-        <div class="help-text">
-
-            <div class="help-icon">
-                🔒
-            </div>
-
-            <div>
-                Your authentication code changes
-                every 30 seconds. Keep your
-                authenticator app secure.
+            <div class="security-note">
+                🔒 Your account is protected with two-factor authentication.
             </div>
 
         </div>
-
-
-        <div class="system-name">
-
-            Gurukul Vidyalaya · School Management System
-
-        </div>
-
 
     </div>
 
-
 </div>
 
-
 </body>
-
 </html>
