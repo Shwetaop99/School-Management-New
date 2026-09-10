@@ -721,11 +721,13 @@
                class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                data-search="dashboard home">
 
-                <span class="sidebar-icon">⌂</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-tachometer-alt"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Dashboard
-                </span>
+<span class="sidebar-label">
+    Dashboard
+</span>
 
             </a>
 

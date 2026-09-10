@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\TwoFactorController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\NoticeController;
+use App\Http\Controllers\Class\SchoolClassController;
+use App\Http\Controllers\Class\SubjectController;
 
 
 /*
@@ -205,3 +207,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     ])->middleware('auth')->name('logout');
 
 });
+
+// Class Management Routes
+
+Route::resource('admin/classes', SchoolClassController::class)
+    ->names('admin.classes');
+
+Route::resource('subjects', \App\Http\Controllers\Class\SubjectController::class)
+    ->names('admin.subjects');
