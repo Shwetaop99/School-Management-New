@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <title>@yield('title', 'School Management')</title>
 
@@ -738,11 +739,13 @@
                     data-submenu="student-menu"
                     data-search="student students">
 
-                <span class="sidebar-icon">♟</span>
+                <span class="sidebar-icon">
+    <i class="fa fa-user-graduate"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Student
-                </span>
+<span class="sidebar-label">
+    Student
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -806,11 +809,13 @@
                     data-submenu="faculty-menu"
                     data-search="faculty teacher teachers">
 
-                <span class="sidebar-icon">♟</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-chalkboard-teacher"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Faculty (Teacher)
-                </span>
+<span class="sidebar-label">
+    Faculty (Teacher)
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -872,11 +877,13 @@
                     data-submenu="timetable-menu"
                     data-search="time table timetable schedule">
 
-                <span class="sidebar-icon">▦</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-table"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Time Table
-                </span>
+<span class="sidebar-label">
+    Time Table
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -913,11 +920,13 @@
                     data-submenu="attendance-menu"
                     data-search="attendance student faculty mark">
 
-                <span class="sidebar-icon">✓</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-check"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Attendance
-                </span>
+<span class="sidebar-label">
+    Attendance
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -999,11 +1008,13 @@
                class="sidebar-item {{ request()->routeIs('admin.exam.*') ? 'active' : '' }}"
                data-search="exam examination">
 
-                <span class="sidebar-icon">▣</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-file-alt"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Exam
-                </span>
+<span class="sidebar-label">
+    Exam
+</span>
 
             </a>
 
@@ -1017,11 +1028,13 @@
                     data-submenu="result-menu"
                     data-search="result results marks grade">
 
-                <span class="sidebar-icon">▥</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-chart-bar"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Result
-                </span>
+<span class="sidebar-label">
+    Result
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1068,11 +1081,13 @@
                     data-submenu="notice-menu"
                     data-search="notice notices announcement">
 
-                <span class="sidebar-icon">⚑</span>
+               <span class="sidebar-icon">
+    <i class="fas fa-flag"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Notice
-                </span>
+<span class="sidebar-label">
+    Notice
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1087,16 +1102,6 @@
                     All Notices
                 </a>
 
-                <a href="{{ route('admin.notices.index') }}"
-                   class="submenu-item">
-                    Create Notice
-                </a>
-
-                <a href="{{ route('admin.notices.index') }}"
-                   class="submenu-item">
-                    Publish
-                </a>
-
             </div>
 
 
@@ -1109,11 +1114,13 @@
                     data-submenu="library-menu"
                     data-search="library books issue return fine">
 
-                <span class="sidebar-icon">▤</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-book"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Library
-                </span>
+<span class="sidebar-label">
+    Library
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1172,11 +1179,13 @@
                     data-submenu="transport-menu"
                     data-search="transport bus vehicle">
 
-                <span class="sidebar-icon">▣</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-bus"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Transport
-                </span>
+<span class="sidebar-label">
+    Transport
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1211,11 +1220,13 @@
                     data-submenu="meal-menu"
                     data-search="meal meals food stock">
 
-                <span class="sidebar-icon">♨</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-utensils"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Meal Management
-                </span>
+<span class="sidebar-label">
+    Meal Management
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1244,11 +1255,13 @@
                class="sidebar-item {{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}"
                data-search="payroll salary">
 
-                <span class="sidebar-icon">▤</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-money-check-alt"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Payroll
-                </span>
+<span class="sidebar-label">
+    Payroll
+</span>
 
             </a>
 
@@ -1259,11 +1272,13 @@
                class="sidebar-item {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}"
                data-search="sports">
 
-                <span class="sidebar-icon">♜</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-futbol"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Sports
-                </span>
+<span class="sidebar-label">
+    Sports
+</span>
 
             </a>
 
@@ -1274,11 +1289,13 @@
                class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}"
                data-search="scholarship">
 
-                <span class="sidebar-icon">♢</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-graduation-cap"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Scholarship
-                </span>
+<span class="sidebar-label">
+    Scholarship
+</span>
 
             </a>
 
@@ -1290,11 +1307,13 @@
                     data-submenu="class-menu"
                     data-search="class classes division subjects">
 
-                <span class="sidebar-icon">▦</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-chalkboard"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Class
-                </span>
+<span class="sidebar-label">
+    Class
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1324,11 +1343,13 @@
                     data-submenu="settings-menu"
                     data-search="settings role permission users backup">
 
-                <span class="sidebar-icon">⚙</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-cog"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Settings
-                </span>
+<span class="sidebar-label">
+    Settings
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1368,11 +1389,13 @@
 
                 <button type="submit" class="logout-button">
 
-                    <span>⇥</span>
+                    <span class="sidebar-icon">
+    <i class="fas fa-sign-out-alt"></i>
+</span>
 
-                    <span>
-                        Logout
-                    </span>
+<span class="sidebar-label">
+    Logout
+</span>
 
                 </button>
 

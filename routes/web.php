@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\TwoFactorController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\NoticeController;
 
 
 /*
@@ -42,15 +43,35 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('auth')->group(function () {
 
-        Route::get('/2fa/setup', [
-            TwoFactorController::class,
-            'showSetup'
-        ])->name('2fa.setup');
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
-        Route::post('/2fa/verify', [
-            TwoFactorController::class,
-            'verify'
-        ])->name('2fa.verify');
+    // Notice Management
+    Route::get('/notices', [NoticeController::class, 'index'])
+        ->name('notices.index');
+
+    Route::get('/notices/create', [NoticeController::class, 'create'])
+        ->name('notices.create');
+
+    Route::post('/notices', [NoticeController::class, 'store'])
+    ->name('notices.store');
+
+    Route::get('/notices/{notice}', [NoticeController::class, 'show'])
+    ->name('notices.show');
+
+    Route::get('/notices/create', [NoticeController::class, 'create'])
+    ->name('notices.create');
+
+    Route::get('/notices/{notice}/edit', [NoticeController::class, 'edit'])
+    ->name('notices.edit');
+
+    Route::put('/notices/{notice}', [NoticeController::class, 'update'])
+    ->name('notices.update');
+
+    Route::delete('/notices/{notice}', [NoticeController::class, 'destroy'])
+    ->name('notices.destroy');
+
 
 
         /*
@@ -75,6 +96,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/students', function () {
             return 'Student Management';
         })->name('students.index');
+
+        Route::get('/attendance/student', function () {
+    return view('admin.attendance.student');
+})->name('attendance.student');
 
 
         // Faculty / Teacher
@@ -114,9 +139,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
         // Notice
-        Route::get('/notices', function () {
-            return 'Notice Management';
-        })->name('notices.index');
+        Route::get('/notices', [NoticeController::class, 'index'])
+    ->name('notices.index');
 
 
         // Library
