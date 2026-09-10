@@ -7,6 +7,7 @@
 @section('content')
 
 <style>
+
     /* =========================================
        SUBJECT PAGE
     ========================================= */
@@ -93,6 +94,97 @@
     }
 
     /* =========================================
+       CLASS FILTER
+    ========================================= */
+
+    .subject-filter {
+        background: #fff;
+        border: 1px solid #e7edf5;
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-bottom: 22px;
+        box-shadow: 0 2px 8px rgba(25, 55, 95, .025);
+    }
+
+    .subject-filter-form {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 280px;
+    }
+
+    .filter-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #26344a;
+    }
+
+    .class-select {
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid #dfe7f1;
+        border-radius: 7px;
+        background: #fff;
+        color: #26344a;
+        font-size: 13px;
+        outline: none;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .class-select:focus {
+        border-color: #147cf5;
+        box-shadow: 0 0 0 3px rgba(20, 124, 245, .10);
+    }
+
+    .filter-btn {
+        height: 40px;
+        padding: 0 16px;
+        border: none;
+        border-radius: 7px;
+        background: linear-gradient(135deg, #147cf5, #1268ca);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .filter-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(20, 124, 245, .18);
+    }
+
+    .clear-filter-btn {
+        height: 40px;
+        padding: 0 16px;
+        border: 1px solid #dfe7f1;
+        border-radius: 7px;
+        background: #f8fafc;
+        color: #64748b;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all .2s ease;
+    }
+
+    .clear-filter-btn:hover {
+        background: #eef5ff;
+        border-color: #dbeaff;
+        color: #1769d1;
+    }
+
+    /* =========================================
        DASHBOARD SUMMARY CARDS
     ========================================= */
 
@@ -122,7 +214,6 @@
         box-shadow: 0 10px 24px rgba(25, 55, 95, .14);
     }
 
-    /* Decorative circles */
     .summary-card::before {
         content: "";
         position: absolute;
@@ -145,22 +236,18 @@
         background: rgba(255, 255, 255, .07);
     }
 
-    /* Dashboard BLUE */
     .summary-blue {
         background: linear-gradient(135deg, #147cf5, #1268ca);
     }
 
-    /* Dashboard ORANGE */
     .summary-orange {
         background: linear-gradient(135deg, #ffb238, #ff9d1c);
     }
 
-    /* Dashboard RED */
     .summary-red {
         background: linear-gradient(135deg, #ff6d61, #f65343);
     }
 
-    /* Dashboard CYAN */
     .summary-cyan {
         background: linear-gradient(135deg, #2bcfe8, #18b5d5);
     }
@@ -580,9 +667,11 @@
     ========================================= */
 
     @media (max-width: 1100px) {
+
         .subject-summary {
             grid-template-columns: repeat(2, 1fr);
         }
+
     }
 
     @media (max-width: 768px) {
@@ -604,7 +693,23 @@
             align-items: flex-start;
             flex-direction: column;
         }
+
+        .subject-filter-form {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .filter-group {
+            min-width: 100%;
+        }
+
+        .filter-btn,
+        .clear-filter-btn {
+            width: 100%;
+        }
+
     }
+
 </style>
 
 
@@ -639,8 +744,11 @@
             href="{{ route('admin.subjects.create') }}"
             class="btn-primary-custom"
         >
+
             <span class="btn-plus">＋</span>
+
             Add Subject
+
         </a>
 
     </div>
@@ -666,12 +774,86 @@
 
 
     {{-- =========================================
+         CLASS FILTER
+    ========================================== --}}
+
+    <div class="subject-filter">
+
+        <form
+            action="{{ route('admin.subjects.index') }}"
+            method="GET"
+            class="subject-filter-form"
+        >
+
+            <div class="filter-group">
+
+                <label
+                    for="class_id"
+                    class="filter-label"
+                >
+                    Select Class
+                </label>
+
+                <select
+                    name="class_id"
+                    id="class_id"
+                    class="class-select"
+                >
+
+                    <option value="">
+                        All Classes
+                    </option>
+
+                    @foreach($classes as $class)
+
+                        <option
+                            value="{{ $class->id }}"
+                            {{ request('class_id') == $class->id ? 'selected' : '' }}
+                        >
+                            Class {{ $class->class_name }}
+                            - Section {{ $class->section }}
+                            ({{ $class->academic_year }})
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="filter-btn"
+            >
+                Show Subjects
+            </button>
+
+
+            @if(request()->filled('class_id'))
+
+                <a
+                    href="{{ route('admin.subjects.index') }}"
+                    class="clear-filter-btn"
+                >
+                    Clear Filter
+                </a>
+
+            @endif
+
+        </form>
+
+    </div>
+
+
+    {{-- =========================================
          DASHBOARD SUMMARY CARDS
     ========================================== --}}
 
     <div class="subject-summary">
 
         {{-- BLUE --}}
+
         <div class="summary-card summary-blue">
 
             <div class="summary-icon">
@@ -692,6 +874,7 @@
 
 
         {{-- ORANGE --}}
+
         <div class="summary-card summary-orange">
 
             <div class="summary-icon">
@@ -712,6 +895,7 @@
 
 
         {{-- RED --}}
+
         <div class="summary-card summary-red">
 
             <div class="summary-icon">
@@ -732,6 +916,7 @@
 
 
         {{-- CYAN --}}
+
         <div class="summary-card summary-cyan">
 
             <div class="summary-icon">
@@ -765,9 +950,29 @@
 
                 <span class="card-title-dot"></span>
 
-                <h3>All Subjects</h3>
+                <h3>
+
+                    @if(request()->filled('class_id'))
+
+                        @php
+                            $selectedClass = $classes->firstWhere('id', request('class_id'));
+                        @endphp
+
+                        {{ $selectedClass
+                            ? 'Subjects - Class ' . $selectedClass->class_name . ' - Section ' . $selectedClass->section
+                            : 'Subjects'
+                        }}
+
+                    @else
+
+                        All Subjects
+
+                    @endif
+
+                </h3>
 
             </div>
+
 
             <span class="subject-count">
 
@@ -789,14 +994,23 @@
                     <thead>
 
                         <tr>
+
                             <th>#</th>
+
                             <th>Subject</th>
+
                             <th>Subject Code</th>
+
                             <th>Class</th>
+
                             <th>Section</th>
+
                             <th>Academic Year</th>
+
                             <th>Status</th>
+
                             <th>Actions</th>
+
                         </tr>
 
                     </thead>
@@ -809,9 +1023,11 @@
                             <tr>
 
                                 <td>
+
                                     <span class="row-number">
                                         {{ $loop->iteration }}
                                     </span>
+
                                 </td>
 
 
@@ -998,16 +1214,30 @@
 
                 <h4>No Subjects Found</h4>
 
-                <p>
-                    Start by adding your first subject to a school class.
-                </p>
+                @if(request()->filled('class_id'))
+
+                    <p>
+                        No subjects have been assigned to the selected class yet.
+                    </p>
+
+                @else
+
+                    <p>
+                        Start by adding your first subject to a school class.
+                    </p>
+
+                @endif
+
 
                 <a
                     href="{{ route('admin.subjects.create') }}"
                     class="btn-primary-custom"
                 >
+
                     <span class="btn-plus">＋</span>
-                    Add First Subject
+
+                    Add Subject
+
                 </a>
 
             </div>
@@ -1019,4 +1249,3 @@
 </div>
 
 @endsection
-

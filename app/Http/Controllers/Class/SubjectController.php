@@ -9,13 +9,25 @@ use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $subjects = Subject::with('schoolClass')
-            ->latest()
+        $classes = SchoolClass::where('status', true)
+            ->orderBy('class_name')
             ->get();
 
-        return view('admin.subjects.index', compact('subjects'));
+        $subjectsQuery = Subject::with('schoolClass')
+            ->latest();
+
+        if ($request->filled('class_id')) {
+            $subjectsQuery->where('class_id', $request->class_id);
+        }
+
+        $subjects = $subjectsQuery->get();
+
+        return view('admin.subjects.index', compact(
+            'subjects',
+            'classes'
+        ));
     }
 
     public function create()
