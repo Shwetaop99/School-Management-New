@@ -1309,10 +1309,9 @@
                     Classes
                 </a>
 
-                <a href="{{ route('admin.classes.index') }}"
-                   class="submenu-item">
-                    Subjects
-                </a>
+               <a href="{{ route('admin.subjects.index') }}" class="submenu-item">
+    Subjects
+</a>
 
             </div>
 
