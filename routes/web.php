@@ -5,8 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\TwoFactorController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\NoticeController;
-
+use App\Http\Controllers\Class\SchoolClassController;
+use App\Http\Controllers\Class\SubjectController;
+use App\Http\Controllers\Meal\MealItemController;
+use App\Http\Controllers\Meal\MealStockLogController;
+use App\Http\Controllers\Meal\MealStockTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,35 +46,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('auth')->group(function () {
 
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+        Route::get('/2fa/setup', [
+            TwoFactorController::class,
+            'showSetup'
+        ])->name('2fa.setup');
 
-    // Notice Management
-    Route::get('/notices', [NoticeController::class, 'index'])
-        ->name('notices.index');
-
-    Route::get('/notices/create', [NoticeController::class, 'create'])
-        ->name('notices.create');
-
-    Route::post('/notices', [NoticeController::class, 'store'])
-    ->name('notices.store');
-
-    Route::get('/notices/{notice}', [NoticeController::class, 'show'])
-    ->name('notices.show');
-
-    Route::get('/notices/create', [NoticeController::class, 'create'])
-    ->name('notices.create');
-
-    Route::get('/notices/{notice}/edit', [NoticeController::class, 'edit'])
-    ->name('notices.edit');
-
-    Route::put('/notices/{notice}', [NoticeController::class, 'update'])
-    ->name('notices.update');
-
-    Route::delete('/notices/{notice}', [NoticeController::class, 'destroy'])
-    ->name('notices.destroy');
-
+        Route::post('/2fa/verify', [
+            TwoFactorController::class,
+            'verify'
+        ])->name('2fa.verify');
 
 
         /*
@@ -96,10 +79,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/students', function () {
             return 'Student Management';
         })->name('students.index');
-
-        Route::get('/attendance/student', function () {
-    return view('admin.attendance.student');
-})->name('attendance.student');
 
 
         // Faculty / Teacher
@@ -139,8 +118,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
         // Notice
-        Route::get('/notices', [NoticeController::class, 'index'])
-    ->name('notices.index');
+        Route::get('/notices', function () {
+            return 'Notice Management';
+        })->name('notices.index');
 
 
         // Library
@@ -205,3 +185,59 @@ Route::prefix('admin')->name('admin.')->group(function () {
     ])->middleware('auth')->name('logout');
 
 });
+
+// Class Management Routes
+
+Route::resource('admin/classes', SchoolClassController::class)
+    ->names('admin.classes');
+
+Route::resource('subjects', \App\Http\Controllers\Class\SubjectController::class)
+    ->names('admin.subjects');
+
+//   Meal management
+
+ Route::prefix('admin/meal/items')
+    ->name('admin.meal.items.')
+    ->group(function () {
+
+        Route::get('/', [MealItemController::class, 'index'])
+            ->name('index');
+
+        Route::get('/create', [MealItemController::class, 'create'])
+            ->name('create');
+
+        Route::post('/', [MealItemController::class, 'store'])
+            ->name('store');
+
+        Route::get('/{mealItem}/edit', [MealItemController::class, 'edit'])
+            ->name('edit');
+
+        Route::put('/{mealItem}', [MealItemController::class, 'update'])
+            ->name('update');
+
+        Route::delete('/{mealItem}', [MealItemController::class, 'destroy'])
+            ->name('destroy');
+
+        Route::get('/stock', [MealStockTransactionController::class, 'index'])
+            ->name('stock.index');
+
+        Route::get('/stock/create', [MealStockTransactionController::class, 'create'])
+            ->name('stock.create');
+
+        Route::post('/stock', [MealStockTransactionController::class, 'store'])
+            ->name('stock.store');
+    });
+
+Route::prefix('admin/meal/logs')
+    ->name('admin.meal.logs.')
+    ->group(function () {
+
+        // Logs list
+        Route::get('/', [MealStockLogController::class, 'index'])
+            ->name('index');
+
+        // Log details
+        Route::get('/{mealStockLog}', [MealStockLogController::class, 'show'])
+            ->name('show');
+    });
+   

@@ -1232,21 +1232,21 @@
 
             </button>
 
-            <div class="submenu
-                        {{ request()->routeIs('admin.meals.*') ? 'open' : '' }}"
-                 id="meal-menu">
+          <div class="submenu {{ request()->routeIs('admin.meal.items.*', 'admin.meal.stock.*', 'admin.meal.logs.*') ? 'open' : '' }}"
+     id="meal-menu">
 
-                <a href="{{ route('admin.meals.index') }}"
-                   class="submenu-item">
-                    Stock In / Stock Out
-                </a>
+    <a href="{{ route('admin.meal.items.index') }}"
+       class="submenu-item {{ request()->routeIs('admin.meal.stock.*') ? 'active' : '' }}">
+        Stock In / Stock Out
+    </a>
 
-                <a href="{{ route('admin.meals.index') }}"
-                   class="submenu-item">
-                    Logs
-                </a>
+     <a href="{{ route('admin.meal.logs.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">
+    Logs
+</a>
 
-            </div>
+
+</div>
 
 
             <!-- Payroll -->
@@ -1328,10 +1328,9 @@
                     Classes
                 </a>
 
-                <a href="{{ route('admin.classes.index') }}"
-                   class="submenu-item">
-                    Subjects
-                </a>
+               <a href="{{ route('admin.subjects.index') }}" class="submenu-item">
+    Subjects
+</a>
 
             </div>
 
