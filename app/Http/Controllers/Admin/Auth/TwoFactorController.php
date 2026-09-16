@@ -112,7 +112,6 @@ class TwoFactorController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | Get authenticated user
@@ -124,7 +123,6 @@ class TwoFactorController extends Controller
         if (!$user) {
             return redirect()->route('admin.login');
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -138,7 +136,6 @@ class TwoFactorController extends Controller
             $user->two_factor_secret,
             $request->code
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -155,7 +152,6 @@ class TwoFactorController extends Controller
                 ->withInput();
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | 2FA successful
@@ -166,7 +162,6 @@ class TwoFactorController extends Controller
             'two_factor_verified',
             true
         );
-
 
         /*
         |--------------------------------------------------------------------------
