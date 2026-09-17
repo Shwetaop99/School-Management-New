@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>@yield('title', 'School Management')</title>
-
+<link
+    rel="stylesheet"
+    href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css)"
+>
     <style>
         * {
             box-sizing: border-box;
@@ -820,46 +823,24 @@
                         {{ request()->routeIs('admin.faculty.*') ? 'open' : '' }}"
                  id="faculty-menu">
 
-                <a href="{{ route('admin.faculty.index') }}"
+                <a href="{{ route('admin.teachers.index') }}"
                    class="submenu-item">
-                    All Faculty
+                    All Teachers
                 </a>
 
-                <a href="{{ route('admin.faculty.index') }}"
+                
+
+                
+                <a href="{{ route('admin.teachers.assign-class.index') }}"
                    class="submenu-item">
-                    Add Faculty
+                    Teacher Allocation
                 </a>
 
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Faculty Profile
-                </a>
 
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="submenu-item">
-                    Attendance
-                </a>
 
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Class Teacher Assignment
-                </a>
+      
 
-                <a href="{{ route('admin.timetable.index') }}"
-                   class="submenu-item">
-                    Time Table
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Salary
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Report
-                </a>
-
+                
             </div>
 
 
@@ -868,7 +849,7 @@
             ================================================== -->
 
             <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.timetable.*') ? 'active open' : '' }}"
+                    {{ request()->routeIs('admin.timetable.index') ? 'active open' : '' }}"
                     data-submenu="timetable-menu"
                     data-search="time table timetable schedule">
 
@@ -886,12 +867,12 @@
                         {{ request()->routeIs('admin.timetable.*') ? 'open' : '' }}"
                  id="timetable-menu">
 
-                <a href="{{ route('admin.timetable.index') }}"
+                <a href="{{ route('admin.timetable.class') }}"
                    class="submenu-item">
                     Class Timetable
                 </a>
 
-                <a href="{{ route('admin.timetable.index') }}"
+                <a href="{{ route('admin.timetable.teacher') }}"
                    class="submenu-item">
                     Teacher Timetable
                 </a>
@@ -1237,11 +1218,16 @@
 
             </div>
 
+            
+                <a href="{{ route('admin.teachers.salary.index') }}"
+                   class="submenu-item">
+                    Salary
+                </a>
 
             <!-- Payroll -->
 
-            <a href="{{ route('admin.payroll.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}"
+            <a href="{{ route('admin.teachers.salary.index') }}"
+               class="sidebar-item {{ request()->routeIs('admin.teachers.salary.index') ? 'active' : '' }}"
                data-search="payroll salary">
 
                 <span class="sidebar-icon">▤</span>

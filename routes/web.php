@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\TwoFactorController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\TeacherSalaryController;
+use App\Http\Controllers\Admin\TimetableController;
+use App\Http\Controllers\Admin\TeacherReportController;
+use App\Http\Controllers\Admin\ClassTeacherController;
 
 
 /*
@@ -36,11 +41,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | TWO FACTOR AUTHENTICATION
+    | AUTHENTICATED ADMIN ROUTES
     |--------------------------------------------------------------------------
     */
 
     Route::middleware('auth')->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | TWO FACTOR AUTHENTICATION
+        |--------------------------------------------------------------------------
+        */
 
         Route::get('/2fa/setup', [
             TwoFactorController::class,
@@ -77,91 +88,290 @@ Route::prefix('admin')->name('admin.')->group(function () {
         })->name('students.index');
 
 
-        // Faculty / Teacher
-        Route::get('/faculty', function () {
-            return 'Faculty Management';
-        })->name('faculty.index');
+        /*
+        |--------------------------------------------------------------------------
+        | ASSIGN CLASS TEACHER
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('teachers/assign-class')
+            ->name('teachers.assign-class.')
+            ->group(function () {
+
+                Route::get('/', [
+                    ClassTeacherController::class,
+                    'index'
+                ])->name('index');
+
+                Route::get('/create', [
+                    ClassTeacherController::class,
+                    'create'
+                ])->name('create');
+
+                Route::post('/', [
+                    ClassTeacherController::class,
+                    'store'
+                ])->name('store');
+
+                Route::get('/{assignment}/edit', [
+                    ClassTeacherController::class,
+                    'edit'
+                ])->name('edit');
+
+                Route::put('/{assignment}', [
+                    ClassTeacherController::class,
+                    'update'
+                ])->name('update');
+
+                Route::delete('/{assignment}', [
+                    ClassTeacherController::class,
+                    'destroy'
+                ])->name('destroy');
+            });
 
 
-        // Time Table
-        Route::get('/timetable', function () {
-            return 'Time Table';
-        })->name('timetable.index');
+        /*
+        |--------------------------------------------------------------------------
+        | TEACHER SALARY
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('teachers/salary')
+            ->name('teachers.salary.')
+            ->group(function () {
+
+                // Salary list
+                Route::get('/', [
+                    TeacherSalaryController::class,
+                    'index'
+                ])->name('index');
+
+                // Generate salary
+                Route::get('/create', [
+                    TeacherSalaryController::class,
+                    'create'
+                ])->name('create');
+
+                // Store salary
+                Route::post('/', [
+                    TeacherSalaryController::class,
+                    'store'
+                ])->name('store');
+
+                // View salary
+                Route::get('/{teacherSalary}', [
+                    TeacherSalaryController::class,
+                    'show'
+                ])->name('show');
+
+                // Edit salary
+                Route::get('/{teacherSalary}/edit', [
+                    TeacherSalaryController::class,
+                    'edit'
+                ])->name('edit');
+
+                // Update salary
+                Route::put('/{teacherSalary}', [
+                    TeacherSalaryController::class,
+                    'update'
+                ])->name('update');
+
+                // Delete salary
+                Route::delete('/{teacherSalary}', [
+                    TeacherSalaryController::class,
+                    'destroy'
+                ])->name('destroy');
+            });
 
 
-        // Attendance
+            // Teacher Reports
+Route::get('/teachers/reports', [TeacherReportController::class, 'index'])
+    ->name('teachers.reports.index');
+
+Route::get('/teachers/reports/{teacher}', [TeacherReportController::class, 'show'])
+    ->name('teachers.reports.show');
+
+Route::get('/teachers/reports/{teacher}/pdf', [TeacherReportController::class, 'pdf'])
+    ->name('teachers.reports.pdf');
+
+Route::get('/teachers/reports/{teacher}/excel', [TeacherReportController::class, 'excel'])
+    ->name('teachers.reports.excel');
+
+        /*
+        |--------------------------------------------------------------------------
+        | FACULTY / TEACHER
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('teachers', TeacherController::class);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TIME TABLE
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('timetable', TimetableController::class)
+            ->except(['show']);
+
+      Route::get('/timetable/class', [TimetableController::class, 'classTimetable'])
+    ->name('timetable.class');
+    
+Route::get('timetable/class/pdf', [TimetableController::class, 'classPdf'])
+    ->name('timetable.class.pdf');
+
+Route::get('timetable/class/excel', [TimetableController::class, 'classExcel'])
+    ->name('timetable.class.excel');
+    
+    Route::get(
+    'timetable/teacher',
+    [TimetableController::class, 'teacherTimetable']
+)->name('timetable.teacher');
+
+    Route::get(
+    'timetable/next-time',
+    [TimetableController::class, 'nextTime']
+)->name('timetable.next-time');
+
+        /*
+        |--------------------------------------------------------------------------
+        | ATTENDANCE
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/attendance', function () {
             return 'Attendance Management';
         })->name('attendance.index');
 
 
-        // Fees
+        /*
+        |--------------------------------------------------------------------------
+        | FEES
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/fees', function () {
             return 'Fees Management';
         })->name('fees.index');
 
 
-        // Exam
+        /*
+        |--------------------------------------------------------------------------
+        | EXAM
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/exam', function () {
             return 'Exam Management';
         })->name('exam.index');
 
 
-        // Results
+        /*
+        |--------------------------------------------------------------------------
+        | RESULTS
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/results', function () {
             return 'Result Management';
         })->name('results.index');
 
 
-        // Notice
+        /*
+        |--------------------------------------------------------------------------
+        | NOTICE
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/notices', function () {
             return 'Notice Management';
         })->name('notices.index');
 
 
-        // Library
+        /*
+        |--------------------------------------------------------------------------
+        | LIBRARY
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/library', function () {
             return 'Library Management';
         })->name('library.index');
 
 
-        // Transport
+        /*
+        |--------------------------------------------------------------------------
+        | TRANSPORT
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/transport', function () {
             return 'Transport Management';
         })->name('transport.index');
 
 
-        // Meal Management
+        /*
+        |--------------------------------------------------------------------------
+        | MEAL MANAGEMENT
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/meals', function () {
             return 'Meal Management';
         })->name('meals.index');
 
 
-        // Payroll
+        /*
+        |--------------------------------------------------------------------------
+        | PAYROLL
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/payroll', function () {
             return 'Payroll Management';
         })->name('payroll.index');
 
 
-        // Sports
+        /*
+        |--------------------------------------------------------------------------
+        | SPORTS
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/sports', function () {
             return 'Sports Management';
         })->name('sports.index');
 
 
-        // Scholarship
+        /*
+        |--------------------------------------------------------------------------
+        | SCHOLARSHIP
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/scholarship', function () {
             return 'Scholarship Management';
         })->name('scholarship.index');
 
 
-        // Class
+        /*
+        |--------------------------------------------------------------------------
+        | CLASS
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/classes', function () {
             return 'Class Management';
         })->name('classes.index');
 
 
-        // Settings
+        /*
+        |--------------------------------------------------------------------------
+        | SETTINGS
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/settings', function () {
             return 'Settings';
         })->name('settings.index');
@@ -181,3 +391,4 @@ Route::prefix('admin')->name('admin.')->group(function () {
     ])->middleware('auth')->name('logout');
 
 });
+
