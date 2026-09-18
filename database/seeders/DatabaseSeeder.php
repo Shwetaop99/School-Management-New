@@ -9,6 +9,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Create / update admin user
         User::updateOrCreate(
             [
                 'email' => 'admin@example.com',
@@ -18,5 +19,10 @@ class DatabaseSeeder extends Seeder
                 'password' => 'Admin@12345',
             ]
         );
+
+        // Seed roles and permissions
+        $this->call([
+            RolePermissionSeeder::class,
+        ]);
     }
 }
