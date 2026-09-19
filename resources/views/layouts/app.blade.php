@@ -955,6 +955,7 @@
                 </button>
                 <div class="submenu {{ request()->routeIs('admin.settings.*') ? 'open' : '' }}" id="settings-menu">
                     @if($can('settings.view'))
+                    
                         <a href="{{ route('admin.settings.index') }}" class="submenu-item">School Profile</a>
                         <a href="{{ route('admin.settings.index') }}" class="submenu-item">Backup & Recovery</a>
                     @endif
