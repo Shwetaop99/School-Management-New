@@ -990,7 +990,7 @@
 
             </div>
 
-            <a href="{{ route('admin.faculty.index') }}" class="stat-link">
+            <a href="{{ route('admin.teachers.index') }}" class="stat-link">
                 View faculty →
             </a>
 
@@ -1528,7 +1528,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.faculty.index') }}" class="quick-action">
+                    <a href="{{ route('admin.teachers.index') }}" class="quick-action">
 
                         <i class="bi bi-person-workspace"></i>
 

@@ -348,13 +348,10 @@ Route::get('/dashboard', [
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/notices', [
-                NoticeController::class,
-                'index'
-            ])
-                ->name('notices.index')
-                ->middleware('permission:notices.view');
 
+            Route::get('/notices', [NoticeController::class, 'index'])
+    ->name('notices.index');
+    
             Route::get('/notices/create', [
                 NoticeController::class,
                 'create'
@@ -1403,28 +1400,7 @@ Route::resource(
             })->name('results.index');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | NOTICES
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/notices', function () {
-                return 'Notice Management';
-            })->name('notices.index');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | LIBRARY
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/library', function () {
-                return 'Library Management';
-            })->name('library.index');
-
-
+        
             /*
             |--------------------------------------------------------------------------
             | CLASS MANAGEMENT
@@ -1482,44 +1458,23 @@ Route::resource(
                     ])->name('destroy');
                 });
 
-            // Settings
-            Route::get('/settings', function () {
-                return 'Settings';
-            })
-                ->name('settings.index')
-                ->middleware('permission:settings.view');
-
 
         });
 
+/*
+|--------------------------------------------------------------------------
+| ADMIN LOGOUT
+|--------------------------------------------------------------------------
+*/
 
-        /*
-        |--------------------------------------------------------------------------
+Route::post('/logout', [
+    LoginController::class,
+    'logout'
+])
+    ->middleware('auth')
+    ->name('logout');
 
-        | ADMIN LOGOUT
 
-        /*
-            |
-        | LOGOUT
-
-        |--------------------------------------------------------------------------
-        */
-
-        Route::post('/logout', [
-            LoginController::class,
-            'logout'
-        ])
-
-        ->middleware('auth')
-        ->name('logout');
-    });
-
-            ->middleware('auth')
-            ->name('logout');
-        // Student
-        Route::get('/students', function () {
-            return 'Student Management';
-        })->name('students.index');
 
 
         /*
@@ -1676,45 +1631,7 @@ Route::get('timetable/class/excel', [TimetableController::class, 'classExcel'])
     [TimetableController::class, 'nextTime']
 )->name('timetable.next-time');
 
-        
 
-        /*
-        |--------------------------------------------------------------------------
-        | PAYROLL
-        |--------------------------------------------------------------------------
-        */
-
-        // PAYROLL
-Route::get('/payroll', [TeacherSalaryController::class, 'index'])
-    ->name('payroll.index');
-
-
-        
-
-
-        
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CLASS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/classes', function () {
-            return 'Class Management';
-        })->name('classes.index');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SETTINGS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/settings', function () {
-            return 'Settings';
-        })->name('settings.index');
 
     });
 
