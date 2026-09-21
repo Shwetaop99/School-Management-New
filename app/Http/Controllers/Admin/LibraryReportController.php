@@ -41,11 +41,8 @@ class LibraryReportController extends Controller
         $totalFines = BookIssue::sum('fine');
 
         $pendingFines = BookIssue::where('fine', '>', 0)
-            ->where(function ($query) {
-                $query->whereNull('fine_status')
-                    ->orWhere('fine_status', 'Pending');
-            })
-            ->sum('fine');
+    ->whereNull('return_date')
+    ->sum('fine');
 
 
         /*

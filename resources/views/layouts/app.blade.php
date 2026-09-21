@@ -870,10 +870,10 @@
                 <div class="submenu {{ request()->routeIs('admin.students.*') ? 'open' : '' }}" id="student-menu">
                     @if($can('students.view'))
                         <a href="{{ route('admin.students.index') }}" class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">All Students</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Profile</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Documents</a>
+                        <a href="{{ route('admin.student-profile.index') }}" class="submenu-item">Student Profile</a>
+                        <a href="{{ route('admin.student-documents.index') }}" class="submenu-item">Student Documents</a>
                         <a href="{{ route('admin.students.index') }}" class="submenu-item">Student ID</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">School Supplies(Kit)</a>
+                        <a href="{{ route('admin.student-supply-kits.index') }}" class="submenu-item">School Supplies(Kit)</a>
                         <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Report</a>
                     @endif
                     @if($can('students.create'))
@@ -1156,10 +1156,13 @@
 
             <!-- Scholarship -->
 
-            <a href="{{ route('admin.scholarship.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}"
-               data-search="scholarship">
-
+            @if (Route::has('admin.scholarship.index'))
+    <a href="{{ route('admin.scholarship.index') }}"
+       class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}">
+        <i class="bi bi-cash-coin"></i>
+        <span class="sidebar-label">Scholarship</span>
+    </a>
+@endif
                 <span class="sidebar-icon">♢</span>
 
                 <span class="sidebar-label">
@@ -1228,7 +1231,7 @@
                     School Profile
                 </a>
 
-                <a href="{{ route('admin.settings.index') }}"
+                <a href="{{ route('admin.settings.roles.index') }}"
                    class="submenu-item">
                     User Roles & Permission
                 </a>

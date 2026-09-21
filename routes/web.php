@@ -44,6 +44,17 @@ use App\Http\Controllers\Admin\ClassTeacherController;
 
 /*
 |--------------------------------------------------------------------------
+| Sports Management
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Sports\SportsController;
+use App\Http\Controllers\Sports\GameController;
+use App\Http\Controllers\Sports\AchievementController;
+use App\Http\Controllers\Sports\EquipmentController;
+
+/*
+|--------------------------------------------------------------------------
 | STUDENT CONTROLLERS
 |--------------------------------------------------------------------------
 */
@@ -129,6 +140,66 @@ Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
 
+
+    /*
+|--------------------------------------------------------------------------
+| SPORTS MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('sports')
+    ->name('sports.')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sports Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/', [
+            SportsController::class,
+            'index'
+        ])->name('index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Games / Events
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource(
+            'games',
+            GameController::class
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Achievements
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource(
+            'achievements',
+            AchievementController::class
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sports Equipment
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource(
+            'equipment',
+            EquipmentController::class
+        );
+
+    });
+    
         /*
         |--------------------------------------------------------------------------
         | AUTHENTICATION
