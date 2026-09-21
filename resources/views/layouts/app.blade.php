@@ -1,10 +1,19 @@
+```blade
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    {{-- Bootstrap Icons --}}
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
     <title>@yield('title', 'School Management')</title>
 
@@ -51,17 +60,16 @@
 
         /* =========================================================
            APP WRAPPER
-        ========================================================= */
+        ========================================================== */
 
         .app-wrapper {
             min-height: 100vh;
             display: flex;
         }
 
-
         /* =========================================================
            SIDEBAR
-        ========================================================= */
+        ========================================================== */
 
         .sidebar {
             position: fixed;
@@ -77,59 +85,62 @@
             transition: transform 0.3s ease;
         }
 
-
         /* =========================================================
-           SIDEBAR LOGO
-        ========================================================= */
+           SIDEBAR BRAND
+        ========================================================== */
 
         .sidebar-brand {
-            height: var(--header-height);
+            min-height: var(--header-height);
             display: flex;
             align-items: center;
-            padding: 0 20px;
+            padding: 6px 16px;
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
+            gap: 10px;
         }
 
         .brand-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: #ffffff;
-}
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #ffffff;
+        }
 
-.brand-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-}
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
 
         .brand-text {
             line-height: 1.2;
+            min-width: 0;
         }
 
         .brand-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
             color: #17233f;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .brand-subtitle {
-            font-size: 11px;
+            font-size: 10px;
             color: #718096;
             margin-top: 3px;
         }
 
-
         /* =========================================================
            SIDEBAR SCROLL
-        ========================================================= */
+        ========================================================== */
 
         .sidebar-content {
             flex: 1;
@@ -146,10 +157,9 @@
             border-radius: 10px;
         }
 
-
         /* =========================================================
            SECTION TITLE
-        ========================================================= */
+        ========================================================== */
 
         .sidebar-section-title {
             font-size: 11px;
@@ -160,10 +170,9 @@
             padding: 16px 14px 8px;
         }
 
-
         /* =========================================================
            SIDEBAR ITEM
-        ========================================================= */
+        ========================================================== */
 
         .sidebar-item {
             width: 100%;
@@ -218,10 +227,9 @@
             transform: rotate(90deg);
         }
 
-
         /* =========================================================
            SUBMENU
-        ========================================================= */
+        ========================================================== */
 
         .submenu {
             display: none;
@@ -240,7 +248,9 @@
             border-radius: 7px;
             color: #6a788d;
             font-size: 13px;
-            transition: all 0.2s ease;
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
             position: relative;
         }
 
@@ -269,10 +279,85 @@
     color: #1769d1;
 }
 
+        /* =========================================================
+           NESTED SCHOOL SUPPLY MENU
+        ========================================================== */
+
+        .nested-menu-wrapper {
+            margin: 2px 0 4px;
+        }
+
+        .nested-menu-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            min-height: 36px;
+            padding: 7px 10px;
+            border: none;
+            border-radius: 7px;
+            background: transparent;
+            color: #6a788d;
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .nested-menu-toggle:hover {
+            background: #f3f7fc;
+            color: var(--primary);
+        }
+
+        .nested-menu-toggle.active {
+            color: var(--primary);
+            font-weight: 600;
+            background: #f0f6ff;
+        }
+
+        .nested-menu-toggle::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #b7c2d1;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .nested-menu-toggle.active::before {
+            background: var(--primary);
+        }
+
+        .nested-menu-arrow {
+            margin-left: auto;
+            font-size: 11px;
+            transition: transform 0.2s ease;
+        }
+
+        .nested-menu-toggle.open .nested-menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .nested-menu {
+            display: none;
+            padding-left: 18px;
+            margin-top: 2px;
+        }
+
+        .nested-menu.open {
+            display: block;
+        }
+
+        .nested-menu .submenu-item {
+            font-size: 12.5px;
+            min-height: 34px;
+        }
 
         /* =========================================================
            OTHER SECTION
-        ========================================================= */
+        ========================================================== */
 
         .other-title {
             display: flex;
@@ -286,10 +371,9 @@
             letter-spacing: 2px;
         }
 
-
         /* =========================================================
            LOGOUT
-        ========================================================= */
+        ========================================================== */
 
         .logout-area {
             padding: 10px;
@@ -317,10 +401,9 @@
             color: #ef4444;
         }
 
-
         /* =========================================================
            MAIN AREA
-        ========================================================= */
+        ========================================================== */
 
         .main-area {
             margin-left: var(--sidebar-width);
@@ -330,10 +413,9 @@
             flex-direction: column;
         }
 
-
         /* =========================================================
            HEADER
-        ========================================================= */
+        ========================================================== */
 
         .top-header {
             height: var(--header-height);
@@ -370,10 +452,9 @@
             white-space: nowrap;
         }
 
-
         /* =========================================================
            SEARCH
-        ========================================================= */
+        ========================================================== */
 
         .header-search {
             margin-left: auto;
@@ -431,10 +512,9 @@
             color: var(--primary);
         }
 
-
         /* =========================================================
            SEARCH RESULTS
-        ========================================================= */
+        ========================================================== */
 
         .search-results {
             position: absolute;
@@ -484,34 +564,15 @@
             font-size: 13px;
         }
 
-
         /* =========================================================
            HEADER RIGHT
-        ========================================================= */
+        ========================================================== */
 
         .header-actions {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
-        .header-icon-button {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            color: #64748b;
-            font-size: 18px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .header-icon-button:hover {
-            background: #f1f5f9;
-        }
-
-        
 
         .admin-profile {
             display: flex;
@@ -554,34 +615,27 @@
             color: #25334a;
         }
 
-        .admin-role {
-            font-size: 10px;
-            color: #8491a4;
+        .admin-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #16a34a;
             margin-top: 3px;
         }
 
-        .admin-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #16a34a;
-    margin-top: 3px;
-}
-
-.online-dot {
-    width: 7px;
-    height: 7px;
-    background: #22c55e;
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
-}
-
+        .online-dot {
+            width: 7px;
+            height: 7px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+        }
 
         /* =========================================================
            PAGE CONTENT
-        ========================================================= */
+        ========================================================== */
 
         .main-content {
             flex: 1;
@@ -589,10 +643,9 @@
             padding: 22px;
         }
 
-
         /* =========================================================
            FOOTER
-        ========================================================= */
+        ========================================================== */
 
         .app-footer {
             min-height: 48px;
@@ -610,10 +663,9 @@
             color: #8b98a9;
         }
 
-
         /* =========================================================
            MOBILE OVERLAY
-        ========================================================= */
+        ========================================================== */
 
         .sidebar-overlay {
             display: none;
@@ -623,10 +675,9 @@
             z-index: 999;
         }
 
-
         /* =========================================================
            RESPONSIVE
-        ========================================================= */
+        ========================================================== */
 
         @media (max-width: 1000px) {
 
@@ -651,7 +702,6 @@
                 width: 250px;
             }
         }
-
 
         @media (max-width: 700px) {
 
@@ -691,11 +741,27 @@
     </style>
 
     @stack('styles')
-    <link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
+
+@php
+    /*
+    |--------------------------------------------------------------------------
+    | DYNAMIC SCHOOL PROFILE
+    |--------------------------------------------------------------------------
+    | $school is expected to be shared from AppServiceProvider/View Composer.
+    |
+    | Logo priority:
+    | 1. Database / Cloudinary logo
+    | 2. public/images/gurukullogo.png
+    */
+
+    $schoolName = $school?->school_name ?? 'Gurukul Vidyalaya';
+
+    $schoolLogo = $school?->logo_url
+        ?: asset('images/gurukullogo.png');
+@endphp
 
 <div class="app-wrapper">
 
@@ -708,18 +774,24 @@
         <!-- Brand -->
         <div class="sidebar-brand">
 
-           <div class="brand-icon">
-    <img src="{{ asset('images/gurukullogo.png') }}" alt="Gurukul Logo">
-</div>
+            <div class="brand-icon">
+                <img
+                    src="{{ $schoolLogo }}"
+                    alt="{{ $schoolName }} Logo"
+                    onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
+                >
+            </div>
 
             <div class="brand-text">
+
                 <div class="brand-title">
-                    Gurukul Vidyalaya
+                    {{ $schoolName }}
                 </div>
 
                 <div class="brand-subtitle">
                     School Management
                 </div>
+
             </div>
 
         </div>
@@ -980,7 +1052,10 @@
 
                 @csrf
 
-                <button type="submit" class="logout-button">
+                <button
+                    type="submit"
+                    class="logout-button"
+                >
 
                     <span class="sidebar-icon">
     <i class="fas fa-sign-out-alt"></i>
@@ -999,9 +1074,14 @@
     </aside>
 
 
-    <!-- Mobile overlay -->
+    <!-- =========================================================
+         MOBILE OVERLAY
+    ========================================================== -->
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
 
 
     <!-- =========================================================
@@ -1021,10 +1101,9 @@
                 type="button"
                 class="menu-toggle"
                 id="menuToggle"
-                aria-label="Toggle sidebar">
-
+                aria-label="Toggle sidebar"
+            >
                 ☰
-
             </button>
 
 
@@ -1055,10 +1134,9 @@
                         type="button"
                         class="search-button"
                         id="searchButton"
-                        title="Search">
-
+                        title="Search"
+                    >
                         ↵
-
                     </button>
 
                 </div>
@@ -1066,17 +1144,15 @@
 
                 <div
                     class="search-results"
-                    id="searchResults">
-                </div>
+                    id="searchResults"
+                ></div>
 
             </div>
 
 
-            <!-- Header actions -->
+            <!-- HEADER ACTIONS -->
 
             <div class="header-actions">
-
-                
 
                 <div class="admin-profile">
                     <div class="admin-avatar">
@@ -1091,20 +1167,25 @@
                 @endif
             </div>
 
-    <div class="admin-info">
+                    <div class="admin-info">
 
         <div class="admin-name">
             {{ auth()->check() ? auth()->user()->name : 'Admin' }}
         </div>
 
-        <div class="admin-status">
-            <span class="online-dot"></span>
-            Online
-        </div>
+                        <div class="admin-status">
 
-    </div>
+                            <span class="online-dot"></span>
 
-</div>
+                            Online
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </header>
 
@@ -1127,7 +1208,8 @@
         <footer class="app-footer">
 
             <div>
-                © {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.
+                © {{ date('Y') }} {{ $schoolName }}.
+                All rights reserved.
             </div>
 
             <div class="footer-right">
@@ -1149,11 +1231,9 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | SIDEBAR SUBMENUS
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================
+       SIDEBAR MAIN SUBMENUS
+    ========================================================== */
 
     const submenuButtons =
         document.querySelectorAll('.has-submenu');
@@ -1174,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             /*
-             * Close all other submenus
+             * Close all other main submenus
              */
 
             submenuButtons.forEach(function (otherButton) {
@@ -1192,7 +1272,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (otherMenu) {
                         otherMenu.classList.remove('open');
                     }
+
                 }
+
             });
 
 
@@ -1209,11 +1291,42 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | MOBILE SIDEBAR
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================
+       SCHOOL SUPPLIES NESTED MENU
+    ========================================================== */
+
+    const nestedMenuButtons =
+        document.querySelectorAll('.nested-menu-toggle');
+
+    nestedMenuButtons.forEach(function (button) {
+
+        button.addEventListener('click', function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const menuId =
+                this.getAttribute('data-nested-menu');
+
+            const menu =
+                document.getElementById(menuId);
+
+            if (!menu) {
+                return;
+            }
+
+            this.classList.toggle('open');
+
+            menu.classList.toggle('open');
+
+        });
+
+    });
+
+
+    /* ==========================================================
+       MOBILE SIDEBAR
+    ========================================================== */
 
     const menuToggle =
         document.getElementById('menuToggle');
@@ -1225,29 +1338,35 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('sidebarOverlay');
 
 
-    menuToggle.addEventListener('click', function () {
+    if (menuToggle) {
 
-        sidebar.classList.toggle('mobile-open');
+        menuToggle.addEventListener('click', function () {
 
-        sidebarOverlay.classList.toggle('active');
+            sidebar.classList.toggle('mobile-open');
 
-    });
+            sidebarOverlay.classList.toggle('active');
 
+        });
 
-    sidebarOverlay.addEventListener('click', function () {
-
-        sidebar.classList.remove('mobile-open');
-
-        sidebarOverlay.classList.remove('active');
-
-    });
+    }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | GLOBAL SEARCH
-    |--------------------------------------------------------------------------
-    */
+    if (sidebarOverlay) {
+
+        sidebarOverlay.addEventListener('click', function () {
+
+            sidebar.classList.remove('mobile-open');
+
+            sidebarOverlay.classList.remove('active');
+
+        });
+
+    }
+
+
+    /* ==========================================================
+       GLOBAL SEARCH
+    ========================================================== */
 
     const searchInput =
         document.getElementById('globalSearch');
@@ -1259,12 +1378,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('searchResults');
 
 
-    /*
-     * Collect sidebar links/items
-     */
-
     const searchableItems = [];
 
+
+    /*
+     * Main sidebar items
+     */
 
     document
         .querySelectorAll('.sidebar-item[data-search]')
@@ -1273,8 +1392,7 @@ document.addEventListener('DOMContentLoaded', function () {
             searchableItems.push({
 
                 text:
-                    item.innerText
-                    .trim(),
+                    item.innerText.trim(),
 
                 keywords:
                     item.getAttribute('data-search'),
@@ -1287,6 +1405,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
 
+    /*
+     * Normal submenu links
+     */
+
     document
         .querySelectorAll('.submenu-item')
         .forEach(function (item) {
@@ -1294,12 +1416,10 @@ document.addEventListener('DOMContentLoaded', function () {
             searchableItems.push({
 
                 text:
-                    item.innerText
-                    .trim(),
+                    item.innerText.trim(),
 
                 keywords:
-                    item.innerText
-                    .trim(),
+                    item.innerText.trim(),
 
                 element:
                     item
@@ -1310,8 +1430,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * Search function
+     * Nested School Supply menu
      */
+
+    document
+        .querySelectorAll('.nested-menu-toggle')
+        .forEach(function (item) {
+
+            searchableItems.push({
+
+                text:
+                    item.innerText.trim(),
+
+                keywords:
+                    'school supplies kit supply items government kit templates student kit distribution',
+
+                element:
+                    item
+
+            });
+
+        });
+
+
+    /* ==========================================================
+       SEARCH FUNCTION
+    ========================================================== */
 
     function performSearch() {
 
@@ -1329,6 +1473,7 @@ document.addEventListener('DOMContentLoaded', function () {
             searchResults.classList.remove('show');
 
             return;
+
         }
 
 
@@ -1336,13 +1481,17 @@ document.addEventListener('DOMContentLoaded', function () {
             searchableItems.filter(function (item) {
 
                 return (
+
                     item.text
                         .toLowerCase()
                         .includes(query)
+
                     ||
+
                     item.keywords
                         .toLowerCase()
                         .includes(query)
+
                 );
 
             });
@@ -1351,14 +1500,21 @@ document.addEventListener('DOMContentLoaded', function () {
         if (matches.length === 0) {
 
             searchResults.innerHTML = `
+
                 <div class="search-empty">
-                    No results found for "<strong>${query}</strong>"
+
+                    No results found for
+
+                    "<strong>${query}</strong>"
+
                 </div>
+
             `;
 
             searchResults.classList.add('show');
 
             return;
+
         }
 
 
@@ -1374,6 +1530,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                 result.innerHTML = `
+
                     <span class="search-result-icon">
                         🔎
                     </span>
@@ -1381,37 +1538,60 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span>
                         ${item.text}
                     </span>
+
                 `;
 
 
                 result.addEventListener('click', function () {
 
+
                     /*
-                     * If the result is a normal link,
-                     * follow it.
+                     * Normal link
                      */
 
                     if (
+
                         item.element.tagName === 'A'
+
                         &&
+
                         item.element.href
+
                     ) {
 
                         window.location.href =
                             item.element.href;
 
                         return;
+
                     }
 
 
                     /*
-                     * If it's a parent menu,
-                     * open its submenu.
+                     * Main parent menu
                      */
 
                     if (
+
                         item.element.classList
                             .contains('has-submenu')
+
+                    ) {
+
+                        item.element.click();
+
+                    }
+
+
+                    /*
+                     * Nested menu
+                     */
+
+                    if (
+
+                        item.element.classList
+                            .contains('nested-menu-toggle')
+
                     ) {
 
                         item.element.click();
@@ -1437,9 +1617,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /*
-     * Search while typing
-     */
+    /* ==========================================================
+       SEARCH WHILE TYPING
+    ========================================================== */
 
     searchInput.addEventListener(
         'input',
@@ -1447,9 +1627,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /*
-     * Search button
-     */
+    /* ==========================================================
+       SEARCH BUTTON
+    ========================================================== */
 
     searchButton.addEventListener(
         'click',
@@ -1457,9 +1637,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /*
-     * Press Enter to search
-     */
+    /* ==========================================================
+       ENTER TO SEARCH
+    ========================================================== */
 
     searchInput.addEventListener(
         'keydown',
@@ -1477,24 +1657,19 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /*
-     * Close search results when
-     * clicking outside.
-     */
+    /* ==========================================================
+       CLOSE SEARCH RESULTS
+    ========================================================== */
 
     document.addEventListener(
         'click',
         function (event) {
 
             if (
-                !event.target.closest(
-                    '.header-search'
-                )
+                !event.target.closest('.header-search')
             ) {
 
-                searchResults.classList.remove(
-                    'show'
-                );
+                searchResults.classList.remove('show');
 
             }
 
@@ -1502,20 +1677,22 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CTRL + K SEARCH SHORTCUT
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================
+       CTRL + K SEARCH SHORTCUT
+    ========================================================== */
 
     document.addEventListener(
         'keydown',
         function (event) {
 
             if (
+
                 (event.ctrlKey || event.metaKey)
+
                 &&
+
                 event.key.toLowerCase() === 'k'
+
             ) {
 
                 event.preventDefault();
@@ -1534,8 +1711,10 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
+
 @stack('scripts')
 
 
 </body>
+
 </html>

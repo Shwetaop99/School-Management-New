@@ -20,9 +20,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Seed roles and permissions
+        // Seed roles, permissions and ID Card Templates
         $this->call([
             RolePermissionSeeder::class,
+            IdCardTemplateSeeder::class,
         ]);
     }
 }
