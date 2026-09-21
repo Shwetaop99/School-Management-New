@@ -113,7 +113,12 @@ use App\Http\Controllers\Admin\ExamClassSectionController;
 use App\Http\Controllers\Admin\ExamScheduleController;
 use App\Http\Controllers\Admin\ExamTimetableController;
 
-
+// ============================================================================
+// MEAL MANAGEMENT
+// ============================================================================
+use App\Http\Controllers\Meal\MealItemController;
+use App\Http\Controllers\Meal\MealStockLogController;
+use App\Http\Controllers\Meal\MealStockTransactionController;
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
@@ -1659,3 +1664,47 @@ Route::resource(
     SubjectController::class
 )->names('admin.subjects');
 
+
+// ============================================================================
+// MEAL MANAGEMENT
+// ============================================================================
+
+Route::prefix('admin/meal/items')
+    ->name('admin.meal.items.')
+    ->group(function () {
+
+        Route::get('/', [MealItemController::class, 'index'])->name('index');
+        Route::get('/create', [MealItemController::class, 'create'])->name('create');
+        Route::post('/', [MealItemController::class, 'store'])->name('store');
+
+        Route::get('/{mealItem}/edit', [MealItemController::class, 'edit'])->name('edit');
+        Route::put('/{mealItem}', [MealItemController::class, 'update'])->name('update');
+        Route::delete('/{mealItem}', [MealItemController::class, 'destroy'])->name('destroy');
+
+        Route::get('/stock', [MealStockTransactionController::class, 'index'])
+            ->name('stock.index');
+
+        Route::get('/stock/create', [MealStockTransactionController::class, 'create'])
+            ->name('stock.create');
+
+        Route::post('/stock', [MealStockTransactionController::class, 'store'])
+            ->name('stock.store');
+    });
+
+
+// Meal Management main menu route
+Route::get('/admin/meals', function () {
+    return redirect()->route('admin.meal.items.index');
+})->name('admin.meals.index');
+
+
+Route::prefix('admin/meal/logs')
+    ->name('admin.meal.logs.')
+    ->group(function () {
+
+        Route::get('/', [MealStockLogController::class, 'index'])
+            ->name('index');
+
+        Route::get('/{mealStockLog}', [MealStockLogController::class, 'show'])
+            ->name('show');
+    });
