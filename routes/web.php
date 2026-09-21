@@ -451,11 +451,10 @@ Route::prefix('admin')
 
 
             // Faculty
-            Route::get('/faculty', function () {
-                return 'Faculty Management';
-            })
-                ->name('faculty.index')
-                ->middleware('permission:faculty.view');
+            // Faculty
+Route::get('/faculty', [TeacherController::class, 'index'])
+    ->name('faculty.index')
+    ->middleware('permission:faculty.view');
 
 
             // Timetable
@@ -757,9 +756,10 @@ Route::get('timetable/class/excel', [TimetableController::class, 'classExcel'])
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/notices', function () {
-            return 'Notice Management';
-        })->name('notices.index');
+        Route::get('/notices', [
+    NoticeController::class,
+    'index'
+])->name('notices.index');
 
 
         /*
@@ -801,9 +801,9 @@ Route::get('timetable/class/excel', [TimetableController::class, 'classExcel'])
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/payroll', function () {
-            return 'Payroll Management';
-        })->name('payroll.index');
+        // PAYROLL
+Route::get('/payroll', [TeacherSalaryController::class, 'index'])
+    ->name('payroll.index');
 
 
         /*
