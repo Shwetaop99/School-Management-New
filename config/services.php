@@ -33,6 +33,12 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    
     ],
+
+    'location' => [
+    'url' => env('LOCATION_API_URL'),
+    'api_key' => env('LOCATION_API_KEY'),
+],
 
 ];
