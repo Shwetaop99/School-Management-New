@@ -60,6 +60,77 @@
         margin-bottom: 0;
     }
 
+    /* ==============================
+   CUSTOM SELECT / INPUT
+============================== */
+
+.form-control-custom {
+    width: 100%;
+    height: 56px;
+    padding: 0 18px;
+    border: 1px solid #d8e0ec;
+    border-radius: 12px;
+    background: #fff;
+    color: #172033;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* Select specifically */
+select.form-control-custom {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    cursor: pointer;
+
+    background-image:
+        linear-gradient(45deg, transparent 50%, #172033 50%),
+        linear-gradient(135deg, #172033 50%, transparent 50%);
+    background-position:
+        calc(100% - 20px) 24px,
+        calc(100% - 14px) 24px;
+    background-size:
+        6px 6px,
+        6px 6px;
+    background-repeat: no-repeat;
+
+    padding-right: 45px;
+}
+
+/* Hover */
+.form-control-custom:hover {
+    border-color: #b8c6d9;
+}
+
+/* Focus */
+.form-control-custom:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.10);
+}
+
+/* Disabled */
+.form-control-custom:disabled {
+    background: #f5f7fa;
+    color: #9aa5b5;
+    cursor: not-allowed;
+}
+
+/* Placeholder option */
+.form-control-custom option:first-child {
+    color: #8a96a8;
+}
+
+/* Normal options */
+.form-control-custom option {
+    color: #172033;
+    background: #fff;
+    font-size: 15px;
+}
+
     .section-title {
         display: flex;
         align-items: center;
@@ -364,29 +435,26 @@
                     </label>
 
                     <select
-                        name="class"
-                        id="class"
-                        class="timetable-form-select"
-                    >
-                        <option value="">Select Class</option>
+    name="class"
+    id="class"
+    class="form-control-custom"
+    required
+    onchange="loadSections(this.value)"
+>
+    <option value="">
+         Select Class 
+    </option>
 
-                        @foreach($classes as $class)
+    @for($i = 1; $i <= 10; $i++)
+        <option
+            value="Class {{ $i }}"
+            {{ request('class') == "Class $i" ? 'selected' : '' }}
+        >
+            Class {{ $i }}
+        </option>
+    @endfor
 
-                            @php
-                                $classValue = is_object($class)
-                                    ? ($class->class_name ?? $class->name ?? '')
-                                    : $class;
-                            @endphp
-
-                            <option
-                                value="{{ $classValue }}"
-                                {{ old('class') == $classValue ? 'selected' : '' }}
-                            >
-                                {{ $classValue }}
-                            </option>
-
-                        @endforeach
-                    </select>
+</select>
 
                     @error('class')
                         <div class="error-message">{{ $message }}</div>

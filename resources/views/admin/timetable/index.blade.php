@@ -105,60 +105,99 @@
 }
 
 .stat-card {
-    background: #fff;
-    border: 1px solid #e6ebf2;
-    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    min-height: 125px;
     padding: 20px;
+    border: none;
+    border-radius: 15px;
+    color: #fff;
     display: flex;
     align-items: center;
     gap: 15px;
-    box-shadow: 0 5px 18px rgba(15, 23, 42, .05);
+    box-shadow: 0 7px 20px rgba(15, 23, 42, .12);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.stat-card::before,
+.stat-card::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .11);
+    pointer-events: none;
+}
+
+.stat-card::before {
+    width: 125px;
+    height: 125px;
+    right: -30px;
+    top: -55px;
+}
+
+.stat-card::after {
+    width: 85px;
+    height: 85px;
+    right: -20px;
+    bottom: -40px;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, .18);
+}
+
+.stat-card.blue-card {
+    background: linear-gradient(135deg, #1769d1, #3186e6);
+}
+
+.stat-card.orange-card {
+    background: linear-gradient(135deg, #f59e0b, #fbb12d);
+}
+
+.stat-card.red-card {
+    background: linear-gradient(135deg, #ef4444, #fb6464);
+}
+
+.stat-card.purple-card {
+    background: linear-gradient(135deg, #7e22ce, #a13bc0);
 }
 
 .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
+    font-size: 27px;
+    color: #fff;
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .12);
 }
 
-.stat-icon.blue {
-    background: #e7f0ff;
-    color: #147cf5;
-}
-
-.stat-icon.green {
-    background: #eafaf0;
-    color: #16a34a;
-}
-
-.stat-icon.orange {
-    background: #fff7e8;
-    color: #d97706;
-}
-
-.stat-icon.purple {
-    background: #f1edff;
-    color: #6c63ff;
+.stat-info {
+    position: relative;
+    z-index: 2;
 }
 
 .stat-info small {
     display: block;
-    color: #94a3b8;
-    font-size: 11px;
-    font-weight: 600;
-    margin-bottom: 4px;
+    color: rgba(255, 255, 255, .92);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 5px;
 }
 
 .stat-info strong {
     display: block;
-    color: #172033;
-    font-size: 23px;
+    color: #fff;
+    font-size: 27px;
     font-weight: 800;
+    line-height: 1;
 }
 
 /* =========================================================
@@ -663,77 +702,57 @@
 
     <div class="stats-grid">
 
-        <div class="stat-card">
+        <div class="stat-card blue-card">
 
-            <div class="stat-icon blue">
+            <div class="stat-icon">
                 <i class="bi bi-calendar3"></i>
             </div>
 
             <div class="stat-info">
-
                 <small>Total Entries</small>
-
-                <strong>
-                    {{ $totalEntries }}
-                </strong>
-
+                <strong>{{ $totalEntries }}</strong>
             </div>
 
         </div>
 
 
-        <div class="stat-card">
+        <div class="stat-card orange-card">
 
-            <div class="stat-icon green">
+            <div class="stat-icon">
                 <i class="bi bi-book"></i>
             </div>
 
             <div class="stat-info">
-
                 <small>Regular Classes</small>
-
-                <strong>
-                    {{ $regularEntries }}
-                </strong>
-
+                <strong>{{ $regularEntries }}</strong>
             </div>
 
         </div>
 
 
-        <div class="stat-card">
+        <div class="stat-card red-card">
 
-            <div class="stat-icon orange">
+            <div class="stat-icon">
                 <i class="bi bi-cup-hot"></i>
             </div>
 
             <div class="stat-info">
-
                 <small>Break / Lunch</small>
-
-                <strong>
-                    {{ $breakEntries }}
-                </strong>
-
+                <strong>{{ $breakEntries }}</strong>
             </div>
 
         </div>
 
 
-        <div class="stat-card">
+        <div class="stat-card purple-card">
 
-            <div class="stat-icon purple">
+            <div class="stat-icon">
                 <i class="bi bi-stars"></i>
             </div>
 
             <div class="stat-info">
-
                 <small>Activities</small>
-
-                <strong>
-                    {{ $activityEntries }}
-                </strong>
-
+                <strong>{{ $activityEntries }}</strong>
             </div>
 
         </div>

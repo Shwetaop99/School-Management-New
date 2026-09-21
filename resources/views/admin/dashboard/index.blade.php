@@ -600,6 +600,13 @@
         justify-content: center;
 
         font-size: 19px;
+        line-height: 1;
+    }
+
+    .overview-icon i {
+        display: inline-block;
+        font-size: 19px;
+        line-height: 1;
     }
 
     .overview-item strong {
@@ -909,9 +916,21 @@
 
     <div class="welcome-card">
 
-        <h2>
-            Welcome back, Admin! 👋
-        </h2>
+        @php
+    $hour = now()->hour;
+
+    if ($hour >= 5 && $hour < 12) {
+        $greeting = 'Good Morning';
+    } elseif ($hour >= 12 && $hour < 17) {
+        $greeting = 'Good Afternoon';
+    } elseif ($hour >= 17 && $hour < 21) {
+        $greeting = 'Good Evening';
+    } else {
+        $greeting = 'Good Night';
+    }
+@endphp
+
+<h1>{{ $greeting }}, Admin! 👋</h1>
 
         <p>
             Here's what's happening across your school today.
@@ -945,7 +964,7 @@
 
             </div>
 
-            <a href="#" class="stat-link">
+            <a href="{{ route('admin.students.index') }}" class="stat-link">
                 View students →
             </a>
 
@@ -971,7 +990,7 @@
 
             </div>
 
-            <a href="#" class="stat-link">
+            <a href="{{ route('admin.faculty.index') }}" class="stat-link">
                 View faculty →
             </a>
 
@@ -997,7 +1016,7 @@
 
             </div>
 
-            <a href="#" class="stat-link">
+            <a href="{{ route('admin.classes.index') }}" class="stat-link">
                 View classes →
             </a>
 
@@ -1023,9 +1042,9 @@
 
             </div>
 
-            <a href="#" class="stat-link">
-                View notices →
-            </a>
+            <a href="{{ route('admin.notices.index') }}" class="stat-link">
+    View notices →
+</a>
 
         </div>
 
@@ -1311,16 +1330,14 @@
                 <div class="overview-item">
 
                     <div class="overview-icon blue-bg">
-                        <i class="bi bi-book-fill"></i>
-                    </div>
+    <i class="bi bi-book-fill"></i>
+</div>
 
-                    <strong>
-                        0
-                    </strong>
-
-                    <span>
-                        Library Books
-                    </span>
+                    {{-- Library Books --}}
+<strong>
+    {{ number_format($books ?? 0) }}
+</strong>
+<span>Library Books</span>
 
                 </div>
 
@@ -1331,13 +1348,11 @@
                         <i class="bi bi-bus-front-fill"></i>
                     </div>
 
-                    <strong>
-                        0
-                    </strong>
-
-                    <span>
-                        Transport Records
-                    </span>
+                    {{-- Transport Records --}}
+<strong>
+    {{ number_format($transport ?? 0) }}
+</strong>
+<span>Transport Records</span>
 
                 </div>
 
@@ -1348,13 +1363,11 @@
                         <i class="bi bi-calendar-event-fill"></i>
                     </div>
 
-                    <strong>
-                        0
-                    </strong>
-
-                    <span>
-                        School Events
-                    </span>
+                    {{-- School Events --}}
+<strong>
+    {{ number_format($events ?? 0) }}
+</strong>
+<span>School Events</span>
 
                 </div>
 
@@ -1365,13 +1378,11 @@
                         <i class="bi bi-mortarboard-fill"></i>
                     </div>
 
-                    <strong>
-                        {{ number_format($classCount) }}
-                    </strong>
-
-                    <span>
-                        Active Classes
-                    </span>
+                    {{-- Active Classes --}}
+<strong>
+    {{ number_format($classes ?? 0) }}
+</strong>
+<span>Active Classes</span>
 
                 </div>
 
@@ -1427,7 +1438,7 @@
 
                         @foreach ($recentNotices as $notice)
 
-                            <div class="notice-item">
+                            <a href="{{ route('admin.notices.show', $notice->id) }}" class="notice-item" style="text-decoration:none;color:inherit;display:flex;">
 
                                 <div class="notice-icon">
                                     <i class="bi bi-bell-fill"></i>
@@ -1445,7 +1456,7 @@
 
                                 </div>
 
-                            </div>
+                            </a>
 
                         @endforeach
 
@@ -1506,7 +1517,7 @@
                 <div class="quick-actions">
 
 
-                    <a href="#" class="quick-action">
+                    <a href="{{ route('admin.students.index') }}" class="quick-action">
 
                         <i class="bi bi-person-plus-fill"></i>
 
@@ -1517,7 +1528,7 @@
                     </a>
 
 
-                    <a href="#" class="quick-action">
+                    <a href="{{ route('admin.faculty.index') }}" class="quick-action">
 
                         <i class="bi bi-person-workspace"></i>
 
@@ -1528,7 +1539,7 @@
                     </a>
 
 
-                    <a href="#" class="quick-action">
+                    <a href="{{ route('admin.attendance.index') }}" class="quick-action">
 
                         <i class="bi bi-calendar-check-fill"></i>
 
@@ -1539,7 +1550,7 @@
                     </a>
 
 
-                    <a href="#" class="quick-action">
+                    <a href="{{ route('admin.fees.index') }}" class="quick-action">
 
                         <i class="bi bi-cash-stack"></i>
 
@@ -1550,7 +1561,7 @@
                     </a>
 
 
-                    <a href="#" class="quick-action">
+                    <a href="{{ route('admin.notices.create') }}" class="quick-action">
 
                         <i class="bi bi-megaphone-fill"></i>
 
@@ -1561,7 +1572,7 @@
                     </a>
 
 
-                    <a href="#" class="quick-action">
+                    <a href="{{ route('admin.library.books.create') }}" class="quick-action">
 
                         <i class="bi bi-book-fill"></i>
 
