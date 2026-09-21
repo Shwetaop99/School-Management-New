@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <title>@yield('title', 'School Management')</title>
 
@@ -259,14 +260,14 @@
         }
 
         .submenu-item.active {
-            color: var(--primary);
-            font-weight: 600;
-            background: #f0f6ff;
-        }
+    background: #eef4ff;
+    color: #1769d1;
+    font-weight: 600;
+}
 
-        .submenu-item.active::before {
-            background: var(--primary);
-        }
+.submenu-item.active .submenu-dot {
+    color: #1769d1;
+}
 
 
         /* =========================================================
@@ -721,11 +722,13 @@
                class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                data-search="dashboard home">
 
-                <span class="sidebar-icon">⌂</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-tachometer-alt"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Dashboard
-                </span>
+<span class="sidebar-label">
+    Dashboard
+</span>
 
             </a>
 
@@ -832,40 +835,48 @@
 
                 <a href="{{ route('admin.faculty.index') }}"
                    class="submenu-item">
-                    Add Faculty
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Faculty Profile
-                </a>
-
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="submenu-item">
-                    Attendance
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Class Teacher Assignment
-                </a>
-
-                <a href="{{ route('admin.timetable.index') }}"
-                   class="submenu-item">
-                    Time Table
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Salary
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Report
+                    Teacher Allocation
                 </a>
 
             </div>
+
+            {{-- OTHER STAFF --}}
+
+<button class="sidebar-item has-submenu
+                {{ request()->routeIs('admin.other-staff.*') ? 'active open' : '' }}"
+        data-submenu="other-staff-menu"
+        data-search="other staff employees librarian accountant receptionist peon driver">
+
+    <span class="sidebar-icon">
+        <i class="fas fa-users"></i>
+    </span>
+
+    <span class="sidebar-label">
+        Other Staff
+    </span>
+
+    <span class="sidebar-arrow">›</span>
+
+</button>
+
+
+<div class="submenu
+            {{ request()->routeIs('admin.other-staff.*') ? 'open' : '' }}"
+     id="other-staff-menu">
+
+    <a href="{{ route('admin.other-staff.index') }}"
+       class="submenu-item
+              {{ request()->routeIs('admin.other-staff.index') ? 'active' : '' }}">
+        All Staff
+    </a>
+
+    <a href="{{ route('admin.other-staff.create') }}"
+       class="submenu-item
+              {{ request()->routeIs('admin.other-staff.create') ? 'active' : '' }}">
+        Add Staff
+    </a>
+
+</div>
 
 
             <!-- =================================================
@@ -1130,36 +1141,25 @@
                         {{ request()->routeIs('admin.library.*') ? 'open' : '' }}"
                  id="library-menu">
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Total Books
-                </a>
+                <a href="{{ route('admin.library.books.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.books.*') ? 'active' : '' }}">
+    Total Books
+</a>
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Book Categories
-                </a>
+                <a href="{{ route('admin.library.issues.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.issues.*') || request()->routeIs('admin.library.returns.*') || request()->routeIs('admin.library.fines.*') ? 'active' : '' }}">
+    Issues / Returns / Fine
+</a>
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Add Books
-                </a>
+          <a href="{{ route('admin.library.librarian.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.librarian.index') ? 'active' : '' }}">
+    Librarian
+</a>
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Issues / Returns / Fine
-                </a>
-
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Incharge Profile
-                </a>
-
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Reports
-                </a>
-
+                <a href="{{ route('admin.library.reports.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.reports.*') ? 'active' : '' }}">
+    Reports
+</a>
             </div>
 
 
@@ -1208,6 +1208,11 @@
                 <a href="{{ route('admin.transport.index') }}"
                    class="submenu-item">
                     Vehicles
+                </a>
+
+                <a href="{{ route('admin.transport.index') }}"
+                   class="submenu-item">
+                    Drivers
                 </a>
 
             </div>
@@ -1328,7 +1333,7 @@
                     Classes
                 </a>
 
-                <a href="{{ route('admin.classes.index') }}"
+                <a href="{{ route('admin.subjects.index') }}"
                    class="submenu-item">
                     Subjects
                 </a>
@@ -1932,9 +1937,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
+
 
 </body>
 </html>
