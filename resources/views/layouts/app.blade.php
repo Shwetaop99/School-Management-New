@@ -1,4 +1,4 @@
-```blade
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1017,10 +1017,10 @@
             >
 
                 <a
-                    href="{{ route('admin.faculty.index') }}"
+                    href="{{ route('admin.teachers.index') }}"
                     class="submenu-item"
                 >
-                    All Faculty
+                    All Teachers
                 </a>
 
                 <a
@@ -1037,6 +1037,17 @@
                     Faculty Profile
                 </a>
 
+                
+                <a href="{{ route('admin.teachers.assign-class.index') }}"
+                   class="submenu-item">
+                    Teacher Allocation
+                </a>
+
+
+
+      
+
+                
                 <a
                     href="{{ route('admin.attendance.index') }}"
                     class="submenu-item"

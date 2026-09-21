@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-
 /*
 |--------------------------------------------------------------------------
 | ADMIN AUTH CONTROLLERS
@@ -12,7 +11,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\TwoFactorController;
 
-
 /*
 |--------------------------------------------------------------------------
 | ADMIN CORE CONTROLLERS
@@ -20,7 +18,11 @@ use App\Http\Controllers\Admin\Auth\TwoFactorController;
 */
 
 use App\Http\Controllers\Admin\DashboardController;
-
+use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\TeacherSalaryController;
+use App\Http\Controllers\Admin\TimetableController;
+use App\Http\Controllers\Admin\TeacherReportController;
+use App\Http\Controllers\Admin\ClassTeacherController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +36,6 @@ use App\Http\Controllers\Admin\StudentDocumentsController;
 use App\Http\Controllers\Admin\StudentGeneralRegisterController;
 use App\Http\Controllers\Admin\StudentHealthController;
 
-
 /*
 |--------------------------------------------------------------------------
 | ID CARD CONTROLLERS
@@ -44,7 +45,6 @@ use App\Http\Controllers\Admin\StudentHealthController;
 use App\Http\Controllers\Admin\IdCardController;
 use App\Http\Controllers\Admin\IdCardTemplateController;
 
-
 /*
 |--------------------------------------------------------------------------
 | CERTIFICATE CONTROLLERS
@@ -53,7 +53,6 @@ use App\Http\Controllers\Admin\IdCardTemplateController;
 
 use App\Http\Controllers\Admin\BonafideCertificateController;
 use App\Http\Controllers\Admin\SchoolLeavingCertificateController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -66,7 +65,6 @@ use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\CasteReportController;
 use App\Http\Controllers\Admin\AgeReportController;
 
-
 /*
 |--------------------------------------------------------------------------
 | SCHOOL SETTINGS
@@ -74,7 +72,6 @@ use App\Http\Controllers\Admin\AgeReportController;
 */
 
 use App\Http\Controllers\Admin\SchoolSettingController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -85,7 +82,6 @@ use App\Http\Controllers\Admin\SchoolSettingController;
 use App\Http\Controllers\Admin\SupplyItemController;
 use App\Http\Controllers\Admin\KitTemplateController;
 use App\Http\Controllers\Admin\StudentSupplyKitController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -110,10 +106,9 @@ Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-
         /*
         |--------------------------------------------------------------------------
-        | ADMIN LOGIN
+        | AUTHENTICATION
         |--------------------------------------------------------------------------
         */
 
@@ -135,7 +130,6 @@ Route::prefix('admin')
         */
 
         Route::middleware('auth')->group(function () {
-
 
             /*
             |--------------------------------------------------------------------------
@@ -374,7 +368,6 @@ Route::prefix('admin')
                         BonafideCertificateController::class,
                         'destroy'
                     ])->name('destroy');
-
                 });
 
 
@@ -427,254 +420,278 @@ Route::prefix('admin')
                         SchoolLeavingCertificateController::class,
                         'destroy'
                     ])->name('destroy');
-
                 });
 
 
             /*
-|--------------------------------------------------------------------------
-| ID CARD MANAGEMENT
-|--------------------------------------------------------------------------
-*/
+            |--------------------------------------------------------------------------
+            | ID CARD MANAGEMENT
+            |--------------------------------------------------------------------------
+            */
 
-Route::prefix('id-card')
-    ->name('id-card.')
-    ->group(function () {
+            Route::prefix('id-card')
+                ->name('id-card.')
+                ->group(function () {
 
+                    /*
+                    | ID CARD GENERATION
+                    */
 
-        /*
-        |--------------------------------------------------------------------------
-        | ID CARD TEMPLATES
-        |--------------------------------------------------------------------------
-        */
+                    Route::get('/', [
+                        IdCardController::class,
+                        'index'
+                    ])->name('index');
 
-        Route::get('/templates', [
-            IdCardTemplateController::class,
-            'index'
-        ])->name('templates.index');
+                    Route::get('/create', [
+                        IdCardController::class,
+                        'create'
+                    ])->name('create');
 
+                    Route::get('/search', [
+                        IdCardController::class,
+                        'search'
+                    ])->name('search');
 
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE ID CARD TEMPLATE
-        |--------------------------------------------------------------------------
-        */
+                    Route::post('/', [
+                        IdCardController::class,
+                        'store'
+                    ])->name('store');
 
-        Route::get('/templates/create', [
-            IdCardTemplateController::class,
-            'create'
-        ])->name('templates.create');
+                    Route::get('/{id}/print', [
+                        IdCardController::class,
+                        'print'
+                    ])->name('print');
 
+                    Route::get('/{id}', [
+                        IdCardController::class,
+                        'show'
+                    ])->name('show');
 
-        /*
-        |--------------------------------------------------------------------------
-        | STORE ID CARD TEMPLATE
-        |--------------------------------------------------------------------------
-        */
-
-        Route::post('/templates', [
-            IdCardTemplateController::class,
-            'store'
-        ])->name('templates.store');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | AUTOMATIC ID CARD ANALYSIS
-        |--------------------------------------------------------------------------
-        |
-        | Upload image
-        |      ↓
-        | Tesseract OCR
-        |      ↓
-        | Detect labels
-        |      ↓
-        | Detect coordinates
-        |      ↓
-        | Detect photo region
-        |      ↓
-        | Save analysis in field_positions
-        |
-        |--------------------------------------------------------------------------
-        */
-
-        Route::post('/templates/{template}/analyze', [
-            IdCardTemplateController::class,
-            'analyze'
-        ])->name('templates.analyze');
+                    Route::delete('/{id}', [
+                        IdCardController::class,
+                        'destroy'
+                    ])->name('destroy');
 
 
-        Route::get('/templates/{template}/analysis', [
-            IdCardTemplateController::class,
-            'analysis'
-        ])->name('templates.analysis');
+                    /*
+                    | ID CARD TEMPLATES
+                    */
 
+                    Route::get('/templates', [
+                        IdCardTemplateController::class,
+                        'index'
+                    ])->name('templates.index');
 
-        /*
-        |--------------------------------------------------------------------------
-        | EDIT TEMPLATE
-        |--------------------------------------------------------------------------
-        */
+                    Route::get('/templates/create', [
+                        IdCardTemplateController::class,
+                        'create'
+                    ])->name('templates.create');
 
-        Route::get('/templates/{template}/edit', [
-            IdCardTemplateController::class,
-            'edit'
-        ])->name('templates.edit');
+                    Route::post('/templates', [
+                        IdCardTemplateController::class,
+                        'store'
+                    ])->name('templates.store');
 
+                    Route::get('/templates/{template}/edit', [
+                        IdCardTemplateController::class,
+                        'edit'
+                    ])->name('templates.edit');
 
-        /*
-        |--------------------------------------------------------------------------
-        | UPDATE TEMPLATE
-        |--------------------------------------------------------------------------
-        */
+                    Route::put('/templates/{template}', [
+                        IdCardTemplateController::class,
+                        'update'
+                    ])->name('templates.update');
 
-        Route::put('/templates/{template}', [
-            IdCardTemplateController::class,
-            'update'
-        ])->name('templates.update');
+                    Route::post('/templates/{template}/analyze', [
+                        IdCardTemplateController::class,
+                        'analyze'
+                    ])->name('templates.analyze');
 
+                    Route::get('/templates/{template}/analysis', [
+                        IdCardTemplateController::class,
+                        'analysis'
+                    ])->name('templates.analysis');
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEGACY SAVE POSITIONS
-        |--------------------------------------------------------------------------
-        |
-        | Kept temporarily for backward compatibility.
-        | New automatic analyzer does not require manual positioning.
-        |
-        |--------------------------------------------------------------------------
-        */
+                    Route::post('/templates/{template}/save-positions', [
+                        IdCardTemplateController::class,
+                        'savePositions'
+                    ])->name('templates.save-positions');
 
-        Route::post('/templates/{template}/save-positions', [
-            IdCardTemplateController::class,
-            'savePositions'
-        ])->name('templates.save-positions');
+                    Route::patch('/templates/{template}/toggle-status', [
+                        IdCardTemplateController::class,
+                        'toggleStatus'
+                    ])->name('templates.toggle-status');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOGGLE TEMPLATE STATUS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::patch('/templates/{template}/toggle-status', [
-            IdCardTemplateController::class,
-            'toggleStatus'
-        ])->name('templates.toggle-status');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE TEMPLATE
-        |--------------------------------------------------------------------------
-        */
-
-        Route::delete('/templates/{template}', [
-            IdCardTemplateController::class,
-            'destroy'
-        ])->name('templates.destroy');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ID CARD GENERATION
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/', [
-            IdCardController::class,
-            'index'
-        ])->name('index');
-
-
-        Route::get('/create', [
-            IdCardController::class,
-            'create'
-        ])->name('create');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STUDENT SEARCH
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/search', [
-            IdCardController::class,
-            'search'
-        ])->name('search');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | GENERATE ID CARD
-        |--------------------------------------------------------------------------
-        */
-
-        Route::post('/', [
-            IdCardController::class,
-            'store'
-        ])->name('store');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PRINT ID CARD
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/{id}/print', [
-            IdCardController::class,
-            'print'
-        ])->name('print');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SHOW ID CARD
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/{id}', [
-            IdCardController::class,
-            'show'
-        ])->name('show');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE ID CARD
-        |--------------------------------------------------------------------------
-        */
-
-        Route::delete('/{id}', [
-            IdCardController::class,
-            'destroy'
-        ])->name('destroy');
-
-    });
+                    Route::delete('/templates/{template}', [
+                        IdCardTemplateController::class,
+                        'destroy'
+                    ])->name('templates.destroy');
+                });
 
 
             /*
             |--------------------------------------------------------------------------
-            | FACULTY
+            | TEACHERS
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/faculty', function () {
-                return 'Faculty Management';
-            })->name('faculty.index');
+            Route::resource(
+                'teachers',
+                TeacherController::class
+            );
 
 
             /*
             |--------------------------------------------------------------------------
-            | TIME TABLE
+            | CLASS TEACHER ASSIGNMENT
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/timetable', function () {
-                return 'Time Table';
-            })->name('timetable.index');
+            Route::prefix('teachers/assign-class')
+                ->name('teachers.assign-class.')
+                ->group(function () {
+
+                    Route::get('/', [
+                        ClassTeacherController::class,
+                        'index'
+                    ])->name('index');
+
+                    Route::get('/create', [
+                        ClassTeacherController::class,
+                        'create'
+                    ])->name('create');
+
+                    Route::post('/', [
+                        ClassTeacherController::class,
+                        'store'
+                    ])->name('store');
+
+                    Route::get('/{assignment}/edit', [
+                        ClassTeacherController::class,
+                        'edit'
+                    ])->name('edit');
+
+                    Route::put('/{assignment}', [
+                        ClassTeacherController::class,
+                        'update'
+                    ])->name('update');
+
+                    Route::delete('/{assignment}', [
+                        ClassTeacherController::class,
+                        'destroy'
+                    ])->name('destroy');
+                });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TEACHER SALARY
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('teachers/salary')
+                ->name('teachers.salary.')
+                ->group(function () {
+
+                    Route::get('/', [
+                        TeacherSalaryController::class,
+                        'index'
+                    ])->name('index');
+
+                    Route::get('/create', [
+                        TeacherSalaryController::class,
+                        'create'
+                    ])->name('create');
+
+                    Route::post('/', [
+                        TeacherSalaryController::class,
+                        'store'
+                    ])->name('store');
+
+                    Route::get('/{teacherSalary}', [
+                        TeacherSalaryController::class,
+                        'show'
+                    ])->name('show');
+
+                    Route::get('/{teacherSalary}/edit', [
+                        TeacherSalaryController::class,
+                        'edit'
+                    ])->name('edit');
+
+                    Route::put('/{teacherSalary}', [
+                        TeacherSalaryController::class,
+                        'update'
+                    ])->name('update');
+
+                    Route::delete('/{teacherSalary}', [
+                        TeacherSalaryController::class,
+                        'destroy'
+                    ])->name('destroy');
+                });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TEACHER REPORTS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/teachers/reports', [
+                TeacherReportController::class,
+                'index'
+            ])->name('teachers.reports.index');
+
+            Route::get('/teachers/reports/{teacher}', [
+                TeacherReportController::class,
+                'show'
+            ])->name('teachers.reports.show');
+
+            Route::get('/teachers/reports/{teacher}/pdf', [
+                TeacherReportController::class,
+                'pdf'
+            ])->name('teachers.reports.pdf');
+
+            Route::get('/teachers/reports/{teacher}/excel', [
+                TeacherReportController::class,
+                'excel'
+            ])->name('teachers.reports.excel');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TIMETABLE
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'timetable',
+                TimetableController::class
+            )->except(['show']);
+
+            Route::get('/timetable/class', [
+                TimetableController::class,
+                'classTimetable'
+            ])->name('timetable.class');
+
+            Route::get('/timetable/class/pdf', [
+                TimetableController::class,
+                'classPdf'
+            ])->name('timetable.class.pdf');
+
+            Route::get('/timetable/class/excel', [
+                TimetableController::class,
+                'classExcel'
+            ])->name('timetable.class.excel');
+
+            Route::get('/timetable/teacher', [
+                TimetableController::class,
+                'teacherTimetable'
+            ])->name('timetable.teacher');
+
+            Route::get('/timetable/next-time', [
+                TimetableController::class,
+                'nextTime'
+            ])->name('timetable.next-time');
 
 
             /*
@@ -910,7 +927,6 @@ Route::prefix('id-card')
                         ExamClassController::class,
                         'destroy'
                     ])->name('destroy');
-
                 });
 
 
@@ -963,7 +979,6 @@ Route::prefix('id-card')
                         ExamClassSectionController::class,
                         'destroy'
                     ])->name('destroy');
-
                 });
 
 
@@ -1011,7 +1026,6 @@ Route::prefix('id-card')
                         ExamScheduleController::class,
                         'destroy'
                     ])->name('destroy');
-
                 });
 
 
@@ -1034,7 +1048,6 @@ Route::prefix('id-card')
                         ExamTimetableController::class,
                         'print'
                     ])->name('print');
-
                 });
 
 
@@ -1141,102 +1154,47 @@ Route::prefix('id-card')
             |--------------------------------------------------------------------------
             | SCHOOL SETTINGS
             |--------------------------------------------------------------------------
-            |
-            | /admin/settings
-            |       → School Profile Dashboard
-            |
-            | /admin/settings/create
-            |       → Create School Profile
-            |
-            | /admin/settings/{schoolSetting}
-            |       → View School Profile
-            |
-            | /admin/settings/{schoolSetting}/edit
-            |       → Edit School Profile
-            |
-            |--------------------------------------------------------------------------
             */
 
             Route::prefix('settings')
                 ->name('settings.')
                 ->group(function () {
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | INDEX
-                    |--------------------------------------------------------------------------
-                    */
-
                     Route::get('/', [
                         SchoolSettingController::class,
                         'index'
                     ])->name('index');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | CREATE
-                    |--------------------------------------------------------------------------
-                    */
 
                     Route::get('/create', [
                         SchoolSettingController::class,
                         'create'
                     ])->name('create');
 
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | STORE
-                    |--------------------------------------------------------------------------
-                    */
-
                     Route::post('/', [
                         SchoolSettingController::class,
                         'store'
                     ])->name('store');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | SHOW
-                    |--------------------------------------------------------------------------
-                    */
 
                     Route::get('/{schoolSetting}', [
                         SchoolSettingController::class,
                         'show'
                     ])->name('show');
 
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | EDIT
-                    |--------------------------------------------------------------------------
-                    */
-
                     Route::get('/{schoolSetting}/edit', [
                         SchoolSettingController::class,
                         'edit'
                     ])->name('edit');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | UPDATE
-                    |--------------------------------------------------------------------------
-                    */
 
                     Route::put('/{schoolSetting}', [
                         SchoolSettingController::class,
                         'update'
                     ])->name('update');
 
-                    Route::delete('/{schoolSetting}', [SchoolSettingController::class, 'destroy'])
-    ->name('destroy');
-
+                    Route::delete('/{schoolSetting}', [
+                        SchoolSettingController::class,
+                        'destroy'
+                    ])->name('destroy');
                 });
-
         });
 
 
@@ -1252,5 +1210,4 @@ Route::prefix('id-card')
         ])
         ->middleware('auth')
         ->name('logout');
-
     });
