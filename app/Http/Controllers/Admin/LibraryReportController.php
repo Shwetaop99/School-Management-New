@@ -41,9 +41,11 @@ class LibraryReportController extends Controller
         $totalFines = BookIssue::sum('fine');
 
         $pendingFines = BookIssue::where('fine', '>', 0)
-    ->whereNull('return_date')
-    ->sum('fine');
-
+            ->where(function ($query) {
+                $query->whereNull('fine_status')
+                    ->orWhere('fine_status', 'Pending');
+            })
+            ->sum('fine');
 
         /*
         |--------------------------------------------------------------------------
@@ -53,7 +55,6 @@ class LibraryReportController extends Controller
 
         $transactionsQuery = BookIssue::with('book')
             ->latest('issue_date');
-
 
         // From date
         if ($fromDate) {
@@ -77,25 +78,18 @@ class LibraryReportController extends Controller
 
         // Status
         if ($status) {
-
             if ($status === 'Overdue') {
-
                 $transactionsQuery
                     ->whereNull('return_date')
                     ->whereDate('due_date', '<', today());
-
             } else {
-
                 $transactionsQuery->where('status', $status);
-
             }
         }
-
 
         $transactions = $transactionsQuery
             ->paginate(15)
             ->withQueryString();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -105,7 +99,6 @@ class LibraryReportController extends Controller
 
         $books = Book::orderBy('title')->get();
         $bookStock = Book::orderBy('title')->get();
-
 
         return view('admin.library.reports.index', compact(
             'totalBooks',

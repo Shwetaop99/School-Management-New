@@ -31,6 +31,7 @@
 
             </div>
 
+<<<<<<< HEAD
             <a href="{{ route('admin.meal.items.index') }}"
                class="btn meal-secondary-btn">
 
@@ -38,6 +39,17 @@
                 Meal Items
 
             </a>
+=======
+            <div class="meal-header-actions no-print">
+
+                <a href="{{ route('admin.meal.items.index') }}"
+                   class="btn meal-secondary-btn">
+                    <i class="fas fa-boxes-stacked me-1"></i>
+                    Meal Items
+                </a>
+
+            </div>
+>>>>>>> origin/class-management
 
         </div>
 
@@ -45,9 +57,16 @@
         {{-- =========================================================
              SUCCESS / ERROR MESSAGES
              ========================================================= --}}
+<<<<<<< HEAD
         @if(session('success'))
 
             <div class="alert meal-alert meal-alert-success mb-4">
+=======
+
+        @if(session('success'))
+
+            <div class="alert meal-alert meal-alert-success mb-4 no-print">
+>>>>>>> origin/class-management
 
                 <i class="fas fa-circle-check"></i>
 
@@ -62,7 +81,11 @@
 
         @if(session('error'))
 
+<<<<<<< HEAD
             <div class="alert meal-alert meal-alert-danger mb-4">
+=======
+            <div class="alert meal-alert meal-alert-danger mb-4 no-print">
+>>>>>>> origin/class-management
 
                 <i class="fas fa-circle-exclamation"></i>
 
@@ -76,6 +99,7 @@
 
 
         {{-- =========================================================
+<<<<<<< HEAD
              KPI CARDS
              ========================================================= --}}
         <div class="meal-log-stats-grid mb-4">
@@ -267,10 +291,42 @@
                                        class="form-control meal-form-control"
                                        value="{{ request('date_from') }}">
 
+=======
+             PRINT AREA
+             ========================================================= --}}
+
+        <div id="mealLogsPrintArea">
+
+
+            {{-- =====================================================
+                 KPI CARDS
+                 ===================================================== --}}
+
+            <div class="meal-log-stats-grid mb-4">
+
+                {{-- Total Movements --}}
+                <div class="meal-log-stat-card blue-card">
+
+                    <div class="stat-card-top">
+
+                        <div>
+
+                            <div class="meal-log-stat-label">
+                                Total Movements
+                            </div>
+
+                            <div class="meal-log-stat-value">
+                                {{ number_format($totalMovements) }}
+                            </div>
+
+                            <div class="meal-log-stat-note">
+                                All stock movements
+>>>>>>> origin/class-management
                             </div>
 
                         </div>
 
+<<<<<<< HEAD
 
                         {{-- Date To --}}
                         <div class="col-xl-2 col-lg-4 col-md-6">
@@ -292,10 +348,41 @@
                                        class="form-control meal-form-control"
                                        value="{{ request('date_to') }}">
 
+=======
+                        <div class="meal-log-stat-icon">
+                            <i class="fas fa-arrow-right-arrow-left"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-decoration"></div>
+
+                </div>
+
+
+                {{-- Stock In --}}
+                <div class="meal-log-stat-card green-card">
+
+                    <div class="stat-card-top">
+
+                        <div>
+
+                            <div class="meal-log-stat-label">
+                                Stock In
+                            </div>
+
+                            <div class="meal-log-stat-value">
+                                {{ number_format((float) $totalStockIn, 2) }}
+                            </div>
+
+                            <div class="meal-log-stat-note">
+                                Incoming quantity
+>>>>>>> origin/class-management
                             </div>
 
                         </div>
 
+<<<<<<< HEAD
 
                         {{-- Meal Item --}}
                         <div class="col-xl-2 col-lg-4 col-md-6">
@@ -894,21 +981,925 @@
                     </tbody>
 
                 </table>
+=======
+                        <div class="meal-log-stat-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-decoration"></div>
+
+                </div>
+
+
+                {{-- Stock Out --}}
+                <div class="meal-log-stat-card red-card">
+
+                    <div class="stat-card-top">
+
+                        <div>
+
+                            <div class="meal-log-stat-label">
+                                Stock Out
+                            </div>
+
+                            <div class="meal-log-stat-value">
+                                {{ number_format((float) $totalStockOut, 2) }}
+                            </div>
+
+                            <div class="meal-log-stat-note">
+                                Outgoing quantity
+                            </div>
+
+                        </div>
+
+                        <div class="meal-log-stat-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-decoration"></div>
+
+                </div>
+
+
+                {{-- Low Stock --}}
+                <div class="meal-log-stat-card orange-card">
+
+                    <div class="stat-card-top">
+
+                        <div>
+
+                            <div class="meal-log-stat-label">
+                                Low Stock Items
+                            </div>
+
+                            <div class="meal-log-stat-value">
+                                {{ number_format($lowStockItems) }}
+                            </div>
+
+                            <div class="meal-log-stat-note">
+                                At or below minimum level
+                            </div>
+
+                        </div>
+
+                        <div class="meal-log-stat-icon">
+                            <i class="fas fa-triangle-exclamation"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-decoration"></div>
+
+                </div>
 
             </div>
 
 
+            {{-- =====================================================
+                 FILTER CARD
+                 ===================================================== --}}
+
+            <div class="meal-filter-card mb-4 no-print">
+
+                <div class="meal-filter-header">
+
+                    <div class="meal-filter-title">
+
+                        <div class="meal-filter-icon">
+                            <i class="fas fa-filter"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Filter Stock Logs
+                            </h5>
+
+                            <span>
+                                Search and filter meal inventory movements
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="meal-filter-body">
+
+                    <form method="GET"
+                          action="{{ route('admin.meal.logs.index') }}">
+
+                        <div class="row g-3">
+
+
+                            {{-- Date From --}}
+                            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                                <label for="date_from"
+                                       class="meal-form-label">
+                                    Date From
+                                </label>
+
+                                <div class="filter-input-wrapper">
+
+                                    <i class="fas fa-calendar-day"></i>
+
+                                    <input type="date"
+                                           name="date_from"
+                                           id="date_from"
+                                           class="form-control meal-form-control"
+                                           value="{{ request('date_from') }}">
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Date To --}}
+                            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                                <label for="date_to"
+                                       class="meal-form-label">
+                                    Date To
+                                </label>
+
+                                <div class="filter-input-wrapper">
+
+                                    <i class="fas fa-calendar-check"></i>
+
+                                    <input type="date"
+                                           name="date_to"
+                                           id="date_to"
+                                           class="form-control meal-form-control"
+                                           value="{{ request('date_to') }}">
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Meal Item --}}
+                            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                                <label for="meal_item_id"
+                                       class="meal-form-label">
+                                    Meal Item
+                                </label>
+
+                                <div class="filter-input-wrapper">
+
+                                    <i class="fas fa-box"></i>
+
+                                    <select name="meal_item_id"
+                                            id="meal_item_id"
+                                            class="form-select meal-form-control">
+
+                                        <option value="">
+                                            All Items
+                                        </option>
+
+                                        @foreach($items as $item)
+
+                                            <option value="{{ $item->id }}"
+                                                {{ (string) request('meal_item_id') === (string) $item->id ? 'selected' : '' }}>
+
+                                                {{ $item->item_name }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Category --}}
+                            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                                <label for="category"
+                                       class="meal-form-label">
+                                    Category
+                                </label>
+
+                                <div class="filter-input-wrapper">
+
+                                    <i class="fas fa-layer-group"></i>
+
+                                    <select name="category"
+                                            id="category"
+                                            class="form-select meal-form-control">
+
+                                        <option value="">
+                                            All Categories
+                                        </option>
+
+                                        @foreach($categories as $category)
+
+                                            <option value="{{ $category }}"
+                                                {{ request('category') === $category ? 'selected' : '' }}>
+
+                                                {{ $category }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Transaction Type --}}
+                            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                                <label for="transaction_type"
+                                       class="meal-form-label">
+                                    Transaction Type
+                                </label>
+
+                                <div class="filter-input-wrapper">
+
+                                    <i class="fas fa-right-left"></i>
+
+                                    <select name="transaction_type"
+                                            id="transaction_type"
+                                            class="form-select meal-form-control">
+
+                                        <option value="">
+                                            All Types
+                                        </option>
+
+                                        <option value="stock_in"
+                                            {{ request('transaction_type') === 'stock_in' ? 'selected' : '' }}>
+                                            Stock In
+                                        </option>
+
+                                        <option value="stock_out"
+                                            {{ request('transaction_type') === 'stock_out' ? 'selected' : '' }}>
+                                            Stock Out
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Search --}}
+                            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                                <label for="search"
+                                       class="meal-form-label">
+                                    Search
+                                </label>
+
+                                <div class="filter-input-wrapper">
+
+                                    <i class="fas fa-magnifying-glass"></i>
+
+                                    <input type="text"
+                                           name="search"
+                                           id="search"
+                                           class="form-control meal-form-control"
+                                           placeholder="Item, reason, remarks..."
+                                           value="{{ request('search') }}">
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Filter Buttons --}}
+                            <div class="col-12">
+
+                                <div class="meal-filter-actions">
+
+                                    <button type="submit"
+                                            class="btn meal-filter-btn">
+
+                                        <i class="fas fa-magnifying-glass me-1"></i>
+                                        Apply Filter
+
+                                    </button>
+
+
+                                    <a href="{{ route('admin.meal.logs.index') }}"
+                                       class="btn meal-reset-btn">
+
+                                        <i class="fas fa-rotate-left me-1"></i>
+                                        Reset
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+>>>>>>> origin/class-management
+
+            </div>
+
+
+<<<<<<< HEAD
             {{-- Pagination --}}
             @if($logs->hasPages())
 
                 <div class="meal-pagination">
 
                     {{ $logs->links() }}
+=======
+            {{-- =====================================================
+                 ACTIVE FILTER SUMMARY FOR PRINT
+                 ===================================================== --}}
+
+            @if(
+                request()->filled('date_from') ||
+                request()->filled('date_to') ||
+                request()->filled('meal_item_id') ||
+                request()->filled('category') ||
+                request()->filled('transaction_type') ||
+                request()->filled('search')
+            )
+
+                <div class="print-filter-summary">
+
+                    <strong>Applied Filters:</strong>
+
+
+                    @if(request('date_from'))
+
+                        <span>
+                            From:
+                            {{ \Carbon\Carbon::parse(request('date_from'))->format('d M Y') }}
+                        </span>
+
+                    @endif
+
+
+                    @if(request('date_to'))
+
+                        <span>
+                            To:
+                            {{ \Carbon\Carbon::parse(request('date_to'))->format('d M Y') }}
+                        </span>
+
+                    @endif
+
+
+                    @if(request('meal_item_id'))
+
+                        @php
+                            $selectedItem = $items->firstWhere(
+                                'id',
+                                request('meal_item_id')
+                            );
+                        @endphp
+
+                        @if($selectedItem)
+
+                            <span>
+                                Item:
+                                {{ $selectedItem->item_name }}
+                            </span>
+
+                        @endif
+
+                    @endif
+
+
+                    @if(request('category'))
+
+                        <span>
+                            Category:
+                            {{ request('category') }}
+                        </span>
+
+                    @endif
+
+
+                    @if(request('transaction_type'))
+
+                        <span>
+                            Type:
+                            {{ request('transaction_type') === 'stock_in'
+                                ? 'Stock In'
+                                : 'Stock Out'
+                            }}
+                        </span>
+
+                    @endif
+
+
+                    @if(request('search'))
+
+                        <span>
+                            Search:
+                            {{ request('search') }}
+                        </span>
+
+                    @endif
+>>>>>>> origin/class-management
 
                 </div>
 
             @endif
 
+<<<<<<< HEAD
+=======
+
+            {{-- =====================================================
+                 STOCK MOVEMENT HISTORY
+                 ===================================================== --}}
+
+            <div class="meal-table-card">
+
+                {{-- TABLE HEADER --}}
+                <div class="meal-table-header">
+
+                    <div class="meal-table-title">
+
+                        <div class="meal-table-title-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Stock Movement History
+                            </h5>
+
+                            <span>
+                                Complete audit trail of meal inventory changes
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- =================================================
+                         STOCK MOVEMENT HISTORY ACTIONS
+                         ================================================= --}}
+
+                    <div class="stock-history-actions no-print">
+
+                        {{-- PRINT --}}
+                        <button type="button"
+                                class="btn stock-history-print-btn"
+                                onclick="printMealLogs()"
+                                title="Print Stock Movement History">
+
+                            <i class="fas fa-print"></i>
+                            <span>Print</span>
+
+                        </button>
+
+
+                        {{-- DOWNLOAD PDF --}}
+                        <a href="{{ route('admin.meal.logs.pdf', request()->query()) }}"
+                           class="btn stock-history-pdf-btn"
+                           title="Download Stock Movement History PDF">
+
+                            <i class="fas fa-file-pdf"></i>
+                            <span>PDF</span>
+
+                        </a>
+
+
+                        {{-- DOWNLOAD EXCEL --}}
+                        <a href="{{ route('admin.meal.logs.excel', request()->query()) }}"
+                           class="btn stock-history-excel-btn"
+                           title="Download Stock Movement History Excel">
+
+                            <i class="fas fa-file-excel"></i>
+                            <span>Excel</span>
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="meal-record-count">
+
+                        <i class="fas fa-database me-1"></i>
+
+                        {{ number_format($logs->total()) }}
+
+                        {{ $logs->total() == 1 ? 'Record' : 'Records' }}
+
+                    </div>
+
+                </div>
+
+
+                {{-- TABLE --}}
+                <div class="table-responsive">
+
+                    <table class="table meal-log-table mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+                                <th>Date & Time</th>
+                                <th>Transaction ID</th>
+                                <th>Item</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Stock Before</th>
+                                <th>Stock After</th>
+                                <th>Reason</th>
+                                <th>Performed By</th>
+                                <th class="no-print">Action</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @forelse($logs as $log)
+
+                                <tr>
+
+                                    {{-- Number --}}
+                                    <td>
+
+                                        <span class="log-number">
+                                            {{ $logs->firstItem() + $loop->index }}
+                                        </span>
+
+                                    </td>
+
+
+                                    {{-- Date --}}
+                                    <td>
+
+                                        <div class="log-date">
+                                            {{ $log->created_at?->format('d M Y') ?? '—' }}
+                                        </div>
+
+                                        <div class="log-time">
+                                            {{ $log->created_at?->format('h:i A') ?? '—' }}
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- Transaction ID --}}
+                                    <td>
+
+                                        @if($log->stock_transaction_id)
+
+                                            <span class="transaction-id">
+
+                                                <i class="fas fa-hashtag me-1"></i>
+
+                                                {{ str_pad(
+                                                    $log->stock_transaction_id,
+                                                    5,
+                                                    '0',
+                                                    STR_PAD_LEFT
+                                                ) }}
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Item --}}
+                                    <td>
+
+                                        @if($log->mealItem)
+
+                                            <div class="log-item">
+
+                                                <div class="log-item-icon">
+                                                    <i class="fas fa-utensils"></i>
+                                                </div>
+
+                                                <div>
+
+                                                    <div class="log-item-name">
+                                                        {{ $log->mealItem->item_name }}
+                                                    </div>
+
+                                                    <div class="log-item-category">
+                                                        {{ $log->unit }}
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        @else
+
+                                            <span class="deleted-item">
+
+                                                <i class="fas fa-trash-can me-1"></i>
+                                                Item Deleted
+
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Category --}}
+                                    <td>
+
+                                        @if($log->mealItem)
+
+                                            <span class="category-badge">
+                                                {{ $log->mealItem->category ?: 'Other' }}
+                                            </span>
+
+                                        @else
+
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Type --}}
+                                    <td>
+
+                                        @if($log->action === 'stock_in')
+
+                                            <span class="log-action-badge stock-in">
+
+                                                <i class="fas fa-arrow-down"></i>
+                                                Stock In
+
+                                            </span>
+
+                                        @elseif($log->action === 'stock_out')
+
+                                            <span class="log-action-badge stock-out">
+
+                                                <i class="fas fa-arrow-up"></i>
+                                                Stock Out
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="log-action-badge">
+
+                                                {{ ucfirst(
+                                                    str_replace(
+                                                        '_',
+                                                        ' ',
+                                                        $log->action ?? 'Unknown'
+                                                    )
+                                                ) }}
+
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Quantity --}}
+                                    <td>
+
+                                        <div class="quantity-wrapper">
+
+                                            <span class="log-quantity">
+
+                                                {{ number_format(
+                                                    (float) $log->quantity,
+                                                    2
+                                                ) }}
+
+                                            </span>
+
+                                            <span class="log-unit">
+                                                {{ $log->unit }}
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- Stock Before --}}
+                                    <td>
+
+                                        <div class="stock-value-wrapper">
+
+                                            <span class="stock-value">
+
+                                                {{ number_format(
+                                                    (float) $log->previous_stock,
+                                                    2
+                                                ) }}
+
+                                            </span>
+
+                                            <span class="stock-unit">
+                                                {{ $log->unit }}
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- Stock After --}}
+                                    <td>
+
+                                        <div class="stock-value-wrapper updated-stock">
+
+                                            <span class="stock-value">
+
+                                                {{ number_format(
+                                                    (float) $log->updated_stock,
+                                                    2
+                                                ) }}
+
+                                            </span>
+
+                                            <span class="stock-unit">
+                                                {{ $log->unit }}
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- Reason --}}
+                                    <td>
+
+                                        @if($log->reason)
+
+                                            <span class="log-reason"
+                                                  title="{{ $log->reason }}">
+
+                                                {{ \Illuminate\Support\Str::limit(
+                                                    $log->reason,
+                                                    25
+                                                ) }}
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Performed By --}}
+                                    <td>
+
+                                        @if($log->performed_by)
+
+                                            <span class="performed-by">
+
+                                                <span class="performed-icon">
+                                                    <i class="fas fa-user-shield"></i>
+                                                </span>
+
+                                                Admin #{{ $log->performed_by }}
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="performed-by system">
+
+                                                <span class="performed-icon">
+                                                    <i class="fas fa-gear"></i>
+                                                </span>
+
+                                                System
+
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Action --}}
+                                    <td class="no-print">
+
+                                        <a href="{{ route(
+                                            'admin.meal.logs.show',
+                                            $log
+                                        ) }}"
+                                           class="log-view-btn"
+                                           title="View Details">
+
+                                            <i class="fas fa-eye"></i>
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+
+                            @empty
+
+                                <tr>
+
+                                    <td colspan="12">
+
+                                        <div class="meal-empty-state">
+
+                                            <div class="meal-empty-icon">
+
+                                                <i class="fas fa-clock-rotate-left"></i>
+
+                                            </div>
+
+                                            <h5>
+                                                No Stock Logs Found
+                                            </h5>
+
+                                            <p>
+                                                There are no stock movement logs
+                                                matching your current filters.
+                                            </p>
+
+                                            <a href="{{ route(
+                                                'admin.meal.logs.index'
+                                            ) }}"
+                                               class="btn meal-reset-empty-btn no-print">
+
+                                                <i class="fas fa-rotate-left me-1"></i>
+                                                Clear Filters
+
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {{-- Pagination --}}
+                @if($logs->hasPages())
+
+                    <div class="meal-pagination no-print">
+                        {{ $logs->links() }}
+                    </div>
+
+                @endif
+
+            </div>
+
+>>>>>>> origin/class-management
         </div>
 
     </div>
@@ -990,19 +1981,42 @@
     line-height: 1.5;
 }
 
+<<<<<<< HEAD
 .meal-secondary-btn {
     min-height: 41px;
     padding: 9px 16px;
+=======
+.meal-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.meal-secondary-btn {
+    min-height: 41px;
+    padding: 9px 14px;
+>>>>>>> origin/class-management
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 3px;
+<<<<<<< HEAD
     background: #ffffff;
     border: 1px solid #dfe4ea;
     border-radius: 8px;
     color: #586474 !important;
     font-size: 13px;
     font-weight: 600;
+=======
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 650;
+    background: #ffffff;
+    border: 1px solid #dfe4ea;
+    color: #586474 !important;
+>>>>>>> origin/class-management
     box-shadow: 0 2px 7px rgba(31, 41, 55, 0.03);
     transition: all 0.2s ease;
 }
@@ -1016,6 +2030,84 @@
 
 
 /* =========================================================
+<<<<<<< HEAD
+=======
+   STOCK MOVEMENT HISTORY ACTION BUTTONS
+   ========================================================= */
+
+.stock-history-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    margin-left: auto;
+}
+
+.stock-history-actions .btn {
+    min-height: 36px;
+    padding: 7px 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+
+/* Print */
+.stock-history-print-btn {
+    background: #ffffff;
+    border: 1px solid #dfe4ea;
+    color: #586474 !important;
+}
+
+.stock-history-print-btn:hover {
+    background: #f5f7fa;
+    border-color: #cbd2db;
+    color: #263142 !important;
+    transform: translateY(-1px);
+}
+
+
+/* PDF */
+.stock-history-pdf-btn {
+    background: #fff0ef;
+    border: 1px solid #ffd8d4;
+    color: #dc4436 !important;
+    text-decoration: none;
+}
+
+.stock-history-pdf-btn:hover {
+    background: #f65343;
+    border-color: #f65343;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+
+/* Excel */
+.stock-history-excel-btn {
+    background: #eaf8f1;
+    border: 1px solid #ccefe0;
+    color: #159a65 !important;
+    text-decoration: none;
+}
+
+.stock-history-excel-btn:hover {
+    background: #20b77a;
+    border-color: #20b77a;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+>>>>>>> origin/class-management
    ALERTS
    ========================================================= */
 
@@ -1055,10 +2147,17 @@
 
 .meal-log-stat-card {
     position: relative;
+<<<<<<< HEAD
     min-height: 138px;
     padding: 20px;
     overflow: hidden;
     border-radius: 12px;
+=======
+    min-height: 165px;
+    padding: 24px 25px;
+    overflow: hidden;
+    border-radius: 17px;
+>>>>>>> origin/class-management
     color: #ffffff;
     box-shadow:
         0 6px 18px rgba(31, 41, 55, 0.08);
@@ -1326,6 +2425,29 @@ select.meal-form-control {
 
 
 /* =========================================================
+<<<<<<< HEAD
+=======
+   PRINT FILTER SUMMARY
+   ========================================================= */
+
+.print-filter-summary {
+    display: none;
+    margin-bottom: 15px;
+    padding: 10px 14px;
+    background: #ffffff;
+    border: 1px solid #e5e9ef;
+    border-radius: 7px;
+    color: #566273;
+    font-size: 11px;
+}
+
+.print-filter-summary span {
+    margin-left: 12px;
+}
+
+
+/* =========================================================
+>>>>>>> origin/class-management
    TABLE CARD
    ========================================================= */
 
@@ -1343,7 +2465,10 @@ select.meal-form-control {
     padding: 15px 20px;
     display: flex;
     align-items: center;
+<<<<<<< HEAD
     justify-content: space-between;
+=======
+>>>>>>> origin/class-management
     gap: 15px;
     border-bottom: 1px solid #edf0f5;
 }
@@ -1352,6 +2477,10 @@ select.meal-form-control {
     display: flex;
     align-items: center;
     gap: 12px;
+<<<<<<< HEAD
+=======
+    flex-shrink: 0;
+>>>>>>> origin/class-management
 }
 
 .meal-table-title-icon {
@@ -1389,6 +2518,10 @@ select.meal-form-control {
     font-size: 11px;
     font-weight: 650;
     white-space: nowrap;
+<<<<<<< HEAD
+=======
+    margin-left: 0;
+>>>>>>> origin/class-management
 }
 
 
@@ -1743,7 +2876,11 @@ select.meal-form-control {
    RESPONSIVE
    ========================================================= */
 
+<<<<<<< HEAD
 @media (max-width: 1400px) {
+=======
+@media (max-width: 1500px) {
+>>>>>>> origin/class-management
 
     .meal-log-table {
         min-width: 1450px;
@@ -1757,6 +2894,17 @@ select.meal-form-control {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+<<<<<<< HEAD
+=======
+    .meal-table-header {
+        flex-wrap: wrap;
+    }
+
+    .stock-history-actions {
+        margin-left: auto;
+    }
+
+>>>>>>> origin/class-management
 }
 
 @media (max-width: 992px) {
@@ -1778,8 +2926,14 @@ select.meal-form-control {
         align-items: flex-start;
     }
 
+<<<<<<< HEAD
     .meal-secondary-btn {
         width: 100%;
+=======
+    .meal-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+>>>>>>> origin/class-management
     }
 
     .meal-page-title {
@@ -1817,6 +2971,16 @@ select.meal-form-control {
 
     .meal-table-header {
         padding: 14px 16px;
+<<<<<<< HEAD
+=======
+        align-items: flex-start;
+    }
+
+    .stock-history-actions {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+>>>>>>> origin/class-management
     }
 
     .meal-record-count {
@@ -1856,6 +3020,24 @@ select.meal-form-control {
         font-size: 19px;
     }
 
+<<<<<<< HEAD
+=======
+    .stock-history-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        width: 100%;
+    }
+
+    .stock-history-actions .btn {
+        width: 100%;
+        padding: 8px 7px;
+    }
+
+    .stock-history-actions .btn span {
+        display: inline;
+    }
+
+>>>>>>> origin/class-management
     .meal-filter-actions {
         flex-direction: column;
     }
@@ -1872,6 +3054,240 @@ select.meal-form-control {
 
 }
 
+<<<<<<< HEAD
 </style>
 
+=======
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    @page {
+        size: landscape;
+        margin: 8mm;
+    }
+
+    body {
+        background: #ffffff !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .meal-logs-page {
+        min-height: auto !important;
+        background: #ffffff !important;
+    }
+
+    .meal-logs-page .container-fluid {
+        padding: 0 !important;
+    }
+
+    .meal-page-header {
+        margin-bottom: 12px !important;
+    }
+
+    .meal-page-title {
+        font-size: 20px;
+    }
+
+    .meal-page-subtitle {
+        font-size: 10px;
+    }
+
+    .meal-heading-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+        box-shadow: none;
+    }
+
+    .meal-log-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 12px !important;
+    }
+
+    .meal-log-stat-card {
+        min-height: 80px;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: none;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .meal-log-stat-value {
+        font-size: 18px;
+    }
+
+    .meal-log-stat-label {
+        font-size: 9px;
+    }
+
+    .meal-log-stat-note {
+        font-size: 8px;
+        margin-top: 4px;
+    }
+
+    .meal-log-stat-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    .meal-table-card {
+        border: 1px solid #d9dee5;
+        border-radius: 4px;
+        box-shadow: none;
+    }
+
+    .meal-table-header {
+        min-height: 45px;
+        padding: 8px 10px;
+    }
+
+    .meal-table-title-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+
+    .meal-table-title h5 {
+        font-size: 11px;
+    }
+
+    .meal-table-title span {
+        font-size: 8px;
+    }
+
+    .meal-log-table {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .meal-log-table thead th {
+        padding: 7px 6px;
+        font-size: 7px;
+        background: #f3f5f7 !important;
+        color: #374151;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .meal-log-table tbody td {
+        padding: 7px 6px;
+        font-size: 8px;
+    }
+
+    .log-item-icon {
+        width: 22px;
+        height: 22px;
+        font-size: 8px;
+    }
+
+    .log-item {
+        gap: 4px;
+    }
+
+    .log-item-name {
+        font-size: 8px;
+    }
+
+    .log-item-category {
+        font-size: 7px;
+    }
+
+    .log-date {
+        font-size: 8px;
+    }
+
+    .log-time {
+        font-size: 7px;
+    }
+
+    .transaction-id {
+        min-height: 20px;
+        padding: 2px 4px;
+        font-size: 7px;
+    }
+
+    .category-badge {
+        min-height: 18px;
+        padding: 2px 4px;
+        font-size: 7px;
+    }
+
+    .log-action-badge {
+        min-height: 19px;
+        padding: 3px 4px;
+        font-size: 7px;
+    }
+
+    .log-quantity,
+    .stock-value {
+        font-size: 8px;
+    }
+
+    .log-unit,
+    .stock-unit {
+        font-size: 6px;
+    }
+
+    .log-reason {
+        max-width: 90px;
+        font-size: 7px;
+    }
+
+    .performed-by {
+        font-size: 7px;
+    }
+
+    .performed-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 7px;
+    }
+
+    .print-filter-summary {
+        display: block;
+    }
+
+}
+
+
+/* =========================================================
+   PRINT RESPONSIVE FIX
+   ========================================================= */
+
+@media print and (max-width: 900px) {
+
+    .meal-log-table {
+        min-width: 100% !important;
+    }
+
+}
+
+</style>
+
+@endpush
+
+
+@push('scripts')
+
+<script>
+
+function printMealLogs() {
+
+    window.print();
+
+}
+
+</script>
+
+>>>>>>> origin/class-management
 @endpush
