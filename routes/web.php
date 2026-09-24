@@ -69,7 +69,7 @@ Route::prefix('admin')
         LoginController::class,
         'login'
     ])->name('login.submit');
-
+    });
 
     /*
     |--------------------------------------------------------------------------
