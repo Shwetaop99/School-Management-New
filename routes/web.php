@@ -18,7 +18,6 @@ use App\Http\Controllers\Admin\Auth\TwoFactorController;
 */
 
 use App\Http\Controllers\Admin\DashboardController;
-<<<<<<< HEAD
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\TeacherSalaryController;
 use App\Http\Controllers\Admin\TimetableController;
@@ -27,7 +26,6 @@ use App\Http\Controllers\Admin\TeacherReportController;
 use App\Http\Controllers\Admin\StaffCategoryController;
 use App\Http\Controllers\Admin\LeaveApplicationController;
 use App\Http\Controllers\Admin\ClassTeacherController;
-=======
 use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\BookIssueController;
@@ -44,7 +42,6 @@ use App\Http\Controllers\Admin\LibraryReportDownloadController;
 
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Class\SubjectController;
->>>>>>> d6de0b3e2e678ebd398c8c6c042aa18e164b7995
 
 
 /*
