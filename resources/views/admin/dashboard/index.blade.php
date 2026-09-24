@@ -909,9 +909,21 @@
 
     <div class="welcome-card">
 
-        <h2>
-            Welcome back, Admin! 👋
-        </h2>
+        @php
+    $hour = now()->hour;
+
+    if ($hour >= 5 && $hour < 12) {
+        $greeting = 'Good Morning';
+    } elseif ($hour >= 12 && $hour < 17) {
+        $greeting = 'Good Afternoon';
+    } elseif ($hour >= 17 && $hour < 21) {
+        $greeting = 'Good Evening';
+    } else {
+        $greeting = 'Good Night';
+    }
+@endphp
+
+<h1>{{ $greeting }}, Admin! 👋</h1>
 
         <p>
             Here's what's happening across your school today.

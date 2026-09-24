@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "49ccb3ab3a4f5564665ea67e244560b1",
+=======
+    "content-hash": "1e0528ef7d1188e978d77a5724e0a11d",
+>>>>>>> d6de0b3e2e678ebd398c8c6c042aa18e164b7995
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -273,6 +277,7 @@
             "time": "2026-09-06T14:11:38+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "cloudinary-labs/cloudinary-laravel",
             "version": "3.0.2",
             "source": {
@@ -467,6 +472,8 @@
             "time": "2026-04-29T12:17:58+00:00"
         },
         {
+=======
+>>>>>>> d6de0b3e2e678ebd398c8c6c042aa18e164b7995
             "name": "composer/pcre",
             "version": "3.4.0",
             "source": {
@@ -1199,6 +1206,7 @@
         },
         {
             "name": "ezyang/htmlpurifier",
+<<<<<<< HEAD
             "version": "v4.19.0",
             "source": {
                 "type": "git",
@@ -1209,6 +1217,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/b287d2a16aceffbf6e0295559b39662612b77fcf",
                 "reference": "b287d2a16aceffbf6e0295559b39662612b77fcf",
+=======
+            "version": "v4.19.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ezyang/htmlpurifier.git",
+                "reference": "5e0539132d934f936fbae2c88b55d58f9438623f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/5e0539132d934f936fbae2c88b55d58f9438623f",
+                "reference": "5e0539132d934f936fbae2c88b55d58f9438623f",
+>>>>>>> d6de0b3e2e678ebd398c8c6c042aa18e164b7995
                 "shasum": ""
             },
             "require": {
@@ -1254,9 +1274,15 @@
             ],
             "support": {
                 "issues": "https://github.com/ezyang/htmlpurifier/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.0"
             },
             "time": "2025-10-17T16:34:55+00:00"
+=======
+                "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.1"
+            },
+            "time": "2026-09-15T15:42:51+00:00"
+>>>>>>> d6de0b3e2e678ebd398c8c6c042aa18e164b7995
         },
         {
             "name": "fruitcake/php-cors",

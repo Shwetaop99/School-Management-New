@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <title>@yield('title', 'School Management')</title>
 <link
@@ -261,14 +263,14 @@
         }
 
         .submenu-item.active {
-            color: var(--primary);
-            font-weight: 600;
-            background: #f0f6ff;
-        }
+    background: #eef4ff;
+    color: #1769d1;
+    font-weight: 600;
+}
 
-        .submenu-item.active::before {
-            background: var(--primary);
-        }
+.submenu-item.active .submenu-dot {
+    color: #1769d1;
+}
 
 
         /* =========================================================
@@ -723,11 +725,13 @@
                class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                data-search="dashboard home">
 
-                <span class="sidebar-icon">⌂</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-tachometer-alt"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Dashboard
-                </span>
+<span class="sidebar-label">
+    Dashboard
+</span>
 
             </a>
 
@@ -741,11 +745,13 @@
                     data-submenu="student-menu"
                     data-search="student students">
 
-                <span class="sidebar-icon">♟</span>
+                <span class="sidebar-icon">
+    <i class="fa fa-user-graduate"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Student
-                </span>
+<span class="sidebar-label">
+    Student
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -809,11 +815,13 @@
                     data-submenu="faculty-menu"
                     data-search="faculty teacher teachers">
 
-                <span class="sidebar-icon">♟</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-chalkboard-teacher"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Faculty (Teacher)
-                </span>
+<span class="sidebar-label">
+    Faculty (Teacher)
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -836,12 +844,53 @@
                     Teacher Allocation
                 </a>
 
+<<<<<<< HEAD
                 <a href="{{ route('admin.leave-applications.index') }}"
                    class="submenu-item">
                     Leave Applications
 </a>
                 
+=======
+>>>>>>> d6de0b3e2e678ebd398c8c6c042aa18e164b7995
             </div>
+
+            {{-- OTHER STAFF --}}
+
+<button class="sidebar-item has-submenu
+                {{ request()->routeIs('admin.other-staff.*') ? 'active open' : '' }}"
+        data-submenu="other-staff-menu"
+        data-search="other staff employees librarian accountant receptionist peon driver">
+
+    <span class="sidebar-icon">
+        <i class="fas fa-users"></i>
+    </span>
+
+    <span class="sidebar-label">
+        Other Staff
+    </span>
+
+    <span class="sidebar-arrow">›</span>
+
+</button>
+
+
+<div class="submenu
+            {{ request()->routeIs('admin.other-staff.*') ? 'open' : '' }}"
+     id="other-staff-menu">
+
+    <a href="{{ route('admin.other-staff.index') }}"
+       class="submenu-item
+              {{ request()->routeIs('admin.other-staff.index') ? 'active' : '' }}">
+        All Staff
+    </a>
+
+    <a href="{{ route('admin.other-staff.create') }}"
+       class="submenu-item
+              {{ request()->routeIs('admin.other-staff.create') ? 'active' : '' }}">
+        Add Staff
+    </a>
+
+</div>
 
 
             <!-- =================================================
@@ -853,11 +902,13 @@
                     data-submenu="timetable-menu"
                     data-search="time table timetable schedule">
 
-                <span class="sidebar-icon">▦</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-table"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Time Table
-                </span>
+<span class="sidebar-label">
+    Time Table
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -894,11 +945,13 @@
                     data-submenu="attendance-menu"
                     data-search="attendance student faculty mark">
 
-                <span class="sidebar-icon">✓</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-check"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Attendance
-                </span>
+<span class="sidebar-label">
+    Attendance
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -980,11 +1033,13 @@
                class="sidebar-item {{ request()->routeIs('admin.exam.*') ? 'active' : '' }}"
                data-search="exam examination">
 
-                <span class="sidebar-icon">▣</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-file-alt"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Exam
-                </span>
+<span class="sidebar-label">
+    Exam
+</span>
 
             </a>
 
@@ -998,11 +1053,13 @@
                     data-submenu="result-menu"
                     data-search="result results marks grade">
 
-                <span class="sidebar-icon">▥</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-chart-bar"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Result
-                </span>
+<span class="sidebar-label">
+    Result
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1049,11 +1106,13 @@
                     data-submenu="notice-menu"
                     data-search="notice notices announcement">
 
-                <span class="sidebar-icon">⚑</span>
+               <span class="sidebar-icon">
+    <i class="fas fa-flag"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Notice
-                </span>
+<span class="sidebar-label">
+    Notice
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1068,16 +1127,6 @@
                     All Notices
                 </a>
 
-                <a href="{{ route('admin.notices.index') }}"
-                   class="submenu-item">
-                    Create Notice
-                </a>
-
-                <a href="{{ route('admin.notices.index') }}"
-                   class="submenu-item">
-                    Publish
-                </a>
-
             </div>
 
 
@@ -1090,11 +1139,13 @@
                     data-submenu="library-menu"
                     data-search="library books issue return fine">
 
-                <span class="sidebar-icon">▤</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-book"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Library
-                </span>
+<span class="sidebar-label">
+    Library
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1104,36 +1155,25 @@
                         {{ request()->routeIs('admin.library.*') ? 'open' : '' }}"
                  id="library-menu">
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Total Books
-                </a>
+                <a href="{{ route('admin.library.books.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.books.*') ? 'active' : '' }}">
+    Total Books
+</a>
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Book Categories
-                </a>
+                <a href="{{ route('admin.library.issues.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.issues.*') || request()->routeIs('admin.library.returns.*') || request()->routeIs('admin.library.fines.*') ? 'active' : '' }}">
+    Issues / Returns / Fine
+</a>
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Add Books
-                </a>
+          <a href="{{ route('admin.library.librarian.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.librarian.index') ? 'active' : '' }}">
+    Librarian
+</a>
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Issues / Returns / Fine
-                </a>
-
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Incharge Profile
-                </a>
-
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Reports
-                </a>
-
+                <a href="{{ route('admin.library.reports.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.library.reports.*') ? 'active' : '' }}">
+    Reports
+</a>
             </div>
 
 
@@ -1153,11 +1193,13 @@
                     data-submenu="transport-menu"
                     data-search="transport bus vehicle">
 
-                <span class="sidebar-icon">▣</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-bus"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Transport
-                </span>
+<span class="sidebar-label">
+    Transport
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1182,6 +1224,11 @@
                     Vehicles
                 </a>
 
+                <a href="{{ route('admin.transport.index') }}"
+                   class="submenu-item">
+                    Drivers
+                </a>
+
             </div>
 
 
@@ -1192,11 +1239,13 @@
                     data-submenu="meal-menu"
                     data-search="meal meals food stock">
 
-                <span class="sidebar-icon">♨</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-utensils"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Meal Management
-                </span>
+<span class="sidebar-label">
+    Meal Management
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1230,11 +1279,13 @@
                class="sidebar-item {{ request()->routeIs('admin.teachers.salary.index') ? 'active' : '' }}"
                data-search="payroll salary">
 
-                <span class="sidebar-icon">▤</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-money-check-alt"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Payroll
-                </span>
+<span class="sidebar-label">
+    Payroll
+</span>
 
             </a>
 
@@ -1245,11 +1296,13 @@
                class="sidebar-item {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}"
                data-search="sports">
 
-                <span class="sidebar-icon">♜</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-futbol"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Sports
-                </span>
+<span class="sidebar-label">
+    Sports
+</span>
 
             </a>
 
@@ -1260,11 +1313,13 @@
                class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}"
                data-search="scholarship">
 
-                <span class="sidebar-icon">♢</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-graduation-cap"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Scholarship
-                </span>
+<span class="sidebar-label">
+    Scholarship
+</span>
 
             </a>
 
@@ -1276,11 +1331,13 @@
                     data-submenu="class-menu"
                     data-search="class classes division subjects">
 
-                <span class="sidebar-icon">▦</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-chalkboard"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Class
-                </span>
+<span class="sidebar-label">
+    Class
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1295,7 +1352,7 @@
                     Classes
                 </a>
 
-                <a href="{{ route('admin.classes.index') }}"
+                <a href="{{ route('admin.subjects.index') }}"
                    class="submenu-item">
                     Subjects
                 </a>
@@ -1310,11 +1367,13 @@
                     data-submenu="settings-menu"
                     data-search="settings role permission users backup">
 
-                <span class="sidebar-icon">⚙</span>
+                <span class="sidebar-icon">
+    <i class="fas fa-cog"></i>
+</span>
 
-                <span class="sidebar-label">
-                    Settings
-                </span>
+<span class="sidebar-label">
+    Settings
+</span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1354,11 +1413,13 @@
 
                 <button type="submit" class="logout-button">
 
-                    <span>⇥</span>
+                    <span class="sidebar-icon">
+    <i class="fas fa-sign-out-alt"></i>
+</span>
 
-                    <span>
-                        Logout
-                    </span>
+<span class="sidebar-label">
+    Logout
+</span>
 
                 </button>
 
@@ -1895,9 +1956,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
+
 
 </body>
 </html>
