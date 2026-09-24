@@ -836,10 +836,10 @@
                     Teacher Allocation
                 </a>
 
-
-
-      
-
+                <a href="{{ route('admin.leave-applications.index') }}"
+                   class="submenu-item">
+                    Leave Applications
+</a>
                 
             </div>
 

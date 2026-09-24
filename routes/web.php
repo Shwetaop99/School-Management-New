@@ -8,7 +8,10 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\TeacherSalaryController;
 use App\Http\Controllers\Admin\TimetableController;
+use App\Http\Controllers\Admin\TeacherAttendanceController;
 use App\Http\Controllers\Admin\TeacherReportController;
+use App\Http\Controllers\Admin\StaffCategoryController;
+use App\Http\Controllers\Admin\LeaveApplicationController;
 use App\Http\Controllers\Admin\ClassTeacherController;
 
 
@@ -26,17 +29,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // Login page
     Route::get('/login', [
         LoginController::class,
         'showLogin'
     ])->name('login');
 
-    // Login submit
     Route::post('/login', [
         LoginController::class,
         'login'
     ])->name('login.submit');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TEACHER ATTENDANCE - TEMPORARY TEST
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/teachers/attendance', [
+        TeacherAttendanceController::class,
+        'index'
+    ])->name('teachers.attendance.index');
+
+    Route::post('/teachers/attendance', [
+        TeacherAttendanceController::class,
+        'store'
+    ])->name('teachers.attendance.store');
 
 
     /*
@@ -46,6 +64,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     */
 
     Route::middleware('auth')->group(function () {
+
+
+    Route::get('/teachers/salary/attendance-data', [
+    TeacherSalaryController::class,
+    'attendanceData'
+])->name('teachers.salary.attendance-data');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -78,11 +103,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | SCHOOL MANAGEMENT MODULES
+        | STUDENT
         |--------------------------------------------------------------------------
         */
 
-        // Student
         Route::get('/students', function () {
             return 'Student Management';
         })->name('students.index');
@@ -132,7 +156,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | TEACHER SALARY
+        | TEACHER SALARY / PAYROLL
         |--------------------------------------------------------------------------
         */
 
@@ -140,43 +164,47 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('teachers.salary.')
             ->group(function () {
 
-                // Salary list
                 Route::get('/', [
                     TeacherSalaryController::class,
                     'index'
                 ])->name('index');
 
-                // Generate salary
                 Route::get('/create', [
                     TeacherSalaryController::class,
                     'create'
                 ])->name('create');
 
-                // Store salary
+                /*
+                |--------------------------------------------------------------
+                | ATTENDANCE DATA
+                |--------------------------------------------------------------
+                */
+
+                Route::get('/attendance-data', [
+                    TeacherSalaryController::class,
+                    'attendanceData'
+                ])->name('attendance-data');
+
                 Route::post('/', [
                     TeacherSalaryController::class,
                     'store'
                 ])->name('store');
 
-                // View salary
                 Route::get('/{teacherSalary}', [
                     TeacherSalaryController::class,
                     'show'
                 ])->name('show');
 
-                // Edit salary
                 Route::get('/{teacherSalary}/edit', [
                     TeacherSalaryController::class,
                     'edit'
                 ])->name('edit');
 
-                // Update salary
                 Route::put('/{teacherSalary}', [
                     TeacherSalaryController::class,
                     'update'
                 ])->name('update');
 
-                // Delete salary
                 Route::delete('/{teacherSalary}', [
                     TeacherSalaryController::class,
                     'destroy'
@@ -184,18 +212,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
 
 
-            // Teacher Reports
-Route::get('/teachers/reports', [TeacherReportController::class, 'index'])
-    ->name('teachers.reports.index');
+        /*
+        |--------------------------------------------------------------------------
+        | TEACHER REPORTS
+        |--------------------------------------------------------------------------
+        */
 
-Route::get('/teachers/reports/{teacher}', [TeacherReportController::class, 'show'])
-    ->name('teachers.reports.show');
+        Route::get('/teachers/reports', [
+            TeacherReportController::class,
+            'index'
+        ])->name('teachers.reports.index');
 
-Route::get('/teachers/reports/{teacher}/pdf', [TeacherReportController::class, 'pdf'])
-    ->name('teachers.reports.pdf');
+        Route::get('/teachers/reports/{teacher}', [
+            TeacherReportController::class,
+            'show'
+        ])->name('teachers.reports.show');
 
-Route::get('/teachers/reports/{teacher}/excel', [TeacherReportController::class, 'excel'])
-    ->name('teachers.reports.excel');
+        Route::get('/teachers/reports/{teacher}/pdf', [
+            TeacherReportController::class,
+            'pdf'
+        ])->name('teachers.reports.pdf');
+
+        Route::get('/teachers/reports/{teacher}/excel', [
+            TeacherReportController::class,
+            'excel'
+        ])->name('teachers.reports.excel');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -215,28 +257,45 @@ Route::get('/teachers/reports/{teacher}/excel', [TeacherReportController::class,
         Route::resource('timetable', TimetableController::class)
             ->except(['show']);
 
-      Route::get('/timetable/class', [TimetableController::class, 'classTimetable'])
-    ->name('timetable.class');
-    
-Route::get('timetable/class/pdf', [TimetableController::class, 'classPdf'])
-    ->name('timetable.class.pdf');
+        Route::get('/timetable/class', [
+            TimetableController::class,
+            'classTimetable'
+        ])->name('timetable.class');
 
-Route::get('timetable/class/excel', [TimetableController::class, 'classExcel'])
-    ->name('timetable.class.excel');
-    
-    Route::get(
-    'timetable/teacher',
-    [TimetableController::class, 'teacherTimetable']
-)->name('timetable.teacher');
+        Route::get('/timetable/class/pdf', [
+            TimetableController::class,
+            'classPdf'
+        ])->name('timetable.class.pdf');
 
-    Route::get(
-    'timetable/next-time',
-    [TimetableController::class, 'nextTime']
-)->name('timetable.next-time');
+        Route::get('/timetable/class/excel', [
+            TimetableController::class,
+            'classExcel'
+        ])->name('timetable.class.excel');
+
+        Route::get('/timetable/teacher', [
+            TimetableController::class,
+            'teacherTimetable'
+        ])->name('timetable.teacher');
+
+        Route::get('/timetable/next-time', [
+            TimetableController::class,
+            'nextTime'
+        ])->name('timetable.next-time');
+
 
         /*
         |--------------------------------------------------------------------------
-        | ATTENDANCE
+        | STAFF CATEGORIES
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('staff-categories', StaffCategoryController::class)
+            ->except(['show']);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | EXISTING ATTENDANCE
         |--------------------------------------------------------------------------
         */
 
@@ -335,6 +394,18 @@ Route::get('timetable/class/excel', [TimetableController::class, 'classExcel'])
 
         /*
         |--------------------------------------------------------------------------
+        | LEAVE MANAGEMENT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource(
+            'leave-applications',
+            LeaveApplicationController::class
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
         | SPORTS
         |--------------------------------------------------------------------------
         */
@@ -391,4 +462,3 @@ Route::get('timetable/class/excel', [TimetableController::class, 'classExcel'])
     ])->middleware('auth')->name('logout');
 
 });
-
