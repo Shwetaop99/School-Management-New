@@ -10,32 +10,12 @@ return new class extends Migration
     {
         /*
         |--------------------------------------------------------------------------
-        | 1. Drop the existing exam_id foreign key
+        | 1. Remove section_id column
         |--------------------------------------------------------------------------
         |
-        | MySQL is currently using the old unique index to support this FK.
-        | Therefore the FK must be removed BEFORE dropping the unique index.
+        | The old section_id foreign key was already removed manually because
+        | the database was preventing the column from being dropped.
         |
-        */
-
-        Schema::table('exam_timetables', function (Blueprint $table) {
-            $table->dropForeign('exam_timetables_exam_id_foreign');
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | 2. Drop the old unique index
-        |--------------------------------------------------------------------------
-        */
-
-        Schema::table('exam_timetables', function (Blueprint $table) {
-            $table->dropUnique('exam_timetable_unique');
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | 3. Remove section_id
-        |--------------------------------------------------------------------------
         */
 
         Schema::table('exam_timetables', function (Blueprint $table) {
@@ -44,26 +24,61 @@ return new class extends Migration
 
         /*
         |--------------------------------------------------------------------------
-        | 4. Add correct foreign keys
+        | 2. Add correct exam_id foreign key
         |--------------------------------------------------------------------------
         */
 
         Schema::table('exam_timetables', function (Blueprint $table) {
-
             $table->foreign('exam_id')
                 ->references('id')
                 ->on('exams')
                 ->cascadeOnDelete();
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Fix class_id foreign key
+        |--------------------------------------------------------------------------
+        */
+
+        Schema::table('exam_timetables', function (Blueprint $table) {
+            $table->dropForeign([
+                'class_id',
+            ]);
 
             $table->foreign('class_id')
                 ->references('id')
                 ->on('school_classes')
                 ->cascadeOnDelete();
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Recreate exam_subject_id foreign key
+        |--------------------------------------------------------------------------
+        */
+
+        Schema::table('exam_timetables', function (Blueprint $table) {
+            $table->dropForeign([
+                'exam_subject_id',
+            ]);
 
             $table->foreign('exam_subject_id')
                 ->references('id')
                 ->on('exam_subjects')
                 ->cascadeOnDelete();
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Recreate session_id foreign key
+        |--------------------------------------------------------------------------
+        */
+
+        Schema::table('exam_timetables', function (Blueprint $table) {
+            $table->dropForeign([
+                'session_id',
+            ]);
 
             $table->foreign('session_id')
                 ->references('id')
@@ -73,12 +88,8 @@ return new class extends Migration
 
         /*
         |--------------------------------------------------------------------------
-        | 5. Create new unique index
+        | 6. Create correct unique index
         |--------------------------------------------------------------------------
-        |
-        | section_id is no longer needed because section comes from
-        | school_classes.section.
-        |
         */
 
         Schema::table('exam_timetables', function (Blueprint $table) {
@@ -104,15 +115,26 @@ return new class extends Migration
         */
 
         Schema::table('exam_timetables', function (Blueprint $table) {
-            $table->dropForeign('exam_timetables_exam_id_foreign');
-            $table->dropForeign('exam_timetables_class_id_foreign');
-            $table->dropForeign('exam_timetables_exam_subject_id_foreign');
-            $table->dropForeign('exam_timetables_session_id_foreign');
+            $table->dropForeign([
+                'exam_id',
+            ]);
+
+            $table->dropForeign([
+                'class_id',
+            ]);
+
+            $table->dropForeign([
+                'exam_subject_id',
+            ]);
+
+            $table->dropForeign([
+                'session_id',
+            ]);
         });
 
         /*
         |--------------------------------------------------------------------------
-        | Remove new unique index
+        | Remove unique index
         |--------------------------------------------------------------------------
         */
 
@@ -139,7 +161,6 @@ return new class extends Migration
         */
 
         Schema::table('exam_timetables', function (Blueprint $table) {
-
             $table->foreign('exam_id')
                 ->references('id')
                 ->on('exams')

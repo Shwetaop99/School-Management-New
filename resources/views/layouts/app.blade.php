@@ -1030,7 +1030,7 @@
 
         {{-- Result Dashboard --}}
         <a
-            href="{{ route('admin.results.index') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.index') ? 'active' : '' }}"
         >
             <i class="fas fa-home me-2"></i>
@@ -1039,7 +1039,7 @@
 
         {{-- Enter Marks --}}
         <a
-            href="{{ route('admin.results.marks') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}"
         >
             <i class="fas fa-edit me-2"></i>
@@ -1048,7 +1048,7 @@
 
         {{-- Student Results --}}
         <a
-            href="{{ route('admin.results.students') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.students') ? 'active' : '' }}"
         >
             <i class="fas fa-user-graduate me-2"></i>
@@ -1057,7 +1057,7 @@
 
         {{-- Top 3 Toppers --}}
         <a
-            href="{{ route('admin.results.toppers') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.toppers') ? 'active' : '' }}"
         >
             <i class="fas fa-trophy me-2"></i>

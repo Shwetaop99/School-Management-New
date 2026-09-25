@@ -8,39 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('kit_template_items', function (Blueprint $table) {
-            $table->foreignId('kit_template_id')
-                ->after('id')
-                ->constrained('kit_templates')
-                ->cascadeOnDelete();
+        // The base migration already creates:
+        // kit_template_id, supply_item_id, quantity, remarks.
 
-            $table->foreignId('supply_item_id')
-                ->after('kit_template_id')
-                ->constrained('supply_items')
-                ->restrictOnDelete();
-
-            $table->unsignedInteger('quantity')
-                ->default(1)
-                ->after('supply_item_id');
-
-            $table->string('remarks', 500)
-                ->nullable()
-                ->after('quantity');
-        });
+        // Add only fields that are missing.
+        if (!Schema::hasColumn('kit_template_items', 'unit')) {
+            Schema::table('kit_template_items', function (Blueprint $table) {
+                $table->string('unit')
+                    ->nullable()
+                    ->after('quantity');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('kit_template_items', function (Blueprint $table) {
-            $table->dropForeign(['kit_template_id']);
-            $table->dropForeign(['supply_item_id']);
-
-            $table->dropColumn([
-                'kit_template_id',
-                'supply_item_id',
-                'quantity',
-                'remarks',
-            ]);
-        });
+        if (Schema::hasColumn('kit_template_items', 'unit')) {
+            Schema::table('kit_template_items', function (Blueprint $table) {
+                $table->dropColumn('unit');
+            });
+        }
     }
 };
