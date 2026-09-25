@@ -23,7 +23,9 @@ class TimetableController extends Controller
 
     public function index()
     {
-        $timetables = TeacherTimetable::latest()->get();
+        $timetables = TeacherTimetable::with('teacher')
+            ->latest()
+            ->get();
 
         $classes = DB::table('classes')
             ->orderBy('id')
@@ -155,11 +157,36 @@ class TimetableController extends Controller
                 'max:50',
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | SUBJECT
+            |--------------------------------------------------------------------------
+            */
+
             'subject' => [
                 'nullable',
                 'string',
                 'max:100',
-                'required_unless:period_type,Break,Lunch',
+                'required_unless:period_type,Break,Lunch,Activity',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTIVITY NAME
+            |--------------------------------------------------------------------------
+            */
+
+            'activity_name' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::in([
+                    'PT',
+                    'Dance',
+                    'Singing',
+                    'Drawing',
+                ]),
+                'required_if:period_type,Activity',
             ],
 
             /*
@@ -175,7 +202,7 @@ class TimetableController extends Controller
                     'Practical',
                     'Activity',
                 ]),
-                'required_unless:period_type,Break,Lunch',
+                'required_unless:period_type,Break,Lunch,Activity',
             ],
 
             'start_time' => [
@@ -239,6 +266,34 @@ class TimetableController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | ACTIVITY
+        |--------------------------------------------------------------------------
+        |
+        | Activity dropdown value is stored in the existing
+        | "subject" column.
+        |
+        | Example:
+        | Activity + PT
+        | subject = PT
+        | subject_type = Activity
+        |
+        */
+
+        if ($validated['period_type'] === 'Activity') {
+
+            $validated['subject'] =
+                $validated['activity_name'];
+
+            $validated['subject_type'] =
+                'Activity';
+
+            $validated['lecture_type'] =
+                'activity';
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | CALCULATE LECTURE TIME
         |--------------------------------------------------------------------------
         */
@@ -257,13 +312,35 @@ class TimetableController extends Controller
             $validated['period_type'] === 'Lunch'
         ) {
             $validated['teacher_id'] = null;
+
             $validated['class'] = null;
+
             $validated['section'] = null;
-            $validated['subject'] = $validated['period_type'];
-            $validated['subject_type'] = 'Activity';
+
+            $validated['subject'] =
+                $validated['period_type'];
+
+            $validated['subject_type'] =
+                'Activity';
+
             $validated['room'] = null;
-            $validated['lecture_type'] = 'activity';
+
+            $validated['lecture_type'] =
+                'activity';
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REMOVE ACTIVITY_NAME
+        |--------------------------------------------------------------------------
+        |
+        | activity_name is only a form field.
+        | It is NOT saved as a separate database column.
+        |
+        */
+
+        unset($validated['activity_name']);
 
 
         /*
@@ -315,6 +392,7 @@ class TimetableController extends Controller
                 ->exists();
 
             if ($teacherConflict) {
+
                 return back()
                     ->withInput()
                     ->withErrors([
@@ -349,11 +427,14 @@ class TimetableController extends Controller
                 ->where(function ($query) use ($validated) {
 
                     if (!empty($validated['section'])) {
+
                         $query->where(
                             'section',
                             $validated['section']
                         );
+
                     } else {
+
                         $query->whereNull('section');
                     }
                 })
@@ -373,6 +454,7 @@ class TimetableController extends Controller
                 ->exists();
 
             if ($classConflict) {
+
                 return back()
                     ->withInput()
                     ->withErrors([
@@ -422,6 +504,7 @@ class TimetableController extends Controller
                     ->exists();
 
                 if ($roomConflict) {
+
                     return back()
                         ->withInput()
                         ->withErrors([
@@ -478,6 +561,24 @@ class TimetableController extends Controller
                 'classes',
                 'sections'
             )
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHOW
+    |--------------------------------------------------------------------------
+    */
+
+    public function show($id)
+    {
+        $timetable = TeacherTimetable::with('teacher')
+            ->findOrFail($id);
+
+        return view(
+            'admin.timetable.show',
+            compact('timetable')
         );
     }
 
@@ -567,14 +668,21 @@ class TimetableController extends Controller
                 'nullable',
                 'string',
                 'max:100',
-                'required_unless:period_type,Break,Lunch',
+                'required_unless:period_type,Break,Lunch,Activity',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | SUBJECT TYPE
-            |--------------------------------------------------------------------------
-            */
+            'activity_name' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::in([
+                    'PT',
+                    'Dance',
+                    'Singing',
+                    'Drawing',
+                ]),
+                'required_if:period_type,Activity',
+            ],
 
             'subject_type' => [
                 'nullable',
@@ -583,7 +691,7 @@ class TimetableController extends Controller
                     'Practical',
                     'Activity',
                 ]),
-                'required_unless:period_type,Break,Lunch',
+                'required_unless:period_type,Break,Lunch,Activity',
             ],
 
             'start_time' => [
@@ -613,7 +721,7 @@ class TimetableController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CALCULATE DAY FROM DATE
+        | CALCULATE DAY
         |--------------------------------------------------------------------------
         */
 
@@ -647,6 +755,25 @@ class TimetableController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | ACTIVITY
+        |--------------------------------------------------------------------------
+        */
+
+        if ($validated['period_type'] === 'Activity') {
+
+            $validated['subject'] =
+                $validated['activity_name'];
+
+            $validated['subject_type'] =
+                'Activity';
+
+            $validated['lecture_type'] =
+                'activity';
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | CALCULATE LECTURE TIME
         |--------------------------------------------------------------------------
         */
@@ -665,13 +792,31 @@ class TimetableController extends Controller
             $validated['period_type'] === 'Lunch'
         ) {
             $validated['teacher_id'] = null;
+
             $validated['class'] = null;
+
             $validated['section'] = null;
-            $validated['subject'] = $validated['period_type'];
-            $validated['subject_type'] = 'Activity';
+
+            $validated['subject'] =
+                $validated['period_type'];
+
+            $validated['subject_type'] =
+                'Activity';
+
             $validated['room'] = null;
-            $validated['lecture_type'] = 'activity';
+
+            $validated['lecture_type'] =
+                'activity';
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REMOVE FORM-ONLY FIELD
+        |--------------------------------------------------------------------------
+        */
+
+        unset($validated['activity_name']);
 
 
         /*
@@ -728,6 +873,7 @@ class TimetableController extends Controller
                 ->exists();
 
             if ($teacherConflict) {
+
                 return back()
                     ->withInput()
                     ->withErrors([
@@ -767,11 +913,14 @@ class TimetableController extends Controller
                 ->where(function ($query) use ($validated) {
 
                     if (!empty($validated['section'])) {
+
                         $query->where(
                             'section',
                             $validated['section']
                         );
+
                     } else {
+
                         $query->whereNull('section');
                     }
                 })
@@ -791,6 +940,7 @@ class TimetableController extends Controller
                 ->exists();
 
             if ($classConflict) {
+
                 return back()
                     ->withInput()
                     ->withErrors([
@@ -845,6 +995,7 @@ class TimetableController extends Controller
                     ->exists();
 
                 if ($roomConflict) {
+
                     return back()
                         ->withInput()
                         ->withErrors([
@@ -858,7 +1009,7 @@ class TimetableController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | UPDATE RECORD
+        | UPDATE
         |--------------------------------------------------------------------------
         */
 
@@ -879,13 +1030,20 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    private function calculateLectureTime(array &$validated)
-    {
+    private function calculateLectureTime(
+        array &$validated
+    ) {
         $startTime = Carbon::createFromFormat(
             'H:i',
             $validated['start_time']
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | BREAK
+        |--------------------------------------------------------------------------
+        */
 
         if ($validated['period_type'] === 'Break') {
 
@@ -893,12 +1051,21 @@ class TimetableController extends Controller
                 ->copy()
                 ->addMinutes(15);
 
-            $validated['end_time'] = $endTime->format('H:i');
-            $validated['duration_minutes'] = 15;
+            $validated['end_time'] =
+                $endTime->format('H:i');
+
+            $validated['duration_minutes'] =
+                15;
 
             return;
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | LUNCH
+        |--------------------------------------------------------------------------
+        */
 
         if ($validated['period_type'] === 'Lunch') {
 
@@ -906,40 +1073,54 @@ class TimetableController extends Controller
                 ->copy()
                 ->addMinutes(60);
 
-            $validated['end_time'] = $endTime->format('H:i');
-            $validated['duration_minutes'] = 60;
+            $validated['end_time'] =
+                $endTime->format('H:i');
+
+            $validated['duration_minutes'] =
+                60;
 
             return;
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGULAR
+        |--------------------------------------------------------------------------
+        */
 
         if (
             ($validated['lecture_type'] ?? 'regular') === 'regular' &&
             empty($validated['end_time'])
         ) {
-
             $endTime = $startTime
                 ->copy()
                 ->addMinutes(45);
 
-            $validated['end_time'] = $endTime->format('H:i');
-            $validated['duration_minutes'] = 45;
+            $validated['end_time'] =
+                $endTime->format('H:i');
+
+            $validated['duration_minutes'] =
+                45;
 
             return;
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | CUSTOM END TIME
+        |--------------------------------------------------------------------------
+        */
+
         if (empty($validated['end_time'])) {
 
-            abort(
-                redirect()
-                    ->back()
-                    ->withInput()
-                    ->withErrors([
-                        'end_time' =>
-                            'Please enter an end time for this lecture.',
-                    ])
-            );
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'end_time' =>
+                        'Please enter an end time for this lecture.',
+                ]);
         }
 
 
@@ -949,22 +1130,37 @@ class TimetableController extends Controller
         );
 
 
-        if ($endTime->lessThanOrEqualTo($startTime)) {
+        /*
+        |--------------------------------------------------------------------------
+        | END TIME VALIDATION
+        |--------------------------------------------------------------------------
+        */
 
-            abort(
-                redirect()
-                    ->back()
-                    ->withInput()
-                    ->withErrors([
-                        'end_time' =>
-                            'End time must be after start time.',
-                    ])
-            );
+        if (
+            $endTime->lessThanOrEqualTo(
+                $startTime
+            )
+        ) {
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'end_time' =>
+                        'End time must be after start time.',
+                ]);
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | DURATION
+        |--------------------------------------------------------------------------
+        */
+
         $validated['duration_minutes'] =
-            $startTime->diffInMinutes($endTime);
+            $startTime->diffInMinutes(
+                $endTime
+            );
     }
 
 
@@ -974,8 +1170,9 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function destroy(TeacherTimetable $timetable)
-    {
+    public function destroy(
+        TeacherTimetable $timetable
+    ) {
         $timetable->delete();
 
         return redirect()
@@ -993,14 +1190,17 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function classTimetable(Request $request)
-    {
+    public function classTimetable(
+        Request $request
+    ) {
         $classes = DB::table('classes')
             ->orderBy('id')
             ->pluck('class_name');
 
         $sections = collect();
+
         $timetables = collect();
+
 
         if ($request->filled('class')) {
 
@@ -1021,11 +1221,13 @@ class TimetableController extends Controller
                     ->orderBy('id')
                     ->pluck('section_name');
 
+
                 $query = TeacherTimetable::with('teacher')
                     ->where(
                         'class',
                         $request->class
                     );
+
 
                 if ($request->filled('section')) {
 
@@ -1034,6 +1236,7 @@ class TimetableController extends Controller
                         $request->section
                     );
                 }
+
 
                 $timetables = $query
                     ->orderBy('period_number')
@@ -1053,6 +1256,7 @@ class TimetableController extends Controller
             }
         }
 
+
         return view(
             'admin.timetable.class',
             compact(
@@ -1070,12 +1274,14 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function classPdf(Request $request)
-    {
+    public function classPdf(
+        Request $request
+    ) {
         $request->validate([
             'class' => 'required|string',
             'section' => 'nullable|string',
         ]);
+
 
         $query = TeacherTimetable::with('teacher')
             ->where(function ($query) use ($request) {
@@ -1096,6 +1302,7 @@ class TimetableController extends Controller
                     }
                 });
 
+
                 $query->orWhereIn(
                     'period_type',
                     [
@@ -1104,6 +1311,7 @@ class TimetableController extends Controller
                     ]
                 );
             });
+
 
         $timetables = $query
             ->orderBy('period_number')
@@ -1121,6 +1329,7 @@ class TimetableController extends Controller
             ->orderBy('start_time')
             ->get();
 
+
         $days = [
             'Monday',
             'Tuesday',
@@ -1130,9 +1339,11 @@ class TimetableController extends Controller
             'Saturday',
         ];
 
+
         $periods = $timetables
             ->groupBy('period_number')
             ->sortKeys();
+
 
         $pdf = Pdf::loadView(
             'admin.timetable.pdf',
@@ -1143,10 +1354,12 @@ class TimetableController extends Controller
             )
         );
 
+
         $pdf->setPaper(
             'a4',
             'landscape'
         );
+
 
         return $pdf->download(
             'class-timetable-' .
@@ -1164,12 +1377,14 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function classExcel(Request $request)
-    {
+    public function classExcel(
+        Request $request
+    ) {
         $request->validate([
             'class' => 'required|string',
             'section' => 'nullable|string',
         ]);
+
 
         return Excel::download(
             new ClassTimetableExport(
@@ -1191,8 +1406,9 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function nextTime(Request $request)
-    {
+    public function nextTime(
+        Request $request
+    ) {
         $request->validate([
             'academic_year' => 'required|string',
             'day' => 'required|string',
@@ -1201,6 +1417,7 @@ class TimetableController extends Controller
             'class' => 'nullable|string',
             'section' => 'nullable|string',
         ]);
+
 
         $query = TeacherTimetable::where(
             'academic_year',
@@ -1218,6 +1435,7 @@ class TimetableController extends Controller
             ]
         );
 
+
         if ($request->filled('timetable_date')) {
 
             $query->where(
@@ -1225,6 +1443,7 @@ class TimetableController extends Controller
                 $request->timetable_date
             );
         }
+
 
         if ($request->teacher_id) {
 
@@ -1234,6 +1453,7 @@ class TimetableController extends Controller
             );
         }
 
+
         if ($request->class) {
 
             $query->where(
@@ -1241,6 +1461,7 @@ class TimetableController extends Controller
                 $request->class
             );
         }
+
 
         if ($request->section) {
 
@@ -1250,9 +1471,11 @@ class TimetableController extends Controller
             );
         }
 
+
         $lastLecture = $query
             ->orderByDesc('end_time')
             ->first();
+
 
         return response()->json([
             'next_start_time' =>
@@ -1267,8 +1490,9 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function teacherTimetable(Request $request)
-    {
+    public function teacherTimetable(
+        Request $request
+    ) {
         $teachers = Teacher::where(
             'status',
             'active'
@@ -1277,8 +1501,11 @@ class TimetableController extends Controller
             ->orderBy('last_name')
             ->get();
 
+
         $selectedTeacher = null;
+
         $timetables = collect();
+
 
         if ($request->filled('teacher_id')) {
 
@@ -1286,28 +1513,31 @@ class TimetableController extends Controller
                 $request->teacher_id
             );
 
+
             if ($selectedTeacher) {
 
-                $timetables = TeacherTimetable::where(
-                    'teacher_id',
-                    $selectedTeacher->id
-                )
-                ->orderByRaw("
-                    FIELD(
-                        day,
-                        'Monday',
-                        'Tuesday',
-                        'Wednesday',
-                        'Thursday',
-                        'Friday',
-                        'Saturday',
-                        'Sunday'
+                $timetables =
+                    TeacherTimetable::where(
+                        'teacher_id',
+                        $selectedTeacher->id
                     )
-                ")
-                ->orderBy('start_time')
-                ->get();
+                    ->orderByRaw("
+                        FIELD(
+                            day,
+                            'Monday',
+                            'Tuesday',
+                            'Wednesday',
+                            'Thursday',
+                            'Friday',
+                            'Saturday',
+                            'Sunday'
+                        )
+                    ")
+                    ->orderBy('start_time')
+                    ->get();
             }
         }
+
 
         return view(
             'admin.timetable.teacher',

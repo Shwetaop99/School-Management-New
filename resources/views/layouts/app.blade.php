@@ -844,14 +844,11 @@
                     Teacher Allocation
                 </a>
 
-<<<<<<< HEAD
                 <a href="{{ route('admin.leave-applications.index') }}"
                    class="submenu-item">
                     Leave Applications
 </a>
                 
-=======
->>>>>>> d6de0b3e2e678ebd398c8c6c042aa18e164b7995
             </div>
 
             {{-- OTHER STAFF --}}

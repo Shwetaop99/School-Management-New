@@ -52,66 +52,108 @@
 
     .staff-stats {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
-        margin-bottom: 24px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 24px;
+        margin-bottom: 28px;
     }
 
     .staff-stat-card {
         position: relative;
         overflow: hidden;
-        min-height: 125px;
-        padding: 20px;
-        border-radius: 12px;
+        min-height: 145px;
+        padding: 24px 26px;
+        border-radius: 16px;
         color: #fff;
-        box-shadow: 0 5px 18px rgba(25, 45, 75, .10);
+        box-shadow: 0 8px 24px rgba(25, 45, 75, .13);
+        transition: transform .25s ease, box-shadow .25s ease;
+        isolation: isolate;
+    }
+
+    .staff-stat-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 16px 30px rgba(25, 45, 75, .20);
+    }
+
+    .staff-stat-card::before {
+        content: "";
+        position: absolute;
+        width: 125px;
+        height: 125px;
+        top: -55px;
+        right: -25px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.10);
+        z-index: -1;
     }
 
     .staff-stat-card::after {
         content: "";
         position: absolute;
-        width: 100px;
-        height: 100px;
-        right: -25px;
-        bottom: -35px;
+        width: 90px;
+        height: 90px;
+        right: -28px;
+        bottom: -45px;
         border-radius: 50%;
-        background: rgba(255,255,255,.12);
+        background: rgba(255,255,255,.10);
+        z-index: -1;
     }
 
     .stat-blue {
-        background: linear-gradient(135deg, #1976d2, #42a5f5);
+        background: linear-gradient(135deg, #1769d1, #338be5);
     }
 
     .stat-green {
-        background: linear-gradient(135deg, #2e7d32, #66bb6a);
+        background: linear-gradient(135deg, #ef9808, #ffb52f);
     }
 
     .stat-orange {
-        background: linear-gradient(135deg, #ef6c00, #ffa726);
+        background: linear-gradient(135deg, #ef5350, #ff6868);
     }
 
     .stat-purple {
-        background: linear-gradient(135deg, #6a1b9a, #ab47bc);
+        background: linear-gradient(135deg, #8e2bb5, #a844c5);
     }
 
     .stat-icon {
-        font-size: 25px;
-        margin-bottom: 12px;
+        position: absolute;
+        top: 24px;
+        right: 26px;
+        width: 58px;
+        height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 34px;
+        line-height: 1;
     }
 
-    .stat-label {
-        display: block;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: .6px;
-        opacity: .9;
+    .stat-icon svg {
+        width: 42px;
+        height: 42px;
+        fill: currentColor;
     }
 
     .stat-number {
         display: block;
+        position: relative;
+        z-index: 2;
         margin-top: 3px;
-        font-size: 27px;
-        font-weight: 750;
+        font-size: 34px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -.5px;
+    }
+
+    .stat-label {
+        display: block;
+        position: relative;
+        z-index: 2;
+        margin-top: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: .1px;
+        text-transform: none;
     }
 
     /* =========================
@@ -469,27 +511,35 @@
     <div class="staff-stats">
 
         <div class="staff-stat-card stat-blue">
-            <div class="stat-icon">👥</div>
-            <span class="stat-label">TOTAL STAFF</span>
+            <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.91 1.97 3.45V19h7v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg>
+            </div>
             <span class="stat-number">{{ $totalStaff }}</span>
+            <span class="stat-label">Total Staff</span>
         </div>
 
         <div class="staff-stat-card stat-green">
-            <div class="stat-icon">✓</div>
-            <span class="stat-label">ACTIVE STAFF</span>
+            <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.91 1.97 3.45V19h7v-2.5c0-2.33-4.67-3.5-7-3.5Zm4.7-4.3-1.4-1.4-2.3 2.29-1.3-1.29-1.4 1.41 2.7 2.7 3.7-3.71Z"/></svg>
+            </div>
             <span class="stat-number">{{ $activeStaff }}</span>
+            <span class="stat-label">Active Staff</span>
         </div>
 
         <div class="staff-stat-card stat-orange">
-            <div class="stat-icon">⏸</div>
-            <span class="stat-label">INACTIVE STAFF</span>
+            <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.91 1.97 3.45V19h7v-2.5c0-2.33-4.67-3.5-7-3.5Zm3.5-5.5 1.4 1.4-1.4 1.4-1.4-1.4-1.4 1.4-1.4-1.4 1.4-1.4-1.4-1.4 1.4-1.4 1.4 1.4 1.4-1.4 1.4 1.4Z"/></svg>
+            </div>
             <span class="stat-number">{{ $inactiveStaff }}</span>
+            <span class="stat-label">Inactive Staff</span>
         </div>
 
         <div class="staff-stat-card stat-purple">
-            <div class="stat-icon">📚</div>
-            <span class="stat-label">ACTIVE LIBRARIANS</span>
+            <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 3h10v14H5V3Zm2 2v10h6V5H7Zm10 2h2v12h-2V7Zm-3 14H3v-2h11v2Zm8-3h-2v-6h2v6Z"/></svg>
+            </div>
             <span class="stat-number">{{ $librarians }}</span>
+            <span class="stat-label">Active Librarians</span>
         </div>
 
     </div>

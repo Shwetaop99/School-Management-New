@@ -60,17 +60,8 @@ class TeacherSalaryController extends Controller
 
     private function getMonthlyAttendance($teacherId, $salaryMonth)
     {
-        $startDate = Carbon::parse($salaryMonth)
-            ->startOfMonth();
-
-        $endDate = Carbon::parse($salaryMonth)
-            ->endOfMonth();
-
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE
-        |--------------------------------------------------------------------------
-        */
+        $startDate = Carbon::parse($salaryMonth)->startOfMonth();
+        $endDate = Carbon::parse($salaryMonth)->endOfMonth();
 
         $attendance = TeacherAttendance::where(
             'teacher_id',
@@ -84,12 +75,6 @@ class TeacherSalaryController extends Controller
                 ]
             )
             ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE COUNTS
-        |--------------------------------------------------------------------------
-        */
 
         $presentDays = $attendance
             ->whereIn('status', [
@@ -106,74 +91,29 @@ class TeacherSalaryController extends Controller
             ->where('status', 'Half Day')
             ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE DAYS
-        |--------------------------------------------------------------------------
-        */
-
         $leaveDays = $this->getMonthlyLeaveDays(
             $teacherId,
             $salaryMonth
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | OVERTIME HOURS
-        |--------------------------------------------------------------------------
-        */
-
         $overtimeHours = (float) $attendance
             ->sum('overtime_hours');
-
-        /*
-        |--------------------------------------------------------------------------
-        | RECORDED WORKING DAYS
-        |--------------------------------------------------------------------------
-        */
 
         $recordedDays =
             $presentDays +
             $absentDays +
             $halfDays;
 
-        /*
-        |--------------------------------------------------------------------------
-        | EFFECTIVE PRESENT DAYS
-        |--------------------------------------------------------------------------
-        */
-
         $effectivePresentDays =
             $presentDays +
             ($halfDays * 0.5);
-
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE PERCENTAGE
-        |--------------------------------------------------------------------------
-        */
 
         $attendancePercentage = 0;
 
         if ($recordedDays > 0) {
             $attendancePercentage =
-                (
-                    $effectivePresentDays /
-                    $recordedDays
-                ) * 100;
+                ($effectivePresentDays / $recordedDays) * 100;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | DEDUCTION RATE
-        |--------------------------------------------------------------------------
-        |
-        | Example:
-        |
-        | Attendance = 95%
-        | Deduction Rate = 5%
-        |
-        */
 
         $deductionRate = max(
             0,
@@ -184,29 +124,20 @@ class TeacherSalaryController extends Controller
         );
 
         return [
-            'working_days' =>
-                $recordedDays,
-
-            'present_days' =>
-                $presentDays,
-
-            'absent_days' =>
-                $absentDays,
-
-            'half_days' =>
-                $halfDays,
-
-            'leave_days' =>
-                $leaveDays,
-
-            'overtime_hours' =>
-                round($overtimeHours, 2),
-
-            'attendance_percentage' =>
-                round($attendancePercentage, 2),
-
-            'deduction_rate' =>
-                round($deductionRate, 2),
+            'working_days' => $recordedDays,
+            'present_days' => $presentDays,
+            'absent_days' => $absentDays,
+            'half_days' => $halfDays,
+            'leave_days' => $leaveDays,
+            'overtime_hours' => round($overtimeHours, 2),
+            'attendance_percentage' => round(
+                $attendancePercentage,
+                2
+            ),
+            'deduction_rate' => round(
+                $deductionRate,
+                2
+            ),
         ];
     }
 
@@ -217,13 +148,12 @@ class TeacherSalaryController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    private function getMonthlyLeaveDays($teacherId, $salaryMonth)
-    {
-        $startDate = Carbon::parse($salaryMonth)
-            ->startOfMonth();
-
-        $endDate = Carbon::parse($salaryMonth)
-            ->endOfMonth();
+    private function getMonthlyLeaveDays(
+        $teacherId,
+        $salaryMonth
+    ) {
+        $startDate = Carbon::parse($salaryMonth)->startOfMonth();
+        $endDate = Carbon::parse($salaryMonth)->endOfMonth();
 
         return LeaveApplication::where(
             'teacher_id',
@@ -290,12 +220,6 @@ class TeacherSalaryController extends Controller
             $request->salary_month
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE ALLOWANCE
-        |--------------------------------------------------------------------------
-        */
-
         $attendanceAllowance = 0;
 
         if (
@@ -304,23 +228,11 @@ class TeacherSalaryController extends Controller
             $attendanceAllowance = 500;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | OVERTIME
-        |--------------------------------------------------------------------------
-        */
-
         $overtimeRate = 200;
 
         $overtimeAmount =
             $attendance['overtime_hours'] *
             $overtimeRate;
-
-        /*
-        |--------------------------------------------------------------------------
-        | RETURN DATA
-        |--------------------------------------------------------------------------
-        */
 
         return response()->json([
             'success' => true,
@@ -381,41 +293,17 @@ class TeacherSalaryController extends Controller
             $salaryMonth
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | DEDUCTION RATE
-        |--------------------------------------------------------------------------
-        */
-
         $deductionRate =
             $attendance['deduction_rate'];
 
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE DEDUCTION
-        |--------------------------------------------------------------------------
-        */
-
         $attendanceDeduction =
             ($basic * $deductionRate) / 100;
-
-        /*
-        |--------------------------------------------------------------------------
-        | OVERTIME
-        |--------------------------------------------------------------------------
-        */
 
         $overtimeRate = 200;
 
         $overtimeAmount =
             $attendance['overtime_hours'] *
             $overtimeRate;
-
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE ALLOWANCE
-        |--------------------------------------------------------------------------
-        */
 
         $attendanceAllowance = 0;
 
@@ -425,32 +313,14 @@ class TeacherSalaryController extends Controller
             $attendanceAllowance = 500;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | GROSS SALARY
-        |--------------------------------------------------------------------------
-        */
-
         $grossSalary =
             $basic +
             $allowances +
             $attendanceAllowance +
             $overtimeAmount;
 
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL DEDUCTIONS
-        |--------------------------------------------------------------------------
-        */
-
         $totalDeductions =
             $attendanceDeduction;
-
-        /*
-        |--------------------------------------------------------------------------
-        | NET SALARY
-        |--------------------------------------------------------------------------
-        */
 
         $netSalary =
             $grossSalary -
@@ -544,21 +414,13 @@ class TeacherSalaryController extends Controller
                 'nullable|string|max:1000',
         ]);
 
-        $basic =
-            (float) (
-                $validated['basic_salary'] ?? 0
-            );
+        $basic = (float) (
+            $validated['basic_salary'] ?? 0
+        );
 
-        $allowances =
-            (float) (
-                $validated['allowances'] ?? 0
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULATE PAYROLL
-        |--------------------------------------------------------------------------
-        */
+        $allowances = (float) (
+            $validated['allowances'] ?? 0
+        );
 
         $payroll = $this->calculatePayroll(
             $validated['teacher_id'],
@@ -566,12 +428,6 @@ class TeacherSalaryController extends Controller
             $basic,
             $allowances
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | PREPARE SALARY DATA
-        |--------------------------------------------------------------------------
-        */
 
         $salaryData = [
             'teacher_id' =>
@@ -632,12 +488,6 @@ class TeacherSalaryController extends Controller
                 $validated['remarks'] ?? null,
         ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE DEDUCTION RATE
-        |--------------------------------------------------------------------------
-        */
-
         if (
             Schema::hasColumn(
                 'teacher_salaries',
@@ -648,12 +498,6 @@ class TeacherSalaryController extends Controller
                 $payroll['deduction_rate'];
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE SALARY
-        |--------------------------------------------------------------------------
-        */
-
         $salary = new TeacherSalary();
 
         foreach ($salaryData as $field => $value) {
@@ -661,12 +505,6 @@ class TeacherSalaryController extends Controller
         }
 
         $salary->save();
-
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route(
@@ -686,13 +524,15 @@ class TeacherSalaryController extends Controller
     */
 
     public function show(
-        TeacherSalary $teacherSalary
+        TeacherSalary $salary
     ) {
-        $teacherSalary->load('teacher');
+        $salary->load('teacher');
 
         return view(
             'admin.salary.show',
-            compact('teacherSalary')
+            [
+                'teacherSalary' => $salary
+            ]
         );
     }
 
@@ -704,78 +544,59 @@ class TeacherSalaryController extends Controller
     */
 
     public function edit(
-        TeacherSalary $teacherSalary
+        TeacherSalary $salary
     ) {
         $teachers = Teacher::orderBy(
             'first_name'
         )->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | RECALCULATE PAYROLL
-        |--------------------------------------------------------------------------
-        */
-
         $payroll = $this->calculatePayroll(
-            $teacherSalary->teacher_id,
-            $teacherSalary->salary_month,
-            (float) $teacherSalary->basic_salary,
+            $salary->teacher_id,
+            $salary->salary_month,
+            (float) $salary->basic_salary,
             (float) (
-                $teacherSalary->allowances ?? 0
+                $salary->allowances ?? 0
             )
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | DISPLAY CALCULATED VALUES
-        |--------------------------------------------------------------------------
-        |
-        | These values are only used for displaying data
-        | on the edit page.
-        |
-        | attendance_percentage and overtime_rate are
-        | NOT database columns.
-        |
-        */
-
-        $teacherSalary->attendance_percentage =
+        $salary->attendance_percentage =
             $payroll['attendance_percentage'];
 
-        $teacherSalary->deduction_rate =
-            $teacherSalary->deduction_rate
+        $salary->deduction_rate =
+            $salary->deduction_rate
             ?? $payroll['deduction_rate'];
 
-        $teacherSalary->overtime_hours =
-            $teacherSalary->overtime_hours
+        $salary->overtime_hours =
+            $salary->overtime_hours
             ?? $payroll['overtime_hours'];
 
-        $teacherSalary->overtime_amount =
-            $teacherSalary->overtime_amount
+        $salary->overtime_amount =
+            $salary->overtime_amount
             ?? $payroll['overtime_amount'];
 
-        $teacherSalary->attendance_allowance =
-            $teacherSalary->attendance_allowance
+        $salary->attendance_allowance =
+            $salary->attendance_allowance
             ?? $payroll['attendance_allowance'];
 
-        $teacherSalary->attendance_deduction =
-            $teacherSalary->attendance_deduction
+        $salary->attendance_deduction =
+            $salary->attendance_deduction
             ?? $payroll['attendance_deduction'];
 
-        $teacherSalary->gross_salary =
-            $teacherSalary->gross_salary
+        $salary->gross_salary =
+            $salary->gross_salary
             ?? $payroll['gross_salary'];
 
-        $teacherSalary->net_salary =
-            $teacherSalary->net_salary
+        $salary->net_salary =
+            $salary->net_salary
             ?? $payroll['net_salary'];
 
         return view(
             'admin.salary.edit',
-            compact(
-                'teacherSalary',
-                'teachers',
-                'payroll'
-            )
+            [
+                'teacherSalary' => $salary,
+                'teachers' => $teachers,
+                'payroll' => $payroll
+            ]
         );
     }
 
@@ -788,14 +609,8 @@ class TeacherSalaryController extends Controller
 
     public function update(
         Request $request,
-        TeacherSalary $teacherSalary
+        TeacherSalary $salary
     ) {
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDATION
-        |--------------------------------------------------------------------------
-        */
-
         $validated = $request->validate([
             'teacher_id' =>
                 'required|exists:teachers,id',
@@ -824,16 +639,6 @@ class TeacherSalaryController extends Controller
             'leave_days' =>
                 'nullable|numeric|min:0',
 
-            /*
-            |--------------------------------------------------------------------------
-            | DISPLAY-ONLY FIELD
-            |--------------------------------------------------------------------------
-            |
-            | attendance_percentage is accepted for validation
-            | but is NOT saved because there is no database column.
-            |
-            */
-
             'attendance_percentage' =>
                 'nullable|numeric|min:0|max:100',
 
@@ -845,16 +650,6 @@ class TeacherSalaryController extends Controller
 
             'overtime_hours' =>
                 'nullable|numeric|min:0',
-
-            /*
-            |--------------------------------------------------------------------------
-            | DISPLAY-ONLY FIELD
-            |--------------------------------------------------------------------------
-            |
-            | overtime_rate is NOT saved because there is
-            | currently no overtime_rate column.
-            |
-            */
 
             'overtime_rate' =>
                 'nullable|numeric|min:0',
@@ -884,80 +679,37 @@ class TeacherSalaryController extends Controller
                 'nullable|string|max:1000',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | BASIC VALUES
-        |--------------------------------------------------------------------------
-        */
-
-        $basicSalary =
-            (float) (
-                $validated['basic_salary'] ?? 0
-            );
-
-        $allowances =
-            (float) (
-                $validated['allowances'] ?? 0
-            );
-
-        $workingDays =
-            (float) (
-                $validated['working_days'] ?? 0
-            );
-
-        $presentDays =
-            (float) (
-                $validated['present_days'] ?? 0
-            );
-
-        $absentDays =
-            (float) (
-                $validated['absent_days'] ?? 0
-            );
-
-        $halfDays =
-            (float) (
-                $validated['half_days'] ?? 0
-            );
-
-        $leaveDays =
-            (float) (
-                $validated['leave_days'] ?? 0
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE PERCENTAGE
-        |--------------------------------------------------------------------------
-        |
-        | Display only.
-        | NOT saved to database.
-        |
-        */
-
-        $attendancePercentage =
-            (float) (
-                $validated['attendance_percentage'] ?? 0
-            );
-
-        $attendancePercentage = max(
-            0,
-            min(
-                100,
-                $attendancePercentage
-            )
+        $basicSalary = (float) (
+            $validated['basic_salary'] ?? 0
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | DEDUCTION RATE
-        |--------------------------------------------------------------------------
-        */
+        $allowances = (float) (
+            $validated['allowances'] ?? 0
+        );
 
-        $deductionRate =
-            (float) (
-                $validated['deduction_rate'] ?? 0
-            );
+        $workingDays = (float) (
+            $validated['working_days'] ?? 0
+        );
+
+        $presentDays = (float) (
+            $validated['present_days'] ?? 0
+        );
+
+        $absentDays = (float) (
+            $validated['absent_days'] ?? 0
+        );
+
+        $halfDays = (float) (
+            $validated['half_days'] ?? 0
+        );
+
+        $leaveDays = (float) (
+            $validated['leave_days'] ?? 0
+        );
+
+        $deductionRate = (float) (
+            $validated['deduction_rate'] ?? 0
+        );
 
         $deductionRate = max(
             0,
@@ -967,38 +719,17 @@ class TeacherSalaryController extends Controller
             )
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | OVERTIME
-        |--------------------------------------------------------------------------
-        */
+        $overtimeHours = (float) (
+            $validated['overtime_hours'] ?? 0
+        );
 
-        $overtimeHours =
-            (float) (
-                $validated['overtime_hours'] ?? 0
-            );
+        $overtimeAmount = (float) (
+            $validated['overtime_amount'] ?? 0
+        );
 
-        $overtimeAmount =
-            (float) (
-                $validated['overtime_amount'] ?? 0
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE ALLOWANCE
-        |--------------------------------------------------------------------------
-        */
-
-        $attendanceAllowance =
-            (float) (
-                $validated['attendance_allowance'] ?? 0
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | ATTENDANCE DEDUCTION
-        |--------------------------------------------------------------------------
-        */
+        $attendanceAllowance = (float) (
+            $validated['attendance_allowance'] ?? 0
+        );
 
         $attendanceDeduction =
             (
@@ -1006,32 +737,14 @@ class TeacherSalaryController extends Controller
                 $deductionRate
             ) / 100;
 
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL DEDUCTIONS
-        |--------------------------------------------------------------------------
-        */
-
         $totalDeductions =
             $attendanceDeduction;
-
-        /*
-        |--------------------------------------------------------------------------
-        | GROSS SALARY
-        |--------------------------------------------------------------------------
-        */
 
         $grossSalary =
             $basicSalary +
             $allowances +
             $attendanceAllowance +
             $overtimeAmount;
-
-        /*
-        |--------------------------------------------------------------------------
-        | NET SALARY
-        |--------------------------------------------------------------------------
-        */
 
         $netSalary =
             $grossSalary -
@@ -1042,85 +755,74 @@ class TeacherSalaryController extends Controller
             $netSalary
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | UPDATE REAL DATABASE COLUMNS ONLY
-        |--------------------------------------------------------------------------
-        */
-
-        $teacherSalary->teacher_id =
+        $salary->teacher_id =
             $validated['teacher_id'];
 
-        $teacherSalary->salary_month =
+        $salary->salary_month =
             $validated['salary_month'];
 
-        $teacherSalary->working_days =
+        $salary->working_days =
             $workingDays;
 
-        $teacherSalary->present_days =
+        $salary->present_days =
             $presentDays;
 
-        $teacherSalary->absent_days =
+        $salary->absent_days =
             $absentDays;
 
-        $teacherSalary->half_days =
+        $salary->half_days =
             $halfDays;
 
-        $teacherSalary->leave_days =
+        $salary->leave_days =
             $leaveDays;
 
-        $teacherSalary->overtime_hours =
+        $salary->overtime_hours =
             $overtimeHours;
 
-        $teacherSalary->overtime_amount =
+        $salary->overtime_amount =
             round($overtimeAmount, 2);
 
-        $teacherSalary->basic_salary =
+        $salary->basic_salary =
             round($basicSalary, 2);
 
-        $teacherSalary->allowances =
+        $salary->allowances =
             round($allowances, 2);
 
-        $teacherSalary->attendance_allowance =
+        $salary->attendance_allowance =
             round($attendanceAllowance, 2);
 
-        $teacherSalary->deduction_rate =
-            round($deductionRate, 2);
+        if (
+            Schema::hasColumn(
+                'teacher_salaries',
+                'deduction_rate'
+            )
+        ) {
+            $salary->deduction_rate =
+                round($deductionRate, 2);
+        }
 
-        $teacherSalary->deductions =
+        $salary->deductions =
             round($totalDeductions, 2);
 
-        $teacherSalary->attendance_deduction =
+        $salary->attendance_deduction =
             round($attendanceDeduction, 2);
 
-        $teacherSalary->gross_salary =
+        $salary->gross_salary =
             round($grossSalary, 2);
 
-        $teacherSalary->net_salary =
+        $salary->net_salary =
             round($netSalary, 2);
 
-        $teacherSalary->payment_status =
+        $salary->payment_status =
             $validated['payment_status'];
 
-        $teacherSalary->payment_date =
+        $salary->payment_date =
             $validated['payment_date'] ?? null;
 
-        $teacherSalary->remarks =
+        $salary->remarks =
             $validated['remarks'] ?? null;
 
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE
-        |--------------------------------------------------------------------------
-        */
-
-        $teacherSalary->save();
-
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
+        $salary->save();
 
         return redirect()
             ->route(
@@ -1140,9 +842,9 @@ class TeacherSalaryController extends Controller
     */
 
     public function destroy(
-        TeacherSalary $teacherSalary
+        TeacherSalary $salary
     ) {
-        $teacherSalary->delete();
+        $salary->delete();
 
         return redirect()
             ->route(
@@ -1154,4 +856,3 @@ class TeacherSalaryController extends Controller
             );
     }
 }
-
