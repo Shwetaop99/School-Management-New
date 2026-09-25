@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\LibraryReportController;
 use App\Http\Controllers\Admin\LibraryReportDownloadController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\ReportsController;
 
 
 /*
@@ -248,6 +249,17 @@ Route::prefix('admin')
                 ->name('dashboard')
                 ->middleware('permission:dashboard.view');
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | REPORTS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/reports', [
+                ReportsController::class,
+                'index'
+            ])->name('reports.index');
 
 
             /*

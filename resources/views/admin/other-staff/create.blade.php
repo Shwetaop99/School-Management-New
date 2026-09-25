@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
@@ -358,7 +358,7 @@
 
         <a href="{{ route('admin.other-staff.index') }}"
            class="back-btn">
-            ← Back to Staff
+            ΓåÉ Back to Staff
         </a>
 
     </div>
@@ -539,7 +539,7 @@
                                 class="photo-placeholder"
                                 id="photoPlaceholder"
                             >
-                                👤
+                                ≡ƒæñ
                             </div>
 
                             <img
@@ -1681,7 +1681,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 ) {
 
                     compressionStatus.textContent =
-                        '✓ Compressed successfully: ' +
+                        'Γ£ô Compressed successfully: ' +
                         sizeKB.toFixed(0) +
                         ' KB';
 
