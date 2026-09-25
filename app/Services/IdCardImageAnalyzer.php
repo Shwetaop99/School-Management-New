@@ -11,11 +11,17 @@ class IdCardImageAnalyzer
     /**
      * Analyze an ID-card design image.
      *
-     * Returns:
-     * - image dimensions
-     * - OCR words
-     * - automatically detected fields
-     * - possible photo area
+     * STEP 1:
+     * - Detect image dimensions
+     * - Run Tesseract OCR
+     * - Return every detected OCR word
+     * - Return exact bounding boxes
+     *
+     * IMPORTANT:
+     * We intentionally DO NOT decide where dynamic student
+     * fields should be placed yet.
+     *
+     * The admin will select/map those areas in the next step.
      */
     public function analyze(string $imagePath): array
     {
@@ -77,22 +83,6 @@ class IdCardImageAnalyzer
         |--------------------------------------------------------------------------
         | Get TSV output
         |--------------------------------------------------------------------------
-        |
-        | Tesseract TSV contains:
-        |
-        | level
-        | page_num
-        | block_num
-        | par_num
-        | line_num
-        | word_num
-        | left
-        | top
-        | width
-        | height
-        | conf
-        | text
-        |
         */
 
         try {
@@ -100,7 +90,6 @@ class IdCardImageAnalyzer
                 ->tsv()
                 ->run();
         } catch (\Throwable $e) {
-
             Log::error(
                 'Tesseract OCR failed.',
                 [
@@ -117,7 +106,7 @@ class IdCardImageAnalyzer
 
         /*
         |--------------------------------------------------------------------------
-        | Parse TSV
+        | Parse OCR words
         |--------------------------------------------------------------------------
         */
 
@@ -125,32 +114,7 @@ class IdCardImageAnalyzer
 
         /*
         |--------------------------------------------------------------------------
-        | Detect fields
-        |--------------------------------------------------------------------------
-        */
-
-        $detectedFields = $this->detectFields(
-            $words,
-            $imageWidth,
-            $imageHeight
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Detect photo area
-        |--------------------------------------------------------------------------
-        */
-
-        $photoArea = $this->detectPhotoArea(
-            $imagePath,
-            $words,
-            $imageWidth,
-            $imageHeight
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return complete analysis
+        | Return analysis
         |--------------------------------------------------------------------------
         */
 
@@ -160,21 +124,62 @@ class IdCardImageAnalyzer
                 'height' => $imageHeight,
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | Every OCR word with its exact position
+            |--------------------------------------------------------------------------
+            */
+
             'words' => $words,
 
-            'fields' => $detectedFields,
+            /*
+            |--------------------------------------------------------------------------
+            | Fields are intentionally empty in STEP 1.
+            |
+            | In STEP 2 the admin will select OCR text and map it
+            | to fields such as:
+            |
+            | name
+            | roll_number
+            | class
+            | division
+            | dob
+            | etc.
+            |--------------------------------------------------------------------------
+            */
 
-            'photo' => $photoArea,
+            'fields' => [],
 
-            'analysis_version' => 1,
+            /*
+            |--------------------------------------------------------------------------
+            | Photo detection is intentionally disabled for now.
+            |
+            | We will allow the admin to define the photo area
+            | manually in the template editor.
+            |--------------------------------------------------------------------------
+            */
 
-            'analyzed_at' =>
-                now()->toDateTimeString(),
+            'photo' => null,
+
+            'analysis_version' => 3,
+
+            'analyzed_at' => now()->toDateTimeString(),
         ];
     }
 
     /**
      * Parse Tesseract TSV output.
+     *
+     * We only keep actual OCR words.
+     *
+     * Each word contains:
+     *
+     * text
+     * left
+     * top
+     * width
+     * height
+     * confidence
      */
     private function parseTsv(string $tsv): array
     {
@@ -192,7 +197,7 @@ class IdCardImageAnalyzer
 
         /*
         |--------------------------------------------------------------------------
-        | First line contains column names
+        | First line contains TSV column names
         |--------------------------------------------------------------------------
         */
 
@@ -238,7 +243,7 @@ class IdCardImageAnalyzer
 
             /*
             |--------------------------------------------------------------------------
-            | Only process actual OCR words
+            | Level 5 = actual OCR word
             |--------------------------------------------------------------------------
             */
 
@@ -260,7 +265,7 @@ class IdCardImageAnalyzer
 
             /*
             |--------------------------------------------------------------------------
-            | Ignore empty / invalid OCR results
+            | Ignore empty OCR results
             |--------------------------------------------------------------------------
             */
 
@@ -271,737 +276,68 @@ class IdCardImageAnalyzer
                 continue;
             }
 
+            $left = (int) (
+                $row['left'] ?? 0
+            );
+
+            $top = (int) (
+                $row['top'] ?? 0
+            );
+
+            $width = (int) (
+                $row['width'] ?? 0
+            );
+
+            $height = (int) (
+                $row['height'] ?? 0
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Store exact OCR information
+            |--------------------------------------------------------------------------
+            */
+
             $result[] = [
                 'text' => $text,
 
-                'left' => (int) (
-                    $row['left'] ?? 0
-                ),
+                'left' => $left,
 
-                'top' => (int) (
-                    $row['top'] ?? 0
-                ),
+                'top' => $top,
 
-                'width' => (int) (
-                    $row['width'] ?? 0
-                ),
+                'width' => $width,
 
-                'height' => (int) (
-                    $row['height'] ?? 0
-                ),
+                'height' => $height,
 
-                'confidence' =>
-                    round(
-                        $confidence,
-                        2
-                    ),
+                'right' => $left + $width,
+
+                'bottom' => $top + $height,
+
+                'confidence' => round(
+                    $confidence,
+                    2
+                ),
             ];
         }
 
-        return $result;
-    }
-
-    /**
-     * Detect common ID-card labels.
-     */
-    private function detectFields(
-        array $words,
-        int $imageWidth,
-        int $imageHeight
-    ): array {
-        $fields = [];
-
         /*
         |--------------------------------------------------------------------------
-        | Supported labels
+        | Sort words top-to-bottom, left-to-right
         |--------------------------------------------------------------------------
         */
 
-        $labelMap = [
+        usort(
+            $result,
+            function ($a, $b) {
 
-            'name' => [
-                'name',
-                'student name',
-                'full name',
-                'studentname',
-            ],
-
-            'student_id' => [
-                'student id',
-                'student no',
-                'student number',
-                'id no',
-                'id number',
-                'studentid',
-            ],
-
-            'class' => [
-                'class',
-                'standard',
-                'std',
-            ],
-
-            'section' => [
-                'section',
-                'div',
-                'division',
-            ],
-
-            'roll_number' => [
-                'roll no',
-                'roll number',
-                'roll',
-                'rollno',
-            ],
-
-            'gr_no' => [
-                'gr no',
-                'gr number',
-                'gr no.',
-                'register no',
-                'register number',
-                'registration no',
-            ],
-
-            'dob' => [
-                'dob',
-                'date of birth',
-                'birth date',
-                'birthdate',
-            ],
-
-            'blood_group' => [
-                'blood group',
-                'blood',
-            ],
-
-            'phone' => [
-                'phone',
-                'mobile',
-                'contact',
-                'mobile no',
-                'phone no',
-            ],
-
-            'father_name' => [
-                'father name',
-                "father's name",
-                'father',
-            ],
-
-            'mother_name' => [
-                'mother name',
-                "mother's name",
-                'mother',
-            ],
-
-            'address' => [
-                'address',
-            ],
-
-            'academic_year' => [
-                'academic year',
-                'academic',
-                'year',
-            ],
-
-            'gender' => [
-                'gender',
-                'sex',
-            ],
-
-            'blood' => [
-                'blood',
-            ],
-
-            'caste' => [
-                'caste',
-            ],
-
-            'religion' => [
-                'religion',
-            ],
-
-            'nationality' => [
-                'nationality',
-            ],
-        ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Scan OCR words
-        |--------------------------------------------------------------------------
-        */
-
-        foreach (
-            $words as $index => $word
-        ) {
-
-            $current =
-                $this->normalizeText(
-                    $word['text']
-                );
-
-            if ($current === '') {
-                continue;
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Single-word labels
-            |--------------------------------------------------------------------------
-            */
-
-            foreach (
-                $labelMap as $field => $labels
-            ) {
-
-                foreach (
-                    $labels as $label
-                ) {
-
-                    if (
-                        $this->matchesLabel(
-                            $current,
-                            $label
-                        )
-                    ) {
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Don't overwrite a higher-confidence
-                        | detection with a lower-confidence one.
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if (
-                            !isset(
-                                $fields[$field]
-                            ) ||
-                            (
-                                $word['confidence'] >
-                                $fields[$field]['confidence']
-                            )
-                        ) {
-
-                            $fields[$field] =
-                                $this->makeFieldPosition(
-                                    $field,
-                                    $word,
-                                    $imageWidth,
-                                    $imageHeight
-                                );
-                        }
-                    }
-                }
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Two-word labels
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                isset(
-                    $words[$index + 1]
-                )
-            ) {
-
-                $next =
-                    $words[$index + 1];
-
-                /*
-                |--------------------------------------------------------------------------
-                | Make sure the next word is
-                | actually close to the current word.
-                |--------------------------------------------------------------------------
-                */
-
-                $currentRight =
-                    $word['left'] +
-                    $word['width'];
-
-                $gap =
-                    $next['left'] -
-                    $currentRight;
-
-                $sameLine =
-                    abs(
-                        $next['top'] -
-                        $word['top']
-                    ) <=
-                    max(
-                        10,
-                        $word['height']
-                    );
-
-                $closeEnough =
-                    $gap >= -5 &&
-                    $gap <= 100;
-
-                if (
-                    !$sameLine ||
-                    !$closeEnough
-                ) {
-                    continue;
+                if ($a['top'] === $b['top']) {
+                    return $a['left'] <=> $b['left'];
                 }
 
-                $nextText =
-                    $this->normalizeText(
-                        $next['text']
-                    );
-
-                $combined =
-                    $current .
-                    ' ' .
-                    $nextText;
-
-                foreach (
-                    $labelMap as $field => $labels
-                ) {
-
-                    foreach (
-                        $labels as $label
-                    ) {
-
-                        if (
-                            $this->matchesLabel(
-                                $combined,
-                                $label
-                            )
-                        ) {
-
-                            $combinedWord = [
-
-                                'text' =>
-                                    $word['text'] .
-                                    ' ' .
-                                    $next['text'],
-
-                                'left' =>
-                                    min(
-                                        $word['left'],
-                                        $next['left']
-                                    ),
-
-                                'top' =>
-                                    min(
-                                        $word['top'],
-                                        $next['top']
-                                    ),
-
-                                'width' =>
-                                    max(
-                                        $word['left'] +
-                                            $word['width'],
-
-                                        $next['left'] +
-                                            $next['width']
-                                    )
-                                    -
-                                    min(
-                                        $word['left'],
-                                        $next['left']
-                                    ),
-
-                                'height' =>
-                                    max(
-                                        $word['height'],
-                                        $next['height']
-                                    ),
-
-                                'confidence' =>
-                                    min(
-                                        $word['confidence'],
-                                        $next['confidence']
-                                    ),
-                            ];
-
-                            if (
-                                !isset(
-                                    $fields[$field]
-                                ) ||
-                                (
-                                    $combinedWord[
-                                        'confidence'
-                                    ] >
-                                    $fields[$field][
-                                        'confidence'
-                                    ]
-                                )
-                            ) {
-
-                                $fields[$field] =
-                                    $this->makeFieldPosition(
-                                        $field,
-                                        $combinedWord,
-                                        $imageWidth,
-                                        $imageHeight
-                                    );
-                            }
-                        }
-                    }
-                }
+                return $a['top'] <=> $b['top'];
             }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return indexed array
-        |--------------------------------------------------------------------------
-        */
-
-        return array_values(
-            $fields
         );
-    }
 
-    /**
-     * Create automatic field coordinates.
-     */
-    private function makeFieldPosition(
-        string $field,
-        array $word,
-        int $imageWidth,
-        int $imageHeight
-    ): array {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Label coordinates
-        |--------------------------------------------------------------------------
-        */
-
-        $labelRight =
-            $word['left'] +
-            $word['width'];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Automatically put value
-        | after the label.
-        |--------------------------------------------------------------------------
-        */
-
-        $valueX =
-            $labelRight + 8;
-
-        $valueY =
-            $word['top'];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Keep value inside image
-        |--------------------------------------------------------------------------
-        */
-
-        $valueX =
-            min(
-                $valueX,
-                $imageWidth - 20
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Available width
-        |--------------------------------------------------------------------------
-        */
-
-        $valueWidth =
-            max(
-                50,
-                $imageWidth -
-                $valueX -
-                10
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Font size based on detected label
-        |--------------------------------------------------------------------------
-        */
-
-        $fontSize =
-            max(
-                10,
-                min(
-                    22,
-                    $word['height']
-                )
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return normalized coordinates
-        |--------------------------------------------------------------------------
-        */
-
-        return [
-
-            'key' =>
-                $field,
-
-            'label' =>
-                $word['text'],
-
-            'label_x' =>
-                $word['left'],
-
-            'label_y' =>
-                $word['top'],
-
-            'label_width' =>
-                $word['width'],
-
-            'label_height' =>
-                $word['height'],
-
-            'x' =>
-                round(
-                    (
-                        $valueX /
-                        $imageWidth
-                    ) * 100,
-                    4
-                ),
-
-            'y' =>
-                round(
-                    (
-                        $valueY /
-                        $imageHeight
-                    ) * 100,
-                    4
-                ),
-
-            'width' =>
-                round(
-                    (
-                        $valueWidth /
-                        $imageWidth
-                    ) * 100,
-                    4
-                ),
-
-            'height' =>
-                round(
-                    (
-                        max(
-                            25,
-                            $word['height'] + 8
-                        ) /
-                        $imageHeight
-                    ) * 100,
-                    4
-                ),
-
-            'font_size' =>
-                $fontSize,
-
-            'font_weight' =>
-                'normal',
-
-            'text_align' =>
-                'left',
-
-            'confidence' =>
-                $word['confidence'],
-        ];
-    }
-
-    /**
-     * Detect a possible photo region.
-     *
-     * This is currently a heuristic.
-     */
-    private function detectPhotoArea(
-        string $imagePath,
-        array $words,
-        int $imageWidth,
-        int $imageHeight
-    ): ?array {
-
-        /*
-        |--------------------------------------------------------------------------
-        | If there is no OCR text,
-        | don't guess aggressively.
-        |--------------------------------------------------------------------------
-        */
-
-        if (empty($words)) {
-            return null;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Candidate photo dimensions.
-        |--------------------------------------------------------------------------
-        */
-
-        $candidateWidth =
-            (int) round(
-                $imageWidth * 0.35
-            );
-
-        $candidateHeight =
-            (int) round(
-                $imageHeight * 0.30
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Center candidate.
-        |--------------------------------------------------------------------------
-        */
-
-        $candidateX =
-            (int) round(
-                (
-                    $imageWidth -
-                    $candidateWidth
-                ) / 2
-            );
-
-        $candidateY =
-            (int) round(
-                $imageHeight * 0.20
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Keep inside image.
-        |--------------------------------------------------------------------------
-        */
-
-        $candidateX =
-            max(
-                0,
-                min(
-                    $candidateX,
-                    $imageWidth -
-                    $candidateWidth
-                )
-            );
-
-        $candidateY =
-            max(
-                0,
-                min(
-                    $candidateY,
-                    $imageHeight -
-                    $candidateHeight
-                )
-            );
-
-        return [
-
-            'key' =>
-                'profile_image',
-
-            'x' =>
-                round(
-                    (
-                        $candidateX /
-                        $imageWidth
-                    ) * 100,
-                    4
-                ),
-
-            'y' =>
-                round(
-                    (
-                        $candidateY /
-                        $imageHeight
-                    ) * 100,
-                    4
-                ),
-
-            'width' =>
-                round(
-                    (
-                        $candidateWidth /
-                        $imageWidth
-                    ) * 100,
-                    4
-                ),
-
-            'height' =>
-                round(
-                    (
-                        $candidateHeight /
-                        $imageHeight
-                    ) * 100,
-                    4
-                ),
-
-            'confidence' =>
-                0,
-
-            'detection_method' =>
-                'photo_region_heuristic',
-        ];
-    }
-
-    /**
-     * Normalize OCR text.
-     */
-    private function normalizeText(
-        string $text
-    ): string {
-
-        $text =
-            strtolower(
-                trim($text)
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Replace punctuation with spaces.
-        |--------------------------------------------------------------------------
-        */
-
-        $text =
-            preg_replace(
-                '/[^a-z0-9\s]/',
-                ' ',
-                $text
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Remove duplicate spaces.
-        |--------------------------------------------------------------------------
-        */
-
-        $text =
-            preg_replace(
-                '/\s+/',
-                ' ',
-                $text
-            );
-
-        return trim($text);
-    }
-
-    /**
-     * Compare OCR text with known label.
-     */
-    private function matchesLabel(
-        string $detected,
-        string $label
-    ): bool {
-
-        $detected =
-            $this->normalizeText(
-                $detected
-            );
-
-        $label =
-            $this->normalizeText(
-                $label
-            );
-
-        return $detected === $label;
+        return $result;
     }
 }

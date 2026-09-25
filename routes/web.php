@@ -39,6 +39,12 @@ use App\Http\Controllers\Admin\StudentGeneralRegisterController;
 use App\Http\Controllers\Admin\StudentHealthController;
 use App\Http\Controllers\Admin\BonafideCertificateController;
 use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Admin\IdCardController;
+use App\Http\Controllers\Admin\StudentSupplyKitController;
+use App\Http\Controllers\Admin\SchoolLeavingCertificateController;
+use App\Http\Controllers\Admin\CasteReportController;
+use App\Http\Controllers\Admin\AgeReportController;
+use App\Http\Controllers\Admin\IdCardTemplateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +64,8 @@ use App\Http\Controllers\Class\SubjectController;
 Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+    
 
         /*
         |--------------------------------------------------------------------------
@@ -291,8 +299,149 @@ Route::prefix('admin')
             */
 
             Route::get('/students', [StudentController::class, 'index'])
-                ->name('students.index')
-                ->middleware('permission:students.view');
+    ->name('students.index');
+
+Route::get('/students/create', [StudentController::class, 'create'])
+    ->name('students.create');
+
+Route::post('/students', [StudentController::class, 'store'])
+    ->name('students.store');
+
+Route::get('/students/next-roll-number', [StudentController::class, 'nextRollNumber'])
+    ->name('students.next-roll-number');    
+
+Route::get('/students/{student}', [StudentController::class, 'show'])
+    ->name('students.show');
+
+Route::get('/students/{student}/edit', [StudentController::class, 'edit'])
+    ->name('students.edit');
+
+Route::put('/students/{student}', [StudentController::class, 'update'])
+    ->name('students.update');
+
+Route::delete('/students/{student}', [StudentController::class, 'destroy'])
+    ->name('students.destroy');
+
+    /*
+|--------------------------------------------------------------------------
+| STUDENT SUPPLY KITS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/student-supply-kits', [StudentSupplyKitController::class, 'index'])
+    ->name('student-supply-kits.index');
+
+Route::get('/student-supply-kits/create', [StudentSupplyKitController::class, 'create'])
+    ->name('student-supply-kits.create');
+
+Route::post('/student-supply-kits', [StudentSupplyKitController::class, 'store'])
+    ->name('student-supply-kits.store');
+
+Route::get('/student-supply-kits/search-students', [StudentSupplyKitController::class, 'searchStudents'])
+    ->name('student-supply-kits.search-students');
+
+Route::get('/student-supply-kits/template-items', [StudentSupplyKitController::class, 'templateItems'])
+    ->name('student-supply-kits.template-items');
+
+Route::get('/student-supply-kits/supply-items', [StudentSupplyKitController::class, 'supplyItems'])
+    ->name('student-supply-kits.supply-items');
+
+Route::get('/student-supply-kits/{studentSupplyKit}/print', [StudentSupplyKitController::class, 'print'])
+    ->name('student-supply-kits.print');
+
+Route::get('/student-supply-kits/{studentSupplyKit}/edit', [StudentSupplyKitController::class, 'edit'])
+    ->name('student-supply-kits.edit');
+
+Route::get('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'show'])
+    ->name('student-supply-kits.show');
+
+Route::put('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'update'])
+    ->name('student-supply-kits.update');
+
+Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'destroy'])
+    ->name('student-supply-kits.destroy');
+
+    /*
+|--------------------------------------------------------------------------
+| SCHOOL LEAVING CERTIFICATE
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/school-leaving-certificate', [SchoolLeavingCertificateController::class, 'index'])
+    ->name('school-leaving-certificate.index');
+
+Route::get('/school-leaving-certificate/create', [SchoolLeavingCertificateController::class, 'create'])
+    ->name('school-leaving-certificate.create');
+
+Route::post('/school-leaving-certificate', [SchoolLeavingCertificateController::class, 'store'])
+    ->name('school-leaving-certificate.store');
+
+Route::get('/school-leaving-certificate/{schoolLeavingCertificate}/edit', [SchoolLeavingCertificateController::class, 'edit'])
+    ->name('school-leaving-certificate.edit');
+
+Route::get('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolLeavingCertificateController::class, 'show'])
+    ->name('school-leaving-certificate.show');
+
+Route::put('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolLeavingCertificateController::class, 'update'])
+    ->name('school-leaving-certificate.update');
+
+Route::delete('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolLeavingCertificateController::class, 'destroy'])
+    ->name('school-leaving-certificate.destroy');
+
+Route::get('/school-leaving-certificate/{schoolLeavingCertificate}/print', [SchoolLeavingCertificateController::class, 'print'])
+    ->name('school-leaving-certificate.print');
+
+    /*
+|--------------------------------------------------------------------------
+| CASTE REPORT
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/caste-report', [CasteReportController::class, 'index'])
+    ->name('caste-report.index');
+
+Route::get('/caste-report/classwise-print', [CasteReportController::class, 'classwisePrint'])
+    ->name('caste-report.classwise-print');
+
+    /*
+|--------------------------------------------------------------------------
+| AGE REPORT
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/age-report', [AgeReportController::class, 'index'])
+    ->name('age-report.index');
+
+Route::get('/age-report/print', [AgeReportController::class, 'print'])
+    ->name('age-report.print');
+            
+
+            /*
+             * --------------------------------------------------------------------------
+             * | STUDENT ID CARDS
+             * --------------------------------------------------------------------------
+             */
+
+            Route::get('/id-cards', [IdCardController::class, 'index'])
+                ->name('id-card.index');
+
+            Route::get('/id-cards/create', [IdCardController::class, 'create'])
+                ->name('id-card.create');
+
+            Route::get('/id-cards/search', [IdCardController::class, 'search'])
+                ->name('id-card.search');
+
+            Route::post('/id-cards', [IdCardController::class, 'store'])
+                ->name('id-card.store');
+
+            Route::get('/id-cards/{id}/print', [IdCardController::class, 'print'])
+                ->name('id-card.print');
+
+            Route::get('/id-cards/{id}', [IdCardController::class, 'show'])
+                ->name('id-card.show');
+
+            Route::delete('/id-cards/{id}', [IdCardController::class, 'destroy'])
+                ->name('id-card.destroy');
 
             Route::get('/student-profile', [StudentProfileController::class, 'index'])
                 ->name('student-profile.index');
@@ -321,6 +470,42 @@ Route::prefix('admin')
             Route::get('/student-general-register/{student}', [StudentGeneralRegisterController::class, 'show'])
                 ->name('student-general-register.show');
 
+                /*
+|--------------------------------------------------------------------------
+| ID CARD TEMPLATES
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/id-card-templates', [IdCardTemplateController::class, 'index'])
+    ->name('id-card.templates.index');
+
+Route::get('/id-card-templates/create', [IdCardTemplateController::class, 'create'])
+    ->name('id-card.templates.create');
+
+Route::post('/id-card-templates', [IdCardTemplateController::class, 'store'])
+    ->name('id-card.templates.store');
+
+Route::get('/id-card-templates/{template}/edit', [IdCardTemplateController::class, 'edit'])
+    ->name('id-card.templates.edit');
+
+Route::put('/id-card-templates/{template}', [IdCardTemplateController::class, 'update'])
+    ->name('id-card.templates.update');
+
+Route::post('/id-card-templates/{template}/analyze', [IdCardTemplateController::class, 'analyze'])
+    ->name('id-card.templates.analyze');
+
+Route::get('/id-card-templates/{template}/analysis', [IdCardTemplateController::class, 'analysis'])
+    ->name('id-card.templates.analysis');
+
+Route::post('/id-card-templates/{template}/positions', [IdCardTemplateController::class, 'savePositions'])
+    ->name('id-card.templates.save-positions');
+
+Route::post('/id-card-templates/{template}/toggle-status', [IdCardTemplateController::class, 'toggleStatus'])
+    ->name('id-card.templates.toggle-status');
+
+Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class, 'destroy'])
+    ->name('id-card.templates.destroy');
+
             /* LOCATION API */
 
             Route::get('/locations/states', [LocationController::class, 'states'])
@@ -328,6 +513,12 @@ Route::prefix('admin')
 
             Route::get('/locations/districts', [LocationController::class, 'districts'])
                 ->name('locations.districts');
+
+                Route::get('/locations/tehsils', [LocationController::class, 'tehsils'])
+    ->name('locations.tehsils');
+
+    Route::get('/locations/locations', [LocationController::class, 'locations'])
+    ->name('locations.locations');
 
             /* BONAFIDE CERTIFICATE */
 

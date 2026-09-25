@@ -256,6 +256,52 @@
         cursor: not-allowed;
     }
 
+
+    /* =========================================
+       ROLE SPECIFIC STAFF FIELDS
+    ========================================== */
+
+    .role-specific-section {
+        display: none;
+        grid-column: 1 / -1;
+        margin-top: 4px;
+        padding: 18px;
+        background: #f8fafc;
+        border: 1px solid #e5eaf1;
+        border-radius: 10px;
+    }
+
+    .role-specific-section.show {
+        display: block;
+    }
+
+    .role-specific-header {
+        margin-bottom: 16px;
+    }
+
+    .role-specific-header h4 {
+        margin: 0;
+        color: #172033;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .role-specific-header p {
+        margin: 5px 0 0;
+        color: #8a93a5;
+        font-size: 11px;
+    }
+
+    .role-specific-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .role-specific-grid .full {
+        grid-column: 1 / -1;
+    }
+
     @media (max-width: 700px) {
         .staff-create-page {
             padding: 15px;
@@ -273,6 +319,15 @@
         .form-group.full {
             grid-column: auto;
         }
+
+        .role-specific-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .role-specific-grid .full {
+            grid-column: auto;
+        }
+
 
         .photo-upload-area {
             align-items: flex-start;
@@ -630,7 +685,6 @@
 
                 <div class="form-grid">
 
-
                     {{-- Designation --}}
 
                     <div class="form-group">
@@ -696,37 +750,50 @@
 
                     <div class="form-group">
 
-                        <label>Department</label>
+                        <label>
+                            Department
+                        </label>
 
                         <input
                             type="text"
                             name="department"
                             id="department"
-                            class="form-control"
+                            class="form-control readonly-field"
                             placeholder="Select designation first"
                             value="{{ old('department') }}"
+                            readonly
                         >
 
                         <span class="form-help">
-                            Department will be suggested automatically.
+                            Department is assigned automatically according to designation.
                         </span>
 
                     </div>
 
 
-                    {{-- Qualification --}}
+                    {{-- Role-specific information --}}
 
-                    <div class="form-group">
+                    <div
+                        id="roleSpecificSection"
+                        class="role-specific-section"
+                    >
 
-                        <label>Qualification</label>
+                        <div class="role-specific-header">
 
-                        <input
-                            type="text"
-                            name="qualification"
-                            class="form-control"
-                            placeholder="e.g. B.Com, B.A."
-                            value="{{ old('qualification') }}"
-                        >
+                            <h4 id="roleSpecificTitle">
+                                Role Information
+                            </h4>
+
+                            <p id="roleSpecificDescription">
+                                Select a designation to see the fields for that role.
+                            </p>
+
+                        </div>
+
+                        <div
+                            id="roleSpecificFields"
+                            class="role-specific-grid"
+                        ></div>
 
                     </div>
 
@@ -735,7 +802,9 @@
 
                     <div class="form-group">
 
-                        <label>Joining Date</label>
+                        <label>
+                            Joining Date
+                        </label>
 
                         <input
                             type="date"
@@ -759,7 +828,7 @@
                     </div>
 
 
-                    {{-- Status --}}
+                    {{-- Employment Status --}}
 
                     <div class="form-group">
 
@@ -826,33 +895,544 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Department Suggestions
+    | Designation Based Staff Fields
     |--------------------------------------------------------------------------
     */
 
     const designation = document.getElementById('designation');
     const department = document.getElementById('department');
 
+    const roleSpecificSection =
+        document.getElementById('roleSpecificSection');
+
+    const roleSpecificFields =
+        document.getElementById('roleSpecificFields');
+
+    const roleSpecificTitle =
+        document.getElementById('roleSpecificTitle');
+
+    const roleSpecificDescription =
+        document.getElementById('roleSpecificDescription');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Department Mapping
+    |--------------------------------------------------------------------------
+    */
+
     const departmentMap = {
-        'Librarian': 'Library',
-        'Accountant': 'Accounts',
-        'Receptionist': 'Administration',
-        'Peon': 'Maintenance',
-        'Driver': 'Transport',
-        'Other': 'Other'
+
+        Librarian: 'Library',
+
+        Accountant: 'Accounts',
+
+        Receptionist: 'Administration',
+
+        Peon: 'Maintenance',
+
+        Driver: 'Transport',
+
+        Other: 'Other'
+
     };
 
-    designation.addEventListener('change', function () {
 
-        const selected = this.value;
+    /*
+    |--------------------------------------------------------------------------
+    | Role Specific Fields
+    |--------------------------------------------------------------------------
+    */
 
-        if (departmentMap[selected]) {
-            department.value = departmentMap[selected];
-        } else {
-            department.value = '';
+    const roleTemplates = {
+
+        Driver: {
+
+            title: 'Driver Information',
+
+            description:
+                'Enter vehicle, route and driving license details.',
+
+            fields: `
+                <div class="form-group">
+
+                    <label>
+                        Bus Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[bus_number]"
+                        class="form-control"
+                        placeholder="e.g. BUS-101"
+                        value="{{ old('role_details.bus_number') }}"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Vehicle Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[vehicle_number]"
+                        class="form-control"
+                        placeholder="e.g. MH12AB1234"
+                        value="{{ old('role_details.vehicle_number') }}"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Route Name
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[route_name]"
+                        class="form-control"
+                        placeholder="e.g. Pune Station - School"
+                        value="{{ old('role_details.route_name') }}"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Driving License Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[license_number]"
+                        class="form-control"
+                        placeholder="Enter license number"
+                        value="{{ old('role_details.license_number') }}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        License Expiry Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="role_details[license_expiry]"
+                        class="form-control"
+                        value="{{ old('role_details.license_expiry') }}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">Morning</option>
+                        <option value="General">General</option>
+                        <option value="Evening">Evening</option>
+
+                    </select>
+
+                </div>
+            `
+        },
+
+
+        Receptionist: {
+
+            title: 'Receptionist Information',
+
+            description:
+                'Enter reception desk and working shift details.',
+
+            fields: `
+                <div class="form-group">
+
+                    <label>
+                        Extension Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[extension_number]"
+                        class="form-control"
+                        placeholder="e.g. 101"
+                        value="{{ old('role_details.extension_number') }}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">Morning</option>
+                        <option value="General">General</option>
+                        <option value="Evening">Evening</option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group full">
+
+                    <label>
+                        Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter receptionist responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+            `
+        },
+
+
+        Peon: {
+
+            title: 'Peon Information',
+
+            description:
+                'Enter assigned area, shift and responsibilities.',
+
+            fields: `
+                <div class="form-group">
+
+                    <label>
+                        Assigned Area
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[assigned_area]"
+                        class="form-control"
+                        placeholder="e.g. Main Building"
+                        value="{{ old('role_details.assigned_area') }}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">Morning</option>
+                        <option value="General">General</option>
+                        <option value="Evening">Evening</option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group full">
+
+                    <label>
+                        Duties / Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[duties]"
+                        class="form-control"
+                        placeholder="Enter assigned duties"
+                    >{{ old('role_details.duties') }}</textarea>
+
+                </div>
+            `
+        },
+
+
+        Librarian: {
+
+            title: 'Librarian Information',
+
+            description:
+                'Enter library assignment and working details.',
+
+            fields: `
+                <div class="form-group">
+
+                    <label>
+                        Library Section
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[library_section]"
+                        class="form-control"
+                        placeholder="e.g. Reference Section"
+                        value="{{ old('role_details.library_section') }}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">Morning</option>
+                        <option value="General">General</option>
+                        <option value="Evening">Evening</option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group full">
+
+                    <label>
+                        Library Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter library responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+            `
+        },
+
+
+        Accountant: {
+
+            title: 'Accountant Information',
+
+            description:
+                'Enter accounting and financial work details.',
+
+            fields: `
+                <div class="form-group">
+
+                    <label>
+                        Accounting Software
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[accounting_software]"
+                        class="form-control"
+                        placeholder="e.g. Tally"
+                        value="{{ old('role_details.accounting_software') }}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">Morning</option>
+                        <option value="General">General</option>
+                        <option value="Evening">Evening</option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group full">
+
+                    <label>
+                        Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter accounting responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+            `
+        },
+
+
+        Other: {
+
+            title: 'Staff Role Information',
+
+            description:
+                'Enter information about this staff member\'s role.',
+
+            fields: `
+                <div class="form-group full">
+
+                    <label>
+                        Role Description
+                    </label>
+
+                    <textarea
+                        name="role_details[description]"
+                        class="form-control"
+                        placeholder="Describe the staff member's role and responsibilities"
+                    >{{ old('role_details.description') }}</textarea>
+
+                </div>
+            `
         }
 
-    });
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Role Fields
+    |--------------------------------------------------------------------------
+    */
+
+    function updateRoleFields() {
+
+        const selectedRole = designation.value;
+
+
+        // Automatically assign department
+        if (departmentMap[selectedRole]) {
+
+            department.value =
+                departmentMap[selectedRole];
+
+        } else {
+
+            department.value = '';
+
+        }
+
+
+        // Remove previous role fields
+        roleSpecificFields.innerHTML = '';
+
+
+        // Hide role section if no designation is selected
+        if (!selectedRole ||
+            !roleTemplates[selectedRole]) {
+
+            roleSpecificSection.classList.remove('show');
+
+            return;
+        }
+
+
+        const role = roleTemplates[selectedRole];
+
+
+        roleSpecificTitle.textContent =
+            role.title;
+
+        roleSpecificDescription.textContent =
+            role.description;
+
+
+        // Add fields for the selected role
+        roleSpecificFields.innerHTML =
+            role.fields;
+
+
+        // Show the role-specific section
+        roleSpecificSection.classList.add('show');
+
+
+        // Restore old values after validation failure
+        const oldRoleDetails =
+            @json(old('role_details', []));
+
+        Object.keys(oldRoleDetails).forEach(function (key) {
+
+            const field = document.querySelector(
+                `[name="role_details[${key}]"]`
+            );
+
+            if (field) {
+                field.value =
+                    oldRoleDetails[key] ?? '';
+            }
+
+        });
+
+    }
+
+
+    designation.addEventListener(
+        'change',
+        updateRoleFields
+    );
+
+
+    // Also runs on page load, so old() values are restored.
+    updateRoleFields();
 
 
     /*

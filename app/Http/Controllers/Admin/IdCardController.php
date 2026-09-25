@@ -54,7 +54,17 @@ class IdCardController extends Controller
                                 '%' . $search . '%'
                             )
                             ->orWhere(
-                                'full_name',
+                                'first_name',
+                                'like',
+                                '%' . $search . '%'
+                            )
+                            ->orWhere(
+                                'middle_name',
+                                'like',
+                                '%' . $search . '%'
+                            )
+                            ->orWhere(
+                                'last_name',
                                 'like',
                                 '%' . $search . '%'
                             );
@@ -124,11 +134,7 @@ class IdCardController extends Controller
             ],
         ]);
 
-
-        $search = trim(
-            $request->q
-        );
-
+        $search = trim($request->q);
 
         $students = Student::query()
             ->where(function ($query) use ($search) {
@@ -141,7 +147,19 @@ class IdCardController extends Controller
                     )
 
                     ->orWhere(
-                        'full_name',
+                        'first_name',
+                        'like',
+                        '%' . $search . '%'
+                    )
+
+                    ->orWhere(
+                        'middle_name',
+                        'like',
+                        '%' . $search . '%'
+                    )
+
+                    ->orWhere(
+                        'last_name',
                         'like',
                         '%' . $search . '%'
                     )
@@ -164,10 +182,20 @@ class IdCardController extends Controller
                         '%' . $search . '%'
                     );
             })
-            ->orderBy('full_name')
+            ->selectRaw("
+                students.*,
+                TRIM(
+                    CONCAT_WS(
+                        ' ',
+                        first_name,
+                        middle_name,
+                        last_name
+                    )
+                ) AS full_name
+            ")
+            ->orderBy('first_name')
             ->limit(20)
             ->get();
-
 
         return response()->json(
             $students
@@ -238,16 +266,17 @@ class IdCardController extends Controller
         |--------------------------------------------------------------------------
         | Make sure the template has configuration
         |--------------------------------------------------------------------------
+        |
+        | Uses the shared normalizer so this works whether the
+        | template is still holding the raw OCR-analysis shape
+        | (fields/photo/words/image) or has been flattened by the
+        | manual editor's "Save Template" button. Either way, the
+        | photo box (and its shape) is folded into the flat list.
+        |
         */
 
-        $fieldPositions = $template->field_positions ?? [];
-
-if (
-    isset($fieldPositions['fields']) &&
-    is_array($fieldPositions['fields'])
-) {
-    $fieldPositions = $fieldPositions['fields'];
-}
+        $fieldPositions =
+            $this->normalizeFieldPositions($template);
 
         if (
             !is_array($fieldPositions) ||
@@ -395,10 +424,15 @@ if (
         |--------------------------------------------------------------------------
         | Template configuration
         |--------------------------------------------------------------------------
+        |
+        | Normalized the same way as store(), so the photo shape
+        | (circle/square) is preserved here too, whether or not the
+        | template was ever manually re-saved via the editor.
+        |
         */
 
         $fieldPositions =
-            $template->field_positions ?? [];
+            $this->normalizeFieldPositions($template);
 
 
         return view(
@@ -436,8 +470,15 @@ if (
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Same normalization as show()/store() so print matches
+        | what was actually configured, including photo shape.
+        |--------------------------------------------------------------------------
+        */
+
         $fieldPositions =
-            $template->field_positions ?? [];
+            $this->normalizeFieldPositions($template);
 
 
         return view(
@@ -483,6 +524,84 @@ if (
                 'Unable to delete the ID card.'
             );
         }
+    }
+
+
+    /**
+     * Normalize a template's field_positions into a flat array
+     * of field entries, regardless of whether the template is
+     * still holding the raw automatic-analysis shape
+     * ({ fields: [...], photo: {...}, words: [...], image: {...} })
+     * or has already been flattened by the manual editor's
+     * "Save Template" button (a plain list of field entries,
+     * with the photo box already included as one of them).
+     *
+     * This is what fixes the photo shape (circle/square) getting
+     * lost: the raw-analysis "photo" key is folded into the flat
+     * list here, carrying its "shape" over as "photo_shape", so
+     * every consumer of field_positions (store/show/print) sees
+     * the photo entry the same way the Blade views expect it.
+     */
+    private function normalizeFieldPositions(IdCardTemplate $template): array
+    {
+        $raw = $template->field_positions ?? [];
+
+        if (!is_array($raw)) {
+            return [];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Already a flat, editor-saved array of field entries.
+        |--------------------------------------------------------------------------
+        |
+        | array_is_list() requires PHP 8.1+. If running on an older
+        | version, replace with: array_values($raw) === $raw
+        |
+        */
+
+        if (array_is_list($raw)) {
+            return $raw;
+        }
+
+        $fields = [];
+
+        if (
+            isset($raw['fields']) &&
+            is_array($raw['fields'])
+        ) {
+            $fields = $raw['fields'];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Fold the photo box into the flat list too, so its shape
+        | survives even if the editor was never manually re-saved.
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            isset($raw['photo']) &&
+            is_array($raw['photo'])
+        ) {
+
+            $photo = $raw['photo'];
+
+            $fields[] = [
+                'key'         => 'profile_image',
+                'label'       => 'Student Photo',
+                'x'           => $photo['x'] ?? 35,
+                'y'           => $photo['y'] ?? 15,
+                'width'       => $photo['width'] ?? 25,
+                'height'      => $photo['height'] ?? 25,
+                'font_size'   => 0,
+                'font_weight' => 'normal',
+                'text_align'  => 'center',
+                'photo_shape' => $photo['shape'] ?? 'circle',
+            ];
+        }
+
+        return $fields;
     }
 
 

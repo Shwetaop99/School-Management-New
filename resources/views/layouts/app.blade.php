@@ -1,10 +1,11 @@
-```blade
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -822,29 +823,137 @@
                 </a>
             @endif
 
-            {{-- STUDENT --}}
-            @if($canAny(['students.view','students.create','students.edit','students.delete']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.students.*') ? 'active open' : '' }}" data-submenu="student-menu" data-search="student students">
-                    <span class="sidebar-icon"><i class="fa fa-user-graduate"></i></span>
-                    <span class="sidebar-label">Student</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.students.*') ? 'open' : '' }}" id="student-menu">
-                    @if($can('students.view'))
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">All Students</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Profile</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Documents</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student ID</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">School Supplies(Kit)</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Report</a>
-                    @endif
-                    @if($can('students.create'))
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Add Student</a>
-                    @endif
-                    @if($can('attendance.view'))
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance</a>
-                    @endif
-                </div>
-            @endif
+           {{-- STUDENT --}}
+@if($canAny([
+    'students.view',
+    'students.create',
+    'students.edit',
+    'students.delete',
+    'attendance.view',
+    'attendance.manage'
+]))
+
+    @php
+        $studentMenuActive = request()->routeIs(
+            'admin.students.*',
+            'admin.student-profile.*',
+            'admin.student-documents.*',
+            'admin.id-card.*',
+            'admin.student-supply-kits.*',
+            'admin.student-general-register.*',
+            'admin.attendance.*'
+        );
+    @endphp
+
+    <button
+        class="sidebar-item has-submenu {{ $studentMenuActive ? 'active open' : '' }}"
+        data-submenu="student-menu"
+        data-search="student students"
+    >
+        <span class="sidebar-icon">
+            <i class="fa fa-user-graduate"></i>
+        </span>
+
+        <span class="sidebar-label">Student</span>
+
+        <span class="sidebar-arrow">›</span>
+    </button>
+
+    <div
+        class="submenu {{ $studentMenuActive ? 'open' : '' }}"
+        id="student-menu"
+    >
+
+        {{-- All Students --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.students.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}"
+            >
+                All Students
+            </a>
+        @endif
+
+
+        {{-- Student Profile --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-profile.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-profile.*') ? 'active' : '' }}"
+            >
+                Student Profile
+            </a>
+        @endif
+
+
+        {{-- Student Documents --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-documents.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-documents.*') ? 'active' : '' }}"
+            >
+                Student Documents
+            </a>
+        @endif
+
+
+        {{-- Student ID --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.id-card.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.id-card.*') ? 'active' : '' }}"
+            >
+                Student ID
+            </a>
+        @endif
+
+
+        {{-- School Supplies (Kit) --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-supply-kits.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-supply-kits.*') ? 'active' : '' }}"
+            >
+                School Supplies(Kit)
+            </a>
+        @endif
+
+
+        {{-- Student Report --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-general-register.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-general-register.*') ? 'active' : '' }}"
+            >
+                Student Report
+            </a>
+        @endif
+
+
+        {{-- Add Student --}}
+        @if($can('students.create'))
+            <a
+                href="{{ route('admin.students.create') }}"
+                class="submenu-item {{ request()->routeIs('admin.students.create') ? 'active' : '' }}"
+            >
+                Add Student
+            </a>
+        @endif
+
+
+        {{-- Attendance --}}
+        @if($can('attendance.view'))
+            <a
+                href="{{ route('admin.attendance.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}"
+            >
+                Attendance
+            </a>
+        @endif
+
+    </div>
+
+@endif
 
             {{-- FACULTY --}}
             @if($canAny(['faculty.view','faculty.create','faculty.edit','faculty.delete']))

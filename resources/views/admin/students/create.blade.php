@@ -3139,7 +3139,7 @@ if (
 
 
         try {
-
+            console.log('SELECTED STATE ID:', stateId);
             const url =
                 "{{ route('admin.locations.districts') }}"
                 + '?state_id='

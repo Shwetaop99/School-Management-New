@@ -1,4 +1,4 @@
-```blade
+
 @extends('layouts.app')
 
 @section('title', 'Government Kit Details')

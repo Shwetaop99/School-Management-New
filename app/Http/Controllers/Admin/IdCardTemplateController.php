@@ -265,8 +265,17 @@ class IdCardTemplateController extends Controller
                 $year . '-' . ($year + 1);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Normalized so this view always sees the
+        | { fields: [...], photo: {...} } shape it expects,
+        | even after the template has been saved once via the
+        | manual editor (which flattens photo into the list).
+        |--------------------------------------------------------------------------
+        */
+
         $analysis =
-            $template->field_positions ?? [];
+            $this->normalizeAnalysisForEditor($template);
 
         return view(
             'admin.id-card.templates.edit',
@@ -555,8 +564,17 @@ class IdCardTemplateController extends Controller
     public function analysis(
         IdCardTemplate $template
     ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Normalized the same way as edit(), so this page always
+        | renders fields (and the photo box, with its shape)
+        | whether the template still holds the raw OCR-analysis
+        | shape or has already been flattened by "Save Template".
+        |--------------------------------------------------------------------------
+        */
+
         $analysis =
-            $template->field_positions ?? [];
+            $this->normalizeAnalysisForEditor($template);
 
         return view(
             'admin.id-card.templates.analysis',
@@ -584,6 +602,7 @@ class IdCardTemplateController extends Controller
                 'required',
                 'array',
             ],
+            'field_positions.*.sample_text' => 'nullable|string',
 
             'field_positions.*.key' => [
                 'required',
@@ -644,6 +663,14 @@ class IdCardTemplateController extends Controller
                     'left',
                     'center',
                     'right',
+                ]),
+            ],
+
+            'field_positions.*.photo_shape' => [
+                'nullable',
+                Rule::in([
+                    'circle',
+                    'square',
                 ]),
             ],
         ]);
@@ -735,6 +762,107 @@ class IdCardTemplateController extends Controller
                 'Unable to delete the template.'
             );
         }
+    }
+
+    /**
+     * Normalize a template's field_positions into the
+     * { fields: [...], photo: {...} } shape the editor/analysis
+     * Blade views expect, regardless of whether the template is
+     * still holding the raw OCR-analysis result (which already
+     * has "fields" and "photo" keys) or has been flattened by
+     * the manual editor's "Save Template" button (a plain list
+     * with the photo entry mixed in as key "profile_image").
+     *
+     * This is what keeps the photo box - and its selected shape -
+     * from disappearing when the editor is reopened after a save.
+     */
+    private function normalizeAnalysisForEditor(IdCardTemplate $template): array
+    {
+        $raw = $template->field_positions ?? [];
+
+        if (!is_array($raw)) {
+            return [
+                'fields' => [],
+                'photo' => null,
+                'words' => [],
+                'image' => [],
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Raw OCR-analysis shape: already has fields/photo (and
+        | usually words/image) as top-level keys.
+        |--------------------------------------------------------------------------
+        */
+
+        $looksLikeRawAnalysis =
+            array_key_exists('fields', $raw) ||
+            array_key_exists('photo', $raw) ||
+            array_key_exists('words', $raw) ||
+            array_key_exists('image', $raw);
+
+        if ($looksLikeRawAnalysis) {
+
+            return [
+                'fields' => is_array($raw['fields'] ?? null)
+                    ? $raw['fields']
+                    : [],
+
+                'photo' => is_array($raw['photo'] ?? null)
+                    ? $raw['photo']
+                    : null,
+
+                'words' => is_array($raw['words'] ?? null)
+                    ? $raw['words']
+                    : [],
+
+                'image' => is_array($raw['image'] ?? null)
+                    ? $raw['image']
+                    : [],
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Flat, editor-saved list. Pull the photo entry (key
+        | "profile_image") back out into its own "photo" key,
+        | carrying "photo_shape" back over as "shape".
+        |--------------------------------------------------------------------------
+        */
+
+        $fields = [];
+
+        $photo = null;
+
+        foreach ($raw as $item) {
+
+            if (!is_array($item)) {
+                continue;
+            }
+
+            if (($item['key'] ?? null) === 'profile_image') {
+
+                $photo = [
+                    'x' => $item['x'] ?? 35,
+                    'y' => $item['y'] ?? 15,
+                    'width' => $item['width'] ?? 25,
+                    'height' => $item['height'] ?? 25,
+                    'shape' => $item['photo_shape'] ?? 'circle',
+                ];
+
+                continue;
+            }
+
+            $fields[] = $item;
+        }
+
+        return [
+            'fields' => $fields,
+            'photo' => $photo,
+            'words' => [],
+            'image' => [],
+        ];
     }
 
     /**

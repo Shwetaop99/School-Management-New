@@ -6,12 +6,6 @@ return [
     |--------------------------------------------------------------------------
     | Third Party Services
     |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
     */
 
     'postmark' => [
@@ -33,20 +27,19 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
-    
     ],
-
 
     'cloudinary' => [
-    'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
-    'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
-    'api_key' => env('CLOUDINARY_API_KEY'),
-    'api_secret' => env('CLOUDINARY_API_SECRET'),
-
-    'location' => [
-    'url' => env('LOCATION_API_URL'),
-    'api_key' => env('LOCATION_API_KEY'),
-
-],
+        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+        'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
+        'api_key' => env('CLOUDINARY_API_KEY'),
+        'api_secret' => env('CLOUDINARY_API_SECRET'),
     ],
+
+    // ✅ Location API must be separate from Cloudinary
+    'location' => [
+        'url' => env('LOCATION_API_URL'),
+        'api_key' => env('LOCATION_API_KEY'),
+    ],
+
 ];
