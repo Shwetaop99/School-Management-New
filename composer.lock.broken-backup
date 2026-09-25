@@ -1,10 +1,13 @@
-{
+﻿{
     "_readme": [
         "This file locks the dependencies of your project to a known state",
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e27f1538959141f255ba17cbaedca1e",
+
+    "content-hash": "9334ef771af85f6b31084f5305e8446c",
+
+    "content-hash": "49ccb3ab3a4f5564665ea67e244560b1",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1209,6 +1212,16 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/5e0539132d934f936fbae2c88b55d58f9438623f",
                 "reference": "5e0539132d934f936fbae2c88b55d58f9438623f",
+            "version": "v4.19.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ezyang/htmlpurifier.git",
+                "reference": "b287d2a16aceffbf6e0295559b39662612b77fcf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/b287d2a16aceffbf6e0295559b39662612b77fcf",
+                "reference": "b287d2a16aceffbf6e0295559b39662612b77fcf",
                 "shasum": ""
             },
             "require": {
@@ -1257,6 +1270,9 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.1"
             },
             "time": "2026-09-15T15:42:51+00:00"
+                "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.0"
+            },
+            "time": "2025-10-17T16:34:55+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -1477,7 +1493,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "M├írk S├ígi-Kaz├ír",
+                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1676,7 +1692,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "M├írk S├ígi-Kaz├ír",
+                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1686,7 +1702,7 @@
                     "homepage": "https://github.com/Tobion"
                 },
                 {
-                    "name": "M├írk S├ígi-Kaz├ír",
+                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -3049,7 +3065,7 @@
                     "email": "pabs@pablotron.org"
                 },
                 {
-                    "name": "Jonatan M├ñnnchen",
+                    "name": "Jonatan MÃ¤nnchen",
                     "email": "jonatan@maennchen.ch"
                 },
                 {
@@ -3057,7 +3073,7 @@
                     "email": "donatj@gmail.com"
                 },
                 {
-                    "name": "Andr├ís Koles├ír",
+                    "name": "AndrÃ¡s KolesÃ¡r",
                     "email": "kolesar@kolesar.hu"
                 }
             ],
@@ -3515,7 +3531,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "≡ƒôÉ Nette Schema: validating data structures against a given Schema.",
+            "description": "ðŸ“ Nette Schema: validating data structures against a given Schema.",
             "homepage": "https://nette.org",
             "keywords": [
                 "config",
@@ -3594,7 +3610,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "≡ƒ¢á  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
+            "description": "ðŸ›   Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
             "homepage": "https://nette.org",
             "keywords": [
                 "array",
@@ -3843,6 +3859,16 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/f5dd9c1f084d336ea63cf53099533e061a9c157a",
                 "reference": "f5dd9c1f084d336ea63cf53099533e061a9c157a",
+            "version": "1.30.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
+                "reference": "a416375ffc8bf5b661c1bb4e6c60d8f3fddbe5ce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/a416375ffc8bf5b661c1bb4e6c60d8f3fddbe5ce",
+                "reference": "a416375ffc8bf5b661c1bb4e6c60d8f3fddbe5ce",
                 "shasum": ""
             },
             "require": {
@@ -3938,6 +3964,9 @@
                 "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.30.7"
             },
             "time": "2026-09-17T03:56:23+00:00"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.30.6"
+            },
+            "time": "2026-07-12T19:59:31+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -5190,7 +5219,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Jean-Fran├ºois Simon",
+                    "name": "Jean-FranÃ§ois Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -6773,7 +6802,7 @@
             ],
             "authors": [
                 {
-                    "name": "Gr├⌐goire Pineau",
+                    "name": "GrÃ©goire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -7358,7 +7387,7 @@
             ],
             "authors": [
                 {
-                    "name": "Gr├⌐goire Pineau",
+                    "name": "GrÃ©goire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -7488,6 +7517,30 @@
             "time": "2026-08-30T20:10:52+00:00"
         },
         {
+            "name": "thiagoalessio/tesseract_ocr",
+            "version": "2.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thiagoalessio/tesseract-ocr-for-php.git",
+                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thiagoalessio/tesseract-ocr-for-php/zipball/232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
+                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/php-code-coverage": "^2.2.4 || ^9.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "thiagoalessio\\TesseractOCR\\": "src/"
+                }
             "name": "thecodingmachine/safe",
             "version": "v3.4.0",
             "source": {
@@ -7605,6 +7658,24 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "thiagoalessio",
+                    "email": "thiagoalessio@me.com"
+                }
+            ],
+            "description": "A wrapper to work with Tesseract OCR inside PHP.",
+            "keywords": [
+                "OCR",
+                "Tesseract",
+                "text recognition"
+            ],
+            "support": {
+                "irc": "irc://irc.freenode.net/tesseract-ocr-for-php",
+                "issues": "https://github.com/thiagoalessio/tesseract-ocr-for-php/issues",
+                "source": "https://github.com/thiagoalessio/tesseract-ocr-for-php"
+            },
+            "time": "2023-10-05T21:14:48+00:00"
             "description": "PHP core functions that throw exceptions instead of returning FALSE on error",
             "support": {
                 "issues": "https://github.com/thecodingmachine/safe/issues",
@@ -7629,55 +7700,6 @@
                 }
             ],
             "time": "2026-02-04T18:08:13+00:00"
-        },
-        {
-            "name": "thiagoalessio/tesseract_ocr",
-            "version": "2.13.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thiagoalessio/tesseract-ocr-for-php.git",
-                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thiagoalessio/tesseract-ocr-for-php/zipball/232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
-                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "phpunit/php-code-coverage": "^2.2.4 || ^9.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "thiagoalessio\\TesseractOCR\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "thiagoalessio",
-                    "email": "thiagoalessio@me.com"
-                }
-            ],
-            "description": "A wrapper to work with Tesseract OCR inside PHP.",
-            "keywords": [
-                "OCR",
-                "Tesseract",
-                "text recognition"
-            ],
-            "support": {
-                "irc": "irc://irc.freenode.net/tesseract-ocr-for-php",
-                "issues": "https://github.com/thiagoalessio/tesseract-ocr-for-php/issues",
-                "source": "https://github.com/thiagoalessio/tesseract-ocr-for-php"
-            },
-            "time": "2023-10-05T21:14:48+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -7942,7 +7964,7 @@
             ],
             "authors": [
                 {
-                    "name": "Fran├ºois Zaninotto"
+                    "name": "FranÃ§ois Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -8337,7 +8359,7 @@
             ],
             "authors": [
                 {
-                    "name": "P├ídraic Brady",
+                    "name": "PÃ¡draic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "https://github.com/padraic",
                     "role": "Author"
@@ -10269,3 +10291,4 @@
     "platform-dev": {},
     "plugin-api-version": "2.9.0"
 }
+

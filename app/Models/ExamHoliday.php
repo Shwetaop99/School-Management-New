@@ -2,31 +2,32 @@
 
 namespace App\Models;
 
-use App\Models\Class\SchoolClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ExamClass extends Model
+class ExamHoliday extends Model
 {
     use HasFactory;
 
-    protected $table = 'exam_classes';
+    protected $table = 'exam_holidays';
 
     protected $fillable = [
         'exam_id',
-        'class_id',
+        'holiday_date',
+        'reason',
+        'status',
     ];
 
+    protected $casts = [
+        'holiday_date' => 'date',
+        'status' => 'boolean',
+    ];
+
+    /**
+     * Exam this holiday belongs to.
+     */
     public function exam()
     {
         return $this->belongsTo(Exam::class);
-    }
-
-    public function schoolClass()
-    {
-        return $this->belongsTo(
-            SchoolClass::class,
-            'class_id'
-        );
     }
 }

@@ -14,30 +14,23 @@ return new class extends Migration
         Schema::create('exam_classes', function (Blueprint $table) {
             $table->id();
 
+            // Examination
             $table->foreignId('exam_id')
                 ->constrained('exams')
                 ->cascadeOnDelete();
 
-            $table->string('class_name', 50);
-
-            $table->unsignedInteger('sort_order')
-                ->default(0);
-
-            $table->enum('status', [
-                'active',
-                'inactive'
-            ])->default('active');
+            // Existing class from the Classes module
+            $table->foreignId('class_id')
+                ->constrained('school_classes')
+                ->cascadeOnDelete();
 
             $table->timestamps();
 
-            /*
-             * Prevent the same class from being
-             * added twice to the same exam.
-             */
-            $table->unique([
-                'exam_id',
-                'class_name'
-            ]);
+            // Same class cannot be selected twice for the same exam
+            $table->unique(
+                ['exam_id', 'class_id'],
+                'exam_class_unique'
+            );
         });
     }
 

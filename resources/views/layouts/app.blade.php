@@ -872,7 +872,7 @@
                         <a href="{{ route('admin.students.index') }}" class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">All Students</a>
                         <a href="{{ route('admin.student-profile.index') }}" class="submenu-item">Student Profile</a>
                         <a href="{{ route('admin.student-documents.index') }}" class="submenu-item">Student Documents</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student ID</a>
+                        <a href="{{ route('admin.id-card.index') }}" class="submenu-item">Student ID</a>
                         <a href="{{ route('admin.student-supply-kits.index') }}" class="submenu-item">School Supplies(Kit)</a>
                         <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Report</a>
                     @endif
@@ -1005,19 +1005,69 @@
         <span class="sidebar-label">Exam</span>
     </a>
 @endif
-            {{-- RESULT: no dedicated result permission exists yet --}}
-            @if($isSuperAdmin)
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.results.*') ? 'active open' : '' }}" data-submenu="result-menu" data-search="result results marks grade">
-                    <span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span><span class="sidebar-label">Result</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.results.*') ? 'open' : '' }}" id="result-menu">
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Student Result</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Grade Management</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Publish Result</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Result History</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Result Report</a>
-                </div>
-            @endif
+            
+{{-- RESULT --}}
+@if($isSuperAdmin)
+
+    <button
+        class="sidebar-item has-submenu {{ request()->routeIs('admin.results.*') ? 'active open' : '' }}"
+        data-submenu="result-menu"
+        data-search="result results marks grade topper toppers"
+    >
+        <span class="sidebar-icon">
+            <i class="fas fa-chart-bar"></i>
+        </span>
+
+        <span class="sidebar-label">Result</span>
+
+        <span class="sidebar-arrow">›</span>
+    </button>
+
+    <div
+        class="submenu {{ request()->routeIs('admin.results.*') ? 'open' : '' }}"
+        id="result-menu"
+    >
+
+        {{-- Result Dashboard --}}
+        <a
+            href="{{ route('admin.results.index') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.index') ? 'active' : '' }}"
+        >
+            <i class="fas fa-home me-2"></i>
+            Result Dashboard
+        </a>
+
+        {{-- Enter Marks --}}
+        <a
+            href="{{ route('admin.results.marks') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}"
+        >
+            <i class="fas fa-edit me-2"></i>
+            Enter Marks
+        </a>
+
+        {{-- Student Results --}}
+        <a
+            href="{{ route('admin.results.students') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.students') ? 'active' : '' }}"
+        >
+            <i class="fas fa-user-graduate me-2"></i>
+            Student Results
+        </a>
+
+        {{-- Top 3 Toppers --}}
+        <a
+            href="{{ route('admin.results.toppers') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.toppers') ? 'active' : '' }}"
+        >
+            <i class="fas fa-trophy me-2"></i>
+            Top 3 Toppers
+        </a>
+
+    </div>
+
+@endif
+
 
             {{-- NOTICE --}}
             @if($canAny(['notices.view','notices.create','notices.edit','notices.delete']))
@@ -1119,15 +1169,15 @@
 </div>
 
             
-                <a href="{{ route('admin.teachers.salary.index') }}"
+                <a href="{{ route('admin.salary.index') }}"
                    class="submenu-item">
                     Salary
                 </a>
 
             <!-- Payroll -->
 
-            <a href="{{ route('admin.teachers.salary.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.teachers.salary.index') ? 'active' : '' }}"
+            <a href="{{ route('admin.salary.index') }}"
+               class="sidebar-item {{ request()->routeIs('admin.salary.index') ? 'active' : '' }}"
                data-search="payroll salary">
 
                 <span class="sidebar-icon">▤</span>
@@ -1910,7 +1960,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 @stack('scripts')
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
