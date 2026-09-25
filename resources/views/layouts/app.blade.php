@@ -1131,6 +1131,21 @@
                 </div>
             @endif
 
+            {{-- REPORTS --}}
+@if($isSuperAdmin)
+    <a
+        href="{{ route('admin.reports.index') }}"
+        class="sidebar-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}"
+        data-search="reports report"
+    >
+        <span class="sidebar-icon">
+            <i class="fas fa-chart-pie"></i>
+        </span>
+
+        <span class="sidebar-label">Reports</span>
+    </a>
+@endif
+
             {{-- SETTINGS --}}
             @if($canAny(['settings.view','roles.view','roles.manage']))
                 <button class="sidebar-item has-submenu {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}" data-submenu="settings-menu" data-search="settings role permission users backup">

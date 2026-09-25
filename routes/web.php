@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\SchoolLeavingCertificateController;
 use App\Http\Controllers\Admin\CasteReportController;
 use App\Http\Controllers\Admin\AgeReportController;
 use App\Http\Controllers\Admin\IdCardTemplateController;
+use App\Http\Controllers\Admin\ReportsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -668,6 +669,12 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
             Route::get('/settings', function () {
                 return 'Settings';
             })->name('settings.index');
+
+
+            //REPORTS
+
+            Route::get('/admin/reports', [ReportsController::class, 'index'])
+    ->name('reports.index');
 
             /* CLASS / SUBJECT MANAGEMENT */
 
