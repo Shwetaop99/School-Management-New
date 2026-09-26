@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\SchoolSetting;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,9 +21,15 @@ class SchoolServiceProvider extends ServiceProvider
      * Bootstrap services.
      */
     public function boot(): void
-{
-    View::share('school', SchoolSetting::first());
+    {
+        // Prevent errors when the school_settings table
+        // has not been created yet.
+        if (!Schema::hasTable('school_settings')) {
+            return;
+        }
 
-    logger('SchoolServiceProvider is loaded');
-}
+        View::share('school', SchoolSetting::first());
+
+        logger('SchoolServiceProvider is loaded');
+    }
 }

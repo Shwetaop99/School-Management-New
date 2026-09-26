@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Dashboard'); ?>
 
-@section('title', 'Dashboard')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <style>
     /* =========================================================
@@ -836,7 +834,7 @@
 </style>
 
 
-@php
+<?php
     /*
     |--------------------------------------------------------------------------
     | Dynamic values
@@ -905,18 +903,16 @@
     */
 
     $recentNotices = $recentNotices ?? collect();
-@endphp
+?>
 
 
 <div class="dashboard-container">
 
-    {{-- =====================================================
-         WELCOME
-    ====================================================== --}}
+    
 
     <div class="welcome-card">
 
-        @php
+        <?php
     $hour = now()->hour;
 
     if ($hour >= 5 && $hour < 12) {
@@ -928,9 +924,9 @@
     } else {
         $greeting = 'Good Night';
     }
-@endphp
+?>
 
-<h1>{{ $greeting }}, Admin! 👋</h1>
+<h1><?php echo e($greeting); ?>, Admin! 👋</h1>
 
         <p>
             Here's what's happening across your school today.
@@ -939,20 +935,19 @@
     </div>
 
 
-    {{-- =====================================================
-         MAIN STATISTICS
-    ====================================================== --}}
+    
 
     <div class="stats-grid">
 
-        {{-- STUDENTS --}}
+        
         <div class="stat-card blue">
 
             <div class="stat-top">
 
                 <div>
                     <div class="stat-number">
-                        {{ number_format($studentCount) }}
+                        <?php echo e(number_format($studentCount)); ?>
+
                     </div>
 
                     <div class="stat-title">
@@ -964,21 +959,22 @@
 
             </div>
 
-            <a href="{{ route('admin.students.index') }}" class="stat-link">
+            <a href="<?php echo e(route('admin.students.index')); ?>" class="stat-link">
                 View students →
             </a>
 
         </div>
 
 
-        {{-- FACULTY --}}
+        
         <div class="stat-card orange">
 
             <div class="stat-top">
 
                 <div>
                     <div class="stat-number">
-                        {{ number_format($teacherCount) }}
+                        <?php echo e(number_format($teacherCount)); ?>
+
                     </div>
 
                     <div class="stat-title">
@@ -990,21 +986,22 @@
 
             </div>
 
-            <a href="{{ route('admin.teachers.index') }}" class="stat-link">
+            <a href="<?php echo e(route('admin.teachers.index')); ?>" class="stat-link">
                 View faculty →
             </a>
 
         </div>
 
 
-        {{-- CLASSES --}}
+        
         <div class="stat-card cyan">
 
             <div class="stat-top">
 
                 <div>
                     <div class="stat-number">
-                        {{ number_format($classCount) }}
+                        <?php echo e(number_format($classCount)); ?>
+
                     </div>
 
                     <div class="stat-title">
@@ -1016,21 +1013,22 @@
 
             </div>
 
-            <a href="{{ route('admin.classes.index') }}" class="stat-link">
+            <a href="<?php echo e(route('admin.classes.index')); ?>" class="stat-link">
                 View classes →
             </a>
 
         </div>
 
 
-        {{-- NOTICES --}}
+        
         <div class="stat-card red">
 
             <div class="stat-top">
 
                 <div>
                     <div class="stat-number">
-                        {{ number_format($noticeCount) }}
+                        <?php echo e(number_format($noticeCount)); ?>
+
                     </div>
 
                     <div class="stat-title">
@@ -1042,7 +1040,7 @@
 
             </div>
 
-            <a href="{{ route('admin.notices.index') }}" class="stat-link">
+            <a href="<?php echo e(route('admin.notices.index')); ?>" class="stat-link">
     View notices →
 </a>
 
@@ -1051,14 +1049,12 @@
     </div>
 
 
-    {{-- =====================================================
-         STUDENT STATISTICS + CALENDAR
-    ====================================================== --}}
+    
 
     <div class="dashboard-grid">
 
 
-        {{-- STUDENT STATISTICS --}}
+        
         <div class="dashboard-card">
 
             <div class="card-header">
@@ -1089,7 +1085,8 @@
                         font-weight:700;
                      ">
 
-                    Total {{ number_format($studentCount) }}
+                    Total <?php echo e(number_format($studentCount)); ?>
+
 
                 </div>
 
@@ -1105,8 +1102,8 @@
                         style="
                             background:
                             conic-gradient(
-                                #1769d1 0deg {{ $maleDegrees }}deg,
-                                #ec4899 {{ $maleDegrees }}deg 360deg
+                                #1769d1 0deg <?php echo e($maleDegrees); ?>deg,
+                                #ec4899 <?php echo e($maleDegrees); ?>deg 360deg
                             );
                         "
                     >
@@ -1114,7 +1111,8 @@
                         <div class="chart-total">
 
                             <strong>
-                                {{ number_format($studentCount) }}
+                                <?php echo e(number_format($studentCount)); ?>
+
                             </strong>
 
                             <span>
@@ -1135,11 +1133,12 @@
                             <div class="legend-text">
 
                                 <strong>
-                                    {{ number_format($maleStudents) }}
+                                    <?php echo e(number_format($maleStudents)); ?>
+
                                 </strong>
 
                                 <span>
-                                    Male · {{ $malePercentage }}%
+                                    Male · <?php echo e($malePercentage); ?>%
                                 </span>
 
                             </div>
@@ -1154,11 +1153,12 @@
                             <div class="legend-text">
 
                                 <strong>
-                                    {{ number_format($femaleStudents) }}
+                                    <?php echo e(number_format($femaleStudents)); ?>
+
                                 </strong>
 
                                 <span>
-                                    Female · {{ $femalePercentage }}%
+                                    Female · <?php echo e($femalePercentage); ?>%
                                 </span>
 
                             </div>
@@ -1174,7 +1174,7 @@
         </div>
 
 
-        {{-- SCHOOL CALENDAR --}}
+        
         <div class="dashboard-card">
 
             <div class="card-header">
@@ -1220,7 +1220,8 @@
                     </button>
 
                     <div class="calendar-title">
-                        {{ $calendarMonth }} {{ $calendarYear }}
+                        <?php echo e($calendarMonth); ?> <?php echo e($calendarYear); ?>
+
                     </div>
 
                     <button
@@ -1248,18 +1249,18 @@
 
                 <div class="calendar-days">
 
-                    {{-- Empty days before month starts --}}
-                    @for ($i = 0; $i < $firstDay; $i++)
+                    
+                    <?php for($i = 0; $i < $firstDay; $i++): ?>
 
                         <div class="calendar-day empty"></div>
 
-                    @endfor
+                    <?php endfor; ?>
 
 
-                    {{-- Actual days --}}
-                    @for ($day = 1; $day <= $daysInMonth; $day++)
+                    
+                    <?php for($day = 1; $day <= $daysInMonth; $day++): ?>
 
-                        @php
+                        <?php
 
                             $date = $currentDate->copy()
                                 ->startOfMonth()
@@ -1269,20 +1270,23 @@
 
                             $isWeekend = $date->isWeekend();
 
-                        @endphp
+                        ?>
 
 
                         <div
                             class="
                                 calendar-day
-                                {{ $isToday ? 'today' : '' }}
-                                {{ $isWeekend ? 'weekend' : '' }}
+                                <?php echo e($isToday ? 'today' : ''); ?>
+
+                                <?php echo e($isWeekend ? 'weekend' : ''); ?>
+
                             "
                         >
-                            {{ $day }}
+                            <?php echo e($day); ?>
+
                         </div>
 
-                    @endfor
+                    <?php endfor; ?>
 
                 </div>
 
@@ -1293,9 +1297,7 @@
     </div>
 
 
-    {{-- =====================================================
-         SCHOOL OVERVIEW
-    ====================================================== --}}
+    
 
     <div class="dashboard-card" style="margin-bottom:22px;">
 
@@ -1333,9 +1335,10 @@
     <i class="bi bi-book-fill"></i>
 </div>
 
-                    {{-- Library Books --}}
+                    
 <strong>
-    {{ number_format($books ?? 0) }}
+    <?php echo e(number_format($books ?? 0)); ?>
+
 </strong>
 <span>Library Books</span>
 
@@ -1348,9 +1351,10 @@
                         <i class="bi bi-bus-front-fill"></i>
                     </div>
 
-                    {{-- Transport Records --}}
+                    
 <strong>
-    {{ number_format($transport ?? 0) }}
+    <?php echo e(number_format($transport ?? 0)); ?>
+
 </strong>
 <span>Transport Records</span>
 
@@ -1363,9 +1367,10 @@
                         <i class="bi bi-calendar-event-fill"></i>
                     </div>
 
-                    {{-- School Events --}}
+                    
 <strong>
-    {{ number_format($events ?? 0) }}
+    <?php echo e(number_format($events ?? 0)); ?>
+
 </strong>
 <span>School Events</span>
 
@@ -1378,9 +1383,10 @@
                         <i class="bi bi-mortarboard-fill"></i>
                     </div>
 
-                    {{-- Active Classes --}}
+                    
 <strong>
-    {{ number_format($classes ?? 0) }}
+    <?php echo e(number_format($classes ?? 0)); ?>
+
 </strong>
 <span>Active Classes</span>
 
@@ -1394,14 +1400,12 @@
     </div>
 
 
-    {{-- =====================================================
-         NOTICES + QUICK ACTIONS
-    ====================================================== --}}
+    
 
     <div class="dashboard-grid">
 
 
-        {{-- RECENT NOTICES --}}
+        
         <div class="dashboard-card">
 
             <div class="card-header">
@@ -1429,16 +1433,16 @@
 
             <div class="card-body">
 
-                @if (
+                <?php if(
                     $recentNotices instanceof \Illuminate\Support\Collection
                     && $recentNotices->count() > 0
-                )
+                ): ?>
 
                     <div class="notice-list">
 
-                        @foreach ($recentNotices as $notice)
+                        <?php $__currentLoopData = $recentNotices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                            <a href="{{ route('admin.notices.show', $notice->id) }}" class="notice-item" style="text-decoration:none;color:inherit;display:flex;">
+                            <a href="<?php echo e(route('admin.notices.show', $notice->id)); ?>" class="notice-item" style="text-decoration:none;color:inherit;display:flex;">
 
                                 <div class="notice-icon">
                                     <i class="bi bi-bell-fill"></i>
@@ -1447,22 +1451,24 @@
                                 <div class="notice-content">
 
                                     <strong>
-                                        {{ $notice->title ?? 'School Notice' }}
+                                        <?php echo e($notice->title ?? 'School Notice'); ?>
+
                                     </strong>
 
                                     <span>
-                                        {{ $notice->description ?? 'New school announcement available.' }}
+                                        <?php echo e($notice->description ?? 'New school announcement available.'); ?>
+
                                     </span>
 
                                 </div>
 
                             </a>
 
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     </div>
 
-                @else
+                <?php else: ?>
 
                     <div class="empty-state">
 
@@ -1479,14 +1485,14 @@
 
                     </div>
 
-                @endif
+                <?php endif; ?>
 
             </div>
 
         </div>
 
 
-        {{-- QUICK ACTIONS --}}
+        
         <div class="dashboard-card">
 
             <div class="card-header">
@@ -1517,7 +1523,7 @@
                 <div class="quick-actions">
 
 
-                    <a href="{{ route('admin.students.index') }}" class="quick-action">
+                    <a href="<?php echo e(route('admin.students.index')); ?>" class="quick-action">
 
                         <i class="bi bi-person-plus-fill"></i>
 
@@ -1528,7 +1534,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.teachers.index') }}" class="quick-action">
+                    <a href="<?php echo e(route('admin.teachers.index')); ?>" class="quick-action">
 
                         <i class="bi bi-person-workspace"></i>
 
@@ -1539,7 +1545,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.attendance.index') }}" class="quick-action">
+                    <a href="<?php echo e(route('admin.attendance.index')); ?>" class="quick-action">
 
                         <i class="bi bi-calendar-check-fill"></i>
 
@@ -1550,7 +1556,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.fees.index') }}" class="quick-action">
+                    <a href="<?php echo e(route('admin.fees.index')); ?>" class="quick-action">
 
                         <i class="bi bi-cash-stack"></i>
 
@@ -1561,7 +1567,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.notices.create') }}" class="quick-action">
+                    <a href="<?php echo e(route('admin.notices.create')); ?>" class="quick-action">
 
                         <i class="bi bi-megaphone-fill"></i>
 
@@ -1572,7 +1578,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.library.books.create') }}" class="quick-action">
+                    <a href="<?php echo e(route('admin.library.books.create')); ?>" class="quick-action">
 
                         <i class="bi bi-book-fill"></i>
 
@@ -1593,4 +1599,6 @@
 
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\Shweta Gundu Mali\Desktop\Student\School-Management-New\resources\views/admin/dashboard/index.blade.php ENDPATH**/ ?>
