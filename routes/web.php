@@ -30,7 +30,10 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\TeacherSalaryController;
 use App\Http\Controllers\Admin\TimetableController;
+use App\Http\Controllers\Admin\TeacherAttendanceController;
 use App\Http\Controllers\Admin\TeacherReportController;
+use App\Http\Controllers\Admin\StaffCategoryController;
+use App\Http\Controllers\Admin\LeaveApplicationController;
 use App\Http\Controllers\Admin\ClassTeacherController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\StudentProfileController;
@@ -46,6 +49,12 @@ use App\Http\Controllers\Admin\CasteReportController;
 use App\Http\Controllers\Admin\AgeReportController;
 use App\Http\Controllers\Admin\IdCardTemplateController;
 use App\Http\Controllers\Admin\ReportsController;
+use App\Exports\StudentReportExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Admin\StaffReportController;
+use App\Http\Controllers\Admin\AttendanceReportController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +70,7 @@ use App\Http\Controllers\Class\SubjectController;
 | ADMIN ROUTES
 |--------------------------------------------------------------------------
 */
+use App\Http\Controllers\Admin\StudentReportController;
 
 Route::prefix('admin')
     ->name('admin.')
@@ -239,6 +249,8 @@ Route::prefix('admin')
                 ->name('library.reports.excel')
                 ->middleware('permission:library.reports');
 
+                
+
             /* OTHER STAFF */
 
             Route::resource('other-staff', OtherStaffController::class)
@@ -334,6 +346,7 @@ Route::get('/student-supply-kits', [StudentSupplyKitController::class, 'index'])
 
 Route::get('/student-supply-kits/create', [StudentSupplyKitController::class, 'create'])
     ->name('student-supply-kits.create');
+    
 
 Route::post('/student-supply-kits', [StudentSupplyKitController::class, 'store'])
     ->name('student-supply-kits.store');
@@ -367,6 +380,268 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
 | SCHOOL LEAVING CERTIFICATE
 |--------------------------------------------------------------------------
 */
+/*
+    |--------------------------------------------------------------------------
+    | TEACHER ATTENDANCE - TEMPORARY TEST
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/teachers/attendance', [
+        TeacherAttendanceController::class,
+        'index'
+    ])->name('teachers.attendance.index');
+
+    Route::post('/teachers/attendance', [
+        TeacherAttendanceController::class,
+        'store'
+    ])->name('teachers.attendance.store');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTHENTICATED ADMIN ROUTES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware('auth')->group(function () {
+
+
+    Route::get('/teachers/salary/attendance-data', [
+    TeacherSalaryController::class,
+    'attendanceData'
+])->name('teachers.salary.attendance-data');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TWO FACTOR AUTHENTICATION
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/2fa/setup', [
+            TwoFactorController::class,
+            'showSetup'
+        ])->name('2fa.setup');
+
+        Route::post('/2fa/verify', [
+            TwoFactorController::class,
+            'verify'
+        ])->name('2fa.verify');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DASHBOARD
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dashboard', [
+            DashboardController::class,
+            'index'
+        ])->name('dashboard');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STUDENT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/students', function () {
+            return 'Student Management';
+        })->name('students.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ASSIGN CLASS TEACHER
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('teachers/assign-class')
+            ->name('teachers.assign-class.')
+            ->group(function () {
+
+                Route::get('/', [
+                    ClassTeacherController::class,
+                    'index'
+                ])->name('index');
+
+                Route::get('/create', [
+                    ClassTeacherController::class,
+                    'create'
+                ])->name('create');
+
+                Route::post('/', [
+                    ClassTeacherController::class,
+                    'store'
+                ])->name('store');
+
+                Route::get('/{assignment}/edit', [
+                    ClassTeacherController::class,
+                    'edit'
+                ])->name('edit');
+
+                Route::put('/{assignment}', [
+                    ClassTeacherController::class,
+                    'update'
+                ])->name('update');
+
+                Route::delete('/{assignment}', [
+                    ClassTeacherController::class,
+                    'destroy'
+                ])->name('destroy');
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TEACHER SALARY / PAYROLL
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('teachers/salary')
+            ->name('teachers.salary.')
+            ->group(function () {
+
+                Route::get('/', [
+                    TeacherSalaryController::class,
+                    'index'
+                ])->name('index');
+
+                Route::get('/create', [
+                    TeacherSalaryController::class,
+                    'create'
+                ])->name('create');
+
+                /*
+                |--------------------------------------------------------------
+                | ATTENDANCE DATA
+                |--------------------------------------------------------------
+                */
+
+                Route::get('/attendance-data', [
+                    TeacherSalaryController::class,
+                    'attendanceData'
+                ])->name('attendance-data');
+
+                Route::post('/', [
+                    TeacherSalaryController::class,
+                    'store'
+                ])->name('store');
+
+                Route::get('/{teacherSalary}', [
+                    TeacherSalaryController::class,
+                    'show'
+                ])->name('show');
+
+                Route::get('/{teacherSalary}/edit', [
+                    TeacherSalaryController::class,
+                    'edit'
+                ])->name('edit');
+
+                Route::put('/{teacherSalary}', [
+                    TeacherSalaryController::class,
+                    'update'
+                ])->name('update');
+
+                Route::delete('/{teacherSalary}', [
+                    TeacherSalaryController::class,
+                    'destroy'
+                ])->name('destroy');
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TEACHER REPORTS
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/teachers/reports', [
+            TeacherReportController::class,
+            'index'
+        ])->name('teachers.reports.index');
+
+        Route::get('/teachers/reports/{teacher}', [
+            TeacherReportController::class,
+            'show'
+        ])->name('teachers.reports.show');
+
+        Route::get('/teachers/reports/{teacher}/pdf', [
+            TeacherReportController::class,
+            'pdf'
+        ])->name('teachers.reports.pdf');
+
+        Route::get('/teachers/reports/{teacher}/excel', [
+            TeacherReportController::class,
+            'excel'
+        ])->name('teachers.reports.excel');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FACULTY / TEACHER
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('teachers', TeacherController::class);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TIME TABLE
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('timetable', TimetableController::class)
+            ->except(['show']);
+
+        Route::get('/timetable/class', [
+            TimetableController::class,
+            'classTimetable'
+        ])->name('timetable.class');
+
+        Route::get('/timetable/class/pdf', [
+            TimetableController::class,
+            'classPdf'
+        ])->name('timetable.class.pdf');
+
+        Route::get('/timetable/class/excel', [
+            TimetableController::class,
+            'classExcel'
+        ])->name('timetable.class.excel');
+
+        Route::get('/timetable/teacher', [
+            TimetableController::class,
+            'teacherTimetable'
+        ])->name('timetable.teacher');
+
+        Route::get('/timetable/next-time', [
+            TimetableController::class,
+            'nextTime'
+        ])->name('timetable.next-time');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STAFF CATEGORIES
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('staff-categories', StaffCategoryController::class)
+            ->except(['show']);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | EXISTING ATTENDANCE
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/attendance', function () {
+            return 'Attendance Management';
+        })->name('attendance.index');
 
 Route::get('/school-leaving-certificate', [SchoolLeavingCertificateController::class, 'index'])
     ->name('school-leaving-certificate.index');
@@ -455,6 +730,23 @@ Route::get('/age-report/print', [AgeReportController::class, 'print'])
 
             Route::get('/student-documents/{student}', [StudentDocumentsController::class, 'show'])
                 ->name('student-documents.show');
+        /*
+        |--------------------------------------------------------------------------
+        | LEAVE MANAGEMENT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource(
+            'leave-applications',
+            LeaveApplicationController::class
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SPORTS
+        |--------------------------------------------------------------------------
+        */
 
             Route::get('/student-health', [StudentHealthController::class, 'index'])
                 ->name('student-health.index');
@@ -676,6 +968,35 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
             Route::get('/admin/reports', [ReportsController::class, 'index'])
     ->name('reports.index');
 
+    //ALL REPORTS
+
+Route::get('/admin/reports', [ReportsController::class, 'index'])
+    ->name('reports.index');
+
+Route::get('/reports/students', [StudentReportController::class, 'index'])
+    ->name('reports.students');
+
+    Route::get('/reports/students/pdf', [StudentReportController::class, 'pdf'])
+    ->name('reports.students.pdf');
+
+    Route::get('/reports/students/excel', function (\Illuminate\Http\Request $request) {
+
+    $filters = $request->only([
+        'search',
+        'academic_year',
+        'class',
+        'section',
+        'gender',
+        'status',
+    ]);
+
+    return Excel::download(
+        new StudentReportExport($filters),
+        'student-report.xlsx'
+    );
+
+})->name('reports.students.excel');
+
             /* CLASS / SUBJECT MANAGEMENT */
 
             Route::resource('classes', SchoolClassController::class)
@@ -692,3 +1013,43 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
             ])->name('logout');
         });
     });
+
+    Route::get('/reports/staff/pdf', [StaffReportController::class, 'pdf'])
+    ->name('reports.staff.pdf');
+
+Route::get('/reports/staff/excel', [StaffReportController::class, 'excel'])
+    ->name('reports.staff.excel');
+
+Route::get('/reports/staff/{otherStaff}', [StaffReportController::class, 'show'])
+    ->name('reports.staff.show');
+
+    Route::get('/reports/staff', [StaffReportController::class, 'index'])
+    ->name('reports.staff');
+
+Route::get('/reports/staff/{otherStaff}', [StaffReportController::class, 'show'])
+    ->name('reports.staff.show');
+
+    Route::get('/reports/attendance', [AttendanceReportController::class, 'index'])
+    ->name('reports.attendance');
+
+    Route::get('/reports/attendance/pdf', [AttendanceReportController::class, 'pdf'])
+    ->name('reports.attendance.pdf');
+
+Route::get('/reports/attendance/excel', [AttendanceReportController::class, 'excel'])
+    ->name('reports.attendance.excel');
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGOUT
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/logout', [
+        LoginController::class,
+        'logout'
+    ])->middleware('auth')->name('logout');
+
+});

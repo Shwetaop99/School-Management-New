@@ -335,6 +335,132 @@
 }
 
 /* =========================================================
+   FACULTY REPORT FILTERS
+========================================================= */
+
+.teacher-reports-page .teacher-report-filters {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 25px;
+    box-sizing: border-box;
+}
+
+.teacher-reports-page .filter-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1fr;
+    gap: 14px;
+    align-items: end;
+}
+
+.teacher-reports-page .filter-group {
+    min-width: 0;
+}
+
+.teacher-reports-page .filter-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.teacher-reports-page .filter-group input,
+.teacher-reports-page .filter-group select {
+    width: 100%;
+    height: 40px;
+    padding: 8px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.teacher-reports-page .filter-group input:focus,
+.teacher-reports-page .filter-group select:focus {
+    border-color: #147cf5;
+    box-shadow: 0 0 0 3px rgba(20, 124, 245, 0.10);
+}
+
+.teacher-reports-page .filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.teacher-reports-page .filter-apply-btn,
+.teacher-reports-page .filter-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.teacher-reports-page .filter-apply-btn {
+    border: 0;
+    background: #147cf5;
+    color: #ffffff;
+}
+
+.teacher-reports-page .filter-apply-btn:hover {
+    background: #0f6bd6;
+}
+
+.teacher-reports-page .filter-reset-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.teacher-reports-page .filter-reset-btn:hover {
+    background: #f1f5f9;
+}
+
+
+/* =========================================================
+   FILTER RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    .teacher-reports-page .filter-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+
+    .teacher-reports-page .filter-row {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-reports-page .filter-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .teacher-reports-page .filter-apply-btn,
+    .teacher-reports-page .filter-reset-btn {
+        width: 100%;
+    }
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
@@ -417,6 +543,121 @@
         <p>
             Select a teacher to view their available reports.
         </p>
+
+        {{-- =====================================================
+     FACULTY REPORT FILTERS
+====================================================== --}}
+
+<div class="teacher-report-filters">
+
+    <form method="GET" action="{{ route('admin.teachers.reports.index') }}">
+
+        <div class="filter-row">
+
+            {{-- Faculty Search --}}
+            <div class="filter-group search-group">
+                <label for="search">Faculty Search</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Name, ID, email, phone..."
+                >
+            </div>
+
+            {{-- From Date --}}
+            <div class="filter-group">
+                <label for="from_date">From Date</label>
+                <input
+                    type="date"
+                    id="from_date"
+                    name="from_date"
+                    value="{{ request('from_date') }}"
+                >
+            </div>
+
+            {{-- To Date --}}
+            <div class="filter-group">
+                <label for="to_date">To Date</label>
+                <input
+                    type="date"
+                    id="to_date"
+                    name="to_date"
+                    value="{{ request('to_date') }}"
+                >
+            </div>
+
+            {{-- Gender --}}
+            <div class="filter-group">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender">
+                    <option value="">All Genders</option>
+
+                    @foreach($genders ?? [] as $gender)
+                        <option
+                            value="{{ $gender }}"
+                            {{ request('gender') == $gender ? 'selected' : '' }}
+                        >
+                            {{ $gender }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Subject --}}
+            <div class="filter-group">
+                <label for="subject">Subject</label>
+                <select id="subject" name="subject">
+                    <option value="">All Subjects</option>
+
+                    @foreach($subjects ?? [] as $subject)
+                        <option
+                            value="{{ $subject }}"
+                            {{ request('subject') == $subject ? 'selected' : '' }}
+                        >
+                            {{ $subject }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Status --}}
+            <div class="filter-group">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">All Status</option>
+                    <option value="Active" {{ request('status') == 'Active' ? 'selected' : '' }}>
+                        Active
+                    </option>
+                    <option value="Inactive" {{ request('status') == 'Inactive' ? 'selected' : '' }}>
+                        Inactive
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="filter-actions">
+
+            <button type="submit" class="filter-apply-btn">
+                <i class="bi bi-funnel"></i>
+                Apply Filters
+            </button>
+
+            <a
+                href="{{ route('admin.teachers.reports.index') }}"
+                class="filter-reset-btn"
+            >
+                <i class="bi bi-arrow-counterclockwise"></i>
+                Reset
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
 
 
         @if($teachers->count() > 0)

@@ -14,7 +14,7 @@ class TeacherReportExport implements FromView
 
     public function view(): View
     {
-        return view('admin.reports.excel', [
+        return view('admin.teacherReports.excel', [
             'teacher' => $this->teacher,
         ]);
     }
