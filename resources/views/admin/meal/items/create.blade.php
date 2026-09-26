@@ -233,6 +233,7 @@
                                             Pulses
                                         </option>
 
+<<<<<<< HEAD
                                         <option value="Vegetables"
                                             {{ old('category') === 'Vegetables' ? 'selected' : '' }}>
                                             Vegetables
@@ -248,6 +249,8 @@
                                             Dairy
                                         </option>
 
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                                         <option value="Oil"
                                             {{ old('category') === 'Oil' ? 'selected' : '' }}>
                                             Oil

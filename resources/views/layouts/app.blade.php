@@ -4,17 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <meta name="csrf-token" content="{{ csrf_token() }}">
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
+<<<<<<< HEAD
 
     {{-- Bootstrap Icons --}}
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     <title>@yield('title', 'School Management')</title>
 
@@ -121,7 +127,11 @@
 
         .brand-text {
             line-height: 1.2;
+<<<<<<< HEAD
             min-width: 0;
+=======
+            margin-left: 10px;
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         }
 
         .brand-title {
@@ -271,6 +281,7 @@
             color: #1769d1;
             font-weight: 600;
         }
+<<<<<<< HEAD
 
         /* =========================================================
            NESTED MENU
@@ -345,6 +356,8 @@
             font-size: 12.5px;
             min-height: 34px;
         }
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
         /* =========================================================
            OTHER SECTION
@@ -565,6 +578,25 @@
             gap: 12px;
         }
 
+<<<<<<< HEAD
+=======
+        .header-icon-button {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            color: #64748b;
+            font-size: 18px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .header-icon-button:hover {
+            background: #f1f5f9;
+        }
+
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         .admin-profile {
             display: flex;
             align-items: center;
@@ -615,6 +647,18 @@
             margin-top: 3px;
         }
 
+<<<<<<< HEAD
+=======
+        .admin-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #16a34a;
+            margin-top: 3px;
+        }
+
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         .online-dot {
             width: 7px;
             height: 7px;
@@ -671,7 +715,6 @@
         ========================================================== */
 
         @media (max-width: 1000px) {
-
             .sidebar {
                 transform: translateX(-100%);
             }
@@ -695,7 +738,6 @@
         }
 
         @media (max-width: 700px) {
-
             .top-header {
                 padding: 0 12px;
                 gap: 8px;
@@ -763,11 +805,15 @@
         <div class="sidebar-brand">
 
             <div class="brand-icon">
+<<<<<<< HEAD
                 <img
                     src="{{ $schoolLogo }}"
                     alt="{{ $schoolName }} Logo"
                     onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
                 >
+=======
+                <img src="{{ asset('images/gurukullogo.png') }}" alt="Gurukul Logo">
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             </div>
 
             <div class="brand-text">
@@ -784,6 +830,7 @@
 
         </div>
 
+<<<<<<< HEAD
 
         {{-- Sidebar Navigation --}}
         <div class="sidebar-content">
@@ -799,6 +846,23 @@
                     return $isSuperAdmin ||
                         ($user && $user->hasPermission($permission));
                 };
+=======
+        <!-- Sidebar Navigation -->
+        <div class="sidebar-content">
+
+            <!-- Dashboard -->
+            <a href="{{ route('admin.dashboard') }}"
+               class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+               data-search="dashboard home">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Dashboard
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                 $canAny = function (array $permissions) use ($can) {
 
@@ -874,6 +938,7 @@
                     data-search="student students"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fa fa-user-graduate"></i>
                     </span>
@@ -881,11 +946,21 @@
                     <span class="sidebar-label">
                         Student
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fa fa-user-graduate"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Student
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
                     </span>
 
+<<<<<<< HEAD
                 </button>
 
 
@@ -904,6 +979,55 @@
                         </a>
 
                     @endif
+=======
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.students.*') ? 'open' : '' }}"
+                 id="student-menu">
+
+                <a href="{{ route('admin.students.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">
+                    All Students
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                   class="submenu-item">
+                    Add Student
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                   class="submenu-item">
+                    Student Profile
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                   class="submenu-item">
+                    Student Documents
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                   class="submenu-item">
+                    Student ID
+                </a>
+
+                <a href="{{ route('admin.attendance.index') }}"
+                   class="submenu-item">
+                    Attendance
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                   class="submenu-item">
+                    School Supplies (Kit)
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                   class="submenu-item">
+                    Student Report
+                </a>
+
+            </div>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 
                     @if($can('students.view'))
@@ -1011,6 +1135,7 @@
                     data-search="faculty teacher teachers"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-chalkboard-teacher"></i>
                     </span>
@@ -1018,14 +1143,63 @@
                     <span class="sidebar-label">
                         Faculty (Teacher)
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Faculty (Teacher)
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
                     </span>
 
+<<<<<<< HEAD
                 </button>
+=======
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.faculty.*') ? 'open' : '' }}"
+                 id="faculty-menu">
+
+                <a href="{{ route('admin.faculty.index') }}"
+                   class="submenu-item">
+                    All Faculty
+                </a>
+
+                <a href="{{ route('admin.faculty.index') }}"
+                   class="submenu-item">
+                    Teacher Allocation
+                </a>
+
+            </div>
 
 
+            <!-- OTHER STAFF -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.other-staff.*') ? 'active open' : '' }}"
+                    data-submenu="other-staff-menu"
+                    data-search="other staff employees librarian accountant receptionist peon driver">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-users"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Other Staff
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
+
+            </button>
+
+<<<<<<< HEAD
                 <div
                     class="submenu {{ request()->routeIs('admin.faculty.*') ? 'open' : '' }}"
                     id="faculty-menu"
@@ -1041,6 +1215,25 @@
                         </a>
 
                     @endif
+=======
+            <div class="submenu
+                        {{ request()->routeIs('admin.other-staff.*') ? 'open' : '' }}"
+                 id="other-staff-menu">
+
+                <a href="{{ route('admin.other-staff.index') }}"
+                   class="submenu-item
+                          {{ request()->routeIs('admin.other-staff.index') ? 'active' : '' }}">
+                    All Staff
+                </a>
+
+                <a href="{{ route('admin.other-staff.create') }}"
+                   class="submenu-item
+                          {{ request()->routeIs('admin.other-staff.create') ? 'active' : '' }}">
+                    Add Staff
+                </a>
+
+            </div>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 
                     @if($canAny(['faculty.create','faculty.edit']))
@@ -1136,6 +1329,7 @@
                     data-search="time table timetable schedule"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-table"></i>
                     </span>
@@ -1143,6 +1337,15 @@
                     <span class="sidebar-label">
                         Time Table
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-table"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Time Table
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -1197,6 +1400,7 @@
                     data-search="attendance student faculty mark"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-check"></i>
                     </span>
@@ -1204,6 +1408,15 @@
                     <span class="sidebar-label">
                         Attendance
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-check"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Attendance
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -1338,6 +1551,7 @@
 
             @if($canAny(['exams.view','exams.manage']))
 
+<<<<<<< HEAD
                 <a
                     href="{{ route('admin.exams.index') }}"
                     class="sidebar-item {{ request()->routeIs('admin.exams.*') ? 'active' : '' }}"
@@ -1347,6 +1561,15 @@
                     <span class="sidebar-icon">
                         <i class="fas fa-file-alt"></i>
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-file-alt"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Exam
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-label">
                         Exam
@@ -1370,6 +1593,7 @@
                     data-search="result results marks grade"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-chart-bar"></i>
                     </span>
@@ -1377,6 +1601,15 @@
                     <span class="sidebar-label">
                         Result
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Result
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -1447,6 +1680,7 @@
                     data-search="notice notices announcement"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-flag"></i>
                     </span>
@@ -1454,6 +1688,15 @@
                     <span class="sidebar-label">
                         Notice
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-flag"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Notice
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -1514,6 +1757,7 @@
                     data-search="library books issue return fine"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-book"></i>
                     </span>
@@ -1521,12 +1765,51 @@
                     <span class="sidebar-label">
                         Library
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-book"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Library
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
                     </span>
 
+<<<<<<< HEAD
                 </button>
+=======
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.library.*') ? 'open' : '' }}"
+                 id="library-menu">
+
+                <a href="{{ route('admin.library.books.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.library.books.*') ? 'active' : '' }}">
+                    Total Books
+                </a>
+
+                <a href="{{ route('admin.library.issues.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.library.issues.*') || request()->routeIs('admin.library.returns.*') || request()->routeIs('admin.library.fines.*') ? 'active' : '' }}">
+                    Issues / Returns / Fine
+                </a>
+
+                <a href="{{ route('admin.library.librarian.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.library.librarian.index') ? 'active' : '' }}">
+                    Librarian
+                </a>
+
+                <a href="{{ route('admin.library.reports.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.library.reports.*') ? 'active' : '' }}">
+                    Reports
+                </a>
+
+            </div>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 
                 <div
@@ -1609,6 +1892,7 @@
                     data-search="transport bus vehicle"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-bus"></i>
                     </span>
@@ -1616,6 +1900,15 @@
                     <span class="sidebar-label">
                         Transport
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-bus"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Transport
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -1629,6 +1922,7 @@
                     id="transport-menu"
                 >
 
+<<<<<<< HEAD
                     <a
                         href="{{ route('admin.transport.records.index') }}"
                         class="submenu-item {{ request()->routeIs('admin.transport.records.*') ? 'active' : '' }}"
@@ -1660,10 +1954,15 @@
 
                 <button
                     class="sidebar-item has-submenu {{ request()->routeIs('admin.meal.*') ? 'active open' : '' }}"
+=======
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.meal.*') ? 'active open' : '' }}"
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                     data-submenu="meal-menu"
                     data-search="meal meals food stock"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-utensils"></i>
                     </span>
@@ -1671,6 +1970,15 @@
                     <span class="sidebar-label">
                         Meal Management
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-utensils"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Meal Management
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -1678,6 +1986,7 @@
 
                 </button>
 
+<<<<<<< HEAD
 
                 <div
                     class="submenu {{ request()->routeIs('admin.meal.*') ? 'open' : '' }}"
@@ -1790,6 +2099,20 @@
                         Scholarship
                     </span>
 
+=======
+            <div class="submenu
+                        {{ request()->routeIs('admin.meal.*') ? 'open' : '' }}"
+                 id="meal-menu">
+
+                <a href="{{ route('admin.meal.items.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.meal.items.*') ? 'active' : '' }}">
+                    Stock In / Stock Out
+                </a>
+
+                <a href="{{ route('admin.meal.logs.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">
+                    Logs
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                 </a>
 
 
@@ -1797,12 +2120,99 @@
                      CLASS
                 ================================================== --}}
 
+<<<<<<< HEAD
                 <button
                     class="sidebar-item has-submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'active open' : '' }}"
+=======
+            <!-- Payroll -->
+
+            <a href="{{ route('admin.payroll.index') }}"
+               class="sidebar-item {{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}"
+               data-search="payroll salary">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-money-check-alt"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Payroll
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 SPORTS
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.sports.*') ? 'active open' : '' }}"
+                    data-submenu="sports-menu"
+                    data-search="sports games events achievements equipment">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-futbol"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Sports
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.sports.*') ? 'open' : '' }}"
+                 id="sports-menu">
+
+                <a href="{{ route('admin.sports.games.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.games.*') ? 'active' : '' }}">
+                    Games / Events
+                </a>
+
+                <a href="{{ route('admin.sports.achievements.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.achievements.*') ? 'active' : '' }}">
+                    Achievements
+                </a>
+
+                <a href="{{ route('admin.sports.equipment.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.equipment.*') ? 'active' : '' }}">
+                    Sports Equipments
+                </a>
+
+            </div>
+
+
+            <!-- Scholarship -->
+
+            <a href="{{ route('admin.scholarship.index') }}"
+               class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}"
+               data-search="scholarship">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Scholarship
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 CLASS
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.classes.*', 'admin.subjects.*') ? 'active open' : '' }}"
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                     data-submenu="class-menu"
                     data-search="class classes division subjects"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-chalkboard"></i>
                     </span>
@@ -1810,6 +2220,15 @@
                     <span class="sidebar-label">
                         Class
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-chalkboard"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Class
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -1817,6 +2236,7 @@
 
                 </button>
 
+<<<<<<< HEAD
 
                 <div
                     class="submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'open' : '' }}"
@@ -1865,6 +2285,23 @@
                 </a>
 
             @endif
+=======
+            <div class="submenu
+                        {{ request()->routeIs('admin.classes.*', 'admin.subjects.*') ? 'open' : '' }}"
+                 id="class-menu">
+
+                <a href="{{ route('admin.classes.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.classes.*') ? 'active' : '' }}">
+                    Classes
+                </a>
+
+                <a href="{{ route('admin.subjects.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
+                    Subjects
+                </a>
+
+            </div>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 
             {{-- =================================================
@@ -1883,6 +2320,7 @@
                     data-search="settings role permission users backup"
                 >
 
+<<<<<<< HEAD
                     <span class="sidebar-icon">
                         <i class="fas fa-cog"></i>
                     </span>
@@ -1890,6 +2328,15 @@
                     <span class="sidebar-label">
                         Settings
                     </span>
+=======
+                <span class="sidebar-icon">
+                    <i class="fas fa-cog"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Settings
+                </span>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                     <span class="sidebar-arrow">
                         ›
@@ -2000,9 +2447,13 @@
 
     <div class="main-area">
 
+<<<<<<< HEAD
         {{-- =====================================================
              HEADER
         ====================================================== --}}
+=======
+        <!-- HEADER -->
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
         <header class="top-header">
 
@@ -2010,11 +2461,14 @@
                 type="button"
                 class="menu-toggle"
                 id="menuToggle"
+<<<<<<< HEAD
                 aria-label="Toggle sidebar"
             >
+=======
+                aria-label="Toggle sidebar">
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                 ☰
             </button>
-
 
             <div class="page-title">
                 @yield('page-title', 'Dashboard')
@@ -2028,7 +2482,7 @@
                 <div class="search-box">
 
                     <span class="search-icon">
-                        ⌕
+                        <i class="fas fa-search"></i>
                     </span>
 
                     <input
@@ -2036,20 +2490,23 @@
                         id="globalSearch"
                         class="search-input"
                         placeholder="Search..."
-                        autocomplete="off"
-                    >
+                        autocomplete="off">
 
                     <button
                         type="button"
                         class="search-button"
                         id="searchButton"
+<<<<<<< HEAD
                         title="Search"
                     >
                         ↵
+=======
+                        title="Search">
+                        <i class="fas fa-arrow-right"></i>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                     </button>
 
                 </div>
-
 
                 <div
                     class="search-results"
@@ -2059,13 +2516,18 @@
             </div>
 
 
+<<<<<<< HEAD
             {{-- HEADER ACTIONS --}}
+=======
+            <!-- HEADER ACTIONS -->
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
             <div class="header-actions">
 
                 <div class="admin-profile">
 
                     <div class="admin-avatar">
+<<<<<<< HEAD
 
                         @if(auth()->check() && auth()->user()->profile_photo)
 
@@ -2107,6 +2569,24 @@
 
                     </div>
 
+=======
+                        A
+                    </div>
+
+                    <div class="admin-info">
+
+                        <div class="admin-name">
+                            Admin
+                        </div>
+
+                        <div class="admin-status">
+                            <span class="online-dot"></span>
+                            Online
+                        </div>
+
+                    </div>
+
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                 </div>
 
             </div>
@@ -2114,20 +2594,26 @@
         </header>
 
 
+<<<<<<< HEAD
         {{-- =====================================================
              PAGE CONTENT
         ====================================================== --}}
+=======
+        <!-- PAGE CONTENT -->
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
         <main class="main-content">
-
             @yield('content')
-
         </main>
 
 
+<<<<<<< HEAD
         {{-- =====================================================
              FOOTER
         ====================================================== --}}
+=======
+        <!-- FOOTER -->
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
         <footer class="app-footer">
 
@@ -2157,12 +2643,17 @@
 ============================================================== --}}
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
+<<<<<<< HEAD
     /* ==========================================================
        SIDEBAR MAIN SUBMENUS
     ========================================================== */
+=======
+    /* =========================================================
+       SIDEBAR SUBMENUS
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     const submenuButtons =
         document.querySelectorAll('.has-submenu');
@@ -2181,11 +2672,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+<<<<<<< HEAD
 
             /*
              * Close all other main submenus
              */
 
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             submenuButtons.forEach(function (otherButton) {
 
                 if (otherButton !== button) {
@@ -2206,20 +2700,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             });
 
-
-            /*
-             * Toggle selected submenu
-             */
-
             button.classList.toggle('open');
-
             submenu.classList.toggle('open');
-
         });
-
     });
 
 
+<<<<<<< HEAD
     /* ==========================================================
        SCHOOL SUPPLIES NESTED MENU
     ========================================================== */
@@ -2256,6 +2743,11 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ==========================================================
        MOBILE SIDEBAR
     ========================================================== */
+=======
+    /* =========================================================
+       MOBILE SIDEBAR
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     const menuToggle =
         document.getElementById('menuToggle');
@@ -2269,9 +2761,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (menuToggle) {
 
+<<<<<<< HEAD
         menuToggle.addEventListener('click', function () {
 
             sidebar.classList.toggle('mobile-open');
+=======
+        sidebar.classList.toggle('mobile-open');
+        sidebarOverlay.classList.toggle('active');
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
             sidebarOverlay.classList.toggle('active');
 
@@ -2282,9 +2779,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (sidebarOverlay) {
 
+<<<<<<< HEAD
         sidebarOverlay.addEventListener('click', function () {
 
             sidebar.classList.remove('mobile-open');
+=======
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.remove('active');
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
             sidebarOverlay.classList.remove('active');
 
@@ -2293,9 +2795,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+<<<<<<< HEAD
     /* ==========================================================
        GLOBAL SEARCH
     ========================================================== */
+=======
+    /* =========================================================
+       GLOBAL SEARCH
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     const searchInput =
         document.getElementById('globalSearch');
@@ -2358,6 +2866,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
 
+<<<<<<< HEAD
     /*
      * Nested School Supply menu
      */
@@ -2387,13 +2896,14 @@ document.addEventListener('DOMContentLoaded', function () {
     ========================================================== */
 
 
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     function performSearch() {
 
         const query =
             searchInput.value
                 .trim()
                 .toLowerCase();
-
 
         searchResults.innerHTML = '';
 
@@ -2461,7 +2971,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 result.innerHTML = `
 
                     <span class="search-result-icon">
-                        🔎
+                        <i class="fas fa-search"></i>
                     </span>
 
                     <span>
@@ -2473,11 +2983,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 result.addEventListener('click', function () {
 
+<<<<<<< HEAD
 
                     /*
                      * Normal link
                      */
 
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                     if (
                         item.element.tagName === 'A'
                         &&
@@ -2492,10 +3005,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
 
+<<<<<<< HEAD
                     /*
                      * Main parent menu
                      */
 
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                     if (
                         item.element.classList
                             .contains('has-submenu')
@@ -2538,9 +3054,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+<<<<<<< HEAD
     /* ==========================================================
        SEARCH WHILE TYPING
     ========================================================== */
+=======
+    /* =========================================================
+       SEARCH WHILE TYPING
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     searchInput.addEventListener(
         'input',
@@ -2548,9 +3070,15 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
+<<<<<<< HEAD
     /* ==========================================================
        SEARCH BUTTON
     ========================================================== */
+=======
+    /* =========================================================
+       SEARCH BUTTON
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     searchButton.addEventListener(
         'click',
@@ -2558,9 +3086,15 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
+<<<<<<< HEAD
     /* ==========================================================
        ENTER TO SEARCH
     ========================================================== */
+=======
+    /* =========================================================
+       ENTER TO SEARCH
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     searchInput.addEventListener(
         'keydown',
@@ -2578,9 +3112,15 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
+<<<<<<< HEAD
     /* ==========================================================
        CLOSE SEARCH RESULTS
     ========================================================== */
+=======
+    /* =========================================================
+       CLOSE SEARCH WHEN CLICKING OUTSIDE
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     document.addEventListener(
         'click',
@@ -2598,9 +3138,15 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
+<<<<<<< HEAD
     /* ==========================================================
        CTRL + K SEARCH SHORTCUT
     ========================================================== */
+=======
+    /* =========================================================
+       CTRL + K SEARCH SHORTCUT
+    ========================================================= */
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     document.addEventListener(
         'keydown',
@@ -2624,12 +3170,15 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 });
-
 </script>
 
 
+<<<<<<< HEAD
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
 </script>
+=======
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 @stack('scripts')
 

@@ -1201,6 +1201,7 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "ezyang/htmlpurifier",
 <<<<<<< HEAD
             "version": "v4.19.1",
@@ -1281,6 +1282,8 @@
 >>>>>>> origin/timetable/payroll-Management
         },
         {
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             "name": "fruitcake/php-cors",
             "version": "v1.4.0",
             "source": {

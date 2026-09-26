@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\ClassTeacherController;
 
 /*
 |--------------------------------------------------------------------------
+<<<<<<< HEAD
 | STUDENT CONTROLLERS
 |--------------------------------------------------------------------------
 */
@@ -121,6 +122,27 @@ use App\Http\Controllers\Meal\MealItemController;
 use App\Http\Controllers\Meal\MealStockLogController;
 use App\Http\Controllers\Meal\MealStockTransactionController;
 >>>>>>> 49f4f4e1d3e114b1ec3e033695a34ee5b53cae93
+=======
+| Meal Management
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Meal\MealItemController;
+use App\Http\Controllers\Meal\MealStockLogController;
+use App\Http\Controllers\Meal\MealStockTransactionController;
+
+/*
+|--------------------------------------------------------------------------
+| Sports Management
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Sports\SportsController;
+use App\Http\Controllers\Sports\GameController;
+use App\Http\Controllers\Sports\AchievementController;
+use App\Http\Controllers\Sports\EquipmentController;
+
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 /*
 |--------------------------------------------------------------------------
@@ -409,6 +431,7 @@ Route::get('/dashboard', [
 
             /*
             |--------------------------------------------------------------------------
+<<<<<<< HEAD
 
             | BONAFIDE CERTIFICATE
             |--------------------------------------------------------------------------
@@ -827,6 +850,8 @@ Route::get('/dashboard', [
 
             /*
             |--------------------------------------------------------------------------
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             | LIBRARY - BOOKS
             |--------------------------------------------------------------------------
             */
@@ -873,7 +898,10 @@ Route::get('/dashboard', [
                 ->name('library.books.destroy')
                 ->middleware('permission:library.books');
 
+<<<<<<< HEAD
             // Keep this LAST because {book} catches the book ID.
+=======
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             Route::get('/library/books/{book}', [
                 BookController::class,
                 'show'
@@ -980,14 +1008,19 @@ Route::get('/dashboard', [
             Route::patch('/library/fines/{issue}/status', [
                 BookIssueController::class,
                 'updateFineStatus'
+<<<<<<< HEAD
             ])
                 ->name('library.fines.status')
                 ->middleware('permission:library.fines');
+=======
+            ])->name('library.fines.status');
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 
             /*
             |--------------------------------------------------------------------------
             | LIBRARY - LIBRARIAN
+<<<<<<< HEAD
             |--------------------------------------------------------------------------
             */
 
@@ -1213,10 +1246,348 @@ Route::resource(
             |--------------------------------------------------------------------------
             */
 
+=======
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/library/librarian', [
+                LibrarianController::class,
+                'index'
+            ])->name('library.librarian.index');
+
+            Route::get('/library/librarian/{librarian}', [
+                LibrarianController::class,
+                'show'
+            ])->name('library.librarian.show');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LIBRARY - REPORTS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/library/reports', [
+                LibraryReportController::class,
+                'index'
+            ])->name('library.reports.index');
+
+            Route::get('/library/reports/pdf', [
+                LibraryReportDownloadController::class,
+                'pdf'
+            ])->name('library.reports.pdf');
+
+            Route::get('/library/reports/excel', [
+                LibraryReportDownloadController::class,
+                'excel'
+            ])->name('library.reports.excel');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | OTHER STAFF
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'other-staff',
+                OtherStaffController::class
+            )->names([
+                'index'   => 'other-staff.index',
+                'create'  => 'other-staff.create',
+                'store'   => 'other-staff.store',
+                'show'    => 'other-staff.show',
+                'edit'    => 'other-staff.edit',
+                'update'  => 'other-staff.update',
+                'destroy' => 'other-staff.destroy',
+            ]);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CLASS MANAGEMENT
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'classes',
+                SchoolClassController::class
+            )->names('classes');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUBJECT MANAGEMENT
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'subjects',
+                SubjectController::class
+            )->names('subjects');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | MEAL ITEMS / STOCK MANAGEMENT
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('meal/items')
+                ->name('meal.items.')
+                ->group(function () {
+
+                    Route::get('/', [
+                        MealItemController::class,
+                        'index'
+                    ])->name('index');
+
+                    Route::get('/create', [
+                        MealItemController::class,
+                        'create'
+                    ])->name('create');
+
+                    Route::post('/', [
+                        MealItemController::class,
+                        'store'
+                    ])->name('store');
+
+                    Route::get('/{mealItem}/edit', [
+                        MealItemController::class,
+                        'edit'
+                    ])->name('edit');
+
+                    Route::put('/{mealItem}', [
+                        MealItemController::class,
+                        'update'
+                    ])->name('update');
+
+                    Route::delete('/{mealItem}', [
+                        MealItemController::class,
+                        'destroy'
+                    ])->name('destroy');
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | STOCK IN / OUT
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get('/stock', [
+                        MealStockTransactionController::class,
+                        'index'
+                    ])->name('stock.index');
+
+                    Route::get('/stock/create', [
+                        MealStockTransactionController::class,
+                        'create'
+                    ])->name('stock.create');
+
+                    Route::post('/stock', [
+                        MealStockTransactionController::class,
+                        'store'
+                    ])->name('stock.store');
+
+                });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | MEAL STOCK LOGS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('meal/logs')
+                ->name('meal.logs.')
+                ->group(function () {
+
+                    Route::get('/', [
+                        MealStockLogController::class,
+                        'index'
+                    ])->name('index');
+
+                    Route::get('/pdf', [
+                        MealStockLogController::class,
+                        'downloadPdf'
+                    ])->name('pdf');
+
+                    Route::get('/excel', [
+                        MealStockLogController::class,
+                        'downloadExcel'
+                    ])->name('excel');
+
+                    Route::get('/{mealStockLog}', [
+                        MealStockLogController::class,
+                        'show'
+                    ])->name('show');
+
+                });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SPORTS - GAMES
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/sports/games', [
+                GameController::class,
+                'index'
+            ])->name('sports.games.index');
+
+            Route::get('/sports/games/create', [
+                GameController::class,
+                'create'
+            ])->name('sports.games.create');
+
+            Route::post('/sports/games', [
+                GameController::class,
+                'store'
+            ])->name('sports.games.store');
+
+            Route::get('/sports/games/{game}/edit', [
+                GameController::class,
+                'edit'
+            ])->name('sports.games.edit');
+
+            Route::put('/sports/games/{game}', [
+                GameController::class,
+                'update'
+            ])->name('sports.games.update');
+
+            Route::delete('/sports/games/{game}', [
+                GameController::class,
+                'destroy'
+            ])->name('sports.games.destroy');
+
+            Route::get('/sports/games/export', [
+                GameController::class,
+                'export'
+            ])->name('sports.games.export');
+
+            Route::get('/sports/games/{game}', [
+                GameController::class,
+                'show'
+            ])->name('sports.games.show');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SPORTS - ACHIEVEMENTS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/sports/achievements', [
+                AchievementController::class,
+                'index'
+            ])->name('sports.achievements.index');
+
+            Route::get('/sports/achievements/create', [
+                AchievementController::class,
+                'create'
+            ])->name('sports.achievements.create');
+
+            Route::post('/sports/achievements', [
+                AchievementController::class,
+                'store'
+            ])->name('sports.achievements.store');
+
+            Route::get('/sports/achievements/{achievement}/edit', [
+                AchievementController::class,
+                'edit'
+            ])->name('sports.achievements.edit');
+
+            Route::put('/sports/achievements/{achievement}', [
+                AchievementController::class,
+                'update'
+            ])->name('sports.achievements.update');
+
+            Route::delete('/sports/achievements/{achievement}', [
+                AchievementController::class,
+                'destroy'
+            ])->name('sports.achievements.destroy');
+
+            Route::get('/sports/achievements/{achievement}', [
+                AchievementController::class,
+                'show'
+            ])->name('sports.achievements.show');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SPORTS - EQUIPMENT
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/sports/equipment', [
+                EquipmentController::class,
+                'index'
+            ])->name('sports.equipment.index');
+
+            Route::get('/sports/equipment/create', [
+                EquipmentController::class,
+                'create'
+            ])->name('sports.equipment.create');
+
+            Route::post('/sports/equipment', [
+                EquipmentController::class,
+                'store'
+            ])->name('sports.equipment.store');
+
+            Route::get('/sports/equipment/{equipment}/edit', [
+                EquipmentController::class,
+                'edit'
+            ])->name('sports.equipment.edit');
+
+            Route::put('/sports/equipment/{equipment}', [
+                EquipmentController::class,
+                'update'
+            ])->name('sports.equipment.update');
+
+            Route::delete('/sports/equipment/{equipment}', [
+                EquipmentController::class,
+                'destroy'
+            ])->name('sports.equipment.destroy');
+
+            Route::get('/sports/equipment/{equipment}', [
+                EquipmentController::class,
+                'show'
+            ])->name('sports.equipment.show');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | MAIN MODULE PAGES
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/students', function () {
+                return 'Student Management';
+            })->name('students.index');
+
+            Route::get('/attendance/student', function () {
+                return view('admin.attendance.student');
+            })->name('attendance.student');
+
+            Route::get('/faculty', function () {
+                return 'Faculty Management';
+            })->name('faculty.index');
+
+            Route::get('/timetable', function () {
+                return 'Time Table';
+            })->name('timetable.index');
+
+            Route::get('/attendance', function () {
+                return 'Attendance Management';
+            })->name('attendance.index');
+
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             Route::get('/fees', function () {
                 return 'Fees Management';
             })->name('fees.index');
 
+<<<<<<< HEAD
 
             /*
             |--------------------------------------------------------------------------
@@ -1407,10 +1778,17 @@ Route::resource(
             |--------------------------------------------------------------------------
             */
 
+=======
+            Route::get('/exam', function () {
+                return 'Exam Management';
+            })->name('exam.index');
+
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             Route::get('/results', function () {
                 return 'Result Management';
             })->name('results.index');
 
+<<<<<<< HEAD
 
             /*
             |--------------------------------------------------------------------------
@@ -1443,8 +1821,26 @@ Route::resource(
             Route::get('/classes', function () {
                 return 'Class Management';
             })->name('classes.index');
+=======
+            Route::get('/transport', function () {
+                return 'Transport Management';
+            })->name('transport.index');
 
+            Route::get('/meals', function () {
+                return 'Meal Management';
+            })->name('meals.index');
 
+            Route::get('/payroll', function () {
+                return 'Payroll Management';
+            })->name('payroll.index');
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
+
+            Route::get('/sports', [
+                SportsController::class,
+                'index'
+            ])->name('sports.index');
+
+<<<<<<< HEAD
             /*
             |--------------------------------------------------------------------------
             | SCHOOL SETTINGS
@@ -1492,6 +1888,12 @@ Route::resource(
                 });
 
             // Settings
+=======
+            Route::get('/scholarship', function () {
+                return 'Scholarship Management';
+            })->name('scholarship.index');
+
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
             Route::get('/settings', function () {
                 return 'Settings';
             })
@@ -1786,6 +2188,7 @@ Route::get('/payroll', [TeacherSalaryController::class, 'index'])
             return 'Settings';
         })->name('settings.index');
 
+<<<<<<< HEAD
     });
 
 
@@ -1872,3 +2275,6 @@ Route::prefix('admin/meal/logs')
     });
    
 >>>>>>> 49f4f4e1d3e114b1ec3e033695a34ee5b53cae93
+=======
+    });
+>>>>>>> 0eae4369792f5446582a904476f9cb1285797030
