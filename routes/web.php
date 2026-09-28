@@ -54,6 +54,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Admin\StaffReportController;
 use App\Http\Controllers\Admin\AttendanceReportController;
 
+use App\Http\Controllers\Class\SchoolClassController;
+use App\Http\Controllers\Class\SubjectController;
+use App\Http\Controllers\Meal\MealItemController;
+use App\Http\Controllers\Meal\MealStockLogController;
+use App\Http\Controllers\Meal\MealStockTransactionController;
 
 
 /*
@@ -62,8 +67,8 @@ use App\Http\Controllers\Admin\AttendanceReportController;
 |--------------------------------------------------------------------------
 */
 
-use App\Http\Controllers\Class\SchoolClassController;
-use App\Http\Controllers\Class\SubjectController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -969,6 +974,10 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
     ->name('reports.index');
 
     //ALL REPORTS
+        // Notice
+        Route::get('/notices', function () {
+            return 'Notice Management';
+        })->name('notices.index');
 
 Route::get('/admin/reports', [ReportsController::class, 'index'])
     ->name('reports.index');
@@ -1053,3 +1062,59 @@ Route::get('/reports/attendance/excel', [AttendanceReportController::class, 'exc
     ])->middleware('auth')->name('logout');
 
 });
+
+// Class Management Routes
+
+Route::resource('admin/classes', SchoolClassController::class)
+    ->names('admin.classes');
+
+Route::resource('subjects', \App\Http\Controllers\Class\SubjectController::class)
+    ->names('admin.subjects');
+
+//   Meal management
+
+ Route::prefix('admin/meal/items')
+    ->name('admin.meal.items.')
+    ->group(function () {
+
+        Route::get('/', [MealItemController::class, 'index'])
+            ->name('index');
+
+        Route::get('/create', [MealItemController::class, 'create'])
+            ->name('create');
+
+        Route::post('/', [MealItemController::class, 'store'])
+            ->name('store');
+
+        Route::get('/{mealItem}/edit', [MealItemController::class, 'edit'])
+            ->name('edit');
+
+        Route::put('/{mealItem}', [MealItemController::class, 'update'])
+            ->name('update');
+
+        Route::delete('/{mealItem}', [MealItemController::class, 'destroy'])
+            ->name('destroy');
+
+        Route::get('/stock', [MealStockTransactionController::class, 'index'])
+            ->name('stock.index');
+
+        Route::get('/stock/create', [MealStockTransactionController::class, 'create'])
+            ->name('stock.create');
+
+        Route::post('/stock', [MealStockTransactionController::class, 'store'])
+            ->name('stock.store');
+    });
+
+Route::prefix('admin/meal/logs')
+    ->name('admin.meal.logs.')
+    ->group(function () {
+
+        // Logs list
+        Route::get('/', [MealStockLogController::class, 'index'])
+            ->name('index');
+
+        // Log details
+        Route::get('/{mealStockLog}', [MealStockLogController::class, 'show'])
+            ->name('show');
+    });
+   

@@ -893,6 +893,250 @@
                 class="submenu-item {{ request()->routeIs('admin.student-documents.*') ? 'active' : '' }}"
             >
                 Student Documents
+            <!-- =================================================
+                 RESULT
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.results.*') ? 'active open' : '' }}"
+                    data-submenu="result-menu"
+                    data-search="result results marks grade">
+
+                <span class="sidebar-icon">
+    <i class="fas fa-chart-bar"></i>
+</span>
+
+<span class="sidebar-label">
+    Result
+</span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.results.*') ? 'open' : '' }}"
+                 id="result-menu">
+
+                <a href="{{ route('admin.results.index') }}"
+                   class="submenu-item">
+                    Student Result
+                </a>
+
+                <a href="{{ route('admin.results.index') }}"
+                   class="submenu-item">
+                    Grade Management
+                </a>
+
+                <a href="{{ route('admin.results.index') }}"
+                   class="submenu-item">
+                    Publish Result
+                </a>
+
+                <a href="{{ route('admin.results.index') }}"
+                   class="submenu-item">
+                    Result History
+                </a>
+
+                <a href="{{ route('admin.results.index') }}"
+                   class="submenu-item">
+                    Result Report
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 NOTICE
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.notices.*') ? 'active open' : '' }}"
+                    data-submenu="notice-menu"
+                    data-search="notice notices announcement">
+
+               <span class="sidebar-icon">
+    <i class="fas fa-flag"></i>
+</span>
+
+<span class="sidebar-label">
+    Notice
+</span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.notices.*') ? 'open' : '' }}"
+                 id="notice-menu">
+
+                <a href="{{ route('admin.notices.index') }}"
+                   class="submenu-item">
+                    All Notices
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 LIBRARY
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.library.*') ? 'active open' : '' }}"
+                    data-submenu="library-menu"
+                    data-search="library books issue return fine">
+
+                <span class="sidebar-icon">
+    <i class="fas fa-book"></i>
+</span>
+
+<span class="sidebar-label">
+    Library
+</span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.library.*') ? 'open' : '' }}"
+                 id="library-menu">
+
+                <a href="{{ route('admin.library.index') }}"
+                   class="submenu-item">
+                    Total Books
+                </a>
+
+                <a href="{{ route('admin.library.index') }}"
+                   class="submenu-item">
+                    Book Categories
+                </a>
+
+                <a href="{{ route('admin.library.index') }}"
+                   class="submenu-item">
+                    Add Books
+                </a>
+
+                <a href="{{ route('admin.library.index') }}"
+                   class="submenu-item">
+                    Issues / Returns / Fine
+                </a>
+
+                <a href="{{ route('admin.library.index') }}"
+                   class="submenu-item">
+                    Incharge Profile
+                </a>
+
+                <a href="{{ route('admin.library.index') }}"
+                   class="submenu-item">
+                    Reports
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 OTHER
+            ================================================== -->
+
+            <div class="sidebar-section-title other-title">
+                OTHER
+            </div>
+
+
+            <!-- Transport -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}"
+                    data-submenu="transport-menu"
+                    data-search="transport bus vehicle">
+
+                <span class="sidebar-icon">
+    <i class="fas fa-bus"></i>
+</span>
+
+<span class="sidebar-label">
+    Transport
+</span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.transport.*') ? 'open' : '' }}"
+                 id="transport-menu">
+
+                <a href="{{ route('admin.transport.index') }}"
+                   class="submenu-item">
+                    Transport Records
+                </a>
+
+                <a href="{{ route('admin.transport.index') }}"
+                   class="submenu-item">
+                    Routes
+                </a>
+
+                <a href="{{ route('admin.transport.index') }}"
+                   class="submenu-item">
+                    Vehicles
+                </a>
+
+            </div>
+
+
+            <!-- Meal Management -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.meals.*') ? 'active open' : '' }}"
+                    data-submenu="meal-menu"
+                    data-search="meal meals food stock">
+
+                <span class="sidebar-icon">
+    <i class="fas fa-utensils"></i>
+</span>
+
+<span class="sidebar-label">
+    Meal Management
+</span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+          <div class="submenu {{ request()->routeIs('admin.meal.items.*', 'admin.meal.stock.*', 'admin.meal.logs.*') ? 'open' : '' }}"
+     id="meal-menu">
+
+    <a href="{{ route('admin.meal.items.index') }}"
+       class="submenu-item {{ request()->routeIs('admin.meal.stock.*') ? 'active' : '' }}">
+        Stock In / Stock Out
+    </a>
+
+     <a href="{{ route('admin.meal.logs.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">
+    Logs
+</a>
+
+
+</div>
+
+
+            <!-- Payroll -->
+
+            <a href="{{ route('admin.payroll.index') }}"
+               class="sidebar-item {{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}"
+               data-search="payroll salary">
+
+                <span class="sidebar-icon">
+    <i class="fas fa-money-check-alt"></i>
+</span>
+
+<span class="sidebar-label">
+    Payroll
+</span>
+
             </a>
         @endif
 
@@ -1122,6 +1366,7 @@
                     <span class="sidebar-icon"><i class="fas fa-graduation-cap"></i></span><span class="sidebar-label">Scholarship</span>
                 </a>
 
+<<<<<<< HEAD
                 <button class="sidebar-item has-submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'active open' : '' }}" data-submenu="class-menu" data-search="class classes division subjects">
                     <span class="sidebar-icon"><i class="fas fa-chalkboard"></i></span><span class="sidebar-label">Class</span><span class="sidebar-arrow">›</span>
                 </button>
@@ -1130,6 +1375,11 @@
                     <a href="{{ route('admin.subjects.index') }}" class="submenu-item">Subjects</a>
                 </div>
             @endif
+=======
+               <a href="{{ route('admin.subjects.index') }}" class="submenu-item">
+    Subjects
+</a>
+>>>>>>> Meal-Management
 
             {{-- REPORTS --}}
 @if($isSuperAdmin)
