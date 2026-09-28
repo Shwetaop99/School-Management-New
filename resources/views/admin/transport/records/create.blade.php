@@ -327,6 +327,49 @@
     }
 
     /* =========================================================
+       CLASS SELECT
+    ========================================================= */
+
+    .class-select-wrapper {
+        position: relative;
+    }
+
+    .class-select-wrapper .transport-input-icon {
+        z-index: 3;
+    }
+
+    .class-select {
+        cursor: pointer;
+    }
+
+    .class-loading {
+        margin-top: 6px;
+        color: #1769d1;
+        font-size: 10px;
+        display: none;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .class-loading.show {
+        display: flex;
+    }
+
+    .class-loading i {
+        animation: transportSpin .8s linear infinite;
+    }
+
+    @keyframes transportSpin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* =========================================================
        SEARCHABLE STUDENT SELECT
     ========================================================= */
 
@@ -358,6 +401,12 @@
         background: #fff;
         border-color: #8bb8ef;
         box-shadow: 0 0 0 3px rgba(23,105,209,.08);
+    }
+
+    .student-search-input:disabled {
+        cursor: not-allowed;
+        background: #f1f5f9;
+        color: #94a3b8;
     }
 
     .student-search-icon {
@@ -459,6 +508,18 @@
         font-size: 11px;
     }
 
+    .student-loading {
+        padding: 18px;
+        text-align: center;
+        color: #1769d1;
+        font-size: 11px;
+    }
+
+    .student-loading i {
+        display: inline-block;
+        animation: transportSpin .8s linear infinite;
+    }
+
     /* =========================================================
        SELECTED STUDENT INFO
     ========================================================= */
@@ -540,11 +601,6 @@
         font-size: 11px;
         font-weight: 650;
         word-break: break-word;
-    }
-
-    .student-detail-value.muted {
-        color: #94a3b8;
-        font-weight: 500;
     }
 
     /* =========================================================
@@ -865,48 +921,46 @@
     }
 </style>
 
-
 <div class="transport-create-page">
 
-    <div class="container-fluid py-4">
+```
+<div class="container-fluid py-4">
 
-        {{-- =====================================================
-             PAGE HEADER
-        ====================================================== --}}
+    {{-- =====================================================
+         PAGE HEADER
+    ====================================================== --}}
 
-        <div class="transport-create-header">
+    <div class="transport-create-header">
 
-            <div class="create-header-content">
+        <div class="create-header-content">
 
-                <div class="create-breadcrumb">
+            <div class="create-breadcrumb">
 
-                    <a href="{{ route('admin.transport.records.index') }}">
-                        Transport Records
-                    </a>
+                <a href="{{ route('admin.transport.records.index') }}">
+                    Transport Records
+                </a>
 
-                    <i class="bi bi-chevron-right"></i>
+                <i class="bi bi-chevron-right"></i>
 
-                    <span>Add Record</span>
+                <span>Add Record</span>
 
+            </div>
+
+            <div class="create-title-row">
+
+                <div class="create-title-icon">
+                    <i class="bi bi-plus-lg"></i>
                 </div>
 
-                <div class="create-title-row">
+                <div>
 
-                    <div class="create-title-icon">
-                        <i class="bi bi-plus-lg"></i>
-                    </div>
+                    <h1 class="create-title">
+                        Add Transport Record
+                    </h1>
 
-                    <div>
-
-                        <h1 class="create-title">
-                            Add Transport Record
-                        </h1>
-
-                        <p class="create-subtitle">
-                            Assign transport service and fee details to a student.
-                        </p>
-
-                    </div>
+                    <p class="create-subtitle">
+                        Assign transport service and fee details to a student.
+                    </p>
 
                 </div>
 
@@ -914,1219 +968,1307 @@
 
         </div>
 
+    </div>
 
-        {{-- =====================================================
-             FORM CARD
-        ====================================================== --}}
 
-        <div class="transport-form-card">
+    {{-- =====================================================
+         FORM CARD
+    ====================================================== --}}
 
-            {{-- CARD HEADER --}}
+    <div class="transport-form-card">
 
-            <div class="form-card-header">
+        {{-- CARD HEADER --}}
 
-                <div class="form-card-heading">
+        <div class="form-card-header">
 
-                    <div class="form-heading-icon">
-                        <i class="bi bi-bus-front"></i>
+            <div class="form-card-heading">
+
+                <div class="form-heading-icon">
+                    <i class="bi bi-bus-front"></i>
+                </div>
+
+                <div>
+
+                    <h5>
+                        Add Transport Record
+                    </h5>
+
+                    <p>
+                        Enter the student's transport assignment details.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="required-note">
+                <span>*</span> Required fields
+            </div>
+
+        </div>
+
+
+        {{-- =================================================
+             FORM
+        ================================================== --}}
+
+        <form
+            action="{{ route('admin.transport.records.store') }}"
+            method="POST"
+            id="transportRecordForm"
+        >
+
+            @csrf
+
+
+            <div class="transport-form-body">
+
+
+                {{-- =================================================
+                     1. STUDENT INFORMATION
+                ================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <div class="section-heading-icon">
+                            <i class="bi bi-person-vcard"></i>
+                        </div>
+
+                        <div>
+
+                            <h6>
+                                Student Information
+                            </h6>
+
+                            <span>
+                                Select a class first, then choose a student.
+                            </span>
+
+                        </div>
+
                     </div>
 
-                    <div>
 
-                        <h5>
-                            Add Transport Record
-                        </h5>
+                    <div class="row">
 
-                        <p>
-                            Enter the student's transport assignment details.
-                        </p>
+
+                        {{-- =================================================
+                             CLASS
+                        ================================================== --}}
+
+                        <div class="col-lg-5">
+
+                            <div class="transport-form-group">
+
+                                <label for="class_id">
+                                    Select Class
+                                    <span class="required">*</span>
+                                </label>
+
+                                <div class="transport-input-wrapper class-select-wrapper">
+
+                                    <i class="bi bi-mortarboard transport-input-icon"></i>
+
+                                    <select
+                                        name="class_filter"
+                                        id="class_id"
+                                        class="transport-form-select with-icon @error('class_filter') is-invalid @enderror"
+                                    >
+
+                                        <option value="">
+                                            Select class
+                                        </option>
+
+                                        @forelse(($classes ?? collect()) as $schoolClass)
+
+                                            <option
+                                                value="{{ $schoolClass->id }}"
+                                                data-class-name="{{ $schoolClass->class_name }}"
+                                                data-section="{{ $schoolClass->section }}"
+                                                data-academic-year="{{ $schoolClass->academic_year }}"
+                                                {{ (string) old('class_filter') === (string) $schoolClass->id ? 'selected' : '' }}
+                                            >
+                                                {{ $schoolClass->class_name }}
+
+                                                @if($schoolClass->section)
+                                                    - {{ $schoolClass->section }}
+                                                @endif
+
+                                                @if($schoolClass->academic_year)
+                                                    ({{ $schoolClass->academic_year }})
+                                                @endif
+                                            </option>
+
+                                        @empty
+
+                                            <option value="" disabled>
+                                                No active classes found
+                                            </option>
+
+                                        @endforelse
+
+                                    </select>
+
+                                </div>
+
+                                @error('class_filter')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                                <div
+                                    class="class-loading"
+                                    id="classLoading"
+                                >
+                                    <i class="bi bi-arrow-repeat"></i>
+                                    Loading students...
+                                </div>
+
+                                <div class="field-hint">
+                                    Select the class and section to load its students.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- =================================================
+                             STUDENT SEARCH
+                        ================================================== --}}
+
+                        <div class="col-lg-7">
+
+                            <div class="transport-form-group">
+
+                                <label for="student_search">
+                                    Select Student
+                                    <span class="required">*</span>
+                                </label>
+
+                                <div class="student-search-wrapper">
+
+                                    <i class="bi bi-search student-search-icon"></i>
+
+                                    <input
+                                        type="text"
+                                        id="student_search"
+                                        class="student-search-input @error('student_id') is-invalid @enderror"
+                                        placeholder="Select a class first..."
+                                        autocomplete="off"
+                                        value=""
+                                        disabled
+                                    >
+
+                                    <i class="bi bi-chevron-down student-search-arrow"></i>
+
+                                    <input
+                                        type="hidden"
+                                        name="student_id"
+                                        id="student_id"
+                                        value="{{ old('student_id') }}"
+                                    >
+
+                                    <div
+                                        class="student-dropdown"
+                                        id="studentDropdown"
+                                    >
+
+                                        <div
+                                            class="student-no-result"
+                                            id="studentInitialMessage"
+                                        >
+                                            <i class="bi bi-mortarboard me-1"></i>
+                                            Select a class to load students.
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                @error('student_id')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                                <div class="field-hint">
+                                    Search by student name, student ID, or roll number.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- SELECTED STUDENT DETAILS --}}
+
+                    <div
+                        class="selected-student-card"
+                        id="selectedStudentCard"
+                    >
+
+                        <div class="selected-student-header">
+
+                            <div
+                                class="selected-student-avatar"
+                                id="selectedStudentAvatar"
+                            >
+                                S
+                            </div>
+
+                            <div>
+
+                                <h6 id="selectedStudentTitle">
+                                    Student Details
+                                </h6>
+
+                                <p>
+                                    Existing student information
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            {{-- STUDENT NAME --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="student-detail-box">
+
+                                    <div class="student-detail-label">
+                                        <i class="bi bi-person"></i>
+                                        Student Name
+                                    </div>
+
+                                    <div
+                                        class="student-detail-value"
+                                        id="studentName"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- ROLL / STUDENT ID --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="student-detail-box">
+
+                                    <div class="student-detail-label">
+                                        <i class="bi bi-card-text"></i>
+                                        Roll No / Student ID
+                                    </div>
+
+                                    <div
+                                        class="student-detail-value"
+                                        id="studentRollId"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- CLASS --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="student-detail-box">
+
+                                    <div class="student-detail-label">
+                                        <i class="bi bi-mortarboard"></i>
+                                        Class
+                                    </div>
+
+                                    <div
+                                        class="student-detail-value"
+                                        id="studentClass"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- DIVISION --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="student-detail-box">
+
+                                    <div class="student-detail-label">
+                                        <i class="bi bi-grid"></i>
+                                        Division
+                                    </div>
+
+                                    <div
+                                        class="student-detail-value"
+                                        id="studentDivision"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- PARENT NAME --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="student-detail-box">
+
+                                    <div class="student-detail-label">
+                                        <i class="bi bi-person-heart"></i>
+                                        Parent Name
+                                    </div>
+
+                                    <div
+                                        class="student-detail-value"
+                                        id="studentParentName"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- PARENT PHONE --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="student-detail-box">
+
+                                    <div class="student-detail-label">
+                                        <i class="bi bi-telephone"></i>
+                                        Parent Phone No.
+                                    </div>
+
+                                    <div
+                                        class="student-detail-value"
+                                        id="studentParentPhone"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- ADDRESS --}}
+
+                            <div class="col-12">
+
+                                <div class="student-detail-box">
+
+                                    <div class="student-detail-label">
+                                        <i class="bi bi-geo-alt"></i>
+                                        Address
+                                    </div>
+
+                                    <div
+                                        class="student-detail-value"
+                                        id="studentAddress"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-                <div class="required-note">
-                    <span>*</span> Required fields
+
+                <div class="form-divider"></div>
+
+
+                {{-- =================================================
+                     2. TRANSPORT INFORMATION
+                ================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <div class="section-heading-icon">
+                            <i class="bi bi-bus-front"></i>
+                        </div>
+
+                        <div>
+
+                            <h6>
+                                Transport Information
+                            </h6>
+
+                            <span>
+                                Enter the student's assigned transport details.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        {{-- ROUTE --}}
+
+                        <div class="col-lg-6">
+
+                            <div class="transport-form-group">
+
+                                <label for="route">
+                                    Route
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-signpost-2 transport-input-icon"></i>
+
+                                    <input
+                                        type="text"
+                                        name="route"
+                                        id="route"
+                                        value="{{ old('route') }}"
+                                        class="transport-form-control with-icon @error('route') is-invalid @enderror"
+                                        placeholder="e.g. Route 01 - Chandgad"
+                                    >
+
+                                </div>
+
+                                @error('route')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- VEHICLE --}}
+
+                        <div class="col-lg-6">
+
+                            <div class="transport-form-group">
+
+                                <label for="vehicle">
+                                    Vehicle
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-bus-front transport-input-icon"></i>
+
+                                    <input
+                                        type="text"
+                                        name="vehicle"
+                                        id="vehicle"
+                                        value="{{ old('vehicle') }}"
+                                        class="transport-form-control with-icon @error('vehicle') is-invalid @enderror"
+                                        placeholder="e.g. MH-09-AB-1234"
+                                    >
+
+                                </div>
+
+                                @error('vehicle')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- PICKUP POINT --}}
+
+                        <div class="col-lg-6">
+
+                            <div class="transport-form-group">
+
+                                <label for="pickup_point">
+                                    Pickup Point
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-geo-alt transport-input-icon"></i>
+
+                                    <input
+                                        type="text"
+                                        name="pickup_point"
+                                        id="pickup_point"
+                                        value="{{ old('pickup_point') }}"
+                                        class="transport-form-control with-icon @error('pickup_point') is-invalid @enderror"
+                                        placeholder="e.g. Main Bus Stop"
+                                    >
+
+                                </div>
+
+                                @error('pickup_point')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- DROP POINT --}}
+
+                        <div class="col-lg-6">
+
+                            <div class="transport-form-group">
+
+                                <label for="drop_point">
+                                    Drop Point
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-geo-alt-fill transport-input-icon"></i>
+
+                                    <input
+                                        type="text"
+                                        name="drop_point"
+                                        id="drop_point"
+                                        value="{{ old('drop_point') }}"
+                                        class="transport-form-control with-icon @error('drop_point') is-invalid @enderror"
+                                        placeholder="e.g. School Main Gate"
+                                    >
+
+                                </div>
+
+                                @error('drop_point')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- TRANSPORT STATUS --}}
+
+                        <div class="col-lg-6">
+
+                            <div class="transport-form-group">
+
+                                <label>
+                                    Transport Status
+                                    <span class="required">*</span>
+                                </label>
+
+                                <div class="status-options">
+
+                                    <div class="status-option active-option">
+
+                                        <input
+                                            type="radio"
+                                            name="transport_status"
+                                            id="status_active"
+                                            value="active"
+                                            {{ old('transport_status', 'active') === 'active' ? 'checked' : '' }}
+                                        >
+
+                                        <label for="status_active">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Active
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="status-option inactive-option">
+
+                                        <input
+                                            type="radio"
+                                            name="transport_status"
+                                            id="status_inactive"
+                                            value="inactive"
+                                            {{ old('transport_status') === 'inactive' ? 'checked' : '' }}
+                                        >
+
+                                        <label for="status_inactive">
+
+                                            <i class="bi bi-x-circle-fill"></i>
+
+                                            Inactive
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                @error('transport_status')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- START DATE --}}
+
+                        <div class="col-lg-3 col-md-6">
+
+                            <div class="transport-form-group">
+
+                                <label for="start_date">
+                                    Start Date
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-calendar-event transport-input-icon"></i>
+
+                                    <input
+                                        type="date"
+                                        name="start_date"
+                                        id="start_date"
+                                        value="{{ old('start_date') }}"
+                                        class="transport-form-control with-icon @error('start_date') is-invalid @enderror"
+                                    >
+
+                                </div>
+
+                                @error('start_date')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- END DATE --}}
+
+                        <div class="col-lg-3 col-md-6">
+
+                            <div class="transport-form-group">
+
+                                <label for="end_date">
+                                    End Date
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-calendar-check transport-input-icon"></i>
+
+                                    <input
+                                        type="date"
+                                        name="end_date"
+                                        id="end_date"
+                                        value="{{ old('end_date') }}"
+                                        class="transport-form-control with-icon @error('end_date') is-invalid @enderror"
+                                    >
+
+                                </div>
+
+                                @error('end_date')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                                <div class="field-hint">
+                                    Must be equal to or later than start date.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-divider"></div>
+
+
+                {{-- =================================================
+                     3. TRAVEL DETAILS
+                ================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <div class="section-heading-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+
+                        <div>
+
+                            <h6>
+                                Travel Details
+                            </h6>
+
+                            <span>
+                                Set the transport type and daily travel timings.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        {{-- TRANSPORT TYPE --}}
+
+                        <div class="col-lg-4">
+
+                            <div class="transport-form-group">
+
+                                <label for="transport_type">
+                                    Transport Type
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-bus-front transport-input-icon"></i>
+
+                                    <select
+                                        name="transport_type"
+                                        id="transport_type"
+                                        class="transport-form-select with-icon @error('transport_type') is-invalid @enderror"
+                                    >
+
+                                        <option value="">
+                                            Select transport type
+                                        </option>
+
+                                        <option
+                                            value="school_bus"
+                                            {{ old('transport_type') === 'school_bus' ? 'selected' : '' }}
+                                        >
+                                            School Bus
+                                        </option>
+
+                                        <option
+                                            value="van"
+                                            {{ old('transport_type') === 'van' ? 'selected' : '' }}
+                                        >
+                                            Van
+                                        </option>
+
+                                        <option
+                                            value="private"
+                                            {{ old('transport_type') === 'private' ? 'selected' : '' }}
+                                        >
+                                            Private
+                                        </option>
+
+                                        <option
+                                            value="other"
+                                            {{ old('transport_type') === 'other' ? 'selected' : '' }}
+                                        >
+                                            Other
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                @error('transport_type')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- PICKUP TIME --}}
+
+                        <div class="col-lg-4">
+
+                            <div class="transport-form-group">
+
+                                <label for="pickup_time">
+                                    Pickup Time
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-alarm transport-input-icon"></i>
+
+                                    <input
+                                        type="time"
+                                        name="pickup_time"
+                                        id="pickup_time"
+                                        value="{{ old('pickup_time') }}"
+                                        class="transport-form-control with-icon @error('pickup_time') is-invalid @enderror"
+                                    >
+
+                                </div>
+
+                                @error('pickup_time')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- DROP TIME --}}
+
+                        <div class="col-lg-4">
+
+                            <div class="transport-form-group">
+
+                                <label for="drop_time">
+                                    Drop Time
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-clock transport-input-icon"></i>
+
+                                    <input
+                                        type="time"
+                                        name="drop_time"
+                                        id="drop_time"
+                                        value="{{ old('drop_time') }}"
+                                        class="transport-form-control with-icon @error('drop_time') is-invalid @enderror"
+                                    >
+
+                                </div>
+
+                                @error('drop_time')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-divider"></div>
+
+
+                {{-- =================================================
+                     4. FEE INFORMATION
+                ================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <div class="section-heading-icon">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+
+                        <div>
+
+                            <h6>
+                                Fee Information
+                            </h6>
+
+                            <span>
+                                Enter transport fee and payment information.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        {{-- TRANSPORT FEE --}}
+
+                        <div class="col-lg-4">
+
+                            <div class="transport-form-group">
+
+                                <label for="transport_fee">
+                                    Transport Fee
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-currency-rupee transport-input-icon"></i>
+
+                                    <input
+                                        type="number"
+                                        name="transport_fee"
+                                        id="transport_fee"
+                                        value="{{ old('transport_fee') }}"
+                                        class="transport-form-control with-icon @error('transport_fee') is-invalid @enderror"
+                                        placeholder="e.g. 1500"
+                                        min="0"
+                                        step="0.01"
+                                    >
+
+                                </div>
+
+                                @error('transport_fee')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- FEE FREQUENCY --}}
+
+                        <div class="col-lg-4">
+
+                            <div class="transport-form-group">
+
+                                <label for="fee_frequency">
+                                    Fee Frequency
+                                </label>
+
+                                <div class="transport-input-wrapper">
+
+                                    <i class="bi bi-calendar3 transport-input-icon"></i>
+
+                                    <select
+                                        name="fee_frequency"
+                                        id="fee_frequency"
+                                        class="transport-form-select with-icon @error('fee_frequency') is-invalid @enderror"
+                                    >
+
+                                        <option value="">
+                                            Select frequency
+                                        </option>
+
+                                        <option
+                                            value="monthly"
+                                            {{ old('fee_frequency') === 'monthly' ? 'selected' : '' }}
+                                        >
+                                            Monthly
+                                        </option>
+
+                                        <option
+                                            value="quarterly"
+                                            {{ old('fee_frequency') === 'quarterly' ? 'selected' : '' }}
+                                        >
+                                            Quarterly
+                                        </option>
+
+                                        <option
+                                            value="yearly"
+                                            {{ old('fee_frequency') === 'yearly' ? 'selected' : '' }}
+                                        >
+                                            Yearly
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                @error('fee_frequency')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- PAYMENT STATUS --}}
+
+                        <div class="col-lg-4">
+
+                            <div class="transport-form-group">
+
+                                <label>
+                                    Payment Status
+                                    <span class="required">*</span>
+                                </label>
+
+                                <div class="payment-options">
+
+                                    <div class="payment-option paid-option">
+
+                                        <input
+                                            type="radio"
+                                            name="payment_status"
+                                            id="payment_paid"
+                                            value="paid"
+                                            {{ old('payment_status') === 'paid' ? 'checked' : '' }}
+                                        >
+
+                                        <label for="payment_paid">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Paid
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="payment-option pending-option">
+
+                                        <input
+                                            type="radio"
+                                            name="payment_status"
+                                            id="payment_pending"
+                                            value="pending"
+                                            {{ old('payment_status', 'pending') === 'pending' ? 'checked' : '' }}
+                                        >
+
+                                        <label for="payment_pending">
+
+                                            <i class="bi bi-clock-fill"></i>
+
+                                            Pending
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="payment-option partial-option">
+
+                                        <input
+                                            type="radio"
+                                            name="payment_status"
+                                            id="payment_partial"
+                                            value="partially_paid"
+                                            {{ old('payment_status') === 'partially_paid' ? 'checked' : '' }}
+                                        >
+
+                                        <label for="payment_partial">
+
+                                            <i class="bi bi-circle-half"></i>
+
+                                            Partial
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                @error('payment_status')
+
+                                    <div class="field-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
             </div>
 
 
             {{-- =================================================
-                 FORM
+                 FORM ACTIONS
             ================================================== --}}
 
-            <form
-                action="{{ route('admin.transport.records.store') }}"
-                method="POST"
-                id="transportRecordForm"
-            >
-
-                @csrf
-
-
-                <div class="transport-form-body">
-
-
-                    {{-- =================================================
-                         1. STUDENT INFORMATION
-                    ================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="section-heading">
-
-                            <div class="section-heading-icon">
-                                <i class="bi bi-person-vcard"></i>
-                            </div>
-
-                            <div>
-
-                                <h6>
-                                    Student Information
-                                </h6>
-
-                                <span>
-                                    Select a student to automatically load their details.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- STUDENT SEARCH --}}
-
-                        <div class="transport-form-group">
-
-                            <label for="student_search">
-                                Select Student
-                                <span class="required">*</span>
-                            </label>
-
-                            <div class="student-search-wrapper">
-
-                                <i class="bi bi-search student-search-icon"></i>
-
-                                <input
-                                    type="text"
-                                    id="student_search"
-                                    class="student-search-input @error('student_id') is-invalid @enderror"
-                                    placeholder="Search student by name or student ID..."
-                                    autocomplete="off"
-                                    value=""
-                                >
-
-                                <i class="bi bi-chevron-down student-search-arrow"></i>
-
-                                <input
-                                    type="hidden"
-                                    name="student_id"
-                                    id="student_id"
-                                    value="{{ old('student_id') }}"
-                                >
-
-                                <div
-                                    class="student-dropdown"
-                                    id="studentDropdown"
-                                >
-
-                                    @forelse($students as $student)
-
-                                        <div
-                                            class="student-option"
-                                            data-id="{{ $student->id }}"
-                                            data-name="{{ $student->full_name }}"
-                                            data-student-id="{{ $student->student_id }}"
-                                            data-roll-number="{{ $student->roll_number }}"
-                                            data-class="{{ $student->class }}"
-                                            data-section="{{ $student->section }}"
-                                            data-parent-name="{{ $student->father_name }}"
-                                            data-parent-phone="{{ $student->father_phone }}"
-                                            data-address="{{ $student->address }}"
-                                        >
-
-                                            <div class="student-option-avatar">
-                                                {{ strtoupper(substr($student->first_name ?? 'S', 0, 1)) }}
-                                            </div>
-
-                                            <div class="student-option-info">
-
-                                                <div class="student-option-name">
-                                                    {{ $student->full_name }}
-                                                </div>
-
-                                                <div class="student-option-meta">
-
-                                                    @if($student->student_id)
-                                                        ID: {{ $student->student_id }}
-                                                    @endif
-
-                                                    @if($student->roll_number)
-                                                        • Roll No: {{ $student->roll_number }}
-                                                    @endif
-
-                                                    @if($student->class)
-                                                        • Class: {{ $student->class }}
-                                                    @endif
-
-                                                    @if($student->section)
-                                                        - {{ $student->section }}
-                                                    @endif
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    @empty
-
-                                        <div class="student-no-result">
-                                            <i class="bi bi-person-x me-1"></i>
-                                            No students found.
-                                        </div>
-
-                                    @endforelse
-
-                                </div>
-
-                            </div>
-
-                            @error('student_id')
-
-                                <div class="field-error">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-
-                            @enderror
-
-                            <div class="field-hint">
-                                Search and select the student who will use this transport service.
-                            </div>
-
-                        </div>
-
-
-                        {{-- SELECTED STUDENT DETAILS --}}
-
-                        <div
-                            class="selected-student-card"
-                            id="selectedStudentCard"
-                        >
-
-                            <div class="selected-student-header">
-
-                                <div
-                                    class="selected-student-avatar"
-                                    id="selectedStudentAvatar"
-                                >
-                                    S
-                                </div>
-
-                                <div>
-
-                                    <h6 id="selectedStudentTitle">
-                                        Student Details
-                                    </h6>
-
-                                    <p>
-                                        Existing student information
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="row g-3">
-
-                                {{-- STUDENT NAME --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="student-detail-box">
-
-                                        <div class="student-detail-label">
-                                            <i class="bi bi-person"></i>
-                                            Student Name
-                                        </div>
-
-                                        <div
-                                            class="student-detail-value"
-                                            id="studentName"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- ROLL / STUDENT ID --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="student-detail-box">
-
-                                        <div class="student-detail-label">
-                                            <i class="bi bi-card-text"></i>
-                                            Roll No / Student ID
-                                        </div>
-
-                                        <div
-                                            class="student-detail-value"
-                                            id="studentRollId"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- CLASS --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="student-detail-box">
-
-                                        <div class="student-detail-label">
-                                            <i class="bi bi-mortarboard"></i>
-                                            Class
-                                        </div>
-
-                                        <div
-                                            class="student-detail-value"
-                                            id="studentClass"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- DIVISION --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="student-detail-box">
-
-                                        <div class="student-detail-label">
-                                            <i class="bi bi-grid"></i>
-                                            Division
-                                        </div>
-
-                                        <div
-                                            class="student-detail-value"
-                                            id="studentDivision"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- PARENT NAME --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="student-detail-box">
-
-                                        <div class="student-detail-label">
-                                            <i class="bi bi-person-heart"></i>
-                                            Parent Name
-                                        </div>
-
-                                        <div
-                                            class="student-detail-value"
-                                            id="studentParentName"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- PARENT PHONE --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="student-detail-box">
-
-                                        <div class="student-detail-label">
-                                            <i class="bi bi-telephone"></i>
-                                            Parent Phone No.
-                                        </div>
-
-                                        <div
-                                            class="student-detail-value"
-                                            id="studentParentPhone"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- ADDRESS --}}
-
-                                <div class="col-12">
-
-                                    <div class="student-detail-box">
-
-                                        <div class="student-detail-label">
-                                            <i class="bi bi-geo-alt"></i>
-                                            Address
-                                        </div>
-
-                                        <div
-                                            class="student-detail-value"
-                                            id="studentAddress"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-divider"></div>
-
-
-                    {{-- =================================================
-                         2. TRANSPORT INFORMATION
-                    ================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="section-heading">
-
-                            <div class="section-heading-icon">
-                                <i class="bi bi-bus-front"></i>
-                            </div>
-
-                            <div>
-
-                                <h6>
-                                    Transport Information
-                                </h6>
-
-                                <span>
-                                    Enter the student's assigned transport details.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="row">
-
-                            {{-- ROUTE --}}
-
-                            <div class="col-lg-6">
-
-                                <div class="transport-form-group">
-
-                                    <label for="route">
-                                        Route
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-signpost-2 transport-input-icon"></i>
-
-                                        <input
-                                            type="text"
-                                            name="route"
-                                            id="route"
-                                            value="{{ old('route') }}"
-                                            class="transport-form-control with-icon @error('route') is-invalid @enderror"
-                                            placeholder="e.g. Route 01 - Chandgad"
-                                        >
-
-                                    </div>
-
-                                    @error('route')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- VEHICLE --}}
-
-                            <div class="col-lg-6">
-
-                                <div class="transport-form-group">
-
-                                    <label for="vehicle">
-                                        Vehicle
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-bus-front transport-input-icon"></i>
-
-                                        <input
-                                            type="text"
-                                            name="vehicle"
-                                            id="vehicle"
-                                            value="{{ old('vehicle') }}"
-                                            class="transport-form-control with-icon @error('vehicle') is-invalid @enderror"
-                                            placeholder="e.g. MH-09-AB-1234"
-                                        >
-
-                                    </div>
-
-                                    @error('vehicle')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- PICKUP POINT --}}
-
-                            <div class="col-lg-6">
-
-                                <div class="transport-form-group">
-
-                                    <label for="pickup_point">
-                                        Pickup Point
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-geo-alt transport-input-icon"></i>
-
-                                        <input
-                                            type="text"
-                                            name="pickup_point"
-                                            id="pickup_point"
-                                            value="{{ old('pickup_point') }}"
-                                            class="transport-form-control with-icon @error('pickup_point') is-invalid @enderror"
-                                            placeholder="e.g. Main Bus Stop"
-                                        >
-
-                                    </div>
-
-                                    @error('pickup_point')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- DROP POINT --}}
-
-                            <div class="col-lg-6">
-
-                                <div class="transport-form-group">
-
-                                    <label for="drop_point">
-                                        Drop Point
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-geo-alt-fill transport-input-icon"></i>
-
-                                        <input
-                                            type="text"
-                                            name="drop_point"
-                                            id="drop_point"
-                                            value="{{ old('drop_point') }}"
-                                            class="transport-form-control with-icon @error('drop_point') is-invalid @enderror"
-                                            placeholder="e.g. School Main Gate"
-                                        >
-
-                                    </div>
-
-                                    @error('drop_point')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- TRANSPORT STATUS --}}
-
-                            <div class="col-lg-6">
-
-                                <div class="transport-form-group">
-
-                                    <label>
-                                        Transport Status
-                                        <span class="required">*</span>
-                                    </label>
-
-                                    <div class="status-options">
-
-                                        <div class="status-option active-option">
-
-                                            <input
-                                                type="radio"
-                                                name="transport_status"
-                                                id="status_active"
-                                                value="active"
-                                                {{ old('transport_status', 'active') === 'active' ? 'checked' : '' }}
-                                            >
-
-                                            <label for="status_active">
-
-                                                <i class="bi bi-check-circle-fill"></i>
-
-                                                Active
-
-                                            </label>
-
-                                        </div>
-
-
-                                        <div class="status-option inactive-option">
-
-                                            <input
-                                                type="radio"
-                                                name="transport_status"
-                                                id="status_inactive"
-                                                value="inactive"
-                                                {{ old('transport_status') === 'inactive' ? 'checked' : '' }}
-                                            >
-
-                                            <label for="status_inactive">
-
-                                                <i class="bi bi-x-circle-fill"></i>
-
-                                                Inactive
-
-                                            </label>
-
-                                        </div>
-
-                                    </div>
-
-                                    @error('transport_status')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- START DATE --}}
-
-                            <div class="col-lg-3 col-md-6">
-
-                                <div class="transport-form-group">
-
-                                    <label for="start_date">
-                                        Start Date
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-calendar-event transport-input-icon"></i>
-
-                                        <input
-                                            type="date"
-                                            name="start_date"
-                                            id="start_date"
-                                            value="{{ old('start_date') }}"
-                                            class="transport-form-control with-icon @error('start_date') is-invalid @enderror"
-                                        >
-
-                                    </div>
-
-                                    @error('start_date')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- END DATE --}}
-
-                            <div class="col-lg-3 col-md-6">
-
-                                <div class="transport-form-group">
-
-                                    <label for="end_date">
-                                        End Date
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-calendar-check transport-input-icon"></i>
-
-                                        <input
-                                            type="date"
-                                            name="end_date"
-                                            id="end_date"
-                                            value="{{ old('end_date') }}"
-                                            class="transport-form-control with-icon @error('end_date') is-invalid @enderror"
-                                        >
-
-                                    </div>
-
-                                    @error('end_date')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                    <div class="field-hint">
-                                        Must be equal to or later than start date.
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-divider"></div>
-
-
-                    {{-- =================================================
-                         3. TRAVEL DETAILS
-                    ================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="section-heading">
-
-                            <div class="section-heading-icon">
-                                <i class="bi bi-clock-history"></i>
-                            </div>
-
-                            <div>
-
-                                <h6>
-                                    Travel Details
-                                </h6>
-
-                                <span>
-                                    Set the transport type and daily travel timings.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="row">
-
-                            {{-- TRANSPORT TYPE --}}
-
-                            <div class="col-lg-4">
-
-                                <div class="transport-form-group">
-
-                                    <label for="transport_type">
-                                        Transport Type
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-bus-front transport-input-icon"></i>
-
-                                        <select
-                                            name="transport_type"
-                                            id="transport_type"
-                                            class="transport-form-select with-icon @error('transport_type') is-invalid @enderror"
-                                        >
-
-                                            <option value="">
-                                                Select transport type
-                                            </option>
-
-                                            <option
-                                                value="school_bus"
-                                                {{ old('transport_type') === 'school_bus' ? 'selected' : '' }}
-                                            >
-                                                School Bus
-                                            </option>
-
-                                            <option
-                                                value="van"
-                                                {{ old('transport_type') === 'van' ? 'selected' : '' }}
-                                            >
-                                                Van
-                                            </option>
-
-                                            <option
-                                                value="private"
-                                                {{ old('transport_type') === 'private' ? 'selected' : '' }}
-                                            >
-                                                Private
-                                            </option>
-
-                                            <option
-                                                value="other"
-                                                {{ old('transport_type') === 'other' ? 'selected' : '' }}
-                                            >
-                                                Other
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                    @error('transport_type')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- PICKUP TIME --}}
-
-                            <div class="col-lg-4">
-
-                                <div class="transport-form-group">
-
-                                    <label for="pickup_time">
-                                        Pickup Time
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-alarm transport-input-icon"></i>
-
-                                        <input
-                                            type="time"
-                                            name="pickup_time"
-                                            id="pickup_time"
-                                            value="{{ old('pickup_time') }}"
-                                            class="transport-form-control with-icon @error('pickup_time') is-invalid @enderror"
-                                        >
-
-                                    </div>
-
-                                    @error('pickup_time')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- DROP TIME --}}
-
-                            <div class="col-lg-4">
-
-                                <div class="transport-form-group">
-
-                                    <label for="drop_time">
-                                        Drop Time
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-clock transport-input-icon"></i>
-
-                                        <input
-                                            type="time"
-                                            name="drop_time"
-                                            id="drop_time"
-                                            value="{{ old('drop_time') }}"
-                                            class="transport-form-control with-icon @error('drop_time') is-invalid @enderror"
-                                        >
-
-                                    </div>
-
-                                    @error('drop_time')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-divider"></div>
-
-
-                    {{-- =================================================
-                         4. FEE INFORMATION
-                    ================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="section-heading">
-
-                            <div class="section-heading-icon">
-                                <i class="bi bi-currency-rupee"></i>
-                            </div>
-
-                            <div>
-
-                                <h6>
-                                    Fee Information
-                                </h6>
-
-                                <span>
-                                    Enter transport fee and payment information.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="row">
-
-                            {{-- TRANSPORT FEE --}}
-
-                            <div class="col-lg-4">
-
-                                <div class="transport-form-group">
-
-                                    <label for="transport_fee">
-                                        Transport Fee
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-currency-rupee transport-input-icon"></i>
-
-                                        <input
-                                            type="number"
-                                            name="transport_fee"
-                                            id="transport_fee"
-                                            value="{{ old('transport_fee') }}"
-                                            class="transport-form-control with-icon @error('transport_fee') is-invalid @enderror"
-                                            placeholder="e.g. 1500"
-                                            min="0"
-                                            step="0.01"
-                                        >
-
-                                    </div>
-
-                                    @error('transport_fee')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- FEE FREQUENCY --}}
-
-                            <div class="col-lg-4">
-
-                                <div class="transport-form-group">
-
-                                    <label for="fee_frequency">
-                                        Fee Frequency
-                                    </label>
-
-                                    <div class="transport-input-wrapper">
-
-                                        <i class="bi bi-calendar3 transport-input-icon"></i>
-
-                                        <select
-                                            name="fee_frequency"
-                                            id="fee_frequency"
-                                            class="transport-form-select with-icon @error('fee_frequency') is-invalid @enderror"
-                                        >
-
-                                            <option value="">
-                                                Select frequency
-                                            </option>
-
-                                            <option
-                                                value="monthly"
-                                                {{ old('fee_frequency') === 'monthly' ? 'selected' : '' }}
-                                            >
-                                                Monthly
-                                            </option>
-
-                                            <option
-                                                value="quarterly"
-                                                {{ old('fee_frequency') === 'quarterly' ? 'selected' : '' }}
-                                            >
-                                                Quarterly
-                                            </option>
-
-                                            <option
-                                                value="yearly"
-                                                {{ old('fee_frequency') === 'yearly' ? 'selected' : '' }}
-                                            >
-                                                Yearly
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                    @error('fee_frequency')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- PAYMENT STATUS --}}
-
-                            <div class="col-lg-4">
-
-                                <div class="transport-form-group">
-
-                                    <label>
-                                        Payment Status
-                                        <span class="required">*</span>
-                                    </label>
-
-                                    <div class="payment-options">
-
-                                        <div class="payment-option paid-option">
-
-                                            <input
-                                                type="radio"
-                                                name="payment_status"
-                                                id="payment_paid"
-                                                value="paid"
-                                                {{ old('payment_status') === 'paid' ? 'checked' : '' }}
-                                            >
-
-                                            <label for="payment_paid">
-
-                                                <i class="bi bi-check-circle-fill"></i>
-
-                                                Paid
-
-                                            </label>
-
-                                        </div>
-
-
-                                        <div class="payment-option pending-option">
-
-                                            <input
-                                                type="radio"
-                                                name="payment_status"
-                                                id="payment_pending"
-                                                value="pending"
-                                                {{ old('payment_status', 'pending') === 'pending' ? 'checked' : '' }}
-                                            >
-
-                                            <label for="payment_pending">
-
-                                                <i class="bi bi-clock-fill"></i>
-
-                                                Pending
-
-                                            </label>
-
-                                        </div>
-
-
-                                        <div class="payment-option partial-option">
-
-                                            <input
-                                                type="radio"
-                                                name="payment_status"
-                                                id="payment_partial"
-                                                value="partially_paid"
-                                                {{ old('payment_status') === 'partially_paid' ? 'checked' : '' }}
-                                            >
-
-                                            <label for="payment_partial">
-
-                                                <i class="bi bi-circle-half"></i>
-
-                                                Partial
-
-                                            </label>
-
-                                        </div>
-
-                                    </div>
-
-                                    @error('payment_status')
-
-                                        <div class="field-error">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-
-                                    @enderror
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- =================================================
-                     FORM ACTIONS
-                ================================================== --}}
-
-                <div class="form-actions">
-
-                    <a
-                        href="{{ route('admin.transport.records.index') }}"
-                        class="btn-transport-cancel"
-                    >
-                        <i class="bi bi-arrow-left"></i>
-                        Cancel
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="btn-transport-save"
-                    >
-                        <i class="bi bi-check2-circle"></i>
-                        Save Transport Record
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
+            <div class="form-actions">
+
+                <a
+                    href="{{ route('admin.transport.records.index') }}"
+                    class="btn-transport-cancel"
+                >
+                    <i class="bi bi-arrow-left"></i>
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn-transport-save"
+                >
+                    <i class="bi bi-check2-circle"></i>
+                    Save Transport Record
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
 </div>
+```
 
+</div>
 
 {{-- =============================================================
-     STUDENT SEARCH + AUTO DETAILS SCRIPT
+CLASS + STUDENT SEARCH + AUTO DETAILS SCRIPT
 ============================================================= --}}
 
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const searchInput = document.getElementById('student_search');
-    const hiddenStudentId = document.getElementById('student_id');
-    const dropdown = document.getElementById('studentDropdown');
+    /* =========================================================
+       ELEMENTS
+    ========================================================= */
 
-    const selectedCard = document.getElementById('selectedStudentCard');
+    const classSelect =
+        document.getElementById('class_id');
 
-    const selectedAvatar = document.getElementById('selectedStudentAvatar');
-    const selectedTitle = document.getElementById('selectedStudentTitle');
+    const classLoading =
+        document.getElementById('classLoading');
 
-    const studentName = document.getElementById('studentName');
-    const studentRollId = document.getElementById('studentRollId');
-    const studentClass = document.getElementById('studentClass');
-    const studentDivision = document.getElementById('studentDivision');
-    const studentParentName = document.getElementById('studentParentName');
-    const studentParentPhone = document.getElementById('studentParentPhone');
-    const studentAddress = document.getElementById('studentAddress');
+    const searchInput =
+        document.getElementById('student_search');
 
-    const studentOptions = Array.from(
-        document.querySelectorAll('.student-option')
-    );
+    const hiddenStudentId =
+        document.getElementById('student_id');
+
+    const dropdown =
+        document.getElementById('studentDropdown');
+
+    const selectedCard =
+        document.getElementById('selectedStudentCard');
+
+    const selectedAvatar =
+        document.getElementById('selectedStudentAvatar');
+
+    const selectedTitle =
+        document.getElementById('selectedStudentTitle');
+
+    const studentName =
+        document.getElementById('studentName');
+
+    const studentRollId =
+        document.getElementById('studentRollId');
+
+    const studentClass =
+        document.getElementById('studentClass');
+
+    const studentDivision =
+        document.getElementById('studentDivision');
+
+    const studentParentName =
+        document.getElementById('studentParentName');
+
+    const studentParentPhone =
+        document.getElementById('studentParentPhone');
+
+    const studentAddress =
+        document.getElementById('studentAddress');
+
+
+    /* =========================================================
+       CORRECT AJAX ENDPOINT
+    ========================================================= */
+
+    const studentsByClassUrl =
+    @json(route('admin.transport.records.students-by-class'));
+
+
+    let students = [];
 
 
     /* =========================================================
@@ -2135,7 +2277,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function displayValue(value) {
 
-        if (!value || value.trim() === '') {
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ''
+        ) {
             return 'Not available';
         }
 
@@ -2145,28 +2291,79 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
+       ESCAPE HTML
+    ========================================================= */
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+    }
+
+
+    /* =========================================================
+       CLEAR SELECTED STUDENT
+    ========================================================= */
+
+    function clearSelectedStudent() {
+
+        hiddenStudentId.value = '';
+
+        searchInput.value = '';
+
+        selectedCard.classList.remove('show');
+
+        studentName.textContent = '—';
+        studentRollId.textContent = '—';
+        studentClass.textContent = '—';
+        studentDivision.textContent = '—';
+        studentParentName.textContent = '—';
+        studentParentPhone.textContent = '—';
+        studentAddress.textContent = '—';
+
+        selectedAvatar.textContent = 'S';
+        selectedTitle.textContent = 'Student Details';
+
+    }
+
+
+    /* =========================================================
        SHOW SELECTED STUDENT
     ========================================================= */
 
-    function selectStudent(option) {
+    function selectStudent(student) {
 
-        const id = option.dataset.id || '';
+        const id =
+            student.id || '';
 
-        const name = option.dataset.name || '';
+        const name =
+            student.full_name || '';
 
-        const studentId = option.dataset.studentId || '';
+        const studentId =
+            student.student_id || '';
 
-        const rollNumber = option.dataset.rollNumber || '';
+        const rollNumber =
+            student.roll_number || '';
 
-        const studentClassValue = option.dataset.class || '';
+        const studentClassValue =
+            student.class || '';
 
-        const section = option.dataset.section || '';
+        const section =
+            student.section || '';
 
-        const parentName = option.dataset.parentName || '';
+        const parentName =
+            student.father_name || '';
 
-        const parentPhone = option.dataset.parentPhone || '';
+        const parentPhone =
+            student.father_phone || '';
 
-        const address = option.dataset.address || '';
+        const address =
+            student.address || '';
 
 
         /* SAVE STUDENT ID */
@@ -2181,7 +2378,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /* STUDENT DETAILS */
 
-        studentName.textContent = displayValue(name);
+        studentName.textContent =
+            displayValue(name);
 
         studentRollId.textContent =
             studentId && rollNumber
@@ -2234,7 +2432,106 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
-       SEARCH STUDENTS
+       RENDER STUDENTS
+    ========================================================= */
+
+    function renderStudents(list) {
+
+        dropdown.innerHTML = '';
+
+        if (!list.length) {
+
+            const noResult =
+                document.createElement('div');
+
+            noResult.className =
+                'student-no-result';
+
+            noResult.innerHTML =
+                '<i class="bi bi-person-x me-1"></i> No students found in this class.';
+
+            dropdown.appendChild(noResult);
+
+            return;
+
+        }
+
+
+        list.forEach(function (student) {
+
+            const option =
+                document.createElement('div');
+
+            option.className =
+                'student-option';
+
+
+            const firstLetter =
+                student.full_name
+                    ? student.full_name.charAt(0).toUpperCase()
+                    : 'S';
+
+
+            option.innerHTML = `
+
+                <div class="student-option-avatar">
+                    ${escapeHtml(firstLetter)}
+                </div>
+
+                <div class="student-option-info">
+
+                    <div class="student-option-name">
+                        ${escapeHtml(student.full_name || 'Student')}
+                    </div>
+
+                    <div class="student-option-meta">
+
+                        ${student.student_id
+                            ? 'ID: ' + escapeHtml(student.student_id)
+                            : ''
+                        }
+
+                        ${student.roll_number
+                            ? ' • Roll No: ' + escapeHtml(student.roll_number)
+                            : ''
+                        }
+
+                        ${student.class
+                            ? ' • Class: ' + escapeHtml(student.class)
+                            : ''
+                        }
+
+                        ${student.section
+                            ? ' - ' + escapeHtml(student.section)
+                            : ''
+                        }
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            option.addEventListener(
+                'click',
+                function () {
+
+                    selectStudent(student);
+
+                }
+            );
+
+
+            dropdown.appendChild(option);
+
+        });
+
+    }
+
+
+    /* =========================================================
+       FILTER STUDENTS
     ========================================================= */
 
     function filterStudents() {
@@ -2245,173 +2542,450 @@ document.addEventListener('DOMContentLoaded', function () {
                 .toLowerCase();
 
 
-        let visibleCount = 0;
-
-
-        studentOptions.forEach(function (option) {
-
-            const name =
-                (option.dataset.name || '').toLowerCase();
-
-            const studentId =
-                (option.dataset.studentId || '').toLowerCase();
-
-            const rollNumber =
-                (option.dataset.rollNumber || '').toLowerCase();
-
-            const studentClassValue =
-                (option.dataset.class || '').toLowerCase();
-
-
-            const matches =
-                name.includes(searchTerm) ||
-                studentId.includes(searchTerm) ||
-                rollNumber.includes(searchTerm) ||
-                studentClassValue.includes(searchTerm);
-
-
-            if (matches) {
-
-                option.style.display = 'flex';
-
-                visibleCount++;
-
-            } else {
-
-                option.style.display = 'none';
-
-            }
-
-        });
-
-
-        let noResult =
-            dropdown.querySelector('.student-no-result-search');
-
-
-        if (visibleCount === 0) {
-
-            if (!noResult) {
-
-                noResult =
-                    document.createElement('div');
-
-                noResult.className =
-                    'student-no-result student-no-result-search';
-
-                noResult.innerHTML =
-                    '<i class="bi bi-search me-1"></i> No matching student found.';
-
-                dropdown.appendChild(noResult);
-
-            }
-
-            noResult.style.display = 'block';
-
-        } else {
-
-            if (noResult) {
-                noResult.style.display = 'none';
-            }
-
-        }
-
-    }
-
-
-    /* =========================================================
-       OPEN DROPDOWN
-    ========================================================= */
-
-    searchInput.addEventListener('focus', function () {
-
-        filterStudents();
-
-        dropdown.classList.add('show');
-
-    });
-
-
-    searchInput.addEventListener('click', function () {
-
-        filterStudents();
-
-        dropdown.classList.add('show');
-
-    });
-
-
-    /* =========================================================
-       SEARCH INPUT
-    ========================================================= */
-
-    searchInput.addEventListener('input', function () {
-
-        filterStudents();
-
-        dropdown.classList.add('show');
-
-    });
-
-
-    /* =========================================================
-       SELECT STUDENT
-    ========================================================= */
-
-    studentOptions.forEach(function (option) {
-
-        option.addEventListener('click', function () {
-
-            selectStudent(option);
-
-        });
-
-    });
-
-
-    /* =========================================================
-       CLOSE DROPDOWN WHEN CLICKING OUTSIDE
-    ========================================================= */
-
-    document.addEventListener('click', function (event) {
-
-        const wrapper =
-            document.querySelector('.student-search-wrapper');
-
-        if (!wrapper.contains(event.target)) {
-
-            dropdown.classList.remove('show');
-
-        }
-
-    });
-
-
-    /* =========================================================
-       RESTORE OLD STUDENT AFTER VALIDATION ERROR
-    ========================================================= */
-
-    const oldStudentId =
-        hiddenStudentId.value;
-
-
-    if (oldStudentId) {
-
-        const oldOption =
-            studentOptions.find(function (option) {
-
-                return option.dataset.id === oldStudentId;
+        const filtered =
+            students.filter(function (student) {
+
+                const name =
+                    (student.full_name || '')
+                        .toLowerCase();
+
+                const studentId =
+                    (student.student_id || '')
+                        .toLowerCase();
+
+                const rollNumber =
+                    (student.roll_number || '')
+                        .toLowerCase();
+
+
+                return (
+                    name.includes(searchTerm) ||
+                    studentId.includes(searchTerm) ||
+                    rollNumber.includes(searchTerm)
+                );
 
             });
 
 
-        if (oldOption) {
+        renderStudents(filtered);
 
-            selectStudent(oldOption);
+    }
+
+
+    /* =========================================================
+       LOAD STUDENTS FOR SELECTED CLASS
+    ========================================================= */
+
+    async function loadStudentsForClass(
+        classId,
+        studentIdToRestore = null
+    ) {
+
+        students = [];
+
+        clearSelectedStudent();
+
+        dropdown.innerHTML = `
+            <div class="student-no-result">
+                <i class="bi bi-mortarboard me-1"></i>
+                Select a class to load students.
+            </div>
+        `;
+
+        dropdown.classList.remove('show');
+
+
+        if (!classId) {
+
+            searchInput.disabled = true;
+
+            searchInput.placeholder =
+                'Select a class first...';
+
+            classLoading.classList.remove('show');
+
+            return;
+
+        }
+
+
+        searchInput.disabled = true;
+
+        searchInput.placeholder =
+            'Loading students...';
+
+        classLoading.classList.add('show');
+
+
+        dropdown.innerHTML = `
+            <div class="student-loading">
+                <i class="bi bi-arrow-repeat me-1"></i>
+                Loading students...
+            </div>
+        `;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    studentsByClassUrl +
+                    '?class_id=' +
+                    encodeURIComponent(classId),
+                    {
+                        method: 'GET',
+
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'Unable to load students.'
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            students =
+                Array.isArray(data.students)
+                    ? data.students
+                    : [];
+
+
+            searchInput.disabled = false;
+
+            searchInput.placeholder =
+                students.length
+                    ? 'Search student by name or student ID...'
+                    : 'No students found in this class';
+
+
+            if (students.length) {
+
+                renderStudents(students);
+
+            } else {
+
+                dropdown.innerHTML = `
+                    <div class="student-no-result">
+                        <i class="bi bi-person-x me-1"></i>
+                        No students found in this class.
+                    </div>
+                `;
+
+            }
+
+
+            /* =================================================
+               RESTORE OLD STUDENT AFTER VALIDATION ERROR
+            ================================================== */
+
+            if (studentIdToRestore) {
+
+                const oldStudent =
+                    students.find(function (student) {
+
+                        return String(student.id) ===
+                            String(studentIdToRestore);
+
+                    });
+
+
+                if (oldStudent) {
+
+                    selectStudent(oldStudent);
+
+                }
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                'Transport student loading error:',
+                error
+            );
+
+
+            searchInput.disabled = true;
+
+            searchInput.placeholder =
+                'Unable to load students';
+
+
+            dropdown.innerHTML = `
+                <div class="student-no-result">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    Unable to load students. Please try again.
+                </div>
+            `;
+
+        } finally {
+
+            classLoading.classList.remove('show');
 
         }
 
     }
+
+
+    /* =========================================================
+       CLASS CHANGE
+    ========================================================= */
+
+    classSelect.addEventListener(
+        'change',
+        function () {
+
+            const classId =
+                this.value;
+
+
+            /*
+             * Every time class changes,
+             * previously selected student is cleared.
+             */
+
+            hiddenStudentId.value = '';
+
+            loadStudentsForClass(
+                classId
+            );
+
+        }
+    );
+
+
+    /* =========================================================
+       OPEN STUDENT DROPDOWN
+    ========================================================= */
+
+    searchInput.addEventListener(
+        'focus',
+        function () {
+
+            if (
+                searchInput.disabled ||
+                !students.length
+            ) {
+                return;
+            }
+
+
+            filterStudents();
+
+            dropdown.classList.add('show');
+
+        }
+    );
+
+
+    searchInput.addEventListener(
+        'click',
+        function () {
+
+            if (
+                searchInput.disabled ||
+                !students.length
+            ) {
+                return;
+            }
+
+
+            filterStudents();
+
+            dropdown.classList.add('show');
+
+        }
+    );
+
+
+    /* =========================================================
+       STUDENT SEARCH
+    ========================================================= */
+
+    searchInput.addEventListener(
+        'input',
+        function () {
+
+            /*
+             * If user starts typing after selecting a student,
+             * clear the selected student so they must select
+             * another valid student.
+             */
+
+            if (
+                hiddenStudentId.value &&
+                searchInput.value !==
+                    (
+                        students.find(function (student) {
+                            return String(student.id) ===
+                                String(hiddenStudentId.value);
+                        })?.full_name || ''
+                    )
+            ) {
+
+                hiddenStudentId.value = '';
+
+                selectedCard.classList.remove('show');
+
+            }
+
+
+            if (
+                searchInput.disabled ||
+                !students.length
+            ) {
+                return;
+            }
+
+
+            filterStudents();
+
+            dropdown.classList.add('show');
+
+        }
+    );
+
+
+    /* =========================================================
+       CLOSE DROPDOWN OUTSIDE
+    ========================================================= */
+
+    document.addEventListener(
+        'click',
+        function (event) {
+
+            const wrapper =
+                document.querySelector(
+                    '.student-search-wrapper'
+                );
+
+
+            if (
+                wrapper &&
+                !wrapper.contains(event.target)
+            ) {
+
+                dropdown.classList.remove('show');
+
+            }
+
+        }
+    );
+
+
+    /* =========================================================
+       FORM VALIDATION
+    ========================================================= */
+
+    document.getElementById('transportRecordForm')
+        .addEventListener(
+            'submit',
+            function (event) {
+
+                /*
+                 * Class is required only for selecting
+                 * the correct student. It is not submitted
+                 * as a database field.
+                 */
+
+                if (!classSelect.value) {
+
+                    event.preventDefault();
+
+                    classSelect.classList.add(
+                        'is-invalid'
+                    );
+
+                    classSelect.focus();
+
+                    return;
+
+                }
+
+
+                /*
+                 * Student must be selected.
+                 */
+
+                if (!hiddenStudentId.value) {
+
+                    event.preventDefault();
+
+                    searchInput.classList.add(
+                        'is-invalid'
+                    );
+
+                    searchInput.focus();
+
+                    dropdown.classList.add(
+                        'show'
+                    );
+
+                    return;
+
+                }
+
+            }
+        );
+
+
+    /* =========================================================
+       REMOVE CLASS INVALID STATE
+    ========================================================= */
+
+    classSelect.addEventListener(
+        'change',
+        function () {
+
+            if (this.value) {
+
+                this.classList.remove(
+                    'is-invalid'
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =========================================================
+       RESTORE OLD VALUES AFTER VALIDATION ERROR
+    ========================================================= */
+
+    const oldClassId =
+        @json(old('class_filter'));
+
+    const oldStudentId =
+        @json(old('student_id'));
+
+
+    if (oldClassId) {
+
+        classSelect.value =
+            oldClassId;
+
+
+        loadStudentsForClass(
+            oldClassId,
+            oldStudentId
+        );
+
+    }
+
 
 });
 

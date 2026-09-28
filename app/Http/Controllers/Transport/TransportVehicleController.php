@@ -22,32 +22,79 @@ class TransportVehicleController extends Controller
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
-                $q->where('vehicle_number', 'like', "%{$search}%")
-                    ->orWhere('vehicle_type', 'like', "%{$search}%")
-                    ->orWhere('vehicle_model', 'like', "%{$search}%")
-                    ->orWhere('driver_name', 'like', "%{$search}%")
-                    ->orWhere('driver_contact', 'like', "%{$search}%")
-                    ->orWhere('driver_license_number', 'like', "%{$search}%")
+                $q->where(
+                    'vehicle_number',
+                    'like',
+                    "%{$search}%"
+                )
+                    ->orWhere(
+                        'vehicle_type',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'vehicle_model',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'driver_name',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'driver_contact',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'driver_license_number',
+                        'like',
+                        "%{$search}%"
+                    )
                     ->orWhereHas('driver', function ($driverQuery) use ($search) {
                         $driverQuery
-                            ->where('name', 'like', "%{$search}%")
-                            ->orWhere('phone', 'like', "%{$search}%")
-                            ->orWhere('license_number', 'like', "%{$search}%")
-                            ->orWhere('staff_id', 'like', "%{$search}%");
+                            ->where(
+                                'name',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'phone',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'license_number',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'staff_id',
+                                'like',
+                                "%{$search}%"
+                            );
                     });
             });
         }
 
         // Status filter
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where(
+                'status',
+                $request->status
+            );
         }
 
         // Vehicle type filter
         if ($request->filled('vehicle_type')) {
-            $query->where('vehicle_type', $request->vehicle_type);
+            $query->where(
+                'vehicle_type',
+                $request->vehicle_type
+            );
         }
 
+        // Pagination
         $vehicles = $query
             ->latest()
             ->paginate(10)
@@ -92,8 +139,14 @@ class TransportVehicleController extends Controller
          * Only active staff members whose designation
          * is Driver can be assigned to a vehicle.
          */
-        $drivers = OtherStaff::where('designation', 'Driver')
-            ->where('status', 'Active')
+        $drivers = OtherStaff::where(
+            'designation',
+            'Driver'
+        )
+            ->where(
+                'status',
+                'Active'
+            )
             ->orderBy('name')
             ->get([
                 'id',
@@ -149,13 +202,20 @@ class TransportVehicleController extends Controller
 
             'driver_id' => [
                 'nullable',
-                Rule::exists('other_staff', 'id')->where(
-                    function ($query) {
-                        $query
-                            ->where('designation', 'Driver')
-                            ->where('status', 'Active');
-                    }
-                ),
+                Rule::exists(
+                    'other_staff',
+                    'id'
+                )->where(function ($query) {
+                    $query
+                        ->where(
+                            'designation',
+                            'Driver'
+                        )
+                        ->where(
+                            'status',
+                            'Active'
+                        );
+                }),
             ],
 
             'insurance_expiry' => [
@@ -173,6 +233,9 @@ class TransportVehicleController extends Controller
                 'date',
             ],
 
+            /*
+             * Status is now selected from the Add Vehicle page.
+             */
             'status' => [
                 'required',
                 'in:active,inactive,maintenance',
@@ -187,30 +250,48 @@ class TransportVehicleController extends Controller
         /*
          * Fetch the selected Driver from Other Staff.
          *
-         * We do NOT trust manually submitted driver details.
+         * We do not trust manually submitted driver details.
          */
         if (!empty($validated['driver_id'])) {
 
-            $driver = OtherStaff::where('id', $validated['driver_id'])
-                ->where('designation', 'Driver')
-                ->where('status', 'Active')
+            $driver = OtherStaff::where(
+                'id',
+                $validated['driver_id']
+            )
+                ->where(
+                    'designation',
+                    'Driver'
+                )
+                ->where(
+                    'status',
+                    'Active'
+                )
                 ->firstOrFail();
 
             $validated['driver_name'] = $driver->name;
+
             $validated['driver_contact'] = $driver->phone;
+
             $validated['driver_license_number'] =
                 $driver->license_number;
         } else {
 
             $validated['driver_name'] = null;
+
             $validated['driver_contact'] = null;
+
             $validated['driver_license_number'] = null;
         }
 
+        /*
+         * Create the vehicle.
+         */
         TransportVehicle::create($validated);
 
         return redirect()
-            ->route('admin.transport.vehicles.index')
+            ->route(
+                'admin.transport.vehicles.index'
+            )
             ->with(
                 'success',
                 'Vehicle added successfully.'
@@ -220,8 +301,9 @@ class TransportVehicleController extends Controller
     /**
      * Display the specified vehicle.
      */
-    public function show(TransportVehicle $transportVehicle)
-    {
+    public function show(
+        TransportVehicle $transportVehicle
+    ) {
         $transportVehicle->load('driver');
 
         return view(
@@ -233,10 +315,17 @@ class TransportVehicleController extends Controller
     /**
      * Show the form for editing the specified vehicle.
      */
-    public function edit(TransportVehicle $transportVehicle)
-    {
-        $drivers = OtherStaff::where('designation', 'Driver')
-            ->where('status', 'Active')
+    public function edit(
+        TransportVehicle $transportVehicle
+    ) {
+        $drivers = OtherStaff::where(
+            'designation',
+            'Driver'
+        )
+            ->where(
+                'status',
+                'Active'
+            )
             ->orderBy('name')
             ->get([
                 'id',
@@ -300,13 +389,20 @@ class TransportVehicleController extends Controller
 
             'driver_id' => [
                 'nullable',
-                Rule::exists('other_staff', 'id')->where(
-                    function ($query) {
-                        $query
-                            ->where('designation', 'Driver')
-                            ->where('status', 'Active');
-                    }
-                ),
+                Rule::exists(
+                    'other_staff',
+                    'id'
+                )->where(function ($query) {
+                    $query
+                        ->where(
+                            'designation',
+                            'Driver'
+                        )
+                        ->where(
+                            'status',
+                            'Active'
+                        );
+                }),
             ],
 
             'insurance_expiry' => [
@@ -324,6 +420,9 @@ class TransportVehicleController extends Controller
                 'date',
             ],
 
+            /*
+             * Status can be changed from the Edit Vehicle page.
+             */
             'status' => [
                 'required',
                 'in:active,inactive,maintenance',
@@ -340,26 +439,44 @@ class TransportVehicleController extends Controller
          */
         if (!empty($validated['driver_id'])) {
 
-            $driver = OtherStaff::where('id', $validated['driver_id'])
-                ->where('designation', 'Driver')
-                ->where('status', 'Active')
+            $driver = OtherStaff::where(
+                'id',
+                $validated['driver_id']
+            )
+                ->where(
+                    'designation',
+                    'Driver'
+                )
+                ->where(
+                    'status',
+                    'Active'
+                )
                 ->firstOrFail();
 
             $validated['driver_name'] = $driver->name;
+
             $validated['driver_contact'] = $driver->phone;
+
             $validated['driver_license_number'] =
                 $driver->license_number;
         } else {
 
             $validated['driver_name'] = null;
+
             $validated['driver_contact'] = null;
+
             $validated['driver_license_number'] = null;
         }
 
+        /*
+         * Update the vehicle.
+         */
         $transportVehicle->update($validated);
 
         return redirect()
-            ->route('admin.transport.vehicles.index')
+            ->route(
+                'admin.transport.vehicles.index'
+            )
             ->with(
                 'success',
                 'Vehicle updated successfully.'
@@ -369,12 +486,15 @@ class TransportVehicleController extends Controller
     /**
      * Remove the specified vehicle.
      */
-    public function destroy(TransportVehicle $transportVehicle)
-    {
+    public function destroy(
+        TransportVehicle $transportVehicle
+    ) {
         $transportVehicle->delete();
 
         return redirect()
-            ->route('admin.transport.vehicles.index')
+            ->route(
+                'admin.transport.vehicles.index'
+            )
             ->with(
                 'success',
                 'Vehicle deleted successfully.'

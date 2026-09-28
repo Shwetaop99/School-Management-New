@@ -5,11 +5,6 @@
 @section('content')
 
 <style>
-
-    /* =========================================================
-       ADD TRANSPORT ROUTE PAGE
-    ========================================================= */
-
     .transport-route-create-page {
         width: 100%;
         min-height: calc(100vh - 60px);
@@ -19,18 +14,12 @@
         padding-bottom: 40px;
     }
 
-    /* =========================================================
-       PAGE CONTAINER
-    ========================================================= */
-
     .transport-route-create-container {
         width: 100%;
         padding: 28px 30px 40px;
     }
 
-    /* =========================================================
-       PAGE HEADER
-    ========================================================= */
+    /* PAGE HEADER */
 
     .route-create-header {
         background: linear-gradient(
@@ -112,9 +101,7 @@
         font-weight: 450;
     }
 
-    /* =========================================================
-       HEADER BUTTON
-    ========================================================= */
+    /* HEADER BUTTON */
 
     .header-btn {
         display: inline-flex;
@@ -145,9 +132,7 @@
         border-color: #bcd3ee;
     }
 
-    /* =========================================================
-       BREADCRUMB
-    ========================================================= */
+    /* BREADCRUMB */
 
     .route-create-breadcrumb {
         display: flex;
@@ -172,9 +157,7 @@
         font-size: 9px;
     }
 
-    /* =========================================================
-       VALIDATION ALERT
-    ========================================================= */
+    /* VALIDATION */
 
     .route-error-alert {
         margin-bottom: 22px;
@@ -201,9 +184,7 @@
         line-height: 1.7;
     }
 
-    /* =========================================================
-       FORM CARD
-    ========================================================= */
+    /* FORM CARD */
 
     .route-form-card {
         background: #fff;
@@ -247,9 +228,7 @@
         font-size: 11px;
     }
 
-    /* =========================================================
-       FORM BODY
-    ========================================================= */
+    /* FORM BODY */
 
     .route-form-body {
         padding: 28px 25px 24px;
@@ -263,9 +242,7 @@
         margin-bottom: 0;
     }
 
-    /* =========================================================
-       SECTION HEADING
-    ========================================================= */
+    /* SECTION HEADING */
 
     .form-section-heading {
         display: flex;
@@ -318,9 +295,7 @@
         font-size: 10px;
     }
 
-    /* =========================================================
-       FORM GRID
-    ========================================================= */
+    /* FORM GRID */
 
     .form-grid {
         display: grid;
@@ -336,9 +311,7 @@
         grid-column: 1 / -1;
     }
 
-    /* =========================================================
-       FORM FIELDS
-    ========================================================= */
+    /* FORM FIELDS */
 
     .form-label {
         display: block;
@@ -385,8 +358,7 @@
     .form-select:focus {
         background: #fff;
         border-color: #8bb8ef;
-        box-shadow:
-            0 0 0 3px rgba(23,105,209,.08);
+        box-shadow: 0 0 0 3px rgba(23,105,209,.08);
     }
 
     .form-control[readonly] {
@@ -422,9 +394,7 @@
         background: #fffafa;
     }
 
-    /* =========================================================
-       STOPS INFORMATION
-    ========================================================= */
+    /* STOPS */
 
     .stops-info-box {
         margin-top: 8px;
@@ -442,9 +412,120 @@
         margin-right: 4px;
     }
 
-    /* =========================================================
-       DRIVER SEARCH / INFORMATION CARD
-    ========================================================= */
+    /* VEHICLE INFORMATION */
+
+    .selected-vehicle-card {
+        display: none;
+        margin-top: 18px;
+        border: 1px solid #cfe2ff;
+        background: #f8fbff;
+        border-radius: 13px;
+        padding: 18px;
+    }
+
+    .selected-vehicle-card.show {
+        display: block;
+    }
+
+    .selected-vehicle-header {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 15px;
+        padding-bottom: 13px;
+        border-bottom: 1px solid #e1ecfa;
+    }
+
+    .selected-vehicle-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        background: #dbeafe;
+        color: #1769d1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .selected-vehicle-header h6 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: #172033;
+    }
+
+    .selected-vehicle-header p {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 10px;
+    }
+
+    .vehicle-detail-box {
+        background: #fff;
+        border: 1px solid #e6edf5;
+        border-radius: 10px;
+        padding: 10px 11px;
+        min-height: 61px;
+    }
+
+    .vehicle-detail-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #94a3b8;
+        font-size: 9.5px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .vehicle-detail-label i {
+        color: #1769d1;
+        font-size: 10px;
+    }
+
+    .vehicle-detail-value {
+        color: #172033;
+        font-size: 11px;
+        font-weight: 650;
+        word-break: break-word;
+    }
+
+    .vehicle-active-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .vehicle-active-badge i {
+        font-size: 8px;
+    }
+
+    .vehicle-info-box {
+        margin-top: 14px;
+        padding: 11px 13px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #e6edf5;
+        color: #64748b;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    .vehicle-info-box i {
+        color: #1769d1;
+        margin-right: 4px;
+    }
+
+    /* DRIVER INFORMATION */
 
     .selected-driver-card {
         display: none;
@@ -525,15 +606,6 @@
         word-break: break-word;
     }
 
-    .driver-detail-value.muted {
-        color: #94a3b8;
-        font-weight: 500;
-    }
-
-    /* =========================================================
-       DRIVER INFO NOTE
-    ========================================================= */
-
     .driver-info-box {
         margin-top: 14px;
         padding: 11px 13px;
@@ -550,9 +622,7 @@
         margin-right: 4px;
     }
 
-    /* =========================================================
-       STATUS OPTIONS
-    ========================================================= */
+    /* STATUS */
 
     .status-options {
         display: grid;
@@ -610,9 +680,7 @@
         box-shadow: 0 0 0 3px rgba(23,105,209,.12);
     }
 
-    /* =========================================================
-       DIVIDER
-    ========================================================= */
+    /* DIVIDER */
 
     .form-divider {
         height: 1px;
@@ -620,9 +688,7 @@
         margin: 26px 0;
     }
 
-    /* =========================================================
-       FORM FOOTER
-    ========================================================= */
+    /* FOOTER */
 
     .route-form-footer {
         display: flex;
@@ -674,13 +740,10 @@
 
     .footer-btn.submit:hover {
         transform: translateY(-1px);
-        box-shadow:
-            0 8px 18px rgba(23,105,209,.25);
+        box-shadow: 0 8px 18px rgba(23,105,209,.25);
     }
 
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
+    /* RESPONSIVE */
 
     @media (max-width: 900px) {
 
@@ -749,843 +812,928 @@
             grid-template-columns: 1fr;
         }
 
-        .selected-driver-card {
+        .selected-driver-card,
+        .selected-vehicle-card {
             padding: 14px;
         }
     }
-
 </style>
-
 
 <div class="transport-route-create-page">
 
-    <div class="transport-route-create-container">
+```
+<div class="transport-route-create-container">
 
-        {{-- =====================================================
-             PAGE HEADER
-        ====================================================== --}}
+    {{-- PAGE HEADER --}}
 
-        <div class="route-create-header">
+    <div class="route-create-header">
 
-            <div class="route-create-heading">
+        <div class="route-create-heading">
 
-                <div class="route-create-icon">
-                    <i class="bi bi-signpost-2-fill"></i>
-                </div>
+            <div class="route-create-icon">
+                <i class="bi bi-signpost-2-fill"></i>
+            </div>
 
-                <div>
+            <div>
 
-                    <h1>
-                        Add Transport Route
-                    </h1>
+                <h1>
+                    Add Transport Route
+                </h1>
 
-                    <p>
-                        Create a new school transport route with journey,
-                        stop, vehicle and driver details.
-                    </p>
-
-                </div>
+                <p>
+                    Create a new school transport route with journey,
+                    stop, vehicle and driver details.
+                </p>
 
             </div>
 
-            <a
-                href="{{ route('admin.transport.routes.index') }}"
-                class="header-btn secondary"
-            >
-                <i class="bi bi-arrow-left"></i>
-                Back to Routes
-            </a>
+        </div>
+
+        <a
+            href="{{ route('admin.transport.routes.index') }}"
+            class="header-btn secondary"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Back to Routes
+        </a>
+
+    </div>
+
+
+    {{-- BREADCRUMB --}}
+
+    <div class="route-create-breadcrumb">
+
+        <a href="{{ route('admin.transport.records.index') }}">
+            Transport Management
+        </a>
+
+        <i class="bi bi-chevron-right"></i>
+
+        <a href="{{ route('admin.transport.routes.index') }}">
+            Routes
+        </a>
+
+        <i class="bi bi-chevron-right"></i>
+
+        <span>
+            Add Route
+        </span>
+
+    </div>
+
+
+    {{-- VALIDATION ERRORS --}}
+
+    @if($errors->any())
+
+        <div class="route-error-alert">
+
+            <div class="route-error-title">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                Please correct the following errors:
+
+            </div>
+
+            <ul class="route-error-list">
+
+                @foreach($errors->all() as $error)
+
+                    <li>
+                        {{ $error }}
+                    </li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+    @endif
+
+
+    {{-- FORM CARD --}}
+
+    <div class="route-form-card">
+
+        <div class="route-form-card-header">
+
+            <div class="route-form-header-icon">
+                <i class="bi bi-signpost-2-fill"></i>
+            </div>
+
+            <div>
+
+                <h2>
+                    Add Transport Route
+                </h2>
+
+                <p>
+                    Enter the route, vehicle and driver assignment details.
+                </p>
+
+            </div>
 
         </div>
 
 
-        {{-- =====================================================
-             BREADCRUMB
-        ====================================================== --}}
+        <form
+            action="{{ route('admin.transport.routes.store') }}"
+            method="POST"
+            id="transportRouteForm"
+        >
 
-        <div class="route-create-breadcrumb">
+            @csrf
 
-            <a href="{{ route('admin.transport.records.index') }}">
-                Transport Management
-            </a>
-
-            <i class="bi bi-chevron-right"></i>
-
-            <a href="{{ route('admin.transport.routes.index') }}">
-                Routes
-            </a>
-
-            <i class="bi bi-chevron-right"></i>
-
-            <span>
-                Add Route
-            </span>
-
-        </div>
+            <div class="route-form-body">
 
 
-        {{-- =====================================================
-             VALIDATION ERRORS
-        ====================================================== --}}
+                {{-- 1. ROUTE DETAILS --}}
 
-        @if($errors->any())
+                <div class="form-section">
 
-            <div class="route-error-alert">
+                    <div class="form-section-heading">
 
-                <div class="route-error-title">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    Please correct the following errors:
-                </div>
-
-                <ul class="route-error-list">
-
-                    @foreach($errors->all() as $error)
-
-                        <li>
-                            {{ $error }}
-                        </li>
-
-                    @endforeach
-
-                </ul>
-
-            </div>
-
-        @endif
-
-
-        {{-- =====================================================
-             FORM CARD
-        ====================================================== --}}
-
-        <div class="route-form-card">
-
-            {{-- CARD HEADER --}}
-
-            <div class="route-form-card-header">
-
-                <div class="route-form-header-icon">
-                    <i class="bi bi-signpost-2-fill"></i>
-                </div>
-
-                <div>
-
-                    <h2>
-                        Add Transport Route
-                    </h2>
-
-                    <p>
-                        Enter the route, vehicle and driver assignment details.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 FORM
-            ================================================== --}}
-
-            <form
-                action="{{ route('admin.transport.routes.store') }}"
-                method="POST"
-                id="transportRouteForm"
-            >
-
-                @csrf
-
-                <div class="route-form-body">
-
-
-                    {{-- =================================================
-                         1. ROUTE DETAILS
-                    ================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-icon blue">
-                                <i class="bi bi-signpost-2-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <h3>
-                                    Route Details
-                                </h3>
-
-                                <p>
-                                    Basic identification and journey information.
-                                </p>
-
-                            </div>
-
+                        <div class="section-icon blue">
+                            <i class="bi bi-signpost-2-fill"></i>
                         </div>
 
+                        <div>
 
-                        <div class="form-grid">
+                            <h3>
+                                Route Details
+                            </h3>
 
-
-                            {{-- ROUTE NUMBER --}}
-
-                            <div class="form-group {{ $errors->has('route_number') ? 'has-error' : '' }}">
-
-                                <label class="form-label">
-
-                                    Route Number
-
-                                    <span class="required">*</span>
-
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="route_number"
-                                    class="form-control"
-                                    value="{{ old('route_number') }}"
-                                    placeholder="e.g. R-001"
-                                    maxlength="100"
-                                    required
-                                >
-
-                                @error('route_number')
-
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-
-                                @enderror
-
-                            </div>
-
-
-                            {{-- ROUTE NAME --}}
-
-                            <div class="form-group {{ $errors->has('route_name') ? 'has-error' : '' }}">
-
-                                <label class="form-label">
-
-                                    Route Name
-
-                                    <span class="required">*</span>
-
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="route_name"
-                                    class="form-control"
-                                    value="{{ old('route_name') }}"
-                                    placeholder="e.g. City Center Route"
-                                    maxlength="255"
-                                    required
-                                >
-
-                                @error('route_name')
-
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-
-                                @enderror
-
-                            </div>
-
-
-                            {{-- STARTING POINT --}}
-
-                            <div class="form-group {{ $errors->has('starting_point') ? 'has-error' : '' }}">
-
-                                <label class="form-label">
-
-                                    Starting Point
-
-                                    <span class="required">*</span>
-
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="starting_point"
-                                    class="form-control"
-                                    value="{{ old('starting_point') }}"
-                                    placeholder="e.g. School Main Gate"
-                                    maxlength="255"
-                                    required
-                                >
-
-                                @error('starting_point')
-
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-
-                                @enderror
-
-                            </div>
-
-
-                            {{-- DESTINATION --}}
-
-                            <div class="form-group {{ $errors->has('destination') ? 'has-error' : '' }}">
-
-                                <label class="form-label">
-
-                                    Destination
-
-                                    <span class="required">*</span>
-
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="destination"
-                                    class="form-control"
-                                    value="{{ old('destination') }}"
-                                    placeholder="e.g. Chandgad"
-                                    maxlength="255"
-                                    required
-                                >
-
-                                @error('destination')
-
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-
-                                @enderror
-
-                            </div>
+                            <p>
+                                Basic identification and journey information.
+                            </p>
 
                         </div>
 
                     </div>
 
 
-                    <div class="form-divider"></div>
+                    <div class="form-grid">
 
+                        {{-- ROUTE NUMBER --}}
 
-                    {{-- =================================================
-                         2. ROUTE STOPS
-                    ================================================== --}}
+                        <div class="form-group {{ $errors->has('route_number') ? 'has-error' : '' }}">
 
-                    <div class="form-section">
+                            <label
+                                class="form-label"
+                                for="route_number"
+                            >
+                                Route Number
+                                <span class="required">*</span>
+                            </label>
 
-                        <div class="form-section-heading">
+                            <input
+                                type="text"
+                                name="route_number"
+                                id="route_number"
+                                class="form-control"
+                                value="{{ old('route_number') }}"
+                                placeholder="e.g. R-001"
+                                maxlength="100"
+                                required
+                            >
 
-                            <div class="section-icon orange">
-                                <i class="bi bi-geo-alt-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <h3>
-                                    Route Stops
-                                </h3>
-
-                                <p>
-                                    Add the pickup and drop-off stops followed by the route.
-                                </p>
-
-                            </div>
+                            @error('route_number')
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+                            @enderror
 
                         </div>
 
 
-                        <div class="form-grid">
+                        {{-- ROUTE NAME --}}
 
-                            <div class="form-group full-width {{ $errors->has('stops') ? 'has-error' : '' }}">
+                        <div class="form-group {{ $errors->has('route_name') ? 'has-error' : '' }}">
 
-                                <label class="form-label">
-                                    Stops
-                                </label>
+                            <label
+                                class="form-label"
+                                for="route_name"
+                            >
+                                Route Name
+                                <span class="required">*</span>
+                            </label>
 
-                                <textarea
-                                    name="stops"
-                                    class="form-control"
-                                    placeholder="Enter route stops, one per line or separated by commas..."
-                                >{{ old('stops') }}</textarea>
+                            <input
+                                type="text"
+                                name="route_name"
+                                id="route_name"
+                                class="form-control"
+                                value="{{ old('route_name') }}"
+                                placeholder="e.g. City Center Route"
+                                maxlength="255"
+                                required
+                            >
 
-
-                                <div class="stops-info-box">
-
-                                    <i class="bi bi-info-circle-fill"></i>
-
-                                    Example:
-
-                                    Main Gate, Market Chowk, Bus Stand,
-                                    College Road, Station Road
-
+                            @error('route_name')
+                                <div class="field-error">
+                                    {{ $message }}
                                 </div>
+                            @enderror
+
+                        </div>
 
 
-                                @error('stops')
+                        {{-- STARTING POINT --}}
 
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
+                        <div class="form-group {{ $errors->has('starting_point') ? 'has-error' : '' }}">
 
-                                @enderror
+                            <label
+                                class="form-label"
+                                for="starting_point"
+                            >
+                                Starting Point
+                                <span class="required">*</span>
+                            </label>
 
-                            </div>
+                            <input
+                                type="text"
+                                name="starting_point"
+                                id="starting_point"
+                                class="form-control"
+                                value="{{ old('starting_point') }}"
+                                placeholder="e.g. School Main Gate"
+                                maxlength="255"
+                                required
+                            >
+
+                            @error('starting_point')
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+
+                        </div>
+
+
+                        {{-- DESTINATION --}}
+
+                        <div class="form-group {{ $errors->has('destination') ? 'has-error' : '' }}">
+
+                            <label
+                                class="form-label"
+                                for="destination"
+                            >
+                                Destination
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="destination"
+                                id="destination"
+                                class="form-control"
+                                value="{{ old('destination') }}"
+                                placeholder="e.g. Chandgad"
+                                maxlength="255"
+                                required
+                            >
+
+                            @error('destination')
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-divider"></div>
+
+
+                {{-- 2. ROUTE STOPS --}}
+
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-icon orange">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Route Stops
+                            </h3>
+
+                            <p>
+                                Add the pickup and drop-off stops followed by the route.
+                            </p>
 
                         </div>
 
                     </div>
 
 
-                    <div class="form-divider"></div>
-
-
-                    {{-- =================================================
-                         3. VEHICLE & DRIVER
-                    ================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-icon purple">
-                                <i class="bi bi-bus-front-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <h3>
-                                    Vehicle & Driver
-                                </h3>
-
-                                <p>
-                                    Assign the vehicle and driver responsible for this route.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="form-grid">
-
-
-                            {{-- ASSIGNED VEHICLE --}}
-
-                            <div class="form-group {{ $errors->has('vehicle_id') ? 'has-error' : '' }}">
-
-                                <label
-                                    class="form-label"
-                                    for="vehicle_id"
-                                >
-                                    Assigned Vehicle
-                                </label>
-
-                                <select
-                                    name="vehicle_id"
-                                    id="vehicle_id"
-                                    class="form-select"
-                                >
-
-                                    <option value="">
-                                        Select Vehicle
-                                    </option>
-
-                                    @forelse($vehicles as $vehicle)
-
-                                        <option
-                                            value="{{ $vehicle->id }}"
-                                            {{ old('vehicle_id') == $vehicle->id ? 'selected' : '' }}
-                                        >
-                                            {{ $vehicle->vehicle_number }}
-
-                                            @if($vehicle->vehicle_type)
-                                                — {{ $vehicle->vehicle_type }}
-                                            @endif
-
-                                        </option>
-
-                                    @empty
-
-                                        <option value="" disabled>
-                                            No active vehicles available
-                                        </option>
-
-                                    @endforelse
-
-                                </select>
-
-                                <div class="field-help">
-                                    Select an active vehicle from the Transport Vehicles module.
-                                </div>
-
-                                @error('vehicle_id')
-
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-
-                                @enderror
-
-                            </div>
-
-
-                            {{-- DRIVER SELECTION --}}
-
-                            <div class="form-group {{ $errors->has('driver_id') ? 'has-error' : '' }}">
-
-                                <label
-                                    class="form-label"
-                                    for="driver_id"
-                                >
-                                    Assign Driver
-                                </label>
-
-                                <select
-                                    name="driver_id"
-                                    id="driver_id"
-                                    class="form-select"
-                                >
-
-                                    <option value="">
-                                        Select Driver
-                                    </option>
-
-
-                                    @forelse($drivers as $driver)
-
-                                        <option
-                                            value="{{ $driver->id }}"
-                                            data-name="{{ $driver->name }}"
-                                            data-phone="{{ $driver->phone }}"
-                                            data-staff-id="{{ $driver->staff_id }}"
-                                            data-designation="{{ $driver->designation }}"
-                                            data-department="{{ $driver->department }}"
-                                            data-status="{{ $driver->status }}"
-                                            {{ old('driver_id') == $driver->id ? 'selected' : '' }}
-                                        >
-
-                                            {{ $driver->name }}
-
-                                            @if($driver->staff_id)
-                                                — {{ $driver->staff_id }}
-                                            @endif
-
-                                        </option>
-
-                                    @empty
-
-                                        <option value="" disabled>
-                                            No active drivers available
-                                        </option>
-
-                                    @endforelse
-
-                                </select>
-
-
-                                <div class="field-help">
-                                    Select an active driver from the Other Staff module.
-                                </div>
-
-
-                                @error('driver_id')
-
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-
-                                @enderror
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- =================================================
-                             SELECTED DRIVER INFORMATION
-                        ================================================== --}}
-
-                        <div
-                            class="selected-driver-card"
-                            id="selectedDriverCard"
-                        >
-
-                            <div class="selected-driver-header">
-
-                                <div
-                                    class="selected-driver-avatar"
-                                    id="selectedDriverAvatar"
-                                >
-                                    D
-                                </div>
-
-                                <div>
-
-                                    <h6 id="selectedDriverTitle">
-                                        Driver Details
-                                    </h6>
-
-                                    <p>
-                                        Existing Other Staff information
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="row g-3">
-
-
-                                {{-- DRIVER NAME --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="driver-detail-box">
-
-                                        <div class="driver-detail-label">
-
-                                            <i class="bi bi-person-badge"></i>
-
-                                            Driver Name
-
-                                        </div>
-
-                                        <div
-                                            class="driver-detail-value"
-                                            id="driverName"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- STAFF ID --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="driver-detail-box">
-
-                                        <div class="driver-detail-label">
-
-                                            <i class="bi bi-card-text"></i>
-
-                                            Staff ID
-
-                                        </div>
-
-                                        <div
-                                            class="driver-detail-value"
-                                            id="driverStaffId"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- PHONE --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="driver-detail-box">
-
-                                        <div class="driver-detail-label">
-
-                                            <i class="bi bi-telephone"></i>
-
-                                            Phone
-
-                                        </div>
-
-                                        <div
-                                            class="driver-detail-value"
-                                            id="driverPhone"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- DESIGNATION --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="driver-detail-box">
-
-                                        <div class="driver-detail-label">
-
-                                            <i class="bi bi-person-workspace"></i>
-
-                                            Designation
-
-                                        </div>
-
-                                        <div
-                                            class="driver-detail-value"
-                                            id="driverDesignation"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- DEPARTMENT --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="driver-detail-box">
-
-                                        <div class="driver-detail-label">
-
-                                            <i class="bi bi-building"></i>
-
-                                            Department
-
-                                        </div>
-
-                                        <div
-                                            class="driver-detail-value"
-                                            id="driverDepartment"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- STATUS --}}
-
-                                <div class="col-lg-4 col-md-6">
-
-                                    <div class="driver-detail-box">
-
-                                        <div class="driver-detail-label">
-
-                                            <i class="bi bi-check-circle"></i>
-
-                                            Staff Status
-
-                                        </div>
-
-                                        <div
-                                            class="driver-detail-value"
-                                            id="driverStatus"
-                                        >
-                                            —
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="driver-info-box">
+                    <div class="form-grid">
+
+                        <div class="form-group full-width {{ $errors->has('stops') ? 'has-error' : '' }}">
+
+                            <label
+                                class="form-label"
+                                for="stops"
+                            >
+                                Stops
+                            </label>
+
+                            <textarea
+                                name="stops"
+                                id="stops"
+                                class="form-control"
+                                placeholder="Enter route stops, one per line or separated by commas..."
+                            >{{ old('stops') }}</textarea>
+
+                            <div class="stops-info-box">
 
                                 <i class="bi bi-info-circle-fill"></i>
 
-                                Driver information is automatically loaded
-                                from the selected Other Staff record.
-                                It is not manually stored with the route.
+                                Example:
+                                Main Gate, Market Chowk, Bus Stand,
+                                College Road, Station Road
+
+                            </div>
+
+                            @error('stops')
+
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-divider"></div>
+
+
+                {{-- 3. VEHICLE & DRIVER --}}
+
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-icon purple">
+                            <i class="bi bi-bus-front-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Vehicle & Driver
+                            </h3>
+
+                            <p>
+                                Assign the active vehicle and driver responsible for this route.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        {{-- ACTIVE VEHICLE --}}
+
+                        <div class="form-group {{ $errors->has('vehicle_id') ? 'has-error' : '' }}">
+
+                            <label
+                                class="form-label"
+                                for="vehicle_id"
+                            >
+                                Assigned Vehicle
+                            </label>
+
+                            <select
+                                name="vehicle_id"
+                                id="vehicle_id"
+                                class="form-select"
+                            >
+
+                                <option value="">
+                                    Select Active Vehicle
+                                </option>
+
+                                @forelse($vehicles as $vehicle)
+
+                                    <option
+                                        value="{{ $vehicle->id }}"
+                                        data-vehicle-number="{{ $vehicle->vehicle_number }}"
+                                        data-vehicle-type="{{ $vehicle->vehicle_type }}"
+                                        data-capacity="{{ $vehicle->capacity }}"
+                                        data-status="{{ $vehicle->status }}"
+                                        data-driver-id="{{ $vehicle->driver_id }}"
+                                        data-driver-name="{{ $vehicle->driver_name }}"
+                                        data-driver-contact="{{ $vehicle->driver_contact }}"
+                                        data-driver-license="{{ $vehicle->driver_license_number }}"
+                                        {{ (string) old('vehicle_id') === (string) $vehicle->id ? 'selected' : '' }}
+                                    >
+
+                                        {{ $vehicle->vehicle_number }}
+
+                                        @if($vehicle->vehicle_type)
+                                            — {{ $vehicle->vehicle_type }}
+                                        @endif
+
+                                    </option>
+
+                                @empty
+
+                                    <option value="" disabled>
+                                        No active vehicles available
+                                    </option>
+
+                                @endforelse
+
+                            </select>
+
+
+                            <div class="field-help">
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                                Only vehicles with
+                                <strong>Active</strong>
+                                status are available for route assignment.
+
+                            </div>
+
+
+                            @error('vehicle_id')
+
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+
+                        {{-- DRIVER --}}
+
+                        <div class="form-group {{ $errors->has('driver_id') ? 'has-error' : '' }}">
+
+                            <label
+                                class="form-label"
+                                for="driver_id"
+                            >
+                                Assign Driver
+                            </label>
+
+                            <select
+                                name="driver_id"
+                                id="driver_id"
+                                class="form-select"
+                            >
+
+                                <option value="">
+                                    Select Driver
+                                </option>
+
+                                @forelse($drivers as $driver)
+
+                                    <option
+                                        value="{{ $driver->id }}"
+                                        data-name="{{ $driver->name }}"
+                                        data-phone="{{ $driver->phone }}"
+                                        data-staff-id="{{ $driver->staff_id }}"
+                                        data-designation="{{ $driver->designation }}"
+                                        data-department="{{ $driver->department }}"
+                                        data-status="{{ $driver->status }}"
+                                        {{ (string) old('driver_id') === (string) $driver->id ? 'selected' : '' }}
+                                    >
+
+                                        {{ $driver->name }}
+
+                                        @if($driver->staff_id)
+                                            — {{ $driver->staff_id }}
+                                        @endif
+
+                                    </option>
+
+                                @empty
+
+                                    <option value="" disabled>
+                                        No active drivers available
+                                    </option>
+
+                                @endforelse
+
+                            </select>
+
+
+                            <div class="field-help">
+                                Select an active driver from the Other Staff module.
+                            </div>
+
+
+                            @error('driver_id')
+
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- SELECTED VEHICLE INFORMATION --}}
+
+                    <div
+                        class="selected-vehicle-card"
+                        id="selectedVehicleCard"
+                    >
+
+                        <div class="selected-vehicle-header">
+
+                            <div
+                                class="selected-vehicle-avatar"
+                                id="selectedVehicleAvatar"
+                            >
+                                V
+                            </div>
+
+                            <div>
+
+                                <h6 id="selectedVehicleTitle">
+                                    Vehicle Details
+                                </h6>
+
+                                <p>
+                                    Active vehicle information from Transport Vehicles
+                                </p>
 
                             </div>
 
                         </div>
 
 
-                        <div class="form-divider"></div>
+                        <div class="row g-3">
 
+                            {{-- VEHICLE NUMBER --}}
 
-                        {{-- ROUTE STATUS --}}
+                            <div class="col-lg-4 col-md-6">
 
-                        <div class="form-grid">
+                                <div class="vehicle-detail-box">
 
-                            <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                                    <div class="vehicle-detail-label">
 
-                                <label class="form-label">
+                                        <i class="bi bi-upc-scan"></i>
 
-                                    Route Status
-
-                                    <span class="required">*</span>
-
-                                </label>
-
-
-                                <div class="status-options">
-
-
-                                    {{-- ACTIVE --}}
-
-                                    <div class="status-option">
-
-                                        <input
-                                            type="radio"
-                                            id="status-active"
-                                            name="status"
-                                            value="active"
-                                            {{ old('status', 'active') === 'active' ? 'checked' : '' }}
-                                        >
-
-                                        <label for="status-active">
-
-                                            <span class="status-radio-dot"></span>
-
-                                            Active
-
-                                        </label>
+                                        Vehicle Number
 
                                     </div>
 
-
-                                    {{-- INACTIVE --}}
-
-                                    <div class="status-option">
-
-                                        <input
-                                            type="radio"
-                                            id="status-inactive"
-                                            name="status"
-                                            value="inactive"
-                                            {{ old('status') === 'inactive' ? 'checked' : '' }}
-                                        >
-
-                                        <label for="status-inactive">
-
-                                            <span class="status-radio-dot"></span>
-
-                                            Inactive
-
-                                        </label>
-
+                                    <div
+                                        class="vehicle-detail-value"
+                                        id="vehicleNumber"
+                                    >
+                                        —
                                     </div>
 
                                 </div>
 
+                            </div>
 
-                                @error('status')
 
-                                    <div class="field-error">
-                                        {{ $message }}
+                            {{-- VEHICLE TYPE --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="vehicle-detail-box">
+
+                                    <div class="vehicle-detail-label">
+
+                                        <i class="bi bi-bus-front"></i>
+
+                                        Vehicle Type
+
                                     </div>
 
-                                @enderror
+                                    <div
+                                        class="vehicle-detail-value"
+                                        id="vehicleType"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
 
                             </div>
+
+
+                            {{-- CAPACITY --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="vehicle-detail-box">
+
+                                    <div class="vehicle-detail-label">
+
+                                        <i class="bi bi-people-fill"></i>
+
+                                        Capacity
+
+                                    </div>
+
+                                    <div
+                                        class="vehicle-detail-value"
+                                        id="vehicleCapacity"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- STATUS --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="vehicle-detail-box">
+
+                                    <div class="vehicle-detail-label">
+
+                                        <i class="bi bi-check-circle"></i>
+
+                                        Vehicle Status
+
+                                    </div>
+
+                                    <div
+                                        class="vehicle-detail-value"
+                                        id="vehicleStatus"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- DRIVER LINKED TO VEHICLE --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="vehicle-detail-box">
+
+                                    <div class="vehicle-detail-label">
+
+                                        <i class="bi bi-person-badge"></i>
+
+                                        Vehicle Driver
+
+                                    </div>
+
+                                    <div
+                                        class="vehicle-detail-value"
+                                        id="vehicleDriver"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="vehicle-info-box">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            Vehicle information is automatically loaded
+                            from the selected active Transport Vehicle record.
+                            Inactive and maintenance vehicles cannot be assigned.
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- SELECTED DRIVER INFORMATION --}}
+
+                    <div
+                        class="selected-driver-card"
+                        id="selectedDriverCard"
+                    >
+
+                        <div class="selected-driver-header">
+
+                            <div
+                                class="selected-driver-avatar"
+                                id="selectedDriverAvatar"
+                            >
+                                D
+                            </div>
+
+                            <div>
+
+                                <h6 id="selectedDriverTitle">
+                                    Driver Details
+                                </h6>
+
+                                <p>
+                                    Existing Other Staff information
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            {{-- DRIVER NAME --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="driver-detail-box">
+
+                                    <div class="driver-detail-label">
+
+                                        <i class="bi bi-person-badge"></i>
+
+                                        Driver Name
+
+                                    </div>
+
+                                    <div
+                                        class="driver-detail-value"
+                                        id="driverName"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- STAFF ID --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="driver-detail-box">
+
+                                    <div class="driver-detail-label">
+
+                                        <i class="bi bi-card-text"></i>
+
+                                        Staff ID
+
+                                    </div>
+
+                                    <div
+                                        class="driver-detail-value"
+                                        id="driverStaffId"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- PHONE --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="driver-detail-box">
+
+                                    <div class="driver-detail-label">
+
+                                        <i class="bi bi-telephone"></i>
+
+                                        Phone
+
+                                    </div>
+
+                                    <div
+                                        class="driver-detail-value"
+                                        id="driverPhone"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- DESIGNATION --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="driver-detail-box">
+
+                                    <div class="driver-detail-label">
+
+                                        <i class="bi bi-person-workspace"></i>
+
+                                        Designation
+
+                                    </div>
+
+                                    <div
+                                        class="driver-detail-value"
+                                        id="driverDesignation"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- DEPARTMENT --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="driver-detail-box">
+
+                                    <div class="driver-detail-label">
+
+                                        <i class="bi bi-building"></i>
+
+                                        Department
+
+                                    </div>
+
+                                    <div
+                                        class="driver-detail-value"
+                                        id="driverDepartment"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- STATUS --}}
+
+                            <div class="col-lg-4 col-md-6">
+
+                                <div class="driver-detail-box">
+
+                                    <div class="driver-detail-label">
+
+                                        <i class="bi bi-check-circle"></i>
+
+                                        Staff Status
+
+                                    </div>
+
+                                    <div
+                                        class="driver-detail-value"
+                                        id="driverStatus"
+                                    >
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="driver-info-box">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            Driver information is automatically loaded
+                            from the selected Other Staff record.
+                            It is not manually stored with the route.
 
                         </div>
 
@@ -1595,57 +1743,71 @@
                     <div class="form-divider"></div>
 
 
-                    {{-- =================================================
-                         4. ADDITIONAL INFORMATION
-                    ================================================== --}}
+                    {{-- ROUTE STATUS --}}
 
-                    <div class="form-section">
+                    <div class="form-grid">
 
-                        <div class="form-section-heading">
+                        <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
 
-                            <div class="section-icon green">
-                                <i class="bi bi-card-text"></i>
+                            <label class="form-label">
+                                Route Status
+                                <span class="required">*</span>
+                            </label>
+
+
+                            <div class="status-options">
+
+                                <div class="status-option">
+
+                                    <input
+                                        type="radio"
+                                        id="status-active"
+                                        name="status"
+                                        value="active"
+                                        {{ old('status', 'active') === 'active' ? 'checked' : '' }}
+                                    >
+
+                                    <label for="status-active">
+
+                                        <span class="status-radio-dot"></span>
+
+                                        Active
+
+                                    </label>
+
+                                </div>
+
+
+                                <div class="status-option">
+
+                                    <input
+                                        type="radio"
+                                        id="status-inactive"
+                                        name="status"
+                                        value="inactive"
+                                        {{ old('status') === 'inactive' ? 'checked' : '' }}
+                                    >
+
+                                    <label for="status-inactive">
+
+                                        <span class="status-radio-dot"></span>
+
+                                        Inactive
+
+                                    </label>
+
+                                </div>
+
                             </div>
 
-                            <div>
 
-                                <h3>
-                                    Additional Information
-                                </h3>
+                            @error('status')
 
-                                <p>
-                                    Add optional notes related to this route.
-                                </p>
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
 
-                            </div>
-
-                        </div>
-
-
-                        <div class="form-grid">
-
-                            <div class="form-group full-width {{ $errors->has('remarks') ? 'has-error' : '' }}">
-
-                                <label class="form-label">
-                                    Remarks
-                                </label>
-
-                                <textarea
-                                    name="remarks"
-                                    class="form-control"
-                                    placeholder="Enter any additional route information..."
-                                >{{ old('remarks') }}</textarea>
-
-
-                                @error('remarks')
-
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-
-                                @enderror
-
-                            </div>
+                            @enderror
 
                         </div>
 
@@ -1654,53 +1816,137 @@
                 </div>
 
 
-                {{-- =====================================================
-                     FORM FOOTER
-                ====================================================== --}}
-
-                <div class="route-form-footer">
-
-                    <a
-                        href="{{ route('admin.transport.routes.index') }}"
-                        class="footer-btn cancel"
-                    >
-
-                        <i class="bi bi-x-lg"></i>
-
-                        Cancel
-
-                    </a>
+                <div class="form-divider"></div>
 
 
-                    <button
-                        type="submit"
-                        class="footer-btn submit"
-                    >
+                {{-- 4. ADDITIONAL INFORMATION --}}
 
-                        <i class="bi bi-check2-circle"></i>
+                <div class="form-section">
 
-                        Save Transport Route
+                    <div class="form-section-heading">
 
-                    </button>
+                        <div class="section-icon green">
+                            <i class="bi bi-card-text"></i>
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Additional Information
+                            </h3>
+
+                            <p>
+                                Add optional notes related to this route.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group full-width {{ $errors->has('remarks') ? 'has-error' : '' }}">
+
+                            <label
+                                class="form-label"
+                                for="remarks"
+                            >
+                                Remarks
+                            </label>
+
+                            <textarea
+                                name="remarks"
+                                id="remarks"
+                                class="form-control"
+                                placeholder="Enter any additional route information..."
+                            >{{ old('remarks') }}</textarea>
+
+                            @error('remarks')
+
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+
+            {{-- FORM FOOTER --}}
+
+            <div class="route-form-footer">
+
+                <a
+                    href="{{ route('admin.transport.routes.index') }}"
+                    class="footer-btn cancel"
+                >
+                    <i class="bi bi-x-lg"></i>
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="footer-btn submit"
+                >
+                    <i class="bi bi-check2-circle"></i>
+                    Save Transport Route
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
 </div>
+```
 
+</div>
 
-{{-- =========================================================
-     DRIVER AUTO-FILL SCRIPT
-========================================================= --}}
+{{-- VEHICLE & DRIVER AUTO-FILL SCRIPT --}}
 
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    /* VEHICLE ELEMENTS */
+
+    const vehicleSelect =
+        document.getElementById('vehicle_id');
+
+    const selectedVehicleCard =
+        document.getElementById('selectedVehicleCard');
+
+    const selectedVehicleAvatar =
+        document.getElementById('selectedVehicleAvatar');
+
+    const selectedVehicleTitle =
+        document.getElementById('selectedVehicleTitle');
+
+    const vehicleNumber =
+        document.getElementById('vehicleNumber');
+
+    const vehicleType =
+        document.getElementById('vehicleType');
+
+    const vehicleCapacity =
+        document.getElementById('vehicleCapacity');
+
+    const vehicleStatus =
+        document.getElementById('vehicleStatus');
+
+    const vehicleDriver =
+        document.getElementById('vehicleDriver');
+
+
+    /* DRIVER ELEMENTS */
 
     const driverSelect =
         document.getElementById('driver_id');
@@ -1733,23 +1979,123 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('driverStatus');
 
 
-    /* =========================================================
-       DISPLAY VALUE HELPER
-    ========================================================= */
+    /* DISPLAY VALUE HELPER */
 
     function displayValue(value) {
 
-        if (!value || value.trim() === '') {
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ''
+        ) {
             return 'Not available';
         }
 
-        return value;
+        return String(value);
     }
 
 
-    /* =========================================================
-       UPDATE DRIVER DETAILS
-    ========================================================= */
+    /* UPDATE VEHICLE DETAILS */
+
+    function updateVehicleDetails() {
+
+        const selectedOption =
+            vehicleSelect.options[
+                vehicleSelect.selectedIndex
+            ];
+
+
+        if (
+            !selectedOption ||
+            !selectedOption.value
+        ) {
+
+            vehicleNumber.textContent = '—';
+            vehicleType.textContent = '—';
+            vehicleCapacity.textContent = '—';
+            vehicleStatus.textContent = '—';
+            vehicleDriver.textContent = '—';
+
+            selectedVehicleAvatar.textContent = 'V';
+
+            selectedVehicleTitle.textContent =
+                'Vehicle Details';
+
+            selectedVehicleCard.classList.remove('show');
+
+            return;
+        }
+
+
+        const number =
+            selectedOption.dataset.vehicleNumber || '';
+
+        const type =
+            selectedOption.dataset.vehicleType || '';
+
+        const capacity =
+            selectedOption.dataset.capacity || '';
+
+        const status =
+            selectedOption.dataset.status || '';
+
+        const linkedDriver =
+            selectedOption.dataset.driverName || '';
+
+
+        vehicleNumber.textContent =
+            displayValue(number);
+
+        vehicleType.textContent =
+            displayValue(type);
+
+
+        if (capacity) {
+
+            vehicleCapacity.textContent =
+                capacity + ' seats';
+
+        } else {
+
+            vehicleCapacity.textContent =
+                'Not available';
+        }
+
+
+        if (status.toLowerCase() === 'active') {
+
+            vehicleStatus.innerHTML =
+                '<span class="vehicle-active-badge">' +
+                '<i class="bi bi-check-circle-fill"></i>' +
+                ' Active' +
+                '</span>';
+
+        } else {
+
+            vehicleStatus.textContent =
+                displayValue(status);
+        }
+
+
+        vehicleDriver.textContent =
+            displayValue(linkedDriver);
+
+
+        selectedVehicleAvatar.textContent =
+            number
+                ? number.charAt(0).toUpperCase()
+                : 'V';
+
+
+        selectedVehicleTitle.textContent =
+            number || 'Vehicle Details';
+
+
+        selectedVehicleCard.classList.add('show');
+    }
+
+
+    /* UPDATE DRIVER DETAILS */
 
     function updateDriverDetails() {
 
@@ -1760,86 +2106,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         if (
-            selectedOption &&
-            selectedOption.value
+            !selectedOption ||
+            !selectedOption.value
         ) {
-
-            const name =
-                selectedOption.dataset.name || '';
-
-            const staffId =
-                selectedOption.dataset.staffId || '';
-
-            const phone =
-                selectedOption.dataset.phone || '';
-
-            const designation =
-                selectedOption.dataset.designation || '';
-
-            const department =
-                selectedOption.dataset.department || '';
-
-            const status =
-                selectedOption.dataset.status || '';
-
-
-            /* DRIVER NAME */
-
-            driverName.textContent =
-                displayValue(name);
-
-
-            /* STAFF ID */
-
-            driverStaffId.textContent =
-                displayValue(staffId);
-
-
-            /* PHONE */
-
-            driverPhone.textContent =
-                displayValue(phone);
-
-
-            /* DESIGNATION */
-
-            driverDesignation.textContent =
-                displayValue(designation);
-
-
-            /* DEPARTMENT */
-
-            driverDepartment.textContent =
-                displayValue(department);
-
-
-            /* STATUS */
-
-            driverStatus.textContent =
-                displayValue(status);
-
-
-            /* AVATAR */
-
-            selectedDriverAvatar.textContent =
-                name
-                    ? name.charAt(0).toUpperCase()
-                    : 'D';
-
-
-            /* HEADER */
-
-            selectedDriverTitle.textContent =
-                name || 'Driver Details';
-
-
-            /* SHOW CARD */
-
-            selectedDriverCard.classList.add('show');
-
-        } else {
-
-            /* CLEAR DETAILS */
 
             driverName.textContent = '—';
             driverStaffId.textContent = '—';
@@ -1853,19 +2122,70 @@ document.addEventListener('DOMContentLoaded', function () {
             selectedDriverTitle.textContent =
                 'Driver Details';
 
-
-            /* HIDE CARD */
-
             selectedDriverCard.classList.remove('show');
 
+            return;
         }
 
+
+        const name =
+            selectedOption.dataset.name || '';
+
+        const staffId =
+            selectedOption.dataset.staffId || '';
+
+        const phone =
+            selectedOption.dataset.phone || '';
+
+        const designation =
+            selectedOption.dataset.designation || '';
+
+        const department =
+            selectedOption.dataset.department || '';
+
+        const status =
+            selectedOption.dataset.status || '';
+
+
+        driverName.textContent =
+            displayValue(name);
+
+        driverStaffId.textContent =
+            displayValue(staffId);
+
+        driverPhone.textContent =
+            displayValue(phone);
+
+        driverDesignation.textContent =
+            displayValue(designation);
+
+        driverDepartment.textContent =
+            displayValue(department);
+
+        driverStatus.textContent =
+            displayValue(status);
+
+
+        selectedDriverAvatar.textContent =
+            name
+                ? name.charAt(0).toUpperCase()
+                : 'D';
+
+
+        selectedDriverTitle.textContent =
+            name || 'Driver Details';
+
+
+        selectedDriverCard.classList.add('show');
     }
 
 
-    /* =========================================================
-       DRIVER CHANGE
-    ========================================================= */
+    /* EVENTS */
+
+    vehicleSelect.addEventListener(
+        'change',
+        updateVehicleDetails
+    );
 
     driverSelect.addEventListener(
         'change',
@@ -1873,9 +2193,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /* =========================================================
-       RESTORE OLD DRIVER AFTER VALIDATION ERROR
-    ========================================================= */
+    /* INITIAL LOAD */
+
+    updateVehicleDetails();
 
     updateDriverDetails();
 

@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
 
-    <title>Transport Record #{{ $transportRecord->id }}</title>
+    <title>
+        Transport Record #{{ $transportRecord->id }}
+    </title>
 
     <style>
 
         @page {
             size: A4;
-            margin: 12mm 14mm 15mm 14mm;
+            margin: 12mm 14mm 14mm 14mm;
         }
 
         * {
@@ -32,187 +35,158 @@
         }
 
         /* =====================================================
-           DOCUMENT WRAPPER
-        ===================================================== */
-
-        .document {
-            width: 100%;
-        }
-
-        /* =====================================================
-           OFFICIAL HEADER
+           HEADER
         ===================================================== */
 
         .header {
             width: 100%;
             border-bottom: 2px solid #1769d1;
-            padding-bottom: 11px;
-            margin-bottom: 16px;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
         }
 
-        .header-left {
-            width: 68%;
-            vertical-align: bottom;
+        .logo-cell {
+            width: 15%;
+            vertical-align: middle;
+            text-align: left;
         }
 
-        .header-right {
-            width: 32%;
-            vertical-align: bottom;
+        .header-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .school-cell {
+            width: 60%;
+            vertical-align: middle;
+            padding-left: 5px;
+        }
+
+        .school-name {
+            color: #1769d1;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 1.25;
+        }
+
+        .school-address {
+            color: #64748b;
+            font-size: 6.8px;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .document-cell {
+            width: 25%;
+            vertical-align: middle;
             text-align: right;
         }
 
-        .organization {
-            color: #64748b;
-            font-size: 7px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 4px;
-        }
-
-        .title {
-            color: #172033;
-            font-size: 19px;
-            font-weight: bold;
-            line-height: 1.15;
-        }
-
-        .subtitle {
-            color: #64748b;
-            font-size: 7px;
-            margin-top: 4px;
-        }
-
-        .record-label {
+        .document-label {
             color: #94a3b8;
-            font-size: 6px;
+            font-size: 5.8px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: .7px;
         }
 
-        .record-number {
+        .document-number {
             color: #1769d1;
             font-size: 13px;
             font-weight: bold;
             margin-top: 2px;
         }
 
-        .record-date {
+        .document-date {
             color: #64748b;
             font-size: 6.5px;
             margin-top: 3px;
         }
 
         /* =====================================================
-           DOCUMENT REFERENCE
+           TITLE
         ===================================================== */
 
-        .reference {
-            width: 100%;
-            margin-bottom: 17px;
+        .title-area {
+            margin-bottom: 15px;
         }
 
-        .reference td {
-            background: #f8fafc;
-            border-top: 1px solid #dce3eb;
-            border-bottom: 1px solid #dce3eb;
-            padding: 7px 9px;
-            vertical-align: middle;
-        }
-
-        .reference-left {
-            width: 70%;
-            text-align: left;
-        }
-
-        .reference-right {
-            width: 30%;
-            text-align: right;
-        }
-
-        .reference-label {
-            color: #94a3b8;
-            font-size: 6px;
-            text-transform: uppercase;
+        .title {
+            color: #172033;
+            font-size: 20px;
             font-weight: bold;
-            letter-spacing: .5px;
+            line-height: 1.2;
         }
 
-        .reference-value {
-            color: #334155;
-            font-size: 7px;
-            font-weight: bold;
-            margin-top: 2px;
+        .title-line {
+            width: 35px;
+            height: 3px;
+            background: #1769d1;
+            margin-top: 5px;
         }
 
         /* =====================================================
-           STUDENT IDENTITY
+           STUDENT SUMMARY
         ===================================================== */
 
-        .student-identity {
+        .student-card {
             width: 100%;
-            border: 1px solid #cfd9e5;
-            margin-bottom: 18px;
+            border: 1px solid #d6dee8;
+            margin-bottom: 17px;
         }
 
-        .identity-label {
-            width: 18%;
-            background: #f3f7fc;
-            border-right: 1px solid #d8e1eb;
-            padding: 10px;
-            vertical-align: middle;
-        }
-
-        .identity-label-text {
+        .student-card-title {
+            background: #f4f7fb;
             color: #1769d1;
-            font-size: 6.5px;
+            padding: 7px 10px;
+            font-size: 7px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: .6px;
+            border-bottom: 1px solid #d6dee8;
         }
 
-        .identity-content {
-            width: 62%;
-            padding: 9px 11px;
+        .student-main {
+            width: 55%;
+            padding: 11px;
             vertical-align: middle;
         }
 
-        .identity-name {
+        .student-name {
             color: #172033;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
         }
 
-        .identity-details {
+        .student-id {
             color: #64748b;
             font-size: 7px;
             margin-top: 4px;
         }
 
-        .identity-status {
-            width: 20%;
-            border-left: 1px solid #d8e1eb;
-            padding: 9px;
-            text-align: right;
+        .student-status {
+            width: 45%;
+            padding: 11px;
             vertical-align: middle;
+            text-align: right;
         }
 
-        .status-label {
+        .status-title {
             color: #94a3b8;
             font-size: 5.8px;
-            text-transform: uppercase;
             font-weight: bold;
-            letter-spacing: .45px;
-            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 4px;
         }
 
         .status-active {
             display: inline-block;
+            padding: 4px 9px;
             background: #ecfdf3;
             color: #15803d;
             border: 1px solid #bbf7d0;
-            padding: 4px 8px;
             font-size: 6.3px;
             font-weight: bold;
             text-transform: uppercase;
@@ -220,17 +194,17 @@
 
         .status-inactive {
             display: inline-block;
+            padding: 4px 9px;
             background: #fff1f2;
             color: #dc2626;
             border: 1px solid #fecdd3;
-            padding: 4px 8px;
             font-size: 6.3px;
             font-weight: bold;
             text-transform: uppercase;
         }
 
         /* =====================================================
-           SECTION HEADER
+           SECTION
         ===================================================== */
 
         .section {
@@ -241,35 +215,19 @@
 
         .section-header {
             width: 100%;
-            border-bottom: 1px solid #cfd8e3;
-            padding-bottom: 6px;
-        }
-
-        .section-header-left {
-            width: 70%;
-            vertical-align: middle;
-        }
-
-        .section-header-right {
-            width: 30%;
-            text-align: right;
-            vertical-align: middle;
+            margin-bottom: 7px;
         }
 
         .section-marker {
             display: inline-block;
             width: 4px;
             height: 13px;
-            vertical-align: middle;
             margin-right: 6px;
+            vertical-align: middle;
         }
 
         .blue {
             background: #1769d1;
-        }
-
-        .orange {
-            background: #ea7b18;
         }
 
         .cyan {
@@ -280,16 +238,15 @@
             background: #159447;
         }
 
+        .orange {
+            background: #ea7b18;
+        }
+
         .section-title {
             color: #172033;
             font-size: 9.5px;
             font-weight: bold;
             vertical-align: middle;
-        }
-
-        .section-caption {
-            color: #94a3b8;
-            font-size: 6.3px;
         }
 
         /* =====================================================
@@ -298,15 +255,15 @@
 
         .info-table {
             width: 100%;
-            border: 1px solid #d4dde7;
-            border-top: none;
+            border: 1px solid #d6dee8;
         }
 
         .info-table td {
+            width: 33.33%;
+            padding: 9px 10px;
+            vertical-align: top;
             border-right: 1px solid #e1e7ee;
             border-bottom: 1px solid #e1e7ee;
-            padding: 8px 10px;
-            vertical-align: top;
         }
 
         .info-table td:last-child {
@@ -318,8 +275,8 @@
         }
 
         .label {
-            color: #64748b;
-            font-size: 6.2px;
+            color: #94a3b8;
+            font-size: 6px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: .45px;
@@ -328,38 +285,73 @@
 
         .value {
             color: #172033;
-            font-size: 8.4px;
+            font-size: 8.2px;
             font-weight: bold;
             word-wrap: break-word;
         }
 
-        .value-normal {
+        .normal {
             font-weight: normal;
-            line-height: 1.5;
         }
 
         /* =====================================================
-           TRANSPORT HIGHLIGHTS
+           ASSIGNMENT HIGHLIGHT
         ===================================================== */
 
-        .route-value {
+        .assignment {
+            width: 100%;
+            border: 1px solid #cbd8e7;
+            background: #f8fbff;
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+        }
+
+        .assignment-title {
+            color: #1769d1;
+            padding: 8px 10px;
+            font-size: 7px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            border-bottom: 1px solid #d9e3ef;
+        }
+
+        .assignment td {
+            width: 25%;
+            padding: 9px 10px;
+            vertical-align: top;
+            border-right: 1px solid #e1e7ee;
+        }
+
+        .assignment td:last-child {
+            border-right: none;
+        }
+
+        .assignment-label {
+            color: #94a3b8;
+            font-size: 5.8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 3px;
+        }
+
+        .assignment-value {
+            color: #172033;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .route {
             color: #c2610d;
         }
 
-        .vehicle-value {
+        .vehicle {
             color: #1769d1;
-            white-space: nowrap;
         }
 
-        .pickup-value {
+        .pickup {
             color: #087f9c;
-        }
-
-        .fee-value {
-            color: #15803d;
-            font-size: 9px;
-            font-weight: bold;
-            white-space: nowrap;
         }
 
         /* =====================================================
@@ -369,24 +361,13 @@
         .badge {
             display: inline-block;
             padding: 3px 7px;
-            font-size: 6.3px;
+            font-size: 6px;
             font-weight: bold;
             text-transform: uppercase;
         }
 
+        .badge-paid,
         .badge-active {
-            background: #ecfdf3;
-            color: #15803d;
-            border: 1px solid #bbf7d0;
-        }
-
-        .badge-inactive {
-            background: #fff1f2;
-            color: #dc2626;
-            border: 1px solid #fecdd3;
-        }
-
-        .badge-paid {
             background: #ecfdf3;
             color: #15803d;
             border: 1px solid #bbf7d0;
@@ -398,87 +379,21 @@
             border: 1px solid #fed7aa;
         }
 
-        .badge-pending {
+        .badge-pending,
+        .badge-inactive {
             background: #fff1f2;
             color: #dc2626;
             border: 1px solid #fecdd3;
         }
 
         /* =====================================================
-           TRANSPORT ASSIGNMENT LINE
+           FEE HIGHLIGHT
         ===================================================== */
 
-        .assignment {
-            width: 100%;
-            border: 1px solid #cfd9e5;
-            margin-bottom: 18px;
-            page-break-inside: avoid;
-        }
-
-        .assignment-title {
-            background: #f3f7fc;
-            color: #1769d1;
-            padding: 7px 9px;
-            font-size: 7px;
+        .fee {
+            color: #15803d;
+            font-size: 9px;
             font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: .55px;
-            border-bottom: 1px solid #d8e1eb;
-        }
-
-        .assignment td {
-            width: 25%;
-            padding: 8px 9px;
-            vertical-align: top;
-            border-right: 1px solid #e1e7ee;
-        }
-
-        .assignment td:last-child {
-            border-right: none;
-        }
-
-        .assignment-label {
-            color: #94a3b8;
-            font-size: 5.9px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            margin-bottom: 3px;
-        }
-
-        .assignment-value {
-            color: #172033;
-            font-size: 7.8px;
-            font-weight: bold;
-        }
-
-        /* =====================================================
-           DOCUMENT NOTE
-        ===================================================== */
-
-        .document-note {
-            width: 100%;
-            border-top: 1px solid #d4dde7;
-            border-bottom: 1px solid #d4dde7;
-            padding: 8px 0;
-            margin-top: 2px;
-            margin-bottom: 18px;
-            page-break-inside: avoid;
-        }
-
-        .document-note-title {
-            color: #1769d1;
-            font-size: 6.5px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-bottom: 3px;
-        }
-
-        .document-note-text {
-            color: #64748b;
-            font-size: 6.8px;
-            line-height: 1.5;
         }
 
         /* =====================================================
@@ -487,8 +402,9 @@
 
         .footer {
             width: 100%;
-            border-top: 1px solid #d4dde7;
+            border-top: 1px solid #d6dee8;
             padding-top: 7px;
+            margin-top: 5px;
         }
 
         .footer-left {
@@ -514,56 +430,99 @@
            PRINT CONTROL
         ===================================================== */
 
-        .section,
-        .student-identity,
+        .student-card,
         .assignment,
-        .document-note {
+        .section {
             page-break-inside: avoid;
         }
 
     </style>
+
 </head>
 
 <body>
 
-<div class="document">
+<div>
 
     {{-- =====================================================
-         OFFICIAL DOCUMENT HEADER
+         SCHOOL HEADER
     ====================================================== --}}
 
     <table class="header">
 
         <tr>
 
-            <td class="header-left">
+            <td class="logo-cell">
 
-                <div class="organization">
-                    School Management System
+                {{-- FIXED: school_settings uses "logo", not "logo_url" --}}
+                @if($school?->logo)
+
+                    <img
+                        src="{{ $school->logo }}"
+                        class="header-logo"
+                        alt="School Logo"
+                    >
+
+                @endif
+
+            </td>
+
+            <td class="school-cell">
+
+                <div class="school-name">
+                    {{ $school?->school_name ?? 'School Management System' }}
                 </div>
 
-                <div class="title">
+                @if(
+                    $school?->address ||
+                    $school?->city ||
+                    $school?->district ||
+                    $school?->state ||
+                    $school?->pincode
+                )
+
+                    <div class="school-address">
+
+                        {{ $school?->address }}
+
+                        @if($school?->address && $school?->city)
+                            ,
+                        @endif
+
+                        {{ $school?->city }}
+
+                        @if($school?->city && $school?->district)
+                            ,
+                        @endif
+
+                        {{ $school?->district }}
+
+                        @if($school?->state)
+                            , {{ $school?->state }}
+                        @endif
+
+                        @if($school?->pincode)
+                            - {{ $school?->pincode }}
+                        @endif
+
+                    </div>
+
+                @endif
+
+            </td>
+
+            <td class="document-cell">
+
+                <div class="document-label">
                     Transport Record
                 </div>
 
-                <div class="subtitle">
-                    Student Transportation Record &amp; Assignment Details
-                </div>
-
-            </td>
-
-            <td class="header-right">
-
-                <div class="record-label">
-                    Record Number
-                </div>
-
-                <div class="record-number">
+                <div class="document-number">
                     #{{ $transportRecord->id }}
                 </div>
 
-                <div class="record-date">
-                    Generated on {{ now()->format('d M Y') }}
+                <div class="document-date">
+                    {{ now()->format('d M Y') }}
                 </div>
 
             </td>
@@ -574,67 +533,45 @@
 
 
     {{-- =====================================================
-         DOCUMENT REFERENCE
+         TITLE
     ====================================================== --}}
 
-    <table class="reference">
+    <div class="title-area">
+
+        <div class="title">
+            Transport Record
+        </div>
+
+        <div class="title-line"></div>
+
+    </div>
+
+
+    {{-- =====================================================
+         STUDENT SUMMARY
+    ====================================================== --}}
+
+    <table class="student-card">
 
         <tr>
 
-            <td class="reference-left">
-
-                <div class="reference-label">
-                    Document Type
-                </div>
-
-                <div class="reference-value">
-                    Student Transport Assignment Record
-                </div>
-
-            </td>
-
-            <td class="reference-right">
-
-                <div class="reference-label">
-                    Record ID
-                </div>
-
-                <div class="reference-value">
-                    TR-{{ str_pad($transportRecord->id, 5, '0', STR_PAD_LEFT) }}
-                </div>
-
+            <td colspan="2" class="student-card-title">
+                Student
             </td>
 
         </tr>
 
-    </table>
-
-
-    {{-- =====================================================
-         STUDENT IDENTITY
-    ====================================================== --}}
-
-    <table class="student-identity">
-
         <tr>
 
-            <td class="identity-label">
+            <td class="student-main">
 
-                <div class="identity-label-text">
-                    Student Details
-                </div>
-
-            </td>
-
-            <td class="identity-content">
-
-                <div class="identity-name">
+                <div class="student-name">
                     {{ $transportRecord->student?->full_name ?? 'Student Not Available' }}
                 </div>
 
-                <div class="identity-details">
+                <div class="student-id">
 
-                    Student ID:
+                    ID:
                     {{ $transportRecord->student?->student_id ?? '—' }}
 
                     &nbsp;&nbsp; | &nbsp;&nbsp;
@@ -647,18 +584,17 @@
                     Class:
                     {{ $transportRecord->student?->class ?? '—' }}
 
-                    &nbsp;&nbsp; | &nbsp;&nbsp;
-
-                    Division:
-                    {{ $transportRecord->student?->section ?? '—' }}
+                    @if($transportRecord->student?->section)
+                        - {{ $transportRecord->student->section }}
+                    @endif
 
                 </div>
 
             </td>
 
-            <td class="identity-status">
+            <td class="student-status">
 
-                <div class="status-label">
+                <div class="status-title">
                     Transport Status
                 </div>
 
@@ -692,7 +628,7 @@
         <tr>
 
             <td colspan="4" class="assignment-title">
-                Current Transport Assignment
+                Transport Assignment
             </td>
 
         </tr>
@@ -705,7 +641,7 @@
                     Route
                 </div>
 
-                <div class="assignment-value">
+                <div class="assignment-value route">
                     {{ $transportRecord->route ?: 'Not Assigned' }}
                 </div>
 
@@ -717,7 +653,7 @@
                     Vehicle
                 </div>
 
-                <div class="assignment-value vehicle-value">
+                <div class="assignment-value vehicle">
                     {{ $transportRecord->vehicle ?: 'Not Assigned' }}
                 </div>
 
@@ -729,7 +665,7 @@
                     Pickup Point
                 </div>
 
-                <div class="assignment-value">
+                <div class="assignment-value pickup">
                     {{ $transportRecord->pickup_point ?: 'Not Assigned' }}
                 </div>
 
@@ -753,7 +689,7 @@
 
 
     {{-- =====================================================
-         STUDENT INFORMATION
+         STUDENT DETAILS
     ====================================================== --}}
 
     <div class="section">
@@ -762,20 +698,12 @@
 
             <tr>
 
-                <td class="section-header-left">
+                <td>
 
                     <span class="section-marker blue"></span>
 
                     <span class="section-title">
-                        Student Information
-                    </span>
-
-                </td>
-
-                <td class="section-header-right">
-
-                    <span class="section-caption">
-                        Student and parent details
+                        Student Details
                     </span>
 
                 </td>
@@ -804,58 +732,6 @@
                 <td>
 
                     <div class="label">
-                        Student ID
-                    </div>
-
-                    <div class="value">
-                        {{ $transportRecord->student?->student_id ?? '—' }}
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
-                        Roll Number
-                    </div>
-
-                    <div class="value">
-                        {{ $transportRecord->student?->roll_number ?? '—' }}
-                    </div>
-
-                </td>
-
-            </tr>
-
-            <tr>
-
-                <td>
-
-                    <div class="label">
-                        Class
-                    </div>
-
-                    <div class="value">
-                        {{ $transportRecord->student?->class ?? '—' }}
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
-                        Division
-                    </div>
-
-                    <div class="value">
-                        {{ $transportRecord->student?->section ?? '—' }}
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
                         Parent / Guardian
                     </div>
 
@@ -864,10 +740,6 @@
                     </div>
 
                 </td>
-
-            </tr>
-
-            <tr>
 
                 <td>
 
@@ -881,193 +753,21 @@
 
                 </td>
 
-                <td colspan="2">
+            </tr>
+
+            <tr>
+
+                <td colspan="3">
 
                     <div class="label">
                         Address
                     </div>
 
-                    <div class="value value-normal">
+                    <div class="value normal">
                         {{ $transportRecord->student?->address ?? '—' }}
                     </div>
 
                 </td>
-
-            </tr>
-
-        </table>
-
-    </div>
-
-
-    {{-- =====================================================
-         TRANSPORT INFORMATION
-    ====================================================== --}}
-
-    <div class="section">
-
-        <table class="section-header">
-
-            <tr>
-
-                <td class="section-header-left">
-
-                    <span class="section-marker orange"></span>
-
-                    <span class="section-title">
-                        Transport Information
-                    </span>
-
-                </td>
-
-                <td class="section-header-right">
-
-                    <span class="section-caption">
-                        Route, vehicle and assignment details
-                    </span>
-
-                </td>
-
-            </tr>
-
-        </table>
-
-
-        <table class="info-table">
-
-            <tr>
-
-                <td>
-
-                    <div class="label">
-                        Route
-                    </div>
-
-                    <div class="value route-value">
-                        {{ $transportRecord->route ?: '—' }}
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
-                        Vehicle Number
-                    </div>
-
-                    <div class="value vehicle-value">
-                        {{ $transportRecord->vehicle ?: '—' }}
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
-                        Pickup Point
-                    </div>
-
-                    <div class="value pickup-value">
-                        {{ $transportRecord->pickup_point ?: '—' }}
-                    </div>
-
-                </td>
-
-            </tr>
-
-            <tr>
-
-                <td>
-
-                    <div class="label">
-                        Drop Point
-                    </div>
-
-                    <div class="value">
-                        {{ $transportRecord->drop_point ?: '—' }}
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
-                        Transport Status
-                    </div>
-
-                    <div class="value">
-
-                        @if($transportRecord->transport_status === 'active')
-
-                            <span class="badge badge-active">
-                                Active
-                            </span>
-
-                        @else
-
-                            <span class="badge badge-inactive">
-                                Inactive
-                            </span>
-
-                        @endif
-
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
-                        Start Date
-                    </div>
-
-                    <div class="value">
-                        {{ $transportRecord->start_date?->format('d M Y') ?? '—' }}
-                    </div>
-
-                </td>
-
-            </tr>
-
-            <tr>
-
-                <td>
-
-                    <div class="label">
-                        End Date
-                    </div>
-
-                    <div class="value">
-                        {{ $transportRecord->end_date?->format('d M Y') ?? '—' }}
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <div class="label">
-                        Transport Type
-                    </div>
-
-                    <div class="value">
-
-                        {{
-                            $transportRecord->transport_type
-                            ? ucwords(
-                                str_replace(
-                                    '_',
-                                    ' ',
-                                    $transportRecord->transport_type
-                                )
-                            )
-                            : '—'
-                        }}
-
-                    </div>
-
-                </td>
-
-                <td></td>
 
             </tr>
 
@@ -1086,20 +786,12 @@
 
             <tr>
 
-                <td class="section-header-left">
+                <td>
 
                     <span class="section-marker cyan"></span>
 
                     <span class="section-title">
                         Travel Details
-                    </span>
-
-                </td>
-
-                <td class="section-header-right">
-
-                    <span class="section-caption">
-                        Daily transportation schedule
                     </span>
 
                 </td>
@@ -1179,13 +871,67 @@
 
             </tr>
 
+            <tr>
+
+                <td>
+
+                    <div class="label">
+                        Start Date
+                    </div>
+
+                    <div class="value">
+                        {{ $transportRecord->start_date?->format('d M Y') ?? '—' }}
+                    </div>
+
+                </td>
+
+                <td>
+
+                    <div class="label">
+                        End Date
+                    </div>
+
+                    <div class="value">
+                        {{ $transportRecord->end_date?->format('d M Y') ?? '—' }}
+                    </div>
+
+                </td>
+
+                <td>
+
+                    <div class="label">
+                        Status
+                    </div>
+
+                    <div class="value">
+
+                        @if($transportRecord->transport_status === 'active')
+
+                            <span class="badge badge-active">
+                                Active
+                            </span>
+
+                        @else
+
+                            <span class="badge badge-inactive">
+                                Inactive
+                            </span>
+
+                        @endif
+
+                    </div>
+
+                </td>
+
+            </tr>
+
         </table>
 
     </div>
 
 
     {{-- =====================================================
-         FEE INFORMATION
+         FEE DETAILS
     ====================================================== --}}
 
     <div class="section">
@@ -1194,20 +940,12 @@
 
             <tr>
 
-                <td class="section-header-left">
+                <td>
 
                     <span class="section-marker green"></span>
 
                     <span class="section-title">
-                        Fee Information
-                    </span>
-
-                </td>
-
-                <td class="section-header-right">
-
-                    <span class="section-caption">
-                        Transport fee and payment details
+                        Fee Details
                     </span>
 
                 </td>
@@ -1227,7 +965,7 @@
                         Transport Fee
                     </div>
 
-                    <div class="value fee-value">
+                    <div class="value fee">
 
                         @if($transportRecord->transport_fee !== null)
 
@@ -1249,7 +987,7 @@
                 <td>
 
                     <div class="label">
-                        Fee Frequency
+                        Frequency
                     </div>
 
                     <div class="value">
@@ -1308,25 +1046,6 @@
 
 
     {{-- =====================================================
-         DOCUMENT NOTE
-    ====================================================== --}}
-
-    <div class="document-note">
-
-        <div class="document-note-title">
-            Record Note
-        </div>
-
-        <div class="document-note-text">
-            This document contains the transportation assignment,
-            travel schedule and fee information maintained for the
-            above student in the School Management System.
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
          FOOTER
     ====================================================== --}}
 
@@ -1337,7 +1056,7 @@
             <td class="footer-left">
 
                 <span class="footer-brand">
-                    School Management System
+                    {{ $school?->school_name ?? 'School Management System' }}
                 </span>
 
                 &nbsp; | &nbsp;
@@ -1363,4 +1082,5 @@
 </div>
 
 </body>
+
 </html>

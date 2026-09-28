@@ -21,9 +21,11 @@ class TransportRouteController extends Controller
             'vehicle',
         ])->latest();
 
-        // Search
+        /*
+         * Search routes, vehicles and drivers.
+         */
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
 
@@ -33,7 +35,9 @@ class TransportRouteController extends Controller
                     ->orWhere('destination', 'like', "%{$search}%")
                     ->orWhere('assigned_vehicle', 'like', "%{$search}%")
 
-                    // Search vehicle information
+                    /*
+                     * Search vehicle information.
+                     */
                     ->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
                         $vehicleQuery
                             ->where('vehicle_number', 'like', "%{$search}%")
@@ -41,7 +45,9 @@ class TransportRouteController extends Controller
                             ->orWhere('vehicle_model', 'like', "%{$search}%");
                     })
 
-                    // Search driver information
+                    /*
+                     * Search driver information.
+                     */
                     ->orWhereHas('driver', function ($driverQuery) use ($search) {
                         $driverQuery
                             ->where('name', 'like', "%{$search}%")
@@ -51,17 +57,23 @@ class TransportRouteController extends Controller
             });
         }
 
-        // Status Filter
+        /*
+         * Status filter.
+         */
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Pagination
+        /*
+         * Pagination.
+         */
         $routes = $query
             ->paginate(10)
             ->withQueryString();
 
-        // Summary Statistics
+        /*
+         * Summary statistics.
+         */
         $totalRoutes = TransportRoute::count();
 
         $activeRoutes = TransportRoute::where(
@@ -92,12 +104,15 @@ class TransportRouteController extends Controller
 
     /**
      * Show create route form.
+     *
+     * IMPORTANT:
+     * Only ACTIVE vehicles are supplied to the form.
      */
     public function create()
     {
         /*
-         * Get only active staff members
-         * whose designation is Driver.
+         * Only active staff members whose designation
+         * is Driver can be assigned.
          */
         $drivers = OtherStaff::where('designation', 'Driver')
             ->where('status', 'Active')
@@ -105,11 +120,29 @@ class TransportRouteController extends Controller
             ->get();
 
         /*
-         * Get only active transport vehicles.
+         * ONLY ACTIVE VEHICLES.
+         *
+         * Inactive and maintenance vehicles will not be
+         * available in the Add Route form.
+         *
+         * We fetch the vehicle fields required by the
+         * route form so the selected vehicle data can
+         * be displayed/fetched immediately.
          */
         $vehicles = TransportVehicle::where('status', 'active')
             ->orderBy('vehicle_number')
-            ->get();
+            ->get([
+                'id',
+                'vehicle_number',
+                'vehicle_type',
+                'vehicle_model',
+                'capacity',
+                'driver_id',
+                'driver_name',
+                'driver_contact',
+                'driver_license_number',
+                'status',
+            ]);
 
         return view(
             'admin.transport.routes.create',
@@ -158,10 +191,19 @@ class TransportRouteController extends Controller
             ],
 
             /*
-             * Vehicle comes from Transport Vehicles.
+             * VEHICLE SECURITY:
+             *
+             * A vehicle must:
+             * 1. Exist
+             * 2. Have status = active
+             *
+             * Therefore inactive/maintenance vehicles
+             * cannot be assigned even if somebody manually
+             * changes the HTML request.
              */
             'vehicle_id' => [
                 'nullable',
+                'integer',
                 Rule::exists('transport_vehicles', 'id')->where(
                     function ($query) {
                         $query->where('status', 'active');
@@ -170,8 +212,10 @@ class TransportRouteController extends Controller
             ],
 
             /*
-             * Keep assigned_vehicle accepted for
-             * backward compatibility with old records.
+             * Kept for backward compatibility.
+             *
+             * The controller will overwrite this value
+             * with the selected active vehicle number.
              */
             'assigned_vehicle' => [
                 'nullable',
@@ -180,13 +224,15 @@ class TransportRouteController extends Controller
             ],
 
             /*
-             * Driver comes directly from Other Staff.
+             * Driver must be an active Driver.
              */
             'driver_id' => [
                 'nullable',
+                'integer',
                 Rule::exists('other_staff', 'id')->where(
                     function ($query) {
-                        $query->where('designation', 'Driver')
+                        $query
+                            ->where('designation', 'Driver')
                             ->where('status', 'Active');
                     }
                 ),
@@ -204,25 +250,48 @@ class TransportRouteController extends Controller
         ]);
 
         /*
-         * Automatically keep assigned_vehicle
-         * synchronized with the selected vehicle.
+         * ---------------------------------------------------------
+         * FETCH SELECTED VEHICLE
+         * ---------------------------------------------------------
          *
-         * Only vehicle_id is the real relationship.
+         * Do not use find() here because we need to make sure
+         * the vehicle is STILL active at the moment of saving.
          */
         if (!empty($validated['vehicle_id'])) {
 
-            $vehicle = TransportVehicle::find(
+            $vehicle = TransportVehicle::where(
+                'id',
                 $validated['vehicle_id']
-            );
+            )
+                ->where('status', 'active')
+                ->first();
 
-            if ($vehicle) {
-                $validated['assigned_vehicle'] =
-                    $vehicle->vehicle_number;
+            /*
+             * This protects against a vehicle becoming inactive
+             * or maintenance between form loading and submission.
+             */
+            if (!$vehicle) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'vehicle_id' =>
+                            'The selected vehicle is no longer active and cannot be assigned to this route.',
+                    ]);
             }
+
+            /*
+             * Always fetch the vehicle number from the
+             * actual active vehicle record.
+             */
+            $validated['assigned_vehicle'] =
+                $vehicle->vehicle_number;
         } else {
             $validated['assigned_vehicle'] = null;
         }
 
+        /*
+         * Create route.
+         */
         TransportRoute::create($validated);
 
         return redirect()
@@ -239,7 +308,7 @@ class TransportRouteController extends Controller
     public function show(TransportRoute $transportRoute)
     {
         /*
-         * Load driver and vehicle information.
+         * Load complete driver and vehicle relationships.
          */
         $transportRoute->load([
             'driver',
@@ -254,11 +323,14 @@ class TransportRouteController extends Controller
 
     /**
      * Show edit route form.
+     *
+     * Only currently ACTIVE vehicles are available
+     * for a new/replacement assignment.
      */
     public function edit(TransportRoute $transportRoute)
     {
         /*
-         * Get only active drivers.
+         * Only active drivers.
          */
         $drivers = OtherStaff::where('designation', 'Driver')
             ->where('status', 'Active')
@@ -266,14 +338,28 @@ class TransportRouteController extends Controller
             ->get();
 
         /*
-         * Get only active vehicles.
+         * ONLY ACTIVE VEHICLES.
+         *
+         * Inactive and maintenance vehicles are not
+         * offered as replacement vehicles.
          */
         $vehicles = TransportVehicle::where('status', 'active')
             ->orderBy('vehicle_number')
-            ->get();
+            ->get([
+                'id',
+                'vehicle_number',
+                'vehicle_type',
+                'vehicle_model',
+                'capacity',
+                'driver_id',
+                'driver_name',
+                'driver_contact',
+                'driver_license_number',
+                'status',
+            ]);
 
         /*
-         * Load existing relationships.
+         * Load existing route relationships.
          */
         $transportRoute->load([
             'driver',
@@ -304,7 +390,7 @@ class TransportRouteController extends Controller
                 'string',
                 'max:100',
                 'unique:transport_routes,route_number,' .
-                $transportRoute->id,
+                    $transportRoute->id,
             ],
 
             'route_name' => [
@@ -331,10 +417,11 @@ class TransportRouteController extends Controller
             ],
 
             /*
-             * Vehicle comes from Transport Vehicles.
+             * ONLY ACTIVE VEHICLES CAN BE ASSIGNED.
              */
             'vehicle_id' => [
                 'nullable',
+                'integer',
                 Rule::exists('transport_vehicles', 'id')->where(
                     function ($query) {
                         $query->where('status', 'active');
@@ -344,6 +431,8 @@ class TransportRouteController extends Controller
 
             /*
              * Backward compatibility.
+             *
+             * Controller synchronizes this automatically.
              */
             'assigned_vehicle' => [
                 'nullable',
@@ -352,13 +441,15 @@ class TransportRouteController extends Controller
             ],
 
             /*
-             * Driver comes from Other Staff.
+             * Only active Drivers can be assigned.
              */
             'driver_id' => [
                 'nullable',
+                'integer',
                 Rule::exists('other_staff', 'id')->where(
                     function ($query) {
-                        $query->where('designation', 'Driver')
+                        $query
+                            ->where('designation', 'Driver')
                             ->where('status', 'Active');
                     }
                 ),
@@ -376,22 +467,44 @@ class TransportRouteController extends Controller
         ]);
 
         /*
-         * Automatically synchronize vehicle number.
+         * ---------------------------------------------------------
+         * FETCH SELECTED VEHICLE AGAIN
+         * ---------------------------------------------------------
+         *
+         * This makes sure an inactive/maintenance vehicle
+         * cannot be assigned through a manipulated request.
          */
         if (!empty($validated['vehicle_id'])) {
 
-            $vehicle = TransportVehicle::find(
+            $vehicle = TransportVehicle::where(
+                'id',
                 $validated['vehicle_id']
-            );
+            )
+                ->where('status', 'active')
+                ->first();
 
-            if ($vehicle) {
-                $validated['assigned_vehicle'] =
-                    $vehicle->vehicle_number;
+            if (!$vehicle) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'vehicle_id' =>
+                            'The selected vehicle is no longer active and cannot be assigned to this route.',
+                    ]);
             }
+
+            /*
+             * Synchronize the old assigned_vehicle field
+             * with the real vehicle relationship.
+             */
+            $validated['assigned_vehicle'] =
+                $vehicle->vehicle_number;
         } else {
             $validated['assigned_vehicle'] = null;
         }
 
+        /*
+         * Update route.
+         */
         $transportRoute->update($validated);
 
         return redirect()

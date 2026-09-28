@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Transport Record | Admin')
+@section('title', '')
 
 @section('content')
 
@@ -579,6 +579,11 @@
         visibility: visible !important;
     }
 
+
+    /* =====================================================
+       SCHOOL PRINT HEADER
+    ===================================================== */
+
     .print-title {
         width: 100% !important;
 
@@ -589,37 +594,105 @@
         padding: 0 0 12px !important;
 
         border-bottom: 2px solid #1769d1 !important;
+
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
 
-    .print-title .print-brand {
-        font-size: 13px !important;
+    .print-school-header {
+        width: 100% !important;
 
-        font-weight: 700 !important;
+        display: flex !important;
 
-        color: #1769d1 !important;
+        align-items: center !important;
 
-        text-transform: uppercase;
+        justify-content: center !important;
 
-        letter-spacing: 1px;
+        gap: 14px !important;
+
+        margin-bottom: 8px !important;
     }
 
-    .print-title h1 {
-        margin: 4px 0 0 !important;
+    .print-school-logo {
+        width: 62px !important;
 
-        font-size: 22px !important;
+        height: 62px !important;
 
-        font-weight: 700 !important;
+        object-fit: contain !important;
+
+        display: block !important;
+
+        flex-shrink: 0 !important;
+    }
+
+    .print-school-details {
+        text-align: left !important;
+
+        max-width: 560px !important;
+    }
+
+    .print-school-name {
+        margin: 0 !important;
+
+        font-size: 19px !important;
+
+        line-height: 1.2 !important;
+
+        font-weight: 800 !important;
 
         color: #172033 !important;
+
+        letter-spacing: .1px !important;
     }
 
-    .print-title p {
+    .print-school-address {
         margin: 4px 0 0 !important;
 
-        font-size: 11px !important;
+        font-size: 9.5px !important;
+
+        line-height: 1.35 !important;
 
         color: #64748b !important;
     }
+
+    .print-school-contact {
+        margin: 3px 0 0 !important;
+
+        font-size: 9px !important;
+
+        line-height: 1.3 !important;
+
+        color: #64748b !important;
+    }
+
+    .print-document-title {
+        margin: 8px 0 0 !important;
+
+        font-size: 18px !important;
+
+        line-height: 1.2 !important;
+
+        font-weight: 800 !important;
+
+        color: #1769d1 !important;
+
+        text-transform: uppercase !important;
+
+        letter-spacing: .8px !important;
+    }
+
+    .print-document-subtitle {
+        margin: 3px 0 0 !important;
+
+        font-size: 9.5px !important;
+
+        color: #64748b !important;
+    }
+
+
+    /* =====================================================
+       MAIN PRINT CONTAINER
+    ===================================================== */
 
     .transport-print-area .transport-container {
         width: 100% !important;
@@ -631,10 +704,16 @@
         margin: 0 !important;
     }
 
+
+    /* =====================================================
+       DETAILS CARD
+    ===================================================== */
+
     .transport-print-area .details-card {
         width: 100% !important;
 
         margin: 0 !important;
+
         padding: 0 !important;
 
         background: #fff !important;
@@ -648,14 +727,25 @@
         overflow: visible !important;
     }
 
+
+    /* =====================================================
+       RECORD HEADER
+    ===================================================== */
+
     .transport-print-area .record-top {
         padding: 18px 20px !important;
 
         border-bottom: 1px solid #dce4ed !important;
 
         break-inside: avoid !important;
+
         page-break-inside: avoid !important;
     }
+
+
+    /* =====================================================
+       DETAILS SECTIONS
+    ===================================================== */
 
     .transport-print-area .details-section {
         padding: 18px 20px !important;
@@ -663,8 +753,14 @@
         border-bottom: 1px solid #e5ebf3 !important;
 
         break-inside: avoid !important;
+
         page-break-inside: avoid !important;
     }
+
+
+    /* =====================================================
+       INFO GRID
+    ===================================================== */
 
     .transport-print-area .info-grid {
         display: grid !important;
@@ -692,6 +788,11 @@
         page-break-inside: avoid !important;
     }
 
+
+    /* =====================================================
+       SECTION HEADINGS
+    ===================================================== */
+
     .transport-print-area .section-heading {
         margin-bottom: 13px !important;
 
@@ -702,11 +803,13 @@
 
     .transport-print-area .section-icon {
         width: 30px !important;
+
         height: 30px !important;
 
         border-radius: 8px !important;
 
         -webkit-print-color-adjust: exact !important;
+
         print-color-adjust: exact !important;
     }
 
@@ -718,6 +821,11 @@
         font-size: 9px !important;
     }
 
+
+    /* =====================================================
+       INFO TEXT
+    ===================================================== */
+
     .transport-print-area .info-label {
         font-size: 8.5px !important;
 
@@ -728,8 +836,14 @@
         font-size: 10.5px !important;
     }
 
+
+    /* =====================================================
+       STUDENT AVATAR
+    ===================================================== */
+
     .transport-print-area .student-avatar {
         width: 46px !important;
+
         height: 46px !important;
 
         min-width: 46px !important;
@@ -737,6 +851,7 @@
         border-radius: 12px !important;
 
         -webkit-print-color-adjust: exact !important;
+
         print-color-adjust: exact !important;
     }
 
@@ -747,6 +862,11 @@
     .transport-print-area .student-heading p {
         font-size: 9.5px !important;
     }
+
+
+    /* =====================================================
+       STATUS BADGES
+    ===================================================== */
 
     .transport-print-area .status-badge {
         -webkit-print-color-adjust: exact !important;
@@ -781,6 +901,11 @@
 
         color: #dc2626 !important;
     }
+
+
+    /* =====================================================
+       PRINT CLEANUP
+    ===================================================== */
 
     .transport-print-area,
     .transport-print-area * {
@@ -968,17 +1093,78 @@
 
         <div class="print-only print-title">
 
-            <div class="print-brand">
-                Transport Management
+            <div class="print-school-header">
+
+                {{-- SCHOOL LOGO --}}
+
+                <img
+                    src="{{ $school?->logo_url ?? asset('images/gurukullogo.png') }}"
+                    alt="{{ $school?->school_name ?? 'School Logo' }}"
+                    class="print-school-logo"
+                >
+
+
+                {{-- SCHOOL DETAILS --}}
+
+                <div class="print-school-details">
+
+                    <div class="print-school-name">
+                        {{ $school?->school_name ?? 'School Name' }}
+                    </div>
+
+
+                    @php
+                        $schoolAddress = collect([
+                            $school?->address,
+                            $school?->city,
+                            $school?->district,
+                            $school?->state,
+                            $school?->pincode,
+                        ])->filter()->implode(', ');
+                    @endphp
+
+
+                    @if($schoolAddress)
+
+                        <div class="print-school-address">
+                            {{ $schoolAddress }}
+                        </div>
+
+                    @endif
+
+
+                    @if($school?->phone || $school?->email)
+
+                        <div class="print-school-contact">
+
+                            @if($school?->phone)
+                                Phone: {{ $school->phone }}
+                            @endif
+
+                            @if($school?->phone && $school?->email)
+                                &nbsp; | &nbsp;
+                            @endif
+
+                            @if($school?->email)
+                                Email: {{ $school->email }}
+                            @endif
+
+                        </div>
+
+                    @endif
+
+                </div>
+
             </div>
 
-            <h1>
-                Transport Record
-            </h1>
 
-            <p>
-                Student Transport Assignment Details
-            </p>
+            {{-- DOCUMENT TITLE --}}
+
+            <div class="print-document-title">
+                Transport Record
+            </div>
+
+        
 
         </div>
 
@@ -1094,12 +1280,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-person"></i>
+
                             Student Name
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->full_name ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1108,12 +1299,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-card-text"></i>
+
                             Student ID
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->student_id ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1122,12 +1318,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-123"></i>
+
                             Roll No.
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->roll_number ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1136,12 +1337,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-mortarboard"></i>
+
                             Class
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->class ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1150,12 +1356,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-grid-3x3-gap"></i>
+
                             Division
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->section ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1164,12 +1375,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-people"></i>
+
                             Parent Name
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->father_name ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1178,12 +1394,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-telephone"></i>
+
                             Parent Phone
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->father_phone ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1192,12 +1413,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-geo-alt"></i>
+
                             Address
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->student?->address ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1216,7 +1442,9 @@
                 <div class="section-heading">
 
                     <div class="section-icon orange">
+
                         <i class="bi bi-bus-front-fill"></i>
+
                     </div>
 
                     <div>
@@ -1240,12 +1468,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-signpost-2"></i>
+
                             Route
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->route ?: '—' }}
+
                         </div>
 
                     </div>
@@ -1254,12 +1487,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-bus-front"></i>
+
                             Vehicle
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->vehicle ?: '—' }}
+
                         </div>
 
                     </div>
@@ -1268,12 +1506,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-geo-alt"></i>
+
                             Pickup Point
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->pickup_point ?: '—' }}
+
                         </div>
 
                     </div>
@@ -1282,12 +1525,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-geo-alt-fill"></i>
+
                             Drop Point
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->drop_point ?: '—' }}
+
                         </div>
 
                     </div>
@@ -1296,8 +1544,11 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-toggle-on"></i>
+
                             Transport Status
+
                         </div>
 
                         <div class="info-value">
@@ -1305,15 +1556,21 @@
                             @if($transportRecord->transport_status === 'active')
 
                                 <span class="status-badge status-active">
+
                                     <i class="bi bi-check-circle-fill"></i>
+
                                     Active
+
                                 </span>
 
                             @else
 
                                 <span class="status-badge status-inactive">
+
                                     <i class="bi bi-x-circle-fill"></i>
+
                                     Inactive
+
                                 </span>
 
                             @endif
@@ -1326,12 +1583,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-calendar-event"></i>
+
                             Start Date
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->start_date?->format('d M Y') ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1340,12 +1602,17 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-calendar-x"></i>
+
                             End Date
+
                         </div>
 
                         <div class="info-value">
+
                             {{ $transportRecord->end_date?->format('d M Y') ?? '—' }}
+
                         </div>
 
                     </div>
@@ -1364,7 +1631,9 @@
                 <div class="section-heading">
 
                     <div class="section-icon cyan">
+
                         <i class="bi bi-clock-history"></i>
+
                     </div>
 
                     <div>
@@ -1388,8 +1657,11 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-truck"></i>
+
                             Transport Type
+
                         </div>
 
                         <div class="info-value">
@@ -1414,8 +1686,11 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-clock"></i>
+
                             Pickup Time
+
                         </div>
 
                         <div class="info-value">
@@ -1436,8 +1711,11 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-clock-fill"></i>
+
                             Drop Time
+
                         </div>
 
                         <div class="info-value">
@@ -1468,7 +1746,9 @@
                 <div class="section-heading">
 
                     <div class="section-icon green">
+
                         <i class="bi bi-cash-stack"></i>
+
                     </div>
 
                     <div>
@@ -1492,8 +1772,11 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-currency-rupee"></i>
+
                             Transport Fee
+
                         </div>
 
                         <div class="info-value">
@@ -1519,8 +1802,11 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-arrow-repeat"></i>
+
                             Fee Frequency
+
                         </div>
 
                         <div class="info-value">
@@ -1539,8 +1825,11 @@
                     <div class="info-item">
 
                         <div class="info-label">
+
                             <i class="bi bi-credit-card"></i>
+
                             Payment Status
+
                         </div>
 
                         <div class="info-value">
@@ -1548,22 +1837,31 @@
                             @if($transportRecord->payment_status === 'paid')
 
                                 <span class="status-badge status-active">
+
                                     <i class="bi bi-check-circle-fill"></i>
+
                                     Paid
+
                                 </span>
 
                             @elseif($transportRecord->payment_status === 'partially_paid')
 
                                 <span class="status-badge status-partial">
+
                                     <i class="bi bi-clock-fill"></i>
+
                                     Partially Paid
+
                                 </span>
 
                             @else
 
                                 <span class="status-badge status-pending">
+
                                     <i class="bi bi-exclamation-circle-fill"></i>
+
                                     Pending
+
                                 </span>
 
                             @endif

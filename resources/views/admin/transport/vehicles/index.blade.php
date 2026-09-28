@@ -458,7 +458,7 @@
 
     .vehicles-table {
         width: 100%;
-        min-width: 1120px;
+        min-width: 1000px;
         border-collapse: separate;
         border-spacing: 0;
     }
@@ -555,16 +555,6 @@
     .vehicle-type-badge i {
         color: #1769d1;
         font-size: 10px;
-    }
-
-    /* =========================================================
-       MODEL
-    ========================================================= */
-
-    .vehicle-model {
-        color: #475569;
-        font-size: 12px;
-        font-weight: 600;
     }
 
     /* =========================================================
@@ -778,9 +768,12 @@
         background: #fff;
     }
 
-    .vehicles-pagination nav {
+    .vehicles-pagination-inner {
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
     }
 
     .pagination-info {
@@ -798,19 +791,25 @@
     .pagination-links {
         display: flex;
         align-items: center;
+        justify-content: flex-end;
+        flex: 1;
     }
 
     .pagination-links .pagination {
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
 
-    .vehicles-pagination .pagination {
+    .vehicles-pagination .page-item {
         margin: 0;
     }
 
     .vehicles-pagination .page-link {
         min-width: 35px;
         height: 35px;
+        padding: 0 10px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -818,8 +817,11 @@
         color: #64748b;
         background: #fff;
         font-size: 11px;
-        margin: 0 2px;
+        font-weight: 600;
+        margin: 0;
         border-radius: 9px !important;
+        box-shadow: none;
+        transition: .18s ease;
     }
 
     .vehicles-pagination .page-link:hover {
@@ -832,6 +834,20 @@
         background: #1769d1;
         border-color: #1769d1;
         color: #fff;
+        box-shadow: 0 4px 10px rgba(23, 105, 209, .16);
+    }
+
+    .vehicles-pagination .page-item.disabled .page-link {
+        background: #f8fafc;
+        color: #cbd5e1;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+
+    .vehicles-pagination .page-item.disabled .page-link:hover {
+        background: #f8fafc;
+        color: #cbd5e1;
+        border-color: #e2e8f0;
     }
 
     /* =========================================================
@@ -839,7 +855,6 @@
     ========================================================= */
 
     @media (max-width: 1200px) {
-
         .vehicles-summary-grid {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -852,7 +867,6 @@
     }
 
     @media (max-width: 1000px) {
-
         .vehicles-filter-bar .row > div {
             margin-bottom: 2px;
         }
@@ -864,7 +878,6 @@
     }
 
     @media (max-width: 850px) {
-
         .transport-vehicles-page {
             padding: 20px 18px 30px;
         }
@@ -880,10 +893,23 @@
         .vehicles-hero h1 {
             font-size: 25px;
         }
+
+        .vehicles-pagination-inner {
+            justify-content: center;
+        }
+
+        .pagination-info {
+            width: 100%;
+            text-align: center;
+        }
+
+        .pagination-links {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
     @media (max-width: 600px) {
-
         .transport-vehicles-page {
             padding: 16px 12px 25px;
         }
@@ -923,8 +949,8 @@
             padding: 15px;
         }
 
-        .vehicles-pagination nav {
-            justify-content: center;
+        .vehicles-pagination-inner {
+            gap: 12px;
         }
 
         .pagination-info {
@@ -936,248 +962,685 @@
             width: 100%;
             justify-content: center;
         }
+
+        .pagination-links .pagination {
+            gap: 2px;
+        }
+
+        .vehicles-pagination .page-link {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            font-size: 10px;
+        }
     }
 </style>
 
-
 <div class="transport-vehicles-page">
+    
+{{-- =====================================================
+     HERO HEADER
+====================================================== --}}
 
-    {{-- =====================================================
-         HERO HEADER
-    ====================================================== --}}
+<div class="vehicles-hero">
 
-    <div class="vehicles-hero">
+    <div class="vehicles-hero-content">
 
-        <div class="vehicles-hero-content">
+        {{-- BREADCRUMB --}}
+        <div class="vehicles-breadcrumb">
 
-            {{-- BREADCRUMB --}}
+            <a href="{{ route('admin.transport.records.index') }}">
+                Transport Management
+            </a>
 
-            <div class="vehicles-breadcrumb">
-
-                <a href="{{ route('admin.transport.records.index') }}">
-                    Transport Management
-                </a>
-
-                <i class="bi bi-chevron-right"></i>
-
-                <span>
-                    Vehicles
-                </span>
-
-            </div>
-
-
-            {{-- TITLE --}}
-
-            <h1>
-                Transport Vehicles
-            </h1>
-
-            <p>
-                Manage school transport vehicles, driver details,
-                seating capacity and vehicle availability.
-            </p>
-
-        </div>
-
-
-        {{-- HERO ICON --}}
-
-        <div class="vehicles-hero-icon">
-
-            <i class="bi bi-bus-front-fill"></i>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         SUCCESS MESSAGE
-    ====================================================== --}}
-
-    @if(session('success'))
-
-        <div class="vehicle-alert">
-
-            <i class="bi bi-check-circle-fill me-2"></i>
+            <i class="bi bi-chevron-right"></i>
 
             <span>
-                {{ session('success') }}
+                Vehicles
             </span>
 
         </div>
 
-    @endif
+        {{-- TITLE --}}
+        <h1>
+            Transport Vehicles
+        </h1>
+
+        <p>
+            Manage school transport vehicles, driver details,
+            seating capacity and vehicle availability.
+        </p>
+
+    </div>
+
+    {{-- HERO ICON --}}
+    <div class="vehicles-hero-icon">
+        <i class="bi bi-bus-front-fill"></i>
+    </div>
+
+</div>
 
 
-    {{-- =====================================================
-         SUMMARY CARDS
-    ====================================================== --}}
+{{-- =====================================================
+     SUCCESS MESSAGE
+====================================================== --}}
 
-    <div class="vehicles-summary-grid">
+@if(session('success'))
+
+    <div class="vehicle-alert">
+
+        <i class="bi bi-check-circle-fill me-2"></i>
+
+        <span>
+            {{ session('success') }}
+        </span>
+
+    </div>
+
+@endif
 
 
-        {{-- TOTAL VEHICLES --}}
+{{-- =====================================================
+     SUMMARY CARDS
+====================================================== --}}
 
-        <div class="vehicles-summary-card blue">
+<div class="vehicles-summary-grid">
 
-            <div class="summary-top">
+    {{-- TOTAL VEHICLES --}}
+    <div class="vehicles-summary-card blue">
 
-                <div class="summary-label">
-                    Total Vehicles
-                </div>
+        <div class="summary-top">
 
-                <div class="summary-icon">
-                    <i class="bi bi-bus-front-fill"></i>
-                </div>
-
+            <div class="summary-label">
+                Total Vehicles
             </div>
 
-            <div class="summary-number">
-                {{ $totalVehicles }}
+            <div class="summary-icon">
+                <i class="bi bi-bus-front-fill"></i>
             </div>
 
-            <div class="summary-footer">
-                All registered vehicles
+        </div>
+
+        <div class="summary-number">
+            {{ $totalVehicles }}
+        </div>
+
+        <div class="summary-footer">
+            All registered vehicles
+        </div>
+
+    </div>
+
+
+    {{-- ACTIVE VEHICLES --}}
+    <div class="vehicles-summary-card green">
+
+        <div class="summary-top">
+
+            <div class="summary-label">
+                Active Vehicles
+            </div>
+
+            <div class="summary-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+
+        </div>
+
+        <div class="summary-number">
+            {{ $activeVehicles }}
+        </div>
+
+        <div class="summary-footer">
+            Currently active vehicles
+        </div>
+
+    </div>
+
+
+    {{-- MAINTENANCE --}}
+    <div class="vehicles-summary-card orange">
+
+        <div class="summary-top">
+
+            <div class="summary-label">
+                Maintenance
+            </div>
+
+            <div class="summary-icon">
+                <i class="bi bi-tools"></i>
+            </div>
+
+        </div>
+
+        <div class="summary-number">
+            {{ $maintenanceVehicles }}
+        </div>
+
+        <div class="summary-footer">
+            Vehicles under maintenance
+        </div>
+
+    </div>
+
+
+    {{-- INACTIVE --}}
+    <div class="vehicles-summary-card cyan">
+
+        <div class="summary-top">
+
+            <div class="summary-label">
+                Inactive Vehicles
+            </div>
+
+            <div class="summary-icon">
+                <i class="bi bi-x-circle-fill"></i>
+            </div>
+
+        </div>
+
+        <div class="summary-number">
+            {{ $inactiveVehicles }}
+        </div>
+
+        <div class="summary-footer">
+            Currently unavailable
+        </div>
+
+    </div>
+
+</div>
+
+
+{{-- =====================================================
+     MAIN VEHICLES SECTION
+====================================================== --}}
+
+<div class="vehicles-section">
+
+    {{-- SECTION HEADER --}}
+    <div class="vehicles-section-header">
+
+        <div class="vehicles-heading">
+
+            <div class="vehicles-heading-icon">
+                <i class="bi bi-bus-front-fill"></i>
+            </div>
+
+            <div>
+
+                <h5>
+                    Vehicle List
+                </h5>
+
+                <p>
+                    View and manage all registered school vehicles.
+                </p>
+
             </div>
 
         </div>
 
 
-        {{-- ACTIVE VEHICLES --}}
+        <div class="d-flex align-items-center gap-2">
 
-        <div class="vehicles-summary-card green">
+            {{-- VEHICLE COUNT --}}
+            <div class="vehicle-count">
 
-            <div class="summary-top">
+                <i class="bi bi-bus-front-fill"></i>
 
-                <div class="summary-label">
-                    Active Vehicles
-                </div>
+                {{ number_format($vehicles->total()) }}
 
-                <div class="summary-icon">
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
+                Vehicles
 
             </div>
 
-            <div class="summary-number">
-                {{ $activeVehicles }}
-            </div>
 
-            <div class="summary-footer">
-                Currently active vehicles
-            </div>
+            {{-- ADD VEHICLE --}}
+            <a
+                href="{{ route('admin.transport.vehicles.create') }}"
+                class="add-vehicle-btn"
+            >
 
-        </div>
+                <i class="bi bi-plus-lg"></i>
 
+                Add Vehicle
 
-        {{-- MAINTENANCE --}}
-
-        <div class="vehicles-summary-card orange">
-
-            <div class="summary-top">
-
-                <div class="summary-label">
-                    Maintenance
-                </div>
-
-                <div class="summary-icon">
-                    <i class="bi bi-tools"></i>
-                </div>
-
-            </div>
-
-            <div class="summary-number">
-                {{ $maintenanceVehicles }}
-            </div>
-
-            <div class="summary-footer">
-                Vehicles under maintenance
-            </div>
-
-        </div>
-
-
-        {{-- INACTIVE --}}
-
-        <div class="vehicles-summary-card cyan">
-
-            <div class="summary-top">
-
-                <div class="summary-label">
-                    Inactive Vehicles
-                </div>
-
-                <div class="summary-icon">
-                    <i class="bi bi-x-circle-fill"></i>
-                </div>
-
-            </div>
-
-            <div class="summary-number">
-                {{ $inactiveVehicles }}
-            </div>
-
-            <div class="summary-footer">
-                Currently unavailable
-            </div>
+            </a>
 
         </div>
 
     </div>
 
 
-    {{-- =====================================================
-         MAIN VEHICLES SECTION
-    ====================================================== --}}
+    {{-- =================================================
+         FILTER BAR
+    ================================================== --}}
 
-    <div class="vehicles-section">
+    <div class="vehicles-filter-bar">
 
+        <form
+            method="GET"
+            action="{{ route('admin.transport.vehicles.index') }}"
+        >
 
-        {{-- SECTION HEADER --}}
+            <div class="row g-2 align-items-center">
 
-        <div class="vehicles-section-header">
+                {{-- SEARCH --}}
+                <div class="col-xl-5 col-lg-4">
 
-            <div class="vehicles-heading">
+                    <div class="vehicle-search">
 
-                <div class="vehicles-heading-icon">
+                        <i class="bi bi-search"></i>
 
-                    <i class="bi bi-bus-front-fill"></i>
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            class="form-control vehicle-filter-control"
+                            placeholder="Search vehicle number, type or driver..."
+                        >
+
+                    </div>
 
                 </div>
 
-                <div>
 
-                    <h5>
-                        Vehicle List
-                    </h5>
+                {{-- VEHICLE TYPE --}}
+                <div class="col-xl-3 col-lg-3">
 
-                    <p>
-                        View and manage all registered school vehicles.
-                    </p>
+                    <select
+                        name="vehicle_type"
+                        class="form-select vehicle-filter-control"
+                    >
+
+                        <option value="">
+                            All Vehicle Types
+                        </option>
+
+                        <option
+                            value="Bus"
+                            {{ request('vehicle_type') == 'Bus' ? 'selected' : '' }}
+                        >
+                            Bus
+                        </option>
+
+                        <option
+                            value="Van"
+                            {{ request('vehicle_type') == 'Van' ? 'selected' : '' }}
+                        >
+                            Van
+                        </option>
+
+                        <option
+                            value="Mini Bus"
+                            {{ request('vehicle_type') == 'Mini Bus' ? 'selected' : '' }}
+                        >
+                            Mini Bus
+                        </option>
+
+                        <option
+                            value="Other"
+                            {{ request('vehicle_type') == 'Other' ? 'selected' : '' }}
+                        >
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- STATUS --}}
+                <div class="col-xl-2 col-lg-2">
+
+                    <select
+                        name="status"
+                        class="form-select vehicle-filter-control"
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option
+                            value="active"
+                            {{ request('status') == 'active' ? 'selected' : '' }}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="maintenance"
+                            {{ request('status') == 'maintenance' ? 'selected' : '' }}
+                        >
+                            Maintenance
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {{ request('status') == 'inactive' ? 'selected' : '' }}
+                        >
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- FILTER --}}
+                <div class="col-xl-1 col-lg-1">
+
+                    <button
+                        type="submit"
+                        class="vehicle-filter-btn"
+                    >
+
+                        <i class="bi bi-funnel-fill"></i>
+
+                        <span class="d-none d-xl-inline">
+                            Filter
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                {{-- RESET --}}
+                <div class="col-xl-1 col-lg-1">
+
+                    <a
+                        href="{{ route('admin.transport.vehicles.index') }}"
+                        class="vehicle-reset-btn"
+                        title="Reset Filters"
+                    >
+
+                        <i class="bi bi-arrow-counterclockwise"></i>
+
+                        <span class="d-none d-xl-inline">
+                            Reset
+                        </span>
+
+                    </a>
 
                 </div>
 
             </div>
 
+        </form>
 
-            <div class="d-flex align-items-center gap-2">
+    </div>
 
-                {{-- VEHICLE COUNT --}}
 
-                <div class="vehicle-count">
+    {{-- =================================================
+         VEHICLE TABLE
+    ================================================== --}}
 
-                    <i class="bi bi-bus-front-fill"></i>
+    <div class="vehicles-table-wrap">
 
-                    {{ number_format($vehicles->total()) }}
+        @if($vehicles->count())
 
-                    Vehicles
+            <table class="vehicles-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Vehicle
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Capacity
+                        </th>
+
+                        <th>
+                            Driver
+                        </th>
+
+                        <th>
+                            Contact
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @foreach($vehicles as $vehicle)
+
+                        <tr>
+
+                            {{-- VEHICLE --}}
+                            <td>
+
+                                <div class="vehicle-info">
+
+                                    <div class="vehicle-avatar">
+                                        <i class="bi bi-bus-front-fill"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ $vehicle->vehicle_number }}
+                                        </strong>
+
+                                        <small>
+                                            Vehicle #{{ $vehicle->id }}
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- TYPE --}}
+                            <td>
+
+                                <span class="vehicle-type-badge">
+
+                                    <i class="bi bi-truck-front-fill"></i>
+
+                                    {{ $vehicle->vehicle_type }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- CAPACITY --}}
+                            <td>
+
+                                <span class="vehicle-capacity">
+
+                                    <i class="bi bi-people-fill"></i>
+
+                                    {{ $vehicle->capacity }}
+
+                                    <small>
+                                        seats
+                                    </small>
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- DRIVER --}}
+                            <td>
+
+                                <div class="vehicle-driver">
+
+                                    @if($vehicle->driver_name)
+
+                                        <strong>
+                                            {{ $vehicle->driver_name }}
+                                        </strong>
+
+                                        @if($vehicle->driver_license_number)
+
+                                            <small>
+
+                                                License:
+
+                                                {{ $vehicle->driver_license_number }}
+
+                                            </small>
+
+                                        @endif
+
+                                    @else
+
+                                        <span class="text-muted">
+                                            Not Assigned
+                                        </span>
+
+                                    @endif
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- CONTACT --}}
+                            <td>
+
+                                @if($vehicle->driver_contact)
+
+                                    <span class="vehicle-contact">
+
+                                        <i class="bi bi-telephone-fill"></i>
+
+                                        {{ $vehicle->driver_contact }}
+
+                                    </span>
+
+                                @else
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- STATUS --}}
+                            <td>
+
+                                <span class="vehicle-status {{ $vehicle->status }}">
+
+                                    {{ ucfirst($vehicle->status) }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- ACTIONS --}}
+                            <td>
+
+                                <div class="vehicle-actions">
+
+                                    {{-- VIEW --}}
+                                    <a
+                                        href="{{ route('admin.transport.vehicles.show', ['transportVehicle' => $vehicle->id]) }}"
+                                        class="vehicle-action view"
+                                        title="View Vehicle"
+                                    >
+
+                                        <i class="bi bi-eye-fill"></i>
+
+                                    </a>
+
+
+                                    {{-- EDIT --}}
+                                    <a
+                                        href="{{ route('admin.transport.vehicles.edit', ['transportVehicle' => $vehicle->id]) }}"
+                                        class="vehicle-action edit"
+                                        title="Edit Vehicle"
+                                    >
+
+                                        <i class="bi bi-pencil-fill"></i>
+
+                                    </a>
+
+
+                                    {{-- DELETE --}}
+                                    <form
+                                        action="{{ route('admin.transport.vehicles.destroy', ['transportVehicle' => $vehicle->id]) }}"
+                                        method="POST"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Are you sure you want to delete this vehicle?');"
+                                    >
+
+                                        @csrf
+
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="vehicle-action delete"
+                                            title="Delete Vehicle"
+                                        >
+
+                                            <i class="bi bi-trash-fill"></i>
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @endforeach
+
+                </tbody>
+
+            </table>
+
+        @else
+
+            {{-- EMPTY STATE --}}
+            <div class="vehicle-empty">
+
+                <div class="vehicle-empty-icon">
+
+                    <i class="bi bi-bus-front"></i>
 
                 </div>
 
+                <h5>
+                    No Vehicles Found
+                </h5>
 
-                {{-- ADD VEHICLE --}}
+                <p>
+                    No transport vehicles match your current
+                    search or filter criteria.
+                </p>
 
                 <a
                     href="{{ route('admin.transport.vehicles.create') }}"
@@ -1186,557 +1649,75 @@
 
                     <i class="bi bi-plus-lg"></i>
 
-                    Add Vehicle
+                    Add First Vehicle
 
                 </a>
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             FILTER BAR
-        ================================================== --}}
-
-        <div class="vehicles-filter-bar">
-
-            <form
-                method="GET"
-                action="{{ route('admin.transport.vehicles.index') }}"
-            >
-
-                <div class="row g-2 align-items-center">
-
-
-                    {{-- SEARCH --}}
-
-                    <div class="col-xl-5 col-lg-4">
-
-                        <div class="vehicle-search">
-
-                            <i class="bi bi-search"></i>
-
-                            <input
-                                type="text"
-                                name="search"
-                                value="{{ request('search') }}"
-                                class="form-control vehicle-filter-control"
-                                placeholder="Search vehicle number, type, model or driver..."
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- VEHICLE TYPE --}}
-
-                    <div class="col-xl-3 col-lg-3">
-
-                        <select
-                            name="vehicle_type"
-                            class="form-select vehicle-filter-control"
-                        >
-
-                            <option value="">
-                                All Vehicle Types
-                            </option>
-
-                            <option
-                                value="Bus"
-                                {{ request('vehicle_type') == 'Bus' ? 'selected' : '' }}
-                            >
-                                Bus
-                            </option>
-
-                            <option
-                                value="Van"
-                                {{ request('vehicle_type') == 'Van' ? 'selected' : '' }}
-                            >
-                                Van
-                            </option>
-
-                            <option
-                                value="Mini Bus"
-                                {{ request('vehicle_type') == 'Mini Bus' ? 'selected' : '' }}
-                            >
-                                Mini Bus
-                            </option>
-
-                            <option
-                                value="Other"
-                                {{ request('vehicle_type') == 'Other' ? 'selected' : '' }}
-                            >
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {{-- STATUS --}}
-
-                    <div class="col-xl-2 col-lg-2">
-
-                        <select
-                            name="status"
-                            class="form-select vehicle-filter-control"
-                        >
-
-                            <option value="">
-                                All Status
-                            </option>
-
-                            <option
-                                value="active"
-                                {{ request('status') == 'active' ? 'selected' : '' }}
-                            >
-                                Active
-                            </option>
-
-                            <option
-                                value="maintenance"
-                                {{ request('status') == 'maintenance' ? 'selected' : '' }}
-                            >
-                                Maintenance
-                            </option>
-
-                            <option
-                                value="inactive"
-                                {{ request('status') == 'inactive' ? 'selected' : '' }}
-                            >
-                                Inactive
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {{-- FILTER --}}
-
-                    <div class="col-xl-1 col-lg-1">
-
-                        <button
-                            type="submit"
-                            class="vehicle-filter-btn"
-                        >
-
-                            <i class="bi bi-funnel-fill"></i>
-
-                            <span class="d-none d-xl-inline">
-                                Filter
-                            </span>
-
-                        </button>
-
-                    </div>
-
-
-                    {{-- RESET --}}
-
-                    <div class="col-xl-1 col-lg-1">
-
-                        <a
-                            href="{{ route('admin.transport.vehicles.index') }}"
-                            class="vehicle-reset-btn"
-                            title="Reset Filters"
-                        >
-
-                            <i class="bi bi-arrow-counterclockwise"></i>
-
-                            <span class="d-none d-xl-inline">
-                                Reset
-                            </span>
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </form>
-
-        </div>
-
-
-        {{-- =================================================
-             VEHICLE TABLE
-        ================================================== --}}
-
-        <div class="vehicles-table-wrap">
-
-            @if($vehicles->count())
-
-                <table class="vehicles-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Vehicle
-                            </th>
-
-                            <th>
-                                Type
-                            </th>
-
-                            <th>
-                                Model
-                            </th>
-
-                            <th>
-                                Capacity
-                            </th>
-
-                            <th>
-                                Driver
-                            </th>
-
-                            <th>
-                                Contact
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Actions
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        @foreach($vehicles as $vehicle)
-
-                            <tr>
-
-
-                                {{-- VEHICLE --}}
-
-                                <td>
-
-                                    <div class="vehicle-info">
-
-                                        <div class="vehicle-avatar">
-
-                                            <i class="bi bi-bus-front-fill"></i>
-
-                                        </div>
-
-                                        <div>
-
-                                            <strong>
-                                                {{ $vehicle->vehicle_number }}
-                                            </strong>
-
-                                            <small>
-                                                Vehicle #{{ $vehicle->id }}
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- TYPE --}}
-
-                                <td>
-
-                                    <span class="vehicle-type-badge">
-
-                                        <i class="bi bi-truck-front-fill"></i>
-
-                                        {{ $vehicle->vehicle_type }}
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- MODEL --}}
-
-                                <td>
-
-                                    @if($vehicle->vehicle_model)
-
-                                        <span class="vehicle-model">
-                                            {{ $vehicle->vehicle_model }}
-                                        </span>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- CAPACITY --}}
-
-                                <td>
-
-                                    <span class="vehicle-capacity">
-
-                                        <i class="bi bi-people-fill"></i>
-
-                                        {{ $vehicle->capacity }}
-
-                                        <small>
-                                            seats
-                                        </small>
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- DRIVER --}}
-
-                                <td>
-
-                                    <div class="vehicle-driver">
-
-                                        @if($vehicle->driver_name)
-
-                                            <strong>
-                                                {{ $vehicle->driver_name }}
-                                            </strong>
-
-                                            @if($vehicle->driver_license_number)
-
-                                                <small>
-                                                    License:
-                                                    {{ $vehicle->driver_license_number }}
-                                                </small>
-
-                                            @endif
-
-                                        @else
-
-                                            <span class="text-muted">
-                                                Not Assigned
-                                            </span>
-
-                                        @endif
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- CONTACT --}}
-
-                                <td>
-
-                                    @if($vehicle->driver_contact)
-
-                                        <span class="vehicle-contact">
-
-                                            <i class="bi bi-telephone-fill"></i>
-
-                                            {{ $vehicle->driver_contact }}
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- STATUS --}}
-
-                                <td>
-
-                                    <span class="vehicle-status {{ $vehicle->status }}">
-
-                                        {{ ucfirst($vehicle->status) }}
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- ACTIONS --}}
-
-                                <td>
-
-                                    <div class="vehicle-actions">
-
-
-                                        {{-- VIEW --}}
-
-                                        <a
-                                            href="{{ route('admin.transport.vehicles.show', ['transportVehicle' => $vehicle->id]) }}"
-                                            class="vehicle-action view"
-                                            title="View Vehicle"
-                                        >
-
-                                            <i class="bi bi-eye-fill"></i>
-
-                                        </a>
-
-
-                                        {{-- EDIT --}}
-
-                                        <a
-                                            href="{{ route('admin.transport.vehicles.edit', ['transportVehicle' => $vehicle->id]) }}"
-                                            class="vehicle-action edit"
-                                            title="Edit Vehicle"
-                                        >
-
-                                            <i class="bi bi-pencil-fill"></i>
-
-                                        </a>
-
-
-                                        {{-- DELETE --}}
-
-                                        <form
-                                            action="{{ route('admin.transport.vehicles.destroy', ['transportVehicle' => $vehicle->id]) }}"
-                                            method="POST"
-                                            class="d-inline"
-                                            onsubmit="return confirm('Are you sure you want to delete this vehicle?');"
-                                        >
-
-                                            @csrf
-
-                                            @method('DELETE')
-
-                                            <button
-                                                type="submit"
-                                                class="vehicle-action delete"
-                                                title="Delete Vehicle"
-                                            >
-
-                                                <i class="bi bi-trash-fill"></i>
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        @endforeach
-
-                    </tbody>
-
-                </table>
-
-            @else
-
-                {{-- EMPTY STATE --}}
-
-                <div class="vehicle-empty">
-
-                    <div class="vehicle-empty-icon">
-
-                        <i class="bi bi-bus-front"></i>
-
-                    </div>
-
-                    <h5>
-                        No Vehicles Found
-                    </h5>
-
-                    <p>
-                        No transport vehicles match your current
-                        search or filter criteria.
-                    </p>
-
-                    <a
-                        href="{{ route('admin.transport.vehicles.create') }}"
-                        class="add-vehicle-btn"
-                    >
-
-                        <i class="bi bi-plus-lg"></i>
-
-                        Add First Vehicle
-
-                    </a>
-
-                </div>
-
-            @endif
-
-        </div>
-
-
-        {{-- =================================================
-             PAGINATION
-        ================================================== --}}
-
-        @if($vehicles->hasPages())
-
-            <div class="vehicles-pagination">
-
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-
-                    {{-- PAGINATION INFO --}}
-
-                    <div class="pagination-info">
-
-                        Showing
-
-                        <strong>
-                            {{ $vehicles->firstItem() ?? 0 }}
-                        </strong>
-
-                        to
-
-                        <strong>
-                            {{ $vehicles->lastItem() ?? 0 }}
-                        </strong>
-
-                        of
-
-                        <strong>
-                            {{ $vehicles->total() }}
-                        </strong>
-
-                        vehicles
-
-                    </div>
-
-
-                    {{-- PAGINATION LINKS --}}
-
-                    <div class="pagination-links">
-
-                        {{ $vehicles->appends(request()->query())->onEachSide(1)->links() }}
-
-                    </div>
-
-                </div>
 
             </div>
 
         @endif
 
     </div>
+
+
+    {{-- =================================================
+         PAGINATION
+    ================================================== --}}
+
+    @if($vehicles->total() > 0)
+
+        <div class="vehicles-pagination">
+
+            <div class="vehicles-pagination-inner">
+
+                {{-- PAGINATION INFO --}}
+                <div class="pagination-info">
+
+                    Showing
+
+                    <strong>
+                        {{ $vehicles->firstItem() ?? 0 }}
+                    </strong>
+
+                    to
+
+                    <strong>
+                        {{ $vehicles->lastItem() ?? 0 }}
+                    </strong>
+
+                    of
+
+                    <strong>
+                        {{ $vehicles->total() }}
+                    </strong>
+
+                    vehicles
+
+                </div>
+
+
+                {{-- PAGINATION LINKS --}}
+                @if($vehicles->hasPages())
+
+                    <div class="pagination-links">
+
+                        {{ $vehicles
+                            ->appends(request()->query())
+                            ->onEachSide(1)
+                            ->links('pagination::bootstrap-5')
+                        }}
+
+                    </div>
+
+                @endif
+
+            </div>
+
+        </div>
+
+    @endif
+
+</div>
 
 </div>
 

@@ -19,8 +19,6 @@
         padding: 0 20px;
     }
 
-    /* HEADER */
-
     .vehicle-page-header {
         display: flex;
         align-items: center;
@@ -102,8 +100,6 @@
         transform: translateY(-1px);
     }
 
-    /* TOP VEHICLE CARD */
-
     .vehicle-summary-card {
         background: linear-gradient(
             135deg,
@@ -174,8 +170,6 @@
         background: #fff;
     }
 
-    /* MAIN CARDS */
-
     .info-card {
         background: #fff;
         border: 1px solid #e5ebf3;
@@ -240,8 +234,6 @@
         padding: 21px;
     }
 
-    /* INFO ROW */
-
     .info-row {
         display: flex;
         align-items: flex-start;
@@ -277,8 +269,6 @@
         color: #94a3b8;
         font-weight: 500;
     }
-
-    /* DRIVER */
 
     .driver-profile {
         display: flex;
@@ -317,8 +307,6 @@
         color: #64748b;
     }
 
-    /* DOCUMENT STATUS */
-
     .document-item {
         display: flex;
         align-items: center;
@@ -355,8 +343,6 @@
         font-weight: 500;
     }
 
-    /* REMARKS */
-
     .remarks-box {
         background: #f8fafc;
         border: 1px solid #e6edf5;
@@ -367,8 +353,6 @@
         line-height: 1.7;
         min-height: 90px;
     }
-
-    /* BOTTOM ACTIONS */
 
     .bottom-actions {
         margin-top: 20px;
@@ -407,8 +391,6 @@
         background: #fff1f0;
         border-color: #fca5a5;
     }
-
-    /* RESPONSIVE */
 
     @media (max-width: 767px) {
 
@@ -459,94 +441,158 @@
     }
 </style>
 
-
 <div class="vehicle-show-page">
 
-    <div class="vehicle-show-container">
+<div class="vehicle-show-container">
 
-        {{-- PAGE HEADER --}}
-        <div class="vehicle-page-header">
+    {{-- PAGE HEADER --}}
+    <div class="vehicle-page-header">
 
-            <div class="vehicle-heading">
+        <div class="vehicle-heading">
 
-                <div class="vehicle-heading-icon">
+            <div class="vehicle-heading-icon">
+                <i class="bi bi-bus-front-fill"></i>
+            </div>
+
+            <div>
+                <h1>Vehicle Details</h1>
+                <p>View complete transport vehicle information.</p>
+            </div>
+
+        </div>
+
+        <div class="header-actions">
+
+            <a
+                href="{{ route('admin.transport.vehicles.index') }}"
+                class="header-btn back-btn"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Back
+            </a>
+
+            <a
+                href="{{ route('admin.transport.vehicles.edit', $transportVehicle) }}"
+                class="header-btn edit-btn"
+            >
+                <i class="bi bi-pencil-square"></i>
+                Edit Vehicle
+            </a>
+
+        </div>
+
+    </div>
+
+    {{-- VEHICLE SUMMARY --}}
+    <div class="vehicle-summary-card">
+
+        <div class="vehicle-summary-content">
+
+            <div class="vehicle-summary-left">
+
+                <div class="vehicle-large-icon">
                     <i class="bi bi-bus-front-fill"></i>
                 </div>
 
                 <div>
-                    <h1>Vehicle Details</h1>
-                    <p>View complete transport vehicle information.</p>
+
+                    <h2>
+                        {{ $transportVehicle->vehicle_number }}
+                    </h2>
+
+                    <p>
+                        {{ $transportVehicle->vehicle_type }}
+                    </p>
+
                 </div>
 
             </div>
 
+            <div>
 
-            <div class="header-actions">
+                <span class="status-badge">
 
-                <a
-                    href="{{ route('admin.transport.vehicles.index') }}"
-                    class="header-btn back-btn"
-                >
-                    <i class="bi bi-arrow-left"></i>
-                    Back
-                </a>
+                    <span class="status-badge-dot"></span>
 
-                <a
-                    href="{{ route('admin.transport.vehicles.edit', $transportVehicle) }}"
-                    class="header-btn edit-btn"
-                >
-                    <i class="bi bi-pencil-square"></i>
-                    Edit Vehicle
-                </a>
+                    {{ ucfirst($transportVehicle->status) }}
+
+                </span>
 
             </div>
 
         </div>
 
+    </div>
 
-        {{-- VEHICLE SUMMARY --}}
-        <div class="vehicle-summary-card">
+    <div class="row g-4">
 
-            <div class="vehicle-summary-content">
+        {{-- BASIC INFORMATION --}}
+        <div class="col-lg-6">
 
-                <div class="vehicle-summary-left">
+            <div class="info-card">
 
-                    <div class="vehicle-large-icon">
-                        <i class="bi bi-bus-front-fill"></i>
+                <div class="info-card-header">
+
+                    <div class="info-card-icon blue-icon">
+                        <i class="bi bi-card-text"></i>
                     </div>
 
                     <div>
-
-                        <h2>
-                            {{ $transportVehicle->vehicle_number }}
-                        </h2>
-
-                        <p>
-                            {{ $transportVehicle->vehicle_type }}
-
-                            @if($transportVehicle->vehicle_model)
-                                · {{ $transportVehicle->vehicle_model }}
-                            @endif
-
-                            @if($transportVehicle->vehicle_color)
-                                · {{ $transportVehicle->vehicle_color }}
-                            @endif
-                        </p>
-
+                        <h3>Vehicle Information</h3>
+                        <p>Basic vehicle details</p>
                     </div>
 
                 </div>
 
+                <div class="info-card-body">
 
-                <div>
+                    <div class="info-row">
 
-                    <span class="status-badge">
+                        <span class="info-label">
+                            Vehicle Number
+                        </span>
 
-                        <span class="status-badge-dot"></span>
+                        <span class="info-value">
+                            {{ $transportVehicle->vehicle_number }}
+                        </span>
 
-                        {{ ucfirst($transportVehicle->status) }}
+                    </div>
 
-                    </span>
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Vehicle Type
+                        </span>
+
+                        <span class="info-value">
+                            {{ $transportVehicle->vehicle_type }}
+                        </span>
+
+                    </div>
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Seating Capacity
+                        </span>
+
+                        <span class="info-value">
+                            {{ $transportVehicle->capacity }} Seats
+                        </span>
+
+                    </div>
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Status
+                        </span>
+
+                        <span class="info-value">
+                            {{ ucfirst($transportVehicle->status) }}
+                        </span>
+
+                    </div>
 
                 </div>
 
@@ -554,221 +600,153 @@
 
         </div>
 
+        {{-- DRIVER INFORMATION --}}
+        <div class="col-lg-6">
 
-        <div class="row g-4">
+            <div class="info-card">
 
-            {{-- BASIC INFORMATION --}}
-            <div class="col-lg-6">
+                <div class="info-card-header">
 
-                <div class="info-card">
-
-                    <div class="info-card-header">
-
-                        <div class="info-card-icon blue-icon">
-                            <i class="bi bi-card-text"></i>
-                        </div>
-
-                        <div>
-                            <h3>Vehicle Information</h3>
-                            <p>Basic vehicle details</p>
-                        </div>
-
+                    <div class="info-card-icon purple-icon">
+                        <i class="bi bi-person-badge"></i>
                     </div>
 
-
-                    <div class="info-card-body">
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Vehicle Number
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->vehicle_number }}
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Vehicle Type
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->vehicle_type }}
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Vehicle Model
-                            </span>
-
-                            <span class="info-value">
-                                @if($transportVehicle->vehicle_model)
-                                    {{ $transportVehicle->vehicle_model }}
-                                @else
-                                    <span class="empty-value">Not provided</span>
-                                @endif
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Vehicle Color
-                            </span>
-
-                            <span class="info-value">
-                                @if($transportVehicle->vehicle_color)
-                                    {{ $transportVehicle->vehicle_color }}
-                                @else
-                                    <span class="empty-value">Not provided</span>
-                                @endif
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Seating Capacity
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->capacity }} Seats
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Status
-                            </span>
-
-                            <span class="info-value">
-                                {{ ucfirst($transportVehicle->status) }}
-                            </span>
-
-                        </div>
-
+                    <div>
+                        <h3>Driver Information</h3>
+                        <p>Assigned transport driver</p>
                     </div>
+
+                </div>
+
+                <div class="info-card-body">
+
+                    @if($transportVehicle->driver)
+
+                        <div class="driver-profile">
+
+                            <div class="driver-avatar">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    {{ $transportVehicle->driver->name }}
+                                </strong>
+
+                                <span>
+                                    Staff ID:
+                                    {{ $transportVehicle->driver->staff_id ?? 'N/A' }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Contact Number
+                            </span>
+
+                            <span class="info-value">
+                                {{ $transportVehicle->driver->phone ?: 'Not provided' }}
+                            </span>
+
+                        </div>
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Licence Number
+                            </span>
+
+                            <span class="info-value">
+                                {{ $transportVehicle->driver->license_number ?: 'Not provided' }}
+                            </span>
+
+                        </div>
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Licence Expiry
+                            </span>
+
+                            <span class="info-value">
+
+                                @if($transportVehicle->driver->license_expiry)
+
+                                    {{ $transportVehicle->driver->license_expiry->format('d M Y') }}
+
+                                @else
+
+                                    <span class="empty-value">
+                                        Not provided
+                                    </span>
+
+                                @endif
+
+                            </span>
+
+                        </div>
+
+                    @else
+
+                        <div class="remarks-box">
+
+                            <i class="bi bi-person-x me-1"></i>
+
+                            No driver is currently assigned to this vehicle.
+
+                        </div>
+
+                    @endif
 
                 </div>
 
             </div>
 
+        </div>
 
-            {{-- DRIVER INFORMATION --}}
-            <div class="col-lg-6">
+        {{-- VEHICLE DOCUMENTS --}}
+        <div class="col-lg-6">
 
-                <div class="info-card">
+            <div class="info-card">
 
-                    <div class="info-card-header">
+                <div class="info-card-header">
 
-                        <div class="info-card-icon purple-icon">
-                            <i class="bi bi-person-badge"></i>
-                        </div>
-
-                        <div>
-                            <h3>Driver Information</h3>
-                            <p>Assigned transport driver</p>
-                        </div>
-
+                    <div class="info-card-icon orange-icon">
+                        <i class="bi bi-file-earmark-check"></i>
                     </div>
 
+                    <div>
+                        <h3>Vehicle Documents</h3>
+                        <p>Expiry information</p>
+                    </div>
 
-                    <div class="info-card-body">
+                </div>
 
-                        @if($transportVehicle->driver)
+                <div class="info-card-body">
 
-                            <div class="driver-profile">
+                    {{-- INSURANCE ONLY --}}
+                    <div class="document-item">
 
-                                <div class="driver-avatar">
-                                    <i class="bi bi-person-fill"></i>
-                                </div>
+                        <div class="document-name">
+                            <i class="bi bi-shield-check"></i>
+                            Insurance
+                        </div>
 
-                                <div>
+                        @if($transportVehicle->insurance_expiry)
 
-                                    <strong>
-                                        {{ $transportVehicle->driver->name }}
-                                    </strong>
-
-                                    <span>
-                                        Staff ID:
-                                        {{ $transportVehicle->driver->staff_id ?? 'N/A' }}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="info-row">
-
-                                <span class="info-label">
-                                    Contact Number
-                                </span>
-
-                                <span class="info-value">
-                                    {{ $transportVehicle->driver->phone ?: 'Not provided' }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="info-row">
-
-                                <span class="info-label">
-                                    Licence Number
-                                </span>
-
-                                <span class="info-value">
-                                    {{ $transportVehicle->driver->license_number ?: 'Not provided' }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="info-row">
-
-                                <span class="info-label">
-                                    Licence Expiry
-                                </span>
-
-                                <span class="info-value">
-
-                                    @if($transportVehicle->driver->license_expiry)
-                                        {{ $transportVehicle->driver->license_expiry->format('d M Y') }}
-                                    @else
-                                        <span class="empty-value">
-                                            Not provided
-                                        </span>
-                                    @endif
-
-                                </span>
-
+                            <div class="document-date">
+                                {{ $transportVehicle->insurance_expiry->format('d M Y') }}
                             </div>
 
                         @else
 
-                            <div class="remarks-box">
-
-                                <i class="bi bi-person-x me-1"></i>
-
-                                No driver is currently assigned to this vehicle.
-
+                            <div class="document-date empty">
+                                Not provided
                             </div>
 
                         @endif
@@ -779,221 +757,73 @@
 
             </div>
 
+        </div>
 
-            {{-- VEHICLE DOCUMENTS --}}
-            <div class="col-lg-6">
+        {{-- STORED DRIVER DETAILS --}}
+        <div class="col-lg-6">
 
-                <div class="info-card">
+            <div class="info-card">
 
-                    <div class="info-card-header">
+                <div class="info-card-header">
 
-                        <div class="info-card-icon orange-icon">
-                            <i class="bi bi-file-earmark-check"></i>
-                        </div>
-
-                        <div>
-                            <h3>Vehicle Documents</h3>
-                            <p>Expiry information</p>
-                        </div>
-
+                    <div class="info-card-icon green-icon">
+                        <i class="bi bi-database-check"></i>
                     </div>
 
-
-                    <div class="info-card-body">
-
-                        <div class="document-item">
-
-                            <div class="document-name">
-                                <i class="bi bi-shield-check"></i>
-                                Insurance
-                            </div>
-
-                            @if($transportVehicle->insurance_expiry)
-
-                                <div class="document-date">
-                                    {{ $transportVehicle->insurance_expiry->format('d M Y') }}
-                                </div>
-
-                            @else
-
-                                <div class="document-date empty">
-                                    Not provided
-                                </div>
-
-                            @endif
-
-                        </div>
-
-
-                        <div class="document-item">
-
-                            <div class="document-name">
-                                <i class="bi bi-patch-check"></i>
-                                Fitness
-                            </div>
-
-                            @if($transportVehicle->fitness_expiry)
-
-                                <div class="document-date">
-                                    {{ $transportVehicle->fitness_expiry->format('d M Y') }}
-                                </div>
-
-                            @else
-
-                                <div class="document-date empty">
-                                    Not provided
-                                </div>
-
-                            @endif
-
-                        </div>
-
-
-                        <div class="document-item">
-
-                            <div class="document-name">
-                                <i class="bi bi-file-earmark-text"></i>
-                                Permit
-                            </div>
-
-                            @if($transportVehicle->permit_expiry)
-
-                                <div class="document-date">
-                                    {{ $transportVehicle->permit_expiry->format('d M Y') }}
-                                </div>
-
-                            @else
-
-                                <div class="document-date empty">
-                                    Not provided
-                                </div>
-
-                            @endif
-
-                        </div>
-
+                    <div>
+                        <h3>Assigned Driver Record</h3>
+                        <p>Driver details stored with vehicle</p>
                     </div>
 
                 </div>
 
-            </div>
+                <div class="info-card-body">
 
+                    <div class="info-row">
 
-            {{-- STORED DRIVER DETAILS --}}
-            <div class="col-lg-6">
+                        <span class="info-label">
+                            Driver Name
+                        </span>
 
-                <div class="info-card">
-
-                    <div class="info-card-header">
-
-                        <div class="info-card-icon green-icon">
-                            <i class="bi bi-database-check"></i>
-                        </div>
-
-                        <div>
-                            <h3>Assigned Driver Record</h3>
-                            <p>Driver details stored with vehicle</p>
-                        </div>
+                        <span class="info-value">
+                            {{ $transportVehicle->driver_name ?: 'Not assigned' }}
+                        </span>
 
                     </div>
 
+                    <div class="info-row">
 
-                    <div class="info-card-body">
+                        <span class="info-label">
+                            Driver Contact
+                        </span>
 
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Driver Name
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->driver_name ?: 'Not assigned' }}
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Driver Contact
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->driver_contact ?: 'Not provided' }}
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Driving Licence
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->driver_license_number ?: 'Not provided' }}
-                            </span>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Vehicle Added
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->created_at->format('d M Y, h:i A') }}
-                            </span>
-
-                        </div>
+                        <span class="info-value">
+                            {{ $transportVehicle->driver_contact ?: 'Not provided' }}
+                        </span>
 
                     </div>
 
-                </div>
+                    <div class="info-row">
 
-            </div>
+                        <span class="info-label">
+                            Driving Licence
+                        </span>
 
-
-            {{-- REMARKS --}}
-            <div class="col-12">
-
-                <div class="info-card">
-
-                    <div class="info-card-header">
-
-                        <div class="info-card-icon blue-icon">
-                            <i class="bi bi-chat-left-text"></i>
-                        </div>
-
-                        <div>
-                            <h3>Remarks</h3>
-                            <p>Additional vehicle information</p>
-                        </div>
+                        <span class="info-value">
+                            {{ $transportVehicle->driver_license_number ?: 'Not provided' }}
+                        </span>
 
                     </div>
 
+                    <div class="info-row">
 
-                    <div class="info-card-body">
+                        <span class="info-label">
+                            Vehicle Added
+                        </span>
 
-                        <div class="remarks-box">
-
-                            @if($transportVehicle->remarks)
-
-                                {{ $transportVehicle->remarks }}
-
-                            @else
-
-                                <span class="empty-value">
-                                    No remarks have been added for this vehicle.
-                                </span>
-
-                            @endif
-
-                        </div>
+                        <span class="info-value">
+                            {{ $transportVehicle->created_at->format('d M Y, h:i A') }}
+                        </span>
 
                     </div>
 
@@ -1003,38 +833,83 @@
 
         </div>
 
+        {{-- REMARKS --}}
+        <div class="col-12">
 
-        {{-- BOTTOM ACTIONS --}}
-        <div class="bottom-actions">
+            <div class="info-card">
 
-            <div class="bottom-actions-text">
-                <i class="bi bi-info-circle me-1"></i>
-                Manage this vehicle from the actions on this page.
+                <div class="info-card-header">
+
+                    <div class="info-card-icon blue-icon">
+                        <i class="bi bi-chat-left-text"></i>
+                    </div>
+
+                    <div>
+                        <h3>Remarks</h3>
+                        <p>Additional vehicle information</p>
+                    </div>
+
+                </div>
+
+                <div class="info-card-body">
+
+                    <div class="remarks-box">
+
+                        @if($transportVehicle->remarks)
+
+                            {{ $transportVehicle->remarks }}
+
+                        @else
+
+                            <span class="empty-value">
+                                No remarks have been added for this vehicle.
+                            </span>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
             </div>
-
-
-            <form
-                action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
-                method="POST"
-                onsubmit="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');"
-            >
-
-                @csrf
-                @method('DELETE')
-
-                <button
-                    type="submit"
-                    class="delete-btn"
-                >
-                    <i class="bi bi-trash3"></i>
-                    Delete Vehicle
-                </button>
-
-            </form>
 
         </div>
 
     </div>
+
+    {{-- BOTTOM ACTIONS --}}
+    <div class="bottom-actions">
+
+        <div class="bottom-actions-text">
+
+            <i class="bi bi-info-circle me-1"></i>
+
+            Manage this vehicle from the actions on this page.
+
+        </div>
+
+        <form
+            action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
+            method="POST"
+            onsubmit="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');"
+        >
+
+            @csrf
+            @method('DELETE')
+
+            <button
+                type="submit"
+                class="delete-btn"
+            >
+                <i class="bi bi-trash3"></i>
+                Delete Vehicle
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
 
 </div>
 

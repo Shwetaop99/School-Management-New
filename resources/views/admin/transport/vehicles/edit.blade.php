@@ -373,7 +373,8 @@
     }
 
     .cancel-btn,
-    .save-btn {
+    .save-btn,
+    .delete-btn {
         min-height: 43px;
         padding: 9px 19px;
         border-radius: 10px;
@@ -412,18 +413,10 @@
     }
 
     .delete-btn {
-        min-height: 43px;
-        padding: 9px 17px;
-        border-radius: 10px;
         border: 1px solid #fecaca;
         background: #fff;
         color: #dc2626;
-        font-size: 14px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        transition: .2s ease;
+        cursor: pointer;
     }
 
     .delete-btn:hover {
@@ -477,179 +470,316 @@
     }
 </style>
 
-
 <div class="vehicle-edit-page">
 
-    <div class="vehicle-edit-container">
+<div class="vehicle-edit-container">
 
-        {{-- PAGE HEADER --}}
-        <div class="vehicle-page-header">
+    {{-- PAGE HEADER --}}
+    <div class="vehicle-page-header">
 
-            <div class="vehicle-heading">
+        <div class="vehicle-heading">
 
-                <div class="vehicle-heading-icon">
-                    <i class="bi bi-bus-front-fill"></i>
-                </div>
-
-                <div>
-                    <h1>Edit Transport Vehicle</h1>
-                    <p>Update vehicle details and driver assignment.</p>
-                </div>
-
+            <div class="vehicle-heading-icon">
+                <i class="bi bi-bus-front-fill"></i>
             </div>
 
-            <a
-                href="{{ route('admin.transport.vehicles.index') }}"
-                class="back-btn"
-            >
-                <i class="bi bi-arrow-left"></i>
-                Back to Vehicles
-            </a>
+            <div>
+                <h1>Edit Transport Vehicle</h1>
+                <p>Update vehicle details and driver assignment.</p>
+            </div>
 
         </div>
 
+        <a
+            href="{{ route('admin.transport.vehicles.index') }}"
+            class="back-btn"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Back to Vehicles
+        </a>
 
-        {{-- MAIN CARD --}}
-        <div class="vehicle-form-card">
+    </div>
 
-            <div class="form-card-header">
+    {{-- MAIN CARD --}}
+    <div class="vehicle-form-card">
 
-                <div class="form-card-header-icon">
-                    <i class="bi bi-pencil-square"></i>
-                </div>
+        {{-- CARD HEADER --}}
+        <div class="form-card-header">
 
-                <div>
-                    <h2>Update Vehicle Information</h2>
-                    <p>
-                        Vehicle:
-                        <strong>{{ $transportVehicle->vehicle_number }}</strong>
-                    </p>
-                </div>
-
+            <div class="form-card-header-icon">
+                <i class="bi bi-pencil-square"></i>
             </div>
 
+            <div>
+                <h2>Update Vehicle Information</h2>
 
-            <form
-                action="{{ route('admin.transport.vehicles.update', $transportVehicle) }}"
-                method="POST"
-            >
+                <p>
+                    Vehicle:
+                    <strong>{{ $transportVehicle->vehicle_number }}</strong>
+                </p>
+            </div>
 
-                @csrf
-                @method('PUT')
+        </div>
 
+        {{-- UPDATE FORM --}}
+        <form
+            id="updateVehicleForm"
+            action="{{ route('admin.transport.vehicles.update', $transportVehicle) }}"
+            method="POST"
+        >
 
-                <div class="vehicle-form-body">
+            @csrf
+            @method('PUT')
 
-                    {{-- VALIDATION ERRORS --}}
-                    @if ($errors->any())
+            <div class="vehicle-form-body">
 
-                        <div class="validation-alert">
+                {{-- VALIDATION ERRORS --}}
+                @if ($errors->any())
 
-                            <strong>
-                                <i class="bi bi-exclamation-circle me-1"></i>
-                                Please correct the following errors:
-                            </strong>
+                    <div class="validation-alert">
 
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                        <strong>
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            Please correct the following errors:
+                        </strong>
 
+                        <ul>
+
+                            @foreach ($errors->all() as $error)
+
+                                <li>{{ $error }}</li>
+
+                            @endforeach
+
+                        </ul>
+
+                    </div>
+
+                @endif
+
+                {{-- BASIC INFORMATION --}}
+                <div class="form-section">
+
+                    <div class="section-title">
+
+                        <div class="section-title-icon">
+                            <i class="bi bi-card-text"></i>
                         </div>
 
-                    @endif
+                        <h3>Basic Vehicle Information</h3>
 
+                    </div>
 
-                    {{-- BASIC INFORMATION --}}
-                    <div class="form-section">
+                    <div class="row g-4">
 
-                        <div class="section-title">
+                        {{-- VEHICLE NUMBER --}}
+                        <div class="col-md-6">
 
-                            <div class="section-title-icon">
-                                <i class="bi bi-card-text"></i>
+                            <label
+                                for="vehicle_number"
+                                class="form-label"
+                            >
+                                Vehicle Number
+                                <span class="required">*</span>
+                            </label>
+
+                            <div class="input-icon-wrapper">
+
+                                <i class="bi bi-hash input-icon"></i>
+
+                                <input
+                                    type="text"
+                                    name="vehicle_number"
+                                    id="vehicle_number"
+                                    class="form-control @error('vehicle_number') is-invalid @enderror"
+                                    value="{{ old('vehicle_number', $transportVehicle->vehicle_number) }}"
+                                    placeholder="e.g. MH-09-AB-1234"
+                                    required
+                                >
+
                             </div>
 
-                            <h3>Basic Vehicle Information</h3>
+                            @error('vehicle_number')
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+                            @enderror
 
                         </div>
 
+                        {{-- VEHICLE TYPE --}}
+                        <div class="col-md-6">
+
+                            <label
+                                for="vehicle_type"
+                                class="form-label"
+                            >
+                                Vehicle Type
+                                <span class="required">*</span>
+                            </label>
+
+                            <div class="input-icon-wrapper">
+
+                                <i class="bi bi-truck input-icon"></i>
+
+                                <select
+                                    name="vehicle_type"
+                                    id="vehicle_type"
+                                    class="form-select @error('vehicle_type') is-invalid @enderror"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Vehicle Type
+                                    </option>
+
+                                    @foreach([
+                                        'Bus',
+                                        'Mini Bus',
+                                        'Van',
+                                        'School Van',
+                                        'Other'
+                                    ] as $type)
+
+                                        <option
+                                            value="{{ $type }}"
+                                            {{ old('vehicle_type', $transportVehicle->vehicle_type) === $type ? 'selected' : '' }}
+                                        >
+                                            {{ $type }}
+                                        </option>
+
+                                    @endforeach
+
+                                </select>
+
+                            </div>
+
+                            @error('vehicle_type')
+
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                        {{-- CAPACITY --}}
+                        <div class="col-md-6">
+
+                            <label
+                                for="capacity"
+                                class="form-label"
+                            >
+                                Seating Capacity
+                                <span class="required">*</span>
+                            </label>
+
+                            <div class="input-icon-wrapper">
+
+                                <i class="bi bi-people input-icon"></i>
+
+                                <input
+                                    type="number"
+                                    name="capacity"
+                                    id="capacity"
+                                    class="form-control @error('capacity') is-invalid @enderror"
+                                    value="{{ old('capacity', $transportVehicle->capacity) }}"
+                                    min="1"
+                                    required
+                                >
+
+                            </div>
+
+                            @error('capacity')
+
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {{-- DRIVER ASSIGNMENT --}}
+                <div class="form-section">
+
+                    <div class="section-title">
+
+                        <div class="section-title-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+
+                        <h3>Driver Assignment</h3>
+
+                    </div>
+
+                    <div class="driver-info-box">
+
+                        <div class="driver-info-heading">
+
+                            <div class="driver-info-heading-icon">
+                                <i class="bi bi-person-vcard"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>Assign Driver</strong>
+
+                                <span>
+                                    Select an active driver from Other Staff.
+                                    Details are automatically loaded.
+                                </span>
+
+                            </div>
+
+                        </div>
 
                         <div class="row g-4">
 
-                            <div class="col-md-6">
+                            {{-- DRIVER SELECT --}}
+                            <div class="col-md-12">
 
                                 <label
-                                    for="vehicle_number"
+                                    for="driver_id"
                                     class="form-label"
                                 >
-                                    Vehicle Number
-                                    <span class="required">*</span>
+                                    Select Driver
                                 </label>
 
                                 <div class="input-icon-wrapper">
 
-                                    <i class="bi bi-hash input-icon"></i>
-
-                                    <input
-                                        type="text"
-                                        name="vehicle_number"
-                                        id="vehicle_number"
-                                        class="form-control @error('vehicle_number') is-invalid @enderror"
-                                        value="{{ old('vehicle_number', $transportVehicle->vehicle_number) }}"
-                                        placeholder="e.g. MH-09-AB-1234"
-                                        required
-                                    >
-
-                                </div>
-
-                                @error('vehicle_number')
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-
-                            </div>
-
-
-                            <div class="col-md-6">
-
-                                <label
-                                    for="vehicle_type"
-                                    class="form-label"
-                                >
-                                    Vehicle Type
-                                    <span class="required">*</span>
-                                </label>
-
-                                <div class="input-icon-wrapper">
-
-                                    <i class="bi bi-truck input-icon"></i>
+                                    <i class="bi bi-person-check input-icon"></i>
 
                                     <select
-                                        name="vehicle_type"
-                                        id="vehicle_type"
-                                        class="form-select @error('vehicle_type') is-invalid @enderror"
-                                        required
+                                        name="driver_id"
+                                        id="driver_id"
+                                        class="form-select @error('driver_id') is-invalid @enderror"
                                     >
 
                                         <option value="">
-                                            Select Vehicle Type
+                                            No Driver Assigned
                                         </option>
 
-                                        @foreach([
-                                            'Bus',
-                                            'Mini Bus',
-                                            'Van',
-                                            'School Van',
-                                            'Other'
-                                        ] as $type)
+                                        @foreach($drivers as $driver)
 
                                             <option
-                                                value="{{ $type }}"
-                                                {{ old('vehicle_type', $transportVehicle->vehicle_type) === $type ? 'selected' : '' }}
+                                                value="{{ $driver->id }}"
+                                                data-name="{{ $driver->name }}"
+                                                data-phone="{{ $driver->phone }}"
+                                                data-license="{{ $driver->license_number }}"
+                                                {{ old('driver_id', $transportVehicle->driver_id) == $driver->id ? 'selected' : '' }}
                                             >
-                                                {{ $type }}
+                                                {{ $driver->name }}
+
+                                                @if($driver->staff_id)
+                                                    — {{ $driver->staff_id }}
+                                                @endif
+
                                             </option>
 
                                         @endforeach
@@ -658,534 +788,328 @@
 
                                 </div>
 
-                                @error('vehicle_type')
+                                <div class="form-text">
+                                    Only active staff members with Driver designation are available.
+                                </div>
+
+                                @error('driver_id')
+
                                     <div class="field-error">
                                         {{ $message }}
                                     </div>
+
                                 @enderror
 
                             </div>
 
-
-                            <div class="col-md-6">
-
-                                <label
-                                    for="vehicle_model"
-                                    class="form-label"
-                                >
-                                    Vehicle Model
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="vehicle_model"
-                                    id="vehicle_model"
-                                    class="form-control"
-                                    value="{{ old('vehicle_model', $transportVehicle->vehicle_model) }}"
-                                    placeholder="e.g. Tata Starbus"
-                                >
-
-                            </div>
-
-
-                            <div class="col-md-6">
+                            {{-- DRIVER NAME --}}
+                            <div class="col-md-4">
 
                                 <label
-                                    for="vehicle_color"
+                                    for="driver_name"
                                     class="form-label"
                                 >
-                                    Vehicle Color
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="vehicle_color"
-                                    id="vehicle_color"
-                                    class="form-control"
-                                    value="{{ old('vehicle_color', $transportVehicle->vehicle_color) }}"
-                                    placeholder="e.g. Yellow"
-                                >
-
-                            </div>
-
-
-                            <div class="col-md-6">
-
-                                <label
-                                    for="capacity"
-                                    class="form-label"
-                                >
-                                    Seating Capacity
-                                    <span class="required">*</span>
+                                    Driver Name
                                 </label>
 
                                 <div class="input-icon-wrapper">
 
-                                    <i class="bi bi-people input-icon"></i>
+                                    <i class="bi bi-person input-icon"></i>
 
                                     <input
-                                        type="number"
-                                        name="capacity"
-                                        id="capacity"
-                                        class="form-control @error('capacity') is-invalid @enderror"
-                                        value="{{ old('capacity', $transportVehicle->capacity) }}"
-                                        min="1"
-                                        required
+                                        type="text"
+                                        id="driver_name"
+                                        class="form-control"
+                                        value="{{ old('driver_name', $transportVehicle->driver_name) }}"
+                                        placeholder="Auto-filled"
+                                        readonly
                                     >
-
-                                </div>
-
-                                @error('capacity')
-                                    <div class="field-error">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- DRIVER --}}
-                    <div class="form-section">
-
-                        <div class="section-title">
-
-                            <div class="section-title-icon">
-                                <i class="bi bi-person-badge"></i>
-                            </div>
-
-                            <h3>Driver Assignment</h3>
-
-                        </div>
-
-
-                        <div class="driver-info-box">
-
-                            <div class="driver-info-heading">
-
-                                <div class="driver-info-heading-icon">
-                                    <i class="bi bi-person-vcard"></i>
-                                </div>
-
-                                <div>
-                                    <strong>Assign Driver</strong>
-
-                                    <span>
-                                        Select an active driver from Other Staff.
-                                        Details are automatically loaded.
-                                    </span>
-                                </div>
-
-                            </div>
-
-
-                            <div class="row g-4">
-
-                                {{-- DRIVER SELECT --}}
-                                <div class="col-md-12">
-
-                                    <label
-                                        for="driver_id"
-                                        class="form-label"
-                                    >
-                                        Select Driver
-                                    </label>
-
-                                    <div class="input-icon-wrapper">
-
-                                        <i class="bi bi-person-check input-icon"></i>
-
-                                        <select
-                                            name="driver_id"
-                                            id="driver_id"
-                                            class="form-select @error('driver_id') is-invalid @enderror"
-                                        >
-
-                                            <option value="">
-                                                No Driver Assigned
-                                            </option>
-
-                                            @foreach($drivers as $driver)
-
-                                                <option
-                                                    value="{{ $driver->id }}"
-                                                    data-name="{{ $driver->name }}"
-                                                    data-phone="{{ $driver->phone }}"
-                                                    data-license="{{ $driver->license_number }}"
-                                                    {{ old('driver_id', $transportVehicle->driver_id) == $driver->id ? 'selected' : '' }}
-                                                >
-                                                    {{ $driver->name }}
-                                                    @if($driver->staff_id)
-                                                        — {{ $driver->staff_id }}
-                                                    @endif
-                                                </option>
-
-                                            @endforeach
-
-                                        </select>
-
-                                    </div>
-
-                                    <div class="form-text">
-                                        Only active staff members with Driver designation are available.
-                                    </div>
-
-                                    @error('driver_id')
-                                        <div class="field-error">
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-
-                                </div>
-
-
-                                {{-- DRIVER NAME --}}
-                                <div class="col-md-4">
-
-                                    <label
-                                        for="driver_name"
-                                        class="form-label"
-                                    >
-                                        Driver Name
-                                    </label>
-
-                                    <div class="input-icon-wrapper">
-
-                                        <i class="bi bi-person input-icon"></i>
-
-                                        <input
-                                            type="text"
-                                            id="driver_name"
-                                            class="form-control"
-                                            value="{{ old('driver_name', $transportVehicle->driver_name) }}"
-                                            placeholder="Auto-filled"
-                                            readonly
-                                        >
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- DRIVER CONTACT --}}
-                                <div class="col-md-4">
-
-                                    <label
-                                        for="driver_contact"
-                                        class="form-label"
-                                    >
-                                        Driver Contact
-                                    </label>
-
-                                    <div class="input-icon-wrapper">
-
-                                        <i class="bi bi-telephone input-icon"></i>
-
-                                        <input
-                                            type="text"
-                                            id="driver_contact"
-                                            class="form-control"
-                                            value="{{ old('driver_contact', $transportVehicle->driver_contact) }}"
-                                            placeholder="Auto-filled"
-                                            readonly
-                                        >
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- LICENSE --}}
-                                <div class="col-md-4">
-
-                                    <label
-                                        for="driver_license_number"
-                                        class="form-label"
-                                    >
-                                        Driving Licence Number
-                                    </label>
-
-                                    <div class="input-icon-wrapper">
-
-                                        <i class="bi bi-credit-card-2-front input-icon"></i>
-
-                                        <input
-                                            type="text"
-                                            id="driver_license_number"
-                                            class="form-control"
-                                            value="{{ old('driver_license_number', $transportVehicle->driver_license_number) }}"
-                                            placeholder="Auto-filled"
-                                            readonly
-                                        >
-
-                                    </div>
 
                                 </div>
 
                             </div>
 
-                        </div>
-
-                    </div>
-
-
-                    {{-- DOCUMENTS --}}
-                    <div class="form-section">
-
-                        <div class="section-title">
-
-                            <div class="section-title-icon">
-                                <i class="bi bi-file-earmark-check"></i>
-                            </div>
-
-                            <h3>Vehicle Documents</h3>
-
-                        </div>
-
-
-                        <div class="row g-4">
-
+                            {{-- DRIVER CONTACT --}}
                             <div class="col-md-4">
 
                                 <label
-                                    for="insurance_expiry"
+                                    for="driver_contact"
                                     class="form-label"
                                 >
-                                    Insurance Expiry
+                                    Driver Contact
                                 </label>
 
-                                <input
-                                    type="date"
-                                    name="insurance_expiry"
-                                    id="insurance_expiry"
-                                    class="form-control"
-                                    value="{{ old(
-                                        'insurance_expiry',
-                                        optional($transportVehicle->insurance_expiry)->format('Y-m-d')
-                                    ) }}"
-                                >
+                                <div class="input-icon-wrapper">
+
+                                    <i class="bi bi-telephone input-icon"></i>
+
+                                    <input
+                                        type="text"
+                                        id="driver_contact"
+                                        class="form-control"
+                                        value="{{ old('driver_contact', $transportVehicle->driver_contact) }}"
+                                        placeholder="Auto-filled"
+                                        readonly
+                                    >
+
+                                </div>
 
                             </div>
 
-
+                            {{-- DRIVER LICENSE --}}
                             <div class="col-md-4">
 
                                 <label
-                                    for="fitness_expiry"
+                                    for="driver_license_number"
                                     class="form-label"
                                 >
-                                    Fitness Expiry
+                                    Driving Licence Number
                                 </label>
 
-                                <input
-                                    type="date"
-                                    name="fitness_expiry"
-                                    id="fitness_expiry"
-                                    class="form-control"
-                                    value="{{ old(
-                                        'fitness_expiry',
-                                        optional($transportVehicle->fitness_expiry)->format('Y-m-d')
-                                    ) }}"
-                                >
+                                <div class="input-icon-wrapper">
 
-                            </div>
+                                    <i class="bi bi-credit-card-2-front input-icon"></i>
 
+                                    <input
+                                        type="text"
+                                        id="driver_license_number"
+                                        class="form-control"
+                                        value="{{ old('driver_license_number', $transportVehicle->driver_license_number) }}"
+                                        placeholder="Auto-filled"
+                                        readonly
+                                    >
 
-                            <div class="col-md-4">
-
-                                <label
-                                    for="permit_expiry"
-                                    class="form-label"
-                                >
-                                    Permit Expiry
-                                </label>
-
-                                <input
-                                    type="date"
-                                    name="permit_expiry"
-                                    id="permit_expiry"
-                                    class="form-control"
-                                    value="{{ old(
-                                        'permit_expiry',
-                                        optional($transportVehicle->permit_expiry)->format('Y-m-d')
-                                    ) }}"
-                                >
+                                </div>
 
                             </div>
 
                         </div>
-
-                    </div>
-
-
-                    {{-- STATUS --}}
-                    <div class="form-section">
-
-                        <div class="section-title">
-
-                            <div class="section-title-icon">
-                                <i class="bi bi-toggle-on"></i>
-                            </div>
-
-                            <h3>Vehicle Status</h3>
-
-                        </div>
-
-
-                        <div class="status-options">
-
-                            <div class="status-option">
-
-                                <input
-                                    type="radio"
-                                    name="status"
-                                    id="status_active"
-                                    value="active"
-                                    {{ old('status', $transportVehicle->status) === 'active' ? 'checked' : '' }}
-                                >
-
-                                <label for="status_active">
-                                    <span class="status-dot"></span>
-                                    Active
-                                </label>
-
-                            </div>
-
-
-                            <div class="status-option maintenance">
-
-                                <input
-                                    type="radio"
-                                    name="status"
-                                    id="status_maintenance"
-                                    value="maintenance"
-                                    {{ old('status', $transportVehicle->status) === 'maintenance' ? 'checked' : '' }}
-                                >
-
-                                <label for="status_maintenance">
-                                    <span class="status-dot"></span>
-                                    Maintenance
-                                </label>
-
-                            </div>
-
-
-                            <div class="status-option inactive">
-
-                                <input
-                                    type="radio"
-                                    name="status"
-                                    id="status_inactive"
-                                    value="inactive"
-                                    {{ old('status', $transportVehicle->status) === 'inactive' ? 'checked' : '' }}
-                                >
-
-                                <label for="status_inactive">
-                                    <span class="status-dot"></span>
-                                    Inactive
-                                </label>
-
-                            </div>
-
-                        </div>
-
-                        @error('status')
-                            <div class="field-error">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-
-                    {{-- REMARKS --}}
-                    <div class="form-section">
-
-                        <div class="section-title">
-
-                            <div class="section-title-icon">
-                                <i class="bi bi-chat-left-text"></i>
-                            </div>
-
-                            <h3>Additional Information</h3>
-
-                        </div>
-
-
-                        <label
-                            for="remarks"
-                            class="form-label"
-                        >
-                            Remarks
-                        </label>
-
-                        <textarea
-                            name="remarks"
-                            id="remarks"
-                            class="form-control"
-                            placeholder="Enter any additional information..."
-                        >{{ old('remarks', $transportVehicle->remarks) }}</textarea>
 
                     </div>
 
                 </div>
 
+                {{-- VEHICLE DOCUMENTS --}}
+                <div class="form-section">
 
-                {{-- FOOTER --}}
-                <div class="form-footer">
+                    <div class="section-title">
 
-                    <form
-                        action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
-                        method="POST"
-                        onsubmit="return confirm('Are you sure you want to delete this vehicle?');"
+                        <div class="section-title-icon">
+                            <i class="bi bi-file-earmark-check"></i>
+                        </div>
+
+                        <h3>Vehicle Documents</h3>
+
+                    </div>
+
+                    <div class="row g-4">
+
+                        {{-- INSURANCE --}}
+                        <div class="col-md-6">
+
+                            <label
+                                for="insurance_expiry"
+                                class="form-label"
+                            >
+                                Insurance Expiry
+                            </label>
+
+                            <input
+                                type="date"
+                                name="insurance_expiry"
+                                id="insurance_expiry"
+                                class="form-control @error('insurance_expiry') is-invalid @enderror"
+                                value="{{ old('insurance_expiry', optional($transportVehicle->insurance_expiry)->format('Y-m-d')) }}"
+                            >
+
+                            @error('insurance_expiry')
+
+                                <div class="field-error">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {{-- STATUS --}}
+                <div class="form-section">
+
+                    <div class="section-title">
+
+                        <div class="section-title-icon">
+                            <i class="bi bi-toggle-on"></i>
+                        </div>
+
+                        <h3>Vehicle Status</h3>
+
+                    </div>
+
+                    <div class="status-options">
+
+                        {{-- ACTIVE --}}
+                        <div class="status-option">
+
+                            <input
+                                type="radio"
+                                name="status"
+                                id="status_active"
+                                value="active"
+                                {{ old('status', $transportVehicle->status) === 'active' ? 'checked' : '' }}
+                            >
+
+                            <label for="status_active">
+                                <span class="status-dot"></span>
+                                Active
+                            </label>
+
+                        </div>
+
+                        {{-- MAINTENANCE --}}
+                        <div class="status-option maintenance">
+
+                            <input
+                                type="radio"
+                                name="status"
+                                id="status_maintenance"
+                                value="maintenance"
+                                {{ old('status', $transportVehicle->status) === 'maintenance' ? 'checked' : '' }}
+                            >
+
+                            <label for="status_maintenance">
+                                <span class="status-dot"></span>
+                                Maintenance
+                            </label>
+
+                        </div>
+
+                        {{-- INACTIVE --}}
+                        <div class="status-option inactive">
+
+                            <input
+                                type="radio"
+                                name="status"
+                                id="status_inactive"
+                                value="inactive"
+                                {{ old('status', $transportVehicle->status) === 'inactive' ? 'checked' : '' }}
+                            >
+
+                            <label for="status_inactive">
+                                <span class="status-dot"></span>
+                                Inactive
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    @error('status')
+
+                        <div class="field-error">
+                            {{ $message }}
+                        </div>
+
+                    @enderror
+
+                </div>
+
+                {{-- ADDITIONAL INFORMATION --}}
+                <div class="form-section">
+
+                    <div class="section-title">
+
+                        <div class="section-title-icon">
+                            <i class="bi bi-chat-left-text"></i>
+                        </div>
+
+                        <h3>Additional Information</h3>
+
+                    </div>
+
+                    <label
+                        for="remarks"
+                        class="form-label"
                     >
-                        @csrf
-                        @method('DELETE')
+                        Remarks
+                    </label>
 
-                        <button
-                            type="submit"
-                            class="delete-btn"
-                        >
-                            <i class="bi bi-trash3"></i>
-                            Delete Vehicle
-                        </button>
+                    <textarea
+                        name="remarks"
+                        id="remarks"
+                        class="form-control @error('remarks') is-invalid @enderror"
+                        placeholder="Enter any additional information..."
+                    >{{ old('remarks', $transportVehicle->remarks) }}</textarea>
 
-                    </form>
+                    @error('remarks')
 
+                        <div class="field-error">
+                            {{ $message }}
+                        </div>
 
-                    <div class="footer-right">
-
-                        <a
-                            href="{{ route('admin.transport.vehicles.index') }}"
-                            class="cancel-btn"
-                        >
-                            <i class="bi bi-x-lg"></i>
-                            Cancel
-                        </a>
-
-                        <button
-                            type="submit"
-                            class="save-btn"
-                        >
-                            <i class="bi bi-check2-circle"></i>
-                            Update Vehicle
-                        </button>
-
-                    </div>
+                    @enderror
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+            {{-- FORM FOOTER --}}
+            <div class="form-footer">
+
+                {{-- DELETE BUTTON --}}
+                <button
+                    type="submit"
+                    form="deleteVehicleForm"
+                    class="delete-btn"
+                    onclick="return confirm('Are you sure you want to delete this vehicle?');"
+                >
+                    <i class="bi bi-trash3"></i>
+                    Delete Vehicle
+                </button>
+
+                <div class="footer-right">
+
+                    <a
+                        href="{{ route('admin.transport.vehicles.index') }}"
+                        class="cancel-btn"
+                    >
+                        <i class="bi bi-x-lg"></i>
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="save-btn"
+                    >
+                        <i class="bi bi-check2-circle"></i>
+                        Update Vehicle
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        {{-- SEPARATE DELETE FORM --}}
+        <form
+            id="deleteVehicleForm"
+            action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
+            method="POST"
+            style="display: none;"
+        >
+            @csrf
+            @method('DELETE')
+        </form>
 
     </div>
 
 </div>
 
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -1196,6 +1120,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const driverLicense = document.getElementById('driver_license_number');
 
     function fillDriverDetails() {
+
+        if (!driverSelect) {
+            return;
+        }
 
         const selectedOption =
             driverSelect.options[driverSelect.selectedIndex];
