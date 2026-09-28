@@ -164,6 +164,8 @@ use App\Http\Controllers\Meal\MealStockLogController;
 use App\Http\Controllers\Meal\MealStockTransactionController;
 
 
+use App\Http\Controllers\PublicResultController;
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
@@ -173,7 +175,6 @@ use App\Http\Controllers\Meal\MealStockTransactionController;
 Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
-
 
         /*
         |--------------------------------------------------------------------------
@@ -191,7 +192,7 @@ Route::prefix('admin')
             'login'
         ])->name('login.submit');
 
-    
+
         /*
         |--------------------------------------------------------------------------
         | SPORTS MANAGEMENT
@@ -264,34 +265,230 @@ Route::prefix('admin')
                 ->middleware('permission:dashboard.view');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | RESULTS MANAGEMENT
-            |--------------------------------------------------------------------------
-            |
-            | Result Management is separate from Exam Management.
-            |
-            */
-            Route::prefix('results')
+
+/*
+|--------------------------------------------------------------------------
+| RESULTS
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('results')
     ->name('results.')
     ->group(function () {
 
-        Route::get('/', [ResultController::class, 'index'])
-            ->name('index');
+        /*
+        |--------------------------------------------------------------------------
+        | RESULT DASHBOARD
+        |--------------------------------------------------------------------------
+        */
 
-        Route::get('/generate', [ResultController::class, 'generate'])
-            ->name('generate');
+        Route::get('/', [
+            ResultController::class,
+            'index'
+        ])->name('index');
 
-        Route::get('/load-students', [ResultController::class, 'loadStudents'])
-            ->name('load-students');
 
-        Route::get('/marks', [ResultController::class, 'marks'])
-    ->name('marks');
+        /*
+        |--------------------------------------------------------------------------
+        | MARKS ENTRY
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/marks', [
+            ResultController::class,
+            'marks'
+        ])->name('marks');
+
+        Route::post('/save-marks', [
+            ResultController::class,
+            'saveMarks'
+        ])->name('save-marks');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AJAX ROUTES
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/load-subjects', [
+            ResultController::class,
+            'loadSubjects'
+        ])->name('load-subjects');
+
+        Route::get('/load-students', [
+            ResultController::class,
+            'loadStudents'
+        ])->name('load-students');
+
+        Route::get('/load-classes', [
+            ResultController::class,
+            'loadClasses'
+        ])->name('load-classes');
+
+        Route::get('/exam-classes', [
+            ResultController::class,
+            'getExamClasses'
+        ])->name('exam-classes');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESULT GENERATION
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/generate', [
+            ResultController::class,
+            'generate'
+        ])->name('generate');
+
+        Route::post('/generate-result', [
+            ResultController::class,
+            'generateResult'
+        ])->name('generate-result');
+
+        Route::get('/class-results', [
+            ResultController::class,
+            'classResults'
+        ])->name('class-results');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFY CLASS RESULTS
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/verify-class', [
+            ResultController::class,
+            'verifyClassResults'
+        ])->name('verify-class');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | APPROVE CLASS RESULTS
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/approve-class', [
+            ResultController::class,
+            'approveClassResults'
+        ])->name('approve-class');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PUBLISH ALL RESULTS FOR CLASS / SECTION
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/publish-class', [
+            ResultController::class,
+            'publishClassResults'
+        ])->name('publish-class');
+
+Route::get('/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])
+    ->name('bulk-whatsapp');
+        /*
+        |--------------------------------------------------------------------------
+        | RESULT HISTORY
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/history/{result}', [
+            ResultController::class,
+            'history'
+        ])->name('history');
+
+        Route::get('/history/{result}/version/{version}', [
+            ResultController::class,
+            'historyVersion'
+        ])->name('history-version');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | WHATSAPP RESULT MESSAGE
+        |--------------------------------------------------------------------------
+        |
+        | Opens WhatsApp with a pre-filled result publication message.
+        | No WhatsApp API key is required.
+        |
+        */
+
+        Route::get('/{result}/whatsapp', [
+            ResultController::class,
+            'whatsapp'
+        ])->name('whatsapp');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRINT / PDF
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/{result}/print', [
+            ResultController::class,
+            'print'
+        ])->name('print');
+
+        Route::get('/{result}/pdf', [
+            ResultController::class,
+            'pdf'
+        ])->name('pdf');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFY SINGLE RESULT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/{result}/verify', [
+            ResultController::class,
+            'verify'
+        ])->name('verify');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | APPROVE SINGLE RESULT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/{result}/approve', [
+            ResultController::class,
+            'approve'
+        ])->name('approve');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PUBLISH SINGLE RESULT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/{result}/publish', [
+            ResultController::class,
+            'publish'
+        ])->name('publish');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SINGLE RESULT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/{result}', [
+            ResultController::class,
+            'show'
+        ])->name('show');
 
     });
-            
-
-
             /*
             |--------------------------------------------------------------------------
             | LOCATION API
@@ -1215,7 +1412,7 @@ Route::prefix('admin')
             )->name('student-supply-kits.supply-items');
 
 
-           
+
 /*
 |--------------------------------------------------------------------------
 | SCHOOL SETTINGS
@@ -1836,3 +2033,31 @@ Route::prefix('admin/meal/logs')
             'show'
         ])->name('show');
     });
+Route::get(
+    '/result',
+    [PublicResultController::class, 'index']
+)->name('result.public');
+
+Route::post(
+    '/result/search',
+    [PublicResultController::class, 'search']
+)->name('result.search');
+
+Route::get(
+    '/result/show',
+    [PublicResultController::class, 'show']
+)->name('result.public.show');
+
+Route::get(
+    '/result/{student}/pdf',
+    [PublicResultController::class, 'pdf']
+)->name('result.pdf');
+
+Route::get(
+    '/result/{student}/pdf/download',
+    [PublicResultController::class, 'downloadPdf']
+)->name('result.pdf.download');
+
+
+Route::get('/result/captcha', [PublicResultController::class, 'refreshCaptcha'])
+    ->name('result.captcha');

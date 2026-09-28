@@ -59,4 +59,25 @@ return [
         'api_secret' => env('CLOUDINARY_API_SECRET'),
     ],
 
+    'whatsapp' => [
+
+    'provider' => env(
+        'WHATSAPP_PROVIDER'
+    ),
+
+    'token' => env(
+        'WHATSAPP_TOKEN'
+    ),
+
+    'phone_number_id' => env(
+        'WHATSAPP_PHONE_NUMBER_ID'
+    ),
+
+    'api_version' => env(
+        'WHATSAPP_API_VERSION',
+        'v23.0'
+    ),
+
+],
+
 ];

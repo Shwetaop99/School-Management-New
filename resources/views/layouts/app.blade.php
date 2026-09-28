@@ -1005,7 +1005,7 @@
         <span class="sidebar-label">Exam</span>
     </a>
 @endif
-            
+
 {{-- RESULT --}}
 @if($isSuperAdmin)
 
@@ -1037,32 +1037,23 @@
             Result Dashboard
         </a>
 
-        {{-- Enter Marks --}}
-        <a
-            href="{{ route('admin.results.marks') }}"
-            class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}"
-        >
-            <i class="fas fa-edit me-2"></i>
-            Enter Marks
-        </a>
 
-        {{-- Student Results --}}
-        <a
-            href="{{ route('admin.results.students') }}"
-            class="submenu-item {{ request()->routeIs('admin.results.students') ? 'active' : '' }}"
-        >
-            <i class="fas fa-user-graduate me-2"></i>
-            Student Results
-        </a>
+{{-- Enter Marks --}}
+<a href="{{ route('admin.results.marks') }}"
+   class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}">
+    <i class="fas fa-edit me-2"></i>
+    Enter Marks
+</a>
 
-        {{-- Top 3 Toppers --}}
-        <a
-            href="{{ route('admin.results.toppers') }}"
-            class="submenu-item {{ request()->routeIs('admin.results.toppers') ? 'active' : '' }}"
-        >
-            <i class="fas fa-trophy me-2"></i>
-            Top 3 Toppers
-        </a>
+{{-- Student Results --}}
+<a href="{{ route('admin.results.generate') }}"
+   class="submenu-item {{ request()->routeIs('admin.results.generate') ? 'active' : '' }}">
+    <i class="fas fa-user-graduate me-2"></i>
+    Student Results
+</a>
+
+
+
 
     </div>
 
@@ -1168,7 +1159,7 @@
 
 </div>
 
-            
+
                 <a href="{{ route('admin.salary.index') }}"
                    class="submenu-item">
                     Salary
