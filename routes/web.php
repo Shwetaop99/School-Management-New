@@ -2612,6 +2612,15 @@ Route::get('/reports/meal/pdf', [MealReportController::class, 'pdf'])
 Route::get('/reports/meal/excel', [MealReportController::class, 'excel'])
     ->name('reports.meal.excel');
 
+    Route::get('/reports/transport', [TransportReportController::class, 'index'])
+    ->name('reports.transport');
+
+Route::get('/reports/transport/pdf', [TransportReportController::class, 'pdf'])
+    ->name('reports.transport.pdf');
+
+Route::get('/reports/transport/excel', [TransportReportController::class, 'excel'])
+    ->name('reports.transport.excel');
+
 
 
 
