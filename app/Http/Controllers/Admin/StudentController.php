@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Models\Class\SchoolClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -69,58 +70,39 @@ class StudentController extends Controller
             ->orderByDesc('academic_year')
             ->pluck('academic_year');
 
-        $defaultClasses = [
-            'Nursery',
-            'LKG',
-            'UKG',
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-            '10',
-            '11',
-            '12',
-        ];
+        /*
+        |--------------------------------------------------------------------------
+        | CLASSES FROM SCHOOL CLASSES MODULE
+        |--------------------------------------------------------------------------
+        */
 
-        $dbClasses = Student::query()
-            ->whereNotNull('class')
-            ->where('class', '!=', '')
+        $classes = SchoolClass::query()
+            ->where('status', true)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->select('class_name')
             ->distinct()
-            ->pluck('class')
+            ->orderBy('class_name')
+            ->pluck('class_name')
+            ->values()
             ->toArray();
 
-        $classes = array_values(
-            array_unique(
-                array_merge($defaultClasses, $dbClasses)
-            )
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | SECTIONS FROM SCHOOL CLASSES MODULE
+        |--------------------------------------------------------------------------
+        */
 
-        $defaultSections = [
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-        ];
-
-        $dbSections = Student::query()
+        $sections = SchoolClass::query()
+            ->where('status', true)
             ->whereNotNull('section')
             ->where('section', '!=', '')
+            ->select('section')
             ->distinct()
+            ->orderBy('section')
             ->pluck('section')
+            ->values()
             ->toArray();
-
-        $sections = array_values(
-            array_unique(
-                array_merge($defaultSections, $dbSections)
-            )
-        );
 
         $totalStudents = Student::count();
 
@@ -174,32 +156,39 @@ class StudentController extends Controller
 
     public function create()
     {
-        $classes = [
-            'Nursery',
-            'LKG',
-            'UKG',
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-            '10',
-            '11',
-            '12',
-        ];
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD ACTIVE CLASSES FROM SCHOOL CLASSES MODULE
+        |--------------------------------------------------------------------------
+        */
 
-        $sections = [
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-        ];
+        $classes = SchoolClass::query()
+            ->where('status', true)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->select('class_name')
+            ->distinct()
+            ->orderBy('class_name')
+            ->pluck('class_name')
+            ->values()
+            ->toArray();
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD ACTIVE SECTIONS FROM SCHOOL CLASSES MODULE
+        |--------------------------------------------------------------------------
+        */
+
+        $sections = SchoolClass::query()
+            ->where('status', true)
+            ->whereNotNull('section')
+            ->where('section', '!=', '')
+            ->select('section')
+            ->distinct()
+            ->orderBy('section')
+            ->pluck('section')
+            ->values()
+            ->toArray();
 
         return view(
             'admin.students.create',
@@ -445,32 +434,39 @@ class StudentController extends Controller
 
     public function edit(Student $student)
     {
-        $classes = [
-            'Nursery',
-            'LKG',
-            'UKG',
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-            '10',
-            '11',
-            '12',
-        ];
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD ACTIVE CLASSES FROM SCHOOL CLASSES MODULE
+        |--------------------------------------------------------------------------
+        */
 
-        $sections = [
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-        ];
+        $classes = SchoolClass::query()
+            ->where('status', true)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->select('class_name')
+            ->distinct()
+            ->orderBy('class_name')
+            ->pluck('class_name')
+            ->values()
+            ->toArray();
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD ACTIVE SECTIONS FROM SCHOOL CLASSES MODULE
+        |--------------------------------------------------------------------------
+        */
+
+        $sections = SchoolClass::query()
+            ->where('status', true)
+            ->whereNotNull('section')
+            ->where('section', '!=', '')
+            ->select('section')
+            ->distinct()
+            ->orderBy('section')
+            ->pluck('section')
+            ->values()
+            ->toArray();
 
         return view(
             'admin.students.edit',
@@ -909,15 +905,6 @@ class StudentController extends Controller
                 );
 
         } else {
-
-            /*
-            |--------------------------------------------------------------------------
-            | NO NEW IMAGE
-            |--------------------------------------------------------------------------
-            |
-            | Keep existing Cloudinary URL.
-            |
-            */
 
             $validated['profile_image'] =
                 $student->profile_image;
