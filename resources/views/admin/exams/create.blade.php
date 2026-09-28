@@ -5,51 +5,24 @@
 
 <div class="container-fluid py-4">
 
-    {{-- =========================================================
-        HEADER
-    ========================================================== --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    {{-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-
-            <div class="d-flex align-items-center gap-2 mb-1">
-
-                <a href="{{ route('admin.exams.index') }}"
-                   class="text-decoration-none text-muted">
-
-                    <i class="bi bi-arrow-left"></i>
-                    Examinations
-
-                </a>
-
-                <span class="text-muted">/</span>
-
-                <span class="text-muted">
-                    Create Exam
-                </span>
-
-            </div>
-
-            <h3 class="fw-bold mb-1">
-
-                <i class="bi bi-plus-circle-fill text-primary me-2"></i>
-
-                Create Examination
-
-            </h3>
+            <h4 class="mb-1 fw-bold">
+                <i class="bi bi-plus-circle me-2"></i>
+                Create Exam
+            </h4>
 
             <p class="text-muted mb-0">
-                Create a new examination for the academic year.
+                Create the basic exam information first.
             </p>
-
         </div>
-
 
         <a href="{{ route('admin.exams.index') }}"
            class="btn btn-outline-secondary">
 
             <i class="bi bi-arrow-left me-1"></i>
-
             Back to Exams
 
         </a>
@@ -57,62 +30,38 @@
     </div>
 
 
-    {{-- =========================================================
-        VALIDATION ERRORS
-    ========================================================== --}}
-    @if($errors->any())
+    {{-- Validation Errors --}}
+    @if ($errors->any())
 
-        <div class="alert alert-danger alert-dismissible fade show"
-             role="alert">
+        <div class="alert alert-danger">
 
-            <strong>
+            <div class="fw-semibold mb-2">
+                Please correct the following errors:
+            </div>
 
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <ul class="mb-0">
 
-                Please fix the following errors:
+                @foreach ($errors->all() as $error)
 
-            </strong>
-
-            <ul class="mb-0 mt-2">
-
-                @foreach($errors->all() as $error)
-
-                    <li>
-                        {{ $error }}
-                    </li>
+                    <li>{{ $error }}</li>
 
                 @endforeach
 
             </ul>
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
 
         </div>
 
     @endif
 
 
-    {{-- =========================================================
-        CREATE EXAM CARD
-    ========================================================== --}}
+    {{-- Create Exam Card --}}
     <div class="card border-0 shadow-sm">
 
-        <div class="card-header bg-white border-0 py-3">
+        <div class="card-header bg-white py-3">
 
-            <h5 class="fw-bold mb-1">
-
-                <i class="bi bi-journal-plus text-primary me-2"></i>
-
-                Examination Details
-
+            <h5 class="mb-0 fw-semibold">
+                Exam Information
             </h5>
-
-            <small class="text-muted">
-                Enter the basic information for the examination.
-            </small>
 
         </div>
 
@@ -127,343 +76,242 @@
 
                 <div class="row g-4">
 
-                    {{-- =================================================
-                        ACADEMIC YEAR
-                    ================================================== --}}
+
+                    {{-- Academic Year --}}
                     <div class="col-md-6">
 
-                        <label for="academic_year"
-                               class="form-label fw-semibold">
-
+                        <label class="form-label fw-semibold">
                             Academic Year
                             <span class="text-danger">*</span>
-
                         </label>
 
                         <input type="text"
                                name="academic_year"
-                               id="academic_year"
-                               class="form-control @error('academic_year') is-invalid @enderror"
-                               value="{{ old('academic_year', '2026-27') }}"
-                               placeholder="Example: 2026-27"
-                               maxlength="20"
+                               class="form-control"
+                               value="{{ old('academic_year', '2026-2027') }}"
+                               placeholder="2026-2027"
                                required>
 
-                        @error('academic_year')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                        <div class="form-text">
-                            Enter the academic year in which this examination is conducted.
-                        </div>
+                        <small class="text-muted">
+                            Example: 2026-2027
+                        </small>
 
                     </div>
 
 
-                    {{-- =================================================
-                        EXAM TYPE
-                    ================================================== --}}
+                    {{-- Exam Name --}}
                     <div class="col-md-6">
 
-                        <label for="exam_type"
-                               class="form-label fw-semibold">
-
-                            Examination Type
+                        <label class="form-label fw-semibold">
+                            Exam Name
                             <span class="text-danger">*</span>
-
-                        </label>
-
-                        <select name="exam_type"
-                                id="exam_type"
-                                class="form-select @error('exam_type') is-invalid @enderror"
-                                required>
-
-                            <option value="">
-                                Select Examination Type
-                            </option>
-
-                            @foreach([
-                                'Unit Test',
-                                'Periodic Test',
-                                'Mid Term',
-                                'Terminal Examination',
-                                'Half Yearly',
-                                'Preliminary Examination',
-                                'Annual Examination',
-                                'Final Examination',
-                                'Other'
-                            ] as $type)
-
-                                <option value="{{ $type }}"
-                                    {{ old('exam_type') === $type ? 'selected' : '' }}>
-
-                                    {{ $type }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        @error('exam_type')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- =================================================
-                        EXAM NAME
-                    ================================================== --}}
-                    <div class="col-md-12">
-
-                        <label for="exam_name"
-                               class="form-label fw-semibold">
-
-                            Examination Name
-                            <span class="text-danger">*</span>
-
                         </label>
 
                         <input type="text"
                                name="exam_name"
-                               id="exam_name"
-                               class="form-control @error('exam_name') is-invalid @enderror"
+                               class="form-control"
                                value="{{ old('exam_name') }}"
-                               placeholder="Example: Mid Term Examination"
-                               maxlength="255"
+                               placeholder="Mid Term Examination"
                                required>
-
-                        @error('exam_name')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                        <div class="form-text">
-                            Enter the display name of the examination.
-                        </div>
 
                     </div>
 
 
-                    {{-- =================================================
-                        START DATE
-                    ================================================== --}}
+                    {{-- Exam Type --}}
                     <div class="col-md-6">
 
-                        <label for="start_date"
-                               class="form-label fw-semibold">
+                        <label class="form-label fw-semibold">
+                            Exam Type
+                            <span class="text-danger">*</span>
+                        </label>
 
+                        <select name="exam_type"
+                                class="form-select"
+                                required>
+
+                            <option value="">
+                                Select Exam Type
+                            </option>
+
+                            <option value="Unit Test"
+                                {{ old('exam_type') == 'Unit Test' ? 'selected' : '' }}>
+                                Unit Test
+                            </option>
+
+                            <option value="Terminal"
+                                {{ old('exam_type') == 'Terminal' ? 'selected' : '' }}>
+                                Terminal
+                            </option>
+
+                            <option value="Mid Term"
+                                {{ old('exam_type') == 'Mid Term' ? 'selected' : '' }}>
+                                Mid Term
+                            </option>
+
+                            <option value="Preliminary"
+                                {{ old('exam_type') == 'Preliminary' ? 'selected' : '' }}>
+                                Preliminary
+                            </option>
+
+                            <option value="Annual"
+                                {{ old('exam_type') == 'Annual' ? 'selected' : '' }}>
+                                Annual
+                            </option>
+
+                            <option value="Final"
+                                {{ old('exam_type') == 'Final' ? 'selected' : '' }}>
+                                Final
+                            </option>
+
+                            <option value="Other"
+                                {{ old('exam_type') == 'Other' ? 'selected' : '' }}>
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- Status --}}
+                    <div class="col-md-6">
+
+                        <label class="form-label fw-semibold">
+                            Status
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select name="status"
+                                class="form-select"
+                                required>
+
+                            <option value="draft"
+                                {{ old('status', 'draft') == 'draft' ? 'selected' : '' }}>
+                                Draft
+                            </option>
+
+                            <option value="scheduled"
+                                {{ old('status') == 'scheduled' ? 'selected' : '' }}>
+                                Scheduled
+                            </option>
+
+                            <option value="completed"
+                                {{ old('status') == 'completed' ? 'selected' : '' }}>
+                                Completed
+                            </option>
+
+                            <option value="cancelled"
+                                {{ old('status') == 'cancelled' ? 'selected' : '' }}>
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- Start Date --}}
+                    <div class="col-md-6">
+
+                        <label class="form-label fw-semibold">
                             Start Date
-
+                            <span class="text-danger">*</span>
                         </label>
 
                         <input type="date"
                                name="start_date"
                                id="start_date"
-                               class="form-control @error('start_date') is-invalid @enderror"
-                               value="{{ old('start_date') }}">
+                               class="form-control"
+                               value="{{ old('start_date') }}"
+                               required>
 
-                        @error('start_date')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
+                        <small class="text-muted">
+                            Initial exam start date.
+                        </small>
 
                     </div>
 
 
-                    {{-- =================================================
-                        END DATE
-                    ================================================== --}}
+                    {{-- End Date --}}
                     <div class="col-md-6">
 
-                        <label for="end_date"
-                               class="form-label fw-semibold">
-
+                        <label class="form-label fw-semibold">
                             End Date
-
                         </label>
 
                         <input type="date"
                                name="end_date"
                                id="end_date"
-                               class="form-control @error('end_date') is-invalid @enderror"
+                               class="form-control"
                                value="{{ old('end_date') }}">
 
-                        @error('end_date')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
+                        <small class="text-muted">
+                            The timetable generator can automatically extend
+                            the period when required.
+                        </small>
 
                     </div>
 
 
-                    {{-- =================================================
-                        STATUS
-                    ================================================== --}}
-                    <div class="col-md-6">
+                </div>
 
-                        <label for="status"
-                               class="form-label fw-semibold">
 
-                            Status
-                            <span class="text-danger">*</span>
+                {{-- Information --}}
+                <div class="alert alert-info mt-4 mb-0">
 
-                        </label>
+                    <div class="d-flex">
 
-                        <select name="status"
-                                id="status"
-                                class="form-select @error('status') is-invalid @enderror"
-                                required>
+                        <i class="bi bi-info-circle fs-5 me-2"></i>
 
-                            <option value="active"
-                                {{ old('status', 'active') === 'active' ? 'selected' : '' }}>
+                        <div>
 
-                                Active
+                            <strong>Next steps after creating the exam:</strong>
 
-                            </option>
+                            <ol class="mb-0 mt-2">
 
-                            <option value="inactive"
-                                {{ old('status') === 'inactive' ? 'selected' : '' }}>
+                                <li>Select classes from the existing Classes module.</li>
 
-                                Inactive
+                                <li>Configure subjects, maximum marks,
+                                    passing marks and duration.</li>
 
-                            </option>
+                                <li>Create exam sessions.</li>
 
-                            <option value="completed"
-                                {{ old('status') === 'completed' ? 'selected' : '' }}>
+                                <li>Add holidays if required.</li>
 
-                                Completed
+                                <li>Generate the timetable automatically.</li>
 
-                            </option>
+                            </ol>
 
-                        </select>
-
-                        @error('status')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                        <div class="form-text">
-                            Active examinations can be used for exam setup and marks entry.
                         </div>
-
-                    </div>
-
-
-                    {{-- =================================================
-                        DESCRIPTION
-                    ================================================== --}}
-                    <div class="col-md-6">
-
-                        <label for="description"
-                               class="form-label fw-semibold">
-
-                            Description
-
-                        </label>
-
-                        <textarea name="description"
-                                  id="description"
-                                  rows="4"
-                                  class="form-control @error('description') is-invalid @enderror"
-                                  placeholder="Enter examination description or instructions...">{{ old('description') }}</textarea>
-
-                        @error('description')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
 
                     </div>
 
                 </div>
 
 
-                {{-- =================================================
-                    FORM BUTTONS
-                ================================================== --}}
-                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                {{-- Buttons --}}
+                <div class="d-flex justify-content-end gap-2 mt-4">
 
                     <a href="{{ route('admin.exams.index') }}"
-                       class="btn btn-outline-secondary">
-
-                        <i class="bi bi-x-lg me-1"></i>
+                       class="btn btn-light border">
 
                         Cancel
 
                     </a>
 
-
                     <button type="submit"
                             class="btn btn-primary">
 
-                        <i class="bi bi-check-lg me-1"></i>
+                        <i class="bi bi-check-circle me-1"></i>
 
-                        Create Examination
+                        Create Exam
 
                     </button>
 
                 </div>
 
+
             </form>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        NEXT STEP INFORMATION
-    ========================================================== --}}
-    <div class="card border-0 shadow-sm mt-4">
-
-        <div class="card-body">
-
-            <div class="d-flex align-items-start">
-
-                <i class="bi bi-info-circle-fill text-primary fs-4 me-3"></i>
-
-                <div>
-
-                    <h6 class="fw-bold mb-1">
-                        What happens next?
-                    </h6>
-
-                    <p class="text-muted mb-0">
-
-                        After creating the examination, you can assign
-                        classes and sections to it. Later, subjects,
-                        schedules, students and teacher-wise marks can
-                        be configured from the examination.
-
-                    </p>
-
-                </div>
-
-            </div>
 
         </div>
 
@@ -472,3 +320,4 @@
 </div>
 
 @endsection
+

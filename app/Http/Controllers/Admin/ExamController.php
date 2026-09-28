@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ExamController extends Controller
 {
@@ -14,9 +13,7 @@ class ExamController extends Controller
      */
     public function index()
     {
-        $exams = Exam::with('creator')
-            ->latest()
-            ->paginate(10);
+        $exams = Exam::latest()->get();
 
         return view('admin.exams.index', compact('exams'));
     }
@@ -30,7 +27,7 @@ class ExamController extends Controller
     }
 
     /**
-     * Store new exam.
+     * Store a new exam.
      */
     public function store(Request $request)
     {
@@ -44,7 +41,7 @@ class ExamController extends Controller
             'exam_name' => [
                 'required',
                 'string',
-                'max:255',
+                'max:150',
             ],
 
             'exam_type' => [
@@ -54,7 +51,7 @@ class ExamController extends Controller
             ],
 
             'start_date' => [
-                'nullable',
+                'required',
                 'date',
             ],
 
@@ -64,47 +61,56 @@ class ExamController extends Controller
                 'after_or_equal:start_date',
             ],
 
-            'description' => [
-                'nullable',
-                'string',
-            ],
-
             'status' => [
                 'required',
-                'in:active,inactive,completed',
+                'in:draft,scheduled,completed,cancelled',
             ],
         ]);
 
-        $validated['created_by'] = Auth::id();
-
-        Exam::create($validated);
+        $exam = Exam::create($validated);
 
         return redirect()
-            ->route('admin.exams.index')
+            ->route('admin.exams.show', $exam)
             ->with('success', 'Exam created successfully.');
     }
 
     /**
-     * Display a single exam.
+     * Display exam details.
      */
     public function show(Exam $exam)
     {
-        return view('admin.exams.show', compact('exam'));
+        $exam->loadCount([
+            'examClasses',
+            'examSubjects',
+            'examSessions',
+            'examHolidays',
+            'examTimetables',
+        ]);
+
+        return view(
+            'admin.exams.show',
+            compact('exam')
+        );
     }
 
     /**
-     * Show edit form.
+     * Show edit exam form.
      */
     public function edit(Exam $exam)
     {
-        return view('admin.exams.edit', compact('exam'));
+        return view(
+            'admin.exams.edit',
+            compact('exam')
+        );
     }
 
     /**
      * Update exam.
      */
-    public function update(Request $request, Exam $exam)
-    {
+    public function update(
+        Request $request,
+        Exam $exam
+    ) {
         $validated = $request->validate([
             'academic_year' => [
                 'required',
@@ -115,7 +121,7 @@ class ExamController extends Controller
             'exam_name' => [
                 'required',
                 'string',
-                'max:255',
+                'max:150',
             ],
 
             'exam_type' => [
@@ -125,7 +131,7 @@ class ExamController extends Controller
             ],
 
             'start_date' => [
-                'nullable',
+                'required',
                 'date',
             ],
 
@@ -135,21 +141,16 @@ class ExamController extends Controller
                 'after_or_equal:start_date',
             ],
 
-            'description' => [
-                'nullable',
-                'string',
-            ],
-
             'status' => [
                 'required',
-                'in:active,inactive,completed',
+                'in:draft,scheduled,completed,cancelled',
             ],
         ]);
 
         $exam->update($validated);
 
         return redirect()
-            ->route('admin.exams.index')
+            ->route('admin.exams.show', $exam)
             ->with('success', 'Exam updated successfully.');
     }
 

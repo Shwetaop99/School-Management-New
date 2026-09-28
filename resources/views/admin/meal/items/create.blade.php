@@ -229,39 +229,39 @@
                                         </option>
 
                                         <option value="Pulses"
-                                            {{ old('category') === 'Pulses' ? 'selected' : '' }}>
-                                            Pulses
-                                        </option>
+    {{ old('category') === 'Pulses' ? 'selected' : '' }}>
+    Pulses
+</option>
 
-                                        <option value="Vegetables"
-                                            {{ old('category') === 'Vegetables' ? 'selected' : '' }}>
-                                            Vegetables
-                                        </option>
+<option value="Vegetables"
+    {{ old('category') === 'Vegetables' ? 'selected' : '' }}>
+    Vegetables
+</option>
 
-                                        <option value="Fruits"
-                                            {{ old('category') === 'Fruits' ? 'selected' : '' }}>
-                                            Fruits
-                                        </option>
+<option value="Fruits"
+    {{ old('category') === 'Fruits' ? 'selected' : '' }}>
+    Fruits
+</option>
 
-                                        <option value="Dairy"
-                                            {{ old('category') === 'Dairy' ? 'selected' : '' }}>
-                                            Dairy
-                                        </option>
+<option value="Dairy"
+    {{ old('category') === 'Dairy' ? 'selected' : '' }}>
+    Dairy
+</option>
 
-                                        <option value="Oil"
-                                            {{ old('category') === 'Oil' ? 'selected' : '' }}>
-                                            Oil
-                                        </option>
+<option value="Oil"
+    {{ old('category') === 'Oil' ? 'selected' : '' }}>
+    Oil
+</option>
 
-                                        <option value="Spices"
-                                            {{ old('category') === 'Spices' ? 'selected' : '' }}>
-                                            Spices
-                                        </option>
+<option value="Spices"
+    {{ old('category') === 'Spices' ? 'selected' : '' }}>
+    Spices
+</option>
 
-                                        <option value="Other"
-                                            {{ old('category') === 'Other' ? 'selected' : '' }}>
-                                            Other
-                                        </option>
+<option value="Other"
+    {{ old('category') === 'Other' ? 'selected' : '' }}>
+    Other
+</option>
 
                                     </select>
 
