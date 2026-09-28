@@ -542,29 +542,29 @@
 
 
         {{-- 11. MEAL --}}
-        <a href="#" class="report-card">
+        <a href="{{ route('admin.reports.meal') }}" class="report-card">
 
-            <div class="report-icon">
-                <i class="fas fa-utensils"></i>
-            </div>
+    <div class="report-icon">
+        <i class="fas fa-utensils"></i>
+    </div>
 
-            <div class="report-info">
+    <div class="report-info">
 
-                <h3>
-                    Meal Reports
-                </h3>
+        <h3>
+            Meal Reports
+        </h3>
 
-                <p>
-                    Meal stock, usage and inventory records.
-                </p>
+        <p>
+            Meal stock, usage and inventory records.
+        </p>
 
-            </div>
+    </div>
 
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
+    <div class="report-arrow">
+        <i class="fas fa-chevron-right"></i>
+    </div>
 
-        </a>
+</a>
 
 
         {{-- 12. PAYROLL --}}

@@ -59,6 +59,7 @@ use App\Http\Controllers\Class\SubjectController;
 use App\Http\Controllers\Meal\MealItemController;
 use App\Http\Controllers\Meal\MealStockLogController;
 use App\Http\Controllers\Meal\MealStockTransactionController;
+use App\Http\Controllers\Admin\MealReportController;
 
 
 /*
@@ -951,10 +952,6 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
                 return 'Transport Management';
             })->name('transport.index');
 
-            Route::get('/meals', function () {
-                return 'Meal Management';
-            })->name('meals.index');
-
             Route::get('/sports', function () {
                 return 'Sports Management';
             })->name('sports.index');
@@ -1046,6 +1043,18 @@ Route::get('/reports/staff/{otherStaff}', [StaffReportController::class, 'show']
 
 Route::get('/reports/attendance/excel', [AttendanceReportController::class, 'excel'])
     ->name('reports.attendance.excel');
+
+    Route::get('/reports/meal', [MealReportController::class, 'index'])
+    ->name('reports.meal');
+
+    Route::get('/reports/meal', [MealReportController::class, 'index'])
+    ->name('reports.meal');
+
+Route::get('/reports/meal/pdf', [MealReportController::class, 'pdf'])
+    ->name('reports.meal.pdf');
+
+Route::get('/reports/meal/excel', [MealReportController::class, 'excel'])
+    ->name('reports.meal.excel');
 
 
 
