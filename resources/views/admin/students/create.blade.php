@@ -469,121 +469,101 @@
                                required>
 
                     </div>
+                    
+        <div class="col-md-4">
+
+    <label class="form-label">
+        Current Class
+        <span class="text-danger">*</span>
+    </label>
+
+    <select name="class"
+            id="class"
+            class="form-select"
+            required>
+
+        <option value="">Select Class</option>
+
+        @foreach($classes as $class)
+            <option value="{{ $class }}"
+                {{ old('class') == $class ? 'selected' : '' }}>
+                {{ $class }}
+            </option>
+        @endforeach
+
+    </select>
+
+</div>
 
 
-                    <div class="col-md-4">
+<div class="col-md-4">
 
-                        <label class="form-label">
-                            Current Class
-                            <span class="text-danger">*</span>
-                        </label>
+    <label class="form-label">
+        Section
+        <span class="text-danger">*</span>
+    </label>
 
-                        <select name="class"
-                                id="class"
-                                class="form-select"
-                                required>
+    <select name="section"
+            id="section"
+            class="form-select"
+            required>
 
-                            <option value="">
-                                Select Class
-                            </option>
+        <option value="">Select Section</option>
 
-                            @foreach([
-                                'Nursery','LKG','UKG',
-                                '1','2','3','4','5','6','7','8',
-                                '9','10','11','12'
-                            ] as $class)
+        @foreach($sections as $section)
+            <option value="{{ $section }}"
+                {{ old('section') == $section ? 'selected' : '' }}>
+                {{ $section }}
+            </option>
+        @endforeach
 
-                                <option value="{{ $class }}"
-                                    {{ old('class') == $class ? 'selected' : '' }}>
-                                    {{ $class }}
-                                </option>
+    </select>
 
-                            @endforeach
+</div>
 
-                        </select>
+<div class="col-md-4">
 
-                    </div>
+    <label class="form-label">
+        Roll Number
+    </label>
 
+    <input type="text"
+           name="roll_number"
+           id="roll_number"
+           class="form-control bg-light"
+           value="{{ old('roll_number') }}"
+           readonly>
 
-                    <div class="col-md-4">
+    <small class="text-muted">
+        Automatically generated class-wise.
+    </small>
 
-                        <label class="form-label">
-                            Section
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <select name="section"
-                                id="section"
-                                class="form-select"
-                                required>
-
-                            <option value="">
-                                Select Section
-                            </option>
-
-                            @foreach(['A','B','C','D','E','F'] as $section)
-
-                                <option value="{{ $section }}"
-                                    {{ old('section') == $section ? 'selected' : '' }}>
-                                    {{ $section }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                    </div>
+</div>
 
 
-                    <div class="col-md-4">
+<div class="col-md-4">
 
-                        <label class="form-label">
-                            Roll Number
-                        </label>
+    <label class="form-label">
+        Admission Class
+    </label>
 
-                        <input type="text"
-                               name="roll_number"
-                               id="roll_number"
-                               class="form-control bg-light"
-                               value="{{ old('roll_number') }}"
-                               readonly>
+    <select name="admission_class"
+            id="admission_class"
+            class="form-select">
 
-                        <small class="text-muted">
-                            Automatically generated class-wise.
-                        </small>
+        <option value="">Select Class</option>
 
-                    </div>
+        @foreach($classes as $class)
+            <option value="{{ $class }}"
+                {{ old('admission_class') == $class ? 'selected' : '' }}>
+                {{ $class }}
+            </option>
+        @endforeach
 
+    </select>
 
-                    <div class="col-md-4">
+</div>
 
-                        <label class="form-label">
-                            Admission Class
-                        </label>
-
-                        <select name="admission_class"
-                                class="form-select">
-
-                            <option value="">
-                                Select Class
-                            </option>
-
-                            @foreach([
-                                'Nursery','LKG','UKG',
-                                '1','2','3','4','5','6','7','8',
-                                '9','10','11','12'
-                            ] as $class)
-
-                                <option value="{{ $class }}"
-                                    {{ old('admission_class') == $class ? 'selected' : '' }}>
-                                    {{ $class }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                    </div>
 
 
                     <div class="col-md-4">
@@ -3139,7 +3119,7 @@ if (
 
 
         try {
-
+            console.log('SELECTED STATE ID:', stateId);
             const url =
                 "{{ route('admin.locations.districts') }}"
                 + '?state_id='
