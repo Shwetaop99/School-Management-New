@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
@@ -155,7 +155,6 @@
     }
 
     /* Photo preview */
-
     .photo-upload-area {
         display: flex;
         align-items: center;
@@ -256,6 +255,51 @@
         cursor: not-allowed;
     }
 
+    /* =========================================
+       ROLE SPECIFIC STAFF FIELDS
+    ========================================== */
+
+    .role-specific-section {
+        display: none;
+        grid-column: 1 / -1;
+        margin-top: 4px;
+        padding: 18px;
+        background: #f8fafc;
+        border: 1px solid #e5eaf1;
+        border-radius: 10px;
+    }
+
+    .role-specific-section.show {
+        display: block;
+    }
+
+    .role-specific-header {
+        margin-bottom: 16px;
+    }
+
+    .role-specific-header h4 {
+        margin: 0;
+        color: #172033;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .role-specific-header p {
+        margin: 5px 0 0;
+        color: #8a93a5;
+        font-size: 11px;
+    }
+
+    .role-specific-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .role-specific-grid .full {
+        grid-column: 1 / -1;
+    }
+
     @media (max-width: 700px) {
         .staff-create-page {
             padding: 15px;
@@ -271,6 +315,14 @@
         }
 
         .form-group.full {
+            grid-column: auto;
+        }
+
+        .role-specific-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .role-specific-grid .full {
             grid-column: auto;
         }
 
@@ -306,7 +358,7 @@
 
         <a href="{{ route('admin.other-staff.index') }}"
            class="back-btn">
-            ← Back to Staff
+            ΓåÉ Back to Staff
         </a>
 
     </div>
@@ -330,9 +382,7 @@
             <ul style="margin:8px 0 0 18px;">
 
                 @foreach($errors->all() as $error)
-
                     <li>{{ $error }}</li>
-
                 @endforeach
 
             </ul>
@@ -376,7 +426,6 @@
 
 
                     {{-- Staff ID --}}
-
                     <div class="form-group">
 
                         <label>
@@ -384,12 +433,12 @@
                         </label>
 
                         <input
-    type="text"
-    name="staff_id"
-    class="form-control"
-    value="{{ old('staff_id', $nextStaffId) }}"
-    required
->
+                            type="text"
+                            name="staff_id"
+                            class="form-control"
+                            value="{{ old('staff_id', $nextStaffId) }}"
+                            required
+                        >
 
                         <span class="form-help">
                             Staff ID is automatically generated.
@@ -399,7 +448,6 @@
 
 
                     {{-- Full Name --}}
-
                     <div class="form-group">
 
                         <label>
@@ -426,10 +474,11 @@
 
 
                     {{-- Gender --}}
-
                     <div class="form-group">
 
-                        <label>Gender</label>
+                        <label>
+                            Gender
+                        </label>
 
                         <select
                             name="gender"
@@ -461,10 +510,11 @@
 
 
                     {{-- Date of Birth --}}
-
                     <div class="form-group">
 
-                        <label>Date of Birth</label>
+                        <label>
+                            Date of Birth
+                        </label>
 
                         <input
                             type="date"
@@ -477,16 +527,19 @@
 
 
                     {{-- Profile Photo --}}
-
                     <div class="form-group full">
 
-                        <label>Profile Photo</label>
+                        <label>
+                            Profile Photo
+                        </label>
 
                         <div class="photo-upload-area">
 
-                            <div class="photo-placeholder"
-                                 id="photoPlaceholder">
-                                👤
+                            <div
+                                class="photo-placeholder"
+                                id="photoPlaceholder"
+                            >
+                                ≡ƒæñ
                             </div>
 
                             <img
@@ -553,10 +606,11 @@
 
 
                     {{-- Phone --}}
-
                     <div class="form-group">
 
-                        <label>Phone Number</label>
+                        <label>
+                            Phone Number
+                        </label>
 
                         <input
                             type="text"
@@ -570,10 +624,11 @@
 
 
                     {{-- Email --}}
-
                     <div class="form-group">
 
-                        <label>Email Address</label>
+                        <label>
+                            Email Address
+                        </label>
 
                         <input
                             type="email"
@@ -593,10 +648,11 @@
 
 
                     {{-- Address --}}
-
                     <div class="form-group full">
 
-                        <label>Address</label>
+                        <label>
+                            Address
+                        </label>
 
                         <textarea
                             name="address"
@@ -632,7 +688,6 @@
 
 
                     {{-- Designation --}}
-
                     <div class="form-group">
 
                         <label>
@@ -693,49 +748,61 @@
 
 
                     {{-- Department --}}
-
                     <div class="form-group">
 
-                        <label>Department</label>
+                        <label>
+                            Department
+                        </label>
 
                         <input
                             type="text"
                             name="department"
                             id="department"
-                            class="form-control"
+                            class="form-control readonly-field"
                             placeholder="Select designation first"
                             value="{{ old('department') }}"
+                            readonly
                         >
 
                         <span class="form-help">
-                            Department will be suggested automatically.
+                            Department is assigned automatically according to designation.
                         </span>
 
                     </div>
 
 
-                    {{-- Qualification --}}
+                    {{-- Role-specific information --}}
+                    <div
+                        id="roleSpecificSection"
+                        class="role-specific-section"
+                    >
 
-                    <div class="form-group">
+                        <div class="role-specific-header">
 
-                        <label>Qualification</label>
+                            <h4 id="roleSpecificTitle">
+                                Role Information
+                            </h4>
 
-                        <input
-                            type="text"
-                            name="qualification"
-                            class="form-control"
-                            placeholder="e.g. B.Com, B.A."
-                            value="{{ old('qualification') }}"
-                        >
+                            <p id="roleSpecificDescription">
+                                Select a designation to see the fields for that role.
+                            </p>
+
+                        </div>
+
+                        <div
+                            id="roleSpecificFields"
+                            class="role-specific-grid"
+                        ></div>
 
                     </div>
 
 
                     {{-- Joining Date --}}
-
                     <div class="form-group">
 
-                        <label>Joining Date</label>
+                        <label>
+                            Joining Date
+                        </label>
 
                         <input
                             type="date"
@@ -759,8 +826,7 @@
                     </div>
 
 
-                    {{-- Status --}}
-
+                    {{-- Employment Status --}}
                     <div class="form-group">
 
                         <label>
@@ -794,7 +860,6 @@
 
 
             {{-- Actions --}}
-
             <div class="form-actions">
 
                 <a
@@ -826,33 +891,641 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Department Suggestions
+    | Designation Based Staff Fields
     |--------------------------------------------------------------------------
     */
 
-    const designation = document.getElementById('designation');
-    const department = document.getElementById('department');
+    const designation =
+        document.getElementById('designation');
+
+    const department =
+        document.getElementById('department');
+
+    const roleSpecificSection =
+        document.getElementById('roleSpecificSection');
+
+    const roleSpecificFields =
+        document.getElementById('roleSpecificFields');
+
+    const roleSpecificTitle =
+        document.getElementById('roleSpecificTitle');
+
+    const roleSpecificDescription =
+        document.getElementById('roleSpecificDescription');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Department Mapping
+    |--------------------------------------------------------------------------
+    */
 
     const departmentMap = {
-        'Librarian': 'Library',
-        'Accountant': 'Accounts',
-        'Receptionist': 'Administration',
-        'Peon': 'Maintenance',
-        'Driver': 'Transport',
-        'Other': 'Other'
+        Librarian: 'Library',
+        Accountant: 'Accounts',
+        Receptionist: 'Administration',
+        Peon: 'Maintenance',
+        Driver: 'Transport',
+        Other: 'Other'
     };
 
-    designation.addEventListener('change', function () {
 
-        const selected = this.value;
+    /*
+    |--------------------------------------------------------------------------
+    | Role Specific Fields
+    |--------------------------------------------------------------------------
+    */
 
-        if (departmentMap[selected]) {
-            department.value = departmentMap[selected];
-        } else {
-            department.value = '';
+    const roleTemplates = {
+
+        Driver: {
+
+            title: 'Driver Information',
+
+            description:
+                'Enter vehicle, route and driving license details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Bus Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[bus_number]"
+                        class="form-control"
+                        placeholder="e.g. BUS-101"
+                        value="{{ old('role_details.bus_number') }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Vehicle Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[vehicle_number]"
+                        class="form-control"
+                        placeholder="e.g. MH12AB1234"
+                        value="{{ old('role_details.vehicle_number') }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Route Name
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[route_name]"
+                        class="form-control"
+                        placeholder="e.g. Pune Station - School"
+                        value="{{ old('role_details.route_name') }}"
+                        required
+                    >
+
+                </div>
+
+
+                {{-- =====================================
+                     NEW: DRIVING LICENSE NUMBER
+                ====================================== --}}
+
+                <div class="form-group">
+
+                    <label>
+                        Driving License Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="license_number"
+                        class="form-control"
+                        placeholder="Enter driving license number"
+                        value="{{ old('license_number') }}"
+                    >
+
+                    <span class="form-help">
+                        This license number will be available when assigning this driver to a vehicle.
+                    </span>
+
+                    @if($errors->has('license_number'))
+                        <span class="error-message">
+                            {{ $errors->first('license_number') }}
+                        </span>
+                    @endif
+
+                </div>
+
+
+                {{-- =====================================
+                     NEW: LICENSE EXPIRY DATE
+                ====================================== --}}
+
+                <div class="form-group">
+
+                    <label>
+                        License Expiry Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="license_expiry"
+                        class="form-control"
+                        value="{{ old('license_expiry') }}"
+                    >
+
+                    @if($errors->has('license_expiry'))
+                        <span class="error-message">
+                            {{ $errors->first('license_expiry') }}
+                        </span>
+                    @endif
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+            `
+        },
+
+
+        Receptionist: {
+
+            title: 'Receptionist Information',
+
+            description:
+                'Enter reception desk and working shift details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Extension Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[extension_number]"
+                        class="form-control"
+                        placeholder="e.g. 101"
+                        value="{{ old('role_details.extension_number') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter receptionist responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Peon: {
+
+            title: 'Peon Information',
+
+            description:
+                'Enter assigned area, shift and responsibilities.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Assigned Area
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[assigned_area]"
+                        class="form-control"
+                        placeholder="e.g. Main Building"
+                        value="{{ old('role_details.assigned_area') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Duties / Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[duties]"
+                        class="form-control"
+                        placeholder="Enter assigned duties"
+                    >{{ old('role_details.duties') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Librarian: {
+
+            title: 'Librarian Information',
+
+            description:
+                'Enter library assignment and working details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Library Section
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[library_section]"
+                        class="form-control"
+                        placeholder="e.g. Reference Section"
+                        value="{{ old('role_details.library_section') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Library Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter library responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Accountant: {
+
+            title: 'Accountant Information',
+
+            description:
+                'Enter accounting and financial work details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Accounting Software
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[accounting_software]"
+                        class="form-control"
+                        placeholder="e.g. Tally"
+                        value="{{ old('role_details.accounting_software') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter accounting responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Other: {
+
+            title: 'Staff Role Information',
+
+            description:
+                'Enter information about this staff member\'s role.',
+
+            fields: `
+
+                <div class="form-group full">
+
+                    <label>
+                        Role Description
+                    </label>
+
+                    <textarea
+                        name="role_details[description]"
+                        class="form-control"
+                        placeholder="Describe the staff member's role and responsibilities"
+                    >{{ old('role_details.description') }}</textarea>
+
+                </div>
+
+            `
         }
 
-    });
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Role Fields
+    |--------------------------------------------------------------------------
+    */
+
+    function updateRoleFields() {
+
+        const selectedRole =
+            designation.value;
+
+
+        // Automatically assign department
+        if (departmentMap[selectedRole]) {
+
+            department.value =
+                departmentMap[selectedRole];
+
+        } else {
+
+            department.value = '';
+
+        }
+
+
+        // Remove previous role fields
+        roleSpecificFields.innerHTML = '';
+
+
+        // Hide role section if no designation is selected
+        if (
+            !selectedRole ||
+            !roleTemplates[selectedRole]
+        ) {
+
+            roleSpecificSection.classList.remove('show');
+
+            return;
+        }
+
+
+        const role =
+            roleTemplates[selectedRole];
+
+
+        roleSpecificTitle.textContent =
+            role.title;
+
+        roleSpecificDescription.textContent =
+            role.description;
+
+
+        // Add fields for selected role
+        roleSpecificFields.innerHTML =
+            role.fields;
+
+
+        // Show role-specific section
+        roleSpecificSection.classList.add('show');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Restore old role_details values
+        |--------------------------------------------------------------------------
+        */
+
+        const oldRoleDetails =
+            @json(old('role_details', []));
+
+        Object.keys(oldRoleDetails).forEach(function (key) {
+
+            const field =
+                document.querySelector(
+                    `[name="role_details[${key}]"]`
+                );
+
+            if (field) {
+
+                field.value =
+                    oldRoleDetails[key] ?? '';
+
+            }
+
+        });
+
+    }
+
+
+    designation.addEventListener(
+        'change',
+        updateRoleFields
+    );
+
+
+    // Run on page load
+    updateRoleFields();
 
 
     /*
@@ -861,23 +1534,38 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     */
 
-    const joiningDate = document.getElementById('joiningDate');
+    const joiningDate =
+        document.getElementById('joiningDate');
 
-    joiningDate.addEventListener('change', function () {
+    joiningDate.addEventListener(
+        'change',
+        function () {
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+            const today =
+                new Date();
 
-        const selectedDate = new Date(this.value);
+            today.setHours(
+                0,
+                0,
+                0,
+                0
+            );
 
-        if (selectedDate > today) {
+            const selectedDate =
+                new Date(this.value);
 
-            alert('Joining date cannot be in the future.');
+            if (selectedDate > today) {
 
-            this.value = '';
+                alert(
+                    'Joining date cannot be in the future.'
+                );
+
+                this.value = '';
+
+            }
+
         }
-
-    });
+    );
 
 
     /*
@@ -886,112 +1574,149 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     */
 
-    const photoInput = document.getElementById('profilePhoto');
-    const photoPreview = document.getElementById('photoPreview');
-    const photoPlaceholder = document.getElementById('photoPlaceholder');
-    const compressionStatus = document.getElementById('compressionStatus');
+    const photoInput =
+        document.getElementById('profilePhoto');
 
-    const TARGET_SIZE = 250 * 1024;
+    const photoPreview =
+        document.getElementById('photoPreview');
 
-    photoInput.addEventListener('change', async function () {
+    const photoPlaceholder =
+        document.getElementById('photoPlaceholder');
 
-        const file = this.files[0];
+    const compressionStatus =
+        document.getElementById('compressionStatus');
 
-        if (!file) {
-            return;
-        }
-
-        if (!file.type.startsWith('image/')) {
-
-            alert('Please select a valid image.');
-
-            this.value = '';
-
-            return;
-        }
+    const TARGET_SIZE =
+        250 * 1024;
 
 
-        compressionStatus.textContent = 'Processing image...';
-        compressionStatus.className = 'compression-status';
+    photoInput.addEventListener(
+        'change',
+        async function () {
 
+            const file =
+                this.files[0];
 
-        try {
-
-            const compressedFile = await compressImage(file);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Replace selected file with compressed file
-            |--------------------------------------------------------------------------
-            */
-
-            const dataTransfer = new DataTransfer();
-
-            dataTransfer.items.add(compressedFile);
-
-            photoInput.files = dataTransfer.files;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Preview compressed image
-            |--------------------------------------------------------------------------
-            */
-
-            const previewUrl = URL.createObjectURL(compressedFile);
-
-            photoPreview.src = previewUrl;
-            photoPreview.style.display = 'block';
-
-            photoPlaceholder.style.display = 'none';
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Status
-            |--------------------------------------------------------------------------
-            */
-
-            const sizeKB = compressedFile.size / 1024;
-
-            if (compressedFile.size <= TARGET_SIZE) {
-
-                compressionStatus.textContent =
-                    '✓ Compressed successfully: ' +
-                    sizeKB.toFixed(0) +
-                    ' KB';
-
-                compressionStatus.className =
-                    'compression-status compression-success';
-
-            } else {
-
-                compressionStatus.textContent =
-                    'Image compressed to ' +
-                    sizeKB.toFixed(0) +
-                    ' KB';
-
-                compressionStatus.className =
-                    'compression-status compression-warning';
+            if (!file) {
+                return;
             }
 
 
-        } catch (error) {
+            if (!file.type.startsWith('image/')) {
 
-            console.error(error);
+                alert(
+                    'Please select a valid image.'
+                );
+
+                this.value = '';
+
+                return;
+            }
+
 
             compressionStatus.textContent =
-                'Unable to compress image. Please choose another image.';
+                'Processing image...';
 
             compressionStatus.className =
-                'compression-status compression-warning';
+                'compression-status';
 
-            this.value = '';
+
+            try {
+
+                const compressedFile =
+                    await compressImage(file);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Replace selected file with compressed file
+                |--------------------------------------------------------------------------
+                */
+
+                const dataTransfer =
+                    new DataTransfer();
+
+                dataTransfer.items.add(
+                    compressedFile
+                );
+
+                photoInput.files =
+                    dataTransfer.files;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Preview compressed image
+                |--------------------------------------------------------------------------
+                */
+
+                const previewUrl =
+                    URL.createObjectURL(
+                        compressedFile
+                    );
+
+                photoPreview.src =
+                    previewUrl;
+
+                photoPreview.style.display =
+                    'block';
+
+                photoPlaceholder.style.display =
+                    'none';
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Compression Status
+                |--------------------------------------------------------------------------
+                */
+
+                const sizeKB =
+                    compressedFile.size / 1024;
+
+
+                if (
+                    compressedFile.size <=
+                    TARGET_SIZE
+                ) {
+
+                    compressionStatus.textContent =
+                        'Γ£ô Compressed successfully: ' +
+                        sizeKB.toFixed(0) +
+                        ' KB';
+
+                    compressionStatus.className =
+                        'compression-status compression-success';
+
+                } else {
+
+                    compressionStatus.textContent =
+                        'Image compressed to ' +
+                        sizeKB.toFixed(0) +
+                        ' KB';
+
+                    compressionStatus.className =
+                        'compression-status compression-warning';
+
+                }
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                compressionStatus.textContent =
+                    'Unable to compress image. Please choose another image.';
+
+                compressionStatus.className =
+                    'compression-status compression-warning';
+
+                this.value = '';
+
+            }
 
         }
-
-    });
+    );
 
 
     /*
@@ -1002,13 +1727,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function compressImage(file) {
 
-        const image = await loadImage(file);
+        const image =
+            await loadImage(file);
 
-        let width = image.width;
-        let height = image.height;
+        let width =
+            image.width;
 
-        const maxWidth = 1200;
-        const maxHeight = 1200;
+        let height =
+            image.height;
+
+
+        const maxWidth =
+            1200;
+
+        const maxHeight =
+            1200;
+
 
         /*
         |--------------------------------------------------------------------------
@@ -1016,43 +1750,64 @@ document.addEventListener('DOMContentLoaded', function () {
         |--------------------------------------------------------------------------
         */
 
-        if (width > maxWidth || height > maxHeight) {
+        if (
+            width > maxWidth ||
+            height > maxHeight
+        ) {
 
-            const ratio = Math.min(
-                maxWidth / width,
-                maxHeight / height
-            );
+            const ratio =
+                Math.min(
+                    maxWidth / width,
+                    maxHeight / height
+                );
 
-            width = Math.round(width * ratio);
-            height = Math.round(height * ratio);
+            width =
+                Math.round(
+                    width * ratio
+                );
+
+            height =
+                Math.round(
+                    height * ratio
+                );
+
         }
 
 
-        let quality = 0.85;
-        let blob = await createBlob(
-            image,
-            width,
-            height,
-            quality
-        );
+        let quality =
+            0.85;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Reduce quality progressively until approximately 250 KB
-        |--------------------------------------------------------------------------
-        */
-
-        while (blob.size > TARGET_SIZE && quality > 0.35) {
-
-            quality -= 0.05;
-
-            blob = await createBlob(
+        let blob =
+            await createBlob(
                 image,
                 width,
                 height,
                 quality
             );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reduce quality progressively
+        |--------------------------------------------------------------------------
+        */
+
+        while (
+            blob.size > TARGET_SIZE &&
+            quality > 0.35
+        ) {
+
+            quality -= 0.05;
+
+            blob =
+                await createBlob(
+                    image,
+                    width,
+                    height,
+                    quality
+                );
+
         }
 
 
@@ -1062,32 +1817,51 @@ document.addEventListener('DOMContentLoaded', function () {
         |--------------------------------------------------------------------------
         */
 
-        while (blob.size > TARGET_SIZE && width > 600) {
+        while (
+            blob.size > TARGET_SIZE &&
+            width > 600
+        ) {
 
-            width = Math.round(width * 0.85);
-            height = Math.round(height * 0.85);
+            width =
+                Math.round(
+                    width * 0.85
+                );
 
-            quality = 0.75;
+            height =
+                Math.round(
+                    height * 0.85
+                );
 
-            blob = await createBlob(
-                image,
-                width,
-                height,
-                quality
-            );
+            quality =
+                0.75;
 
 
-            while (blob.size > TARGET_SIZE && quality > 0.35) {
-
-                quality -= 0.05;
-
-                blob = await createBlob(
+            blob =
+                await createBlob(
                     image,
                     width,
                     height,
                     quality
                 );
+
+
+            while (
+                blob.size > TARGET_SIZE &&
+                quality > 0.35
+            ) {
+
+                quality -= 0.05;
+
+                blob =
+                    await createBlob(
+                        image,
+                        width,
+                        height,
+                        quality
+                    );
+
             }
+
         }
 
 
@@ -1099,6 +1873,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 lastModified: Date.now()
             }
         );
+
     }
 
 
@@ -1110,23 +1885,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function loadImage(file) {
 
-        return new Promise((resolve, reject) => {
+        return new Promise(
+            (resolve, reject) => {
 
-            const img = new Image();
+                const img =
+                    new Image();
 
-            const url = URL.createObjectURL(file);
+                const url =
+                    URL.createObjectURL(file);
 
-            img.onload = function () {
 
-                URL.revokeObjectURL(url);
+                img.onload =
+                    function () {
 
-                resolve(img);
-            };
+                        URL.revokeObjectURL(
+                            url
+                        );
 
-            img.onerror = reject;
+                        resolve(img);
 
-            img.src = url;
-        });
+                    };
+
+
+                img.onerror =
+                    reject;
+
+
+                img.src =
+                    url;
+
+            }
+        );
+
     }
 
 
@@ -1143,48 +1933,77 @@ document.addEventListener('DOMContentLoaded', function () {
         quality
     ) {
 
-        return new Promise((resolve) => {
+        return new Promise(
+            (resolve) => {
 
-            const canvas = document.createElement('canvas');
+                const canvas =
+                    document.createElement(
+                        'canvas'
+                    );
 
-            canvas.width = width;
-            canvas.height = height;
+                canvas.width =
+                    width;
 
-            const context = canvas.getContext('2d');
+                canvas.height =
+                    height;
 
-            context.drawImage(
-                image,
-                0,
-                0,
-                width,
-                height
-            );
 
-            canvas.toBlob(
-                resolve,
-                'image/jpeg',
-                quality
-            );
+                const context =
+                    canvas.getContext(
+                        '2d'
+                    );
 
-        });
+
+                context.drawImage(
+                    image,
+                    0,
+                    0,
+                    width,
+                    height
+                );
+
+
+                canvas.toBlob(
+                    resolve,
+                    'image/jpeg',
+                    quality
+                );
+
+            }
+        );
+
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | Prevent accidental double submission
+    | Prevent Accidental Double Submission
     |--------------------------------------------------------------------------
     */
 
-    const form = document.getElementById('staffForm');
-    const saveButton = document.getElementById('saveButton');
+    const form =
+        document.getElementById(
+            'staffForm'
+        );
 
-    form.addEventListener('submit', function () {
+    const saveButton =
+        document.getElementById(
+            'saveButton'
+        );
 
-        saveButton.disabled = true;
-        saveButton.textContent = 'Saving...';
 
-    });
+    form.addEventListener(
+        'submit',
+        function () {
+
+            saveButton.disabled =
+                true;
+
+            saveButton.textContent =
+                'Saving...';
+
+        }
+    );
 
 });
 </script>

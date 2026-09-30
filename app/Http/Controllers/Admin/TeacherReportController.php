@@ -7,23 +7,81 @@ use App\Models\Teacher;
 use App\Exports\TeacherReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class TeacherReportController extends Controller
 {
-    public function index()
-    {
-        $teachers = Teacher::orderBy('first_name')->get();
+    public function index(Request $request)
+{
+    $query = Teacher::query();
 
-        return view(
-            'admin.teachers.reports.index',
-            compact('teachers')
-        );
+    // Faculty Search
+    if ($request->filled('search')) {
+
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+
+            $q->where('teacher_id', 'like', "%{$search}%")
+                ->orWhere('first_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('phone', 'like', "%{$search}%")
+                ->orWhere('qualification', 'like', "%{$search}%")
+                ->orWhere('subject', 'like', "%{$search}%");
+
+        });
     }
+
+    // Gender
+    if ($request->filled('gender')) {
+        $query->where('gender', $request->gender);
+    }
+
+    // Subject
+    if ($request->filled('subject')) {
+        $query->where('subject', $request->subject);
+    }
+
+    // Status
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    $teachers = $query
+        ->orderBy('first_name')
+        ->orderBy('last_name')
+        ->get();
+
+    // Subjects for dropdown
+    $subjects = Teacher::query()
+        ->whereNotNull('subject')
+        ->where('subject', '!=', '')
+        ->distinct()
+        ->orderBy('subject')
+        ->pluck('subject');
+
+    $genders = Teacher::query()
+    ->whereNotNull('gender')
+    ->where('gender', '!=', '')
+    ->distinct()
+    ->orderBy('gender')
+    ->pluck('gender');
+
+    return view(
+    'allReports.teacherReports.index',
+    compact(
+        'teachers',
+        'subjects',
+        'genders'
+    )
+);
+}
 
     public function show(Teacher $teacher)
     {
         return view(
-            'admin.reports.show',
+            'allReports.teacherReports.show',
             compact('teacher')
         );
     }
@@ -31,7 +89,7 @@ class TeacherReportController extends Controller
     public function pdf(Teacher $teacher)
     {
         $pdf = Pdf::loadView(
-            'admin.reports.pdf',
+            'admin.teacherReports.pdf',
             compact('teacher')
         );
 

@@ -14,45 +14,42 @@ class ClassTeacherController extends Controller
     // SHOW ALL TEACHER ALLOCATIONS
     // =========================================================
 
-   
-public function index()
-{
-    $assignments = ClassTeacherAssignment::query()
-        ->join(
-            'teachers',
-            'class_teacher_assignments.teacher_id',
-            '=',
-            'teachers.id'
-        )
-        ->join(
-            'classes',
-            'class_teacher_assignments.class_id',
-            '=',
-            'classes.id'
-        )
-        ->join(
-            'sections',
-            'class_teacher_assignments.section_id',
-            '=',
-            'sections.id'
-        )
-        ->select(
-            'class_teacher_assignments.*',
-            'teachers.first_name',
-            'teachers.last_name',
-            'classes.class_name',
-            'sections.section_name'
-        )
-        ->latest('class_teacher_assignments.id')
-        ->get();
+    public function index()
+    {
+        $assignments = ClassTeacherAssignment::query()
+            ->join(
+                'teachers',
+                'class_teacher_assignments.teacher_id',
+                '=',
+                'teachers.id'
+            )
+            ->join(
+                'classes',
+                'class_teacher_assignments.class_id',
+                '=',
+                'classes.id'
+            )
+            ->join(
+                'sections',
+                'class_teacher_assignments.section_id',
+                '=',
+                'sections.id'
+            )
+            ->select(
+                'class_teacher_assignments.*',
+                'teachers.first_name',
+                'teachers.last_name',
+                'classes.class_name',
+                'sections.section_name'
+            )
+            ->latest('class_teacher_assignments.id')
+            ->get();
 
-    return view(
-        'admin.teachers.assign-class.index',
-        compact('assignments')
-    );
-}
-
-
+        return view(
+            'admin.teachers.assign-class.index',
+            compact('assignments')
+        );
+    }
 
     // =========================================================
     // SHOW CREATE PAGE
@@ -60,18 +57,15 @@ public function index()
 
     public function create()
     {
-        // Active teachers
         $teachers = Teacher::where('status', 'active')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
 
-        // Classes
         $classes = DB::table('classes')
             ->orderBy('id')
             ->get();
 
-        // Sections
         $sections = DB::table('sections')
             ->orderBy('id')
             ->get();
@@ -85,7 +79,6 @@ public function index()
             )
         );
     }
-
 
     // =========================================================
     // STORE TEACHER ALLOCATION
@@ -104,7 +97,6 @@ public function index()
                 'exists:classes,id'
             ],
 
-            // Section ID must be an integer
             'section_id' => [
                 'required',
                 'integer',
@@ -128,7 +120,6 @@ public function index()
             );
     }
 
-
     // =========================================================
     // EDIT TEACHER ALLOCATION
     // =========================================================
@@ -144,7 +135,6 @@ public function index()
             ->orderBy('id')
             ->get();
 
-        // Sections
         $sections = DB::table('sections')
             ->orderBy('id')
             ->get();
@@ -159,7 +149,6 @@ public function index()
             )
         );
     }
-
 
     // =========================================================
     // UPDATE TEACHER ALLOCATION
@@ -180,7 +169,6 @@ public function index()
                 'exists:classes,id'
             ],
 
-            // Section ID must be an integer
             'section_id' => [
                 'required',
                 'integer',
@@ -203,7 +191,6 @@ public function index()
                 'Teacher allocation updated successfully.'
             );
     }
-
 
     // =========================================================
     // DELETE TEACHER ALLOCATION

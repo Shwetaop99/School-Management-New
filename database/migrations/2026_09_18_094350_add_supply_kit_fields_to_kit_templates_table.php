@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -8,40 +8,53 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('kit_templates', function (Blueprint $table) {
+        if (!Schema::hasColumn('kit_templates', 'kit_name')) {
+            Schema::table('kit_templates', function (Blueprint $table) {
+                $table->string('kit_name')
+                    ->nullable()
+                    ->after('id');
+            });
+        }
 
-            $table->string('kit_name')
-                ->after('id');
+        if (!Schema::hasColumn('kit_template_items', 'kit_template_id')) {
+            Schema::table('kit_template_items', function (Blueprint $table) {
+                $table->foreignId('kit_template_id')
+                    ->after('id')
+                    ->constrained('kit_templates')
+                    ->cascadeOnDelete();
+            });
+        }
 
-            $table->string('class')
-                ->after('kit_name');
+        if (!Schema::hasColumn('kit_template_items', 'item_name')) {
+            Schema::table('kit_template_items', function (Blueprint $table) {
+                $table->string('item_name')
+                    ->after('kit_template_id');
+            });
+        }
 
-            $table->string('academic_year')
-                ->after('class');
+        if (!Schema::hasColumn('kit_template_items', 'quantity')) {
+            Schema::table('kit_template_items', function (Blueprint $table) {
+                $table->decimal('quantity', 10, 2)
+                    ->default(1)
+                    ->after('item_name');
+            });
+        }
 
-            $table->text('description')
-                ->nullable()
-                ->after('academic_year');
-
-            $table->enum('status', [
-                'active',
-                'inactive',
-            ])
-                ->default('active')
-                ->after('description');
-        });
+        if (!Schema::hasColumn('kit_template_items', 'unit')) {
+            Schema::table('kit_template_items', function (Blueprint $table) {
+                $table->string('unit')
+                    ->nullable()
+                    ->after('quantity');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('kit_templates', function (Blueprint $table) {
-            $table->dropColumn([
-                'kit_name',
-                'class',
-                'academic_year',
-                'description',
-                'status',
-            ]);
-        });
+        if (Schema::hasColumn('kit_templates', 'kit_name')) {
+            Schema::table('kit_templates', function (Blueprint $table) {
+                $table->dropColumn('kit_name');
+            });
+        }
     }
 };

@@ -17,7 +17,10 @@ class SchoolSettingController extends Controller
     {
         $school = SchoolSetting::first();
 
-        return view('admin.settings.index', compact('school'));
+        return view(
+            'admin.settings.index',
+            compact('school')
+        );
     }
 
     /**
@@ -30,10 +33,8 @@ class SchoolSettingController extends Controller
         $school = SchoolSetting::first();
 
         if ($school) {
-            return redirect()->route(
-                'admin.settings.edit',
-                $school
-            );
+            return redirect()
+                ->route('admin.settings.edit');
         }
 
         return view('admin.settings.create');
@@ -46,7 +47,12 @@ class SchoolSettingController extends Controller
     {
         $validated = $this->validateSchool($request);
 
-        // Check whether a school profile already exists.
+        /*
+        |--------------------------------------------------------------------------
+        | Check Existing School
+        |--------------------------------------------------------------------------
+        */
+
         $schoolSetting = SchoolSetting::first();
 
         /*
@@ -68,6 +74,7 @@ class SchoolSettingController extends Controller
         */
 
         if (!$schoolSetting) {
+
             SchoolSetting::create($validated);
 
             return redirect()
@@ -90,7 +97,7 @@ class SchoolSettingController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Delete Old Logo
+        | Delete Old Logo If New Logo Was Uploaded
         |--------------------------------------------------------------------------
         */
 
@@ -111,21 +118,24 @@ class SchoolSettingController extends Controller
     }
 
     /**
-     * Display school profile.
-     */
-    public function show(SchoolSetting $schoolSetting)
-    {
-        return view(
-            'admin.settings.show',
-            compact('schoolSetting')
-        );
-    }
-
-    /**
      * Show edit school profile form.
+     *
+     * The application allows only one school profile,
+     * so we retrieve the existing record directly.
      */
-    public function edit(SchoolSetting $schoolSetting)
+    public function edit()
     {
+        $schoolSetting = SchoolSetting::first();
+
+        if (!$schoolSetting) {
+            return redirect()
+                ->route('admin.settings.create')
+                ->with(
+                    'error',
+                    'No school profile found. Please create one first.'
+                );
+        }
+
         return view(
             'admin.settings.edit',
             compact('schoolSetting')
@@ -134,11 +144,23 @@ class SchoolSettingController extends Controller
 
     /**
      * Update school profile.
+     *
+     * The application allows only one school profile,
+     * so we retrieve the existing record directly.
      */
-    public function update(
-        Request $request,
-        SchoolSetting $schoolSetting
-    ) {
+    public function update(Request $request)
+    {
+        $schoolSetting = SchoolSetting::first();
+
+        if (!$schoolSetting) {
+            return redirect()
+                ->route('admin.settings.create')
+                ->with(
+                    'error',
+                    'No school profile found. Please create one first.'
+                );
+        }
+
         $validated = $this->validateSchool($request);
 
         /*
@@ -194,8 +216,19 @@ class SchoolSettingController extends Controller
     /**
      * Delete school profile.
      */
-    public function destroy(SchoolSetting $schoolSetting)
+    public function destroy()
     {
+        $schoolSetting = SchoolSetting::first();
+
+        if (!$schoolSetting) {
+            return redirect()
+                ->route('admin.settings.index')
+                ->with(
+                    'error',
+                    'No school profile found.'
+                );
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Delete Cloudinary Logo
@@ -317,7 +350,7 @@ class SchoolSettingController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | School Information
+            | School Administration
             |--------------------------------------------------------------------------
             */
 
@@ -355,14 +388,15 @@ class SchoolSettingController extends Controller
     private function uploadCloudinaryImage($file)
     {
         try {
-            $upload = Cloudinary::upload(
+
+            $upload = Cloudinary::uploadApi()->upload(
                 $file->getRealPath(),
                 [
                     'folder' => 'school-management-db/school-settings',
                 ]
             );
 
-            return $upload->getSecurePath();
+            return $upload['secure_url'];
 
         } catch (\Throwable $e) {
 
@@ -408,12 +442,6 @@ class SchoolSettingController extends Controller
             |--------------------------------------------------------------------------
             | Remove Cloudinary Prefix
             |--------------------------------------------------------------------------
-            |
-            | Example:
-            |
-            | /image/upload/v123456/
-            | school-management-db/school-settings/logo.jpg
-            |
             */
 
             $path = preg_replace(
@@ -474,7 +502,9 @@ class SchoolSettingController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            Cloudinary::destroy($publicId);
+            Cloudinary::uploadApi()->destroy(
+                $publicId
+            );
 
         } catch (\Throwable $e) {
 

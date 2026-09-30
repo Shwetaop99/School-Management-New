@@ -20,6 +20,8 @@ class OtherStaff extends Model
         'designation',
         'department',
         'qualification',
+        'license_number',
+        'license_expiry',
         'joining_date',
         'status',
     ];
@@ -27,5 +29,6 @@ class OtherStaff extends Model
     protected $casts = [
         'date_of_birth' => 'date',
         'joining_date' => 'date',
+        'license_expiry' => 'date',
     ];
 }

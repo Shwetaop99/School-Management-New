@@ -35,4 +35,12 @@ class BookIssue extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+    /**
+ * The student who borrowed the book.
+ */
+public function student(): BelongsTo
+{
+    return $this->belongsTo(Student::class, 'student_id');
+}
 }

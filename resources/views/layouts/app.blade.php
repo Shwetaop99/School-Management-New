@@ -908,6 +908,80 @@
             </a>
         @endif
 
+
+        {{-- Student Profile --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-profile.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-profile.*') ? 'active' : '' }}"
+            >
+                Student Profile
+            </a>
+        @endif
+
+
+        {{-- Student Documents --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-documents.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-documents.*') ? 'active' : '' }}"
+            >
+                Student Documents
+            </a>
+        @endif
+
+
+        {{-- Student ID --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.id-card.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.id-card.*') ? 'active' : '' }}"
+            >
+                Student ID
+            </a>
+        @endif
+
+
+        {{-- School Supplies (Kit) --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-supply-kits.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-supply-kits.*') ? 'active' : '' }}"
+            >
+                School Supplies(Kit)
+            </a>
+        @endif
+
+
+        {{-- Student Report --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-general-register.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-general-register.*') ? 'active' : '' }}"
+            >
+                Student Report
+            </a>
+        @endif
+
+
+        {{-- Add Student --}}
+        @if($can('students.create'))
+            <a
+                href="{{ route('admin.students.create') }}"
+                class="submenu-item {{ request()->routeIs('admin.students.create') ? 'active' : '' }}"
+            >
+                Add Student
+            </a>
+        @endif
+
+
+        {{-- Attendance --}}
+        @if($can('attendance.view'))
+            <a
+                href="{{ route('admin.attendance.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}"
+            >
+                Attendance
         @if($canAny(['teachers.create','teachers.edit']))
             <a href="{{ route('admin.teachers.index') }}" class="submenu-item">
                 Teacher Allocation
@@ -1030,7 +1104,7 @@
 
         {{-- Result Dashboard --}}
         <a
-            href="{{ route('admin.results.index') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.index') ? 'active' : '' }}"
         >
             <i class="fas fa-home me-2"></i>
@@ -1039,7 +1113,7 @@
 
         {{-- Enter Marks --}}
         <a
-            href="{{ route('admin.results.marks') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}"
         >
             <i class="fas fa-edit me-2"></i>
@@ -1048,7 +1122,7 @@
 
         {{-- Student Results --}}
         <a
-            href="{{ route('admin.results.students') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.students') ? 'active' : '' }}"
         >
             <i class="fas fa-user-graduate me-2"></i>
@@ -1057,7 +1131,7 @@
 
         {{-- Top 3 Toppers --}}
         <a
-            href="{{ route('admin.results.toppers') }}"
+            href="#"
             class="submenu-item {{ request()->routeIs('admin.results.toppers') ? 'active' : '' }}"
         >
             <i class="fas fa-trophy me-2"></i>
@@ -1111,6 +1185,21 @@
 
             <!-- Transport -->
 
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.meals.*') ? 'active open' : '' }}" data-submenu="meal-menu" data-search="meal meals food stock">
+                    <span class="sidebar-icon"><i class="fas fa-utensils"></i></span><span class="sidebar-label">Meal Management</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.meals.*') ? 'open' : '' }}" id="meal-menu">
+                   <a href="{{ route('admin.meal.items.stock.index') }}"
+   class="submenu-item">
+    
+    Stock In / Stock Out
+</a>
+                    <a href="{{ route('admin.meal.logs.index') }}"
+   class="submenu-item">
+   
+    Logs
+</a>
+                </div>
             <button class="sidebar-item has-submenu
                     {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}"
                     data-submenu="transport-menu"
@@ -1248,6 +1337,14 @@
                     Classes
                 </a>
 
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'active open' : '' }}" data-submenu="class-menu" data-search="class classes division subjects">
+                    <span class="sidebar-icon"><i class="fas fa-chalkboard"></i></span><span class="sidebar-label">Class</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'open' : '' }}" id="class-menu">
+                    <a href="{{ route('admin.classes.index') }}" class="submenu-item">Classes</a>
+                    <a href="{{ route('admin.subjects.index') }}" class="submenu-item">Subjects</a>
+                </div>
+            @endif
                <a href="{{ route('admin.subjects.index') }}" class="submenu-item">
     Subjects
 </a>

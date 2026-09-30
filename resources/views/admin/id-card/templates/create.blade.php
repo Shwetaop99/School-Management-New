@@ -1,67 +1,45 @@
-```blade
 @extends('layouts.app')
 
-@section('title', 'Add ID Card Template')
-
 @section('content')
-
 <div class="container-fluid py-4">
 
-    {{-- Page Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-1">
-                <i class="bi bi-person-vcard me-2"></i>
-                Add ID Card Template
-            </h4>
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-card-image text-primary me-2"></i>
+                Create ID Card Template
+            </h3>
             <p class="text-muted mb-0">
-                Upload and create a new ID card design template.
+                Upload an ID-card design.
             </p>
         </div>
 
-        <a href="{{ route('admin.id-card.templates.index') }}"
-           class="btn btn-outline-secondary">
+        <a href="{{ route('admin.id-card.templates.index') }}" class="btn btn-light border">
             <i class="bi bi-arrow-left me-1"></i>
             Back to Templates
         </a>
     </div>
 
-
-    {{-- Success Message --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show">
             <i class="bi bi-check-circle me-2"></i>
             {{ session('success') }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-
-    {{-- Error Message --}}
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show">
             <i class="bi bi-exclamation-triangle me-2"></i>
             {{ session('error') }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-
-    {{-- Validation Errors --}}
     @if($errors->any())
         <div class="alert alert-danger">
-            <div class="fw-bold mb-2">
-                <i class="bi bi-exclamation-circle me-1"></i>
-                Please fix the following errors:
-            </div>
-
-            <ul class="mb-0">
+            <strong>Please correct the following:</strong>
+            <ul class="mb-0 mt-1">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -69,677 +47,429 @@
         </div>
     @endif
 
+    <form action="{{ route('admin.id-card.templates.store') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          id="templateForm">
+        @csrf
 
-    <div class="row g-4">
+        <div class="row g-4">
 
-        {{-- LEFT SIDE: FORM --}}
-        <div class="col-lg-7">
+            <div class="col-xl-5">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white border-0 p-4">
+                        <h5 class="fw-bold mb-1">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            Template Information
+                        </h5>
+                        <small class="text-muted">
+                            Enter the basic information for this design.
+                        </small>
+                    </div>
 
-            <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
 
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-plus-circle me-2"></i>
-                        Template Information
-                    </h5>
-                </div>
-
-                <div class="card-body p-4">
-
-                    <form action="{{ route('admin.id-card.templates.store') }}"
-                          method="POST"
-                          enctype="multipart/form-data">
-
-                        @csrf
-
-
-                        {{-- Template Name --}}
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                Template Name
-                                <span class="text-danger">*</span>
+                            <label for="name" class="form-label fw-semibold">
+                                Template Name <span class="text-danger">*</span>
                             </label>
-
                             <input type="text"
                                    name="name"
+                                   id="name"
                                    class="form-control form-control-lg @error('name') is-invalid @enderror"
                                    value="{{ old('name') }}"
-                                   placeholder="Example: Standard Student ID Card"
+                                   placeholder="e.g. Standard Student ID Card"
                                    maxlength="150"
                                    required>
-
                             @error('name')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-
-                            <div class="form-text">
-                                Give a unique and meaningful name to the ID card design.
-                            </div>
                         </div>
 
-
-                        {{-- Academic Year --}}
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                Academic Year
-                                <span class="text-danger">*</span>
+                            <label for="academic_year" class="form-label fw-semibold">
+                                Academic Year <span class="text-danger">*</span>
                             </label>
-
                             <select name="academic_year"
+                                    id="academic_year"
                                     class="form-select form-select-lg @error('academic_year') is-invalid @enderror"
                                     required>
-
-                                <option value="">
-                                    Select Academic Year
-                                </option>
-
+                                <option value="">Select academic year</option>
                                 @foreach($academicYears as $year)
                                     <option value="{{ $year }}"
-                                        {{ old('academic_year') == $year ? 'selected' : '' }}>
+                                        {{ old('academic_year') === $year ? 'selected' : '' }}>
                                         {{ $year }}
                                     </option>
                                 @endforeach
-
                             </select>
-
                             @error('academic_year')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-
-                        {{-- Status --}}
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                Status
-                                <span class="text-danger">*</span>
+                            <label for="status" class="form-label fw-semibold">
+                                Status <span class="text-danger">*</span>
                             </label>
-
-                            <div class="row g-3">
-
-                                <div class="col-md-6">
-                                    <label class="status-option">
-                                        <input type="radio"
-                                               name="status"
-                                               value="active"
-                                               {{ old('status', 'active') === 'active' ? 'checked' : '' }}>
-
-                                        <div class="status-box">
-                                            <div class="status-icon active-icon">
-                                                <i class="bi bi-check-circle"></i>
-                                            </div>
-
-                                            <div>
-                                                <div class="fw-semibold">
-                                                    Active
-                                                </div>
-
-                                                <small class="text-muted">
-                                                    Template can be used for ID cards
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-
-
-                                <div class="col-md-6">
-                                    <label class="status-option">
-                                        <input type="radio"
-                                               name="status"
-                                               value="inactive"
-                                               {{ old('status') === 'inactive' ? 'checked' : '' }}>
-
-                                        <div class="status-box">
-                                            <div class="status-icon inactive-icon">
-                                                <i class="bi bi-pause-circle"></i>
-                                            </div>
-
-                                            <div>
-                                                <div class="fw-semibold">
-                                                    Inactive
-                                                </div>
-
-                                                <small class="text-muted">
-                                                    Template will not be available
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-
-                            </div>
-
+                            <select name="status"
+                                    id="status"
+                                    class="form-select form-select-lg @error('status') is-invalid @enderror"
+                                    required>
+                                <option value="active"
+                                    {{ old('status', 'active') === 'active' ? 'selected' : '' }}>
+                                    Active
+                                </option>
+                                <option value="inactive"
+                                    {{ old('status') === 'inactive' ? 'selected' : '' }}>
+                                    Inactive
+                                </option>
+                            </select>
                             @error('status')
-                                <div class="text-danger small mt-2">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-
-                        {{-- Template Image --}}
-                        <div class="mb-4">
-
-                            <label class="form-label fw-semibold">
-                                ID Card Design
-                                <span class="text-danger">*</span>
-                            </label>
-
-                            <div class="upload-area"
-                                 id="uploadArea">
-
-                                <input type="file"
-                                       name="template_image"
-                                       id="templateImage"
-                                       accept=".jpg,.jpeg,.png,.webp"
-                                       class="d-none"
-                                       required>
-
-                                <label for="templateImage"
-                                       class="upload-content">
-
-                                    <div class="upload-icon">
-                                        <i class="bi bi-cloud-arrow-up"></i>
-                                    </div>
-
-                                    <h6 class="fw-bold mt-3 mb-1">
-                                        Upload ID Card Design
-                                    </h6>
-
-                                    <p class="text-muted mb-2">
-                                        Click to select your ID card design
-                                    </p>
-
-                                    <span class="badge bg-light text-dark">
-                                        JPG / JPEG / PNG / WEBP
-                                    </span>
-
-                                    <div class="small text-muted mt-2">
-                                        Maximum file size: 5 MB
-                                    </div>
-
-                                </label>
-                            </div>
-
-                            @error('template_image')
-                                <div class="text-danger small mt-2">
-                                    {{ $message }}
+                        <div class="info-box">
+                            <div class="d-flex gap-3">
+                                <div class="info-icon">
+                                    <i class="bi bi-stars"></i>
                                 </div>
-                            @enderror
-
-                        </div>
-
-
-                        {{-- Image Preview --}}
-                        <div id="imagePreviewContainer"
-                             class="d-none mb-4">
-
-                            <label class="form-label fw-semibold">
-                                Design Preview
-                            </label>
-
-                            <div class="preview-wrapper">
-
-                                <img id="imagePreview"
-                                     src=""
-                                     alt="ID Card Template Preview">
-
+                                <div>
+                                    <div class="fw-semibold mb-1">Automatic analysis</div>
+                                    <div class="small text-muted">
+                                        After upload, the server will analyze the design
+                                        and detect ID-card fields automatically.
+                                    </div>
+                                </div>
                             </div>
-
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger mt-2"
-                                    id="removeImage">
-
-                                <i class="bi bi-trash me-1"></i>
-                                Remove Image
-
-                            </button>
-
                         </div>
 
-
-                        {{-- Submit Buttons --}}
-                        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-
+                        <div class="d-flex gap-2 mt-4">
                             <a href="{{ route('admin.id-card.templates.index') }}"
-                               class="btn btn-light px-4">
+                               class="btn btn-light border btn-lg flex-grow-1">
                                 Cancel
                             </a>
 
                             <button type="submit"
-                                    class="btn btn-primary px-4"
-                                    id="saveTemplateBtn">
-
-                                <i class="bi bi-check-circle me-1"></i>
-                                Save Template
-
+                                    id="saveTemplateBtn"
+                                    class="btn btn-primary btn-lg flex-grow-1">
+                                <i class="bi bi-cloud-arrow-up me-1"></i>
+                                Upload & Analyze
                             </button>
-
                         </div>
 
-                    </form>
-
+                    </div>
                 </div>
             </div>
 
-        </div>
-
-
-        {{-- RIGHT SIDE: INFORMATION --}}
-        <div class="col-lg-5">
-
-            <div class="card border-0 shadow-sm mb-4">
-
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-info-circle me-2"></i>
-                        How It Works
-                    </h5>
-                </div>
-
-                <div class="card-body">
-
-                    <div class="step-item">
-
-                        <div class="step-number">
-                            1
-                        </div>
-
-                        <div>
-                            <h6 class="fw-bold mb-1">
-                                Create Template
-                            </h6>
-
-                            <p class="text-muted small mb-0">
-                                Enter the template name, academic year
-                                and status.
-                            </p>
-                        </div>
-
+            <div class="col-xl-7">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-0 p-4">
+                        <h5 class="fw-bold mb-1">
+                            <i class="bi bi-image text-primary me-2"></i>
+                            ID Card Design <span class="text-danger">*</span>
+                        </h5>
+                        <small class="text-muted">
+                            Upload JPG, PNG or WebP.
+                        </small>
                     </div>
 
+                    <div class="card-body p-4">
 
-                    <div class="step-item">
+                        <input type="file"
+                               name="template_image"
+                               id="template_image"
+                               class="d-none"
+                               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                               required>
 
-                        <div class="step-number">
-                            2
-                        </div>
+                        <label for="template_image" id="uploadArea" class="upload-area">
 
-                        <div>
-                            <h6 class="fw-bold mb-1">
-                                Upload Design
-                            </h6>
-
-                            <p class="text-muted small mb-0">
-                                Upload the blank ID card design that
-                                will be used as the background.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="step-item">
-
-                        <div class="step-number">
-                            3
-                        </div>
-
-                        <div>
-                            <h6 class="fw-bold mb-1">
-                                Configure Fields
-                            </h6>
-
-                            <p class="text-muted small mb-0">
-                                After saving, you can place student
-                                fields such as name, photo, class,
-                                roll number and other information.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="step-item">
-
-                        <div class="step-number">
-                            4
-                        </div>
-
-                        <div>
-                            <h6 class="fw-bold mb-1">
-                                Generate ID Cards
-                            </h6>
-
-                            <p class="text-muted small mb-0">
-                                Select the template and student to
-                                generate the final ID card.
-                            </p>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            {{-- Supported Fields --}}
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-list-check me-2"></i>
-                        Available Student Fields
-                    </h5>
-                </div>
-
-                <div class="card-body">
-
-                    <div class="row g-2">
-
-                        @php
-                            $fields = [
-                                'Student Photo',
-                                'Student Name',
-                                'Student ID',
-                                'Roll Number',
-                                'Register Number',
-                                'Class',
-                                'Section',
-                                'Date of Birth',
-                                'Gender',
-                                'Aadhaar Number',
-                                'APAAR ID',
-                                'Phone Number',
-                                'Address',
-                                'District',
-                                'Taluka',
-                                'Blood Group',
-                                'Academic Year',
-                            ];
-                        @endphp
-
-                        @foreach($fields as $field)
-
-                            <div class="col-6">
-
-                                <div class="field-badge">
-                                    <i class="bi bi-check2-circle"></i>
-                                    {{ $field }}
+                            <div id="uploadPlaceholder">
+                                <div class="upload-icon">
+                                    <i class="bi bi-cloud-arrow-up"></i>
                                 </div>
-
+                                <h5 class="fw-bold mb-2">Upload ID Card Design</h5>
+                                <p class="text-muted mb-2">
+                                    Click here to choose an image
+                                </p>
+                                <span class="small text-muted">
+                                    JPG, JPEG, PNG or WebP • Maximum 5 MB
+                                </span>
                             </div>
 
-                        @endforeach
+                            <div id="previewContainer" class="preview-container d-none">
+                                <img id="imagePreview" src="" alt="ID Card Template Preview">
+                                <div class="preview-overlay">
+                                    <span class="badge bg-dark">
+                                        <i class="bi bi-arrow-repeat me-1"></i>
+                                        Change image
+                                    </span>
+                                </div>
+                            </div>
+
+                        </label>
+
+                        <div id="selectedFileInfo" class="selected-file-info d-none mt-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="file-icon">
+                                    <i class="bi bi-file-earmark-image"></i>
+                                </div>
+
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div id="fileName" class="fw-semibold text-truncate"></div>
+                                    <small id="fileSize" class="text-muted"></small>
+                                </div>
+
+                                <button type="button"
+                                        id="removeImage"
+                                        class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tips mt-4">
+                            <div class="fw-semibold mb-2">
+                                <i class="bi bi-lightbulb text-warning me-1"></i>
+                                Template tips
+                            </div>
+                            <ul class="text-muted small mb-0">
+                                <li>Use a clear, high-resolution ID-card image.</li>
+                                <li>Keep field labels readable for OCR detection.</li>
+                                <li>Sample values such as a demo name or ID are supported.</li>
+                                <li>The design is analyzed automatically after submission.</li>
+                            </ul>
+                        </div>
 
                     </div>
-
                 </div>
             </div>
 
         </div>
-
-    </div>
-
+    </form>
 </div>
 
-
 <style>
-
-    .card {
-        border-radius: 12px;
+.info-box {
+    padding: 16px;
+    border-radius: 14px;
+    background: #f5f9ff;
+    border: 1px solid #dbeafe;
+}
+.info-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #e8f1ff;
+    color: #0d6efd;
+    font-size: 20px;
+}
+.upload-area {
+    min-height: 520px;
+    width: 100%;
+    border: 2px dashed #cbd5e1;
+    border-radius: 18px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: .2s ease;
+    overflow: hidden;
+    position: relative;
+}
+.upload-area:hover,
+.upload-area.dragover {
+    border-color: #0d6efd;
+    background: #f5f9ff;
+}
+.upload-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 18px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f1ff;
+    color: #0d6efd;
+    font-size: 34px;
+}
+.preview-container {
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #eef2f7;
+}
+.preview-container img {
+    max-width: 100%;
+    max-height: 520px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+.preview-overlay {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+}
+.selected-file-info {
+    padding: 13px 15px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+}
+.file-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef5ff;
+    color: #0d6efd;
+    font-size: 20px;
+}
+.tips {
+    padding: 15px 17px;
+    border-radius: 13px;
+    background: #fafafa;
+    border: 1px solid #e9ecef;
+}
+.tips ul {
+    padding-left: 20px;
+}
+.tips li {
+    margin-bottom: 6px;
+}
+@media (max-width: 1199px) {
+    .upload-area,
+    .preview-container {
+        min-height: 420px;
     }
-
-    .status-option {
-        display: block;
-        cursor: pointer;
-    }
-
-    .status-option input {
-        display: none;
-    }
-
-    .status-box {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 15px;
-        border: 1px solid #dee2e6;
-        border-radius: 10px;
-        transition: all .2s ease;
-        background: #fff;
-    }
-
-    .status-option input:checked + .status-box {
-        border-color: #1677f0;
-        background: #f5f9ff;
-        box-shadow: 0 0 0 2px rgba(22, 119, 240, .08);
-    }
-
-    .status-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-
-    .active-icon {
-        background: #e8f7ee;
-        color: #198754;
-    }
-
-    .inactive-icon {
-        background: #f1f3f5;
-        color: #6c757d;
-    }
-
-    .upload-area {
-        border: 2px dashed #ced4da;
-        border-radius: 12px;
-        background: #fafbfc;
-        transition: all .2s ease;
-    }
-
-    .upload-area:hover {
-        border-color: #1677f0;
-        background: #f7faff;
-    }
-
-    .upload-content {
-        width: 100%;
-        padding: 40px 20px;
-        text-align: center;
-        cursor: pointer;
-        display: block;
-        margin: 0;
-    }
-
-    .upload-icon {
-        width: 65px;
-        height: 65px;
-        margin: auto;
-        border-radius: 50%;
-        background: #eaf3ff;
-        color: #1677f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 30px;
-    }
-
-    .preview-wrapper {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 10px;
-        padding: 20px;
-        text-align: center;
-    }
-
-    .preview-wrapper img {
-        max-width: 100%;
-        max-height: 450px;
-        object-fit: contain;
-        border-radius: 6px;
-    }
-
-    .step-item {
-        display: flex;
-        gap: 15px;
-        padding: 15px 0;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .step-item:last-child {
-        border-bottom: none;
-    }
-
-    .step-number {
-        flex: 0 0 36px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #1677f0;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-    }
-
-    .field-badge {
-        padding: 8px 10px;
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: 7px;
-        font-size: 12px;
-        color: #495057;
-    }
-
-    .field-badge i {
-        color: #198754;
-        margin-right: 4px;
-    }
-
+}
 </style>
 
-
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
-    const imageInput = document.getElementById('templateImage');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewContainer = document.getElementById('imagePreviewContainer');
+    const fileInput = document.getElementById('template_image');
     const uploadArea = document.getElementById('uploadArea');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const selectedFileInfo = document.getElementById('selectedFileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
     const removeImage = document.getElementById('removeImage');
+    const form = document.getElementById('templateForm');
+    const saveButton = document.getElementById('saveTemplateBtn');
 
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Image Preview
-    |--------------------------------------------------------------------------
-    */
+    function showPreview(file) {
+        if (!file) return;
 
-    imageInput.addEventListener('change', function () {
-
-        const file = this.files[0];
-
-        if (!file) {
-            return;
-        }
-
-        const allowedTypes = [
+        const allowed = [
             'image/jpeg',
             'image/png',
             'image/webp'
         ];
 
-        if (!allowedTypes.includes(file.type)) {
-
-            alert('Please select a JPG, JPEG, PNG or WEBP image.');
-
-            this.value = '';
-
+        if (!allowed.includes(file.type)) {
+            alert('Please select a JPG, JPEG, PNG or WebP image.');
+            fileInput.value = '';
             return;
         }
-
 
         if (file.size > 5 * 1024 * 1024) {
-
-            alert('Maximum allowed file size is 5 MB.');
-
-            this.value = '';
-
+            alert('The image must be smaller than 5 MB.');
+            fileInput.value = '';
             return;
         }
-
 
         const reader = new FileReader();
 
         reader.onload = function (event) {
-
             imagePreview.src = event.target.result;
 
+            uploadPlaceholder.classList.add('d-none');
             previewContainer.classList.remove('d-none');
+            selectedFileInfo.classList.remove('d-none');
 
-            uploadArea.classList.add('d-none');
-
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
         };
 
         reader.readAsDataURL(file);
+    }
 
+    fileInput.addEventListener('change', function () {
+        showPreview(this.files[0]);
     });
 
+    removeImage.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
 
-    /*
-    |--------------------------------------------------------------------------
-    | Remove Image
-    |--------------------------------------------------------------------------
-    */
-
-    removeImage.addEventListener('click', function () {
-
-        imageInput.value = '';
-
+        fileInput.value = '';
         imagePreview.src = '';
 
+        uploadPlaceholder.classList.remove('d-none');
         previewContainer.classList.add('d-none');
-
-        uploadArea.classList.remove('d-none');
-
+        selectedFileInfo.classList.add('d-none');
     });
 
+    uploadArea.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Submit Loading
-    |--------------------------------------------------------------------------
-    */
+    uploadArea.addEventListener('dragleave', function () {
+        uploadArea.classList.remove('dragover');
+    });
 
-    const form = imageInput.closest('form');
-    const saveButton = document.getElementById('saveTemplateBtn');
+    uploadArea.addEventListener('drop', function (event) {
+        event.preventDefault();
+        uploadArea.classList.remove('dragover');
+
+        const files = event.dataTransfer.files;
+        if (!files.length) return;
+
+        try {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(files[0]);
+            fileInput.files = dataTransfer.files;
+        } catch (error) {
+            console.warn('Could not assign dropped file.', error);
+        }
+
+        showPreview(files[0]);
+    });
 
     form.addEventListener('submit', function () {
-
         saveButton.disabled = true;
-
         saveButton.innerHTML = `
-            <span class="spinner-border spinner-border-sm me-1"></span>
-            Saving...
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Uploading & analyzing...
         `;
-
     });
-
 });
-
 </script>
 
 @endsection
