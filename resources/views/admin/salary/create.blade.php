@@ -1,5 +1,3 @@
-
-
 @extends('layouts.app')
 
 @section('title', 'Generate Salary')
@@ -8,1042 +6,1450 @@
 @section('content')
 
 <style>
-    /* ================================
-       PAGE
-    ================================= */
-    .salary-create-page {
-        padding: 24px;
-        background: #f5f7fb;
-        min-height: calc(100vh - 60px);
+.salary-page {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 28px;
+    background: #f4f7fb;
+    min-height: calc(100vh - 64px);
+}
+
+.salary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 20px;
+}
+
+.salary-header-left h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.salary-header-left p {
+    margin: 6px 0 0;
+    color: #718096;
+    font-size: 14px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    background: #fff;
+    color: #1769d1;
+    border: 1px solid #dbe5f0;
+    font-weight: 600;
+    transition: .2s ease;
+}
+
+.back-btn:hover {
+    background: #1769d1;
+    color: #fff;
+}
+
+.salary-card {
+    background: #fff;
+    border: 1px solid #e5ebf3;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(30, 55, 90, .07);
+    overflow: hidden;
+}
+
+.card-section {
+    padding: 26px 28px;
+    border-bottom: 1px solid #edf1f6;
+}
+
+.card-section:last-child {
+    border-bottom: none;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.section-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #147cf5, #6c63ff);
+    color: #fff;
+}
+
+.section-title h3 {
+    margin: 0;
+    color: #1c2738;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.section-title span {
+    display: block;
+    margin-top: 3px;
+    color: #8793a5;
+    font-size: 12px;
+}
+
+.salary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.salary-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    width: 100%;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.required {
+    color: #e53935;
+}
+
+.form-control,
+.form-select {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 13px;
+    border: 1px solid #d9e1ec;
+    border-radius: 10px;
+    background: #fff;
+    color: #1f2937;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #5c8df6;
+    box-shadow: 0 0 0 3px rgba(92, 141, 246, .12);
+}
+
+.form-control[readonly] {
+    background: #f7f9fc;
+}
+
+.form-help {
+    margin-top: 6px;
+    color: #8995a7;
+    font-size: 11px;
+}
+
+textarea.form-control {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+.input-group-text {
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    background: #f5f7fb;
+    border: 1px solid #d9e1ec;
+    color: #667085;
+    font-weight: 600;
+}
+
+.input-group .input-group-text:first-child {
+    border-radius: 10px 0 0 10px;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-radius: 0 10px 10px 0;
+}
+
+/* =========================
+   ATTENDANCE
+========================= */
+
+.attendance-status {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid #dce8fb;
+    background: linear-gradient(135deg, #f6faff, #f8f7ff);
+}
+
+.attendance-status-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 15px;
+    color: #24324a;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.attendance-status-title i {
+    color: #1769d1;
+}
+
+.attendance-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.attendance-item {
+    background: #fff;
+    border: 1px solid #e5ebf3;
+    border-radius: 10px;
+    padding: 13px 10px;
+    text-align: center;
+}
+
+.attendance-item-label {
+    color: #8490a2;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.attendance-item-value {
+    color: #172033;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* =========================
+   LIVE CALCULATION
+========================= */
+
+.automatic-box {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 14px;
+    background: #f8fbff;
+    border: 1px solid #dce8f8;
+}
+
+.automatic-title {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #1d4f91;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.automatic-title i {
+    color: #147cf5;
+}
+
+.automatic-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.auto-field {
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #e3eaf3;
+    border-radius: 11px;
+}
+
+.auto-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #7a8798;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.auto-value {
+    color: #172033;
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.auto-value.blue {
+    color: #1769d1;
+}
+
+.auto-value.red {
+    color: #d64545;
+}
+
+.auto-value.green {
+    color: #17834b;
+}
+
+.auto-description {
+    margin-top: 5px;
+    color: #8995a7;
+    font-size: 11px;
+}
+
+/* =========================
+   PAYROLL SUMMARY
+========================= */
+
+.payroll-summary {
+    margin-top: 22px;
+    padding: 22px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f6f9ff, #faf9ff);
+    border: 1px solid #e0e8f5;
+}
+
+.payroll-summary-title {
+    margin-bottom: 18px;
+    color: #1b2940;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 11px 0;
+    border-bottom: 1px dashed #dfe5ed;
+}
+
+.summary-row:last-child {
+    border-bottom: none;
+}
+
+.summary-label {
+    color: #69778b;
+    font-size: 13px;
+}
+
+.summary-value {
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.summary-value.deduction {
+    color: #d64545;
+}
+
+.summary-value.allowance {
+    color: #17834b;
+}
+
+.net-salary-box {
+    margin-top: 18px;
+    padding: 20px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #147cf5, #6c63ff);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.net-salary-label {
+    font-size: 13px;
+    opacity: .88;
+}
+
+.net-salary-title {
+    margin-top: 4px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.net-salary-value {
+    font-size: 28px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.payment-note {
+    margin-top: 8px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    background: #f7f9fc;
+    color: #778397;
+    font-size: 11px;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 28px;
+    background: #fbfcfe;
+    border-top: 1px solid #edf1f6;
+}
+
+.btn {
+    min-height: 45px;
+    padding: 0 20px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background: #fff;
+    color: #526174;
+    border: 1px solid #d8e0ea;
+}
+
+.btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, #147cf5, #6c63ff);
+    box-shadow: 0 5px 14px rgba(48, 99, 220, .20);
+}
+
+.alert {
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.alert-danger {
+    color: #9b2525;
+    background: #fff1f1;
+    border: 1px solid #ffd2d2;
+}
+
+.alert-danger ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+@media (max-width: 1100px) {
+    .attendance-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 
-    /* ================================
-       HEADER
-    ================================= */
-    .salary-create-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-
-    .salary-header-left {
-        min-width: 0;
-    }
-
-    .salary-create-title {
-        margin: 0;
-        color: #172033;
-        font-size: 28px;
-        font-weight: 800;
-    }
-
-    .salary-create-subtitle {
-        margin: 7px 0 0;
-        color: #667085;
-        font-size: 14px;
-    }
-
-    .salary-back-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 11px 17px;
-        background: #fff;
-        color: #475467;
-        border: 1px solid #d9e0e8;
-        border-radius: 9px;
-        font-size: 13px;
-        font-weight: 700;
-        text-decoration: none;
-        white-space: nowrap;
-        box-shadow: 0 3px 10px rgba(15, 23, 42, .05);
-        transition: .2s ease;
-    }
-
-    .salary-back-btn i {
-        color: #147cf5;
-    }
-
-    .salary-back-btn:hover {
-        background: #f7faff;
-        color: #147cf5;
-        border-color: #bcd7f7;
-        transform: translateY(-1px);
-    }
-
-    /* ================================
-       MAIN CARD
-    ================================= */
-    .salary-form-card {
-        background: #fff;
-        border: 1px solid #e6eaf0;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 8px 28px rgba(15, 23, 42, .06);
-    }
-
-    /* ================================
-       CARD HEADER
-    ================================= */
-    .salary-card-top {
-        padding: 22px 25px;
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        color: #fff;
-    }
-
-    .salary-card-top-inner {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .salary-card-icon {
-        width: 46px;
-        height: 46px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, .18);
-        border: 1px solid rgba(255, 255, 255, .25);
-        border-radius: 12px;
-        font-size: 20px;
-    }
-
-    .salary-card-heading {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 800;
-    }
-
-    .salary-card-description {
-        margin: 4px 0 0;
-        color: rgba(255, 255, 255, .85);
-        font-size: 13px;
-    }
-
-    /* ================================
-       FORM BODY
-    ================================= */
-    .salary-form-body {
-        padding: 28px;
-    }
-
-    .salary-section {
-        margin-bottom: 30px;
-        padding-bottom: 26px;
-        border-bottom: 1px solid #edf0f4;
-    }
-
-    .salary-section:last-child {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-
-    .salary-section-title {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        margin: 0 0 18px;
-        color: #172033;
-        font-size: 16px;
-        font-weight: 800;
-    }
-
-    .salary-section-title i {
-        color: #147cf5;
-        font-size: 15px;
-    }
-
-    /* ================================
-       GRID
-    ================================= */
-    .salary-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px;
-    }
-
+    .automatic-grid,
     .salary-grid-3 {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .salary-page {
+        padding: 18px;
     }
 
-    .salary-field {
-        display: flex;
+    .salary-header {
         flex-direction: column;
+        align-items: flex-start;
     }
 
-    .salary-field-full {
-        grid-column: 1 / -1;
+    .salary-grid,
+    .salary-grid-3,
+    .automatic-grid {
+        grid-template-columns: 1fr;
     }
 
-    .salary-label {
-        margin-bottom: 8px;
-        color: #344054;
-        font-size: 13px;
-        font-weight: 700;
+    .attendance-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .salary-label span {
-        color: #ef4444;
+    .net-salary-box {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    /* ================================
-       INPUTS
-    ================================= */
-    .salary-input-wrapper {
-        position: relative;
+    .form-footer {
+        flex-direction: column-reverse;
     }
 
-    .salary-input-icon {
-        position: absolute;
-        left: 13px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #7b8798;
-        font-size: 14px;
-        pointer-events: none;
-    }
-
-    .salary-input,
-    .salary-select,
-    .salary-textarea {
+    .form-footer .btn {
         width: 100%;
-        box-sizing: border-box;
-        border: 1px solid #d9e0e8;
-        border-radius: 9px;
-        background: #fff;
-        color: #172033;
-        font-size: 14px;
-        outline: none;
-        transition: .2s ease;
     }
-
-    .salary-input,
-    .salary-select {
-        height: 45px;
-        padding: 0 13px;
-    }
-
-    .salary-input.has-icon,
-    .salary-select.has-icon {
-        padding-left: 40px;
-    }
-
-    .salary-textarea {
-        min-height: 105px;
-        padding: 12px 13px;
-        resize: vertical;
-    }
-
-    .salary-input:focus,
-    .salary-select:focus,
-    .salary-textarea:focus {
-        border-color: #147cf5;
-        box-shadow: 0 0 0 3px rgba(20, 124, 245, .10);
-    }
-
-    .salary-input::placeholder,
-    .salary-textarea::placeholder {
-        color: #98a2b3;
-    }
-
-    /* ================================
-       CALCULATION
-    ================================= */
-    .salary-calculation {
-        margin-top: 22px;
-        padding: 20px;
-        background: linear-gradient(135deg, #f5f9ff, #f6f5ff);
-        border: 1px solid #dce7fb;
-        border-radius: 13px;
-    }
-
-    .salary-calculation-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
-        color: #344054;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .salary-calculation-title i {
-        color: #6c63ff;
-    }
-
-    .salary-calculation-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
-    }
-
-    .salary-calculation-item {
-        padding: 14px;
-        background: #fff;
-        border: 1px solid #e5eaf2;
-        border-radius: 10px;
-    }
-
-    .salary-calculation-label {
-        color: #667085;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .4px;
-    }
-
-    .salary-calculation-value {
-        margin-top: 6px;
-        color: #172033;
-        font-size: 18px;
-        font-weight: 800;
-    }
-
-    .salary-net {
-        background: #f2fbf6;
-        border-color: #b9e4cd;
-    }
-
-    .salary-net .salary-calculation-value {
-        color: #16a34a;
-    }
-
-    /* ================================
-       PAYMENT STATUS
-    ================================= */
-    .payment-status-options {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .payment-option {
-        position: relative;
-    }
-
-    .payment-option input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .payment-option label {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 9px 15px;
-        background: #fff;
-        border: 1px solid #d9e0e8;
-        border-radius: 8px;
-        color: #475467;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: .2s ease;
-    }
-
-    .payment-option label:hover {
-        border-color: #147cf5;
-    }
-
-    .payment-option input:checked + label {
-        border-color: #147cf5;
-        background: #eef6ff;
-        color: #147cf5;
-    }
-
-    /* ================================
-       ERRORS
-    ================================= */
-    .salary-error {
-        margin-top: 6px;
-        color: #dc2626;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    /* ================================
-       ACTION BUTTONS
-    ================================= */
-    .salary-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 28px;
-        padding-top: 22px;
-        border-top: 1px solid #edf0f4;
-    }
-
-    .salary-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-height: 43px;
-        padding: 0 18px;
-        border-radius: 9px;
-        font-size: 13px;
-        font-weight: 800;
-        text-decoration: none;
-        cursor: pointer;
-        transition: .2s ease;
-    }
-
-    .salary-btn-cancel {
-        background: #fff;
-        color: #667085;
-        border: 1px solid #d9e0e8;
-    }
-
-    .salary-btn-cancel:hover {
-        background: #f8fafc;
-        color: #344054;
-    }
-
-    .salary-btn-save {
-        background: linear-gradient(135deg, #147cf5, #6c63ff);
-        color: #fff;
-        border: none;
-        box-shadow: 0 6px 15px rgba(20, 124, 245, .18);
-    }
-
-    .salary-btn-save:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 8px 20px rgba(20, 124, 245, .25);
-    }
-
-    /* ================================
-       RESPONSIVE
-    ================================= */
-    @media (max-width: 900px) {
-        .salary-grid-3 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .salary-calculation-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 700px) {
-        .salary-create-page {
-            padding: 16px;
-        }
-
-        .salary-create-header {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .salary-back-btn {
-            width: 100%;
-        }
-
-        .salary-grid,
-        .salary-grid-3 {
-            grid-template-columns: 1fr;
-        }
-
-        .salary-form-body {
-            padding: 20px;
-        }
-
-        .salary-actions {
-            flex-direction: column-reverse;
-        }
-
-        .salary-btn {
-            width: 100%;
-        }
-    }
-
-    @media (max-width: 450px) {
-        .salary-calculation-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+}
 </style>
 
-<div class="salary-create-page">
+<div class="salary-page">
 
-    {{-- PAGE HEADER --}}
-    <div class="salary-create-header">
-
+    <div class="salary-header">
         <div class="salary-header-left">
-            <h1 class="salary-create-title">
-                Generate Salary
-            </h1>
-
-            <p class="salary-create-subtitle">
-                Create a salary record for a teacher
+            <h2>Generate Salary</h2>
+            <p>
+                Automatically calculate salary using teacher attendance
+                and payroll details.
             </p>
         </div>
 
-        <a
-            href="{{ route('admin.teachers.salary.index') }}"
-            class="salary-back-btn"
-        >
+        <a href="{{ route('admin.teachers.salary.index') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i>
-            Back to Salary List
+            Back to Salary
         </a>
-
     </div>
 
-    {{-- MAIN CARD --}}
-    <div class="salary-form-card">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-        {{-- CARD HEADER --}}
-        <div class="salary-card-top">
+    <form
+        action="{{ route('admin.teachers.salary.store') }}"
+        method="POST"
+        id="salaryForm"
+    >
+        @csrf
 
-            <div class="salary-card-top-inner">
+        <div class="salary-card">
 
-                <div class="salary-card-icon">
-                    <i class="fas fa-file-invoice-dollar"></i>
+            {{-- ================================
+                 TEACHER INFORMATION
+            ================================= --}}
+            <div class="card-section">
+
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+
+                    <div>
+                        <h3>Teacher Information</h3>
+                        <span>Select teacher and salary month</span>
+                    </div>
                 </div>
 
-                <div>
-                    <h2 class="salary-card-heading">
-                        Salary Information
-                    </h2>
+                <div class="salary-grid">
 
-                    <p class="salary-card-description">
-                        Enter salary and payment details below.
-                    </p>
+                    <div class="form-group">
+                        <label class="form-label" for="teacher_id">
+                            Teacher <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="teacher_id"
+                            id="teacher_id"
+                            class="form-select"
+                            required
+                        >
+                            <option value="">Select Teacher</option>
+
+                            @foreach ($teachers as $teacher)
+                                <option
+                                    value="{{ $teacher->id }}"
+                                    {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}
+                                >
+                                    {{ $teacher->first_name }}
+                                    {{ $teacher->last_name }}
+
+                                    @if ($teacher->teacher_id)
+                                        - {{ $teacher->teacher_id }}
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <div class="form-help">
+                            Attendance will load automatically.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="salary_month">
+                            Salary Month <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="month"
+                            name="salary_month"
+                            id="salary_month"
+                            class="form-control"
+                            value="{{ old('salary_month', now()->format('Y-m')) }}"
+                            required
+                        >
+
+                        <div class="form-help">
+                            Attendance for this month will be used.
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- ================================
+                     ATTENDANCE
+                ================================= --}}
+                <div class="attendance-status">
+
+                    <div class="attendance-status-title">
+                        <i class="fas fa-calendar-check"></i>
+                        Attendance Summary
+                    </div>
+
+                    <div class="attendance-grid">
+
+                        <div class="attendance-item">
+                            <div class="attendance-item-label">Working Days</div>
+                            <div class="attendance-item-value" id="display_working_days">0</div>
+                        </div>
+
+                        <div class="attendance-item">
+                            <div class="attendance-item-label">Present</div>
+                            <div class="attendance-item-value" id="display_present_days">0</div>
+                        </div>
+
+                        <div class="attendance-item">
+                            <div class="attendance-item-label">Absent</div>
+                            <div class="attendance-item-value" id="display_absent_days">0</div>
+                        </div>
+
+                        <div class="attendance-item">
+                            <div class="attendance-item-label">Half Day</div>
+                            <div class="attendance-item-value" id="display_half_days">0</div>
+                        </div>
+
+                        <div class="attendance-item">
+                            <div class="attendance-item-label">Leave</div>
+                            <div class="attendance-item-value" id="display_leave_days">0</div>
+                        </div>
+
+                        <div class="attendance-item">
+                            <div class="attendance-item-label">Overtime</div>
+                            <div class="attendance-item-value" id="display_overtime_hours">
+                                0.00
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
             </div>
 
-        </div>
+            {{-- ================================
+                 SALARY DETAILS
+            ================================= --}}
+            <div class="card-section">
 
-        {{-- FORM BODY --}}
-        <div class="salary-form-body">
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-money-check-alt"></i>
+                    </div>
 
-            <form
-                action="{{ route('admin.teachers.salary.store') }}"
-                method="POST"
-            >
+                    <div>
+                        <h3>Salary Details</h3>
+                        <span>Enter salary amount and view automatic calculation</span>
+                    </div>
+                </div>
 
-                @csrf
+                <div class="salary-grid-3">
 
-                {{-- ============================
-                     TEACHER INFORMATION
-                ============================= --}}
-                <div class="salary-section">
+                    <div class="form-group">
+                        <label class="form-label" for="basic_salary">
+                            Basic Salary <span class="required">*</span>
+                        </label>
 
-                    <h3 class="salary-section-title">
-                        <i class="fas fa-user-tie"></i>
-                        Teacher Information
-                    </h3>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
 
-                    <div class="salary-grid">
+                            <input
+                                type="number"
+                                name="basic_salary"
+                                id="basic_salary"
+                                class="form-control"
+                                value="{{ old('basic_salary', 0) }}"
+                                min="0"
+                                step="0.01"
+                                required
+                            >
+                        </div>
+                    </div>
 
-                        {{-- TEACHER --}}
-                        <div class="salary-field">
+                    <div class="form-group">
+                        <label class="form-label" for="allowances">
+                            Other Allowances
+                        </label>
 
-                            <label class="salary-label">
-                                Teacher <span>*</span>
-                            </label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
 
-                            <div class="salary-input-wrapper">
+                            <input
+                                type="number"
+                                name="allowances"
+                                id="allowances"
+                                class="form-control"
+                                value="{{ old('allowances', 0) }}"
+                                min="0"
+                                step="0.01"
+                            >
+                        </div>
+                    </div>
 
-                                <i class="fas fa-user salary-input-icon"></i>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Attendance Percentage
+                        </label>
 
-                                <select
-                                    name="teacher_id"
-                                    id="teacher_id"
-                                    class="salary-select has-icon"
-                                    required
-                                >
+                        <input
+                            type="text"
+                            id="attendance_percentage"
+                            class="form-control"
+                            value="0%"
+                            readonly
+                        >
+                    </div>
 
-                                    <option value="">
-                                        Select Teacher
-                                    </option>
+                </div>
 
-                                    @foreach($teachers as $teacher)
+                {{-- ================================
+                     LIVE AUTOMATIC CALCULATION
+                ================================= --}}
+                <div class="automatic-box">
 
-                                        <option
-                                            value="{{ $teacher->id }}"
-                                            {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}
-                                        >
-                                            {{ $teacher->first_name }}
-                                            {{ $teacher->last_name }}
+                    <div class="automatic-title">
+                        <i class="fas fa-calculator"></i>
+                        Live Attendance Salary Calculation
+                    </div>
 
-                                            @if($teacher->teacher_id)
-                                                - {{ $teacher->teacher_id }}
-                                            @endif
-                                        </option>
+                    <div class="automatic-grid">
 
-                                    @endforeach
+                        <div class="auto-field">
+                            <span class="auto-label">Deduction Rate</span>
 
-                                </select>
-
+                            <div
+                                class="auto-value blue"
+                                id="display_deduction_rate"
+                            >
+                                0%
                             </div>
 
-                            @error('teacher_id')
-                                <div class="salary-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-
+                            <div class="auto-description">
+                                Automatically based on attendance
+                            </div>
                         </div>
 
-                        {{-- SALARY MONTH --}}
-                        <div class="salary-field">
+                        <div class="auto-field">
+                            <span class="auto-label">Basic Salary</span>
 
-                            <label class="salary-label">
-                                Salary Month <span>*</span>
-                            </label>
-
-                            <div class="salary-input-wrapper">
-
-                                <i class="fas fa-calendar-alt salary-input-icon"></i>
-
-                                <input
-                                    type="month"
-                                    name="salary_month"
-                                    id="salary_month"
-                                    value="{{ old('salary_month', now()->format('Y-m')) }}"
-                                    class="salary-input has-icon"
-                                    required
-                                >
-
+                            <div
+                                class="auto-value"
+                                id="display_basic_salary"
+                            >
+                                ₹ 0.00
                             </div>
 
-                            @error('salary_month')
-                                <div class="salary-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
+                            <div class="auto-description">
+                                Salary used for deduction
+                            </div>
+                        </div>
 
+                        <div class="auto-field">
+                            <span class="auto-label">
+                                Actual Attendance Deduction
+                            </span>
+
+                            <div
+                                class="auto-value red"
+                                id="display_deduction_amount"
+                            >
+                                ₹ 0.00
+                            </div>
+
+                            <div class="auto-description">
+                                Basic Salary × Deduction Rate ÷ 100
+                            </div>
+                        </div>
+
+                        <div class="auto-field">
+                            <span class="auto-label">
+                                Attendance Allowance
+                            </span>
+
+                            <div
+                                class="auto-value green"
+                                id="display_attendance_allowance"
+                            >
+                                ₹ 0.00
+                            </div>
+
+                            <div class="auto-description">
+                                Based on attendance percentage
+                            </div>
+                        </div>
+
+                        <div class="auto-field">
+                            <span class="auto-label">
+                                Overtime Amount
+                            </span>
+
+                            <div
+                                class="auto-value green"
+                                id="display_overtime_amount"
+                            >
+                                ₹ 0.00
+                            </div>
+
+                            <div class="auto-description">
+                                Overtime hours × overtime rate
+                            </div>
+                        </div>
+
+                        <div class="auto-field">
+                            <span class="auto-label">
+                                Total Deduction
+                            </span>
+
+                            <div
+                                class="auto-value red"
+                                id="display_total_deductions"
+                            >
+                                ₹ 0.00
+                            </div>
+
+                            <div class="auto-description">
+                                Attendance deduction only
+                            </div>
                         </div>
 
                     </div>
 
                 </div>
 
-                {{-- ============================
-                     SALARY DETAILS
-                ============================= --}}
-                <div class="salary-section">
+            </div>
 
-                    <h3 class="salary-section-title">
-                        <i class="fas fa-money-bill-wave"></i>
-                        Salary Details
-                    </h3>
+            {{-- ================================
+                 PAYROLL CALCULATION
+            ================================= --}}
+            <div class="card-section">
 
-                    <div class="salary-grid-3">
-
-                        {{-- BASIC SALARY --}}
-                        <div class="salary-field">
-
-                            <label class="salary-label">
-                                Basic Salary <span>*</span>
-                            </label>
-
-                            <div class="salary-input-wrapper">
-
-                                <i class="fas fa-rupee-sign salary-input-icon"></i>
-
-                                <input
-                                    type="number"
-                                    name="basic_salary"
-                                    id="basic_salary"
-                                    value="{{ old('basic_salary') }}"
-                                    class="salary-input has-icon"
-                                    placeholder="0.00"
-                                    min="0"
-                                    step="0.01"
-                                    required
-                                >
-
-                            </div>
-
-                            @error('basic_salary')
-                                <div class="salary-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-
-                        </div>
-
-                        {{-- ALLOWANCES --}}
-                        <div class="salary-field">
-
-                            <label class="salary-label">
-                                Allowances
-                            </label>
-
-                            <div class="salary-input-wrapper">
-
-                                <i class="fas fa-plus-circle salary-input-icon"></i>
-
-                                <input
-                                    type="number"
-                                    name="allowances"
-                                    id="allowances"
-                                    value="{{ old('allowances', 0) }}"
-                                    class="salary-input has-icon"
-                                    placeholder="0.00"
-                                    min="0"
-                                    step="0.01"
-                                >
-
-                            </div>
-
-                            @error('allowances')
-                                <div class="salary-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-
-                        </div>
-
-                        {{-- DEDUCTION RATE --}}
-                        <div class="salary-field">
-
-                            <label class="salary-label">
-                                Deduction Rate (%)
-                            </label>
-
-                            <div class="salary-input-wrapper">
-
-                                <i class="fas fa-percent salary-input-icon"></i>
-
-                                <input
-                                    type="number"
-                                    name="deduction_rate"
-                                    id="deduction_rate"
-                                    value="{{ old('deduction_rate', 0) }}"
-                                    class="salary-input has-icon"
-                                    placeholder="0.00"
-                                    min="0"
-                                    max="100"
-                                    step="0.01"
-                                >
-
-                            </div>
-
-                            @error('deduction_rate')
-                                <div class="salary-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-
-                        </div>
-
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
                     </div>
 
-                    {{-- SALARY CALCULATION --}}
-                    <div class="salary-calculation">
+                    <div>
+                        <h3>Payroll Calculation</h3>
+                        <span>Live final salary preview</span>
+                    </div>
+                </div>
 
-                        <div class="salary-calculation-title">
-                            <i class="fas fa-calculator"></i>
-                            Salary Calculation
+                <div class="payroll-summary">
+
+                    <div class="payroll-summary-title">
+                        Salary Breakdown
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Basic Salary</span>
+                        <span class="summary-value" id="summary_basic">
+                            ₹ 0.00
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Other Allowances</span>
+                        <span class="summary-value" id="summary_allowances">
+                            ₹ 0.00
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">
+                            Attendance Allowance
+                        </span>
+
+                        <span
+                            class="summary-value allowance"
+                            id="summary_attendance_allowance"
+                        >
+                            ₹ 0.00
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Overtime Amount</span>
+
+                        <span
+                            class="summary-value allowance"
+                            id="summary_overtime"
+                        >
+                            ₹ 0.00
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">
+                            Attendance Deduction
+                        </span>
+
+                        <span
+                            class="summary-value deduction"
+                            id="summary_deduction"
+                        >
+                            ₹ 0.00
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Gross Salary</span>
+
+                        <span
+                            class="summary-value"
+                            id="summary_gross"
+                        >
+                            ₹ 0.00
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Total Deductions</span>
+
+                        <span
+                            class="summary-value deduction"
+                            id="summary_total_deductions"
+                        >
+                            ₹ 0.00
+                        </span>
+                    </div>
+
+                    <div class="net-salary-box">
+
+                        <div>
+                            <div class="net-salary-label">
+                                Final Salary Payable
+                            </div>
+
+                            <div class="net-salary-title">
+                                Net Salary
+                            </div>
                         </div>
 
-                        <div class="salary-calculation-grid">
-
-                            <div class="salary-calculation-item">
-
-                                <div class="salary-calculation-label">
-                                    Basic
-                                </div>
-
-                                <div
-                                    class="salary-calculation-value"
-                                    id="display-basic"
-                                >
-                                    ₹0.00
-                                </div>
-
-                            </div>
-
-                            <div class="salary-calculation-item">
-
-                                <div class="salary-calculation-label">
-                                    Allowances
-                                </div>
-
-                                <div
-                                    class="salary-calculation-value"
-                                    id="display-allowances"
-                                >
-                                    ₹0.00
-                                </div>
-
-                            </div>
-
-                            <div class="salary-calculation-item">
-
-                                <div class="salary-calculation-label">
-                                    Deductions
-                                </div>
-
-                                <div
-                                    class="salary-calculation-value"
-                                    id="display-deductions"
-                                >
-                                    ₹0.00
-                                </div>
-
-                            </div>
-
-                            <div class="salary-calculation-item salary-net">
-
-                                <div class="salary-calculation-label">
-                                    Net Salary
-                                </div>
-
-                                <div
-                                    class="salary-calculation-value"
-                                    id="display-net"
-                                >
-                                    ₹0.00
-                                </div>
-
-                            </div>
-
+                        <div
+                            class="net-salary-value"
+                            id="summary_net"
+                        >
+                            ₹ 0.00
                         </div>
 
                     </div>
 
                 </div>
 
-                {{-- ============================
-                     PAYMENT INFORMATION
-                ============================= --}}
-                <div class="salary-section">
+            </div>
 
-                    <h3 class="salary-section-title">
+            {{-- ================================
+                 PAYMENT DETAILS
+            ================================= --}}
+            <div class="card-section">
+
+                <div class="section-title">
+                    <div class="section-icon">
                         <i class="fas fa-credit-card"></i>
-                        Payment Information
-                    </h3>
-
-                    <div class="salary-grid">
-
-                        {{-- PAYMENT STATUS --}}
-                        <div class="salary-field">
-
-                            <label class="salary-label">
-                                Payment Status <span>*</span>
-                            </label>
-
-                            <div class="payment-status-options">
-
-                                <div class="payment-option">
-
-                                    <input
-                                        type="radio"
-                                        name="payment_status"
-                                        id="status_pending"
-                                        value="Pending"
-                                        {{ old('payment_status', 'Pending') == 'Pending' ? 'checked' : '' }}
-                                    >
-
-                                    <label for="status_pending">
-                                        <i class="fas fa-clock"></i>
-                                        Pending
-                                    </label>
-
-                                </div>
-
-                                <div class="payment-option">
-
-                                    <input
-                                        type="radio"
-                                        name="payment_status"
-                                        id="status_paid"
-                                        value="Paid"
-                                        {{ old('payment_status') == 'Paid' ? 'checked' : '' }}
-                                    >
-
-                                    <label for="status_paid">
-                                        <i class="fas fa-check-circle"></i>
-                                        Paid
-                                    </label>
-
-                                </div>
-
-                            </div>
-
-                            @error('payment_status')
-                                <div class="salary-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-
-                        </div>
-
-                        {{-- PAYMENT DATE --}}
-                        <div class="salary-field">
-
-                            <label class="salary-label">
-                                Payment Date
-                            </label>
-
-                            <div class="salary-input-wrapper">
-
-                                <i class="fas fa-calendar-check salary-input-icon"></i>
-
-                                <input
-                                    type="date"
-                                    name="payment_date"
-                                    id="payment_date"
-                                    value="{{ old('payment_date') }}"
-                                    class="salary-input has-icon"
-                                >
-
-                            </div>
-
-                            @error('payment_date')
-                                <div class="salary-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-
-                        </div>
-
                     </div>
 
+                    <div>
+                        <h3>Payment Details</h3>
+                        <span>Select payment status and additional information</span>
+                    </div>
                 </div>
 
-                {{-- ============================
-                     ADDITIONAL INFORMATION
-                ============================= --}}
-                <div class="salary-section">
+                <div class="salary-grid">
 
-                    <h3 class="salary-section-title">
-                        <i class="fas fa-comment-alt"></i>
-                        Additional Information
-                    </h3>
+                    <div class="form-group">
+                        <label class="form-label" for="payment_status">
+                            Payment Status <span class="required">*</span>
+                        </label>
 
-                    <div class="salary-field salary-field-full">
+                        <select
+                            name="payment_status"
+                            id="payment_status"
+                            class="form-select"
+                            required
+                        >
+                            <option
+                                value="Pending"
+                                {{ old('payment_status', 'Pending') == 'Pending' ? 'selected' : '' }}
+                            >
+                                Pending
+                            </option>
 
-                        <label class="salary-label">
+                            <option
+                                value="Paid"
+                                {{ old('payment_status') == 'Paid' ? 'selected' : '' }}
+                            >
+                                Paid
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="payment_date">
+                            Payment Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="payment_date"
+                            id="payment_date"
+                            class="form-control"
+                            value="{{ old('payment_date') }}"
+                        >
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label" for="remarks">
                             Remarks
                         </label>
 
                         <textarea
                             name="remarks"
-                            class="salary-textarea"
-                            placeholder="Enter any additional salary notes..."
+                            id="remarks"
+                            class="form-control"
+                            placeholder="Add any additional salary remarks..."
                         >{{ old('remarks') }}</textarea>
-
-                        @error('remarks')
-                            <div class="salary-error">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
                     </div>
 
                 </div>
 
-                {{-- ============================
-                     ACTIONS
-                ============================= --}}
-                <div class="salary-actions">
-
-                    <a
-                        href="{{ route('admin.teachers.salary.index') }}"
-                        class="salary-btn salary-btn-cancel"
-                    >
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="salary-btn salary-btn-save"
-                    >
-                        <i class="fas fa-save"></i>
-                        Generate Salary
-                    </button>
-
+                <div class="payment-note">
+                    <i class="fas fa-info-circle"></i>
+                    Attendance and salary calculation are shown live before
+                    generating the salary.
                 </div>
 
-            </form>
+            </div>
+
+            {{-- ================================
+                 FOOTER
+            ================================= --}}
+            <div class="form-footer">
+
+                <a
+                    href="{{ route('admin.teachers.salary.index') }}"
+                    class="btn btn-secondary"
+                >
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="fas fa-check-circle"></i>
+                    Generate Salary
+                </button>
+
+            </div>
 
         </div>
-
-    </div>
+    </form>
 
 </div>
 
-{{-- ================================
-     SALARY CALCULATION SCRIPT
-================================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    const basicInput = document.getElementById('basic_salary');
-    const allowancesInput = document.getElementById('allowances');
-    const deductionRateInput = document.getElementById('deduction_rate');
+    const teacherSelect = document.getElementById('teacher_id');
+    const salaryMonth = document.getElementById('salary_month');
+    const basicSalary = document.getElementById('basic_salary');
+    const allowances = document.getElementById('allowances');
 
-    const displayBasic = document.getElementById('display-basic');
-    const displayAllowances = document.getElementById('display-allowances');
-    const displayDeductions = document.getElementById('display-deductions');
-    const displayNet = document.getElementById('display-net');
+    let attendanceData = null;
 
-    function getValue(input) {
-        return parseFloat(input.value) || 0;
+    /* ================================
+       MONEY FORMAT
+    ================================= */
+    function money(value) {
+        const amount = Number(value) || 0;
+
+        return '₹ ' + amount.toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 
-    function formatMoney(value) {
-        return '₹' + value.toFixed(2);
+    /* ================================
+       SET TEXT
+    ================================= */
+    function setText(id, value) {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.textContent = value;
+        }
     }
 
+    /* ================================
+       RESET
+    ================================= */
+    function resetAttendance() {
+
+        attendanceData = null;
+
+        setText('display_working_days', '0');
+        setText('display_present_days', '0');
+        setText('display_absent_days', '0');
+        setText('display_half_days', '0');
+        setText('display_leave_days', '0');
+        setText('display_overtime_hours', '0.00');
+
+        setText('attendance_percentage', '0%');
+        setText('display_deduction_rate', '0%');
+
+        setText('display_attendance_allowance', money(0));
+        setText('display_overtime_amount', money(0));
+
+        calculateSalary();
+    }
+
+    /* ================================
+       LOAD ATTENDANCE
+    ================================= */
+    async function loadAttendance() {
+
+        const teacherId = teacherSelect.value;
+        const month = salaryMonth.value;
+
+        if (!teacherId || !month) {
+            resetAttendance();
+            return;
+        }
+
+        setText('display_working_days', 'Loading...');
+        setText('display_present_days', '...');
+        setText('display_absent_days', '...');
+        setText('display_half_days', '...');
+        setText('display_leave_days', '...');
+        setText('display_overtime_hours', '...');
+
+        try {
+
+            const url =
+                "{{ route('admin.teachers.salary.attendance-data') }}" +
+                "?teacher_id=" +
+                encodeURIComponent(teacherId) +
+                "&salary_month=" +
+                encodeURIComponent(month);
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    'Attendance request failed: ' + response.status
+                );
+            }
+
+            const data = await response.json();
+
+            console.log('Attendance Data:', data);
+
+            if (!data.success) {
+                throw new Error('Attendance data not available.');
+            }
+
+            attendanceData = data;
+
+            /* Attendance */
+
+            setText(
+                'display_working_days',
+                data.working_days ?? 0
+            );
+
+            setText(
+                'display_present_days',
+                data.present_days ?? 0
+            );
+
+            setText(
+                'display_absent_days',
+                data.absent_days ?? 0
+            );
+
+            setText(
+                'display_half_days',
+                data.half_days ?? 0
+            );
+
+            setText(
+                'display_leave_days',
+                data.leave_days ?? 0
+            );
+
+            setText(
+                'display_overtime_hours',
+                Number(data.overtime_hours || 0).toFixed(2)
+            );
+
+            /* Attendance percentage */
+
+            const attendancePercentage =
+                Number(data.attendance_percentage || 0);
+
+            setText(
+                'attendance_percentage',
+                attendancePercentage.toFixed(2) + '%'
+            );
+
+            /* Deduction rate */
+
+            const deductionRate =
+                Number(data.deduction_rate || 0);
+
+            setText(
+                'display_deduction_rate',
+                deductionRate.toFixed(2) + '%'
+            );
+
+            /* Automatic allowance */
+
+            setText(
+                'display_attendance_allowance',
+                money(data.attendance_allowance)
+            );
+
+            /* Overtime */
+
+            setText(
+                'display_overtime_amount',
+                money(data.overtime_amount)
+            );
+
+            /* IMPORTANT:
+               Recalculate immediately after attendance loads.
+            */
+
+            calculateSalary();
+
+        } catch (error) {
+
+            console.error('Attendance Error:', error);
+
+            resetAttendance();
+
+            alert(
+                'Unable to load attendance data. Please check the attendance-data route and controller.'
+            );
+        }
+    }
+
+    /* ================================
+       CALCULATE SALARY LIVE
+    ================================= */
     function calculateSalary() {
 
-        const basic = getValue(basicInput);
-        const allowances = getValue(allowancesInput);
-        const deductionRate = getValue(deductionRateInput);
+        const basic =
+            Number(basicSalary.value) || 0;
+
+        const otherAllowances =
+            Number(allowances.value) || 0;
+
+        let deductionRate = 0;
+        let attendanceAllowance = 0;
+        let overtimeAmount = 0;
+
+        if (attendanceData) {
+
+            deductionRate =
+                Number(attendanceData.deduction_rate) || 0;
+
+            attendanceAllowance =
+                Number(attendanceData.attendance_allowance) || 0;
+
+            overtimeAmount =
+                Number(attendanceData.overtime_amount) || 0;
+        }
+
+        /* ==================================
+           ACTUAL ATTENDANCE DEDUCTION
+
+           Basic Salary × Deduction Rate / 100
+        ================================== */
 
         const deductionAmount =
-            basic * deductionRate / 100;
+            (basic * deductionRate) / 100;
 
-        const netSalary =
+        /* ==================================
+           GROSS SALARY
+        ================================== */
+
+        const grossSalary =
             basic +
-            allowances -
+            otherAllowances +
+            attendanceAllowance +
+            overtimeAmount;
+
+        /* ==================================
+           TOTAL DEDUCTION
+
+           Only attendance deduction.
+           No double deduction.
+        ================================== */
+
+        const totalDeductions =
             deductionAmount;
 
-        displayBasic.textContent =
-            formatMoney(basic);
+        /* ==================================
+           NET SALARY
+        ================================== */
 
-        displayAllowances.textContent =
-            formatMoney(allowances);
+        const netSalary =
+            Math.max(
+                0,
+                grossSalary - totalDeductions
+            );
 
-        displayDeductions.textContent =
-            formatMoney(deductionAmount);
+        /* ==================================
+           AUTOMATIC CALCULATION BOX
+        ================================== */
 
-        displayNet.textContent =
-            formatMoney(netSalary);
+        setText(
+            'display_basic_salary',
+            money(basic)
+        );
+
+        setText(
+            'display_deduction_amount',
+            money(deductionAmount)
+        );
+
+        setText(
+            'display_total_deductions',
+            money(totalDeductions)
+        );
+
+        /* ==================================
+           PAYROLL SUMMARY
+        ================================== */
+
+        setText(
+            'summary_basic',
+            money(basic)
+        );
+
+        setText(
+            'summary_allowances',
+            money(otherAllowances)
+        );
+
+        setText(
+            'summary_attendance_allowance',
+            money(attendanceAllowance)
+        );
+
+        setText(
+            'summary_overtime',
+            money(overtimeAmount)
+        );
+
+        setText(
+            'summary_deduction',
+            money(deductionAmount)
+        );
+
+        setText(
+            'summary_gross',
+            money(grossSalary)
+        );
+
+        setText(
+            'summary_total_deductions',
+            money(totalDeductions)
+        );
+
+        setText(
+            'summary_net',
+            money(netSalary)
+        );
     }
 
-    basicInput.addEventListener(
+    /* ================================
+       EVENTS
+    ================================= */
+
+    teacherSelect.addEventListener(
+        'change',
+        loadAttendance
+    );
+
+    salaryMonth.addEventListener(
+        'change',
+        loadAttendance
+    );
+
+    basicSalary.addEventListener(
         'input',
         calculateSalary
     );
 
-    allowancesInput.addEventListener(
+    allowances.addEventListener(
         'input',
         calculateSalary
     );
 
-    deductionRateInput.addEventListener(
-        'input',
-        calculateSalary
-    );
+    /* Initial calculation */
 
     calculateSalary();
+
+    /* Load attendance if values already exist */
+
+    if (
+        teacherSelect.value &&
+        salaryMonth.value
+    ) {
+        loadAttendance();
+    }
+
 });
 </script>
 
