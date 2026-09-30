@@ -4,10 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-
-    "content-hash": "9334ef771af85f6b31084f5305e8446c",
-
-    "content-hash": "49ccb3ab3a4f5564665ea67e244560b1",
+    "content-hash": "1e27f1538959141f255ba17cbaedca1e",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1202,7 +1199,6 @@
         },
         {
             "name": "ezyang/htmlpurifier",
-<<<<<<< HEAD
             "version": "v4.19.1",
             "source": {
                 "type": "git",
@@ -1213,18 +1209,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/5e0539132d934f936fbae2c88b55d58f9438623f",
                 "reference": "5e0539132d934f936fbae2c88b55d58f9438623f",
-=======
-            "version": "v4.19.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ezyang/htmlpurifier.git",
-                "reference": "b287d2a16aceffbf6e0295559b39662612b77fcf"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/b287d2a16aceffbf6e0295559b39662612b77fcf",
-                "reference": "b287d2a16aceffbf6e0295559b39662612b77fcf",
->>>>>>> origin/timetable/payroll-Management
                 "shasum": ""
             },
             "require": {
@@ -1270,15 +1254,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ezyang/htmlpurifier/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.1"
             },
             "time": "2026-09-15T15:42:51+00:00"
-=======
-                "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.0"
-            },
-            "time": "2025-10-17T16:34:55+00:00"
->>>>>>> origin/timetable/payroll-Management
         },
         {
             "name": "fruitcake/php-cors",
@@ -1499,7 +1477,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "M├írk S├ígi-Kaz├ír",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1698,7 +1676,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "M├írk S├ígi-Kaz├ír",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1708,7 +1686,7 @@
                     "homepage": "https://github.com/Tobion"
                 },
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "M├írk S├ígi-Kaz├ír",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -3071,7 +3049,7 @@
                     "email": "pabs@pablotron.org"
                 },
                 {
-                    "name": "Jonatan Männchen",
+                    "name": "Jonatan M├ñnnchen",
                     "email": "jonatan@maennchen.ch"
                 },
                 {
@@ -3079,7 +3057,7 @@
                     "email": "donatj@gmail.com"
                 },
                 {
-                    "name": "András Kolesár",
+                    "name": "Andr├ís Koles├ír",
                     "email": "kolesar@kolesar.hu"
                 }
             ],
@@ -3208,8 +3186,6 @@
             "time": "2022-12-02T22:17:43+00:00"
         },
         {
-<<<<<<< HEAD
-=======
             "name": "masterminds/html5",
             "version": "2.11.0",
             "source": {
@@ -3277,7 +3253,6 @@
             "time": "2026-08-18T06:18:41+00:00"
         },
         {
->>>>>>> origin/timetable/payroll-Management
             "name": "monolog/monolog",
             "version": "3.11.0",
             "source": {
@@ -3540,7 +3515,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "📐 Nette Schema: validating data structures against a given Schema.",
+            "description": "≡ƒôÉ Nette Schema: validating data structures against a given Schema.",
             "homepage": "https://nette.org",
             "keywords": [
                 "config",
@@ -3619,7 +3594,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🛠  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
+            "description": "≡ƒ¢á  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
             "homepage": "https://nette.org",
             "keywords": [
                 "array",
@@ -3858,7 +3833,6 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-<<<<<<< HEAD
             "version": "1.30.7",
             "source": {
                 "type": "git",
@@ -3869,18 +3843,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/f5dd9c1f084d336ea63cf53099533e061a9c157a",
                 "reference": "f5dd9c1f084d336ea63cf53099533e061a9c157a",
-=======
-            "version": "1.30.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "a416375ffc8bf5b661c1bb4e6c60d8f3fddbe5ce"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/a416375ffc8bf5b661c1bb4e6c60d8f3fddbe5ce",
-                "reference": "a416375ffc8bf5b661c1bb4e6c60d8f3fddbe5ce",
->>>>>>> origin/timetable/payroll-Management
                 "shasum": ""
             },
             "require": {
@@ -3973,15 +3935,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.30.7"
             },
             "time": "2026-09-17T03:56:23+00:00"
-=======
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.30.6"
-            },
-            "time": "2026-07-12T19:59:31+00:00"
->>>>>>> origin/timetable/payroll-Management
         },
         {
             "name": "phpoption/phpoption",
@@ -5234,7 +5190,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Jean-François Simon",
+                    "name": "Jean-Fran├ºois Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -6817,7 +6773,7 @@
             ],
             "authors": [
                 {
-                    "name": "Grégoire Pineau",
+                    "name": "Gr├⌐goire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -7402,7 +7358,7 @@
             ],
             "authors": [
                 {
-                    "name": "Grégoire Pineau",
+                    "name": "Gr├⌐goire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -7532,32 +7488,6 @@
             "time": "2026-08-30T20:10:52+00:00"
         },
         {
-<<<<<<< HEAD
-            "name": "thiagoalessio/tesseract_ocr",
-            "version": "2.13.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thiagoalessio/tesseract-ocr-for-php.git",
-                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thiagoalessio/tesseract-ocr-for-php/zipball/232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
-                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "phpunit/php-code-coverage": "^2.2.4 || ^9.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "thiagoalessio\\TesseractOCR\\": "src/"
-                }
-=======
             "name": "thecodingmachine/safe",
             "version": "v3.4.0",
             "source": {
@@ -7670,32 +7600,11 @@
                     "lib/Exceptions/",
                     "generated/Exceptions/"
                 ]
->>>>>>> origin/timetable/payroll-Management
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
-<<<<<<< HEAD
-            "authors": [
-                {
-                    "name": "thiagoalessio",
-                    "email": "thiagoalessio@me.com"
-                }
-            ],
-            "description": "A wrapper to work with Tesseract OCR inside PHP.",
-            "keywords": [
-                "OCR",
-                "Tesseract",
-                "text recognition"
-            ],
-            "support": {
-                "irc": "irc://irc.freenode.net/tesseract-ocr-for-php",
-                "issues": "https://github.com/thiagoalessio/tesseract-ocr-for-php/issues",
-                "source": "https://github.com/thiagoalessio/tesseract-ocr-for-php"
-            },
-            "time": "2023-10-05T21:14:48+00:00"
-=======
             "description": "PHP core functions that throw exceptions instead of returning FALSE on error",
             "support": {
                 "issues": "https://github.com/thecodingmachine/safe/issues",
@@ -7720,7 +7629,55 @@
                 }
             ],
             "time": "2026-02-04T18:08:13+00:00"
->>>>>>> origin/timetable/payroll-Management
+        },
+        {
+            "name": "thiagoalessio/tesseract_ocr",
+            "version": "2.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thiagoalessio/tesseract-ocr-for-php.git",
+                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thiagoalessio/tesseract-ocr-for-php/zipball/232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
+                "reference": "232a8cb9d571992f9bd1e263f2f6909cf6c173a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/php-code-coverage": "^2.2.4 || ^9.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "thiagoalessio\\TesseractOCR\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "thiagoalessio",
+                    "email": "thiagoalessio@me.com"
+                }
+            ],
+            "description": "A wrapper to work with Tesseract OCR inside PHP.",
+            "keywords": [
+                "OCR",
+                "Tesseract",
+                "text recognition"
+            ],
+            "support": {
+                "irc": "irc://irc.freenode.net/tesseract-ocr-for-php",
+                "issues": "https://github.com/thiagoalessio/tesseract-ocr-for-php/issues",
+                "source": "https://github.com/thiagoalessio/tesseract-ocr-for-php"
+            },
+            "time": "2023-10-05T21:14:48+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -7985,7 +7942,7 @@
             ],
             "authors": [
                 {
-                    "name": "François Zaninotto"
+                    "name": "Fran├ºois Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -8380,7 +8337,7 @@
             ],
             "authors": [
                 {
-                    "name": "Pádraic Brady",
+                    "name": "P├ídraic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "https://github.com/padraic",
                     "role": "Author"

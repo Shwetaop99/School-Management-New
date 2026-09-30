@@ -1,1008 +1,1852 @@
+
 @extends('layouts.app')
 
-@section('title', 'Examinations')
+@section('title', 'Exam Management')
 
 @section('content')
 
-<style>
-    .exam-page {
-        background: #f5f7fb;
-        min-height: calc(100vh - 70px);
-        padding: 28px;
-    }
-
-    /* Header */
-    .exam-header {
-        margin-bottom: 25px;
-    }
-
-    .exam-title-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #1677f0, #4f9cff);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        box-shadow: 0 8px 20px rgba(22, 119, 240, .20);
-    }
-
-    .exam-title {
-        font-size: 25px;
-        font-weight: 700;
-        color: #1f2937;
-        margin: 0;
-    }
-
-    .exam-subtitle {
-        color: #7b8494;
-        font-size: 14px;
-        margin: 3px 0 0;
-    }
-
-    .btn-create-exam {
-        border: 0;
-        border-radius: 10px;
-        padding: 11px 18px;
-        font-weight: 600;
-        box-shadow: 0 6px 15px rgba(22, 119, 240, .18);
-    }
-
-    /* Summary Cards */
-    .summary-card {
-        background: #fff;
-        border: 0;
-        border-radius: 16px;
-        padding: 20px;
-        height: 100%;
-        box-shadow: 0 5px 18px rgba(30, 50, 80, .06);
-        transition: all .2s ease;
-    }
-
-    .summary-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(30, 50, 80, .10);
-    }
-
-    .summary-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 13px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 21px;
-    }
-
-    .summary-number {
-        font-size: 25px;
-        font-weight: 700;
-        color: #1f2937;
-        line-height: 1;
-    }
-
-    .summary-label {
-        color: #8992a3;
-        font-size: 13px;
-        margin-top: 5px;
-    }
-
-    /* Main Card */
-    .exam-card {
-        background: #fff;
-        border: 0;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(30, 50, 80, .07);
-    }
-
-    .exam-card-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #edf0f5;
-    }
-
-    .section-title {
-        font-size: 17px;
-        font-weight: 700;
-        color: #1f2937;
-    }
-
-    .section-description {
-        font-size: 13px;
-        color: #8992a3;
-    }
-
-    /* Table */
-    .exam-table {
-        margin-bottom: 0;
-    }
-
-    .exam-table thead th {
-        background: #f8faff;
-        border-bottom: 1px solid #e9edf4;
-        color: #687386;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-        padding: 15px 14px;
-        white-space: nowrap;
-    }
-
-    .exam-table tbody td {
-        padding: 17px 14px;
-        border-bottom: 1px solid #f0f2f6;
-        color: #374151;
-        font-size: 14px;
-    }
-
-    .exam-table tbody tr {
-        transition: background .15s ease;
-    }
-
-    .exam-table tbody tr:hover {
-        background: #f9fbff;
-    }
-
-    .exam-number {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: #f0f6ff;
-        color: #1677f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 13px;
-    }
-
-    .exam-icon {
-        width: 43px;
-        height: 43px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #eaf3ff, #f5f9ff);
-        color: #1677f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 19px;
-    }
-
-    .exam-name {
-        font-weight: 700;
-        color: #252b36;
-        margin-bottom: 3px;
-    }
-
-    .exam-created {
-        color: #9299a8;
-        font-size: 12px;
-    }
-
-    .type-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 10px;
-        border-radius: 8px;
-        background: #f5f6f8;
-        border: 1px solid #e8ebef;
-        color: #596273;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .date-text {
-        font-size: 13px;
-        color: #596273;
-    }
-
-    /* Action Buttons */
-    .quick-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 6px;
-        white-space: nowrap;
-    }
-
-    .action-btn {
-        height: 34px;
-        padding: 0 10px;
-        border-radius: 8px;
-        border: 1px solid #e4e8ef;
-        background: #fff;
-        color: #596273;
-        font-size: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        transition: all .15s ease;
-    }
-
-    .action-btn:hover {
-        background: #f5f8ff;
-        border-color: #cbdcff;
-        color: #1677f0;
-    }
-
-    .action-btn.view:hover {
-        color: #1677f0;
-    }
-
-    .action-btn.classes:hover {
-        color: #198754;
-    }
-
-    .action-btn.timetable:hover {
-        color: #6f42c1;
-    }
-
-    .action-btn.edit:hover {
-        color: #d39e00;
-    }
-
-    .more-btn {
-        width: 35px;
-        height: 35px;
-        border-radius: 8px;
-        border: 1px solid #e4e8ef;
-        background: #fff;
-        color: #596273;
-    }
-
-    .more-btn:hover {
-        background: #f5f7fb;
-    }
-
-    .dropdown-menu {
-        border: 0;
-        border-radius: 12px;
-        padding: 7px;
-        box-shadow: 0 12px 35px rgba(0,0,0,.12);
-        min-width: 190px;
-    }
-
-    .dropdown-item {
-        border-radius: 8px;
-        padding: 9px 11px;
-        font-size: 13px;
-        font-weight: 500;
-    }
-
-    .dropdown-item:hover {
-        background: #f4f7fb;
-    }
-
-    /* Status */
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 6px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .status-active {
-        background: #e9f8ef;
-        color: #198754;
-    }
-
-    .status-completed {
-        background: #eaf2ff;
-        color: #1677f0;
-    }
-
-    .status-inactive {
-        background: #f1f2f4;
-        color: #6c757d;
-    }
-
-    /* Empty */
-    .empty-state {
-        padding: 70px 20px;
-    }
-
-    .empty-icon {
-        width: 80px;
-        height: 80px;
-        border-radius: 22px;
-        background: #f1f5f9;
-        color: #9aa3b2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 35px;
-        margin: auto;
-    }
-
-    @media (max-width: 1200px) {
-        .quick-actions .action-btn span {
-            display: none;
-        }
-
-        .action-btn {
-            width: 35px;
-            justify-content: center;
-            padding: 0;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .exam-page {
-            padding: 16px;
-        }
-
-        .exam-header {
-            align-items: flex-start !important;
-        }
-
-        .quick-actions {
-            justify-content: flex-start;
-        }
-    }
-</style>
-
-<div class="exam-page">
-
-```
-{{-- =========================================================
-     HEADER
-========================================================== --}}
-<div class="exam-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-
-    <div class="d-flex align-items-center gap-3">
-
-        <div class="exam-title-icon">
-            <i class="bi bi-journal-text"></i>
-        </div>
-
-        <div>
-            <h3 class="exam-title">
-                Examinations
-            </h3>
-
-            <p class="exam-subtitle">
-                Manage examinations, classes, timetable and results.
-            </p>
-        </div>
-
-    </div>
-
-    <a href="{{ route('admin.exams.create') }}"
-       class="btn btn-primary btn-create-exam">
-
-        <i class="bi bi-plus-lg me-1"></i>
-        Create Exam
-
-    </a>
-
-</div>
-
-
-{{-- =========================================================
-     ALERTS
-========================================================== --}}
-
-@if(session('success'))
-
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm"
-         role="alert">
-
-        <i class="bi bi-check-circle-fill me-2"></i>
-
-        {{ session('success') }}
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert">
-        </button>
-
-    </div>
-
-@endif
-
-
-@if($errors->any())
-
-    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm"
-         role="alert">
-
-        <strong>
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            Please fix the following:
-        </strong>
-
-        <ul class="mb-0 mt-2">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert">
-        </button>
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     SUMMARY CARDS
-========================================================== --}}
-
 @php
-    $totalExams = $exams->total();
+    $totalExams = $exams->count();
 
-    /*
-     * These values are calculated from the current page.
-     * If you later want exact database-wide counts,
-     * pass them from the controller.
-     */
-    $activeExams = $exams->where('status', 'active')->count();
+    $draftExams = $exams->where('status', 'draft')->count();
+
+    $scheduledExams = $exams->where('status', 'scheduled')->count();
+
     $completedExams = $exams->where('status', 'completed')->count();
-    $inactiveExams = $exams->where('status', 'inactive')->count();
 @endphp
 
-<div class="row g-3 mb-4">
 
-    {{-- Total --}}
-    <div class="col-xl-3 col-md-6">
+<div class="container-fluid py-4 exam-page">
 
-        <div class="summary-card">
+    {{-- =========================================================
+         PAGE HEADER
+    ========================================================== --}}
+    <div class="exam-header mb-4">
 
-            <div class="d-flex align-items-center justify-content-between">
+        <div class="header-left">
 
-                <div>
-                    <div class="summary-number">
-                        {{ $totalExams }}
-                    </div>
-
-                    <div class="summary-label">
-                        Total Examinations
-                    </div>
-                </div>
-
-                <div class="summary-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="bi bi-journal-text"></i>
-                </div>
-
+            <div class="header-icon">
+                <i class="bi bi-journal-text"></i>
             </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- Active --}}
-    <div class="col-xl-3 col-md-6">
-
-        <div class="summary-card">
-
-            <div class="d-flex align-items-center justify-content-between">
-
-                <div>
-                    <div class="summary-number">
-                        {{ $activeExams }}
-                    </div>
-
-                    <div class="summary-label">
-                        Active Exams
-                    </div>
-                </div>
-
-                <div class="summary-icon bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-play-circle"></i>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- Completed --}}
-    <div class="col-xl-3 col-md-6">
-
-        <div class="summary-card">
-
-            <div class="d-flex align-items-center justify-content-between">
-
-                <div>
-                    <div class="summary-number">
-                        {{ $completedExams }}
-                    </div>
-
-                    <div class="summary-label">
-                        Completed
-                    </div>
-                </div>
-
-                <div class="summary-icon bg-info bg-opacity-10 text-info">
-                    <i class="bi bi-check2-circle"></i>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- Inactive --}}
-    <div class="col-xl-3 col-md-6">
-
-        <div class="summary-card">
-
-            <div class="d-flex align-items-center justify-content-between">
-
-                <div>
-                    <div class="summary-number">
-                        {{ $inactiveExams }}
-                    </div>
-
-                    <div class="summary-label">
-                        Inactive Exams
-                    </div>
-                </div>
-
-                <div class="summary-icon bg-secondary bg-opacity-10 text-secondary">
-                    <i class="bi bi-pause-circle"></i>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     EXAMINATION LIST
-========================================================== --}}
-
-<div class="exam-card">
-
-    <div class="exam-card-header">
-
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
 
             <div>
 
-                <div class="section-title">
-                    <i class="bi bi-list-check text-primary me-2"></i>
-                    Examination List
+                <div class="d-flex align-items-center gap-2 mb-1">
+
+                    <h4 class="page-title mb-0">
+                        Exam Management
+                    </h4>
+
+                    <span class="module-badge">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Academic
+                    </span>
+
                 </div>
 
-                <div class="section-description">
-                    Manage your school examinations and related activities.
-                </div>
+                <p class="page-subtitle mb-0">
+                    Manage examinations, classes, subjects, sessions and timetables.
+                </p>
 
             </div>
 
-            <span class="badge rounded-pill bg-primary px-3 py-2">
-                {{ $exams->total() }}
-                {{ $exams->total() == 1 ? 'Exam' : 'Exams' }}
-            </span>
+        </div>
+
+
+        <div class="header-actions">
+
+            <a href="{{ route('admin.exams.create') }}"
+               class="btn create-exam-btn">
+
+                <i class="bi bi-plus-lg me-2"></i>
+
+                Create Exam
+
+            </a>
 
         </div>
 
     </div>
 
 
-    <div class="card-body p-0">
+    {{-- =========================================================
+         SUCCESS MESSAGE
+    ========================================================== --}}
+    @if(session('success'))
 
-        @if($exams->count() > 0)
+        <div class="alert custom-success-alert alert-dismissible fade show mb-4"
+             role="alert">
 
-            <div class="table-responsive">
+            <div class="d-flex align-items-center">
 
-                <table class="table exam-table align-middle">
+                <div class="alert-icon success">
+                    <i class="bi bi-check-lg"></i>
+                </div>
 
-                    <thead>
+                <div>
 
-                        <tr>
+                    <div class="alert-title">
+                        Success
+                    </div>
 
-                            <th class="ps-4" style="width: 60px;">
-                                #
-                            </th>
+                    <div class="alert-text">
+                        {{ session('success') }}
+                    </div>
 
-                            <th>
-                                Examination
-                            </th>
+                </div>
 
-                            <th>
-                                Academic Year
-                            </th>
+            </div>
 
-                            <th>
-                                Type
-                            </th>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
 
-                            <th>
-                                Exam Dates
-                            </th>
+        </div>
 
-                            <th>
-                                Status
-                            </th>
+    @endif
 
-                            <th class="text-end pe-4">
-                                Quick Actions
-                            </th>
 
-                        </tr>
+    {{-- =========================================================
+         ERROR MESSAGES
+    ========================================================== --}}
+    @if($errors->any())
 
-                    </thead>
+        <div class="alert custom-error-alert alert-dismissible fade show mb-4"
+             role="alert">
 
+            <div class="d-flex align-items-start">
 
-                    <tbody>
+                <div class="alert-icon danger">
+                    <i class="bi bi-exclamation-lg"></i>
+                </div>
 
-                    @foreach($exams as $index => $exam)
+                <div>
 
-                        <tr>
+                    <div class="alert-title">
+                        Please correct the following
+                    </div>
 
-                            {{-- Serial --}}
-                            <td class="ps-4">
+                    <ul class="mb-0 ps-3 alert-text">
 
-                                <div class="exam-number">
+                        @foreach($errors->all() as $error)
 
-                                    {{ ($exams->currentPage() - 1) * $exams->perPage() + $index + 1 }}
+                            <li>
+                                {{ $error }}
+                            </li>
 
-                                </div>
+                        @endforeach
 
-                            </td>
+                    </ul>
 
+                </div>
 
-                            {{-- Examination --}}
-                            <td>
+            </div>
 
-                                <div class="d-flex align-items-center">
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
 
-                                    <div class="exam-icon me-3">
-                                        <i class="bi bi-journal-check"></i>
-                                    </div>
+        </div>
 
-                                    <div>
+    @endif
 
-                                        <div class="exam-name">
-                                            {{ $exam->exam_name }}
-                                        </div>
 
-                                        <div class="exam-created">
+    {{-- =========================================================
+         SUMMARY CARDS
+    ========================================================== --}}
+    <div class="summary-grid mb-4">
 
-                                            @if($exam->creator)
 
-                                                <i class="bi bi-person me-1"></i>
-                                                Created by {{ $exam->creator->name }}
+        {{-- Total --}}
+        <div class="summary-card">
 
-                                            @else
+            <div class="summary-icon blue">
+                <i class="bi bi-journal-text"></i>
+            </div>
 
-                                                <i class="bi bi-gear me-1"></i>
-                                                Created by System
+            <div class="summary-content">
 
-                                            @endif
+                <div class="summary-label">
+                    Total Exams
+                </div>
 
-                                        </div>
+                <div class="summary-value">
+                    {{ $totalExams }}
+                </div>
 
-                                    </div>
+                <div class="summary-note">
+                    All examinations
+                </div>
 
-                                </div>
+            </div>
 
-                            </td>
+        </div>
 
 
-                            {{-- Academic Year --}}
-                            <td>
+        {{-- Draft --}}
+        <div class="summary-card">
 
-                                <span class="fw-semibold">
-                                    {{ $exam->academic_year }}
-                                </span>
+            <div class="summary-icon gray">
+                <i class="bi bi-file-earmark"></i>
+            </div>
 
-                            </td>
+            <div class="summary-content">
 
+                <div class="summary-label">
+                    Draft
+                </div>
 
-                            {{-- Type --}}
-                            <td>
+                <div class="summary-value">
+                    {{ $draftExams }}
+                </div>
 
-                                <span class="type-badge">
+                <div class="summary-note">
+                    Still being configured
+                </div>
 
-                                    <i class="bi bi-tag me-1"></i>
+            </div>
 
-                                    {{ $exam->exam_type }}
+        </div>
 
-                                </span>
 
-                            </td>
+        {{-- Scheduled --}}
+        <div class="summary-card">
 
+            <div class="summary-icon green">
+                <i class="bi bi-calendar-check"></i>
+            </div>
 
-                            {{-- Dates --}}
-                            <td>
+            <div class="summary-content">
 
-                                @if($exam->start_date || $exam->end_date)
+                <div class="summary-label">
+                    Scheduled
+                </div>
 
-                                    <div class="date-text">
+                <div class="summary-value">
+                    {{ $scheduledExams }}
+                </div>
 
-                                        <i class="bi bi-calendar3 text-primary me-1"></i>
+                <div class="summary-note">
+                    Upcoming examinations
+                </div>
 
-                                        @if($exam->start_date)
-                                            {{ $exam->start_date->format('d M Y') }}
-                                        @endif
+            </div>
 
-                                        @if($exam->start_date && $exam->end_date)
-                                            <span class="text-muted mx-1">→</span>
-                                        @endif
+        </div>
 
-                                        @if($exam->end_date)
-                                            {{ $exam->end_date->format('d M Y') }}
-                                        @endif
 
-                                    </div>
+        {{-- Completed --}}
+        <div class="summary-card">
 
-                                @else
+            <div class="summary-icon purple">
+                <i class="bi bi-check2-circle"></i>
+            </div>
 
-                                    <span class="text-muted small">
-                                        Not specified
-                                    </span>
+            <div class="summary-content">
 
-                                @endif
+                <div class="summary-label">
+                    Completed
+                </div>
 
-                            </td>
+                <div class="summary-value">
+                    {{ $completedExams }}
+                </div>
 
+                <div class="summary-note">
+                    Finished examinations
+                </div>
 
-                            {{-- Status --}}
-                            <td>
+            </div>
 
-                                @if($exam->status === 'active')
+        </div>
 
-                                    <span class="status-badge status-active">
-                                        <i class="bi bi-circle-fill"></i>
-                                        Active
-                                    </span>
+    </div>
 
-                                @elseif($exam->status === 'completed')
 
-                                    <span class="status-badge status-completed">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                        Completed
-                                    </span>
+    {{-- =========================================================
+         EXAM LIST CARD
+    ========================================================== --}}
+    <div class="exam-list-card">
 
-                                @else
 
-                                    <span class="status-badge status-inactive">
-                                        <i class="bi bi-dash-circle-fill"></i>
-                                        Inactive
-                                    </span>
+        {{-- =====================================================
+             CARD HEADER
+        ====================================================== --}}
+        <div class="exam-list-header">
 
-                                @endif
+            <div class="list-heading">
 
-                            </td>
+                <div class="list-heading-icon">
+                    <i class="bi bi-list-check"></i>
+                </div>
 
+                <div>
 
-                            {{-- =================================================
-                                 QUICK ACTIONS
-                            ================================================== --}}
-                            <td class="text-end pe-4">
+                    <h5 class="list-title mb-0">
+                        Examination List
+                    </h5>
 
-                                <div class="quick-actions">
+                    <p class="list-subtitle mb-0">
+                        View and manage all examinations
+                    </p>
 
-                                    {{-- VIEW --}}
-                                    <a href="{{ route('admin.exams.show', $exam->id) }}"
-                                       class="action-btn view"
-                                       title="View Examination">
-
-                                        <i class="bi bi-eye"></i>
-                                        <span>View</span>
-
-                                    </a>
-
-
-                                    {{-- MANAGE CLASSES --}}
-                                    <a href="{{ route('admin.exam-classes.index', $exam->id) }}"
-                                       class="action-btn classes"
-                                       title="Manage Classes">
-
-                                        <i class="bi bi-people"></i>
-                                        <span>Classes</span>
-
-                                    </a>
-
-
-                                    {{-- EXAM TIMETABLE --}}
-                                    <a href="{{ route('admin.exam-timetable.index', $exam->id) }}"
-                                       class="action-btn timetable"
-                                       title="Exam Timetable">
-
-                                        <i class="bi bi-calendar3"></i>
-                                        <span>Timetable</span>
-
-                                    </a>
-
-
-                                    {{-- EDIT --}}
-                                    <a href="{{ route('admin.exams.edit', $exam->id) }}"
-                                       class="action-btn edit"
-                                       title="Edit Examination">
-
-                                        <i class="bi bi-pencil-square"></i>
-                                        <span>Edit</span>
-
-                                    </a>
-
-
-                                    {{-- MORE --}}
-                                    <div class="dropdown">
-
-                                        <button class="more-btn"
-                                                type="button"
-                                                data-bs-toggle="dropdown"
-                                                aria-expanded="false"
-                                                title="More Actions">
-
-                                            <i class="bi bi-three-dots-vertical"></i>
-
-                                        </button>
-
-
-                                        <ul class="dropdown-menu dropdown-menu-end">
-
-                                            <li>
-
-                                                <a class="dropdown-item"
-                                                   href="{{ route('admin.exams.show', $exam->id) }}">
-
-                                                    <i class="bi bi-eye text-primary me-2"></i>
-                                                    View Examination
-
-                                                </a>
-
-                                            </li>
-
-
-                                            <li>
-
-                                                <a class="dropdown-item"
-                                                   href="{{ route('admin.exam-classes.index', $exam->id) }}">
-
-                                                    <i class="bi bi-people text-success me-2"></i>
-                                                    Manage Classes
-
-                                                </a>
-
-                                            </li>
-
-
-                                            <li>
-
-                                                <a class="dropdown-item"
-                                                   href="{{ route('admin.exam-timetable.index', $exam->id) }}">
-
-                                                    <i class="bi bi-calendar3 text-primary me-2"></i>
-                                                    Exam Timetable
-
-                                                </a>
-
-                                            </li>
-
-
-                                            <li>
-
-                                                <a class="dropdown-item"
-                                                   href="{{ route('admin.exams.edit', $exam->id) }}">
-
-                                                    <i class="bi bi-pencil-square text-warning me-2"></i>
-                                                    Edit Examination
-
-                                                </a>
-
-                                            </li>
-
-
-                                            <li>
-                                                <hr class="dropdown-divider">
-                                            </li>
-
-
-                                            <li>
-
-                                                <form method="POST"
-                                                      action="{{ route('admin.exams.destroy', $exam->id) }}"
-                                                      onsubmit="return confirm('Are you sure you want to delete this examination?');">
-
-                                                    @csrf
-
-                                                    @method('DELETE')
-
-                                                    <button type="submit"
-                                                            class="dropdown-item text-danger">
-
-                                                        <i class="bi bi-trash me-2"></i>
-                                                        Delete Examination
-
-                                                    </button>
-
-                                                </form>
-
-                                            </li>
-
-                                        </ul>
-
-                                    </div>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @endforeach
-
-                    </tbody>
-
-                </table>
+                </div>
 
             </div>
 
 
-            {{-- Pagination --}}
-            @if($exams->hasPages())
+            <div class="exam-count">
 
-                <div class="px-4 py-3 border-top">
+                <i class="bi bi-journal-bookmark me-1"></i>
 
-                    {{ $exams->links() }}
+                {{ $totalExams }}
+
+                {{ Str::plural('Exam', $totalExams) }}
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+             CONTENT
+        ====================================================== --}}
+        <div class="exam-list-body">
+
+            @if($exams->isEmpty())
+
+                {{-- =================================================
+                     EMPTY STATE
+                ================================================== --}}
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+
+                        <i class="bi bi-journal-x"></i>
+
+                    </div>
+
+
+                    <h5 class="empty-title">
+                        No Exams Found
+                    </h5>
+
+
+                    <p class="empty-description">
+
+                        There are currently no examinations in the system.
+                        Create your first exam to start configuring classes,
+                        subjects, sessions and timetables.
+
+                    </p>
+
+
+                    <a href="{{ route('admin.exams.create') }}"
+                       class="btn btn-primary empty-button">
+
+                        <i class="bi bi-plus-circle me-1"></i>
+
+                        Create Your First Exam
+
+                    </a>
+
+                </div>
+
+
+            @else
+
+
+                {{-- =================================================
+                     TABLE
+                ================================================== --}}
+                <div class="table-responsive">
+
+                    <table class="table exam-table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th class="number-column ps-4">
+                                    #
+                                </th>
+
+                                <th>
+                                    Examination
+                                </th>
+
+                                <th>
+                                    Academic Year
+                                </th>
+
+                                <th>
+                                    Type
+                                </th>
+
+                                <th>
+                                    Exam Period
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th class="text-end pe-4">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach($exams as $exam)
+
+                                @php
+
+                                    $statusClass = match($exam->status) {
+
+                                        'draft' =>
+                                            'status-draft',
+
+                                        'scheduled' =>
+                                            'status-scheduled',
+
+                                        'completed' =>
+                                            'status-completed',
+
+                                        'cancelled' =>
+                                            'status-cancelled',
+
+                                        default =>
+                                            'status-draft',
+
+                                    };
+
+
+                                    $statusIcon = match($exam->status) {
+
+                                        'draft' =>
+                                            'bi-file-earmark',
+
+                                        'scheduled' =>
+                                            'bi-calendar-check',
+
+                                        'completed' =>
+                                            'bi-check-circle',
+
+                                        'cancelled' =>
+                                            'bi-x-circle',
+
+                                        default =>
+                                            'bi-circle',
+
+                                    };
+
+                                @endphp
+
+
+                                <tr>
+
+
+                                    {{-- =================================================
+                                         NUMBER
+                                    ================================================== --}}
+                                    <td class="ps-4">
+
+                                        <div class="exam-number">
+
+                                            {{ $loop->iteration }}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- =================================================
+                                         EXAM NAME
+                                    ================================================== --}}
+                                    <td>
+
+                                        <div class="exam-name-wrap">
+
+                                            <div class="exam-row-icon">
+
+                                                <i class="bi bi-journal-bookmark"></i>
+
+                                            </div>
+
+
+                                            <div class="exam-name-content">
+
+                                                <div class="exam-name">
+
+                                                    {{ $exam->exam_name }}
+
+                                                </div>
+
+
+                                                <div class="exam-id">
+
+                                                    <i class="bi bi-hash"></i>
+
+                                                    {{ $exam->id }}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- =================================================
+                                         ACADEMIC YEAR
+                                    ================================================== --}}
+                                    <td>
+
+                                        <div class="academic-year">
+
+                                            <div class="small-cell-icon">
+                                                <i class="bi bi-calendar3"></i>
+                                            </div>
+
+                                            <span>
+                                                {{ $exam->academic_year }}
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- =================================================
+                                         TYPE
+                                    ================================================== --}}
+                                    <td>
+
+                                        <span class="type-badge">
+
+                                            <i class="bi bi-bookmark-star"></i>
+
+                                            {{ $exam->exam_type }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    {{-- =================================================
+                                         EXAM PERIOD
+                                    ================================================== --}}
+                                    <td>
+
+                                        <div class="period-wrap">
+
+                                            <div class="period-start">
+
+                                                <i class="bi bi-calendar-event me-1"></i>
+
+                                                {{ $exam->start_date?->format('d M Y') ?? '-' }}
+
+                                            </div>
+
+
+                                            <div class="period-end">
+
+                                                <i class="bi bi-arrow-right me-1"></i>
+
+                                                {{ $exam->end_date?->format('d M Y') ?? 'End date not set' }}
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- =================================================
+                                         STATUS
+                                    ================================================== --}}
+                                    <td>
+
+                                        <span class="status-badge {{ $statusClass }}">
+
+                                            <span class="status-dot"></span>
+
+                                            <i class="bi {{ $statusIcon }}"></i>
+
+                                            {{ ucfirst($exam->status) }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    {{-- =================================================
+                                         ACTIONS
+                                    ================================================== --}}
+                                    <td class="text-end pe-4">
+
+                                        <div class="dropdown">
+
+                                            <button
+                                                class="action-btn"
+                                                type="button"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                title="Exam Actions"
+                                            >
+
+                                                <i class="bi bi-three-dots-vertical"></i>
+
+                                            </button>
+
+
+                                            <ul class="dropdown-menu dropdown-menu-end">
+
+
+                                                {{-- View --}}
+                                                <li>
+
+                                                    <a
+                                                        class="dropdown-item"
+                                                        href="{{ route('admin.exams.show', $exam) }}"
+                                                    >
+
+                                                        <span class="dropdown-icon view">
+                                                            <i class="bi bi-eye"></i>
+                                                        </span>
+
+                                                        <span>
+                                                            View Exam
+                                                        </span>
+
+                                                    </a>
+
+                                                </li>
+
+
+                                                {{-- Edit --}}
+                                                <li>
+
+                                                    <a
+                                                        class="dropdown-item"
+                                                        href="{{ route('admin.exams.edit', $exam) }}"
+                                                    >
+
+                                                        <span class="dropdown-icon edit">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </span>
+
+                                                        <span>
+                                                            Edit Exam
+                                                        </span>
+
+                                                    </a>
+
+                                                </li>
+
+
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+
+
+                                                {{-- Delete --}}
+                                                <li>
+
+                                                    <form
+                                                        method="POST"
+                                                        action="{{ route('admin.exams.destroy', $exam) }}"
+                                                        onsubmit="return confirm('Are you sure you want to delete this exam? All related exam setup and timetable data will also be removed.');"
+                                                    >
+
+                                                        @csrf
+
+                                                        @method('DELETE')
+
+
+                                                        <button
+                                                            type="submit"
+                                                            class="dropdown-item delete-item"
+                                                        >
+
+                                                            <span class="dropdown-icon delete">
+                                                                <i class="bi bi-trash"></i>
+                                                            </span>
+
+                                                            <span>
+                                                                Delete Exam
+                                                            </span>
+
+                                                        </button>
+
+                                                    </form>
+
+                                                </li>
+
+
+                                            </ul>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
             @endif
 
-
-        @else
-
-            {{-- Empty State --}}
-
-            <div class="empty-state text-center">
-
-                <div class="empty-icon mb-3">
-
-                    <i class="bi bi-journal-x"></i>
-
-                </div>
-
-                <h5 class="fw-bold mb-2">
-                    No Examinations Found
-                </h5>
-
-                <p class="text-muted mb-4">
-                    You have not created any examinations yet.
-                </p>
-
-                <a href="{{ route('admin.exams.create') }}"
-                   class="btn btn-primary btn-create-exam">
-
-                    <i class="bi bi-plus-lg me-1"></i>
-                    Create First Exam
-
-                </a>
-
-            </div>
-
-        @endif
+        </div>
 
     </div>
 
 </div>
-```
 
-</div>
+
+{{-- ================================================================
+     PAGE STYLES
+================================================================ --}}
+<style>
+
+    :root {
+        --primary-blue: #1677f0;
+        --primary-dark: #0f5fc4;
+        --soft-blue: #eef6ff;
+
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+
+        --border-color: #e5eaf0;
+
+        --page-bg: #f7f9fc;
+    }
+
+
+    /* =========================================================
+       PAGE
+    ========================================================== */
+
+    .exam-page {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+       HEADER
+    ========================================================== */
+
+    .exam-header {
+        background: linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #f7fbff 100%
+        );
+
+        border: 1px solid var(--border-color);
+
+        border-radius: 18px;
+
+        padding: 21px 24px;
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        gap: 20px;
+
+        box-shadow:
+            0 5px 22px rgba(15, 23, 42, .045);
+    }
+
+
+    .header-left {
+        display: flex;
+
+        align-items: center;
+
+        gap: 14px;
+    }
+
+
+    .header-icon {
+        width: 52px;
+        height: 52px;
+
+        border-radius: 14px;
+
+        background: var(--soft-blue);
+
+        color: var(--primary-blue);
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 23px;
+
+        flex-shrink: 0;
+    }
+
+
+    .page-title {
+        color: var(--text-dark);
+
+        font-size: 22px;
+
+        font-weight: 750;
+
+        letter-spacing: -.3px;
+    }
+
+
+    .page-subtitle {
+        color: var(--text-muted);
+
+        font-size: 12.5px;
+
+        line-height: 1.5;
+    }
+
+
+    .module-badge {
+        display: inline-flex;
+
+        align-items: center;
+
+        padding: 4px 8px;
+
+        border-radius: 20px;
+
+        background: #f1f5f9;
+
+        border: 1px solid #e2e8f0;
+
+        color: #64748b;
+
+        font-size: 9.5px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: .4px;
+    }
+
+
+    .create-exam-btn {
+        min-height: 43px;
+
+        padding: 9px 18px;
+
+        border: 0;
+
+        border-radius: 10px;
+
+        background: var(--primary-blue);
+
+        color: #fff;
+
+        font-size: 12.5px;
+
+        font-weight: 700;
+
+        box-shadow:
+            0 5px 14px rgba(22,119,240,.20);
+
+        transition: all .2s ease;
+    }
+
+
+    .create-exam-btn:hover {
+        background: var(--primary-dark);
+
+        color: #fff;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 7px 18px rgba(22,119,240,.27);
+    }
+
+
+    /* =========================================================
+       ALERTS
+    ========================================================== */
+
+    .custom-success-alert,
+    .custom-error-alert {
+        position: relative;
+
+        border: 0;
+
+        border-radius: 13px;
+
+        padding: 13px 45px 13px 14px;
+    }
+
+
+    .custom-success-alert {
+        background: #f0fff7;
+
+        border-left: 4px solid #198754;
+
+        color: #146c43;
+    }
+
+
+    .custom-error-alert {
+        background: #fff5f5;
+
+        border-left: 4px solid #dc3545;
+
+        color: #842029;
+    }
+
+
+    .alert-icon {
+        width: 35px;
+        height: 35px;
+
+        border-radius: 10px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        margin-right: 11px;
+
+        flex-shrink: 0;
+    }
+
+
+    .alert-icon.success {
+        background: rgba(25,135,84,.12);
+
+        color: #198754;
+    }
+
+
+    .alert-icon.danger {
+        background: rgba(220,53,69,.12);
+
+        color: #dc3545;
+    }
+
+
+    .alert-title {
+        font-size: 12px;
+
+        font-weight: 700;
+
+        margin-bottom: 2px;
+    }
+
+
+    .alert-text {
+        font-size: 11.5px;
+
+        line-height: 1.6;
+    }
+
+
+    /* =========================================================
+       SUMMARY CARDS
+    ========================================================== */
+
+    .summary-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap: 15px;
+    }
+
+
+    .summary-card {
+        background: #fff;
+
+        border: 1px solid var(--border-color);
+
+        border-radius: 15px;
+
+        padding: 17px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 13px;
+
+        box-shadow:
+            0 4px 17px rgba(15,23,42,.035);
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease;
+    }
+
+
+    .summary-card:hover {
+        transform: translateY(-3px);
+
+        box-shadow:
+            0 9px 24px rgba(15,23,42,.075);
+    }
+
+
+    .summary-icon {
+        width: 44px;
+        height: 44px;
+
+        border-radius: 12px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 18px;
+
+        flex-shrink: 0;
+    }
+
+
+    .summary-icon.blue {
+        background: #eaf3ff;
+
+        color: #1677f0;
+    }
+
+
+    .summary-icon.gray {
+        background: #f1f3f5;
+
+        color: #6c757d;
+    }
+
+
+    .summary-icon.green {
+        background: #eaf8f0;
+
+        color: #198754;
+    }
+
+
+    .summary-icon.purple {
+        background: #f2edff;
+
+        color: #7952d6;
+    }
+
+
+    .summary-label {
+        color: #8b95a3;
+
+        font-size: 9.5px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: .55px;
+
+        margin-bottom: 3px;
+    }
+
+
+    .summary-value {
+        color: var(--text-dark);
+
+        font-size: 20px;
+
+        line-height: 1.1;
+
+        font-weight: 750;
+    }
+
+
+    .summary-note {
+        color: #98a2af;
+
+        font-size: 10px;
+
+        margin-top: 3px;
+    }
+
+
+    /* =========================================================
+       EXAM LIST CARD
+    ========================================================== */
+
+    .exam-list-card {
+        background: #fff;
+
+        border: 1px solid var(--border-color);
+
+        border-radius: 18px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 6px 25px rgba(15,23,42,.05);
+    }
+
+
+    .exam-list-header {
+        padding: 18px 22px;
+
+        border-bottom: 1px solid var(--border-color);
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 15px;
+    }
+
+
+    .list-heading {
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+    }
+
+
+    .list-heading-icon {
+        width: 37px;
+        height: 37px;
+
+        border-radius: 10px;
+
+        background: var(--soft-blue);
+
+        color: var(--primary-blue);
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+    }
+
+
+    .list-title {
+        color: var(--text-dark);
+
+        font-size: 16px;
+
+        font-weight: 750;
+    }
+
+
+    .list-subtitle {
+        color: #98a2af;
+
+        font-size: 10.5px;
+
+        margin-top: 2px;
+    }
+
+
+    .exam-count {
+        display: inline-flex;
+
+        align-items: center;
+
+        padding: 7px 11px;
+
+        border-radius: 20px;
+
+        border: 1px solid #dfe5eb;
+
+        background: #f8fafc;
+
+        color: #5d6978;
+
+        font-size: 10.5px;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+
+    .exam-count i {
+        color: var(--primary-blue);
+    }
+
+
+    .exam-list-body {
+        width: 100%;
+    }
+
+
+    /* =========================================================
+       TABLE
+    ========================================================== */
+
+    .exam-table {
+        min-width: 1000px;
+    }
+
+
+    .exam-table thead th {
+        background: #f8fafc;
+
+        border-bottom: 1px solid var(--border-color);
+
+        color: #697586;
+
+        font-size: 10px;
+
+        font-weight: 750;
+
+        text-transform: uppercase;
+
+        letter-spacing: .4px;
+
+        padding: 13px 13px;
+
+        white-space: nowrap;
+    }
+
+
+    .exam-table tbody td {
+        padding: 15px 13px;
+
+        border-color: #edf0f3;
+
+        color: #465261;
+
+        font-size: 12px;
+    }
+
+
+    .exam-table tbody tr {
+        transition: background .15s ease;
+    }
+
+
+    .exam-table tbody tr:hover {
+        background: #fbfdff;
+    }
+
+
+    .number-column {
+        width: 55px;
+    }
+
+
+    /* =========================================================
+       NUMBER
+    ========================================================== */
+
+    .exam-number {
+        width: 33px;
+        height: 33px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        border-radius: 9px;
+
+        background: #f3f6f9;
+
+        color: #687585;
+
+        font-size: 10.5px;
+
+        font-weight: 750;
+    }
+
+
+    /* =========================================================
+       EXAM NAME
+    ========================================================== */
+
+    .exam-name-wrap {
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+
+        min-width: 210px;
+    }
+
+
+    .exam-row-icon {
+        width: 39px;
+        height: 39px;
+
+        border-radius: 10px;
+
+        background: var(--soft-blue);
+
+        color: var(--primary-blue);
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        font-size: 16px;
+    }
+
+
+    .exam-name-content {
+        min-width: 0;
+    }
+
+
+    .exam-name {
+        color: #263244;
+
+        font-size: 12.5px;
+
+        font-weight: 700;
+
+        margin-bottom: 3px;
+
+        white-space: nowrap;
+    }
+
+
+    .exam-id {
+        color: #9aa3af;
+
+        font-size: 9.5px;
+    }
+
+
+    /* =========================================================
+       ACADEMIC YEAR
+    ========================================================== */
+
+    .academic-year {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        color: #465261;
+
+        font-size: 11.5px;
+
+        font-weight: 650;
+
+        white-space: nowrap;
+    }
+
+
+    .small-cell-icon {
+        width: 27px;
+        height: 27px;
+
+        border-radius: 7px;
+
+        background: #f5f7fa;
+
+        color: #7d8896;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 11px;
+    }
+
+
+    /* =========================================================
+       TYPE
+    ========================================================== */
+
+    .type-badge {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 5px;
+
+        padding: 6px 9px;
+
+        border-radius: 8px;
+
+        border: 1px solid #dfe5eb;
+
+        background: #f8fafc;
+
+        color: #596575;
+
+        font-size: 10px;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+
+    .type-badge i {
+        color: var(--primary-blue);
+    }
+
+
+    /* =========================================================
+       PERIOD
+    ========================================================== */
+
+    .period-wrap {
+        white-space: nowrap;
+    }
+
+
+    .period-start {
+        color: #354152;
+
+        font-size: 11.5px;
+
+        font-weight: 650;
+
+        margin-bottom: 4px;
+    }
+
+
+    .period-start i {
+        color: var(--primary-blue);
+    }
+
+
+    .period-end {
+        color: #9aa3af;
+
+        font-size: 9.8px;
+    }
+
+
+    .period-end i {
+        color: #a4adb9;
+    }
+
+
+    /* =========================================================
+       STATUS
+    ========================================================== */
+
+    .status-badge {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 5px;
+
+        padding: 6px 10px;
+
+        border-radius: 20px;
+
+        font-size: 9.8px;
+
+        font-weight: 750;
+
+        white-space: nowrap;
+    }
+
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+
+    .status-draft {
+        background: #f1f3f5;
+
+        color: #6c757d;
+    }
+
+
+    .status-scheduled {
+        background: #eaf3ff;
+
+        color: #1677f0;
+    }
+
+
+    .status-completed {
+        background: #eaf8f0;
+
+        color: #198754;
+    }
+
+
+    .status-cancelled {
+        background: #fff0f1;
+
+        color: #dc3545;
+    }
+
+
+    /* =========================================================
+       ACTION BUTTON
+    ========================================================== */
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+
+        border: 1px solid #dce3eb;
+
+        border-radius: 9px;
+
+        background: #fff;
+
+        color: #687585;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        transition: all .2s ease;
+    }
+
+
+    .action-btn:hover,
+    .action-btn:focus {
+        background: var(--soft-blue);
+
+        border-color: #bcd8fb;
+
+        color: var(--primary-blue);
+
+        box-shadow: none;
+    }
+
+
+    /* =========================================================
+       DROPDOWN
+    ========================================================== */
+
+    .dropdown-menu {
+        min-width: 185px;
+
+        padding: 6px;
+
+        border: 1px solid #e3e8ee;
+
+        border-radius: 11px;
+
+        box-shadow:
+            0 12px 32px rgba(15,23,42,.13);
+    }
+
+
+    .dropdown-item {
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        padding: 8px 9px;
+
+        border-radius: 7px;
+
+        color: #465261;
+
+        font-size: 11.5px;
+
+        font-weight: 550;
+    }
+
+
+    .dropdown-item:hover {
+        background: #f4f8fc;
+    }
+
+
+    .dropdown-icon {
+        width: 27px;
+        height: 27px;
+
+        border-radius: 7px;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+    }
+
+
+    .dropdown-icon.view {
+        background: #eaf3ff;
+
+        color: #1677f0;
+    }
+
+
+    .dropdown-icon.edit {
+        background: #fff4df;
+
+        color: #d58a0b;
+    }
+
+
+    .dropdown-icon.delete {
+        background: #fff0f1;
+
+        color: #dc3545;
+    }
+
+
+    .delete-item {
+        color: #dc3545;
+    }
+
+
+    .delete-item:hover {
+        background: #fff5f5;
+
+        color: #dc3545;
+    }
+
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================== */
+
+    .empty-state {
+        text-align: center;
+
+        padding: 70px 20px;
+    }
+
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+
+        margin: 0 auto 18px;
+
+        border-radius: 21px;
+
+        background: #f3f7fb;
+
+        color: #a3adba;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 33px;
+    }
+
+
+    .empty-title {
+        color: var(--text-dark);
+
+        font-size: 17px;
+
+        font-weight: 750;
+
+        margin-bottom: 7px;
+    }
+
+
+    .empty-description {
+        max-width: 470px;
+
+        margin: 0 auto 21px;
+
+        color: #8993a1;
+
+        font-size: 12px;
+
+        line-height: 1.7;
+    }
+
+
+    .empty-button {
+        border-radius: 10px;
+
+        padding: 9px 17px;
+
+        font-size: 12px;
+
+        font-weight: 700;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media (max-width: 1100px) {
+
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+    }
+
+
+    @media (max-width: 767.98px) {
+
+        .exam-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+
+            padding: 18px;
+        }
+
+
+        .header-left {
+            width: 100%;
+        }
+
+
+        .header-actions {
+            width: 100%;
+        }
+
+
+        .create-exam-btn {
+            width: 100%;
+
+            justify-content: center;
+
+            display: flex;
+
+            align-items: center;
+        }
+
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .exam-list-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+
+            padding: 17px;
+        }
+
+
+        .exam-table {
+            min-width: 1000px;
+        }
+
+    }
+
+
+    @media (max-width: 575.98px) {
+
+        .exam-page {
+            padding-left: 10px !important;
+
+            padding-right: 10px !important;
+        }
+
+
+        .header-icon {
+            width: 45px;
+            height: 45px;
+
+            border-radius: 12px;
+
+            font-size: 19px;
+        }
+
+
+        .page-title {
+            font-size: 18px;
+        }
+
+
+        .page-subtitle {
+            font-size: 11px;
+        }
+
+
+        .module-badge {
+            display: none;
+        }
+
+
+        .summary-card {
+            padding: 15px;
+        }
+
+
+        .summary-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+
+        .list-subtitle {
+            display: none;
+        }
+
+
+        .exam-count {
+            align-self: flex-start;
+        }
+
+
+        .empty-state {
+            padding: 55px 18px;
+        }
+
+    }
+
+</style>
 
 @endsection
