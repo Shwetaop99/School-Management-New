@@ -8,9 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have a
-    | conventional file to locate the various service credentials.
+    | as Mailgun, Postmark, AWS and more.
     |
     */
 
@@ -57,6 +55,19 @@ return [
         'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
         'api_key' => env('CLOUDINARY_API_KEY'),
         'api_secret' => env('CLOUDINARY_API_SECRET'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | WhatsApp
+    |--------------------------------------------------------------------------
+    */
+
+    'whatsapp' => [
+        'provider' => env('WHATSAPP_PROVIDER'),
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'api_version' => env('WHATSAPP_API_VERSION', 'v23.0'),
     ],
 
 ];

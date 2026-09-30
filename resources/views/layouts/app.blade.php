@@ -1079,7 +1079,7 @@
         <span class="sidebar-label">Exam</span>
     </a>
 @endif
-            
+
 {{-- RESULT --}}
 @if($isSuperAdmin)
 
@@ -1113,7 +1113,7 @@
 
         {{-- Enter Marks --}}
         <a
-            href="#"
+            href="{{ route('admin.results.marks') }}"
             class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}"
         >
             <i class="fas fa-edit me-2"></i>
@@ -1122,8 +1122,8 @@
 
         {{-- Student Results --}}
         <a
-            href="#"
-            class="submenu-item {{ request()->routeIs('admin.results.students') ? 'active' : '' }}"
+            href="{{ route('admin.results.generate') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.generate') ? 'active' : '' }}"
         >
             <i class="fas fa-user-graduate me-2"></i>
             Student Results
@@ -1257,7 +1257,7 @@
 
 </div>
 
-            
+
                 <a href="{{ route('admin.salary.index') }}"
                    class="submenu-item">
                     Salary

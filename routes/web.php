@@ -98,6 +98,8 @@ use App\Http\Controllers\Meal\MealStockLogController;
 use App\Http\Controllers\Meal\MealStockTransactionController;
 
 
+use App\Http\Controllers\PublicResultController;
+
 /*
 |--------------------------------------------------------------------------
 | SPORTS MANAGEMENT
@@ -119,7 +121,6 @@ use App\Http\Controllers\Sports\GameController;
 Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
-
 
         /*
         |--------------------------------------------------------------------------
@@ -221,6 +222,49 @@ Route::prefix('admin')
             ])->name('reports.index');
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | RESULTS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('results')
+                ->name('results.')
+                ->group(function () {
+
+                    Route::get('/', [ResultController::class, 'index'])->name('index');
+
+                    Route::get('/marks', [ResultController::class, 'marks'])->name('marks');
+                    Route::post('/save-marks', [ResultController::class, 'saveMarks'])->name('save-marks');
+
+                    Route::get('/load-subjects', [ResultController::class, 'loadSubjects'])->name('load-subjects');
+                    Route::get('/load-students', [ResultController::class, 'loadStudents'])->name('load-students');
+                    Route::get('/load-classes', [ResultController::class, 'loadClasses'])->name('load-classes');
+                    Route::get('/exam-classes', [ResultController::class, 'getExamClasses'])->name('exam-classes');
+
+                    Route::get('/generate', [ResultController::class, 'generate'])->name('generate');
+                    Route::post('/generate-result', [ResultController::class, 'generateResult'])->name('generate-result');
+                    Route::get('/class-results', [ResultController::class, 'classResults'])->name('class-results');
+
+                    Route::post('/verify-class', [ResultController::class, 'verifyClassResults'])->name('verify-class');
+                    Route::post('/approve-class', [ResultController::class, 'approveClassResults'])->name('approve-class');
+                    Route::post('/publish-class', [ResultController::class, 'publishClassResults'])->name('publish-class');
+
+                    Route::get('/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])->name('bulk-whatsapp');
+
+                    Route::get('/history/{result}', [ResultController::class, 'history'])->name('history');
+                    Route::get('/history/{result}/version/{version}', [ResultController::class, 'historyVersion'])->name('history-version');
+
+                    Route::get('/{result}/whatsapp', [ResultController::class, 'whatsapp'])->name('whatsapp');
+                    Route::get('/{result}/print', [ResultController::class, 'print'])->name('print');
+                    Route::get('/{result}/pdf', [ResultController::class, 'pdf'])->name('pdf');
+
+                    Route::post('/{result}/verify', [ResultController::class, 'verify'])->name('verify');
+                    Route::post('/{result}/approve', [ResultController::class, 'approve'])->name('approve');
+                    Route::post('/{result}/publish', [ResultController::class, 'publish'])->name('publish');
+
+                    Route::get('/{result}', [ResultController::class, 'show'])->name('show');
+                });
             /*
             |--------------------------------------------------------------------------
             | LOCATION API
@@ -1146,11 +1190,12 @@ Route::prefix('admin')
             )->name('student-supply-kits.supply-items');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | SCHOOL SETTINGS
-            |--------------------------------------------------------------------------
-            */
+
+/*
+|--------------------------------------------------------------------------
+| SCHOOL SETTINGS
+|--------------------------------------------------------------------------
+*/
 
             Route::get('/settings', [
                 SchoolSettingController::class,
@@ -2794,3 +2839,31 @@ Route::prefix('admin/meal/logs')
             'show'
         ])->name('show');
     });
+Route::get(
+    '/result',
+    [PublicResultController::class, 'index']
+)->name('result.public');
+
+Route::post(
+    '/result/search',
+    [PublicResultController::class, 'search']
+)->name('result.search');
+
+Route::get(
+    '/result/show',
+    [PublicResultController::class, 'show']
+)->name('result.public.show');
+
+Route::get(
+    '/result/{student}/pdf',
+    [PublicResultController::class, 'pdf']
+)->name('result.pdf');
+
+Route::get(
+    '/result/{student}/pdf/download',
+    [PublicResultController::class, 'downloadPdf']
+)->name('result.pdf.download');
+
+
+Route::get('/result/captcha', [PublicResultController::class, 'refreshCaptcha'])
+    ->name('result.captcha');
