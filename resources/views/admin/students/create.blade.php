@@ -2040,8 +2040,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    /* =========================================================
-   MARATHI NAME - AUTOMATIC OFFLINE TRANSLITERATION
+   /* =========================================================
+   MARATHI NAME - AUTOMATIC ENGLISH TO MARATHI TRANSLITERATION
    ========================================================== */
 
 const firstName =
@@ -2057,12 +2057,6 @@ const marathiName =
     document.getElementById('marathi_name');
 
 
-/*
-|--------------------------------------------------------------------------
-| Make sure all fields exist
-|--------------------------------------------------------------------------
-*/
-
 if (
     firstName &&
     middleName &&
@@ -2070,481 +2064,121 @@ if (
     marathiName
 ) {
 
+    let transliterationTimer = null;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Common Marathi Names / Surnames
-    |--------------------------------------------------------------------------
-    | These give better results for frequently used names.
-    |--------------------------------------------------------------------------
-    */
-
-    const marathiDictionary = {
-
-        /* ---------- Female Names ---------- */
-
-        'sanika': 'सानिका',
-        'saniya': 'सानिया',
-        'sneha': 'स्नेहा',
-        'shreya': 'श्रेया',
-        'priya': 'प्रिया',
-        'pooja': 'पूजा',
-        'puja': 'पूजा',
-        'neha': 'नेहा',
-        'rutuja': 'ऋतुजा',
-        'vaishnavi': 'वैष्णवी',
-        'sakshi': 'साक्षी',
-        'shruti': 'श्रुती',
-        'swara': 'स्वरा',
-        'ananya': 'अनन्या',
-        'aditi': 'अदिती',
-        'kavya': 'काव्या',
-        'komal': 'कोमल',
-        'nikita': 'निकिता',
-        'poornima': 'पूर्णिमा',
-        'pallavi': 'पल्लवी',
-        'madhuri': 'माधुरी',
-        'manisha': 'मनिषा',
-        'archana': 'अर्चना',
-        'seema': 'सीमा',
-        'meena': 'मीना',
-        'rani': 'राणी',
-        'radha': 'राधा',
-        'gauri': 'गौरी',
-        'sakshi': 'साक्षी',
-        'sayali': 'सायली',
-        'mrunal': 'मृणाल',
-        'mrunmayi': 'मृण्मयी',
-        'shubhangi': 'शुभांगी',
-        'tanvi': 'तन्वी',
-        'tejaswini': 'तेजस्विनी',
-        'vaidehi': 'वैदेही',
-        'prachi': 'प्राची',
-        'pranali': 'प्रणाली',
-        'karishma': 'करिश्मा',
-        'kajal': 'काजल',
-        'deepali': 'दीपाली',
-        'dipali': 'दीपाली',
-        'jyoti': 'ज्योती',
-        'sonali': 'सोनाली',
-        'monali': 'मोनाली',
+    let requestCounter = 0;
 
 
-        /* ---------- Male Names ---------- */
+    /* =========================================================
+       TRANSLITERATE ENGLISH TO MARATHI
+       ========================================================== */
 
-        'rahul': 'राहुल',
-        'rohit': 'रोहित',
-        'rohan': 'रोहन',
-        'sachin': 'सचिन',
-        'sanjay': 'संजय',
-        'sunil': 'सुनील',
-        'suresh': 'सुरेश',
-        'mahesh': 'महेश',
-        'ramesh': 'रमेश',
-        'rajendra': 'राजेंद्र',
-        'ajay': 'अजय',
-        'vijay': 'विजय',
-        'amit': 'अमित',
-        'akash': 'आकाश',
-        'vaibhav': 'वैभव',
-        'pratik': 'प्रतीक',
-        'pranav': 'प्रणव',
-        'om': 'ओम',
-        'atharva': 'अथर्व',
-        'ganesh': 'गणेश',
-        'shubham': 'शुभम',
-        'abhishek': 'अभिषेक',
-        'mahendra': 'महेंद्र',
-        'dinesh': 'दिनेश',
-        'nilesh': 'निलेश',
-        'milind': 'मिलिंद',
-        'anil': 'अनिल',
-        'ajit': 'अजित',
-        'amit': 'अमित',
-        'amol': 'अमोल',
-        'ashok': 'अशोक',
-        'santosh': 'संतोष',
-        'sandeep': 'संदीप',
-        'sandip': 'संदीप',
-        'deepak': 'दीपक',
-        'dipak': 'दीपक',
-        'prakash': 'प्रकाश',
-        'pravin': 'प्रवीण',
-        'sunil': 'सुनील',
-        'yogesh': 'योगेश',
-        'mahesh': 'महेश',
-        'mukesh': 'मुकेश',
-        'rakesh': 'राकेश',
-        'akash': 'आकाश',
-        'akash': 'आकाश',
-        'shankar': 'शंकर',
-        'shivaji': 'शिवाजी',
-        'swaraj': 'स्वराज',
-        'siddharth': 'सिद्धार्थ',
-        'sameer': 'समीर',
-        'samir': 'समीर',
-        'tushar': 'तुषार',
-        'vishal': 'विशाल',
-        'vikas': 'विकास',
-        'vivek': 'विवेक',
-        'vinod': 'विनोद',
-        'manoj': 'मनोज',
-        'mahadev': 'महादेव',
-        'mangesh': 'मंगेश',
-        'nagesh': 'नागेश',
+    async function transliterateToMarathi(text) {
 
+        const value = text.trim();
 
-        /* ---------- Common Surnames ---------- */
-
-        'jadhav': 'जाधव',
-        'patil': 'पाटील',
-        'shinde': 'शिंदे',
-        'pawar': 'पवार',
-        'chavan': 'चव्हाण',
-        'deshmukh': 'देशमुख',
-        'gaikwad': 'गायकवाड',
-        'kadam': 'कदम',
-        'mane': 'माने',
-        'more': 'मोरे',
-        'jagtap': 'जगताप',
-        'bhosale': 'भोसले',
-        'bhosle': 'भोसले',
-        'salunkhe': 'साळुंखे',
-        'yadav': 'यादव',
-        'shinde': 'शिंदे',
-        'lokhande': 'लोखंडे',
-        'sawant': 'सावंत',
-        'desai': 'देसाई',
-        'kulkarni': 'कुलकर्णी',
-        'joshi': 'जोशी',
-        'kanase': 'कणसे',
-        'kore': 'कोरे',
-        'more': 'मोरे',
-        'nikam': 'निकम',
-        'surve': 'सुर्वे',
-        'thorat': 'थोरात',
-        'bargaje': 'बारगळे',
-        'shirole': 'शिरोळे',
-        'ingale': 'इंगळे',
-        'kumbhar': 'कुंभार',
-        'tamboli': 'तांबोळी',
-        'mulik': 'मुळीक',
-        'kadak': 'कडक',
-        'jagtap': 'जगताप',
-        'sutar': 'सुतार',
-        'gurav': 'गुरव',
-        'mane': 'माने',
-        'bhise': 'भिसे',
-        'dhere': 'ढेरे',
-        'pote': 'पोते',
-        'dixit': 'दीक्षित',
-        'joshi': 'जोशी',
-        'bapat': 'बापट',
-        'apte': 'आपटे',
-        'sane': 'साने'
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Transliteration Rules
-    |--------------------------------------------------------------------------
-    */
-
-    const specialRules = [
-
-        ['ksh', 'क्ष'],
-        ['dny', 'ज्ञ'],
-        ['jn', 'ज्ञ'],
-        ['gny', 'ज्ञ'],
-
-        ['shri', 'श्री'],
-        ['shr', 'श्र'],
-
-        ['tra', 'त्र'],
-        ['tr', 'त्र'],
-
-        ['chh', 'छ'],
-        ['ch', 'च'],
-
-        ['kh', 'ख'],
-        ['gh', 'घ'],
-
-        ['th', 'थ'],
-        ['dh', 'ध'],
-
-        ['ph', 'फ'],
-        ['bh', 'भ'],
-
-        ['zh', 'झ'],
-        ['jh', 'झ'],
-
-        ['ng', 'ङ'],
-        ['ny', 'ञ']
-    ];
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Transliterate One Word
-    |--------------------------------------------------------------------------
-    */
-
-    function transliterateWord(word) {
-
-        const originalWord = word.trim();
-
-        if (!originalWord) {
+        if (!value) {
             return '';
         }
 
-        const lowerWord =
-            originalWord.toLowerCase();
+
+        const url =
+            'https://inputtools.google.com/request'
+            + '?text='
+            + encodeURIComponent(value)
+            + '&ime=transliteration_en_mr'
+            + '&num=1'
+            + '&ie=utf-8'
+            + '&oe=utf-8'
+            + '&app=jsapi';
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | First check dictionary
-        |--------------------------------------------------------------------------
-        */
+        try {
 
-        if (
-            marathiDictionary[lowerWord]
-        ) {
-            return marathiDictionary[lowerWord];
-        }
+            const response =
+                await fetch(url);
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Special Marathi combinations
-        |--------------------------------------------------------------------------
-        */
-
-        let text = lowerWord;
+            if (!response.ok) {
+                return '';
+            }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Protect common combinations
-        |--------------------------------------------------------------------------
-        */
+            const data =
+                await response.json();
 
-        specialRules.forEach(function (rule) {
 
-            const english = rule[0];
-            const marathi = rule[1];
+            if (
+                !Array.isArray(data) ||
+                data[0] !== 'SUCCESS' ||
+                !Array.isArray(data[1])
+            ) {
+                return '';
+            }
 
-            text = text.replace(
-                new RegExp(english, 'g'),
-                marathi
+
+            return data[1]
+                .map(function (item) {
+
+                    if (
+                        Array.isArray(item) &&
+                        Array.isArray(item[1]) &&
+                        item[1].length > 0
+                    ) {
+
+                        return item[1][0];
+
+                    }
+
+                    return '';
+
+                })
+                .join(' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+
+        } catch (error) {
+
+            console.error(
+                'Marathi transliteration error:',
+                error
             );
 
-        });
+            return '';
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | If Marathi characters were already generated,
-        | don't convert them again.
-        |--------------------------------------------------------------------------
-        */
-
-        let result = '';
-
-        let i = 0;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Basic phonetic processing
-        |--------------------------------------------------------------------------
-        */
-
-        while (i < text.length) {
-
-            const remaining =
-                text.substring(i);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Vowel combinations
-            |--------------------------------------------------------------------------
-            */
-
-            if (remaining.startsWith('aa')) {
-
-                result += 'आ';
-                i += 2;
-                continue;
-
-            }
-
-            if (remaining.startsWith('ee')) {
-
-                result += 'ई';
-                i += 2;
-                continue;
-
-            }
-
-            if (remaining.startsWith('ii')) {
-
-                result += 'ई';
-                i += 2;
-                continue;
-
-            }
-
-            if (remaining.startsWith('oo')) {
-
-                result += 'ऊ';
-                i += 2;
-                continue;
-
-            }
-
-            if (remaining.startsWith('uu')) {
-
-                result += 'ऊ';
-                i += 2;
-                continue;
-
-            }
-
-            if (remaining.startsWith('ai')) {
-
-                result += 'ऐ';
-                i += 2;
-                continue;
-
-            }
-
-            if (remaining.startsWith('au')) {
-
-                result += 'औ';
-                i += 2;
-                continue;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Single vowels
-            |--------------------------------------------------------------------------
-            */
-
-            const vowelMap = {
-
-                'a': 'अ',
-                'i': 'इ',
-                'u': 'उ',
-                'e': 'ए',
-                'o': 'ओ'
-
-            };
-
-
-            if (vowelMap[text[i]]) {
-
-                result +=
-                    vowelMap[text[i]];
-
-                i++;
-                continue;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Consonants
-            |--------------------------------------------------------------------------
-            */
-
-            const consonantMap = {
-
-                'b': 'ब',
-                'c': 'क',
-                'd': 'द',
-                'f': 'फ',
-                'g': 'ग',
-                'h': 'ह',
-                'j': 'ज',
-                'k': 'क',
-                'l': 'ल',
-                'm': 'म',
-                'n': 'न',
-                'p': 'प',
-                'q': 'क',
-                'r': 'र',
-                's': 'स',
-                't': 'त',
-                'v': 'व',
-                'w': 'व',
-                'x': 'क्स',
-                'y': 'य',
-                'z': 'ज'
-
-            };
-
-
-            if (consonantMap[text[i]]) {
-
-                result +=
-                    consonantMap[text[i]];
-
-                i++;
-                continue;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Keep spaces / punctuation
-            |--------------------------------------------------------------------------
-            */
-
-            result += text[i];
-
-            i++;
         }
 
-
-        return result;
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Generate Complete Marathi Name
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       GENERATE COMPLETE MARATHI NAME
+       ========================================================== */
 
-    function generateMarathiName() {
+    async function generateMarathiName() {
 
         /*
-        |--------------------------------------------------------------------------
-        | Do not overwrite manually corrected Marathi name
-        |--------------------------------------------------------------------------
-        */
+         * Do not overwrite manually edited Marathi name.
+         */
 
         if (
             marathiName.dataset.manual === '1'
         ) {
-
             return;
-
         }
+
+
+        const currentRequest =
+            ++requestCounter;
 
 
         const parts = [
 
             firstName.value.trim(),
+
             middleName.value.trim(),
+
             lastName.value.trim()
 
         ].filter(Boolean);
@@ -2555,15 +2189,59 @@ if (
             marathiName.value = '';
 
             return;
+
         }
 
 
-        const translatedParts =
-            parts.map(function (part) {
+        const translatedParts = [];
 
-                return transliterateWord(part);
 
-            });
+        /*
+         * Translate every name separately.
+         */
+
+        for (
+            const part of parts
+        ) {
+
+            const translated =
+                await transliterateToMarathi(part);
+
+
+            /*
+             * Ignore old request if user
+             * has already typed something new.
+             */
+
+            if (
+                currentRequest !== requestCounter
+            ) {
+                return;
+            }
+
+
+            /*
+             * If transliteration fails,
+             * keep the English word instead
+             * of deleting it.
+             */
+
+            translatedParts.push(
+                translated || part
+            );
+
+        }
+
+
+        /*
+         * Do not overwrite manual changes.
+         */
+
+        if (
+            marathiName.dataset.manual === '1'
+        ) {
+            return;
+        }
 
 
         marathiName.value =
@@ -2571,14 +2249,49 @@ if (
                 .join(' ')
                 .replace(/\s+/g, ' ')
                 .trim();
+
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | English Name Fields
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       WAIT UNTIL USER STOPS TYPING
+       ========================================================== */
+
+    function scheduleMarathiGeneration() {
+
+        /*
+         * English name changed,
+         * so automatic generation is enabled.
+         */
+
+        marathiName.dataset.manual = '0';
+
+
+        clearTimeout(
+            transliterationTimer
+        );
+
+
+        /*
+         * Wait 350ms after typing stops.
+         */
+
+        transliterationTimer =
+            setTimeout(
+                function () {
+
+                    generateMarathiName();
+
+                },
+                350
+            );
+
+    }
+
+
+    /* =========================================================
+       ENGLISH NAME FIELDS
+       ========================================================== */
 
     [
         firstName,
@@ -2589,34 +2302,24 @@ if (
 
         input.addEventListener(
             'input',
-            function () {
-
-                /*
-                |--------------------------------------------------------------------------
-                | If user starts changing English name,
-                | allow automatic generation again.
-                |--------------------------------------------------------------------------
-                */
-
-                marathiName.dataset.manual = '0';
-
-                generateMarathiName();
-
-            }
+            scheduleMarathiGeneration
         );
 
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Detect Manual Marathi Editing
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       MANUAL MARATHI EDITING
+       ========================================================== */
 
     marathiName.addEventListener(
         'input',
         function () {
+
+            /*
+             * User manually edited Marathi name.
+             * Stop automatic overwriting.
+             */
 
             this.dataset.manual = '1';
 
@@ -2624,11 +2327,9 @@ if (
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Initial Generation
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       INITIAL GENERATION
+       ========================================================== */
 
     if (
         marathiName.value.trim() === ''
@@ -3025,7 +2726,11 @@ if (
 
 
         const text =
-            await response.text();
+    (await response.text()).replace(/^\uFEFF/, '');
+
+            console.log('RAW FIRST CHAR CODE:', text.charCodeAt(0));
+console.log('RAW LAST CHAR CODE:', text.charCodeAt(text.length - 1));
+console.log('RAW LENGTH:', text.length);
 
 
         console.log(

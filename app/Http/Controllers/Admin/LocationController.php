@@ -125,7 +125,7 @@ class LocationController extends Controller
         $url = rtrim(config('services.location.url'), '/')
             . '/tehsils/'
             . $validated['tehsil_id']
-            . '/locations';
+            . '/districts';
 
         $response = $this->api()->get($url);
 
