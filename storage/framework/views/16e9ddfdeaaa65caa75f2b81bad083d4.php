@@ -1,16 +1,14 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Student Attendance'); ?>
+<?php $__env->startSection('page-title', 'Student Attendance'); ?>
 
-@section('title', 'Student Attendance')
-@section('page-title', 'Student Attendance')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
     rel="stylesheet"
 >
 
-@php
+<?php
     /* =========================================================
        MONTH
     ========================================================= */
@@ -228,7 +226,7 @@
     $attendanceExcelUrl = $hasExcelRoute
         ? route('admin.attendance.excel')
         : null;
-@endphp
+?>
 
 
 <style>
@@ -1496,49 +1494,45 @@
 <div class="attendance-container">
 
 
-{{-- =========================================================
-     SUCCESS
-========================================================= --}}
 
-@if(session('success'))
+
+<?php if(session('success')): ?>
 
     <div class="attendance-alert attendance-alert-success">
 
         <i class="bi bi-check-circle-fill"></i>
 
         <span>
-            {{ session('success') }}
+            <?php echo e(session('success')); ?>
+
         </span>
 
     </div>
 
-@endif
+<?php endif; ?>
 
 
-{{-- =========================================================
-     ERROR
-========================================================= --}}
 
-@if(session('error'))
+
+<?php if(session('error')): ?>
 
     <div class="attendance-alert attendance-alert-danger">
 
         <i class="bi bi-exclamation-circle-fill"></i>
 
         <span>
-            {{ session('error') }}
+            <?php echo e(session('error')); ?>
+
         </span>
 
     </div>
 
-@endif
+<?php endif; ?>
 
 
-{{-- =========================================================
-     VALIDATION
-========================================================= --}}
 
-@if($errors->any())
+
+<?php if($errors->any()): ?>
 
     <div class="attendance-alert attendance-alert-danger">
 
@@ -1546,24 +1540,23 @@
 
         <div>
 
-            @foreach($errors->all() as $error)
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                 <div>
-                    {{ $error }}
+                    <?php echo e($error); ?>
+
                 </div>
 
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
         </div>
 
     </div>
 
-@endif
+<?php endif; ?>
 
 
-{{-- =========================================================
-     HEADER
-========================================================= --}}
+
 
 <div class="attendance-header">
 
@@ -1593,7 +1586,7 @@
         <div class="header-actions">
 
             <a
-                href="{{ route('admin.attendance.student') }}"
+                href="<?php echo e(route('admin.attendance.student')); ?>"
                 class="back-attendance-btn"
             >
                 <i class="bi bi-arrow-left"></i>
@@ -1642,13 +1635,11 @@
 </div>
 
 
-{{-- =========================================================
-     FILTERS
-========================================================= --}}
+
 
 <form
     method="GET"
-    action="{{ $attendanceIndexUrl }}"
+    action="<?php echo e($attendanceIndexUrl); ?>"
     class="filter-card"
 >
 
@@ -1671,19 +1662,20 @@
                     All Academic Years
                 </option>
 
-                @foreach($academicYearOptions as $year)
+                <?php $__currentLoopData = $academicYearOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                     <option
-                        value="{{ $year }}"
-                        @selected(
+                        value="<?php echo e($year); ?>"
+                        <?php if(
                             (string) $selectedAcademicYear ===
                             (string) $year
-                        )
+                        ): echo 'selected'; endif; ?>
                     >
-                        {{ $year }}
+                        <?php echo e($year); ?>
+
                     </option>
 
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </select>
 
@@ -1706,19 +1698,20 @@
                     All Classes
                 </option>
 
-                @foreach($classOptions as $class)
+                <?php $__currentLoopData = $classOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                     <option
-                        value="{{ $class }}"
-                        @selected(
+                        value="<?php echo e($class); ?>"
+                        <?php if(
                             (string) $selectedClass ===
                             (string) $class
-                        )
+                        ): echo 'selected'; endif; ?>
                     >
-                        {{ $class }}
+                        <?php echo e($class); ?>
+
                     </option>
 
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </select>
 
@@ -1741,19 +1734,20 @@
                     All Sections
                 </option>
 
-                @foreach($sectionOptions as $section)
+                <?php $__currentLoopData = $sectionOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                     <option
-                        value="{{ $section }}"
-                        @selected(
+                        value="<?php echo e($section); ?>"
+                        <?php if(
                             (string) $selectedSection ===
                             (string) $section
-                        )
+                        ): echo 'selected'; endif; ?>
                     >
-                        {{ $section }}
+                        <?php echo e($section); ?>
+
                     </option>
 
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </select>
 
@@ -1772,7 +1766,7 @@
                     type="month"
                     name="month"
                     id="month"
-                    value="{{ $selectedMonth }}"
+                    value="<?php echo e($selectedMonth); ?>"
                     class="filter-control"
                 >
 
@@ -1793,21 +1787,19 @@
 </form>
 
 
-{{-- =========================================================
-     MONTH NAVIGATION
-========================================================= --}}
+
 
 <div class="month-card">
 
     <div class="month-navigation">
 
         <a
-            href="{{ $attendanceIndexUrl . '?' . http_build_query(
+            href="<?php echo e($attendanceIndexUrl . '?' . http_build_query(
                 array_merge(
                     request()->except('month'),
                     ['month' => $previousMonth]
                 )
-            ) }}"
+            )); ?>"
             class="month-nav-btn"
             title="Previous Month"
         >
@@ -1818,27 +1810,28 @@
         <div class="month-name">
 
             <strong>
-                {{ $currentMonth->format('F Y') }}
+                <?php echo e($currentMonth->format('F Y')); ?>
+
             </strong>
 
             <span>
-                {{ $daysInMonth }} days
+                <?php echo e($daysInMonth); ?> days
                 •
-                {{ $workingDays }} working days
+                <?php echo e($workingDays); ?> working days
                 •
-                {{ $holidayDays }} holidays
+                <?php echo e($holidayDays); ?> holidays
             </span>
 
         </div>
 
 
         <a
-            href="{{ $attendanceIndexUrl . '?' . http_build_query(
+            href="<?php echo e($attendanceIndexUrl . '?' . http_build_query(
                 array_merge(
                     request()->except('month'),
                     ['month' => $nextMonth]
                 )
-            ) }}"
+            )); ?>"
             class="month-nav-btn"
             title="Next Month"
         >
@@ -1850,9 +1843,7 @@
 </div>
 
 
-{{-- =========================================================
-     INFORMATION CARDS
-========================================================= --}}
+
 
 <div class="info-grid">
 
@@ -1869,7 +1860,8 @@
             </small>
 
             <strong>
-                {{ $studentCollection->count() }}
+                <?php echo e($studentCollection->count()); ?>
+
             </strong>
 
         </div>
@@ -1890,7 +1882,8 @@
             </small>
 
             <strong>
-                {{ $currentMonth->format('M Y') }}
+                <?php echo e($currentMonth->format('M Y')); ?>
+
             </strong>
 
         </div>
@@ -1911,7 +1904,8 @@
             </small>
 
             <strong>
-                {{ $workingDays }}
+                <?php echo e($workingDays); ?>
+
             </strong>
 
         </div>
@@ -1932,7 +1926,8 @@
             </small>
 
             <strong>
-                {{ $holidayDays }}
+                <?php echo e($holidayDays); ?>
+
             </strong>
 
         </div>
@@ -1942,52 +1937,50 @@
 </div>
 
 
-{{-- =========================================================
-     ATTENDANCE FORM
-========================================================= --}}
+
 
 <form
     method="POST"
-    action="{{ $attendanceStoreUrl }}"
+    action="<?php echo e($attendanceStoreUrl); ?>"
     id="attendanceForm"
 >
 
-@csrf
+<?php echo csrf_field(); ?>
 
 <input
     type="hidden"
     name="attendance_month"
-    value="{{ $selectedMonth }}"
+    value="<?php echo e($selectedMonth); ?>"
 >
 
 <input
     type="hidden"
     name="month"
-    value="{{ $selectedMonth }}"
+    value="<?php echo e($selectedMonth); ?>"
 >
 
 <input
     type="hidden"
     name="attendance_date"
-    value="{{ $selectedDate ?? request('date', now()->format('Y-m-d')) }}"
+    value="<?php echo e($selectedDate ?? request('date', now()->format('Y-m-d'))); ?>"
 >
 
 <input
     type="hidden"
     name="academic_year"
-    value="{{ $selectedAcademicYear ?? '' }}"
+    value="<?php echo e($selectedAcademicYear ?? ''); ?>"
 >
 
 <input
     type="hidden"
     name="class"
-    value="{{ $selectedClass ?? '' }}"
+    value="<?php echo e($selectedClass ?? ''); ?>"
 >
 
 <input
     type="hidden"
     name="section"
-    value="{{ $selectedSection ?? '' }}"
+    value="<?php echo e($selectedSection ?? ''); ?>"
 >
 
 
@@ -2017,7 +2010,7 @@
     </div>
 
 
-    @if($studentCollection->count() > 0)
+    <?php if($studentCollection->count() > 0): ?>
 
 
     <div class="table-wrapper">
@@ -2040,9 +2033,9 @@
                     </th>
 
 
-                    @foreach($monthDates as $date)
+                    <?php $__currentLoopData = $monthDates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                        @php
+                        <?php
 
                             $dateKey =
                                 $date->format('Y-m-d');
@@ -2062,27 +2055,29 @@
                                 $dailyAttendance[$dateKey]['total']
                                 ?? 0;
 
-                        @endphp
+                        ?>
 
 
                         <th
-                            data-date="{{ $dateKey }}"
-                            class="{{ $holidayName ? 'holiday-header' : '' }}"
-                            title="{{ $holidayName
+                            data-date="<?php echo e($dateKey); ?>"
+                            class="<?php echo e($holidayName ? 'holiday-header' : ''); ?>"
+                            title="<?php echo e($holidayName
                                 ? $holidayName
-                                : $dailyPresent . ' students present out of ' . $dailyTotal }}"
+                                : $dailyPresent . ' students present out of ' . $dailyTotal); ?>"
                         >
 
                             <span class="date-number">
-                                {{ $date->format('d') }}
+                                <?php echo e($date->format('d')); ?>
+
                             </span>
 
                             <span class="date-day">
-                                {{ $date->format('D') }}
+                                <?php echo e($date->format('D')); ?>
+
                             </span>
 
 
-                            @if($holidayName)
+                            <?php if($holidayName): ?>
 
                                 <span class="date-present-count">
 
@@ -2093,30 +2088,32 @@
                                 </span>
 
                                 <span class="date-absent-count">
-                                    {{ $holidayName }}
+                                    <?php echo e($holidayName); ?>
+
                                 </span>
 
-                            @else
+                            <?php else: ?>
 
                                 <span class="date-present-count">
 
                                     <i class="bi bi-person-check-fill"></i>
 
                                     <span class="js-daily-present">
-                                        {{ $dailyPresent }}/{{ $dailyTotal }}
+                                        <?php echo e($dailyPresent); ?>/<?php echo e($dailyTotal); ?>
+
                                     </span>
 
                                 </span>
 
                                 <span class="date-absent-count js-daily-absent">
-                                    {{ $dailyAbsent }} Absent
+                                    <?php echo e($dailyAbsent); ?> Absent
                                 </span>
 
-                            @endif
+                            <?php endif; ?>
 
                         </th>
 
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 
                     <th class="summary-column">
@@ -2130,14 +2127,14 @@
 
             <tbody>
 
-                @foreach($studentCollection as $student)
+                <?php $__currentLoopData = $studentCollection; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                    @php
+                    <?php
 
                         $presentCount = 0;
                         $absentCount = 0;
 
-                    @endphp
+                    ?>
 
 
                     <tr data-student-row>
@@ -2149,24 +2146,25 @@
 
                                 <div class="student-avatar">
 
-                                    @if(!empty($student->profile_image))
+                                    <?php if(!empty($student->profile_image)): ?>
 
                                         <img
-                                            src="{{ $student->profile_image }}"
+                                            src="<?php echo e($student->profile_image); ?>"
                                             alt="Student"
                                         >
 
-                                    @else
+                                    <?php else: ?>
 
-                                        {{ strtoupper(
+                                        <?php echo e(strtoupper(
                                             substr(
                                                 $student->first_name ?? 'S',
                                                 0,
                                                 1
                                             )
-                                        ) }}
+                                        )); ?>
 
-                                    @endif
+
+                                    <?php endif; ?>
 
                                 </div>
 
@@ -2175,18 +2173,20 @@
 
                                     <div class="student-name">
 
-                                        {{ trim(
+                                        <?php echo e(trim(
                                             ($student->first_name ?? '') . ' ' .
                                             ($student->middle_name ?? '') . ' ' .
                                             ($student->last_name ?? '')
-                                        ) }}
+                                        )); ?>
+
 
                                     </div>
 
                                     <div class="student-id">
 
                                         ID:
-                                        {{ $student->student_id ?? $student->id }}
+                                        <?php echo e($student->student_id ?? $student->id); ?>
+
 
                                     </div>
 
@@ -2198,13 +2198,14 @@
 
 
                         <td class="roll-column">
-                            {{ $student->roll_number ?? '-' }}
+                            <?php echo e($student->roll_number ?? '-'); ?>
+
                         </td>
 
 
-                        @foreach($monthDates as $date)
+                        <?php $__currentLoopData = $monthDates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                            @php
+                            <?php
 
                                 $dateKey =
                                     $date->format('Y-m-d');
@@ -2235,50 +2236,52 @@
                                     $absentCount++;
                                 }
 
-                            @endphp
+                            ?>
 
 
                             <td
-                                class="attendance-cell {{ $holidayName ? 'holiday-cell' : '' }}"
+                                class="attendance-cell <?php echo e($holidayName ? 'holiday-cell' : ''); ?>"
                             >
 
-                                @if($holidayName)
+                                <?php if($holidayName): ?>
 
                                     <button
                                         type="button"
                                         class="attendance-btn holiday-disabled"
                                         disabled
-                                        title="{{ $holidayName }}"
+                                        title="<?php echo e($holidayName); ?>"
                                     >
                                         <i class="bi bi-calendar-x"></i>
                                     </button>
 
                                     <span class="holiday-label">
-                                        {{ $holidayName }}
+                                        <?php echo e($holidayName); ?>
+
                                     </span>
 
-                                @else
+                                <?php else: ?>
 
                                     <button
                                         type="button"
                                         class="attendance-btn
-                                            {{ $status === 'present' ? 'present' : '' }}
-                                            {{ $status === 'absent' ? 'absent' : '' }}"
+                                            <?php echo e($status === 'present' ? 'present' : ''); ?>
+
+                                            <?php echo e($status === 'absent' ? 'absent' : ''); ?>"
                                         onclick="toggleAttendance(this)"
-                                        title="{{ $status === 'present'
+                                        title="<?php echo e($status === 'present'
                                             ? 'Present'
                                             : ($status === 'absent'
                                                 ? 'Absent'
-                                                : 'Not Marked') }}"
+                                                : 'Not Marked')); ?>"
                                     >
 
-                                        @if($status === 'present')
+                                        <?php if($status === 'present'): ?>
                                             P
-                                        @elseif($status === 'absent')
+                                        <?php elseif($status === 'absent'): ?>
                                             A
-                                        @else
+                                        <?php else: ?>
                                             —
-                                        @endif
+                                        <?php endif; ?>
 
                                     </button>
 
@@ -2286,19 +2289,19 @@
                                     <input
                                         type="hidden"
                                         class="attendance-input"
-                                        name="attendance[{{ $student->id }}][{{ $dateKey }}]"
-                                        value="{{ $status }}"
-                                        data-date="{{ $dateKey }}"
+                                        name="attendance[<?php echo e($student->id); ?>][<?php echo e($dateKey); ?>]"
+                                        value="<?php echo e($status); ?>"
+                                        data-date="<?php echo e($dateKey); ?>"
                                     >
 
-                                @endif
+                                <?php endif; ?>
 
                             </td>
 
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 
-                        @php
+                        <?php
 
                             $markedCount =
                                 $presentCount +
@@ -2311,7 +2314,7 @@
                                     )
                                     : 0;
 
-                        @endphp
+                        ?>
 
 
                         <td class="summary-column">
@@ -2321,7 +2324,8 @@
                                 <div class="summary-percentage">
 
                                     <span class="attendance-percentage">
-                                        {{ $percentage }}
+                                        <?php echo e($percentage); ?>
+
                                     </span>%
 
                                 </div>
@@ -2331,14 +2335,16 @@
                                     <span class="summary-present">
                                         P:
                                         <span class="present-count">
-                                            {{ $presentCount }}
+                                            <?php echo e($presentCount); ?>
+
                                         </span>
                                     </span>
 
                                     <span class="summary-absent">
                                         A:
                                         <span class="absent-count">
-                                            {{ $absentCount }}
+                                            <?php echo e($absentCount); ?>
+
                                         </span>
                                     </span>
 
@@ -2350,7 +2356,7 @@
 
                     </tr>
 
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </tbody>
 
@@ -2359,7 +2365,7 @@
     </div>
 
 
-    {{-- SAVE BAR --}}
+    
 
     <div class="save-bar">
 
@@ -2403,7 +2409,7 @@
     </div>
 
 
-    @else
+    <?php else: ?>
 
 
     <div class="empty-state">
@@ -2422,26 +2428,24 @@
 
     </div>
 
-    @endif
+    <?php endif; ?>
 
 </div>
 
 </form>
 
 
-{{-- =========================================================
-     PROFESSIONAL PRINT REPORT
-========================================================= --}}
+
 
 <div class="print-sheet">
 
 
-    {{-- SCHOOL HEADER --}}
+    
 
     <div class="print-school-header">
 
         <img
-            src="{{ asset('images/gurukullogo.png') }}"
+            src="<?php echo e(asset('images/gurukullogo.png')); ?>"
             alt="Gurukul Vidyalaya"
             class="print-school-logo"
         >
@@ -2461,7 +2465,7 @@
     </div>
 
 
-    {{-- REPORT TITLE --}}
+    
 
     <div class="print-report-title">
 
@@ -2471,13 +2475,14 @@
 
         <p>
             Monthly Attendance Report —
-            {{ $currentMonth->format('F Y') }}
+            <?php echo e($currentMonth->format('F Y')); ?>
+
         </p>
 
     </div>
 
 
-    {{-- REPORT INFORMATION --}}
+    
 
     <div class="print-info-box">
 
@@ -2488,7 +2493,8 @@
             </span>
 
             <span class="print-info-value">
-                {{ $selectedAcademicYear ?: 'All' }}
+                <?php echo e($selectedAcademicYear ?: 'All'); ?>
+
             </span>
 
         </div>
@@ -2501,7 +2507,8 @@
             </span>
 
             <span class="print-info-value">
-                {{ $selectedClass ?: 'All Classes' }}
+                <?php echo e($selectedClass ?: 'All Classes'); ?>
+
             </span>
 
         </div>
@@ -2514,7 +2521,8 @@
             </span>
 
             <span class="print-info-value">
-                {{ $selectedSection ?: 'All Sections' }}
+                <?php echo e($selectedSection ?: 'All Sections'); ?>
+
             </span>
 
         </div>
@@ -2527,7 +2535,8 @@
             </span>
 
             <span class="print-info-value">
-                {{ $studentCollection->count() }}
+                <?php echo e($studentCollection->count()); ?>
+
             </span>
 
         </div>
@@ -2540,7 +2549,8 @@
             </span>
 
             <span class="print-info-value">
-                {{ $workingDays }}
+                <?php echo e($workingDays); ?>
+
             </span>
 
         </div>
@@ -2553,7 +2563,8 @@
             </span>
 
             <span class="print-info-value">
-                {{ $holidayDays }}
+                <?php echo e($holidayDays); ?>
+
             </span>
 
         </div>
@@ -2561,7 +2572,7 @@
     </div>
 
 
-    {{-- PRINT TABLE --}}
+    
 
     <table class="print-table">
 
@@ -2578,9 +2589,9 @@
                 </th>
 
 
-                @foreach($monthDates as $date)
+                <?php $__currentLoopData = $monthDates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                    @php
+                    <?php
 
                         $dateKey =
                             $date->format('Y-m-d');
@@ -2596,34 +2607,37 @@
                             $dailyAttendance[$dateKey]['total']
                             ?? 0;
 
-                    @endphp
+                    ?>
 
 
                     <th
-                        class="{{ $holidayName ? 'print-holiday' : '' }}"
+                        class="<?php echo e($holidayName ? 'print-holiday' : ''); ?>"
                     >
 
-                        {{ $date->format('d') }}
+                        <?php echo e($date->format('d')); ?>
+
 
                         <span class="print-daily-count">
 
-                            @if($holidayName)
+                            <?php if($holidayName): ?>
 
-                                {{ $date->isSunday()
+                                <?php echo e($date->isSunday()
                                     ? 'SUN'
-                                    : 'HOL' }}
+                                    : 'HOL'); ?>
 
-                            @else
 
-                                {{ $dailyPresent }}/{{ $dailyTotal }}
+                            <?php else: ?>
 
-                            @endif
+                                <?php echo e($dailyPresent); ?>/<?php echo e($dailyTotal); ?>
+
+
+                            <?php endif; ?>
 
                         </span>
 
                     </th>
 
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 
                 <th>
@@ -2645,37 +2659,39 @@
 
         <tbody>
 
-            @foreach($studentCollection as $student)
+            <?php $__currentLoopData = $studentCollection; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                @php
+                <?php
 
                     $printPresent = 0;
                     $printAbsent = 0;
 
-                @endphp
+                ?>
 
 
                 <tr>
 
                     <td>
 
-                        {{ trim(
+                        <?php echo e(trim(
                             ($student->first_name ?? '') . ' ' .
                             ($student->middle_name ?? '') . ' ' .
                             ($student->last_name ?? '')
-                        ) }}
+                        )); ?>
+
 
                     </td>
 
 
                     <td>
-                        {{ $student->roll_number ?? '-' }}
+                        <?php echo e($student->roll_number ?? '-'); ?>
+
                     </td>
 
 
-                    @foreach($monthDates as $date)
+                    <?php $__currentLoopData = $monthDates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                        @php
+                        <?php
 
                             $dateKey =
                                 $date->format('Y-m-d');
@@ -2706,49 +2722,50 @@
                                 $printAbsent++;
                             }
 
-                        @endphp
+                        ?>
 
 
                         <td
-                            class="{{ $holidayName ? 'print-holiday-cell' : '' }}"
+                            class="<?php echo e($holidayName ? 'print-holiday-cell' : ''); ?>"
                         >
 
-                            @if($holidayName)
+                            <?php if($holidayName): ?>
 
                                 <span class="print-absent">
 
-                                    {{ $date->isSunday()
+                                    <?php echo e($date->isSunday()
                                         ? 'SUN'
-                                        : 'HOL' }}
+                                        : 'HOL'); ?>
+
 
                                 </span>
 
-                            @elseif($printStatus === 'present')
+                            <?php elseif($printStatus === 'present'): ?>
 
                                 <span class="print-present">
                                     P
                                 </span>
 
-                            @elseif($printStatus === 'absent')
+                            <?php elseif($printStatus === 'absent'): ?>
 
                                 <span class="print-absent">
                                     A
                                 </span>
 
-                            @else
+                            <?php else: ?>
 
                                 <span class="print-empty">
                                     —
                                 </span>
 
-                            @endif
+                            <?php endif; ?>
 
                         </td>
 
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 
-                    @php
+                    <?php
 
                         $printMarked =
                             $printPresent +
@@ -2761,33 +2778,35 @@
                                 )
                                 : 0;
 
-                    @endphp
+                    ?>
 
 
                     <td class="print-present">
-                        {{ $printPresent }}
+                        <?php echo e($printPresent); ?>
+
                     </td>
 
                     <td class="print-absent">
-                        {{ $printAbsent }}
+                        <?php echo e($printAbsent); ?>
+
                     </td>
 
                     <td>
                         <strong>
-                            {{ $printPercentage }}%
+                            <?php echo e($printPercentage); ?>%
                         </strong>
                     </td>
 
                 </tr>
 
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
         </tbody>
 
     </table>
 
 
-    {{-- LEGEND --}}
+    
 
     <div class="print-legend">
 
@@ -2823,7 +2842,7 @@
     </div>
 
 
-    {{-- FOOTER --}}
+    
 
     <div class="print-footer">
 
@@ -2835,12 +2854,14 @@
 
             <div>
                 Report Month:
-                {{ $currentMonth->format('F Y') }}
+                <?php echo e($currentMonth->format('F Y')); ?>
+
             </div>
 
             <div>
                 Generated:
-                {{ now()->format('d M Y, h:i A') }}
+                <?php echo e(now()->format('d M Y, h:i A')); ?>
+
             </div>
 
         </div>
@@ -3157,18 +3178,18 @@ function getAttendanceExportParams() {
 
     params.set(
         'month',
-        @json($selectedMonth)
+        <?php echo json_encode($selectedMonth, 15, 512) ?>
     );
 
 
     const academicYear =
-        @json($selectedAcademicYear);
+        <?php echo json_encode($selectedAcademicYear, 15, 512) ?>;
 
     const selectedClass =
-        @json($selectedClass);
+        <?php echo json_encode($selectedClass, 15, 512) ?>;
 
     const selectedSection =
-        @json($selectedSection);
+        <?php echo json_encode($selectedSection, 15, 512) ?>;
 
 
     if (academicYear) {
@@ -3217,14 +3238,14 @@ function exportAttendance(type, button) {
     if (type === 'pdf') {
 
         baseUrl =
-            @json($attendancePdfUrl);
+            <?php echo json_encode($attendancePdfUrl, 15, 512) ?>;
 
     }
 
     else if (type === 'excel') {
 
         baseUrl =
-            @json($attendanceExcelUrl);
+            <?php echo json_encode($attendanceExcelUrl, 15, 512) ?>;
 
     }
 
@@ -3452,4 +3473,5 @@ document.addEventListener(
 
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\Shweta Gundu Mali\Desktop\Student\School-Management-New\resources\views/admin/attendance/student.blade.php ENDPATH**/ ?>

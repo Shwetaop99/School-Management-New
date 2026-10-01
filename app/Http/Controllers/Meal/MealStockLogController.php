@@ -5,9 +5,6 @@ namespace App\Http\Controllers\Meal;
 use App\Http\Controllers\Controller;
 use App\Models\Meal\MealItem;
 use App\Models\Meal\MealStockLog;
-<<<<<<< HEAD
-use Illuminate\Http\Request;
-=======
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -15,7 +12,6 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Facades\Excel;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
 class MealStockLogController extends Controller
 {
@@ -24,153 +20,6 @@ class MealStockLogController extends Controller
      */
     public function index(Request $request)
     {
-<<<<<<< HEAD
-        $query = MealStockLog::query()
-            ->with([
-                'mealItem',
-                'stockTransaction',
-            ]);
-
-        /*
-         * Month filter.
-         *
-         * Example:
-         * 2026-09
-         */
-        if ($request->filled('month')) {
-            $month = $request->month;
-
-            if (preg_match('/^\d{4}-\d{2}$/', $month)) {
-                $query->whereHas(
-                    'stockTransaction',
-                    function ($transactionQuery) use ($month) {
-                        $transactionQuery->whereRaw(
-                            "DATE_FORMAT(transaction_date, '%Y-%m') = ?",
-                            [$month]
-                        );
-                    }
-                );
-            }
-        }
-
-        /*
-         * Search.
-         */
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-
-            $query->where(function ($q) use ($search) {
-                $q->where(
-                    'reason',
-                    'like',
-                    "%{$search}%"
-                )
-                    ->orWhere(
-                        'remarks',
-                        'like',
-                        "%{$search}%"
-                    )
-                    ->orWhereHas(
-                        'mealItem',
-                        function ($itemQuery) use ($search) {
-                            $itemQuery->where(
-                                'item_name',
-                                'like',
-                                "%{$search}%"
-                            );
-                        }
-                    )
-                    ->orWhereHas(
-                        'stockTransaction',
-                        function ($transactionQuery) use ($search) {
-                            $transactionQuery->where(
-                                'supplier',
-                                'like',
-                                "%{$search}%"
-                            );
-                        }
-                    );
-            });
-        }
-
-        /*
-         * Filter by meal item.
-         */
-        if ($request->filled('meal_item_id')) {
-            $query->where(
-                'meal_item_id',
-                $request->meal_item_id
-            );
-        }
-
-        /*
-         * Filter by category.
-         */
-        if ($request->filled('category')) {
-            $query->whereHas(
-                'mealItem',
-                function ($itemQuery) use ($request) {
-                    $itemQuery->where(
-                        'category',
-                        $request->category
-                    );
-                }
-            );
-        }
-
-        /*
-         * Filter by Stock In / Stock Out.
-         */
-        if ($request->filled('transaction_type')) {
-            $query->where(
-                'action',
-                $request->transaction_type
-            );
-        }
-
-        /*
-         * Date From.
-         */
-        if ($request->filled('date_from')) {
-            $query->whereHas(
-                'stockTransaction',
-                function ($transactionQuery) use ($request) {
-                    $transactionQuery->whereDate(
-                        'transaction_date',
-                        '>=',
-                        $request->date_from
-                    );
-                }
-            );
-        }
-
-        /*
-         * Date To.
-         */
-        if ($request->filled('date_to')) {
-            $query->whereHas(
-                'stockTransaction',
-                function ($transactionQuery) use ($request) {
-                    $transactionQuery->whereDate(
-                        'transaction_date',
-                        '<=',
-                        $request->date_to
-                    );
-                }
-            );
-        }
-
-        /*
-         * Summary totals.
-         *
-         * Clone before pagination so the
-         * summary uses all filtered records.
-         */
-        $summaryQuery = clone $query;
-
-        $totalMovements = (clone $summaryQuery)
-            ->count();
-=======
         $query = $this->filteredQuery($request);
 
         /*
@@ -182,7 +31,6 @@ class MealStockLogController extends Controller
         $summaryQuery = clone $query;
 
         $totalMovements = (clone $summaryQuery)->count();
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
         $totalStockIn = (clone $summaryQuery)
             ->where('action', 'stock_in')
@@ -193,48 +41,33 @@ class MealStockLogController extends Controller
             ->sum('quantity');
 
         /*
-<<<<<<< HEAD
-         * Logs.
-         */
-=======
         |--------------------------------------------------------------------------
         | Logs
         |--------------------------------------------------------------------------
         */
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         $logs = $query
             ->latest('id')
             ->paginate(15)
             ->withQueryString();
 
         /*
-<<<<<<< HEAD
-         * Active meal items for filter.
-         */
-=======
         |--------------------------------------------------------------------------
         | Active meal items for filter
         |--------------------------------------------------------------------------
         */
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         $items = MealItem::query()
             ->where('status', 'active')
             ->orderBy('item_name')
             ->get();
 
         /*
-<<<<<<< HEAD
-         * Available categories.
-         */
-=======
         |--------------------------------------------------------------------------
         | Available categories
         |--------------------------------------------------------------------------
         */
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         $categories = MealItem::query()
             ->where('status', 'active')
             ->whereNotNull('category')
@@ -245,16 +78,11 @@ class MealStockLogController extends Controller
             ->pluck('category');
 
         /*
-<<<<<<< HEAD
-         * Number of active low-stock items.
-         */
-=======
         |--------------------------------------------------------------------------
         | Number of active low-stock items
         |--------------------------------------------------------------------------
         */
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         $lowStockItems = MealItem::query()
             ->where('status', 'active')
             ->whereColumn(
@@ -293,8 +121,6 @@ class MealStockLogController extends Controller
             compact('mealStockLog')
         );
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Download filtered meal stock logs as PDF.
@@ -458,7 +284,7 @@ class MealStockLogController extends Controller
     /**
      * Build the common filtered query.
      *
-     * This query is used by:
+     * Used by:
      * - Logs page
      * - PDF export
      * - Excel export
@@ -627,5 +453,4 @@ class MealStockLogController extends Controller
 
         return $query;
     }
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 }

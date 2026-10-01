@@ -1,75 +1,71 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Sports Controllers
-|--------------------------------------------------------------------------
-*/
 use App\Http\Controllers\Sports\GameController;
 use App\Http\Controllers\Sports\AchievementController;
 use App\Http\Controllers\Sports\EquipmentController;
+use App\Http\Controllers\Admin\AgeReportController;
+use App\Http\Controllers\Admin\IdCardTemplateController;
+use App\Http\Controllers\Admin\IdCardController;
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Controllers
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\Auth\TwoFactorController;
+use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Admin\StudentProfileController;
+use App\Http\Controllers\Admin\StudentDocumentsController;
+
+use App\Http\Controllers\Admin\StudentSupplyKitController;
+use App\Http\Controllers\Admin\SchoolLeavingCertificateController;
+
+
 
 /*
 |--------------------------------------------------------------------------
 | Admin Controllers
 |--------------------------------------------------------------------------
 */
-use App\Http\Controllers\Admin\Auth\LoginController;
-use App\Http\Controllers\Admin\Auth\TwoFactorController;
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\TeacherSalaryController;
+use App\Http\Controllers\Admin\TimetableController;
 use App\Http\Controllers\Admin\TeacherAttendanceController;
 use App\Http\Controllers\Admin\TeacherReportController;
-use App\Http\Controllers\Admin\TimetableController;
-use App\Http\Controllers\Admin\ClassTeacherController;
-
-use App\Http\Controllers\Admin\StudentController;
-use App\Http\Controllers\Admin\LocationController;
-use App\Http\Controllers\Admin\StudentProfileController;
-use App\Http\Controllers\Admin\StudentDocumentsController;
-use App\Http\Controllers\Admin\StudentSupplyKitController;
-
-use App\Http\Controllers\Admin\SchoolLeavingCertificateController;
-use App\Http\Controllers\Admin\BonafideCertificateController;
-
-use App\Http\Controllers\Admin\AgeReportController;
-use App\Http\Controllers\Admin\IdCardTemplateController;
-use App\Http\Controllers\Admin\IdCardController;
-
-use App\Http\Controllers\Admin\AttendanceController;
-
 use App\Http\Controllers\Admin\StaffCategoryController;
 use App\Http\Controllers\Admin\LeaveApplicationController;
+use App\Http\Controllers\Admin\ClassTeacherController;
 use App\Http\Controllers\Admin\NoticeController;
-
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\BookIssueController;
 use App\Http\Controllers\Admin\OtherStaffController;
 use App\Http\Controllers\Admin\LibrarianController;
 use App\Http\Controllers\Admin\LibraryReportController;
 use App\Http\Controllers\Admin\LibraryReportDownloadController;
-
-use App\Http\Controllers\Admin\RolePermissionController;
-use App\Http\Controllers\Admin\UserManagementController;
-
+use App\Http\Controllers\Admin\BonafideCertificateController;
 /*
 |--------------------------------------------------------------------------
-| Meal Controllers
+| Meal Management Controllers
 |--------------------------------------------------------------------------
 */
+
 use App\Http\Controllers\Meal\MealItemController;
 use App\Http\Controllers\Meal\MealStockLogController;
 use App\Http\Controllers\Meal\MealStockTransactionController;
-
+use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\UserManagementController;
 /*
 |--------------------------------------------------------------------------
 | Class Management Controllers
 |--------------------------------------------------------------------------
 */
+
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Class\SubjectController;
 
@@ -117,11 +113,6 @@ Route::prefix('admin')
             'store'
         ])->name('teachers.attendance.store');
 
-        Route::get('/teachers/attendance/excel', [
-            TeacherAttendanceController::class,
-            'excel'
-        ])->name('teachers.attendance.excel');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -130,7 +121,6 @@ Route::prefix('admin')
         */
 
         Route::middleware('auth')->group(function () {
-
 
             /*
             |--------------------------------------------------------------------------
@@ -184,143 +174,63 @@ Route::prefix('admin')
                 });
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT PROFILE
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/students/profile', [
-                StudentProfileController::class,
-                'index'
-            ])->name('students.profile');
-
-            Route::get('/students/profile/search', [
-                StudentProfileController::class,
-                'search'
-            ])->name('student-profile.search');
+                Route::get('/students/profile', [StudentProfileController::class, 'index'])
+    ->name('students.profile');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT DOCUMENTS
-            |--------------------------------------------------------------------------
-            */
+   Route::get('/students/profile', [StudentProfileController::class, 'index'])
+    ->name('students.profile');
 
-            Route::get('/students/documents', [
-                StudentDocumentsController::class,
-                'index'
-            ])->name('students.documents');
+Route::get('/students/profile/search', [StudentProfileController::class, 'search'])
+    ->name('student-profile.search');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT ID CARD
-            |--------------------------------------------------------------------------
-            */
+Route::get('/students/documents', [StudentDocumentsController::class, 'index'])
+    ->name('students.documents');
 
-            Route::get('/students/id-card', [
-                IdCardController::class,
-                'index'
-            ])->name('students.id-card');
+Route::get('/students/id-card', [IdCardController::class, 'index'])
+    ->name('students.id-card');
 
-            Route::resource(
-                'id-card/templates',
-                IdCardTemplateController::class
-            )->names('id-card.templates');
+Route::resource('students/supplies', StudentSupplyKitController::class)
+    ->names('students.supplies');
 
-            Route::get('/id-card', [
-                IdCardController::class,
-                'index'
-            ])->name('id-card.index');
-
-            Route::get('/id-card/create', [
-                IdCardController::class,
-                'create'
-            ])->name('id-card.create');
-
-            Route::post('/id-card', [
-                IdCardController::class,
-                'store'
-            ])->name('id-card.store');
-
-            Route::get('/id-card/{id}', [
-                IdCardController::class,
-                'show'
-            ])->name('id-card.show');
-
-            Route::get('/id-card/{id}/print', [
-                IdCardController::class,
-                'print'
-            ])->name('id-card.print');
-
-            Route::delete('/id-card/{id}', [
-                IdCardController::class,
-                'destroy'
-            ])->name('id-card.destroy');
+    Route::resource('bonafide', BonafideCertificateController::class);
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT SUPPLY KIT
-            |--------------------------------------------------------------------------
-            */
+    Route::resource('school-leaving-certificate', SchoolLeavingCertificateController::class);
 
-            Route::resource(
-                'students/supplies',
-                StudentSupplyKitController::class
-            )->names('students.supplies');
+    Route::get(
+    '/school-leaving-certificate/{schoolLeavingCertificate}/print',
+    [SchoolLeavingCertificateController::class, 'print']
+)->name('school-leaving-certificate.print');
 
+Route::get('/age-report', [AgeReportController::class, 'index'])
+    ->name('age-report.index');
 
-            /*
-            |--------------------------------------------------------------------------
-            | BONAFIDE CERTIFICATE
-            |--------------------------------------------------------------------------
-            */
+Route::get('/age-report/print', [AgeReportController::class, 'print'])
+    ->name('age-report.print');
 
-            Route::resource(
-                'bonafide',
-                BonafideCertificateController::class
-            );
+    Route::resource('id-card/templates', IdCardTemplateController::class)
+    ->names('id-card.templates');
+    Route::get('/id-card', [IdCardController::class, 'index'])
+    ->name('id-card.index');
 
+Route::get('/id-card/create', [IdCardController::class, 'create'])
+    ->name('id-card.create');
 
-            /*
-            |--------------------------------------------------------------------------
-            | SCHOOL LEAVING CERTIFICATE
-            |--------------------------------------------------------------------------
-            */
+Route::post('/id-card', [IdCardController::class, 'store'])
+    ->name('id-card.store');
 
-            Route::resource(
-                'school-leaving-certificate',
-                SchoolLeavingCertificateController::class
-            );
+Route::get('/id-card/{id}', [IdCardController::class, 'show'])
+    ->name('id-card.show');
 
-            Route::get(
-                '/school-leaving-certificate/{schoolLeavingCertificate}/print',
-                [
-                    SchoolLeavingCertificateController::class,
-                    'print'
-                ]
-            )->name('school-leaving-certificate.print');
+Route::get('/id-card/{id}/print', [IdCardController::class, 'print'])
+    ->name('id-card.print');
 
+Route::delete('/id-card/{id}', [IdCardController::class, 'destroy'])
+    ->name('id-card.destroy');
 
-            /*
-            |--------------------------------------------------------------------------
-            | AGE REPORT
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/age-report', [
-                AgeReportController::class,
-                'index'
-            ])->name('age-report.index');
-
-            Route::get('/age-report/print', [
-                AgeReportController::class,
-                'print'
-            ])->name('age-report.print');
-
-
+    
             /*
             |--------------------------------------------------------------------------
             | TEACHERS
@@ -714,6 +624,10 @@ Route::prefix('admin')
                 ->name('meal.items.')
                 ->group(function () {
 
+                    /*
+                    | Meal Items
+                    */
+
                     Route::get('/', [
                         MealItemController::class,
                         'index'
@@ -729,6 +643,11 @@ Route::prefix('admin')
                         'store'
                     ])->name('store');
 
+
+                    /*
+                    | Meal Stock
+                    */
+
                     Route::get('/stock', [
                         MealStockTransactionController::class,
                         'index'
@@ -743,6 +662,11 @@ Route::prefix('admin')
                         MealStockTransactionController::class,
                         'store'
                     ])->name('stock.store');
+
+
+                    /*
+                    | Edit / Update / Delete Meal Item
+                    */
 
                     Route::get('/{mealItem}/edit', [
                         MealItemController::class,
@@ -793,198 +717,51 @@ Route::prefix('admin')
                 });
 
 
+                Route::prefix('sports')->name('sports.')->group(function () {
+
+    Route::resource('games', GameController::class);
+
+    Route::resource('achievements', AchievementController::class);
+
+    Route::resource('equipment', EquipmentController::class);
+
+});
             /*
             |--------------------------------------------------------------------------
-            | SPORTS
+            | SCHOOL MANAGEMENT
             |--------------------------------------------------------------------------
             */
 
-            Route::prefix('sports')
-                ->name('sports.')
-                ->group(function () {
+            Route::resource('students', StudentController::class);
 
-                    Route::resource(
-                        'games',
-                        GameController::class
-                    );
+            Route::get('/students/class-wise', [StudentController::class, 'classWise'])
+    ->name('students.class-wise');
 
-                    Route::resource(
-                        'achievements',
-                        AchievementController::class
-                    );
+Route::get('/students/class-wise/print', [StudentController::class, 'classWisePrint'])
+    ->name('students.class-wise.print');
 
-                    Route::resource(
-                        'equipment',
-                        EquipmentController::class
-                    );
-                });
+Route::get('/students/next-roll-number', [StudentController::class, 'nextRollNumber'])
+    ->name('students.next-roll-number');
+
+    Route::prefix('locations')->name('locations.')->group(function () {
+    Route::get('/states', [LocationController::class, 'states'])->name('states');
+    Route::get('/districts', [LocationController::class, 'districts'])->name('districts');
+    Route::get('/tehsils', [LocationController::class, 'tehsils'])->name('tehsils');
+    Route::get('/locations', [LocationController::class, 'locations'])->name('locations');
+});
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | SCHOOL MANAGEMENT - STUDENTS
-            |--------------------------------------------------------------------------
-            */
+            Route::get('/attendance/student', function () {
+                return view('admin.attendance.student');
+            })->name('attendance.student');
 
-            Route::resource(
-                'students',
-                StudentController::class
-            );
+            Route::get('/faculty', function () {
+                return 'Faculty Management';
+            })->name('faculty.index');
 
-            Route::get('/students/class-wise', [
-                StudentController::class,
-                'classWise'
-            ])->name('students.class-wise');
-
-            Route::get('/students/class-wise/print', [
-                StudentController::class,
-                'classWisePrint'
-            ])->name('students.class-wise.print');
-
-            Route::get('/students/next-roll-number', [
-                StudentController::class,
-                'nextRollNumber'
-            ])->name('students.next-roll-number');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | LOCATIONS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('locations')
-                ->name('locations.')
-                ->group(function () {
-
-                    Route::get('/states', [
-                        LocationController::class,
-                        'states'
-                    ])->name('states');
-
-                    Route::get('/districts', [
-                        LocationController::class,
-                        'districts'
-                    ])->name('districts');
-
-                    Route::get('/tehsils', [
-                        LocationController::class,
-                        'tehsils'
-                    ])->name('tehsils');
-
-                    Route::get('/locations', [
-                        LocationController::class,
-                        'locations'
-                    ])->name('locations');
-                });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT ATTENDANCE
-            |--------------------------------------------------------------------------
-            |
-            | IMPORTANT:
-            |
-            | /attendance
-            |     = Faculty/old attendance page
-            |
-            | /attendance/student
-            |     = Student Attendance Class Cards
-            |
-            | /attendance/student/sheet
-            |     = Actual Student Attendance Sheet
-            |
-            */
-
-            Route::get('/attendance', [
-                AttendanceController::class,
-                'index'
-            ])->name('attendance.index');
-
-
-            Route::get('/attendance/student', [
-                AttendanceController::class,
-                'classes'
-            ])->name('attendance.student');
-
-
-            Route::get('/attendance/student/sheet', [
-                AttendanceController::class,
-                'index'
-            ])->name('attendance.student.sheet');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ATTENDANCE - AJAX STUDENTS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/attendance/students', [
-                AttendanceController::class,
-                'students'
-            ])->name('attendance.students');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ATTENDANCE - SECTIONS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/attendance/sections', [
-                AttendanceController::class,
-                'sections'
-            ])->name('attendance.sections');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ATTENDANCE - SAVE
-            |--------------------------------------------------------------------------
-            */
-
-            Route::post('/attendance/students', [
-                AttendanceController::class,
-                'store'
-            ])->name('attendance.students.store');
-
-            Route::post('/attendance/store', [
-                AttendanceController::class,
-                'store'
-            ])->name('attendance.store');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ATTENDANCE - PDF
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/attendance/pdf', [
-                AttendanceController::class,
-                'pdf'
-            ])->name('attendance.pdf');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ATTENDANCE - EXCEL
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/attendance/excel', [
-                AttendanceController::class,
-                'excel'
-            ])->name('attendance.excel');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SIMPLE PLACEHOLDER MODULES
-            |--------------------------------------------------------------------------
-            */
+            Route::get('/attendance', function () {
+                return 'Attendance Management';
+            })->name('attendance.index');
 
             Route::get('/fees', function () {
                 return 'Fees Management';
@@ -1018,28 +795,17 @@ Route::prefix('admin')
                 return 'Settings';
             })->name('settings.index');
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | SETTINGS - USERS & ROLES
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('settings')
-                ->name('settings.')
-                ->group(function () {
-
-                    Route::resource(
-                        'users',
-                        UserManagementController::class
-                    );
-
-                    Route::resource(
-                        'roles',
-                        RolePermissionController::class
-                    );
-                });
         });
+
+        // Settings
+Route::prefix('settings')->name('settings.')->group(function () {
+
+   
+Route::resource('users', UserManagementController::class);
+
+   Route::resource('roles', RolePermissionController::class);
+
+});
 
 
         /*
@@ -1052,6 +818,7 @@ Route::prefix('admin')
             LoginController::class,
             'logout'
         ])->middleware('auth')->name('logout');
+
     });
 
 

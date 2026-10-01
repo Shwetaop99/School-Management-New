@@ -7535,7 +7535,7 @@
             "time": "2026-08-30T20:10:52+00:00"
         },
         {
-<<<<<<< HEAD
+
             "name": "thiagoalessio/tesseract_ocr",
             "version": "2.13.0",
             "source": {
@@ -7560,7 +7560,7 @@
                 "psr-4": {
                     "thiagoalessio\\TesseractOCR\\": "src/"
                 }
-=======
+            },
             "name": "thecodingmachine/safe",
             "version": "v3.4.0",
             "source": {

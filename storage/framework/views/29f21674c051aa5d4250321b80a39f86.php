@@ -1,19 +1,29 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    
     <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+>
+
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+    crossorigin="anonymous"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+>
 
     <title><?php echo $__env->yieldContent('title', 'School Management'); ?></title>
 
@@ -60,7 +70,7 @@
 
         /* =========================================================
            APP WRAPPER
-        ========================================================== */
+        ========================================================= */
 
         .app-wrapper {
             min-height: 100vh;
@@ -69,7 +79,7 @@
 
         /* =========================================================
            SIDEBAR
-        ========================================================== */
+        ========================================================= */
 
         .sidebar {
             position: fixed;
@@ -86,17 +96,16 @@
         }
 
         /* =========================================================
-           SIDEBAR BRAND
-        ========================================================== */
+           SIDEBAR LOGO
+        ========================================================= */
 
         .sidebar-brand {
-            min-height: var(--header-height);
+            height: var(--header-height);
             display: flex;
             align-items: center;
-            padding: 6px 16px;
+            padding: 0 20px;
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
-            gap: 10px;
         }
 
         .brand-icon {
@@ -120,27 +129,24 @@
 
         .brand-text {
             line-height: 1.2;
-            min-width: 0;
+            margin-left: 10px;
         }
 
         .brand-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             color: #17233f;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .brand-subtitle {
-            font-size: 10px;
+            font-size: 11px;
             color: #718096;
             margin-top: 3px;
         }
 
         /* =========================================================
            SIDEBAR SCROLL
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-content {
             flex: 1;
@@ -159,7 +165,7 @@
 
         /* =========================================================
            SECTION TITLE
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-section-title {
             font-size: 11px;
@@ -172,7 +178,7 @@
 
         /* =========================================================
            SIDEBAR ITEM
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-item {
             width: 100%;
@@ -186,9 +192,7 @@
             font-weight: 500;
             margin-bottom: 3px;
             cursor: pointer;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
+            transition: background 0.2s ease, color 0.2s ease;
             border: none;
             background: transparent;
             text-align: left;
@@ -229,7 +233,7 @@
 
         /* =========================================================
            SUBMENU
-        ========================================================== */
+        ========================================================= */
 
         .submenu {
             display: none;
@@ -248,9 +252,7 @@
             border-radius: 7px;
             color: #6a788d;
             font-size: 13px;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
+            transition: all 0.2s ease;
             position: relative;
         }
 
@@ -270,94 +272,14 @@
         }
 
         .submenu-item.active {
-    background: #eef4ff;
-    color: #1769d1;
-    font-weight: 600;
-}
-
-.submenu-item.active .submenu-dot {
-    color: #1769d1;
-}
-
-        /* =========================================================
-           NESTED SCHOOL SUPPLY MENU
-        ========================================================== */
-
-        .nested-menu-wrapper {
-            margin: 2px 0 4px;
-        }
-
-        .nested-menu-toggle {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            min-height: 36px;
-            padding: 7px 10px;
-            border: none;
-            border-radius: 7px;
-            background: transparent;
-            color: #6a788d;
-            font-size: 13px;
-            text-align: left;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
-        }
-
-        .nested-menu-toggle:hover {
-            background: #f3f7fc;
-            color: var(--primary);
-        }
-
-        .nested-menu-toggle.active {
-            color: var(--primary);
+            background: #eef4ff;
+            color: #1769d1;
             font-weight: 600;
-            background: #f0f6ff;
-        }
-
-        .nested-menu-toggle::before {
-            content: "";
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #b7c2d1;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-
-        .nested-menu-toggle.active::before {
-            background: var(--primary);
-        }
-
-        .nested-menu-arrow {
-            margin-left: auto;
-            font-size: 11px;
-            transition: transform 0.2s ease;
-        }
-
-        .nested-menu-toggle.open .nested-menu-arrow {
-            transform: rotate(90deg);
-        }
-
-        .nested-menu {
-            display: none;
-            padding-left: 18px;
-            margin-top: 2px;
-        }
-
-        .nested-menu.open {
-            display: block;
-        }
-
-        .nested-menu .submenu-item {
-            font-size: 12.5px;
-            min-height: 34px;
         }
 
         /* =========================================================
            OTHER SECTION
-        ========================================================== */
+        ========================================================= */
 
         .other-title {
             display: flex;
@@ -373,7 +295,7 @@
 
         /* =========================================================
            LOGOUT
-        ========================================================== */
+        ========================================================= */
 
         .logout-area {
             padding: 10px;
@@ -403,7 +325,7 @@
 
         /* =========================================================
            MAIN AREA
-        ========================================================== */
+        ========================================================= */
 
         .main-area {
             margin-left: var(--sidebar-width);
@@ -415,7 +337,7 @@
 
         /* =========================================================
            HEADER
-        ========================================================== */
+        ========================================================= */
 
         .top-header {
             height: var(--header-height);
@@ -454,7 +376,7 @@
 
         /* =========================================================
            SEARCH
-        ========================================================== */
+        ========================================================= */
 
         .header-search {
             margin-left: auto;
@@ -514,7 +436,7 @@
 
         /* =========================================================
            SEARCH RESULTS
-        ========================================================== */
+        ========================================================= */
 
         .search-results {
             position: absolute;
@@ -566,7 +488,7 @@
 
         /* =========================================================
            HEADER RIGHT
-        ========================================================== */
+        ========================================================= */
 
         .header-actions {
             display: flex;
@@ -585,9 +507,7 @@
         .admin-avatar {
             width: 35px;
             height: 35px;
-            min-width: 35px;
             border-radius: 50%;
-            overflow: hidden;
             background: #172b4d;
             color: white;
             display: flex;
@@ -595,14 +515,6 @@
             justify-content: center;
             font-weight: 700;
             font-size: 13px;
-        }
-
-        .admin-avatar-img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-            border-radius: 50%;
         }
 
         .admin-info {
@@ -635,7 +547,7 @@
 
         /* =========================================================
            PAGE CONTENT
-        ========================================================== */
+        ========================================================= */
 
         .main-content {
             flex: 1;
@@ -645,7 +557,7 @@
 
         /* =========================================================
            FOOTER
-        ========================================================== */
+        ========================================================= */
 
         .app-footer {
             min-height: 48px;
@@ -665,7 +577,7 @@
 
         /* =========================================================
            MOBILE OVERLAY
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-overlay {
             display: none;
@@ -677,7 +589,7 @@
 
         /* =========================================================
            RESPONSIVE
-        ========================================================== */
+        ========================================================= */
 
         @media (max-width: 1000px) {
 
@@ -745,24 +657,6 @@
 
 <body>
 
-<?php
-    /*
-    |--------------------------------------------------------------------------
-    | DYNAMIC SCHOOL PROFILE
-    |--------------------------------------------------------------------------
-    | $school is expected to be shared from AppServiceProvider/View Composer.
-    |
-    | Logo priority:
-    | 1. Database / Cloudinary logo
-    | 2. public/images/gurukullogo.png
-    */
-
-    $schoolName = $school?->school_name ?? 'Gurukul Vidyalaya';
-
-    $schoolLogo = $school?->logo_url
-        ?: asset('images/gurukullogo.png');
-?>
-
 <div class="app-wrapper">
 
     <!-- =========================================================
@@ -775,398 +669,744 @@
         <div class="sidebar-brand">
 
             <div class="brand-icon">
-                <img
-                    src="<?php echo e($schoolLogo); ?>"
-                    alt="<?php echo e($schoolName); ?> Logo"
-                    onerror="this.onerror=null;this.src='<?php echo e(asset('images/gurukullogo.png')); ?>';"
-                >
+                <img src="<?php echo e(asset('images/gurukullogo.png')); ?>"
+                     alt="Gurukul Logo">
             </div>
 
             <div class="brand-text">
-
                 <div class="brand-title">
-                    <?php echo e($schoolName); ?>
-
+                    Gurukul Vidyalaya
                 </div>
 
                 <div class="brand-subtitle">
                     School Management
                 </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="sidebar-content">
+
+            <!-- Dashboard -->
+            <a href="<?php echo e(route('admin.dashboard')); ?>"
+               class="sidebar-item <?php echo e(request()->routeIs('admin.dashboard') ? 'active' : ''); ?>"
+               data-search="dashboard home">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 STUDENT
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.students.*') ? 'active open' : ''); ?>"
+                    data-submenu="student-menu"
+                    data-search="student students">
+
+                <span class="sidebar-icon">
+                    <i class="fa fa-user-graduate"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Student
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.students.*') ? 'open' : ''); ?>"
+                 id="student-menu">
+
+                <a href="<?php echo e(route('admin.students.index')); ?>"
+                   class="submenu-item <?php echo e(request()->routeIs('admin.students.index') ? 'active' : ''); ?>">
+                    All Students
+                </a>
+
+             <a href="<?php echo e(route('admin.students.create')); ?>"
+   class="submenu-item">
+    Add Student
+</a>
+
+<a href="<?php echo e(route('admin.students.profile')); ?>"
+   class="submenu-item <?php echo e(request()->routeIs('admin.students.profile') ? 'active' : ''); ?>">
+    Student Profile
+</a>
+
+<a href="<?php echo e(route('admin.students.documents')); ?>"
+   class="submenu-item <?php echo e(request()->routeIs('admin.students.documents') ? 'active' : ''); ?>">
+    Student Documents
+</a>
+
+<a href="<?php echo e(route('admin.students.id-card')); ?>"
+   class="submenu-item <?php echo e(request()->routeIs('admin.students.id-card') ? 'active' : ''); ?>">
+    Student ID
+</a>
+
+<a href="<?php echo e(route('admin.students.supplies.index')); ?>"
+   class="submenu-item <?php echo e(request()->routeIs('admin.students.supplies.*') ? 'active' : ''); ?>">
+    School Supplies (Kit)
+</a>
+
+                
+
+            </div>
+
+
+            <!-- =================================================
+                 FACULTY
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.faculty.*') ? 'active open' : ''); ?>"
+                    data-submenu="faculty-menu"
+                    data-search="faculty teacher teachers">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Faculty (Teacher)
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.faculty.*') ? 'open' : ''); ?>"
+                 id="faculty-menu">
+
+                <a href="<?php echo e(route('admin.teachers.index')); ?>"
+                   class="submenu-item">
+                    All Teachers
+                </a>
+
+                <a href="<?php echo e(route('admin.teachers.assign-class.index')); ?>"
+                   class="submenu-item">
+                    Teacher Allocation
+                </a>
+
+                <a href="<?php echo e(route('admin.leave-applications.index')); ?>"
+                   class="submenu-item">
+                    Leave Applications
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 OTHER STAFF
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.other-staff.*') ? 'active open' : ''); ?>"
+                    data-submenu="other-staff-menu"
+                    data-search="other staff employees librarian accountant receptionist peon driver">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-users"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Other Staff
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.other-staff.*') ? 'open' : ''); ?>"
+                 id="other-staff-menu">
+
+                <a href="<?php echo e(route('admin.other-staff.index')); ?>"
+                   class="submenu-item">
+                    All Staff
+                </a>
+
+                <a href="<?php echo e(route('admin.other-staff.create')); ?>"
+                   class="submenu-item">
+                    Add Staff
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 TIME TABLE
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.timetable.*') ? 'active open' : ''); ?>"
+                    data-submenu="timetable-menu"
+                    data-search="time table timetable schedule">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-table"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Time Table
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.timetable.*') ? 'open' : ''); ?>"
+                 id="timetable-menu">
+
+                <a href="<?php echo e(route('admin.timetable.class')); ?>"
+                   class="submenu-item">
+                    Class Timetable
+                </a>
+
+                <a href="<?php echo e(route('admin.timetable.teacher')); ?>"
+                   class="submenu-item">
+                    Teacher Timetable
+                </a>
+
+                <a href="<?php echo e(route('admin.timetable.index')); ?>"
+                   class="submenu-item">
+                    Create Timetable
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 ATTENDANCE
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.attendance.*') ? 'active open' : ''); ?>"
+                    data-submenu="attendance-menu"
+                    data-search="attendance student faculty mark">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-check"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Attendance
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.attendance.*') ? 'open' : ''); ?>"
+                 id="attendance-menu">
+
+                <a href="<?php echo e(route('admin.attendance.index')); ?>"
+                   class="submenu-item">
+                    Student Attendance
+                </a>
+
+                <a href="<?php echo e(route('admin.teachers.attendance.index')); ?>"
+                   class="submenu-item">
+                    Faculty Attendance
+                </a>
+
+            
+
+            </div>
+
+
+            <!-- =================================================
+                 FEES
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.fees.*') ? 'active open' : ''); ?>"
+                    data-submenu="fees-menu"
+                    data-search="fees fee payment scholarship">
+
+                <span class="sidebar-icon">₹</span>
+
+                <span class="sidebar-label">
+                    Fees
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.fees.*') ? 'open' : ''); ?>"
+                 id="fees-menu">
+
+                <a href="<?php echo e(route('admin.fees.index')); ?>"
+                   class="submenu-item">
+                    Fee Structure
+                </a>
+
+                <a href="<?php echo e(route('admin.fees.index')); ?>"
+                   class="submenu-item">
+                    Student Fee
+                </a>
+
+                <a href="<?php echo e(route('admin.fees.index')); ?>"
+                   class="submenu-item">
+                    Payment History
+                </a>
+
+                <a href="<?php echo e(route('admin.scholarship.index')); ?>"
+                   class="submenu-item">
+                    Scholarship
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 EXAM
+            ================================================== -->
+
+            <a href="<?php echo e(route('admin.exam.index')); ?>"
+               class="sidebar-item <?php echo e(request()->routeIs('admin.exam.*') ? 'active' : ''); ?>"
+               data-search="exam examination">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-file-alt"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Exam
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 RESULT
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.results.*') ? 'active open' : ''); ?>"
+                    data-submenu="result-menu"
+                    data-search="result results marks grade">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Result
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.results.*') ? 'open' : ''); ?>"
+                 id="result-menu">
+
+                <a href="<?php echo e(route('admin.results.index')); ?>"
+                   class="submenu-item">
+                    Student Result
+                </a>
+
+                <a href="<?php echo e(route('admin.results.index')); ?>"
+                   class="submenu-item">
+                    Grade Management
+                </a>
+
+                <a href="<?php echo e(route('admin.results.index')); ?>"
+                   class="submenu-item">
+                    Publish Result
+                </a>
+
+                <a href="<?php echo e(route('admin.results.index')); ?>"
+                   class="submenu-item">
+                    Result History
+                </a>
+
+                <a href="<?php echo e(route('admin.results.index')); ?>"
+                   class="submenu-item">
+                    Result Report
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 NOTICE
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.notices.*') ? 'active open' : ''); ?>"
+                    data-submenu="notice-menu"
+                    data-search="notice notices announcement">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-flag"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Notice
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.notices.*') ? 'open' : ''); ?>"
+                 id="notice-menu">
+
+                <a href="<?php echo e(route('admin.notices.index')); ?>"
+                   class="submenu-item">
+                    All Notices
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 LIBRARY
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.library.*') ? 'active open' : ''); ?>"
+                    data-submenu="library-menu"
+                    data-search="library books issue return fine">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-book"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Library
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.library.*') ? 'open' : ''); ?>"
+                 id="library-menu">
+
+                <a href="<?php echo e(route('admin.library.books.index')); ?>"
+                   class="submenu-item">
+                    Total Books
+                </a>
+
+                <a href="<?php echo e(route('admin.library.issues.index')); ?>"
+                   class="submenu-item">
+                    Issues / Returns / Fine
+                </a>
+
+                <a href="<?php echo e(route('admin.library.librarian.index')); ?>"
+                   class="submenu-item">
+                    Librarian
+                </a>
+
+                <a href="<?php echo e(route('admin.library.reports.index')); ?>"
+                   class="submenu-item">
+                    Reports
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 OTHER
+            ================================================== -->
+
+            <div class="sidebar-section-title other-title">
+                OTHER
+            </div>
+
+
+            <!-- Transport -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.transport.*') ? 'active open' : ''); ?>"
+                    data-submenu="transport-menu"
+                    data-search="transport bus vehicle">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-bus"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Transport
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.transport.*') ? 'open' : ''); ?>"
+                 id="transport-menu">
+
+                <a href="<?php echo e(route('admin.transport.index')); ?>"
+                   class="submenu-item">
+                    Transport Records
+                </a>
+
+                <a href="<?php echo e(route('admin.transport.index')); ?>"
+                   class="submenu-item">
+                    Routes
+                </a>
+
+                <a href="<?php echo e(route('admin.transport.index')); ?>"
+                   class="submenu-item">
+                    Vehicles
+                </a>
+
+               
+
+            </div>
+
+
+            <!-- =================================================
+                 MEAL MANAGEMENT
+            ================================================== -->
+
+          
+
+                <button
+                    class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.meal.*') ? 'active open' : ''); ?>"
+                    data-submenu="meal-menu"
+                    data-search="meal meals food stock"
+                >
+
+                    <span class="sidebar-icon">
+                        <i class="fas fa-utensils"></i>
+                    </span>
+
+                    <span class="sidebar-label">
+                        Meal Management
+                    </span>
+
+                    <span class="sidebar-arrow">
+                        ›
+                    </span>
+
+                </button>
+
+
+                <div
+                    class="submenu <?php echo e(request()->routeIs('admin.meal.*') ? 'open' : ''); ?>"
+                    id="meal-menu"
+                >
+
+                    <a
+                        href="<?php echo e(route('admin.meal.items.index')); ?>"
+                        class="submenu-item <?php echo e(request()->routeIs('admin.meal.items.*') ? 'active' : ''); ?>"
+                    >
+                        Stock In / Stock Out
+                    </a>
+
+                    <a
+                        href="<?php echo e(route('admin.meal.logs.index')); ?>"
+                        class="submenu-item <?php echo e(request()->routeIs('admin.meal.logs.*') ? 'active' : ''); ?>"
+                    >
+                        Logs
+                    </a>
+
+                </div>
+
+            <!-- Salary -->
+
+          
+
+            <!-- Payroll -->
+
+            <a href="<?php echo e(route('admin.teachers.salary.index')); ?>"
+               class="sidebar-item <?php echo e(request()->routeIs('admin.teachers.salary.*') ? 'active' : ''); ?>"
+               data-search="payroll salary">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-money-check-alt"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Payroll
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 SPORTS
+            ================================================== -->
+
+           
+
+                <button
+                    class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.sports.*') ? 'active open' : ''); ?>"
+                    data-submenu="sports-menu"
+                    data-search="sports games events achievement equipment"
+                >
+
+                    <span class="sidebar-icon">
+                        <i class="fas fa-futbol"></i>
+                    </span>
+
+                    <span class="sidebar-label">
+                        Sports
+                    </span>
+
+                    <span class="sidebar-arrow">
+                        ›
+                    </span>
+
+                </button>
+
+
+                <div
+                    class="submenu <?php echo e(request()->routeIs('admin.sports.*') ? 'open' : ''); ?>"
+                    id="sports-menu"
+                >
+
+                    <a
+                        href="<?php echo e(route('admin.sports.games.index')); ?>"
+                        class="submenu-item <?php echo e(request()->routeIs('admin.sports.games.*') ? 'active' : ''); ?>"
+                    >
+                        Games / Events
+                    </a>
+
+                    <a
+                        href="<?php echo e(route('admin.sports.achievements.index')); ?>"
+                        class="submenu-item <?php echo e(request()->routeIs('admin.sports.achievements.*') ? 'active' : ''); ?>"
+                    >
+                        Sports Achievement
+                    </a>
+
+                    <a
+                        href="<?php echo e(route('admin.sports.equipment.index')); ?>"
+                        class="submenu-item <?php echo e(request()->routeIs('admin.sports.equipment.*') ? 'active' : ''); ?>"
+                    >
+                        Sports Equipment
+                    </a>
+
+                </div>
+
+
+            <!-- Scholarship -->
+
+            <a href="<?php echo e(route('admin.scholarship.index')); ?>"
+               class="sidebar-item <?php echo e(request()->routeIs('admin.scholarship.*') ? 'active' : ''); ?>"
+               data-search="scholarship">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Scholarship
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 CLASS
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.classes.*') ? 'active open' : ''); ?>"
+                    data-submenu="class-menu"
+                    data-search="class classes division subjects">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-chalkboard"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Class
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.classes.*') ? 'open' : ''); ?>"
+                 id="class-menu">
+
+                <a href="<?php echo e(route('admin.classes.index')); ?>"
+                   class="submenu-item">
+                    Classes
+                </a>
+
+                <a href="<?php echo e(route('admin.subjects.index')); ?>"
+                   class="submenu-item">
+                    Subjects
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 SETTINGS
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    <?php echo e(request()->routeIs('admin.settings.*') ? 'active open' : ''); ?>"
+                    data-submenu="settings-menu"
+                    data-search="settings role permission users backup">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-cog"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Settings
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        <?php echo e(request()->routeIs('admin.settings.*') ? 'open' : ''); ?>"
+                 id="settings-menu">
+
+                <a href="<?php echo e(route('admin.settings.index')); ?>"
+                   class="submenu-item">
+                    School Profile
+                </a>
+
+<a href="<?php echo e(route('admin.settings.roles.index')); ?>"
+   class="submenu-item <?php echo e(request()->routeIs('admin.settings.roles.*') ? 'active' : ''); ?>">
+    Roles & Permissions
+</a>
+<a href="<?php echo e(route('admin.settings.users.index')); ?>"
+   class="submenu-item <?php echo e(request()->routeIs('admin.settings.users.*') ? 'active' : ''); ?>">
+   Roles Management
+</a>
+
+                <a href="<?php echo e(route('admin.settings.index')); ?>"
+                   class="submenu-item">
+                    Backup & Recovery
+                </a>
 
             </div>
 
         </div>
 
-
-        <!-- Sidebar Navigation -->
-        <div class="sidebar-content">
-
-            <?php
-                $user = auth()->user();
-                $isSuperAdmin = $user && $user->hasRole('super_admin');
-                $can = function ($permission) use ($user, $isSuperAdmin) {
-                    return $isSuperAdmin || ($user && $user->hasPermission($permission));
-                };
-                $canAny = function (array $permissions) use ($can) {
-                    foreach ($permissions as $permission) {
-                        if ($can($permission)) return true;
-                    }
-                    return false;
-                };
-            ?>
-
-            
-            <?php if($can('dashboard.view')): ?>
-                <a href="<?php echo e(route('admin.dashboard')); ?>" class="sidebar-item <?php echo e(request()->routeIs('admin.dashboard') ? 'active' : ''); ?>" data-search="dashboard home">
-                    <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
-                    <span class="sidebar-label">Dashboard</span>
-                </a>
-            <?php endif; ?>
-
-           
-<?php if($canAny([
-    'students.view',
-    'students.create',
-    'students.edit',
-    'students.delete',
-    'attendance.view',
-    'attendance.manage'
-])): ?>
-
-    <?php
-        $studentMenuActive = request()->routeIs(
-            'admin.students.*',
-            'admin.student-profile.*',
-            'admin.student-documents.*',
-            'admin.id-card.*',
-            'admin.student-supply-kits.*',
-            'admin.student-general-register.*',
-            'admin.attendance.*'
-        );
-    ?>
-
-    <button
-        class="sidebar-item has-submenu <?php echo e($studentMenuActive ? 'active open' : ''); ?>"
-        data-submenu="student-menu"
-        data-search="student students"
-    >
-        <span class="sidebar-icon">
-            <i class="fa fa-user-graduate"></i>
-        </span>
-
-        <span class="sidebar-label">Student</span>
-
-        <span class="sidebar-arrow">›</span>
-    </button>
-
-    <div
-        class="submenu <?php echo e($studentMenuActive ? 'open' : ''); ?>"
-        id="student-menu"
-    >
-
-        
-        <?php if($can('students.view')): ?>
-            <a
-                href="<?php echo e(route('admin.students.index')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.students.index') ? 'active' : ''); ?>"
-            >
-                All Students
-            </a>
-        <?php endif; ?>
-
-
-        
-        <?php if($can('students.view')): ?>
-            <a
-                href="<?php echo e(route('admin.student-profile.index')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.student-profile.*') ? 'active' : ''); ?>"
-            >
-                Student Profile
-            </a>
-        <?php endif; ?>
-
-
-        
-        <?php if($can('students.view')): ?>
-            <a
-                href="<?php echo e(route('admin.student-documents.index')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.student-documents.*') ? 'active' : ''); ?>"
-            >
-                Student Documents
-            </a>
-        <?php endif; ?>
-
-
-        
-        <?php if($can('students.view')): ?>
-            <a
-                href="<?php echo e(route('admin.id-card.index')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.id-card.*') ? 'active' : ''); ?>"
-            >
-                Student ID
-            </a>
-        <?php endif; ?>
-
-
-        
-        <?php if($can('students.view')): ?>
-            <a
-                href="<?php echo e(route('admin.student-supply-kits.index')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.student-supply-kits.*') ? 'active' : ''); ?>"
-            >
-                School Supplies(Kit)
-            </a>
-        <?php endif; ?>
-
-
-        
-        <?php if($can('students.view')): ?>
-            <a
-                href="<?php echo e(route('admin.student-general-register.index')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.student-general-register.*') ? 'active' : ''); ?>"
-            >
-                Student Report
-            </a>
-        <?php endif; ?>
-
-
-        
-        <?php if($can('students.create')): ?>
-            <a
-                href="<?php echo e(route('admin.students.create')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.students.create') ? 'active' : ''); ?>"
-            >
-                Add Student
-            </a>
-        <?php endif; ?>
-
-
-        
-        <?php if($can('attendance.view')): ?>
-            <a
-                href="<?php echo e(route('admin.attendance.index')); ?>"
-                class="submenu-item <?php echo e(request()->routeIs('admin.attendance.*') ? 'active' : ''); ?>"
-            >
-                Attendance
-            </a>
-        <?php endif; ?>
-
-    </div>
-
-<?php endif; ?>
-
-            
-            <?php if($canAny(['faculty.view','faculty.create','faculty.edit','faculty.delete'])): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.faculty.*') ? 'active open' : ''); ?>" data-submenu="faculty-menu" data-search="faculty teacher teachers">
-                    <span class="sidebar-icon"><i class="fas fa-chalkboard-teacher"></i></span>
-                    <span class="sidebar-label">Faculty (Teacher)</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.faculty.*') ? 'open' : ''); ?>" id="faculty-menu">
-                    <?php if($can('faculty.view')): ?>
-                        <a href="<?php echo e(route('admin.teachers.index')); ?>" class="submenu-item">All Faculty</a>
-                    <?php endif; ?>
-                    <?php if($canAny(['faculty.create','faculty.edit'])): ?>
-                        <a href="<?php echo e(route('admin.teachers.create')); ?>" class="submenu-item">Teacher Allocation</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($canAny(['staff.view','staff.create','staff.edit','staff.delete'])): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.other-staff.*') ? 'active open' : ''); ?>" data-submenu="other-staff-menu" data-search="other staff employees librarian accountant receptionist peon driver">
-                    <span class="sidebar-icon"><i class="fas fa-users"></i></span>
-                    <span class="sidebar-label">Other Staff</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.other-staff.*') ? 'open' : ''); ?>" id="other-staff-menu">
-                    <?php if($can('staff.view')): ?>
-                        <a href="<?php echo e(route('admin.other-staff.index')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.other-staff.index') ? 'active' : ''); ?>">All Staff</a>
-                    <?php endif; ?>
-                    <?php if($can('staff.create')): ?>
-                        <a href="<?php echo e(route('admin.other-staff.create')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.other-staff.create') ? 'active' : ''); ?>">Add Staff</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($isSuperAdmin): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.timetable.*') ? 'active open' : ''); ?>" data-submenu="timetable-menu" data-search="time table timetable schedule">
-                    <span class="sidebar-icon"><i class="fas fa-table"></i></span><span class="sidebar-label">Time Table</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.timetable.*') ? 'open' : ''); ?>" id="timetable-menu">
-                    <a href="<?php echo e(route('admin.timetable.index')); ?>" class="submenu-item">Class Timetable</a>
-                    <a href="<?php echo e(route('admin.timetable.index')); ?>" class="submenu-item">Teacher Timetable</a>
-                    <a href="<?php echo e(route('admin.timetable.index')); ?>" class="submenu-item">Create Timetable</a>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($canAny(['attendance.view','attendance.manage'])): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.attendance.*') ? 'active open' : ''); ?>" data-submenu="attendance-menu" data-search="attendance student faculty mark">
-                    <span class="sidebar-icon"><i class="fas fa-check"></i></span><span class="sidebar-label">Attendance</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.attendance.*') ? 'open' : ''); ?>" id="attendance-menu">
-                    <?php if($can('attendance.view')): ?>
-                        <a href="<?php echo e(route('admin.attendance.index')); ?>" class="submenu-item">Student Attendance</a>
-                        <a href="<?php echo e(route('admin.attendance.index')); ?>" class="submenu-item">Faculty Attendance</a>
-                        <a href="<?php echo e(route('admin.attendance.index')); ?>" class="submenu-item">Attendance Report</a>
-                    <?php endif; ?>
-                    <?php if($can('attendance.manage')): ?>
-                        <a href="<?php echo e(route('admin.attendance.index')); ?>" class="submenu-item">Manage Attendance</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($canAny(['fees.view','fees.manage'])): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.fees.*') ? 'active open' : ''); ?>" data-submenu="fees-menu" data-search="fees fee payment scholarship">
-                    <span class="sidebar-icon">₹</span><span class="sidebar-label">Fees</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.fees.*') ? 'open' : ''); ?>" id="fees-menu">
-                    <?php if($can('fees.view')): ?>
-                        <a href="<?php echo e(route('admin.fees.index')); ?>" class="submenu-item">Fee Structure</a>
-                        <a href="<?php echo e(route('admin.fees.index')); ?>" class="submenu-item">Student Fee</a>
-                        <a href="<?php echo e(route('admin.fees.index')); ?>" class="submenu-item">Payment History</a>
-                    <?php endif; ?>
-                   <?php if($isSuperAdmin): ?>
-    <a href="#" class="submenu-item">Scholarship</a>
-<?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($canAny(['exams.view','exams.manage'])): ?>
-                <a href="#" class="sidebar-item <?php echo e(request()->routeIs('admin.exam.*') ? 'active' : ''); ?>" data-search="exam examination">
-                    <span class="sidebar-icon"><i class="fas fa-file-alt"></i></span><span class="sidebar-label">Exam</span>
-                </a>
-            <?php endif; ?>
-
-            
-            <?php if($isSuperAdmin): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.results.*') ? 'active open' : ''); ?>" data-submenu="result-menu" data-search="result results marks grade">
-                    <span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span><span class="sidebar-label">Result</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.results.*') ? 'open' : ''); ?>" id="result-menu">
-                    <a href="#" class="submenu-item">Student Result</a>
-                    <a href="#" class="submenu-item">Grade Management</a>
-                    <a href="#" class="submenu-item">Publish Result</a>
-                    <a href="#" class="submenu-item">Result History</a>
-                    <a href="#" class="submenu-item">Result Report</a>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($canAny(['notices.view','notices.create','notices.edit','notices.delete'])): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.notices.*') ? 'active open' : ''); ?>" data-submenu="notice-menu" data-search="notice notices announcement">
-                    <span class="sidebar-icon"><i class="fas fa-flag"></i></span><span class="sidebar-label">Notice</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.notices.*') ? 'open' : ''); ?>" id="notice-menu">
-                    <?php if($can('notices.view')): ?>
-                        <a href="<?php echo e(route('admin.notices.index')); ?>" class="submenu-item">All Notices</a>
-                    <?php endif; ?>
-                    <?php if($can('notices.create')): ?>
-                        <a href="<?php echo e(route('admin.notices.create')); ?>" class="submenu-item">Add Notice</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($canAny(['library.view','library.books','library.issue','library.return','library.fines','library.reports'])): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.library.*') ? 'active open' : ''); ?>" data-submenu="library-menu" data-search="library books issue return fine">
-                    <span class="sidebar-icon"><i class="fas fa-book"></i></span><span class="sidebar-label">Library</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.library.*') ? 'open' : ''); ?>" id="library-menu">
-                    <?php if($canAny(['library.view','library.books'])): ?>
-                        <a href="<?php echo e(route('admin.library.books.index')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.library.books.*') ? 'active' : ''); ?>">Total Books</a>
-                    <?php endif; ?>
-                    <?php if($canAny(['library.issue','library.return','library.fines'])): ?>
-                        <a href="<?php echo e(route('admin.library.issues.index')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.library.issues.*') || request()->routeIs('admin.library.returns.*') || request()->routeIs('admin.library.fines.*') ? 'active' : ''); ?>">Issues / Returns / Fine</a>
-                    <?php endif; ?>
-                    <?php if($can('library.view')): ?>
-                        <a href="<?php echo e(route('admin.library.librarian.index')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.library.librarian.index') ? 'active' : ''); ?>">Librarian</a>
-                    <?php endif; ?>
-                    <?php if($can('library.reports')): ?>
-                        <a href="<?php echo e(route('admin.library.reports.index')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.library.reports.*') ? 'active' : ''); ?>">Reports</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if($isSuperAdmin): ?>
-                <div class="sidebar-section-title other-title">OTHER</div>
-
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.transport.*') ? 'active open' : ''); ?>" data-submenu="transport-menu" data-search="transport bus vehicle">
-                    <span class="sidebar-icon"><i class="fas fa-bus"></i></span><span class="sidebar-label">Transport</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.transport.*') ? 'open' : ''); ?>" id="transport-menu">
-                    <a href="#" class="submenu-item">Transport Records</a>
-                    <a href="#" class="submenu-item">Routes</a>
-                    <a href="#" class="submenu-item">Vehicles</a>
-                    <a href="#" class="submenu-item">Drivers</a>
-                </div>
-
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.meals.*') ? 'active open' : ''); ?>" data-submenu="meal-menu" data-search="meal meals food stock">
-                    <span class="sidebar-icon"><i class="fas fa-utensils"></i></span><span class="sidebar-label">Meal Management</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.meals.*') ? 'open' : ''); ?>" id="meal-menu">
-                    <a href="<?php echo e(route('admin.meals.items.index')); ?>" class="submenu-item">Stock In / Stock Out</a>
-                    <a href="<?php echo e(route('admin.meals.logs.index')); ?>" class="submenu-item">Logs</a>
-                </div>
-
-                <a href="<?php echo e(route('admin.payroll.salary.index')); ?>" class="sidebar-item <?php echo e(request()->routeIs('admin.payroll.*') ? 'active' : ''); ?>" data-search="payroll salary">
-                    <span class="sidebar-icon"><i class="fas fa-money-check-alt"></i></span><span class="sidebar-label">Payroll</span>
-                </a>
-                <a href="<?php echo e(route('admin.sports.index')); ?>" class="sidebar-item <?php echo e(request()->routeIs('admin.sports.*') ? 'active' : ''); ?>" data-search="sports">
-                    <span class="sidebar-icon"><i class="fas fa-futbol"></i></span><span class="sidebar-label">Sports</span>
-                </a>
-                <a href="#" class="sidebar-item <?php echo e(request()->routeIs('admin.scholarship.*') ? 'active' : ''); ?>" data-search="scholarship">
-                    <span class="sidebar-icon"><i class="fas fa-graduation-cap"></i></span><span class="sidebar-label">Scholarship</span>
-                </a>
-
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'active open' : ''); ?>" data-submenu="class-menu" data-search="class classes division subjects">
-                    <span class="sidebar-icon"><i class="fas fa-chalkboard"></i></span><span class="sidebar-label">Class</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'open' : ''); ?>" id="class-menu">
-                    <a href="<?php echo e(route('admin.classes.index')); ?>" class="submenu-item">Classes</a>
-                    <a href="<?php echo e(route('admin.subjects.index')); ?>" class="submenu-item">Subjects</a>
-                </div>
-            <?php endif; ?>
-
-            
-<?php if($isSuperAdmin): ?>
-    <a
-        href="#"
-        class="sidebar-item <?php echo e(request()->routeIs('admin.reports.*') ? 'active' : ''); ?>"
-        data-search="reports report"
-    >
-        <span class="sidebar-icon">
-            <i class="fas fa-chart-pie"></i>
-        </span>
-
-        <span class="sidebar-label">Reports</span>
-    </a>
-<?php endif; ?>
-
-            
-            <?php if($canAny(['settings.view','roles.view','roles.manage'])): ?>
-                <button class="sidebar-item has-submenu <?php echo e(request()->routeIs('admin.settings.*') ? 'active open' : ''); ?>" data-submenu="settings-menu" data-search="settings role permission users backup">
-                    <span class="sidebar-icon"><i class="fas fa-cog"></i></span><span class="sidebar-label">Settings</span><span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu <?php echo e(request()->routeIs('admin.settings.*') ? 'open' : ''); ?>" id="settings-menu">
-                    <?php if($can('settings.view')): ?>
-                    
-                        <a href="<?php echo e(route('admin.settings.index')); ?>" class="submenu-item">School Profile</a>
-                        <a href="<?php echo e(route('admin.settings.index')); ?>" class="submenu-item">Backup & Recovery</a>
-                    <?php endif; ?>
-                    <?php if($can('roles.view')): ?>
-                        <a href="<?php echo e(route('admin.settings.roles.index')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.settings.roles.*') ? 'active' : ''); ?>">User Roles & Permission</a>
-                    <?php endif; ?>
-                    <?php if($can('roles.manage')): ?>
-                        <a href="<?php echo e(route('admin.settings.users.index')); ?>" class="submenu-item <?php echo e(request()->routeIs('admin.settings.users.*') ? 'active' : ''); ?>">Roles Management</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-        </div>
 
         <!-- Logout -->
 
@@ -1176,18 +1416,15 @@
 
                 <?php echo csrf_field(); ?>
 
-                <button
-                    type="submit"
-                    class="logout-button"
-                >
+                <button type="submit" class="logout-button">
 
                     <span class="sidebar-icon">
-    <i class="fas fa-sign-out-alt"></i>
-</span>
+                        <i class="fas fa-sign-out-alt"></i>
+                    </span>
 
-<span class="sidebar-label">
-    Logout
-</span>
+                    <span class="sidebar-label">
+                        Logout
+                    </span>
 
                 </button>
 
@@ -1198,14 +1435,9 @@
     </aside>
 
 
-    <!-- =========================================================
-         MOBILE OVERLAY
-    ========================================================== -->
+    <!-- Mobile overlay -->
 
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-    ></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 
     <!-- =========================================================
@@ -1214,10 +1446,7 @@
 
     <div class="main-area">
 
-
-        <!-- =====================================================
-             HEADER
-        ====================================================== -->
+        <!-- HEADER -->
 
         <header class="top-header">
 
@@ -1225,11 +1454,9 @@
                 type="button"
                 class="menu-toggle"
                 id="menuToggle"
-                aria-label="Toggle sidebar"
-            >
+                aria-label="Toggle sidebar">
                 ☰
             </button>
-
 
             <div class="page-title">
                 <?php echo $__env->yieldContent('page-title', 'Dashboard'); ?>
@@ -1243,7 +1470,7 @@
                 <div class="search-box">
 
                     <span class="search-icon">
-                        ⌕
+                        <i class="fas fa-search"></i>
                     </span>
 
                     <input
@@ -1251,25 +1478,24 @@
                         id="globalSearch"
                         class="search-input"
                         placeholder="Search..."
-                        autocomplete="off"
-                    >
+                        autocomplete="off">
 
                     <button
                         type="button"
                         class="search-button"
                         id="searchButton"
-                        title="Search"
-                    >
-                        ↵
+                        title="Search">
+
+                        <i class="fas fa-arrow-right"></i>
+
                     </button>
 
                 </div>
 
-
                 <div
                     class="search-results"
-                    id="searchResults"
-                ></div>
+                    id="searchResults">
+                </div>
 
             </div>
 
@@ -1279,32 +1505,20 @@
             <div class="header-actions">
 
                 <div class="admin-profile">
-                    <div class="admin-avatar">
-                <?php if(auth()->check() && auth()->user()->profile_photo): ?>
-                    <img src="<?php echo e(auth()->user()->profile_photo); ?>"
-                         alt="<?php echo e(auth()->user()->name); ?>"
-                         class="admin-avatar-img">
-                <?php elseif(auth()->check()): ?>
-                    <?php echo e(strtoupper(substr(auth()->user()->name, 0, 1))); ?>
 
-                <?php else: ?>
-                    A
-                <?php endif; ?>
-            </div>
+                    <div class="admin-avatar">
+                        A
+                    </div>
 
                     <div class="admin-info">
 
-        <div class="admin-name">
-            <?php echo e(auth()->check() ? auth()->user()->name : 'Admin'); ?>
-
-        </div>
+                        <div class="admin-name">
+                            Admin
+                        </div>
 
                         <div class="admin-status">
-
                             <span class="online-dot"></span>
-
                             Online
-
                         </div>
 
                     </div>
@@ -1316,9 +1530,7 @@
         </header>
 
 
-        <!-- =====================================================
-             PAGE CONTENT
-        ====================================================== -->
+        <!-- PAGE CONTENT -->
 
         <main class="main-content">
 
@@ -1327,15 +1539,12 @@
         </main>
 
 
-        <!-- =====================================================
-             FOOTER
-        ====================================================== -->
+        <!-- FOOTER -->
 
         <footer class="app-footer">
 
             <div>
-                © <?php echo e(date('Y')); ?> <?php echo e($schoolName); ?>.
-                All rights reserved.
+                © <?php echo e(date('Y')); ?> Gurukul Vidyalaya. All rights reserved.
             </div>
 
             <div class="footer-right">
@@ -1357,9 +1566,9 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ==========================================================
-       SIDEBAR MAIN SUBMENUS
-    ========================================================== */
+    /* =========================================================
+       SIDEBAR SUBMENUS
+    ========================================================= */
 
     const submenuButtons =
         document.querySelectorAll('.has-submenu');
@@ -1378,10 +1587,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-
-            /*
-             * Close all other main submenus
-             */
+            /* Close other submenus */
 
             submenuButtons.forEach(function (otherButton) {
 
@@ -1398,18 +1604,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (otherMenu) {
                         otherMenu.classList.remove('open');
                     }
-
                 }
-
             });
 
-
-            /*
-             * Toggle selected submenu
-             */
+            /* Toggle selected submenu */
 
             button.classList.toggle('open');
-
             submenu.classList.toggle('open');
 
         });
@@ -1417,42 +1617,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    /* ==========================================================
-       SCHOOL SUPPLIES NESTED MENU
-    ========================================================== */
-
-    const nestedMenuButtons =
-        document.querySelectorAll('.nested-menu-toggle');
-
-    nestedMenuButtons.forEach(function (button) {
-
-        button.addEventListener('click', function (event) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            const menuId =
-                this.getAttribute('data-nested-menu');
-
-            const menu =
-                document.getElementById(menuId);
-
-            if (!menu) {
-                return;
-            }
-
-            this.classList.toggle('open');
-
-            menu.classList.toggle('open');
-
-        });
-
-    });
-
-
-    /* ==========================================================
+    /* =========================================================
        MOBILE SIDEBAR
-    ========================================================== */
+    ========================================================= */
 
     const menuToggle =
         document.getElementById('menuToggle');
@@ -1464,7 +1631,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('sidebarOverlay');
 
 
-    if (menuToggle) {
+    if (menuToggle && sidebar && sidebarOverlay) {
 
         menuToggle.addEventListener('click', function () {
 
@@ -1474,10 +1641,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
 
-    }
-
-
-    if (sidebarOverlay) {
 
         sidebarOverlay.addEventListener('click', function () {
 
@@ -1490,9 +1653,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /* ==========================================================
+    /* =========================================================
        GLOBAL SEARCH
-    ========================================================== */
+    ========================================================= */
 
     const searchInput =
         document.getElementById('globalSearch');
@@ -1504,12 +1667,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('searchResults');
 
 
+    if (!searchInput || !searchButton || !searchResults) {
+        return;
+    }
+
+
     const searchableItems = [];
 
 
-    /*
-     * Main sidebar items
-     */
+    /* Parent sidebar items */
 
     document
         .querySelectorAll('.sidebar-item[data-search]')
@@ -1517,23 +1683,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             searchableItems.push({
 
-                text:
-                    item.innerText.trim(),
+                text: item.innerText.trim(),
 
                 keywords:
-                    item.getAttribute('data-search'),
+                    item.getAttribute('data-search') || '',
 
-                element:
-                    item
+                element: item
 
             });
 
         });
 
 
-    /*
-     * Normal submenu links
-     */
+    /* Submenu links */
 
     document
         .querySelectorAll('.submenu-item')
@@ -1541,55 +1703,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
             searchableItems.push({
 
-                text:
-                    item.innerText.trim(),
+                text: item.innerText.trim(),
 
-                keywords:
-                    item.innerText.trim(),
+                keywords: item.innerText.trim(),
 
-                element:
-                    item
+                element: item
 
             });
 
         });
 
 
-    /*
-     * Nested School Supply menu
-     */
-
-    document
-        .querySelectorAll('.nested-menu-toggle')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text:
-                    item.innerText.trim(),
-
-                keywords:
-                    'school supplies kit supply items government kit templates student kit distribution',
-
-                element:
-                    item
-
-            });
-
-        });
-
-
-    /* ==========================================================
+    /* =========================================================
        SEARCH FUNCTION
-    ========================================================== */
+    ========================================================= */
 
     function performSearch() {
 
         const query =
-            searchInput.value
-                .trim()
-                .toLowerCase();
-
+            searchInput.value.trim().toLowerCase();
 
         searchResults.innerHTML = '';
 
@@ -1599,7 +1731,6 @@ document.addEventListener('DOMContentLoaded', function () {
             searchResults.classList.remove('show');
 
             return;
-
         }
 
 
@@ -1607,17 +1738,13 @@ document.addEventListener('DOMContentLoaded', function () {
             searchableItems.filter(function (item) {
 
                 return (
-
                     item.text
                         .toLowerCase()
                         .includes(query)
-
                     ||
-
                     item.keywords
                         .toLowerCase()
                         .includes(query)
-
                 );
 
             });
@@ -1626,21 +1753,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (matches.length === 0) {
 
             searchResults.innerHTML = `
-
                 <div class="search-empty">
-
                     No results found for
-
                     "<strong>${query}</strong>"
-
                 </div>
-
             `;
 
             searchResults.classList.add('show');
 
             return;
-
         }
 
 
@@ -1656,68 +1777,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                 result.innerHTML = `
-
                     <span class="search-result-icon">
-                        🔎
+                        <i class="fas fa-search"></i>
                     </span>
 
                     <span>
                         ${item.text}
                     </span>
-
                 `;
 
 
                 result.addEventListener('click', function () {
 
-
-                    /*
-                     * Normal link
-                     */
+                    /* Normal link */
 
                     if (
-
                         item.element.tagName === 'A'
-
                         &&
-
                         item.element.href
-
                     ) {
 
                         window.location.href =
                             item.element.href;
 
                         return;
-
                     }
 
 
-                    /*
-                     * Main parent menu
-                     */
+                    /* Parent menu */
 
                     if (
-
                         item.element.classList
                             .contains('has-submenu')
-
-                    ) {
-
-                        item.element.click();
-
-                    }
-
-
-                    /*
-                     * Nested menu
-                     */
-
-                    if (
-
-                        item.element.classList
-                            .contains('nested-menu-toggle')
-
                     ) {
 
                         item.element.click();
@@ -1743,9 +1834,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /* ==========================================================
-       SEARCH WHILE TYPING
-    ========================================================== */
+    /* Search while typing */
 
     searchInput.addEventListener(
         'input',
@@ -1753,9 +1842,7 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /* ==========================================================
-       SEARCH BUTTON
-    ========================================================== */
+    /* Search button */
 
     searchButton.addEventListener(
         'click',
@@ -1763,9 +1850,7 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /* ==========================================================
-       ENTER TO SEARCH
-    ========================================================== */
+    /* Press Enter */
 
     searchInput.addEventListener(
         'keydown',
@@ -1783,19 +1868,21 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /* ==========================================================
-       CLOSE SEARCH RESULTS
-    ========================================================== */
+    /* Close search results outside click */
 
     document.addEventListener(
         'click',
         function (event) {
 
             if (
-                !event.target.closest('.header-search')
+                !event.target.closest(
+                    '.header-search'
+                )
             ) {
 
-                searchResults.classList.remove('show');
+                searchResults.classList.remove(
+                    'show'
+                );
 
             }
 
@@ -1803,22 +1890,18 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /* ==========================================================
-       CTRL + K SEARCH SHORTCUT
-    ========================================================== */
+    /* =========================================================
+       CTRL + K SEARCH
+    ========================================================= */
 
     document.addEventListener(
         'keydown',
         function (event) {
 
             if (
-
                 (event.ctrlKey || event.metaKey)
-
                 &&
-
                 event.key.toLowerCase() === 'k'
-
             ) {
 
                 event.preventDefault();
@@ -1835,12 +1918,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php echo $__env->yieldPushContent('scripts'); ?>
 
-
 </body>
-
-</html><?php /**PATH C:\Users\Shweta Gundu Mali\Desktop\Student\School-Management-New\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH C:\Users\Shweta Gundu Mali\Desktop\Student\School-Management-New\resources\views/layouts/app.blade.php ENDPATH**/ ?>

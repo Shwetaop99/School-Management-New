@@ -31,15 +31,6 @@
 
             </div>
 
-<<<<<<< HEAD
-            <a href="{{ route('admin.meal.items.index') }}"
-               class="btn meal-secondary-btn">
-
-                <i class="fas fa-boxes-stacked me-1"></i>
-                Meal Items
-
-            </a>
-=======
             <div class="meal-header-actions no-print">
 
                 <a href="{{ route('admin.meal.items.index') }}"
@@ -49,7 +40,6 @@
                 </a>
 
             </div>
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
         </div>
 
@@ -57,16 +47,10 @@
         {{-- =========================================================
              SUCCESS / ERROR MESSAGES
              ========================================================= --}}
-<<<<<<< HEAD
-        @if(session('success'))
-
-            <div class="alert meal-alert meal-alert-success mb-4">
-=======
 
         @if(session('success'))
 
             <div class="alert meal-alert meal-alert-success mb-4 no-print">
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                 <i class="fas fa-circle-check"></i>
 
@@ -81,11 +65,7 @@
 
         @if(session('error'))
 
-<<<<<<< HEAD
-            <div class="alert meal-alert meal-alert-danger mb-4">
-=======
             <div class="alert meal-alert meal-alert-danger mb-4 no-print">
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                 <i class="fas fa-circle-exclamation"></i>
 
@@ -99,199 +79,6 @@
 
 
         {{-- =========================================================
-<<<<<<< HEAD
-             KPI CARDS
-             ========================================================= --}}
-        <div class="meal-log-stats-grid mb-4">
-
-            {{-- Total Movements --}}
-            <div class="meal-log-stat-card blue-card">
-
-                <div class="stat-card-top">
-
-                    <div>
-
-                        <div class="meal-log-stat-label">
-                            Total Movements
-                        </div>
-
-                        <div class="meal-log-stat-value">
-                            {{ number_format($totalMovements) }}
-                        </div>
-
-                        <div class="meal-log-stat-note">
-                            All stock movements
-                        </div>
-
-                    </div>
-
-                    <div class="meal-log-stat-icon">
-                        <i class="fas fa-arrow-right-arrow-left"></i>
-                    </div>
-
-                </div>
-
-                <div class="stat-decoration"></div>
-
-            </div>
-
-
-            {{-- Stock In --}}
-            <div class="meal-log-stat-card green-card">
-
-                <div class="stat-card-top">
-
-                    <div>
-
-                        <div class="meal-log-stat-label">
-                            Stock In
-                        </div>
-
-                        <div class="meal-log-stat-value">
-                            {{ number_format((float) $totalStockIn, 2) }}
-                        </div>
-
-                        <div class="meal-log-stat-note">
-                            Incoming quantity
-                        </div>
-
-                    </div>
-
-                    <div class="meal-log-stat-icon">
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-
-                </div>
-
-                <div class="stat-decoration"></div>
-
-            </div>
-
-
-            {{-- Stock Out --}}
-            <div class="meal-log-stat-card red-card">
-
-                <div class="stat-card-top">
-
-                    <div>
-
-                        <div class="meal-log-stat-label">
-                            Stock Out
-                        </div>
-
-                        <div class="meal-log-stat-value">
-                            {{ number_format((float) $totalStockOut, 2) }}
-                        </div>
-
-                        <div class="meal-log-stat-note">
-                            Outgoing quantity
-                        </div>
-
-                    </div>
-
-                    <div class="meal-log-stat-icon">
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-
-                </div>
-
-                <div class="stat-decoration"></div>
-
-            </div>
-
-
-            {{-- Low Stock --}}
-            <div class="meal-log-stat-card orange-card">
-
-                <div class="stat-card-top">
-
-                    <div>
-
-                        <div class="meal-log-stat-label">
-                            Low Stock Items
-                        </div>
-
-                        <div class="meal-log-stat-value">
-                            {{ number_format($lowStockItems) }}
-                        </div>
-
-                        <div class="meal-log-stat-note">
-                            At or below minimum level
-                        </div>
-
-                    </div>
-
-                    <div class="meal-log-stat-icon">
-                        <i class="fas fa-triangle-exclamation"></i>
-                    </div>
-
-                </div>
-
-                <div class="stat-decoration"></div>
-
-            </div>
-
-        </div>
-
-
-        {{-- =========================================================
-             FILTER CARD
-             ========================================================= --}}
-        <div class="meal-filter-card mb-4">
-
-            <div class="meal-filter-header">
-
-                <div class="meal-filter-title">
-
-                    <div class="meal-filter-icon">
-                        <i class="fas fa-filter"></i>
-                    </div>
-
-                    <div>
-
-                        <h5>
-                            Filter Stock Logs
-                        </h5>
-
-                        <span>
-                            Search and filter meal inventory movements
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="meal-filter-body">
-
-                <form method="GET"
-                      action="{{ route('admin.meal.logs.index') }}">
-
-                    <div class="row g-3">
-
-                        {{-- Date From --}}
-                        <div class="col-xl-2 col-lg-4 col-md-6">
-
-                            <label for="date_from"
-                                   class="meal-form-label">
-
-                                Date From
-
-                            </label>
-
-                            <div class="filter-input-wrapper">
-
-                                <i class="fas fa-calendar-day"></i>
-
-                                <input type="date"
-                                       name="date_from"
-                                       id="date_from"
-                                       class="form-control meal-form-control"
-                                       value="{{ request('date_from') }}">
-
-=======
              PRINT AREA
              ========================================================= --}}
 
@@ -321,34 +108,10 @@
 
                             <div class="meal-log-stat-note">
                                 All stock movements
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                             </div>
 
                         </div>
 
-<<<<<<< HEAD
-
-                        {{-- Date To --}}
-                        <div class="col-xl-2 col-lg-4 col-md-6">
-
-                            <label for="date_to"
-                                   class="meal-form-label">
-
-                                Date To
-
-                            </label>
-
-                            <div class="filter-input-wrapper">
-
-                                <i class="fas fa-calendar-check"></i>
-
-                                <input type="date"
-                                       name="date_to"
-                                       id="date_to"
-                                       class="form-control meal-form-control"
-                                       value="{{ request('date_to') }}">
-
-=======
                         <div class="meal-log-stat-icon">
                             <i class="fas fa-arrow-right-arrow-left"></i>
                         </div>
@@ -377,611 +140,10 @@
 
                             <div class="meal-log-stat-note">
                                 Incoming quantity
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
                             </div>
 
                         </div>
 
-<<<<<<< HEAD
-
-                        {{-- Meal Item --}}
-                        <div class="col-xl-2 col-lg-4 col-md-6">
-
-                            <label for="meal_item_id"
-                                   class="meal-form-label">
-
-                                Meal Item
-
-                            </label>
-
-                            <div class="filter-input-wrapper">
-
-                                <i class="fas fa-box"></i>
-
-                                <select name="meal_item_id"
-                                        id="meal_item_id"
-                                        class="form-select meal-form-control">
-
-                                    <option value="">
-                                        All Items
-                                    </option>
-
-                                    @foreach($items as $item)
-
-                                        <option value="{{ $item->id }}"
-                                            {{ (string) request('meal_item_id') === (string) $item->id ? 'selected' : '' }}>
-
-                                            {{ $item->item_name }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- Category --}}
-                        <div class="col-xl-2 col-lg-4 col-md-6">
-
-                            <label for="category"
-                                   class="meal-form-label">
-
-                                Category
-
-                            </label>
-
-                            <div class="filter-input-wrapper">
-
-                                <i class="fas fa-layer-group"></i>
-
-                                <select name="category"
-                                        id="category"
-                                        class="form-select meal-form-control">
-
-                                    <option value="">
-                                        All Categories
-                                    </option>
-
-                                    @foreach($categories as $category)
-
-                                        <option value="{{ $category }}"
-                                            {{ request('category') === $category ? 'selected' : '' }}>
-
-                                            {{ $category }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- Transaction Type --}}
-                        <div class="col-xl-2 col-lg-4 col-md-6">
-
-                            <label for="action"
-                                   class="meal-form-label">
-
-                                Transaction Type
-
-                            </label>
-
-                            <div class="filter-input-wrapper">
-
-                                <i class="fas fa-right-left"></i>
-
-                                <select name="action"
-                                        id="action"
-                                        class="form-select meal-form-control">
-
-                                    <option value="">
-                                        All Types
-                                    </option>
-
-                                    <option value="stock_in"
-                                        {{ request('action') === 'stock_in' ? 'selected' : '' }}>
-
-                                        Stock In
-
-                                    </option>
-
-                                    <option value="stock_out"
-                                        {{ request('action') === 'stock_out' ? 'selected' : '' }}>
-
-                                        Stock Out
-
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- Search --}}
-                        <div class="col-xl-2 col-lg-4 col-md-6">
-
-                            <label for="search"
-                                   class="meal-form-label">
-
-                                Search
-
-                            </label>
-
-                            <div class="filter-input-wrapper">
-
-                                <i class="fas fa-magnifying-glass"></i>
-
-                                <input type="text"
-                                       name="search"
-                                       id="search"
-                                       class="form-control meal-form-control"
-                                       placeholder="Item, reason, remarks..."
-                                       value="{{ request('search') }}">
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- Buttons --}}
-                        <div class="col-12">
-
-                            <div class="meal-filter-actions">
-
-                                <button type="submit"
-                                        class="btn meal-filter-btn">
-
-                                    <i class="fas fa-magnifying-glass me-1"></i>
-                                    Apply Filter
-
-                                </button>
-
-
-                                <a href="{{ route('admin.meal.logs.index') }}"
-                                   class="btn meal-reset-btn">
-
-                                    <i class="fas fa-rotate-left me-1"></i>
-                                    Reset
-
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </div>
-
-
-        {{-- =========================================================
-             STOCK MOVEMENT HISTORY
-             ========================================================= --}}
-        <div class="meal-table-card">
-
-            <div class="meal-table-header">
-
-                <div class="meal-table-title">
-
-                    <div class="meal-table-title-icon">
-                        <i class="fas fa-clipboard-list"></i>
-                    </div>
-
-                    <div>
-
-                        <h5>
-                            Stock Movement History
-                        </h5>
-
-                        <span>
-                            Complete audit trail of meal inventory changes
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="meal-record-count">
-
-                    <i class="fas fa-database me-1"></i>
-
-                    {{ number_format($logs->total()) }}
-
-                    {{ $logs->total() == 1 ? 'Record' : 'Records' }}
-
-                </div>
-
-            </div>
-
-
-            <div class="table-responsive">
-
-                <table class="table meal-log-table mb-0">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>#</th>
-
-                            <th>Date & Time</th>
-
-                            <th>Transaction ID</th>
-
-                            <th>Item</th>
-
-                            <th>Category</th>
-
-                            <th>Type</th>
-
-                            <th>Quantity</th>
-
-                            <th>Stock Before</th>
-
-                            <th>Stock After</th>
-
-                            <th>Reason</th>
-
-                            <th>Performed By</th>
-
-                            <th>Action</th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        @forelse($logs as $log)
-
-                            <tr>
-
-                                {{-- Number --}}
-                                <td>
-
-                                    <span class="log-number">
-
-                                        {{ $logs->firstItem() + $loop->index }}
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- Date --}}
-                                <td>
-
-                                    <div class="log-date">
-
-                                        {{ $log->created_at?->format('d M Y') ?? '—' }}
-
-                                    </div>
-
-                                    <div class="log-time">
-
-                                        {{ $log->created_at?->format('h:i A') ?? '—' }}
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Transaction ID --}}
-                                <td>
-
-                                    @if($log->stock_transaction_id)
-
-                                        <span class="transaction-id">
-
-                                            <i class="fas fa-hashtag me-1"></i>
-
-                                            {{ str_pad($log->stock_transaction_id, 5, '0', STR_PAD_LEFT) }}
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Item --}}
-                                <td>
-
-                                    @if($log->mealItem)
-
-                                        <div class="log-item">
-
-                                            <div class="log-item-icon">
-
-                                                <i class="fas fa-utensils"></i>
-
-                                            </div>
-
-                                            <div>
-
-                                                <div class="log-item-name">
-
-                                                    {{ $log->mealItem->item_name }}
-
-                                                </div>
-
-                                                <div class="log-item-category">
-
-                                                    {{ $log->unit }}
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    @else
-
-                                        <span class="deleted-item">
-
-                                            <i class="fas fa-trash-can me-1"></i>
-                                            Item Deleted
-
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Category --}}
-                                <td>
-
-                                    @if($log->mealItem)
-
-                                        <span class="category-badge">
-
-                                            {{ $log->mealItem->category ?: 'Other' }}
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Type --}}
-                                <td>
-
-                                    @if($log->action === 'stock_in')
-
-                                        <span class="log-action-badge stock-in">
-
-                                            <i class="fas fa-arrow-down"></i>
-
-                                            Stock In
-
-                                        </span>
-
-                                    @elseif($log->action === 'stock_out')
-
-                                        <span class="log-action-badge stock-out">
-
-                                            <i class="fas fa-arrow-up"></i>
-
-                                            Stock Out
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="log-action-badge">
-
-                                            {{ ucfirst(str_replace('_', ' ', $log->action ?? 'Unknown')) }}
-
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Quantity --}}
-                                <td>
-
-                                    <div class="quantity-wrapper">
-
-                                        <span class="log-quantity">
-
-                                            {{ number_format((float) $log->quantity, 2) }}
-
-                                        </span>
-
-                                        <span class="log-unit">
-                                            {{ $log->unit }}
-                                        </span>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Stock Before --}}
-                                <td>
-
-                                    <div class="stock-value-wrapper">
-
-                                        <span class="stock-value">
-
-                                            {{ number_format((float) $log->previous_stock, 2) }}
-
-                                        </span>
-
-                                        <span class="stock-unit">
-                                            {{ $log->unit }}
-                                        </span>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Stock After --}}
-                                <td>
-
-                                    <div class="stock-value-wrapper updated-stock">
-
-                                        <span class="stock-value">
-
-                                            {{ number_format((float) $log->updated_stock, 2) }}
-
-                                        </span>
-
-                                        <span class="stock-unit">
-                                            {{ $log->unit }}
-                                        </span>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Reason --}}
-                                <td>
-
-                                    @if($log->reason)
-
-                                        <span class="log-reason"
-                                              title="{{ $log->reason }}">
-
-                                            {{ \Illuminate\Support\Str::limit($log->reason, 25) }}
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Performed By --}}
-                                <td>
-
-                                    @if($log->performed_by)
-
-                                        <span class="performed-by">
-
-                                            <span class="performed-icon">
-                                                <i class="fas fa-user-shield"></i>
-                                            </span>
-
-                                            Admin #{{ $log->performed_by }}
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="performed-by system">
-
-                                            <span class="performed-icon">
-                                                <i class="fas fa-gear"></i>
-                                            </span>
-
-                                            System
-
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Action --}}
-                                <td>
-
-                                    <a href="{{ route('admin.meal.logs.show', $log) }}"
-                                       class="log-view-btn"
-                                       title="View Details">
-
-                                        <i class="fas fa-eye"></i>
-
-                                    </a>
-
-                                </td>
-
-                            </tr>
-
-                        @empty
-
-                            <tr>
-
-                                <td colspan="12">
-
-                                    <div class="meal-empty-state">
-
-                                        <div class="meal-empty-icon">
-
-                                            <i class="fas fa-clock-rotate-left"></i>
-
-                                        </div>
-
-                                        <h5>
-                                            No Stock Logs Found
-                                        </h5>
-
-                                        <p>
-                                            There are no stock movement logs
-                                            matching your current filters.
-                                        </p>
-
-                                        <a href="{{ route('admin.meal.logs.index') }}"
-                                           class="btn meal-reset-empty-btn">
-
-                                            <i class="fas fa-rotate-left me-1"></i>
-                                            Clear Filters
-
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        @endforelse
-
-                    </tbody>
-
-                </table>
-=======
                         <div class="meal-log-stat-icon">
                             <i class="fas fa-arrow-down"></i>
                         </div>
@@ -1312,19 +474,10 @@
                     </form>
 
                 </div>
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
             </div>
 
 
-<<<<<<< HEAD
-            {{-- Pagination --}}
-            @if($logs->hasPages())
-
-                <div class="meal-pagination">
-
-                    {{ $logs->links() }}
-=======
             {{-- =====================================================
                  ACTIVE FILTER SUMMARY FOR PRINT
                  ===================================================== --}}
@@ -1415,14 +568,11 @@
                         </span>
 
                     @endif
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
                 </div>
 
             @endif
 
-<<<<<<< HEAD
-=======
 
             {{-- =====================================================
                  STOCK MOVEMENT HISTORY
@@ -1899,7 +1049,6 @@
 
             </div>
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
         </div>
 
     </div>
@@ -1981,11 +1130,6 @@
     line-height: 1.5;
 }
 
-<<<<<<< HEAD
-.meal-secondary-btn {
-    min-height: 41px;
-    padding: 9px 16px;
-=======
 .meal-header-actions {
     display: flex;
     align-items: center;
@@ -1997,26 +1141,16 @@
 .meal-secondary-btn {
     min-height: 41px;
     padding: 9px 14px;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 3px;
-<<<<<<< HEAD
-    background: #ffffff;
-    border: 1px solid #dfe4ea;
-    border-radius: 8px;
-    color: #586474 !important;
-    font-size: 13px;
-    font-weight: 600;
-=======
     border-radius: 8px;
     font-size: 12px;
     font-weight: 650;
     background: #ffffff;
     border: 1px solid #dfe4ea;
     color: #586474 !important;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     box-shadow: 0 2px 7px rgba(31, 41, 55, 0.03);
     transition: all 0.2s ease;
 }
@@ -2030,8 +1164,6 @@
 
 
 /* =========================================================
-<<<<<<< HEAD
-=======
    STOCK MOVEMENT HISTORY ACTION BUTTONS
    ========================================================= */
 
@@ -2107,7 +1239,6 @@
 
 
 /* =========================================================
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
    ALERTS
    ========================================================= */
 
@@ -2147,17 +1278,10 @@
 
 .meal-log-stat-card {
     position: relative;
-<<<<<<< HEAD
-    min-height: 138px;
-    padding: 20px;
-    overflow: hidden;
-    border-radius: 12px;
-=======
     min-height: 165px;
     padding: 24px 25px;
     overflow: hidden;
     border-radius: 17px;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     color: #ffffff;
     box-shadow:
         0 6px 18px rgba(31, 41, 55, 0.08);
@@ -2425,8 +1549,6 @@ select.meal-form-control {
 
 
 /* =========================================================
-<<<<<<< HEAD
-=======
    PRINT FILTER SUMMARY
    ========================================================= */
 
@@ -2447,7 +1569,6 @@ select.meal-form-control {
 
 
 /* =========================================================
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
    TABLE CARD
    ========================================================= */
 
@@ -2465,10 +1586,6 @@ select.meal-form-control {
     padding: 15px 20px;
     display: flex;
     align-items: center;
-<<<<<<< HEAD
-    justify-content: space-between;
-=======
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     gap: 15px;
     border-bottom: 1px solid #edf0f5;
 }
@@ -2477,10 +1594,7 @@ select.meal-form-control {
     display: flex;
     align-items: center;
     gap: 12px;
-<<<<<<< HEAD
-=======
     flex-shrink: 0;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 }
 
 .meal-table-title-icon {
@@ -2518,10 +1632,7 @@ select.meal-form-control {
     font-size: 11px;
     font-weight: 650;
     white-space: nowrap;
-<<<<<<< HEAD
-=======
     margin-left: 0;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 }
 
 
@@ -2876,11 +1987,7 @@ select.meal-form-control {
    RESPONSIVE
    ========================================================= */
 
-<<<<<<< HEAD
-@media (max-width: 1400px) {
-=======
 @media (max-width: 1500px) {
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 
     .meal-log-table {
         min-width: 1450px;
@@ -2894,8 +2001,6 @@ select.meal-form-control {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-<<<<<<< HEAD
-=======
     .meal-table-header {
         flex-wrap: wrap;
     }
@@ -2904,7 +2009,6 @@ select.meal-form-control {
         margin-left: auto;
     }
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 }
 
 @media (max-width: 992px) {
@@ -2926,14 +2030,9 @@ select.meal-form-control {
         align-items: flex-start;
     }
 
-<<<<<<< HEAD
-    .meal-secondary-btn {
-        width: 100%;
-=======
     .meal-header-actions {
         width: 100%;
         justify-content: flex-start;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     }
 
     .meal-page-title {
@@ -2971,8 +2070,6 @@ select.meal-form-control {
 
     .meal-table-header {
         padding: 14px 16px;
-<<<<<<< HEAD
-=======
         align-items: flex-start;
     }
 
@@ -2980,7 +2077,6 @@ select.meal-form-control {
         width: 100%;
         margin-left: 0;
         justify-content: flex-start;
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     }
 
     .meal-record-count {
@@ -3020,8 +2116,6 @@ select.meal-form-control {
         font-size: 19px;
     }
 
-<<<<<<< HEAD
-=======
     .stock-history-actions {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -3037,7 +2131,6 @@ select.meal-form-control {
         display: inline;
     }
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
     .meal-filter-actions {
         flex-direction: column;
     }
@@ -3054,10 +2147,6 @@ select.meal-form-control {
 
 }
 
-<<<<<<< HEAD
-</style>
-
-=======
 
 /* =========================================================
    PRINT
@@ -3289,5 +2378,4 @@ function printMealLogs() {
 
 </script>
 
->>>>>>> 0eae4369792f5446582a904476f9cb1285797030
 @endpush
