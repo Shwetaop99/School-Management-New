@@ -1,10 +1,8 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Classes | Admin'); ?>
 
-@section('title', 'Classes | Admin')
+<?php $__env->startSection('page-title', 'Classes'); ?>
 
-@section('page-title', 'Classes')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <style>
     /* =========================================
@@ -16,97 +14,47 @@
     }
 
     /* =========================================
-       TRANSPORT-STYLE HERO HEADER
+       PAGE HEADER
     ========================================= */
 
     .class-page-header {
-        position: relative;
-        overflow: hidden;
-        min-height: 165px;
-        padding: 28px 32px;
-        margin-bottom: 22px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #1769d1, #159cc7);
-        color: #fff;
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: 25px;
-        box-shadow: 0 8px 22px rgba(23, 105, 209, .15);
-    }
-
-    .class-page-header::before {
-        content: "";
-        position: absolute;
-        width: 220px;
-        height: 220px;
-        border-radius: 50%;
-        right: -70px;
-        top: -110px;
-        background: rgba(255, 255, 255, .08);
-    }
-
-    .class-page-header::after {
-        content: "";
-        position: absolute;
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        right: 150px;
-        bottom: -100px;
-        background: rgba(255, 255, 255, .06);
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 22px;
     }
 
     .class-heading {
-        position: relative;
-        z-index: 2;
         display: flex;
         align-items: center;
-        gap: 22px;
+        gap: 13px;
     }
 
     .class-heading-icon {
-        width: 105px;
-        height: 105px;
-        flex-shrink: 0;
-        border-radius: 22px;
-        background: rgba(255, 255, 255, .15);
-        border: 1px solid rgba(255, 255, 255, .22);
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #147cf5, #1268ca);
         color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 43px;
-        box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
-    }
-
-    .class-heading-content {
-        position: relative;
-        z-index: 2;
+        font-size: 21px;
+        box-shadow: 0 6px 16px rgba(20, 124, 245, .18);
     }
 
     .class-page-header h2 {
         margin: 0;
-        font-size: 27px;
+        font-size: 22px;
         font-weight: 700;
-        color: #fff;
-        letter-spacing: -.3px;
+        color: #26344a;
     }
 
     .class-page-header p {
-        margin: 7px 0 0;
-        color: rgba(255, 255, 255, .88);
+        margin: 5px 0 0;
+        color: #718096;
         font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .class-page-header .header-description {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        margin-top: 10px;
-        font-size: 12px;
-        color: rgba(255, 255, 255, .78);
     }
 
     /* =========================================
@@ -114,104 +62,101 @@
     ========================================= */
 
     .btn-primary-custom {
-        position: relative;
-        z-index: 3;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 11px 18px;
-        background: #fff;
-        color: #1769d1;
+        padding: 10px 17px;
+        background: linear-gradient(135deg, #147cf5, #1268ca);
+        color: #fff;
         border: none;
-        border-radius: 8px;
+        border-radius: 7px;
         text-decoration: none;
         font-size: 13px;
-        font-weight: 700;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, .12);
+        font-weight: 600;
+        box-shadow: 0 5px 12px rgba(20, 124, 245, .16);
         transition: all .2s ease;
-        white-space: nowrap;
     }
 
     .btn-primary-custom:hover {
-        color: #1268ca;
-        transform: translateY(-2px);
-        box-shadow: 0 9px 20px rgba(0, 0, 0, .16);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(20, 124, 245, .22);
     }
 
     .btn-plus {
-        font-size: 13px;
+        font-size: 17px;
         line-height: 1;
     }
 
     /* =========================================
-       SUMMARY CARDS - TRANSPORT STYLE
+       DASHBOARD STYLE SUMMARY CARDS
     ========================================= */
 
     .class-summary {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
+        gap: 16px;
         margin-bottom: 22px;
     }
 
     .summary-card {
         position: relative;
         overflow: hidden;
-        min-height: 125px;
-        padding: 19px 20px;
-        border-radius: 15px;
+        min-height: 112px;
+        border-radius: 10px;
+        padding: 18px;
         color: #fff;
         display: flex;
         align-items: center;
-        gap: 15px;
-        box-shadow: 0 7px 18px rgba(25, 55, 95, .08);
+        gap: 14px;
+        box-shadow: 0 6px 16px rgba(25, 55, 95, .08);
         transition: all .2s ease;
     }
 
     .summary-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 11px 24px rgba(25, 55, 95, .13);
+        box-shadow: 0 10px 22px rgba(25, 55, 95, .13);
     }
 
     .summary-card::before {
         content: "";
         position: absolute;
-        width: 105px;
-        height: 105px;
+        width: 95px;
+        height: 95px;
         border-radius: 50%;
-        right: -32px;
-        top: -38px;
-        background: rgba(255, 255, 255, .10);
+        right: -28px;
+        top: -35px;
+        background: rgba(255,255,255,.10);
     }
 
     .summary-card::after {
         content: "";
         position: absolute;
-        width: 72px;
-        height: 72px;
+        width: 65px;
+        height: 65px;
         border-radius: 50%;
-        right: 30px;
-        bottom: -43px;
-        background: rgba(255, 255, 255, .07);
+        right: 28px;
+        bottom: -38px;
+        background: rgba(255,255,255,.07);
     }
 
-    /* Blue */
+    /* Dashboard Blue */
     .summary-blue {
         background: linear-gradient(135deg, #147cf5, #1268ca);
     }
 
-    /* Orange */
+    /* Dashboard Orange */
     .summary-orange {
         background: linear-gradient(135deg, #ffb238, #ff9d1c);
     }
 
-    /* Red */
+    /* Dashboard Red */
     .summary-red {
         background: linear-gradient(135deg, #ff6d61, #f65343);
     }
 
-    /* Cyan */
+    /* Dashboard Cyan */
     .summary-cyan {
         background: linear-gradient(135deg, #2bcfe8, #18b5d5);
     }
@@ -219,16 +164,16 @@
     .summary-icon {
         position: relative;
         z-index: 2;
-        width: 52px;
-        height: 52px;
-        flex-shrink: 0;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, .18);
-        border: 1px solid rgba(255, 255, 255, .17);
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.16);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 21px;
+        font-size: 20px;
+        flex-shrink: 0;
     }
 
     .summary-content {
@@ -241,12 +186,12 @@
         font-size: 12px;
         font-weight: 500;
         opacity: .90;
-        margin-bottom: 6px;
+        margin-bottom: 5px;
     }
 
     .summary-content strong {
         display: block;
-        font-size: 26px;
+        font-size: 24px;
         line-height: 1;
         font-weight: 700;
     }
@@ -258,7 +203,7 @@
     .alert-success-custom {
         margin-bottom: 18px;
         padding: 12px 15px;
-        border-radius: 8px;
+        border-radius: 7px;
         background: #eaf8ef;
         border: 1px solid #ccebd7;
         color: #198754;
@@ -277,7 +222,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
     }
 
@@ -288,13 +233,13 @@
     .class-card {
         background: #fff;
         border: 1px solid #e7edf5;
-        border-radius: 16px;
+        border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 3px 12px rgba(25, 55, 95, .04);
+        box-shadow: 0 2px 8px rgba(25, 55, 95, .025);
     }
 
     .class-card-header {
-        padding: 18px 20px;
+        padding: 17px 19px;
         border-bottom: 1px solid #e7edf5;
         display: flex;
         justify-content: space-between;
@@ -305,7 +250,7 @@
     .card-title-area {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 9px;
     }
 
     .card-title-dot {
@@ -327,7 +272,7 @@
         background: #f3f7fc;
         color: #64748b;
         border: 1px solid #e7edf5;
-        padding: 6px 11px;
+        padding: 5px 10px;
         border-radius: 20px;
         font-size: 11px;
         font-weight: 600;
@@ -345,7 +290,7 @@
     .class-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 900px;
+        min-width: 800px;
     }
 
     .class-table th {
@@ -409,16 +354,15 @@
     }
 
     .class-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 9px;
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
         background: #eef5ff;
         color: #147cf5;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         font-size: 15px;
-        flex-shrink: 0;
     }
 
     .class-name {
@@ -514,10 +458,10 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 7px;
+        border-radius: 6px;
         text-decoration: none;
         border: 1px solid transparent;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
         cursor: pointer;
         transition: all .18s ease;
@@ -608,26 +552,8 @@
     @media (max-width: 768px) {
 
         .class-page-header {
-            min-height: auto;
-            padding: 24px;
             align-items: flex-start;
             flex-direction: column;
-        }
-
-        .class-heading {
-            width: 100%;
-            align-items: center;
-        }
-
-        .class-heading-icon {
-            width: 78px;
-            height: 78px;
-            border-radius: 17px;
-            font-size: 31px;
-        }
-
-        .class-page-header h2 {
-            font-size: 22px;
         }
 
         .class-page-header .btn-primary-custom {
@@ -643,58 +569,22 @@
             flex-direction: column;
         }
     }
-
-    @media (max-width: 480px) {
-
-        .class-page-header {
-            padding: 20px;
-            border-radius: 14px;
-        }
-
-        .class-heading {
-            gap: 14px;
-        }
-
-        .class-heading-icon {
-            width: 65px;
-            height: 65px;
-            border-radius: 14px;
-            font-size: 26px;
-        }
-
-        .class-page-header h2 {
-            font-size: 20px;
-        }
-
-        .class-page-header p {
-            font-size: 12px;
-        }
-
-        .summary-card {
-            min-height: 115px;
-        }
-    }
 </style>
 
 
 <div class="class-page">
 
-    {{-- =========================================
-         TRANSPORT-STYLE PAGE HEADER
-    ========================================== --}}
+    
 
     <div class="class-page-header">
 
         <div class="class-heading">
 
             <div class="class-heading-icon">
-                <i
-                    class="fa-solid fa-building-columns"
-                    aria-hidden="true"
-                ></i>
+                🏫
             </div>
 
-            <div class="class-heading-content">
+            <div>
 
                 <h2>Classes</h2>
 
@@ -702,78 +592,49 @@
                     Manage school classes, sections and academic years.
                 </p>
 
-                <div class="header-description">
-                    <i
-                        class="fa-solid fa-layer-group"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Organize classes and academic sections
-                    </span>
-                </div>
-
             </div>
 
         </div>
 
 
         <a
-            href="{{ route('admin.classes.create') }}"
+            href="<?php echo e(route('admin.classes.create')); ?>"
             class="btn-primary-custom"
         >
-            <span class="btn-plus">
-                <i
-                    class="fa-solid fa-plus"
-                    aria-hidden="true"
-                ></i>
-            </span>
-
+            <span class="btn-plus">＋</span>
             Add Class
         </a>
 
     </div>
 
 
-    {{-- =========================================
-         SUCCESS MESSAGE
-    ========================================== --}}
+    
 
-    @if(session('success'))
+    <?php if(session('success')): ?>
 
         <div class="alert-success-custom">
 
-            <span class="success-icon">
-                <i
-                    class="fa-solid fa-check"
-                    aria-hidden="true"
-                ></i>
-            </span>
+            <span class="success-icon">✓</span>
 
             <span>
-                {{ session('success') }}
+                <?php echo e(session('success')); ?>
+
             </span>
 
         </div>
 
-    @endif
+    <?php endif; ?>
 
 
-    {{-- =========================================
-         DASHBOARD SUMMARY CARDS
-    ========================================== --}}
+    
 
     <div class="class-summary">
 
-        {{-- Total Classes --}}
-
+        
         <div class="summary-card summary-blue">
 
             <div class="summary-icon">
-                <i
-                    class="fa-solid fa-building-columns"
-                    aria-hidden="true"
-                ></i>
+                🏫
             </div>
 
             <div class="summary-content">
@@ -781,7 +642,8 @@
                 <span>Total Classes</span>
 
                 <strong>
-                    {{ $classes->count() }}
+                    <?php echo e($classes->count()); ?>
+
                 </strong>
 
             </div>
@@ -789,15 +651,11 @@
         </div>
 
 
-        {{-- Active Classes --}}
-
+        
         <div class="summary-card summary-orange">
 
             <div class="summary-icon">
-                <i
-                    class="fa-solid fa-circle-check"
-                    aria-hidden="true"
-                ></i>
+                ✓
             </div>
 
             <div class="summary-content">
@@ -805,7 +663,8 @@
                 <span>Active Classes</span>
 
                 <strong>
-                    {{ $classes->where('status', true)->count() }}
+                    <?php echo e($classes->where('status', true)->count()); ?>
+
                 </strong>
 
             </div>
@@ -813,15 +672,11 @@
         </div>
 
 
-        {{-- Inactive Classes --}}
-
+        
         <div class="summary-card summary-red">
 
             <div class="summary-icon">
-                <i
-                    class="fa-solid fa-circle-xmark"
-                    aria-hidden="true"
-                ></i>
+                !
             </div>
 
             <div class="summary-content">
@@ -829,7 +684,8 @@
                 <span>Inactive Classes</span>
 
                 <strong>
-                    {{ $classes->where('status', false)->count() }}
+                    <?php echo e($classes->where('status', false)->count()); ?>
+
                 </strong>
 
             </div>
@@ -837,15 +693,11 @@
         </div>
 
 
-        {{-- Total Sections --}}
-
+        
         <div class="summary-card summary-cyan">
 
             <div class="summary-icon">
-                <i
-                    class="fa-solid fa-layer-group"
-                    aria-hidden="true"
-                ></i>
+                ▦
             </div>
 
             <div class="summary-content">
@@ -853,7 +705,8 @@
                 <span>Total Sections</span>
 
                 <strong>
-                    {{ $classes->pluck('section')->unique()->count() }}
+                    <?php echo e($classes->pluck('section')->unique()->count()); ?>
+
                 </strong>
 
             </div>
@@ -863,9 +716,7 @@
     </div>
 
 
-    {{-- =========================================
-         CLASSES TABLE
-    ========================================== --}}
+    
 
     <div class="class-card">
 
@@ -881,16 +732,18 @@
 
             <span class="class-count">
 
-                {{ $classes->count() }}
+                <?php echo e($classes->count()); ?>
 
-                {{ $classes->count() == 1 ? 'Class' : 'Classes' }}
+
+                <?php echo e($classes->count() == 1 ? 'Class' : 'Classes'); ?>
+
 
             </span>
 
         </div>
 
 
-        @if($classes->count())
+        <?php if($classes->count()): ?>
 
             <div class="table-wrapper">
 
@@ -912,38 +765,33 @@
 
                     <tbody>
 
-                        @foreach($classes as $class)
+                        <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                             <tr>
 
-                                {{-- Number --}}
-
+                                
                                 <td>
 
                                     <span class="row-number">
-                                        {{ $loop->iteration }}
+                                        <?php echo e($loop->iteration); ?>
+
                                     </span>
 
                                 </td>
 
 
-                                {{-- Class --}}
-
+                                
                                 <td>
 
                                     <div class="class-name-wrapper">
 
                                         <span class="class-icon">
-
-                                            <i
-                                                class="fa-solid fa-building-columns"
-                                                aria-hidden="true"
-                                            ></i>
-
+                                            🏫
                                         </span>
 
                                         <span class="class-name">
-                                            {{ $class->class_name }}
+                                            <?php echo e($class->class_name); ?>
+
                                         </span>
 
                                     </div>
@@ -951,33 +799,32 @@
                                 </td>
 
 
-                                {{-- Section --}}
-
+                                
                                 <td>
 
                                     <span class="section-badge">
-                                        {{ $class->section }}
+                                        <?php echo e($class->section); ?>
+
                                     </span>
 
                                 </td>
 
 
-                                {{-- Academic Year --}}
-
+                                
                                 <td>
 
                                     <span class="academic-year">
-                                        {{ $class->academic_year }}
+                                        <?php echo e($class->academic_year); ?>
+
                                     </span>
 
                                 </td>
 
 
-                                {{-- Status --}}
-
+                                
                                 <td>
 
-                                    @if($class->status)
+                                    <?php if($class->status): ?>
 
                                         <span class="status-badge status-active">
 
@@ -987,7 +834,7 @@
 
                                         </span>
 
-                                    @else
+                                    <?php else: ?>
 
                                         <span class="status-badge status-inactive">
 
@@ -997,62 +844,45 @@
 
                                         </span>
 
-                                    @endif
+                                    <?php endif; ?>
 
                                 </td>
 
 
-                                {{-- Actions --}}
-
+                                
                                 <td>
 
                                     <div class="action-buttons">
 
-                                        {{-- View --}}
-
                                         <a
-                                            href="{{ route('admin.classes.show', $class->id) }}"
+                                            href="<?php echo e(route('admin.classes.show', $class->id)); ?>"
                                             class="action-btn action-view"
                                             title="View Class"
                                             aria-label="View Class"
                                         >
-
-                                            <i
-                                                class="fa-solid fa-eye"
-                                                aria-hidden="true"
-                                            ></i>
-
+                                            👁
                                         </a>
 
 
-                                        {{-- Edit --}}
-
                                         <a
-                                            href="{{ route('admin.classes.edit', $class->id) }}"
+                                            href="<?php echo e(route('admin.classes.edit', $class->id)); ?>"
                                             class="action-btn action-edit"
                                             title="Edit Class"
                                             aria-label="Edit Class"
                                         >
-
-                                            <i
-                                                class="fa-solid fa-pen-to-square"
-                                                aria-hidden="true"
-                                            ></i>
-
+                                            ✎
                                         </a>
 
 
-                                        {{-- Delete --}}
-
                                         <form
-                                            action="{{ route('admin.classes.destroy', $class->id) }}"
+                                            action="<?php echo e(route('admin.classes.destroy', $class->id)); ?>"
                                             method="POST"
                                             onsubmit="return confirm('Are you sure you want to delete this class?');"
                                         >
 
-                                            @csrf
+                                            <?php echo csrf_field(); ?>
 
-                                            @method('DELETE')
+                                            <?php echo method_field('DELETE'); ?>
 
                                             <button
                                                 type="submit"
@@ -1060,12 +890,7 @@
                                                 title="Delete Class"
                                                 aria-label="Delete Class"
                                             >
-
-                                                <i
-                                                    class="fa-solid fa-trash"
-                                                    aria-hidden="true"
-                                                ></i>
-
+                                                🗑
                                             </button>
 
                                         </form>
@@ -1076,7 +901,7 @@
 
                             </tr>
 
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     </tbody>
 
@@ -1084,17 +909,12 @@
 
             </div>
 
-        @else
+        <?php else: ?>
 
             <div class="empty-state">
 
                 <div class="empty-state-icon">
-
-                    <i
-                        class="fa-solid fa-building-columns"
-                        aria-hidden="true"
-                    ></i>
-
+                    🏫
                 </div>
 
                 <h4>No Classes Found</h4>
@@ -1104,29 +924,22 @@
                 </p>
 
                 <a
-                    href="{{ route('admin.classes.create') }}"
+                    href="<?php echo e(route('admin.classes.create')); ?>"
                     class="btn-primary-custom"
                 >
-
-                    <span class="btn-plus">
-
-                        <i
-                            class="fa-solid fa-plus"
-                            aria-hidden="true"
-                        ></i>
-
-                    </span>
-
+                    <span class="btn-plus">＋</span>
                     Add First Class
-
                 </a>
 
             </div>
 
-        @endif
+        <?php endif; ?>
 
     </div>
 
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\Shweta Gundu Mali\Desktop\Student\School-Management-New\resources\views/admin/classes/index.blade.php ENDPATH**/ ?>

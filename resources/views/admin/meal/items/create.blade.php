@@ -234,6 +234,7 @@
                                         </option>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                                         <option value="Vegetables"
                                             {{ old('category') === 'Vegetables' ? 'selected' : '' }}>
                                             Vegetables
@@ -251,6 +252,8 @@
 
 =======
 >>>>>>> 0eae4369792f5446582a904476f9cb1285797030
+=======
+>>>>>>> 0a09c488f4a20273ecd9ae676f586922e6c95631
                                         <option value="Oil"
                                             {{ old('category') === 'Oil' ? 'selected' : '' }}>
                                             Oil

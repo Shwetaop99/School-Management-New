@@ -284,7 +284,11 @@ class MealStockLogController extends Controller
     /**
      * Build the common filtered query.
      *
+<<<<<<< HEAD
      * Used by:
+=======
+     * This query is used by:
+>>>>>>> 0a09c488f4a20273ecd9ae676f586922e6c95631
      * - Logs page
      * - PDF export
      * - Excel export
