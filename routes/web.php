@@ -1329,11 +1329,7 @@ Route::put('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitControlle
 Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'destroy'])
     ->name('student-supply-kits.destroy');
 
-    /*
-|--------------------------------------------------------------------------
-| SCHOOL LEAVING CERTIFICATE
-|--------------------------------------------------------------------------
-*/
+
 /*
     |--------------------------------------------------------------------------
     | TEACHER ATTENDANCE - TEMPORARY TEST
@@ -1393,17 +1389,6 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
             DashboardController::class,
             'index'
         ])->name('dashboard');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STUDENT
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/students', function () {
-            return 'Student Management';
-        })->name('students.index');
 
 
         /*
@@ -1592,10 +1577,6 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
         | EXISTING ATTENDANCE
         |--------------------------------------------------------------------------
         */
-
-        Route::get('/attendance', function () {
-            return 'Attendance Management';
-        })->name('attendance.index');
 
 Route::get('/school-leaving-certificate', [SchoolLeavingCertificateController::class, 'index'])
     ->name('school-leaving-certificate.index');
@@ -1875,10 +1856,6 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
                 ->name('timetable.next-time');
 
             /* GENERAL SCHOOL MANAGEMENT PLACEHOLDERS */
-
-            Route::get('/attendance', function () {
-                return 'Attendance Management';
-            })->name('attendance.index');
             /*
             |--------------------------------------------------------------------------
             | FEES
@@ -2119,6 +2096,11 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
             Route::prefix('transport')
                 ->name('transport.')
                 ->group(function () {
+
+                Route::get(
+    'reports/student-search',
+    [TransportReportController::class, 'studentSearch']
+)->name('reports.student-search');
 
 
                     /*
@@ -2615,11 +2597,46 @@ Route::get('/reports/meal/excel', [MealReportController::class, 'excel'])
     Route::get('/reports/transport', [TransportReportController::class, 'index'])
     ->name('reports.transport');
 
+    Route::get('/reports/transport/student-search', [
+    TransportReportController::class,
+    'studentSearch'
+])->name('reports.transport.student-search');
+
 Route::get('/reports/transport/pdf', [TransportReportController::class, 'pdf'])
     ->name('reports.transport.pdf');
 
 Route::get('/reports/transport/excel', [TransportReportController::class, 'excel'])
     ->name('reports.transport.excel');
+
+    Route::get('/reports/transport/student-travel', [
+    TransportReportController::class,
+    'studentTravel'
+])->name('reports.transport.student-travel');
+
+Route::get('/reports/transport/student-travel/pdf', [
+    TransportReportController::class,
+    'studentTravelPdf'
+])->name('reports.transport.student-travel.pdf');
+
+Route::get('/reports/transport/student-travel/excel', [
+    TransportReportController::class,
+    'studentTravelExcel'
+])->name('reports.transport.student-travel.excel');
+
+Route::get('/reports/transport/vehicle', [
+    TransportReportController::class,
+    'vehicle'
+])->name('reports.transport.vehicle');
+
+Route::get('/reports/transport/vehicle/pdf', [
+    TransportReportController::class,
+    'vehiclePdf'
+])->name('reports.transport.vehicle.pdf');
+
+Route::get('/reports/transport/vehicle/excel', [
+    TransportReportController::class,
+    'vehicleExcel'
+])->name('reports.transport.vehicle.excel');
 
 
 
@@ -2746,7 +2763,6 @@ Route::prefix('admin/meal/logs')
             MealStockLogController::class,
             'index'
         ])->name('index');
-
 
         /*
         |--------------------------------------------------------------------------
