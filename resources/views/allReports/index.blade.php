@@ -516,7 +516,7 @@
 
 
         {{-- 10. TRANSPORT --}}
-        <a href="#" class="report-card">
+        <a href="{{ route('admin.reports.transport') }}" class="report-card">
 
             <div class="report-icon">
                 <i class="fas fa-bus"></i>
