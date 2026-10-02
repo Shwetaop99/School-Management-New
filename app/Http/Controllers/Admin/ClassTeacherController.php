@@ -14,45 +14,42 @@ class ClassTeacherController extends Controller
     // SHOW ALL TEACHER ALLOCATIONS
     // =========================================================
 
-   
-public function index()
-{
-    $assignments = ClassTeacherAssignment::query()
-        ->join(
-            'teachers',
-            'class_teacher_assignments.teacher_id',
-            '=',
-            'teachers.id'
-        )
-        ->join(
-            'classes',
-            'class_teacher_assignments.class_id',
-            '=',
-            'classes.id'
-        )
-        ->join(
-            'sections',
-            'class_teacher_assignments.section_id',
-            '=',
-            'sections.id'
-        )
-        ->select(
-            'class_teacher_assignments.*',
-            'teachers.first_name',
-            'teachers.last_name',
-            'classes.class_name',
-            'sections.section_name'
-        )
-        ->latest('class_teacher_assignments.id')
-        ->get();
+    public function index()
+    {
+        $assignments = ClassTeacherAssignment::query()
+            ->join(
+                'teachers',
+                'class_teacher_assignments.teacher_id',
+                '=',
+                'teachers.id'
+            )
+            ->join(
+                'classes',
+                'class_teacher_assignments.class_id',
+                '=',
+                'classes.id'
+            )
+            ->join(
+                'sections',
+                'class_teacher_assignments.section_id',
+                '=',
+                'sections.id'
+            )
+            ->select(
+                'class_teacher_assignments.*',
+                'teachers.first_name',
+                'teachers.last_name',
+                'classes.class_name',
+                'sections.section_name'
+            )
+            ->latest('class_teacher_assignments.id')
+            ->get();
 
-    return view(
-        'admin.teachers.assign-class.index',
-        compact('assignments')
-    );
-}
-
-
+        return view(
+            'admin.teachers.assign-class.index',
+            compact('assignments')
+        );
+    }
 
     // =========================================================
     // SHOW CREATE PAGE
@@ -60,18 +57,15 @@ public function index()
 
     public function create()
     {
-        // Active teachers
-        $teachers = Teacher::where('status', 'active')
+        $teachers = Teacher::where('status', 'Active')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
 
-        // Classes
         $classes = DB::table('classes')
             ->orderBy('id')
             ->get();
 
-        // Sections
         $sections = DB::table('sections')
             ->orderBy('id')
             ->get();
@@ -86,7 +80,6 @@ public function index()
         );
     }
 
-
     // =========================================================
     // STORE TEACHER ALLOCATION
     // =========================================================
@@ -96,25 +89,24 @@ public function index()
         $validated = $request->validate([
             'teacher_id' => [
                 'required',
-                'exists:teachers,id'
+                'exists:teachers,id',
             ],
 
             'class_id' => [
                 'required',
-                'exists:classes,id'
+                'exists:classes,id',
             ],
 
-            // Section ID must be an integer
             'section_id' => [
                 'required',
                 'integer',
-                'exists:sections,id'
+                'exists:sections,id',
             ],
 
             'academic_year' => [
                 'nullable',
                 'string',
-                'max:20'
+                'max:20',
             ],
         ]);
 
@@ -128,14 +120,13 @@ public function index()
             );
     }
 
-
     // =========================================================
     // EDIT TEACHER ALLOCATION
     // =========================================================
 
-    public function edit(ClassTeacherAssignment $assignment)
+    public function edit(ClassTeacherAssignment $classTeacher)
     {
-        $teachers = Teacher::where('status', 'active')
+        $teachers = Teacher::where('status', 'Active')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -144,7 +135,6 @@ public function index()
             ->orderBy('id')
             ->get();
 
-        // Sections
         $sections = DB::table('sections')
             ->orderBy('id')
             ->get();
@@ -152,7 +142,7 @@ public function index()
         return view(
             'admin.teachers.assign-class.edit',
             compact(
-                'assignment',
+                'classTeacher',
                 'teachers',
                 'classes',
                 'sections'
@@ -160,41 +150,39 @@ public function index()
         );
     }
 
-
     // =========================================================
     // UPDATE TEACHER ALLOCATION
     // =========================================================
 
     public function update(
         Request $request,
-        ClassTeacherAssignment $assignment
+        ClassTeacherAssignment $classTeacher
     ) {
         $validated = $request->validate([
             'teacher_id' => [
                 'required',
-                'exists:teachers,id'
+                'exists:teachers,id',
             ],
 
             'class_id' => [
                 'required',
-                'exists:classes,id'
+                'exists:classes,id',
             ],
 
-            // Section ID must be an integer
             'section_id' => [
                 'required',
                 'integer',
-                'exists:sections,id'
+                'exists:sections,id',
             ],
 
             'academic_year' => [
                 'nullable',
                 'string',
-                'max:20'
+                'max:20',
             ],
         ]);
 
-        $assignment->update($validated);
+        $classTeacher->update($validated);
 
         return redirect()
             ->route('admin.teachers.assign-class.index')
@@ -204,14 +192,13 @@ public function index()
             );
     }
 
-
     // =========================================================
     // DELETE TEACHER ALLOCATION
     // =========================================================
 
-    public function destroy(ClassTeacherAssignment $assignment)
+    public function destroy(ClassTeacherAssignment $classTeacher)
     {
-        $assignment->delete();
+        $classTeacher->delete();
 
         return redirect()
             ->route('admin.teachers.assign-class.index')

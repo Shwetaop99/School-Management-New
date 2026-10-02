@@ -1,1411 +1,979 @@
-<?php
+@extends('layouts.app')
 
-namespace App\Http\Controllers\Admin;
+@section('title', 'Add Staff')
+@section('page-title', 'Add Staff')
 
-use App\Http\Controllers\Controller;
-use App\Models\Teacher;
-use App\Models\TeacherTimetable;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ClassTimetableExport;
-use Carbon\Carbon;
+@section('content')
 
-class TimetableController extends Controller
-{
-    /*
-    |--------------------------------------------------------------------------
-    | INDEX
-    |--------------------------------------------------------------------------
-    */
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+>
 
-    public function index()
-    {
-        $timetables = TeacherTimetable::with('teacher')
-            ->latest()
-            ->get();
+<style>
+    /* =========================================================
+       ADD STAFF PAGE
+    ========================================================= */
 
-        $classes = DB::table('classes')
-            ->orderBy('id')
-            ->get();
-
-        $sections = DB::table('sections')
-            ->orderBy('id')
-            ->get();
-
-        return view(
-            'admin.timetable.index',
-            compact(
-                'timetables',
-                'classes',
-                'sections'
-            )
-        );
+    .staff-create-page {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 10px 0 30px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE
-    |--------------------------------------------------------------------------
-    */
-
-    public function create()
-    {
-        $teachers = Teacher::where('status', 'Active')
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
-
-        $classes = DB::table('classes')
-            ->orderBy('id')
-            ->get();
-
-        $sections = DB::table('sections')
-            ->orderBy('class_id')
-            ->orderBy('id')
-            ->get();
-
-        return view(
-            'admin.timetable.create',
-            compact(
-                'teachers',
-                'classes',
-                'sections'
-            )
-        );
+    .staff-header {
+        background: linear-gradient(135deg, #147cf5, #6c63ff);
+        border-radius: 18px;
+        padding: 24px 28px;
+        color: #fff;
+        margin-bottom: 22px;
+        box-shadow: 0 8px 25px rgba(30, 80, 180, 0.15);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | STORE
-    |--------------------------------------------------------------------------
-    */
-
-  
-public function store(Request $request)
-{
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATE
-    |--------------------------------------------------------------------------
-    */
-
-    $validated = $request->validate([
-
-        'teacher_id' => [
-            'nullable',
-            'exists:teachers,id',
-            'required_unless:period_type,Break,Lunch,Activity',
-        ],
-
-        'timetable_date' => [
-            'required',
-            'date',
-        ],
-
-        'academic_year' => [
-            'required',
-            'string',
-            'max:20',
-        ],
-
-        'day' => [
-            'nullable',
-            'string',
-            'max:20',
-        ],
-
-        'period_number' => [
-            'required',
-            'integer',
-            'min:1',
-            'max:15',
-        ],
-
-        'period_type' => [
-            'required',
-            Rule::in([
-                'Regular',
-                'Break',
-                'Lunch',
-                'Activity',
-            ]),
-        ],
-
-        'lecture_type' => [
-            'nullable',
-            Rule::in([
-                'regular',
-                'extra',
-                'practical',
-                'activity',
-            ]),
-        ],
-
-        'class' => [
-            'nullable',
-            'string',
-            'max:100',
-            'required_unless:period_type,Break,Lunch,Activity',
-        ],
-
-        'section' => [
-            'nullable',
-            'string',
-            'max:50',
-        ],
-
-        'subject' => [
-            'nullable',
-            'string',
-            'max:100',
-        ],
-
-        'subject_type' => [
-            'nullable',
-            Rule::in([
-                'Theory',
-                'Practical',
-                'Activity',
-            ]),
-        ],
-
-        'start_time' => [
-            'required',
-            'date_format:H:i',
-        ],
-
-        'end_time' => [
-            'nullable',
-            'date_format:H:i',
-        ],
-
-        'room' => [
-            'nullable',
-            'string',
-            'max:100',
-        ],
-    ]);
-
-    /*
-    |--------------------------------------------------------------------------
-    | CALCULATE DAY FROM DATE
-    |--------------------------------------------------------------------------
-    */
-
-    $date = Carbon::parse($validated['timetable_date']);
-
-    $day = $date->format('l');
-
-    if ($day === 'Sunday') {
-        return back()
-            ->withInput()
-            ->withErrors([
-                'timetable_date' => 'Sunday timetable is not allowed.',
-            ]);
+    .staff-header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | REGULAR
-    |--------------------------------------------------------------------------
-    */
-
-    if ($validated['period_type'] === 'Regular') {
-
-        if (empty($validated['teacher_id'])) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'teacher_id' => 'Please select a teacher.',
-                ]);
-        }
-
-        if (empty($validated['class'])) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'class' => 'Please select a class.',
-                ]);
-        }
-
-        if (empty($validated['subject'])) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'subject' => 'Please enter a subject.',
-                ]);
-        }
-
-        if (empty($validated['subject_type'])) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'subject_type' => 'Please select subject type.',
-                ]);
-        }
-
-        if (empty($validated['lecture_type'])) {
-            $validated['lecture_type'] = 'regular';
-        }
+    .staff-header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ACTIVITY
-    |--------------------------------------------------------------------------
-    |
-    | Activity:
-    | Teacher = NULL
-    | Class = NULL
-    | Section = NULL
-    | Subject = selected activity
-    | Subject Type = Activity
-    |
-    */
-
-    if ($validated['period_type'] === 'Activity') {
-
-        if (empty($validated['subject'])) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'subject' => 'Please select an activity.',
-                ]);
-        }
-
-        $validated['teacher_id'] = null;
-        $validated['class'] = null;
-        $validated['section'] = null;
-        $validated['subject_type'] = 'Activity';
-        $validated['lecture_type'] = 'activity';
-        $validated['room'] = null;
+    .staff-header-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | BREAK
-    |--------------------------------------------------------------------------
-    */
-
-    if ($validated['period_type'] === 'Break') {
-
-        $validated['teacher_id'] = null;
-        $validated['class'] = null;
-        $validated['section'] = null;
-        $validated['subject'] = 'Break';
-        $validated['subject_type'] = 'Activity';
-        $validated['lecture_type'] = 'activity';
-        $validated['room'] = null;
+    .staff-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | LUNCH
-    |--------------------------------------------------------------------------
-    */
-
-    if ($validated['period_type'] === 'Lunch') {
-
-        $validated['teacher_id'] = null;
-        $validated['class'] = null;
-        $validated['section'] = null;
-        $validated['subject'] = 'Lunch';
-        $validated['subject_type'] = 'Activity';
-        $validated['lecture_type'] = 'activity';
-        $validated['room'] = null;
+    .staff-header p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        opacity: 0.9;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CALCULATE END TIME
-    |--------------------------------------------------------------------------
-    */
-
-    $startTime = Carbon::createFromFormat(
-        'H:i',
-        $validated['start_time']
-    );
-
-    /*
-    | Break = 15 minutes
-    */
-
-    if ($validated['period_type'] === 'Break') {
-
-        $endTime = $startTime->copy()->addMinutes(15);
-
-        $validated['end_time'] = $endTime->format('H:i');
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        color: #1769d1;
+        border: none;
+        border-radius: 10px;
+        padding: 11px 17px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: 0.2s ease;
     }
 
-    /*
-    | Lunch = 60 minutes
-    */
-
-    elseif ($validated['period_type'] === 'Lunch') {
-
-        $endTime = $startTime->copy()->addMinutes(60);
-
-        $validated['end_time'] = $endTime->format('H:i');
+    .back-btn:hover {
+        color: #1769d1;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
     }
 
-    /*
-    | Activity = 45 minutes if end time is empty
-    */
+    /* =========================================================
+       FORM CARD
+    ========================================================= */
 
-    elseif (
-        $validated['period_type'] === 'Activity' &&
-        empty($validated['end_time'])
-    ) {
-
-        $endTime = $startTime->copy()->addMinutes(45);
-
-        $validated['end_time'] = $endTime->format('H:i');
+    .staff-card {
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid #e7edf7;
+        box-shadow: 0 6px 24px rgba(31, 52, 90, 0.07);
+        overflow: hidden;
     }
 
-    /*
-    | Regular = 45 minutes if end time is empty
-    */
-
-    elseif (
-        $validated['period_type'] === 'Regular' &&
-        empty($validated['end_time'])
-    ) {
-
-        $endTime = $startTime->copy()->addMinutes(45);
-
-        $validated['end_time'] = $endTime->format('H:i');
+    .card-section {
+        padding: 25px 28px;
+        border-bottom: 1px solid #edf1f7;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK END TIME
-    |--------------------------------------------------------------------------
-    */
-
-    if (!empty($validated['end_time'])) {
-
-        $endTime = Carbon::createFromFormat(
-            'H:i',
-            $validated['end_time']
-        );
-
-        if ($endTime->lessThanOrEqualTo($startTime)) {
-
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'end_time' =>
-                        'End time must be after start time.',
-                ]);
-        }
+    .card-section:last-child {
+        border-bottom: none;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | REGULAR TEACHER CONFLICT
-    |--------------------------------------------------------------------------
-    */
-
-    if ($validated['period_type'] === 'Regular') {
-
-        $teacherConflict = TeacherTimetable::where(
-                'teacher_id',
-                $validated['teacher_id']
-            )
-            ->where(
-                'academic_year',
-                $validated['academic_year']
-            )
-            ->where(
-                'day',
-                $day
-            )
-            ->where(function ($query) use ($validated) {
-
-                $query
-                    ->where(
-                        'start_time',
-                        '<',
-                        $validated['end_time']
-                    )
-                    ->where(
-                        'end_time',
-                        '>',
-                        $validated['start_time']
-                    );
-            })
-            ->exists();
-
-        if ($teacherConflict) {
-
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'teacher_id' =>
-                        'This teacher already has a lecture during this time.',
-                ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CLASS / SECTION CONFLICT
-        |--------------------------------------------------------------------------
-        */
-
-        $classQuery = TeacherTimetable::where(
-                'academic_year',
-                $validated['academic_year']
-            )
-            ->where(
-                'day',
-                $day
-            )
-            ->where(
-                'class',
-                $validated['class']
-            )
-            ->where(function ($query) use ($validated) {
-
-                if (!empty($validated['section'])) {
-
-                    $query->where(
-                        'section',
-                        $validated['section']
-                    );
-
-                } else {
-
-                    $query->whereNull('section');
-                }
-            })
-            ->where(function ($query) use ($validated) {
-
-                $query
-                    ->where(
-                        'start_time',
-                        '<',
-                        $validated['end_time']
-                    )
-                    ->where(
-                        'end_time',
-                        '>',
-                        $validated['start_time']
-                    );
-            });
-
-        if ($classQuery->exists()) {
-
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'class' =>
-                        'This class and section already have a lecture during this time.',
-                ]);
-        }
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 20px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SAVE
-    |--------------------------------------------------------------------------
-    |
-    | IMPORTANT:
-    | Do NOT use TeacherTimetable::create($validated)
-    | because the form contains fields that are not database columns.
-    |
-    */
-
-    $timetable = new TeacherTimetable();
-
-    $timetable->teacher_id = $validated['teacher_id'] ?? null;
-
-    $timetable->academic_year = $validated['academic_year'];
-
-    $timetable->day = $day;
-
-    $timetable->period_number = $validated['period_number'];
-
-    $timetable->period_type = $validated['period_type'];
-
-    $timetable->class = $validated['class'] ?? null;
-
-    $timetable->section = $validated['section'] ?? null;
-
-    $timetable->subject = $validated['subject'] ?? null;
-
-    $timetable->subject_type = $validated['subject_type'] ?? null;
-
-    $timetable->start_time = $validated['start_time'];
-
-    $timetable->end_time = $validated['end_time'] ?? null;
-
-    $timetable->room = $validated['room'] ?? null;
-
-    /*
-    |--------------------------------------------------------------------------
-    | SAVE TO DATABASE
-    |--------------------------------------------------------------------------
-    */
-
-    $timetable->save();
-
-    /*
-    |--------------------------------------------------------------------------
-    | REDIRECT
-    |--------------------------------------------------------------------------
-    */
-
-    return redirect()
-        ->route('admin.timetable.index')
-        ->with(
-            'success',
-            'Timetable added successfully.'
-        );
-}
-
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATION
-    |--------------------------------------------------------------------------
-    */
-
-    private function validateTimetable(Request $request)
-    {
-        return $request->validate([
-
-            'teacher_id' => [
-                'nullable',
-                'exists:teachers,id',
-                'required_unless:period_type,Break,Lunch,Activity',
-            ],
-
-            'timetable_date' => [
-                'required',
-                'date',
-            ],
-
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
-
-            'day' => [
-                'nullable',
-                'string',
-                'max:20',
-            ],
-
-            'period_number' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:15',
-            ],
-
-            'period_type' => [
-                'required',
-                Rule::in([
-                    'Regular',
-                    'Break',
-                    'Lunch',
-                    'Activity',
-                ]),
-            ],
-
-            'lecture_type' => [
-                'nullable',
-                Rule::in([
-                    'regular',
-                    'extra',
-                    'practical',
-                    'activity',
-                ]),
-            ],
-
-            'class' => [
-                'nullable',
-                'string',
-                'max:100',
-                'required_unless:period_type,Break,Lunch,Activity',
-            ],
-
-            'section' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-
-            'subject' => [
-                'nullable',
-                'string',
-                'max:100',
-                'required_unless:period_type,Break,Lunch,Activity',
-            ],
-
-            'subject_type' => [
-                'nullable',
-                Rule::in([
-                    'Theory',
-                    'Practical',
-                    'Activity',
-                ]),
-                'required_unless:period_type,Break,Lunch,Activity',
-            ],
-
-            'start_time' => [
-                'required',
-                'date_format:H:i',
-            ],
-
-            'end_time' => [
-                'nullable',
-                'date_format:H:i',
-            ],
-
-            'duration_minutes' => [
-                'nullable',
-                'integer',
-                'min:5',
-                'max:300',
-            ],
-
-            'room' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-        ]);
+    .section-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: #eef5ff;
+        color: #147cf5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PREPARE BREAK / LUNCH
-    |--------------------------------------------------------------------------
-    */
-
-    private function prepareSpecialPeriod(array $validated)
-    {
-        $periodType = $validated['period_type'];
-
-        $validated['teacher_id'] = null;
-        $validated['class'] = null;
-        $validated['section'] = null;
-
-        $validated['subject'] = $periodType;
-        $validated['subject_type'] = 'Activity';
-        $validated['lecture_type'] = 'activity';
-        $validated['room'] = null;
-
-        return $validated;
+    .section-heading h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #26364d;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | TIME CALCULATION
-    |--------------------------------------------------------------------------
-    */
-
-    private function calculateLectureTime(array &$validated)
-    {
-        $startTime = Carbon::createFromFormat(
-            'H:i',
-            $validated['start_time']
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | BREAK
-        |--------------------------------------------------------------------------
-        */
-
-        if ($validated['period_type'] === 'Break') {
-
-            $validated['end_time'] = $startTime
-                ->copy()
-                ->addMinutes(15)
-                ->format('H:i');
-
-            $validated['duration_minutes'] = 15;
-
-            return;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | LUNCH
-        |--------------------------------------------------------------------------
-        */
-
-        if ($validated['period_type'] === 'Lunch') {
-
-            $validated['end_time'] = $startTime
-                ->copy()
-                ->addMinutes(60)
-                ->format('H:i');
-
-            $validated['duration_minutes'] = 60;
-
-            return;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | REGULAR
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $validated['period_type'] === 'Regular' &&
-            empty($validated['end_time'])
-        ) {
-
-            $validated['end_time'] = $startTime
-                ->copy()
-                ->addMinutes(45)
-                ->format('H:i');
-
-            $validated['duration_minutes'] = 45;
-
-            return;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | ACTIVITY
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $validated['period_type'] === 'Activity' &&
-            empty($validated['end_time'])
-        ) {
-
-            $validated['end_time'] = $startTime
-                ->copy()
-                ->addMinutes(45)
-                ->format('H:i');
-
-            $validated['duration_minutes'] = 45;
-
-            return;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CUSTOM END TIME
-        |--------------------------------------------------------------------------
-        */
-
-        if (empty($validated['end_time'])) {
-
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'end_time' =>
-                    'Please enter an end time for this lecture.',
-            ]);
-        }
-
-        $endTime = Carbon::createFromFormat(
-            'H:i',
-            $validated['end_time']
-        );
-
-        if ($endTime->lessThanOrEqualTo($startTime)) {
-
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'end_time' =>
-                    'End time must be after start time.',
-            ]);
-        }
-
-        $validated['duration_minutes'] =
-            $startTime->diffInMinutes($endTime);
+    .section-heading p {
+        margin: 3px 0 0;
+        color: #8995a7;
+        font-size: 12px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CONFLICT CHECK
-    |--------------------------------------------------------------------------
-    */
-
-    private function checkConflicts(
-        array $validated,
-        $ignoreId = null
-    ) {
-        /*
-        |--------------------------------------------------------------------------
-        | TEACHER CONFLICT
-        |--------------------------------------------------------------------------
-        */
-
-        $teacherQuery = TeacherTimetable::where(
-                'teacher_id',
-                $validated['teacher_id']
-            )
-            ->where(
-                'academic_year',
-                $validated['academic_year']
-            )
-            ->where(
-                'day',
-                $validated['day']
-            )
-            ->where(function ($query) use ($validated) {
-
-                $query->where(
-                    'start_time',
-                    '<',
-                    $validated['end_time']
-                )->where(
-                    'end_time',
-                    '>',
-                    $validated['start_time']
-                );
-            });
-
-        /*
-        |--------------------------------------------------------------------------
-        | DATE FILTER
-        |--------------------------------------------------------------------------
-        |
-        | Only use timetable_date if your table has this column.
-        |
-        */
-
-        if (
-            \Schema::hasColumn(
-                'teacher_timetables',
-                'timetable_date'
-            )
-        ) {
-            $teacherQuery->where(
-                'timetable_date',
-                $validated['timetable_date']
-            );
-        }
-
-        if ($ignoreId) {
-            $teacherQuery->where(
-                'id',
-                '!=',
-                $ignoreId
-            );
-        }
-
-        if ($teacherQuery->exists()) {
-            return [
-                'field' => 'teacher_id',
-                'message' =>
-                    'This teacher already has a lecture during this time.',
-            ];
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CLASS / SECTION CONFLICT
-        |--------------------------------------------------------------------------
-        */
-
-        $classQuery = TeacherTimetable::where(
-                'academic_year',
-                $validated['academic_year']
-            )
-            ->where(
-                'day',
-                $validated['day']
-            )
-            ->where(
-                'class',
-                $validated['class']
-            )
-            ->where(function ($query) use ($validated) {
-
-                if (!empty($validated['section'])) {
-
-                    $query->where(
-                        'section',
-                        $validated['section']
-                    );
-
-                } else {
-
-                    $query->whereNull('section');
-                }
-            })
-            ->where(function ($query) use ($validated) {
-
-                $query->where(
-                    'start_time',
-                    '<',
-                    $validated['end_time']
-                )->where(
-                    'end_time',
-                    '>',
-                    $validated['start_time']
-                );
-            });
-
-        if (
-            \Schema::hasColumn(
-                'teacher_timetables',
-                'timetable_date'
-            )
-        ) {
-            $classQuery->where(
-                'timetable_date',
-                $validated['timetable_date']
-            );
-        }
-
-        if ($ignoreId) {
-            $classQuery->where(
-                'id',
-                '!=',
-                $ignoreId
-            );
-        }
-
-        if ($classQuery->exists()) {
-            return [
-                'field' => 'class',
-                'message' =>
-                    'This class and section already have a lecture during this time.',
-            ];
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | ROOM CONFLICT
-        |--------------------------------------------------------------------------
-        */
-
-        if (!empty($validated['room'])) {
-
-            $roomQuery = TeacherTimetable::where(
-                    'academic_year',
-                    $validated['academic_year']
-                )
-                ->where(
-                    'day',
-                    $validated['day']
-                )
-                ->where(
-                    'room',
-                    $validated['room']
-                )
-                ->where(function ($query) use ($validated) {
-
-                    $query->where(
-                        'start_time',
-                        '<',
-                        $validated['end_time']
-                    )->where(
-                        'end_time',
-                        '>',
-                        $validated['start_time']
-                    );
-                });
-
-            if (
-                \Schema::hasColumn(
-                    'teacher_timetables',
-                    'timetable_date'
-                )
-            ) {
-                $roomQuery->where(
-                    'timetable_date',
-                    $validated['timetable_date']
-                );
-            }
-
-            if ($ignoreId) {
-                $roomQuery->where(
-                    'id',
-                    '!=',
-                    $ignoreId
-                );
-            }
-
-            if ($roomQuery->exists()) {
-                return [
-                    'field' => 'room',
-                    'message' =>
-                        'This room is already occupied during this time.',
-                ];
-            }
-        }
-
-        return null;
+    .form-label {
+        color: #34445a;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 7px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE
-    |--------------------------------------------------------------------------
-    */
-
-    public function destroy(TeacherTimetable $timetable)
-    {
-        $timetable->delete();
-
-        return redirect()
-            ->route('admin.timetable.index')
-            ->with(
-                'success',
-                'Timetable deleted successfully.'
-            );
+    .required {
+        color: #dc3545;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CLASS TIMETABLE
-    |--------------------------------------------------------------------------
-    */
+    .form-control,
+    .form-select {
+        min-height: 44px;
+        border: 1px solid #dce4ef;
+        border-radius: 10px;
+        padding: 10px 13px;
+        color: #334155;
+        font-size: 14px;
+        background-color: #fff;
+        box-shadow: none;
+        transition: 0.2s ease;
+    }
 
-    public function classTimetable(Request $request)
-    {
-        $classes = DB::table('classes')
-            ->orderBy('id')
-            ->pluck('class_name');
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #6c63ff;
+        box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.10);
+    }
 
-        $sections = collect();
-        $timetables = collect();
+    textarea.form-control {
+        min-height: 105px;
+        resize: vertical;
+    }
 
-        if ($request->filled('class')) {
+    .form-text {
+        color: #8a96a8;
+        font-size: 11px;
+        margin-top: 5px;
+    }
 
-            $class = DB::table('classes')
-                ->where(
-                    'class_name',
-                    $request->class
-                )
-                ->first();
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
 
-            if ($class) {
+    .invalid-feedback {
+        display: block;
+        font-size: 12px;
+        margin-top: 5px;
+    }
 
-                $sections = DB::table('sections')
-                    ->where(
-                        'class_id',
-                        $class->id
-                    )
-                    ->orderBy('id')
-                    ->pluck('section_name');
+    /* =========================================================
+       STAFF ID
+    ========================================================= */
 
-                $query = TeacherTimetable::with('teacher')
-                    ->where(
-                        'class',
-                        $request->class
-                    );
+    .staff-id-wrapper {
+        position: relative;
+    }
 
-                if ($request->filled('section')) {
+    .staff-id-wrapper .form-control {
+        padding-right: 45px;
+        background: #f7f9fd;
+        font-weight: 700;
+        color: #1769d1;
+    }
 
-                    $query->where(
-                        'section',
-                        $request->section
-                    );
+    .staff-id-icon {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c63ff;
+        pointer-events: none;
+    }
+
+    /* =========================================================
+       PHOTO UPLOAD
+    ========================================================= */
+
+    .photo-upload-box {
+        border: 2px dashed #d8e2f0;
+        border-radius: 14px;
+        padding: 20px;
+        background: #f9fbff;
+        text-align: center;
+        transition: 0.2s ease;
+    }
+
+    .photo-upload-box:hover {
+        border-color: #6c63ff;
+        background: #f6f7ff;
+    }
+
+    .photo-icon {
+        width: 55px;
+        height: 55px;
+        margin: 0 auto 10px;
+        border-radius: 14px;
+        background: #eef5ff;
+        color: #147cf5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+    }
+
+    .photo-upload-box label {
+        cursor: pointer;
+    }
+
+    .photo-title {
+        display: block;
+        color: #34445a;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .photo-subtitle {
+        color: #8a96a8;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .photo-preview {
+        display: none;
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin: 12px auto 0;
+        border: 3px solid #fff;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    /* =========================================================
+       FOOTER BUTTONS
+    ========================================================= */
+
+    .form-footer {
+        padding: 20px 28px;
+        background: #f9fbfe;
+        border-top: 1px solid #edf1f7;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        min-height: 44px;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+    .btn-cancel {
+        background: #fff;
+        border: 1px solid #d9e1ec;
+        color: #5c6b7e;
+    }
+
+    .btn-cancel:hover {
+        color: #334155;
+        background: #f4f7fb;
+    }
+
+    .btn-save {
+        border: none;
+        background: linear-gradient(135deg, #147cf5, #6c63ff);
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(67, 90, 220, 0.20);
+    }
+
+    .btn-save:hover {
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 7px 18px rgba(67, 90, 220, 0.28);
+    }
+
+    /* =========================================================
+       ALERT
+    ========================================================= */
+
+    .error-alert {
+        border: none;
+        border-radius: 12px;
+        background: #fff1f2;
+        color: #b42318;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    .error-alert ul {
+        margin: 7px 0 0 18px;
+        padding: 0;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 768px) {
+        .staff-create-page {
+            padding: 5px 0 20px;
+        }
+
+        .staff-header {
+            padding: 20px;
+            border-radius: 14px;
+        }
+
+        .staff-header-inner {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .staff-header h2 {
+            font-size: 20px;
+        }
+
+        .back-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .card-section {
+            padding: 20px;
+        }
+
+        .form-footer {
+            padding: 18px 20px;
+            flex-direction: column-reverse;
+        }
+
+        .btn-cancel,
+        .btn-save {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="staff-create-page">
+
+    {{-- =====================================================
+         HEADER
+    ====================================================== --}}
+    <div class="staff-header">
+        <div class="staff-header-inner">
+
+            <div class="staff-header-left">
+
+                <div class="staff-header-icon">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+
+                <div>
+                    <h2>Add Staff</h2>
+                    <p>Create a new non-teaching staff member.</p>
+                </div>
+
+            </div>
+
+            <a
+                href="{{ route('admin.other-staff.index') }}"
+                class="back-btn"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Back to Staff
+            </a>
+
+        </div>
+    </div>
+
+    {{-- =====================================================
+         VALIDATION ERRORS
+    ====================================================== --}}
+    @if ($errors->any())
+        <div class="error-alert">
+
+            <strong>
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Please correct the following errors:
+            </strong>
+
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+
+        </div>
+    @endif
+
+    {{-- =====================================================
+         FORM
+    ====================================================== --}}
+    <form
+        action="{{ route('admin.other-staff.store') }}"
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        @csrf
+
+        <div class="staff-card">
+
+            {{-- =================================================
+                 BASIC INFORMATION
+            ================================================== --}}
+            <div class="card-section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon">
+                        <i class="bi bi-person-vcard"></i>
+                    </div>
+
+                    <div>
+                        <h3>Basic Information</h3>
+                        <p>Enter the staff member's basic details.</p>
+                    </div>
+
+                </div>
+
+                <div class="row g-4">
+
+                    {{-- STAFF ID --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Staff ID <span class="required">*</span>
+                        </label>
+
+                        <div class="staff-id-wrapper">
+
+                            <input
+                                type="text"
+                                name="staff_id"
+                                value="{{ old('staff_id', $nextStaffId) }}"
+                                class="form-control @error('staff_id') is-invalid @enderror"
+                                readonly
+                            >
+
+                            <i class="bi bi-shield-check staff-id-icon"></i>
+
+                        </div>
+
+                        @error('staff_id')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                        <div class="form-text">
+                            Staff ID is generated automatically.
+                        </div>
+
+                    </div>
+
+                    {{-- NAME --}}
+                    <div class="col-lg-8 col-md-6">
+
+                        <label class="form-label">
+                            Full Name <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="name"
+                            value="{{ old('name') }}"
+                            class="form-control @error('name') is-invalid @enderror"
+                            placeholder="Enter staff full name"
+                            maxlength="255"
+                            required
+                        >
+
+                        @error('name')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- DESIGNATION --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Designation <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="designation"
+                            class="form-select @error('designation') is-invalid @enderror"
+                            required
+                        >
+
+                            <option value="">
+                                Select designation
+                            </option>
+
+                            @foreach ([
+                                'Librarian',
+                                'Accountant',
+                                'Receptionist',
+                                'Peon',
+                                'Driver',
+                                'Other'
+                            ] as $designation)
+
+                                <option
+                                    value="{{ $designation }}"
+                                    @selected(old('designation') === $designation)
+                                >
+                                    {{ $designation }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        @error('designation')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- DEPARTMENT --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Department
+                        </label>
+
+                        <input
+                            type="text"
+                            name="department"
+                            value="{{ old('department') }}"
+                            class="form-control @error('department') is-invalid @enderror"
+                            placeholder="Enter department"
+                            maxlength="255"
+                        >
+
+                        @error('department')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- STATUS --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Status <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="status"
+                            class="form-select @error('status') is-invalid @enderror"
+                            required
+                        >
+
+                            <option value="Active"
+                                @selected(old('status', 'Active') === 'Active')
+                            >
+                                Active
+                            </option>
+
+                            <option value="Inactive"
+                                @selected(old('status') === 'Inactive')
+                            >
+                                Inactive
+                            </option>
+
+                        </select>
+
+                        @error('status')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- =================================================
+                 PERSONAL INFORMATION
+            ================================================== --}}
+            <div class="card-section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </div>
+
+                    <div>
+                        <h3>Personal Information</h3>
+                        <p>Enter personal and contact information.</p>
+                    </div>
+
+                </div>
+
+                <div class="row g-4">
+
+                    {{-- GENDER --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Gender
+                        </label>
+
+                        <select
+                            name="gender"
+                            class="form-select @error('gender') is-invalid @enderror"
+                        >
+
+                            <option value="">
+                                Select gender
+                            </option>
+
+                            <option value="Male"
+                                @selected(old('gender') === 'Male')
+                            >
+                                Male
+                            </option>
+
+                            <option value="Female"
+                                @selected(old('gender') === 'Female')
+                            >
+                                Female
+                            </option>
+
+                            <option value="Other"
+                                @selected(old('gender') === 'Other')
+                            >
+                                Other
+                            </option>
+
+                        </select>
+
+                        @error('gender')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- DATE OF BIRTH --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Date of Birth
+                        </label>
+
+                        <input
+                            type="date"
+                            name="date_of_birth"
+                            value="{{ old('date_of_birth') }}"
+                            class="form-control @error('date_of_birth') is-invalid @enderror"
+                        >
+
+                        @error('date_of_birth')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- JOINING DATE --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Joining Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="joining_date"
+                            value="{{ old('joining_date') }}"
+                            class="form-control @error('joining_date') is-invalid @enderror"
+                            max="{{ date('Y-m-d') }}"
+                        >
+
+                        @error('joining_date')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- PHONE --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="text"
+                            name="phone"
+                            value="{{ old('phone') }}"
+                            class="form-control @error('phone') is-invalid @enderror"
+                            placeholder="Enter phone number"
+                            maxlength="20"
+                        >
+
+                        @error('phone')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- EMAIL --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            class="form-control @error('email') is-invalid @enderror"
+                            placeholder="Enter email address"
+                            maxlength="255"
+                        >
+
+                        @error('email')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- QUALIFICATION --}}
+                    <div class="col-lg-4 col-md-6">
+
+                        <label class="form-label">
+                            Qualification
+                        </label>
+
+                        <input
+                            type="text"
+                            name="qualification"
+                            value="{{ old('qualification') }}"
+                            class="form-control @error('qualification') is-invalid @enderror"
+                            placeholder="Enter qualification"
+                            maxlength="255"
+                        >
+
+                        @error('qualification')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- ADDRESS --}}
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Address
+                        </label>
+
+                        <textarea
+                            name="address"
+                            class="form-control @error('address') is-invalid @enderror"
+                            placeholder="Enter complete address"
+                        >{{ old('address') }}</textarea>
+
+                        @error('address')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- =================================================
+                 PROFILE PHOTO
+            ================================================== --}}
+            <div class="card-section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon">
+                        <i class="bi bi-camera"></i>
+                    </div>
+
+                    <div>
+                        <h3>Profile Photo</h3>
+                        <p>Upload a photo of the staff member.</p>
+                    </div>
+
+                </div>
+
+                <div class="photo-upload-box">
+
+                    <div class="photo-icon">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+
+                    <label for="profile_photo">
+
+                        <span class="photo-title">
+                            Choose Profile Photo
+                        </span>
+
+                        <span class="photo-subtitle">
+                            JPG, JPEG, PNG or WEBP — maximum 2 MB
+                        </span>
+
+                    </label>
+
+                    <input
+                        type="file"
+                        id="profile_photo"
+                        name="profile_photo"
+                        class="form-control @error('profile_photo') is-invalid @enderror"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                    >
+
+                    <img
+                        id="photoPreview"
+                        class="photo-preview"
+                        alt="Profile photo preview"
+                    >
+
+                    @error('profile_photo')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+
+                </div>
+
+            </div>
+
+            {{-- =================================================
+                 FORM FOOTER
+            ================================================== --}}
+            <div class="form-footer">
+
+                <a
+                    href="{{ route('admin.other-staff.index') }}"
+                    class="btn-cancel"
+                >
+                    <i class="bi bi-x-lg"></i>
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn-save"
+                >
+                    <i class="bi bi-check-circle"></i>
+                    Save Staff
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const photoInput = document.getElementById('profile_photo');
+        const photoPreview = document.getElementById('photoPreview');
+
+        if (photoInput && photoPreview) {
+
+            photoInput.addEventListener('change', function (event) {
+
+                const file = event.target.files[0];
+
+                if (!file) {
+                    photoPreview.style.display = 'none';
+                    photoPreview.removeAttribute('src');
+                    return;
                 }
 
-                $timetables = $query
-                    ->orderBy('period_number')
-                    ->orderByRaw("
-                        CASE day
-                            WHEN 'Monday' THEN 1
-                            WHEN 'Tuesday' THEN 2
-                            WHEN 'Wednesday' THEN 3
-                            WHEN 'Thursday' THEN 4
-                            WHEN 'Friday' THEN 5
-                            WHEN 'Saturday' THEN 6
-                            ELSE 7
-                        END
-                    ")
-                    ->orderBy('start_time')
-                    ->get();
-            }
-        }
+                if (!file.type.startsWith('image/')) {
+                    photoPreview.style.display = 'none';
+                    photoPreview.removeAttribute('src');
+                    return;
+                }
 
-        return view(
-            'admin.timetable.class',
-            compact(
-                'classes',
-                'sections',
-                'timetables'
-            )
-        );
-    }
+                const reader = new FileReader();
 
-    /*
-    |--------------------------------------------------------------------------
-    | CLASS PDF
-    |--------------------------------------------------------------------------
-    */
+                reader.onload = function (e) {
+                    photoPreview.src = e.target.result;
+                    photoPreview.style.display = 'block';
+                };
 
-    public function classPdf(Request $request)
-    {
-        $request->validate([
-            'class' => 'required|string',
-            'section' => 'nullable|string',
-        ]);
-
-        $query = TeacherTimetable::with('teacher')
-            ->where(function ($query) use ($request) {
-
-                $query->where(function ($q) use ($request) {
-
-                    $q->where(
-                        'class',
-                        $request->class
-                    );
-
-                    if ($request->filled('section')) {
-                        $q->where(
-                            'section',
-                            $request->section
-                        );
-                    }
-                });
-
-                $query->orWhereIn(
-                    'period_type',
-                    [
-                        'Break',
-                        'Lunch',
-                        'Activity',
-                    ]
-                );
+                reader.readAsDataURL(file);
             });
-
-        $timetables = $query
-            ->orderBy('period_number')
-            ->orderByRaw("
-                CASE day
-                    WHEN 'Monday' THEN 1
-                    WHEN 'Tuesday' THEN 2
-                    WHEN 'Wednesday' THEN 3
-                    WHEN 'Thursday' THEN 4
-                    WHEN 'Friday' THEN 5
-                    WHEN 'Saturday' THEN 6
-                    ELSE 7
-                END
-            ")
-            ->orderBy('start_time')
-            ->get();
-
-        $days = [
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-        ];
-
-        $periods = $timetables
-            ->groupBy('period_number')
-            ->sortKeys();
-
-        $pdf = Pdf::loadView(
-            'admin.timetable.pdf',
-            compact(
-                'timetables',
-                'days',
-                'periods'
-            )
-        );
-
-        $pdf->setPaper(
-            'a4',
-            'landscape'
-        );
-
-        return $pdf->download(
-            'class-timetable-' .
-            $request->class .
-            '-' .
-            ($request->section ?? 'all') .
-            '.pdf'
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLASS EXCEL
-    |--------------------------------------------------------------------------
-    */
-
-    public function classExcel(Request $request)
-    {
-        $request->validate([
-            'class' => 'required|string',
-            'section' => 'nullable|string',
-        ]);
-
-        return Excel::download(
-            new ClassTimetableExport(
-                $request->class,
-                $request->section
-            ),
-            'class-timetable-' .
-            $request->class .
-            '-' .
-            ($request->section ?? 'all') .
-            '.xlsx'
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | NEXT TIME
-    |--------------------------------------------------------------------------
-    */
-
-    public function nextTime(Request $request)
-    {
-        $request->validate([
-            'academic_year' => 'required|string',
-            'day' => 'required|string',
-            'timetable_date' => 'nullable|date',
-            'teacher_id' => 'nullable|integer',
-            'class' => 'nullable|string',
-            'section' => 'nullable|string',
-        ]);
-
-        $query = TeacherTimetable::where(
-            'academic_year',
-            $request->academic_year
-        )
-        ->where(
-            'day',
-            $request->day
-        )
-        ->whereNotIn(
-            'period_type',
-            [
-                'Break',
-                'Lunch',
-                'Activity',
-            ]
-        );
-
-        if (
-            $request->filled('timetable_date') &&
-            \Schema::hasColumn(
-                'teacher_timetables',
-                'timetable_date'
-            )
-        ) {
-            $query->where(
-                'timetable_date',
-                $request->timetable_date
-            );
         }
 
-        if ($request->filled('teacher_id')) {
+    });
+</script>
 
-            $query->where(
-                'teacher_id',
-                $request->teacher_id
-            );
-        }
-
-        if ($request->filled('class')) {
-
-            $query->where(
-                'class',
-                $request->class
-            );
-        }
-
-        if ($request->filled('section')) {
-
-            $query->where(
-                'section',
-                $request->section
-            );
-        }
-
-        $lastLecture = $query
-            ->orderByDesc('end_time')
-            ->first();
-
-        return response()->json([
-            'next_start_time' =>
-                $lastLecture?->end_time,
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | TEACHER TIMETABLE
-    |--------------------------------------------------------------------------
-    */
-
-    public function teacherTimetable(Request $request)
-    {
-        $teachers = Teacher::where(
-            'status',
-            'Active'
-        )
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
-
-        $selectedTeacher = null;
-        $timetables = collect();
-
-        if ($request->filled('teacher_id')) {
-
-            $selectedTeacher = Teacher::find(
-                $request->teacher_id
-            );
-
-            if ($selectedTeacher) {
-
-                $timetables = TeacherTimetable::where(
-                    'teacher_id',
-                    $selectedTeacher->id
-                )
-                ->orderByRaw("
-                    FIELD(
-                        day,
-                        'Monday',
-                        'Tuesday',
-                        'Wednesday',
-                        'Thursday',
-                        'Friday',
-                        'Saturday',
-                        'Sunday'
-                    )
-                ")
-                ->orderBy('start_time')
-                ->get();
-            }
-        }
-
-        return view(
-            'admin.timetable.teacher',
-            compact(
-                'teachers',
-                'selectedTeacher',
-                'timetables'
-            )
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW
-    |--------------------------------------------------------------------------
-    */
-
-    public function show(TeacherTimetable $timetable)
-    {
-        $timetable->load('teacher');
-
-        return view(
-            'admin.timetable.show',
-            compact('timetable')
-        );
-    }
-}
+@endsection
