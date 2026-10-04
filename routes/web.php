@@ -4,28 +4,32 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN AUTH CONTROLLERS
+| Sports Controllers
 |--------------------------------------------------------------------------
 */
-
-use App\Http\Controllers\Admin\Auth\LoginController;
-use App\Http\Controllers\Admin\Auth\TwoFactorController;
+use App\Http\Controllers\Sports\GameController;
+use App\Http\Controllers\Sports\AchievementController;
+use App\Http\Controllers\Sports\EquipmentController;
 
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN CORE CONTROLLERS
+| Admin Controllers
 |--------------------------------------------------------------------------
 */
+use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\Auth\TwoFactorController;
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\NoticeController;
+
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\BookIssueController;
 use App\Http\Controllers\Admin\OtherStaffController;
 use App\Http\Controllers\Admin\LibrarianController;
 use App\Http\Controllers\Admin\LibraryReportController;
 use App\Http\Controllers\Admin\LibraryReportDownloadController;
+
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\TeacherController;
@@ -103,6 +107,8 @@ use App\Http\Controllers\Meal\MealStockTransactionController;
 | SPORTS MANAGEMENT
 |--------------------------------------------------------------------------
 */
+use App\Http\Controllers\Class\SchoolClassController;
+use App\Http\Controllers\Class\SubjectController;
 
 use App\Http\Controllers\Sports\SportsController;
 use App\Http\Controllers\Sports\AchievementController;
@@ -123,7 +129,7 @@ Route::prefix('admin')
 
         /*
         |--------------------------------------------------------------------------
-        | AUTHENTICATION
+        | ADMIN LOGIN
         |--------------------------------------------------------------------------
         */
 
@@ -746,26 +752,284 @@ Route::prefix('admin')
                         'store'
                     ])->name('store');
 
-                    Route::get('/{teacherSalary}', [
+                    Route::get('/attendance-data', [
+                        TeacherSalaryController::class,
+                        'attendanceData'
+                    ])->name('attendance-data');
+
+                    Route::get('/{salary}', [
                         TeacherSalaryController::class,
                         'show'
                     ])->name('show');
 
-                    Route::get('/{teacherSalary}/edit', [
+                    Route::get('/{salary}/edit', [
                         TeacherSalaryController::class,
                         'edit'
                     ])->name('edit');
 
-                    Route::put('/{teacherSalary}', [
+                    Route::put('/{salary}', [
                         TeacherSalaryController::class,
                         'update'
                     ])->name('update');
 
-                    Route::delete('/{teacherSalary}', [
+                    Route::delete('/{salary}', [
                         TeacherSalaryController::class,
                         'destroy'
                     ])->name('destroy');
                 });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | STUDENT PROFILE
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/students/profile', [
+                StudentProfileController::class,
+                'index'
+            ])->name('students.profile');
+
+            Route::get('/students/profile/search', [
+                StudentProfileController::class,
+                'search'
+            ])->name('student-profile.search');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | STUDENT DOCUMENTS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/students/documents', [
+                StudentDocumentsController::class,
+                'index'
+            ])->name('students.documents');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | STUDENT ID CARD
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/students/id-card', [
+                IdCardController::class,
+                'index'
+            ])->name('students.id-card');
+
+            Route::resource(
+                'id-card/templates',
+                IdCardTemplateController::class
+            )->names('id-card.templates');
+
+            Route::get('/id-card', [
+                IdCardController::class,
+                'index'
+            ])->name('id-card.index');
+
+            Route::get('/id-card/create', [
+                IdCardController::class,
+                'create'
+            ])->name('id-card.create');
+
+            Route::post('/id-card', [
+                IdCardController::class,
+                'store'
+            ])->name('id-card.store');
+
+            Route::get('/id-card/{id}', [
+                IdCardController::class,
+                'show'
+            ])->name('id-card.show');
+
+            Route::get('/id-card/{id}/print', [
+                IdCardController::class,
+                'print'
+            ])->name('id-card.print');
+
+            Route::delete('/id-card/{id}', [
+                IdCardController::class,
+                'destroy'
+            ])->name('id-card.destroy');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | STUDENT SUPPLY KIT
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'students/supplies',
+                StudentSupplyKitController::class
+            )->names('students.supplies');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BONAFIDE CERTIFICATE
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'bonafide',
+                BonafideCertificateController::class
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SCHOOL LEAVING CERTIFICATE
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'school-leaving-certificate',
+                SchoolLeavingCertificateController::class
+            );
+
+            Route::get(
+                '/school-leaving-certificate/{schoolLeavingCertificate}/print',
+                [
+                    SchoolLeavingCertificateController::class,
+                    'print'
+                ]
+            )->name('school-leaving-certificate.print');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | AGE REPORT
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/age-report', [
+                AgeReportController::class,
+                'index'
+            ])->name('age-report.index');
+
+            Route::get('/age-report/print', [
+                AgeReportController::class,
+                'print'
+            ])->name('age-report.print');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TEACHERS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::resource(
+                'teachers',
+                TeacherController::class
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ASSIGN CLASS TEACHER
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('teachers/assign-class')
+                ->name('teachers.assign-class.')
+                ->group(function () {
+
+                    Route::get('/', [
+                        ClassTeacherController::class,
+                        'index'
+                    ])->name('index');
+
+                    Route::get('/create', [
+                        ClassTeacherController::class,
+                        'create'
+                    ])->name('create');
+
+                    Route::post('/', [
+                        ClassTeacherController::class,
+                        'store'
+                    ])->name('store');
+
+                    Route::get('/{classTeacher}/edit', [
+                        ClassTeacherController::class,
+                        'edit'
+                    ])->name('edit');
+
+                    Route::put('/{classTeacher}', [
+                        ClassTeacherController::class,
+                        'update'
+                    ])->name('update');
+
+                    Route::delete('/{classTeacher}', [
+                        ClassTeacherController::class,
+                        'destroy'
+                    ])->name('destroy');
+                });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TIMETABLE MANAGEMENT
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/timetable', [
+                TimetableController::class,
+                'index'
+            ])->name('timetable.index');
+
+            Route::get('/timetable/create', [
+                TimetableController::class,
+                'create'
+            ])->name('timetable.create');
+
+            Route::post('/timetable', [
+                TimetableController::class,
+                'store'
+            ])->name('timetable.save');
+
+            Route::get('/timetable/teacher', [
+                TimetableController::class,
+                'teacherTimetable'
+            ])->name('timetable.teacher');
+
+            Route::get('/timetable/class', [
+                TimetableController::class,
+                'classTimetable'
+            ])->name('timetable.class');
+
+            Route::get('/timetable/class/pdf', [
+                TimetableController::class,
+                'classPdf'
+            ])->name('timetable.class.pdf');
+
+            Route::get('/timetable/class/excel', [
+                TimetableController::class,
+                'classExcel'
+            ])->name('timetable.class.excel');
+
+            Route::get('/timetable/{timetable}', [
+                TimetableController::class,
+                'show'
+            ])->name('timetable.show');
+
+            Route::get('/timetable/{timetable}/edit', [
+                TimetableController::class,
+                'edit'
+            ])->name('timetable.edit');
+
+            Route::put('/timetable/{timetable}', [
+                TimetableController::class,
+                'update'
+            ])->name('timetable.update');
+
+            Route::delete('/timetable/{timetable}', [
+                TimetableController::class,
+                'destroy'
+            ])->name('timetable.destroy');
 
 
             /*
@@ -802,61 +1066,36 @@ Route::prefix('admin')
             */
 
             Route::resource(
-                'timetable',
-                TimetableController::class
-            )->except(['show']);
-
-            Route::get('/timetable/class', [
-                TimetableController::class,
-                'classTimetable'
-            ])->name('timetable.class');
-
-            Route::get('/timetable/class/pdf', [
-                TimetableController::class,
-                'classPdf'
-            ])->name('timetable.class.pdf');
-
-            Route::get('/timetable/class/excel', [
-                TimetableController::class,
-                'classExcel'
-            ])->name('timetable.class.excel');
-
-            Route::get('/timetable/teacher', [
-                TimetableController::class,
-                'teacherTimetable'
-            ])->name('timetable.teacher');
-
-            Route::get('/timetable/next-time', [
-                TimetableController::class,
-                'nextTime'
-            ])->name('timetable.next-time');
+                'leave-applications',
+                LeaveApplicationController::class
+            );
 
 
             /*
             |--------------------------------------------------------------------------
-            | ATTENDANCE
+            | NOTICE MANAGEMENT
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/attendance', [
-                AttendanceController::class,
+            Route::get('/notices', [
+                NoticeController::class,
                 'index'
-            ])->name('attendance.index');
+            ])->name('notices.index');
 
-            Route::get('/attendance/students', [
-                AttendanceController::class,
-                'students'
-            ])->name('attendance.students');
+            Route::get('/notices/create', [
+                NoticeController::class,
+                'create'
+            ])->name('notices.create');
 
-            Route::post('/attendance', [
-                AttendanceController::class,
+            Route::post('/notices', [
+                NoticeController::class,
                 'store'
-            ])->name('attendance.store');
+            ])->name('notices.store');
 
-            Route::get('/attendance/report', [
-                AttendanceController::class,
-                'report'
-            ])->name('attendance.report');
+            Route::get('/notices/{notice}/edit', [
+                NoticeController::class,
+                'edit'
+            ])->name('notices.edit');
 
             Route::get('/attendance/report/print', [
                 AttendanceController::class,
@@ -876,7 +1115,17 @@ Route::prefix('admin')
             Route::put('/attendance/{attendance}', [
                 AttendanceController::class,
                 'update'
-            ])->name('attendance.update');
+            ])->name('notices.update');
+
+            Route::delete('/notices/{notice}', [
+                NoticeController::class,
+                'destroy'
+            ])->name('notices.destroy');
+
+            Route::get('/notices/{notice}', [
+                NoticeController::class,
+                'show'
+            ])->name('notices.show');
 
 
             /*
@@ -888,44 +1137,32 @@ Route::prefix('admin')
             Route::get('/library/books', [
                 BookController::class,
                 'index'
-            ])
-                ->name('library.books.index')
-                ->middleware('permission:library.view');
+            ])->name('library.books.index');
 
             Route::get('/library/books/create', [
                 BookController::class,
                 'create'
-            ])
-                ->name('library.books.create')
-                ->middleware('permission:library.books');
+            ])->name('library.books.create');
 
             Route::post('/library/books', [
                 BookController::class,
                 'store'
-            ])
-                ->name('library.books.store')
-                ->middleware('permission:library.books');
+            ])->name('library.books.store');
 
             Route::get('/library/books/{book}/edit', [
                 BookController::class,
                 'edit'
-            ])
-                ->name('library.books.edit')
-                ->middleware('permission:library.books');
+            ])->name('library.books.edit');
 
             Route::put('/library/books/{book}', [
                 BookController::class,
                 'update'
-            ])
-                ->name('library.books.update')
-                ->middleware('permission:library.books');
+            ])->name('library.books.update');
 
             Route::delete('/library/books/{book}', [
                 BookController::class,
                 'destroy'
-            ])
-                ->name('library.books.destroy')
-                ->middleware('permission:library.books');
+            ])->name('library.books.destroy');
 
             Route::get('/library/books/{book}', [
                 BookController::class,
@@ -961,24 +1198,17 @@ Route::prefix('admin')
             Route::get('/library/issues', [
                 BookIssueController::class,
                 'index'
-            ])
-                ->name('library.issues.index')
-                ->middleware('permission:library.issue');
+            ])->name('library.issues.index');
 
             Route::get('/library/issues/create', [
                 BookIssueController::class,
                 'create'
-            ])
-                ->name('library.issues.create')
-                ->middleware('permission:library.issue');
+            ])->name('library.issues.create');
 
             Route::post('/library/issues', [
                 BookIssueController::class,
                 'store'
-            ])
-                ->name('library.issues.store')
-                ->middleware('permission:library.issue');
-
+            ])->name('library.issues.store');
 
             /*
             |--------------------------------------------------------------------------
@@ -1006,16 +1236,12 @@ Route::prefix('admin')
             Route::get('/library/returns', [
                 BookIssueController::class,
                 'returns'
-            ])
-                ->name('library.returns.index')
-                ->middleware('permission:library.return');
+            ])->name('library.returns.index');
 
             Route::post('/library/issues/{issue}/return', [
                 BookIssueController::class,
                 'returnBook'
-            ])
-                ->name('library.issues.return')
-                ->middleware('permission:library.return');
+            ])->name('library.issues.return');
 
 
             /*
@@ -1027,9 +1253,7 @@ Route::prefix('admin')
             Route::get('/library/fines', [
                 BookIssueController::class,
                 'fines'
-            ])
-                ->name('library.fines.index')
-                ->middleware('permission:library.fines');
+            ])->name('library.fines.index');
 
             Route::patch('/library/fines/{issue}/status', [
                 BookIssueController::class,
@@ -1066,22 +1290,61 @@ Route::prefix('admin')
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/library/reports', [
-                LibraryReportController::class,
-                'index'
-            ])
-                ->name('library.reports.index')
-                ->middleware('permission:library.reports');
+            Route::get('/attendance/students', [
+                AttendanceController::class,
+                'students'
+            ])->name('attendance.students');
 
-            Route::get('/library/reports/pdf', [
-                LibraryReportDownloadController::class,
+
+            /*
+            |--------------------------------------------------------------------------
+            | ATTENDANCE - SECTIONS
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/attendance/sections', [
+                AttendanceController::class,
+                'sections'
+            ])->name('attendance.sections');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ATTENDANCE - SAVE
+            |--------------------------------------------------------------------------
+            */
+
+            Route::post('/attendance/students', [
+                AttendanceController::class,
+                'store'
+            ])->name('attendance.students.store');
+
+            Route::post('/attendance/store', [
+                AttendanceController::class,
+                'store'
+            ])->name('attendance.store');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ATTENDANCE - PDF
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/attendance/pdf', [
+                AttendanceController::class,
                 'pdf'
-            ])
-                ->name('library.reports.pdf')
-                ->middleware('permission:library.reports');
+            ])->name('attendance.pdf');
 
-            Route::get('/library/reports/excel', [
-                LibraryReportDownloadController::class,
+
+            /*
+            |--------------------------------------------------------------------------
+            | ATTENDANCE - EXCEL
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/attendance/excel', [
+                AttendanceController::class,
                 'excel'
             ])
                 ->name('library.reports.excel')
@@ -1364,1198 +1627,14 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
 
         /*
         |--------------------------------------------------------------------------
-        | TWO FACTOR AUTHENTICATION
+        | LOGOUT
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/2fa/setup', [
-            TwoFactorController::class,
-            'showSetup'
-        ])->name('2fa.setup');
-
-        Route::post('/2fa/verify', [
-            TwoFactorController::class,
-            'verify'
-        ])->name('2fa.verify');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DASHBOARD
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/dashboard', [
-            DashboardController::class,
-            'index'
-        ])->name('dashboard');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ASSIGN CLASS TEACHER
-        |--------------------------------------------------------------------------
-        */
-
-        Route::prefix('teachers/assign-class')
-            ->name('teachers.assign-class.')
-            ->group(function () {
-
-                Route::get('/', [
-                    ClassTeacherController::class,
-                    'index'
-                ])->name('index');
-
-                Route::get('/create', [
-                    ClassTeacherController::class,
-                    'create'
-                ])->name('create');
-
-                Route::post('/', [
-                    ClassTeacherController::class,
-                    'store'
-                ])->name('store');
-
-                Route::get('/{assignment}/edit', [
-                    ClassTeacherController::class,
-                    'edit'
-                ])->name('edit');
-
-                Route::put('/{assignment}', [
-                    ClassTeacherController::class,
-                    'update'
-                ])->name('update');
-
-                Route::delete('/{assignment}', [
-                    ClassTeacherController::class,
-                    'destroy'
-                ])->name('destroy');
-            });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TEACHER SALARY / PAYROLL
-        |--------------------------------------------------------------------------
-        */
-
-        Route::prefix('teachers/salary')
-            ->name('teachers.salary.')
-            ->group(function () {
-
-                Route::get('/', [
-                    TeacherSalaryController::class,
-                    'index'
-                ])->name('index');
-
-                Route::get('/create', [
-                    TeacherSalaryController::class,
-                    'create'
-                ])->name('create');
-
-                /*
-                |--------------------------------------------------------------
-                | ATTENDANCE DATA
-                |--------------------------------------------------------------
-                */
-
-                Route::get('/attendance-data', [
-                    TeacherSalaryController::class,
-                    'attendanceData'
-                ])->name('attendance-data');
-
-                Route::post('/', [
-                    TeacherSalaryController::class,
-                    'store'
-                ])->name('store');
-
-                Route::get('/{teacherSalary}', [
-                    TeacherSalaryController::class,
-                    'show'
-                ])->name('show');
-
-                Route::get('/{teacherSalary}/edit', [
-                    TeacherSalaryController::class,
-                    'edit'
-                ])->name('edit');
-
-                Route::put('/{teacherSalary}', [
-                    TeacherSalaryController::class,
-                    'update'
-                ])->name('update');
-
-                Route::delete('/{teacherSalary}', [
-                    TeacherSalaryController::class,
-                    'destroy'
-                ])->name('destroy');
-            });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TEACHER REPORTS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get('/teachers/reports', [
-            TeacherReportController::class,
-            'index'
-        ])->name('teachers.reports.index');
-
-        Route::get('/teachers/reports/{teacher}', [
-            TeacherReportController::class,
-            'show'
-        ])->name('teachers.reports.show');
-
-        Route::get('/teachers/reports/{teacher}/pdf', [
-            TeacherReportController::class,
-            'pdf'
-        ])->name('teachers.reports.pdf');
-
-        Route::get('/teachers/reports/{teacher}/excel', [
-            TeacherReportController::class,
-            'excel'
-        ])->name('teachers.reports.excel');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | FACULTY / TEACHER
-        |--------------------------------------------------------------------------
-        */
-
-        Route::resource('teachers', TeacherController::class);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TIME TABLE
-        |--------------------------------------------------------------------------
-        */
-
-        Route::resource('timetable', TimetableController::class)
-            ->except(['show']);
-
-        Route::get('/timetable/class', [
-            TimetableController::class,
-            'classTimetable'
-        ])->name('timetable.class');
-
-        Route::get('/timetable/class/pdf', [
-            TimetableController::class,
-            'classPdf'
-        ])->name('timetable.class.pdf');
-
-        Route::get('/timetable/class/excel', [
-            TimetableController::class,
-            'classExcel'
-        ])->name('timetable.class.excel');
-
-        Route::get('/timetable/teacher', [
-            TimetableController::class,
-            'teacherTimetable'
-        ])->name('timetable.teacher');
-
-        Route::get('/timetable/next-time', [
-            TimetableController::class,
-            'nextTime'
-        ])->name('timetable.next-time');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STAFF CATEGORIES
-        |--------------------------------------------------------------------------
-        */
-
-        Route::resource('staff-categories', StaffCategoryController::class)
-            ->except(['show']);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | EXISTING ATTENDANCE
-        |--------------------------------------------------------------------------
-        */
-
-Route::get('/school-leaving-certificate', [SchoolLeavingCertificateController::class, 'index'])
-    ->name('school-leaving-certificate.index');
-
-Route::get('/school-leaving-certificate/create', [SchoolLeavingCertificateController::class, 'create'])
-    ->name('school-leaving-certificate.create');
-
-Route::post('/school-leaving-certificate', [SchoolLeavingCertificateController::class, 'store'])
-    ->name('school-leaving-certificate.store');
-
-Route::get('/school-leaving-certificate/{schoolLeavingCertificate}/edit', [SchoolLeavingCertificateController::class, 'edit'])
-    ->name('school-leaving-certificate.edit');
-
-Route::get('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolLeavingCertificateController::class, 'show'])
-    ->name('school-leaving-certificate.show');
-
-Route::put('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolLeavingCertificateController::class, 'update'])
-    ->name('school-leaving-certificate.update');
-
-Route::delete('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolLeavingCertificateController::class, 'destroy'])
-    ->name('school-leaving-certificate.destroy');
-
-Route::get('/school-leaving-certificate/{schoolLeavingCertificate}/print', [SchoolLeavingCertificateController::class, 'print'])
-    ->name('school-leaving-certificate.print');
-
-    /*
-|--------------------------------------------------------------------------
-| CASTE REPORT
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/caste-report', [CasteReportController::class, 'index'])
-    ->name('caste-report.index');
-
-Route::get('/caste-report/classwise-print', [CasteReportController::class, 'classwisePrint'])
-    ->name('caste-report.classwise-print');
-
-    /*
-|--------------------------------------------------------------------------
-| AGE REPORT
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/age-report', [AgeReportController::class, 'index'])
-    ->name('age-report.index');
-
-Route::get('/age-report/print', [AgeReportController::class, 'print'])
-    ->name('age-report.print');
-            
-
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT SUPPLY KIT CRUD
-            |--------------------------------------------------------------------------
-            */
-
-            Route::resource(
-                'student-supply-kits',
-                StudentSupplyKitController::class
-            )->names('student-supply-kits');
-
-
-            Route::get('/id-cards/search', [IdCardController::class, 'search'])
-                ->name('id-card.search');
-
-            Route::post('/id-cards', [IdCardController::class, 'store'])
-                ->name('id-card.store');
-
-            Route::get('/id-cards/{id}/print', [IdCardController::class, 'print'])
-                ->name('id-card.print');
-
-            Route::get('/id-cards/{id}', [IdCardController::class, 'show'])
-                ->name('id-card.show');
-
-            Route::delete('/id-cards/{id}', [IdCardController::class, 'destroy'])
-                ->name('id-card.destroy');
-
-            Route::get('/student-profile', [StudentProfileController::class, 'index'])
-                ->name('student-profile.index');
-
-            Route::get('/student-profile/search', [StudentProfileController::class, 'search'])
-                ->name('student-profile.search');
-
-            Route::get('/student-documents', [StudentDocumentsController::class, 'index'])
-                ->name('student-documents.index');
-
-            Route::get('/student-documents/{student}', [StudentDocumentsController::class, 'show'])
-                ->name('student-documents.show');
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE MANAGEMENT
-        |--------------------------------------------------------------------------
-        */
-
-        Route::resource(
-            'leave-applications',
-            LeaveApplicationController::class
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SPORTS
-        |--------------------------------------------------------------------------
-        */
-
-            Route::get('/student-health', [StudentHealthController::class, 'index'])
-                ->name('student-health.index');
-
-            Route::get('/student-health/{student}', [StudentHealthController::class, 'show'])
-                ->name('student-health.show');
-
-            Route::get('/student-general-register', [StudentGeneralRegisterController::class, 'index'])
-                ->name('student-general-register.index');
-
-            Route::get('/student-general-register/print', [StudentGeneralRegisterController::class, 'print'])
-                ->name('student-general-register.print');
-
-            Route::get('/student-general-register/{student}', [StudentGeneralRegisterController::class, 'show'])
-                ->name('student-general-register.show');
-
-                /*
-|--------------------------------------------------------------------------
-| ID CARD TEMPLATES
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/id-card-templates', [IdCardTemplateController::class, 'index'])
-    ->name('id-card.templates.index');
-
-Route::get('/id-card-templates/create', [IdCardTemplateController::class, 'create'])
-    ->name('id-card.templates.create');
-
-Route::post('/id-card-templates', [IdCardTemplateController::class, 'store'])
-    ->name('id-card.templates.store');
-
-Route::get('/id-card-templates/{template}/edit', [IdCardTemplateController::class, 'edit'])
-    ->name('id-card.templates.edit');
-
-Route::put('/id-card-templates/{template}', [IdCardTemplateController::class, 'update'])
-    ->name('id-card.templates.update');
-
-Route::post('/id-card-templates/{template}/analyze', [IdCardTemplateController::class, 'analyze'])
-    ->name('id-card.templates.analyze');
-
-Route::get('/id-card-templates/{template}/analysis', [IdCardTemplateController::class, 'analysis'])
-    ->name('id-card.templates.analysis');
-
-Route::post('/id-card-templates/{template}/positions', [IdCardTemplateController::class, 'savePositions'])
-    ->name('id-card.templates.save-positions');
-
-Route::post('/id-card-templates/{template}/toggle-status', [IdCardTemplateController::class, 'toggleStatus'])
-    ->name('id-card.templates.toggle-status');
-
-Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class, 'destroy'])
-    ->name('id-card.templates.destroy');
-
-            /* LOCATION API */
-
-            Route::get('/locations/states', [LocationController::class, 'states'])
-                ->name('locations.states');
-
-            Route::get('/locations/districts', [LocationController::class, 'districts'])
-                ->name('locations.districts');
-
-                Route::get('/locations/tehsils', [LocationController::class, 'tehsils'])
-    ->name('locations.tehsils');
-
-    Route::get('/locations/locations', [LocationController::class, 'locations'])
-    ->name('locations.locations');
-
-            /* BONAFIDE CERTIFICATE */
-
-            Route::prefix('bonafide-certificate')
-                ->name('bonafide.')
-                ->group(function () {
-                    Route::get('/', [BonafideCertificateController::class, 'index'])
-                        ->name('index');
-
-                    Route::get('/create', [BonafideCertificateController::class, 'create'])
-                        ->name('create');
-
-                    Route::post('/', [BonafideCertificateController::class, 'store'])
-                        ->name('store');
-
-                    Route::get('/{bonafide}/edit', [BonafideCertificateController::class, 'edit'])
-                        ->name('edit');
-
-                    Route::get('/{bonafide}', [BonafideCertificateController::class, 'show'])
-                        ->name('show');
-
-                    Route::put('/{bonafide}', [BonafideCertificateController::class, 'update'])
-                        ->name('update');
-
-                    Route::delete('/{bonafide}', [BonafideCertificateController::class, 'destroy'])
-                        ->name('destroy');
-                });
-
-            /* STUDENT ATTENDANCE */
-
-            Route::get('/attendance/student', function () {
-                return view('admin.attendance.student');
-            })
-                ->name('attendance.student')
-                ->middleware('permission:attendance.view');
-
-            /* FACULTY */
-
-            Route::get('/faculty', [TeacherController::class, 'index'])
-                ->name('faculty.index')
-                ->middleware('permission:faculty.view');
-
-            Route::resource('teachers', TeacherController::class);
-
-            /* CLASS TEACHER ASSIGNMENT */
-
-            Route::prefix('teachers/assign-class')
-                ->name('teachers.assign-class.')
-                ->group(function () {
-                    Route::get('/', [ClassTeacherController::class, 'index'])->name('index');
-                    Route::get('/create', [ClassTeacherController::class, 'create'])->name('create');
-                    Route::post('/', [ClassTeacherController::class, 'store'])->name('store');
-                    Route::get('/{assignment}/edit', [ClassTeacherController::class, 'edit'])->name('edit');
-                    Route::put('/{assignment}', [ClassTeacherController::class, 'update'])->name('update');
-                    Route::delete('/{assignment}', [ClassTeacherController::class, 'destroy'])->name('destroy');
-                });
-
-            /* TEACHER SALARY / PAYROLL */
-
-            Route::prefix('teachers/salary')
-                ->name('teachers.salary.')
-                ->group(function () {
-                    Route::get('/', [TeacherSalaryController::class, 'index'])->name('index');
-                    Route::get('/create', [TeacherSalaryController::class, 'create'])->name('create');
-                    Route::post('/', [TeacherSalaryController::class, 'store'])->name('store');
-                    Route::get('/{teacherSalary}', [TeacherSalaryController::class, 'show'])->name('show');
-                    Route::get('/{teacherSalary}/edit', [TeacherSalaryController::class, 'edit'])->name('edit');
-                    Route::put('/{teacherSalary}', [TeacherSalaryController::class, 'update'])->name('update');
-                    Route::delete('/{teacherSalary}', [TeacherSalaryController::class, 'destroy'])->name('destroy');
-                });
-
-            Route::get('/payroll', [TeacherSalaryController::class, 'index'])
-                ->name('payroll.index');
-
-            /* TEACHER REPORTS */
-
-            Route::get('/teachers/reports', [TeacherReportController::class, 'index'])
-                ->name('teachers.reports.index');
-
-            Route::get('/teachers/reports/{teacher}', [TeacherReportController::class, 'show'])
-                ->name('teachers.reports.show');
-
-            Route::get('/teachers/reports/{teacher}/pdf', [TeacherReportController::class, 'pdf'])
-                ->name('teachers.reports.pdf');
-
-            Route::get('/teachers/reports/{teacher}/excel', [TeacherReportController::class, 'excel'])
-                ->name('teachers.reports.excel');
-
-            /* TIMETABLE */
-
-            Route::resource('timetable', TimetableController::class)
-                ->except(['show']);
-
-            Route::get('/timetable/class', [TimetableController::class, 'classTimetable'])
-                ->name('timetable.class');
-
-            Route::get('/timetable/class/pdf', [TimetableController::class, 'classPdf'])
-                ->name('timetable.class.pdf');
-
-            Route::get('/timetable/class/excel', [TimetableController::class, 'classExcel'])
-                ->name('timetable.class.excel');
-
-            Route::get('/timetable/teacher', [TimetableController::class, 'teacherTimetable'])
-                ->name('timetable.teacher');
-
-            Route::get('/timetable/next-time', [TimetableController::class, 'nextTime'])
-                ->name('timetable.next-time');
-
-            /* GENERAL SCHOOL MANAGEMENT PLACEHOLDERS */
-            /*
-            |--------------------------------------------------------------------------
-            | FEES
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/fees', function () {
-                return 'Fees Management';
-            })->name('fees.index');
-
-            /*
-            |--------------------------------------------------------------------------
-            | EXAM CRUD
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/sports', function () {
-                return 'Sports Management';
-            })->name('sports.index');
-            Route::resource(
-                'exams',
-                ExamController::class
-            )->names('exams');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | EXAM CLASSES
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('exams/{exam}/classes')
-                ->name('exam-classes.')
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        [
-                            ExamClassController::class,
-                            'index'
-                        ]
-                    )->name('index');
-
-                    Route::post(
-                        '/',
-                        [
-                            ExamClassController::class,
-                            'store'
-                        ]
-                    )->name('store');
-                });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | EXAM SUBJECTS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('exams/{exam}/subjects')
-                ->name('exam-subjects.')
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        [
-                            ExamSubjectController::class,
-                            'index'
-                        ]
-                    )->name('index');
-
-                    Route::post(
-                        '/',
-                        [
-                            ExamSubjectController::class,
-                            'store'
-                        ]
-                    )->name('store');
-                });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | EXAM SESSIONS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('exams/{exam}/sessions')
-                ->name('exam-sessions.')
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        [
-                            ExamSessionController::class,
-                            'index'
-                        ]
-                    )->name('index');
-
-                    Route::get(
-                        '/create',
-                        [
-                            ExamSessionController::class,
-                            'create'
-                        ]
-                    )->name('create');
-
-                    Route::post(
-                        '/',
-                        [
-                            ExamSessionController::class,
-                            'store'
-                        ]
-                    )->name('store');
-
-                    Route::get(
-                        '/{session}/edit',
-                        [
-                            ExamSessionController::class,
-                            'edit'
-                        ]
-                    )->name('edit');
-
-                    Route::put(
-                        '/{session}',
-                        [
-                            ExamSessionController::class,
-                            'update'
-                        ]
-                    )->name('update');
-
-                    Route::delete(
-                        '/{session}',
-                        [
-                            ExamSessionController::class,
-                            'destroy'
-                        ]
-                    )->name('destroy');
-                });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | EXAM HOLIDAYS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('exams/{exam}/holidays')
-                ->name('exam-holidays.')
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        [
-                            ExamHolidayController::class,
-                            'index'
-                        ]
-                    )->name('index');
-
-                    Route::get(
-                        '/create',
-                        [
-                            ExamHolidayController::class,
-                            'create'
-                        ]
-                    )->name('create');
-
-                    Route::post(
-                        '/',
-                        [
-                            ExamHolidayController::class,
-                            'store'
-                        ]
-                    )->name('store');
-
-                    Route::get(
-                        '/{holiday}/edit',
-                        [
-                            ExamHolidayController::class,
-                            'edit'
-                        ]
-                    )->name('edit');
-
-                    Route::put(
-                        '/{holiday}',
-                        [
-                            ExamHolidayController::class,
-                            'update'
-                        ]
-                    )->name('update');
-
-                    Route::delete(
-                        '/{holiday}',
-                        [
-                            ExamHolidayController::class,
-                            'destroy'
-                        ]
-                    )->name('destroy');
-                });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | GENERATE TIMETABLE FORM
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get(
-                'exams/{exam}/schedule/generate',
-                [
-                    ExamScheduleController::class,
-                    'generateForm'
-                ]
-            )->name('exam-schedules.generate.form');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | GENERATE TIMETABLE
-            |--------------------------------------------------------------------------
-            */
-
-            Route::post(
-                'exams/{exam}/schedule/generate',
-                [
-                    ExamScheduleController::class,
-                    'generate'
-                ]
-            )->name('exam-schedules.generate');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | TRANSPORT MANAGEMENT
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('transport')
-                ->name('transport.')
-                ->group(function () {
-
-                Route::get(
-    'reports/student-search',
-    [TransportReportController::class, 'studentSearch']
-)->name('reports.student-search');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | TRANSPORT RECORDS
-                    |--------------------------------------------------------------------------
-                    */
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | FETCH STUDENTS BY CLASS
-                    |--------------------------------------------------------------------------
-                    |
-                    | Students are loaded only after a class is selected.
-                    |
-                    */
-
-                    Route::get(
-                        'records/students-by-class',
-                        [
-                            \App\Http\Controllers\Transport\TransportRecordController::class,
-                            'studentsByClass'
-                        ]
-                    )->name('records.students-by-class');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | DOWNLOAD TRANSPORT RECORD PDF
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        'records/{transportRecord}/download-pdf',
-                        [
-                            \App\Http\Controllers\Transport\TransportRecordController::class,
-                            'downloadPdf'
-                        ]
-                    )->name('records.download-pdf');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | TRANSPORT RECORD RESOURCE ROUTES
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::resource(
-                        'records',
-                        \App\Http\Controllers\Transport\TransportRecordController::class
-                    )->parameters([
-                        'records' => 'transportRecord',
-                    ]);
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | TRANSPORT ROUTES
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::resource(
-                        'routes',
-                        \App\Http\Controllers\Transport\TransportRouteController::class
-                    )->parameters([
-                        'routes' => 'transportRoute',
-                    ]);
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | TRANSPORT VEHICLES
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::resource(
-                        'vehicles',
-                        \App\Http\Controllers\Transport\TransportVehicleController::class
-                    )->parameters([
-                        'vehicles' => 'transportVehicle',
-                    ]);
-
-                });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | MEAL MANAGEMENT
-            |--------------------------------------------------------------------------
-            */
-
-            Route::prefix('meal')
-                ->name('meal.')
-                ->group(function () {
-
-                    Route::get('/items', [
-                        MealItemController::class,
-                        'index'
-                    ])->name('items.index');
-
-                    Route::get('/items/create', [
-                        MealItemController::class,
-                        'create'
-                    ])->name('items.create');
-
-                    Route::post('/items', [
-                        MealItemController::class,
-                        'store'
-                    ])->name('items.store');
-
-                    Route::get('/items/{mealItem}/edit', [
-                        MealItemController::class,
-                        'edit'
-                    ])->name('items.edit');
-
-                    Route::put('/items/{mealItem}', [
-                        MealItemController::class,
-                        'update'
-                    ])->name('items.update');
-
-                    Route::delete('/items/{mealItem}', [
-                        MealItemController::class,
-                        'destroy'
-                    ])->name('items.destroy');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | MEAL STOCK TRANSACTIONS
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get('/items/stock', [
-                        MealStockTransactionController::class,
-                        'index'
-                    ])->name('items.stock.index');
-
-                    Route::get('/items/stock/create', [
-                        MealStockTransactionController::class,
-                        'create'
-                    ])->name('items.stock.create');
-
-                    Route::post('/items/stock', [
-                        MealStockTransactionController::class,
-                        'store'
-                    ])->name('items.stock.store');
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | MEAL LOGS
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get('/logs', [
-                        MealStockLogController::class,
-                        'index'
-                    ])->name('logs.index');
-
-                    Route::get('/logs/{mealStockLog}', [
-                        MealStockLogController::class,
-                        'show'
-                    ])->name('logs.show');
-                });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SPORTS - GAMES / EVENTS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/sports/games', [
-                GameController::class,
-                'index'
-            ])->name('sports.games.index');
-
-            Route::get('/sports/games/create', [
-                GameController::class,
-                'create'
-            ])->name('sports.games.create');
-
-            Route::post('/sports/games', [
-                GameController::class,
-                'store'
-            ])->name('sports.games.store');
-
-            Route::get('/sports/games/export', [
-                GameController::class,
-                'export'
-            ])->name('sports.games.export');
-
-            Route::get('/sports/games/{game}/edit', [
-                GameController::class,
-                'edit'
-            ])->name('sports.games.edit');
-
-            Route::get('/sports/games/{game}', [
-                GameController::class,
-                'show'
-            ])->name('sports.games.show');
-
-            Route::put('/sports/games/{game}', [
-                GameController::class,
-                'update'
-            ])->name('sports.games.update');
-
-            Route::delete('/sports/games/{game}', [
-                GameController::class,
-                'destroy'
-            ])->name('sports.games.destroy');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SPORTS - ACHIEVEMENTS
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/sports/achievements', [
-                AchievementController::class,
-                'index'
-            ])->name('sports.achievements.index');
-
-            Route::get('/sports/achievements/create', [
-                AchievementController::class,
-                'create'
-            ])->name('sports.achievements.create');
-
-            Route::post('/sports/achievements', [
-                AchievementController::class,
-                'store'
-            ])->name('sports.achievements.store');
-
-            Route::get('/sports/achievements/{achievement}/edit', [
-                AchievementController::class,
-                'edit'
-            ])->name('sports.achievements.edit');
-
-            Route::get('/sports/achievements/{achievement}', [
-                AchievementController::class,
-                'show'
-            ])->name('sports.achievements.show');
-
-            Route::put('/sports/achievements/{achievement}', [
-                AchievementController::class,
-                'update'
-            ])->name('sports.achievements.update');
-
-            Route::delete('/sports/achievements/{achievement}', [
-                AchievementController::class,
-                'destroy'
-            ])->name('sports.achievements.destroy');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SPORTS - EQUIPMENT
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/sports/equipment', [
-                EquipmentController::class,
-                'index'
-            ])->name('sports.equipment.index');
-
-            Route::get('/sports/equipment/create', [
-                EquipmentController::class,
-                'create'
-            ])->name('sports.equipment.create');
-
-            Route::post('/sports/equipment', [
-                EquipmentController::class,
-                'store'
-            ])->name('sports.equipment.store');
-
-            Route::get('/sports/equipment/{equipment}/edit', [
-                EquipmentController::class,
-                'edit'
-            ])->name('sports.equipment.edit');
-
-            Route::get('/sports/equipment/{equipment}', [
-                EquipmentController::class,
-                'show'
-            ])->name('sports.equipment.show');
-
-            Route::put('/sports/equipment/{equipment}', [
-                EquipmentController::class,
-                'update'
-            ])->name('sports.equipment.update');
-
-            Route::delete('/sports/equipment/{equipment}', [
-                EquipmentController::class,
-                'destroy'
-            ])->name('sports.equipment.destroy');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SCHOLARSHIP
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/scholarship', function () {
-                return 'Scholarship Management';
-            })->name('scholarship.index');
-
-
-
-            //REPORTS
-
-            Route::get('/admin/reports', [ReportsController::class, 'index'])
-    ->name('reports.index');
-
-    //ALL REPORTS
-        // Notice
-        Route::get('/notices', function () {
-            return 'Notice Management';
-        })->name('notices.index');
-
-Route::get('/admin/reports', [ReportsController::class, 'index'])
-    ->name('reports.index');
-
-Route::get('/reports/students', [StudentReportController::class, 'index'])
-    ->name('reports.students');
-
-    Route::get('/reports/students/pdf', [StudentReportController::class, 'pdf'])
-    ->name('reports.students.pdf');
-
-    Route::get('/reports/students/excel', function (\Illuminate\Http\Request $request) {
-
-    $filters = $request->only([
-        'search',
-        'academic_year',
-        'class',
-        'section',
-        'gender',
-        'status',
-    ]);
-
-    return Excel::download(
-        new StudentReportExport($filters),
-        'student-report.xlsx'
-    );
-
-})->name('reports.students.excel');
-
-            /* CLASS / SUBJECT MANAGEMENT */
-
-            Route::resource('classes', SchoolClassController::class)
-                ->names('classes');
-
-            Route::resource('subjects', SubjectController::class)
-                ->names('subjects');
-
-            /* LOGOUT */
-            /*
-            |--------------------------------------------------------------------------
-            | VIEW TIMETABLE
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get(
-                'exams/{exam}/schedule',
-                [
-                    ExamScheduleController::class,
-                    'index'
-                ]
-            )->name('exam-schedules.index');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | PRINT TIMETABLE
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get(
-                'exams/{exam}/schedule/print',
-                [
-                    ExamScheduleController::class,
-                    'print'
-                ]
-            )->name('exam-schedules.print');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | DOWNLOAD TIMETABLE PDF
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get(
-                'exams/{exam}/schedule/pdf',
-                [
-                    ExamScheduleController::class,
-                    'pdf'
-                ]
-            )->name('exam-schedules.pdf');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | EDIT TIMETABLE ENTRY
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get(
-                'exams/{exam}/schedule/{schedule}/edit',
-                [
-                    ExamScheduleController::class,
-                    'edit'
-                ]
-            )->name('exam-schedules.edit');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE TIMETABLE ENTRY
-            |--------------------------------------------------------------------------
-            */
-
-            Route::put(
-                'exams/{exam}/schedule/{schedule}',
-                [
-                    ExamScheduleController::class,
-                    'update'
-                ]
-            )->name('exam-schedules.update');
-
-            Route::delete(
-                'exams/{exam}/schedule/{schedule}',
-                [
-                    ExamScheduleController::class,
-                    'destroy'
-                ]
-            )->name('exam-schedules.destroy');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ADMIN LOGOUT
-            |--------------------------------------------------------------------------
-            */
-
-            Route::post('/logout', [
-                LoginController::class,
-                'logout'
-            ])
-                ->middleware('auth')
-                ->name('logout');
-
-        });
-
+        Route::post('/logout', [
+            LoginController::class,
+            'logout'
+        ])->middleware('auth')->name('logout');
     });
 
     Route::get('/reports/staff/pdf', [StaffReportController::class, 'pdf'])
@@ -2810,3 +1889,5 @@ Route::prefix('admin/meal/logs')
             'show'
         ])->name('show');
     });
+    });
+    

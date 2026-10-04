@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Add Meal Item | Admin')
@@ -43,7 +44,6 @@
                class="meal-back-btn">
 
                 <i class="fas fa-arrow-left"></i>
-
                 Back to Items
 
             </a>
@@ -118,7 +118,6 @@
                 <div class="required-info">
 
                     <span>*</span>
-
                     Required fields
 
                 </div>
@@ -170,7 +169,6 @@
                                        class="meal-form-label">
 
                                     Item Name
-
                                     <span>*</span>
 
                                 </label>
@@ -229,39 +227,39 @@
                                         </option>
 
                                         <option value="Pulses"
-    {{ old('category') === 'Pulses' ? 'selected' : '' }}>
-    Pulses
-</option>
+                                            {{ old('category') === 'Pulses' ? 'selected' : '' }}>
+                                            Pulses
+                                        </option>
 
-<option value="Vegetables"
-    {{ old('category') === 'Vegetables' ? 'selected' : '' }}>
-    Vegetables
-</option>
+                                        <option value="Vegetables"
+                                            {{ old('category') === 'Vegetables' ? 'selected' : '' }}>
+                                            Vegetables
+                                        </option>
 
-<option value="Fruits"
-    {{ old('category') === 'Fruits' ? 'selected' : '' }}>
-    Fruits
-</option>
+                                        <option value="Fruits"
+                                            {{ old('category') === 'Fruits' ? 'selected' : '' }}>
+                                            Fruits
+                                        </option>
 
-<option value="Dairy"
-    {{ old('category') === 'Dairy' ? 'selected' : '' }}>
-    Dairy
-</option>
+                                        <option value="Dairy"
+                                            {{ old('category') === 'Dairy' ? 'selected' : '' }}>
+                                            Dairy
+                                        </option>
 
-<option value="Oil"
-    {{ old('category') === 'Oil' ? 'selected' : '' }}>
-    Oil
-</option>
+                                        <option value="Oil"
+                                            {{ old('category') === 'Oil' ? 'selected' : '' }}>
+                                            Oil
+                                        </option>
 
-<option value="Spices"
-    {{ old('category') === 'Spices' ? 'selected' : '' }}>
-    Spices
-</option>
+                                        <option value="Spices"
+                                            {{ old('category') === 'Spices' ? 'selected' : '' }}>
+                                            Spices
+                                        </option>
 
-<option value="Other"
-    {{ old('category') === 'Other' ? 'selected' : '' }}>
-    Other
-</option>
+                                        <option value="Other"
+                                            {{ old('category') === 'Other' ? 'selected' : '' }}>
+                                            Other
+                                        </option>
 
                                     </select>
 
@@ -285,7 +283,6 @@
                                        class="meal-form-label">
 
                                     Unit
-
                                     <span>*</span>
 
                                 </label>
@@ -350,7 +347,6 @@
                                        class="meal-form-label">
 
                                     Minimum Stock
-
                                     <span>*</span>
 
                                 </label>
@@ -390,16 +386,13 @@
                             </div>
 
 
-                            {{-- =================================================
-                                 OPENING STOCK / INITIAL STOCK IN
-                                 ================================================= --}}
+                            {{-- OPENING STOCK --}}
                             <div class="col-md-6">
 
                                 <label for="opening_stock"
                                        class="meal-form-label">
 
                                     Opening Stock
-
                                     <span>*</span>
 
                                 </label>
@@ -545,9 +538,7 @@
 
                                 <span class="character-count">
 
-                                    <span id="descriptionCount">
-                                        0
-                                    </span>/2000
+                                    <span id="descriptionCount">0</span>/2000
 
                                 </span>
 
@@ -576,7 +567,6 @@
                            class="meal-cancel-btn">
 
                             <i class="fas fa-xmark"></i>
-
                             Cancel
 
                         </a>
@@ -586,7 +576,6 @@
                                 class="meal-save-btn">
 
                             <i class="fas fa-check"></i>
-
                             Save Item
 
                         </button>
@@ -1066,512 +1055,5 @@ select.meal-form-control {
     margin-top: 7px;
     color: #8a94a3;
     font-size: 10.5px;
-    line-height: 1.5;
+    line-height: 1.
 }
-
-.stock-in-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 7px;
-    border-radius: 5px;
-    background: #e8fbf8;
-    color: #149d88;
-    font-size: 9.5px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.stock-in-badge i {
-    font-size: 8px;
-}
-
-
-/* =========================================================
-   OPENING STOCK INFO
-   ========================================================= */
-
-.opening-stock-info {
-    min-height: 72px;
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    padding: 13px 14px;
-    border: 1px solid #d7f1f5;
-    border-radius: 9px;
-    background: linear-gradient(
-        135deg,
-        #f1fcfe,
-        #f8fdff
-    );
-}
-
-.opening-stock-info-icon {
-    width: 30px;
-    height: 30px;
-    flex: 0 0 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 7px;
-    background: #e0f8fb;
-    color: #18b5d5;
-    font-size: 11px;
-}
-
-.opening-stock-info strong {
-    display: block;
-    margin-bottom: 3px;
-    color: #287483;
-    font-size: 11.5px;
-    font-weight: 700;
-}
-
-.opening-stock-info p {
-    margin: 0;
-    color: #7c9198;
-    font-size: 10.5px;
-    line-height: 1.5;
-}
-
-
-/* =========================================================
-   FIELD HELP
-   ========================================================= */
-
-.field-help {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 7px;
-    color: #8a94a3;
-    font-size: 10.5px;
-    line-height: 1.5;
-}
-
-.field-help i {
-    color: #9ca6b3;
-    font-size: 9px;
-}
-
-
-/* =========================================================
-   FIELD ERROR
-   ========================================================= */
-
-.field-error {
-    margin-top: 5px;
-    color: #dc3545;
-    font-size: 11px;
-    line-height: 1.4;
-}
-
-
-/* =========================================================
-   DESCRIPTION CARD
-   ========================================================= */
-
-.description-card {
-    padding: 19px;
-    border: 1px solid #e8edf3;
-    border-radius: 11px;
-    background: linear-gradient(
-        180deg,
-        #fbfdff 0%,
-        #fff 100%
-    );
-    box-shadow:
-        0 3px 12px rgba(31, 41, 55, .035);
-    transition:
-        border-color .2s ease,
-        box-shadow .2s ease;
-}
-
-.description-card:focus-within {
-    border-color: #c7def9;
-    box-shadow:
-        0 5px 17px rgba(20, 124, 245, .07);
-}
-
-.description-header {
-    margin-bottom: 11px;
-}
-
-.description-title {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-}
-
-.description-title label {
-    margin: 0;
-    color: #374151;
-    font-size: 12.5px;
-    font-weight: 650;
-}
-
-.description-title > span {
-    padding: 3px 7px;
-    border-radius: 10px;
-    background: #f1f4f7;
-    color: #8b95a3;
-    font-size: 9px;
-    font-weight: 600;
-}
-
-.description-icon {
-    width: 29px;
-    height: 29px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 7px;
-    background: #edf7ff;
-    color: #147cf5;
-    font-size: 10px;
-}
-
-
-/* =========================================================
-   TEXTAREA
-   ========================================================= */
-
-.meal-textarea {
-    width: 100%;
-    min-height: 170px;
-    padding: 14px 15px !important;
-    border-radius: 8px;
-    resize: vertical;
-    color: #374151;
-    font-size: 12.5px;
-    line-height: 1.65;
-    background: #fff;
-}
-
-.meal-textarea::placeholder {
-    color: #adb5c0;
-    font-size: 12px;
-}
-
-.meal-textarea:focus {
-    border-color: #147cf5;
-    box-shadow:
-        0 0 0 3px rgba(20, 124, 245, .09);
-}
-
-
-/* =========================================================
-   DESCRIPTION FOOTER
-   ========================================================= */
-
-.description-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 8px;
-}
-
-.description-footer .field-help {
-    margin-top: 0;
-}
-
-.character-count {
-    flex-shrink: 0;
-    color: #9aa3af;
-    font-size: 10px;
-}
-
-
-/* =========================================================
-   FORM ACTIONS
-   ========================================================= */
-
-.meal-form-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 29px;
-    padding-top: 21px;
-    border-top: 1px solid #edf0f5;
-}
-
-
-/* =========================================================
-   CANCEL BUTTON
-   ========================================================= */
-
-.meal-cancel-btn {
-    min-height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 18px;
-    border: 1px solid #dfe4ea;
-    border-radius: 8px;
-    background: #fff;
-    color: #586474 !important;
-    font-size: 12.5px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all .2s ease;
-}
-
-.meal-cancel-btn i {
-    margin-right: 6px;
-    font-size: 11px;
-}
-
-.meal-cancel-btn:hover {
-    border-color: #cbd2db;
-    background: #f6f8fb;
-    color: #374151 !important;
-    transform: translateY(-1px);
-    box-shadow:
-        0 4px 10px rgba(31, 41, 55, .05);
-}
-
-
-/* =========================================================
-   SAVE BUTTON
-   ========================================================= */
-
-.meal-save-btn {
-    min-height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 21px;
-    border: 1px solid #147cf5;
-    border-radius: 8px;
-    background: linear-gradient(
-        135deg,
-        #147cf5,
-        #1268ca
-    );
-    color: #fff !important;
-    font-size: 12.5px;
-    font-weight: 650;
-    box-shadow:
-        0 5px 13px rgba(20, 124, 245, .18);
-    transition: all .2s ease;
-}
-
-.meal-save-btn i {
-    margin-right: 6px;
-    font-size: 11px;
-}
-
-.meal-save-btn:hover {
-    border-color: #1268ca;
-    background: linear-gradient(
-        135deg,
-        #1268ca,
-        #1058ad
-    );
-    color: #fff !important;
-    transform: translateY(-1px);
-    box-shadow:
-        0 8px 18px rgba(20, 124, 245, .24);
-}
-
-.meal-save-btn:focus {
-    border-color: #1268ca;
-    background: #1268ca;
-    color: #fff !important;
-    box-shadow:
-        0 0 0 3px rgba(20, 124, 245, .12);
-}
-
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media (max-width: 768px) {
-
-    .meal-page-header {
-        align-items: flex-start;
-    }
-
-    .meal-page-title {
-        font-size: 21px;
-    }
-
-    .meal-form-card-header {
-        padding: 16px 19px;
-    }
-
-    .meal-form-card-body {
-        padding: 23px;
-    }
-
-    .required-info {
-        display: none;
-    }
-
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 576px) {
-
-    .meal-form-page .container-fluid {
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-    }
-
-    .meal-page-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 14px;
-    }
-
-    .meal-heading-wrapper {
-        align-items: flex-start;
-    }
-
-    .meal-page-icon {
-        width: 42px;
-        height: 42px;
-        flex-basis: 42px;
-        font-size: 16px;
-    }
-
-    .meal-page-title {
-        font-size: 20px;
-    }
-
-    .meal-page-subtitle {
-        font-size: 12px;
-    }
-
-    .meal-back-btn {
-        width: 100%;
-    }
-
-    .meal-form-card {
-        border-radius: 10px;
-    }
-
-    .meal-form-card-header {
-        padding: 15px;
-    }
-
-    .meal-form-title p {
-        display: none;
-    }
-
-    .meal-form-card-body {
-        padding: 17px;
-    }
-
-    .section-heading {
-        margin-bottom: 18px;
-    }
-
-    .section-heading > div:last-child span {
-        display: none;
-    }
-
-    .description-card {
-        padding: 14px;
-    }
-
-    .meal-textarea {
-        min-height: 180px;
-    }
-
-    .description-footer {
-        align-items: flex-start;
-    }
-
-    .stock-in-help {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .meal-form-actions {
-        flex-direction: column-reverse;
-        align-items: stretch;
-    }
-
-    .meal-cancel-btn,
-    .meal-save-btn {
-        width: 100%;
-    }
-
-}
-
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 380px) {
-
-    .meal-page-icon {
-        width: 39px;
-        height: 39px;
-        flex-basis: 39px;
-        font-size: 14px;
-    }
-
-    .meal-page-title {
-        font-size: 18px;
-    }
-
-    .meal-form-card-body {
-        padding: 14px;
-    }
-
-    .meal-form-title h5 {
-        font-size: 14px;
-    }
-
-}
-
-</style>
-
-@endpush
-
-
-@push('scripts')
-
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const description =
-        document.getElementById('description');
-
-    const counter =
-        document.getElementById('descriptionCount');
-
-    if (!description || !counter) {
-        return;
-    }
-
-    const updateCounter = () => {
-
-        counter.textContent =
-            description.value.length;
-
-    };
-
-    description.addEventListener(
-        'input',
-        updateCounter
-    );
-
-    updateCounter();
-
-});
-
-</script>
-
-@endpush

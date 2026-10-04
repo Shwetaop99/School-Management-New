@@ -4,237 +4,1182 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\ClassTeacherAssignment;
 use App\Models\Student;
-use App\Models\SchoolSetting;
-use Illuminate\Http\JsonResponse;
+use App\Exports\StudentAttendanceExport;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
     /**
-     * Display the attendance page.
+     * =========================================================
+     * STUDENT ATTENDANCE - CLASS / SECTION DASHBOARD
+     * =========================================================
      */
-    public function index(): View
+    public function classes(Request $request)
     {
-        $academicYears = Student::query()
-            ->whereNotNull('academic_year')
-            ->where('academic_year', '!=', '')
-            ->distinct()
-            ->orderBy('academic_year', 'desc')
-            ->pluck('academic_year');
+        /*
+        |--------------------------------------------------------------------------
+        | MONTH
+        |--------------------------------------------------------------------------
+        */
 
-        $classes = Student::query()
-            ->whereNotNull('class')
-            ->where('class', '!=', '')
-            ->distinct()
-            ->orderByRaw('CAST(class AS UNSIGNED)')
-            ->pluck('class');
-
-        return view(
-            'admin.attendance.index',
-            compact(
-                'academicYears',
-                'classes'
-            )
+        $month = $request->input(
+            'month',
+            now()->format('Y-m')
         );
-    }
 
-    /**
-     * Load students according to academic year, class and section.
-     */
-    public function students(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
+        try {
+            $monthDate = Carbon::createFromFormat(
+                'Y-m',
+                $month
+            )->startOfMonth();
+        } catch (\Throwable $e) {
+            $monthDate = now()->startOfMonth();
+            $month = $monthDate->format('Y-m');
+        }
 
-            'class' => [
-                'required',
-                'string',
-                'max:50',
-            ],
-
-            'section' => [
-                'required',
-                'string',
-                'max:10',
-            ],
-
-            'attendance_date' => [
-                'required',
-                'date',
-            ],
-        ]);
-
-        $students = Student::query()
-            ->where(
-                'academic_year',
-                $validated['academic_year']
-            )
-            ->where(
-                'class',
-                $validated['class']
-            )
-            ->where(
-                'section',
-                $validated['section']
-            )
-            ->where('status', 'active')
-            ->orderByRaw(
-                'CAST(roll_number AS UNSIGNED)'
-            )
-            ->orderBy('first_name')
-            ->get([
-                'id',
-                'student_id',
-                'roll_number',
-                'first_name',
-                'middle_name',
-                'last_name',
-                'profile_image',
-                'class',
-                'section',
-            ]);
+        $monthStart = $monthDate->copy()->startOfMonth();
+        $monthEnd = $monthDate->copy()->endOfMonth();
 
         /*
-         * Get already saved attendance for this date.
-         */
-        $attendance = Attendance::query()
-            ->whereDate(
-                'attendance_date',
-                $validated['attendance_date']
-            )
-            ->whereIn(
-                'student_id',
-                $students->pluck('id')
-            )
-            ->get()
-            ->keyBy('student_id');
+        |--------------------------------------------------------------------------
+        | SELECTED DATE
+        |--------------------------------------------------------------------------
+        */
 
-        $data = $students->map(
-            function (Student $student) use ($attendance) {
+        $requestedDate = null;
 
-                $record = $attendance->get(
-                    $student->id
+        if ($request->filled('date')) {
+            try {
+                $date = Carbon::parse(
+                    $request->input('date')
+                )->startOfDay();
+
+                if (
+                    $date->gte($monthStart) &&
+                    $date->lte($monthEnd)
+                ) {
+                    $requestedDate = $date;
+                }
+            } catch (\Throwable $e) {
+                $requestedDate = null;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | DEFAULT ATTENDANCE DATE
+        |--------------------------------------------------------------------------
+        */
+
+        $attendanceDate = $requestedDate
+            ? $requestedDate->copy()
+            : now()->startOfDay();
+
+        /*
+        |--------------------------------------------------------------------------
+        | IF SELECTED DATE IS HOLIDAY
+        |--------------------------------------------------------------------------
+        */
+
+        $holidayName = $this->getHolidayName(
+            $attendanceDate
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTIVE STUDENTS GROUPED BY CLASS + SECTION
+        |--------------------------------------------------------------------------
+        */
+
+        $studentGroups = Student::query()
+            ->where(
+                'students.status',
+                'Active'
+            )
+            ->whereNotNull(
+                'students.academic_year'
+            )
+            ->whereNotNull(
+                'students.class'
+            )
+            ->whereNotNull(
+                'students.section'
+            )
+            ->select([
+                'students.academic_year',
+                'students.class',
+                'students.section',
+                DB::raw(
+                    'COUNT(students.id) AS student_count'
+                ),
+            ])
+            ->groupBy(
+                'students.academic_year',
+                'students.class',
+                'students.section'
+            )
+            ->orderBy(
+                'students.class'
+            )
+            ->orderBy(
+                'students.section'
+            )
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTOMATICALLY CREATE HOLIDAY RECORDS
+        |--------------------------------------------------------------------------
+        |
+        | If the selected date is Sunday or National Holiday,
+        | mark all active students as holiday automatically.
+        |
+        */
+
+        if ($holidayName) {
+
+            $holidayStudents = Student::query()
+                ->where(
+                    'status',
+                    'Active'
+                )
+                ->whereNotNull(
+                    'academic_year'
+                )
+                ->whereNotNull(
+                    'class'
+                )
+                ->whereNotNull(
+                    'section'
+                )
+                ->get();
+
+            foreach ($holidayStudents as $student) {
+
+                Attendance::updateOrCreate(
+                    [
+                        'student_id' =>
+                            $student->id,
+
+                        'attendance_date' =>
+                            $attendanceDate->toDateString(),
+                    ],
+                    [
+                        'academic_year' =>
+                            $student->academic_year,
+
+                        'class' =>
+                            $student->class,
+
+                        'section' =>
+                            $student->section,
+
+                        'status' =>
+                            'holiday',
+
+                        'remarks' =>
+                            $holidayName,
+
+                        'marked_by' =>
+                            auth()->id(),
+                    ]
+                );
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ATTENDANCE COUNTS FOR SELECTED DATE
+        |--------------------------------------------------------------------------
+        */
+
+        $attendanceMap = [];
+
+        foreach ($studentGroups as $group) {
+
+            $key = $this->makeClassKey(
+                $group->academic_year,
+                $group->class,
+                $group->section
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | COUNT PRESENT / ABSENT / HOLIDAY
+            |--------------------------------------------------------------------------
+            */
+
+            $counts = Attendance::query()
+                ->join(
+                    'students',
+                    'students.id',
+                    '=',
+                    'attendances.student_id'
+                )
+                ->where(
+                    'students.status',
+                    'Active'
+                )
+                ->where(
+                    'students.academic_year',
+                    $group->academic_year
+                )
+                ->where(
+                    'students.class',
+                    $group->class
+                )
+                ->where(
+                    'students.section',
+                    $group->section
+                )
+                ->whereDate(
+                    'attendances.attendance_date',
+                    $attendanceDate->toDateString()
+                )
+                ->select([
+                    DB::raw("
+                        COUNT(
+                            DISTINCT CASE
+                                WHEN LOWER(TRIM(attendances.status)) = 'present'
+                                THEN attendances.student_id
+                            END
+                        ) AS present_count
+                    "),
+
+                    DB::raw("
+                        COUNT(
+                            DISTINCT CASE
+                                WHEN LOWER(TRIM(attendances.status)) = 'absent'
+                                THEN attendances.student_id
+                            END
+                        ) AS absent_count
+                    "),
+
+                    DB::raw("
+                        COUNT(
+                            DISTINCT CASE
+                                WHEN LOWER(TRIM(attendances.status)) = 'holiday'
+                                THEN attendances.student_id
+                            END
+                        ) AS holiday_count
+                    "),
+                ])
+                ->first();
+
+            $attendanceMap[$key] = [
+
+                'present_count' =>
+                    (int) (
+                        $counts->present_count ?? 0
+                    ),
+
+                'absent_count' =>
+                    (int) (
+                        $counts->absent_count ?? 0
+                    ),
+
+                'holiday_count' =>
+                    (int) (
+                        $counts->holiday_count ?? 0
+                    ),
+
+                'attendance_date' =>
+                    $attendanceDate->toDateString(),
+
+                'holiday_name' =>
+                    $holidayName,
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLASS TEACHERS
+        |--------------------------------------------------------------------------
+        */
+
+        $teacherAssignments = ClassTeacherAssignment::query()
+            ->join(
+                'teachers',
+                'teachers.id',
+                '=',
+                'class_teacher_assignments.teacher_id'
+            )
+            ->join(
+                'classes',
+                'classes.id',
+                '=',
+                'class_teacher_assignments.class_id'
+            )
+            ->join(
+                'sections',
+                'sections.id',
+                '=',
+                'class_teacher_assignments.section_id'
+            )
+            ->select([
+                'class_teacher_assignments.academic_year',
+                'classes.class_name',
+                'sections.section_name',
+                'teachers.first_name',
+                'teachers.last_name',
+            ])
+            ->get();
+
+        $teacherMap = [];
+
+        foreach ($teacherAssignments as $assignment) {
+
+            $key = $this->makeClassKey(
+                $assignment->academic_year,
+                $assignment->class_name,
+                $assignment->section_name
+            );
+
+            $teacherName = trim(
+                $assignment->first_name .
+                ' ' .
+                $assignment->last_name
+            );
+
+            $teacherMap[$key] =
+                $teacherName ?: null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUILD CLASS CARDS
+        |--------------------------------------------------------------------------
+        */
+
+        $classCards = $studentGroups->map(
+            function ($group) use (
+                $attendanceMap,
+                $teacherMap
+            ) {
+
+                $key = $this->makeClassKey(
+                    $group->academic_year,
+                    $group->class,
+                    $group->section
                 );
 
-                return [
-                    'id' =>
-                        $student->id,
+                return (object) [
 
-                    'student_id' =>
-                        $student->student_id,
-
-                    'roll_number' =>
-                        $student->roll_number,
-
-                    'name' =>
-                        trim(
-                            $student->first_name . ' ' .
-                            ($student->middle_name ?? '') . ' ' .
-                            $student->last_name
-                        ),
-
-                    'profile_image' =>
-                        $student->profile_image,
+                    'academic_year' =>
+                        $group->academic_year,
 
                     'class' =>
-                        $student->class,
+                        $group->class,
 
                     'section' =>
-                        $student->section,
+                        $group->section,
 
-                    'attendance_status' =>
-                        $record?->status,
+                    'student_count' =>
+                        (int) $group->student_count,
 
-                    'attendance_id' =>
-                        $record?->id,
+                    'present_count' =>
+                        $attendanceMap[$key]['present_count']
+                        ?? 0,
 
-                    'remarks' =>
-                        $record?->remarks,
+                    'absent_count' =>
+                        $attendanceMap[$key]['absent_count']
+                        ?? 0,
+
+                    'holiday_count' =>
+                        $attendanceMap[$key]['holiday_count']
+                        ?? 0,
+
+                    'attendance_date' =>
+                        $attendanceMap[$key]['attendance_date']
+                        ?? null,
+
+                    'holiday_name' =>
+                        $attendanceMap[$key]['holiday_name']
+                        ?? null,
+
+                    'class_teacher' =>
+                        $teacherMap[$key]
+                        ?? null,
                 ];
             }
         );
 
-        return response()->json([
-            'success' =>
-                true,
+        /*
+        |--------------------------------------------------------------------------
+        | TOTALS
+        |--------------------------------------------------------------------------
+        */
 
-            'count' =>
-                $data->count(),
+        $totalStudents =
+            $classCards->sum('student_count');
 
-            'students' =>
-                $data,
-        ]);
+        $totalPresent =
+            $classCards->sum('present_count');
+
+        $totalAbsent =
+            $classCards->sum('absent_count');
+
+        $totalHoliday =
+            $classCards->sum('holiday_count');
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN DASHBOARD
+        |--------------------------------------------------------------------------
+        */
+
+        return view(
+            'admin.attendance.student-index',
+            compact(
+                'classCards',
+                'month',
+                'attendanceDate',
+                'totalStudents',
+                'totalPresent',
+                'totalAbsent',
+                'totalHoliday',
+                'holidayName'
+            )
+        );
     }
 
+
     /**
-     * Save attendance.
+     * =========================================================
+     * STUDENT ATTENDANCE SHEET
+     * =========================================================
      */
-    public function store(Request $request): RedirectResponse
+    public function index(Request $request)
     {
-        $validated = $request->validate([
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
+        $academic_year = $request->input(
+            'academic_year'
+        );
 
-            'class' => [
-                'required',
-                'string',
-                'max:50',
-            ],
+        $class = $request->input(
+            'class'
+        );
 
-            'section' => [
-                'required',
-                'string',
-                'max:10',
-            ],
+        $section = $request->input(
+            'section'
+        );
 
-            'attendance_date' => [
-                'required',
-                'date',
-            ],
+        if (
+            empty($academic_year) ||
+            empty($class) ||
+            empty($section)
+        ) {
+            return redirect()
+                ->route(
+                    'admin.attendance.student'
+                )
+                ->with(
+                    'error',
+                    'Please select a class and section before marking attendance.'
+                );
+        }
 
-            'attendance' => [
-                'required',
-                'array',
-            ],
+        /*
+        |--------------------------------------------------------------------------
+        | MONTH
+        |--------------------------------------------------------------------------
+        */
 
-            'attendance.*.student_id' => [
-                'required',
-                'integer',
-                'exists:students,id',
-            ],
+        $month = $request->input(
+            'month',
+            now()->format('Y-m')
+        );
 
-            'attendance.*.status' => [
-                'required',
-                'in:present,absent,leave,half_day,late',
-            ],
+        try {
+            $monthDate = Carbon::createFromFormat(
+                'Y-m',
+                $month
+            )->startOfMonth();
+        } catch (\Throwable $e) {
+            $monthDate = now()->startOfMonth();
+            $month = $monthDate->format('Y-m');
+        }
 
-            'attendance.*.remarks' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
+        $monthStart =
+            $monthDate->copy()->startOfMonth();
+
+        $monthEnd =
+            $monthDate->copy()->endOfMonth();
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTIVE STUDENTS
+        |--------------------------------------------------------------------------
+        */
+
+        $students = Student::query()
+            ->where(
+                'students.status',
+                'Active'
+            )
+            ->where(
+                'students.academic_year',
+                $academic_year
+            )
+            ->where(
+                'students.class',
+                $class
+            )
+            ->where(
+                'students.section',
+                $section
+            )
+            ->orderBy(
+                'students.roll_number'
+            )
+            ->orderBy(
+                'students.first_name'
+            )
+            ->get();
+
+        $studentIds =
+            $students->pluck('id');
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELECTED DATE
+        |--------------------------------------------------------------------------
+        */
+
+        $selectedDate =
+            $request->input('date');
+
+        if ($selectedDate) {
+
+            try {
+
+                $selectedDate = Carbon::parse(
+                    $selectedDate
+                )->format('Y-m-d');
+
+            } catch (\Throwable $e) {
+
+                $selectedDate = null;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | LATEST ATTENDANCE DATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$selectedDate) {
+
+            $latestDate = Attendance::query()
+                ->whereIn(
+                    'student_id',
+                    $studentIds
+                )
+                ->whereBetween(
+                    'attendance_date',
+                    [
+                        $monthStart->toDateString(),
+                        $monthEnd->toDateString(),
+                    ]
+                )
+                ->whereIn(
+                    DB::raw(
+                        'LOWER(TRIM(status))'
+                    ),
+                    [
+                        'present',
+                        'absent',
+                        'holiday',
+                    ]
+                )
+                ->orderByDesc(
+                    'attendance_date'
+                )
+                ->value(
+                    'attendance_date'
+                );
+
+            if ($latestDate) {
+
+                $selectedDate =
+                    Carbon::parse(
+                        $latestDate
+                    )->format('Y-m-d');
+
+            } else {
+
+                if (
+                    now()->gte($monthStart) &&
+                    now()->lte($monthEnd)
+                ) {
+                    $selectedDate =
+                        now()->format('Y-m-d');
+                } else {
+                    $selectedDate =
+                        $monthStart->format('Y-m-d');
+                }
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELECTED CARBON DATE
+        |--------------------------------------------------------------------------
+        */
+
+        $selectedCarbonDate = Carbon::parse(
+            $selectedDate
+        )->startOfDay();
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHECK SUNDAY / NATIONAL HOLIDAY
+        |--------------------------------------------------------------------------
+        */
+
+        $holidayName =
+            $this->getHolidayName(
+                $selectedCarbonDate
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTOMATICALLY MARK HOLIDAY
+        |--------------------------------------------------------------------------
+        */
+
+        if ($holidayName) {
+
+            foreach ($students as $student) {
+
+                Attendance::updateOrCreate(
+                    [
+                        'student_id' =>
+                            $student->id,
+
+                        'attendance_date' =>
+                            $selectedCarbonDate
+                                ->toDateString(),
+                    ],
+                    [
+                        'academic_year' =>
+                            $student->academic_year,
+
+                        'class' =>
+                            $student->class,
+
+                        'section' =>
+                            $student->section,
+
+                        'status' =>
+                            'holiday',
+
+                        'remarks' =>
+                            $holidayName,
+
+                        'marked_by' =>
+                            auth()->id(),
+                    ]
+                );
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | MONTHLY ATTENDANCE
+        |--------------------------------------------------------------------------
+        */
+
+        $attendanceRecords = Attendance::query()
+            ->whereIn(
+                'student_id',
+                $studentIds
+            )
+            ->whereBetween(
+                'attendance_date',
+                [
+                    $monthStart->toDateString(),
+                    $monthEnd->toDateString(),
+                ]
+            )
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | ATTENDANCE MAP
+        |--------------------------------------------------------------------------
+        */
+
+        $attendanceMap = [];
+
+        foreach ($attendanceRecords as $record) {
+
+            $dateKey = Carbon::parse(
+                $record->attendance_date
+            )->format('Y-m-d');
+
+            $attendanceMap[
+                $record->student_id
+            ][$dateKey] = strtolower(
+                trim(
+                    (string) $record->status
+                )
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | MONTHLY COUNTS
+        |--------------------------------------------------------------------------
+        */
+
+        $presentCount = $attendanceRecords
+            ->filter(function ($record) {
+
+                return strtolower(
+                    trim(
+                        (string) $record->status
+                    )
+                ) === 'present';
+            })
+            ->count();
+
+        $absentCount = $attendanceRecords
+            ->filter(function ($record) {
+
+                return strtolower(
+                    trim(
+                        (string) $record->status
+                    )
+                ) === 'absent';
+            })
+            ->count();
+
+        $holidayCount = $attendanceRecords
+            ->filter(function ($record) {
+
+                return strtolower(
+                    trim(
+                        (string) $record->status
+                    )
+                ) === 'holiday';
+            })
+            ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELECTED DATE ATTENDANCE
+        |--------------------------------------------------------------------------
+        */
+
+        $selectedAttendance = Attendance::query()
+            ->whereIn(
+                'student_id',
+                $studentIds
+            )
+            ->whereDate(
+                'attendance_date',
+                $selectedDate
+            )
+            ->get()
+            ->keyBy(
+                'student_id'
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN VIEW
+        |--------------------------------------------------------------------------
+        */
+
+        return view(
+            'admin.attendance.student',
+            compact(
+                'students',
+                'attendanceMap',
+                'academic_year',
+                'class',
+                'section',
+                'month',
+                'monthStart',
+                'monthEnd',
+                'presentCount',
+                'absentCount',
+                'holidayCount',
+                'selectedDate',
+                'selectedAttendance',
+                'holidayName'
+            )
+        );
+    }
+
+
+    /**
+     * =========================================================
+     * GET SECTIONS
+     * =========================================================
+     */
+    public function sections(Request $request)
+    {
+        $class = $request->input(
+            'class'
+        );
+
+        $sections = DB::table(
+            'sections'
+        )
+            ->join(
+                'classes',
+                'classes.id',
+                '=',
+                'sections.class_id'
+            )
+            ->when(
+                $class,
+                function ($query) use ($class) {
+
+                    $query->where(
+                        'classes.class_name',
+                        $class
+                    );
+                }
+            )
+            ->select([
+                'sections.id',
+                'sections.section_name',
+            ])
+            ->orderBy(
+                'sections.section_name'
+            )
+            ->get();
+
+        return response()->json(
+            $sections
+        );
+    }
+
+
+    /**
+     * =========================================================
+     * GET STUDENTS
+     * =========================================================
+     */
+    public function students(Request $request)
+    {
+        $request->validate([
+            'academic_year' =>
+                'required',
+
+            'class' =>
+                'required',
+
+            'section' =>
+                'required',
         ]);
 
-        foreach ($validated['attendance'] as $record) {
+        $students = Student::query()
+            ->where(
+                'status',
+                'Active'
+            )
+            ->where(
+                'academic_year',
+                $request->academic_year
+            )
+            ->where(
+                'class',
+                $request->class
+            )
+            ->where(
+                'section',
+                $request->section
+            )
+            ->orderBy(
+                'roll_number'
+            )
+            ->orderBy(
+                'first_name'
+            )
+            ->get();
 
-            Attendance::updateOrCreate(
-                [
-                    'student_id' =>
-                        $record['student_id'],
+        return response()->json(
+            $students
+        );
+    }
 
-                    'attendance_date' =>
-                        $validated['attendance_date'],
-                ],
+
+    /**
+     * =========================================================
+     * STORE ATTENDANCE
+     * =========================================================
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'academic_year' =>
+                'required|string',
+
+            'class' =>
+                'required|string',
+
+            'section' =>
+                'required|string',
+
+            'attendance' =>
+                'required|array',
+        ]);
+
+        $attendanceMonth =
+            $request->input(
+                'attendance_month'
+            ) ?: $request->input(
+                'month'
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | SAVE EVERYTHING IN ONE TRANSACTION
+        |--------------------------------------------------------------------------
+        */
+
+        DB::transaction(function () use (
+            $validated
+        ) {
+
+            foreach (
+                $validated['attendance']
+                as $studentId => $attendanceData
+            ) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | MONTHLY FORMAT ONLY
+                |--------------------------------------------------------------------------
+                */
+
+                if (!is_array($attendanceData)) {
+                    continue;
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | VERIFY STUDENT
+                |--------------------------------------------------------------------------
+                */
+
+                $student = Student::query()
+                    ->where(
+                        'id',
+                        $studentId
+                    )
+                    ->where(
+                        'status',
+                        'Active'
+                    )
+                    ->where(
+                        'academic_year',
+                        $validated['academic_year']
+                    )
+                    ->where(
+                        'class',
+                        $validated['class']
+                    )
+                    ->where(
+                        'section',
+                        $validated['section']
+                    )
+                    ->first();
+
+                if (!$student) {
+                    continue;
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | PROCESS EACH DATE
+                |--------------------------------------------------------------------------
+                */
+
+                foreach (
+                    $attendanceData
+                    as $date => $status
+                ) {
+
+                    $status = strtolower(
+                        trim(
+                            (string) $status
+                        )
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | DATE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    try {
+
+                        $attendanceDate =
+                            Carbon::createFromFormat(
+                                'Y-m-d',
+                                $date
+                            )->startOfDay();
+
+                    } catch (\Throwable $e) {
+
+                        continue;
+                    }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | SUNDAY / NATIONAL HOLIDAY
+                    |--------------------------------------------------------------------------
+                    |
+                    | User cannot mark Present or Absent
+                    | on a holiday.
+                    |
+                    */
+
+                    $holidayName =
+                        $this->getHolidayName(
+                            $attendanceDate
+                        );
+
+                    if ($holidayName) {
+
+                        Attendance::updateOrCreate(
+                            [
+                                'student_id' =>
+                                    $student->id,
+
+                                'attendance_date' =>
+                                    $attendanceDate
+                                        ->toDateString(),
+                            ],
+                            [
+                                'academic_year' =>
+                                    $validated[
+                                        'academic_year'
+                                    ],
+
+                                'class' =>
+                                    $validated['class'],
+
+                                'section' =>
+                                    $validated['section'],
+
+                                'status' =>
+                                    'holiday',
+
+                                'remarks' =>
+                                    $holidayName,
+
+                                'marked_by' =>
+                                    auth()->id(),
+                            ]
+                        );
+
+                        continue;
+                    }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | BLANK = REMOVE RECORD
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ($status === '') {
+
+                        Attendance::query()
+                            ->where(
+                                'student_id',
+                                $student->id
+                            )
+                            ->whereDate(
+                                'attendance_date',
+                                $attendanceDate
+                                    ->toDateString()
+                            )
+                            ->delete();
+
+                        continue;
+                    }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ONLY PRESENT / ABSENT / HOLIDAY
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (!in_array(
+                        $status,
+                        [
+                            'present',
+                            'absent',
+                            'holiday',
+                        ],
+                        true
+                    )) {
+                        continue;
+                    }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | SAVE / UPDATE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Attendance::updateOrCreate(
+                        [
+                            'student_id' =>
+                                $student->id,
+
+                            'attendance_date' =>
+                                $attendanceDate
+                                    ->toDateString(),
+                        ],
+                        [
+                            'academic_year' =>
+                                $validated[
+                                    'academic_year'
+                                ],
+
+                            'class' =>
+                                $validated['class'],
+
+                            'section' =>
+                                $validated['section'],
+
+                            'status' =>
+                                $status,
+
+                            'marked_by' =>
+                                auth()->id(),
+                        ]
+                    );
+                }
+            }
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$attendanceMonth) {
+            $attendanceMonth =
+                now()->format('Y-m');
+        }
+
+        return redirect()
+            ->route(
+                'admin.attendance.student.sheet',
                 [
                     'academic_year' =>
                         $validated['academic_year'],
@@ -245,48 +1190,83 @@ class AttendanceController extends Controller
                     'section' =>
                         $validated['section'],
 
-                    'status' =>
-                        $record['status'],
-
-                    'remarks' =>
-                        $record['remarks'] ?? null,
-
-                    'marked_by' =>
-                        auth()->id(),
+                    'month' =>
+                        $attendanceMonth,
                 ]
+            )
+            ->with(
+                'success',
+                'Student attendance saved successfully.'
             );
-        }
-
-        return back()->with(
-            'success',
-            'Attendance saved successfully.'
-        );
     }
 
+
     /**
-     * Update attendance.
+     * =========================================================
+     * UPDATE ATTENDANCE
+     * =========================================================
      */
     public function update(
         Request $request,
-        Attendance $attendance
-    ): RedirectResponse {
-
+        $id
+    ) {
         $validated = $request->validate([
-            'status' => [
-                'required',
-                'in:present,absent,leave,half_day,late',
-            ],
+            'status' =>
+                'required|in:present,absent,holiday',
 
-            'remarks' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
+            'remarks' =>
+                'nullable|string|max:500',
         ]);
+
+        $attendance =
+            Attendance::findOrFail($id);
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROTECT SUNDAY / NATIONAL HOLIDAYS
+        |--------------------------------------------------------------------------
+        */
+
+        $attendanceDate =
+            Carbon::parse(
+                $attendance->attendance_date
+            )->startOfDay();
+
+        $holidayName =
+            $this->getHolidayName(
+                $attendanceDate
+            );
+
+        if ($holidayName) {
+
+            $attendance->update([
+                'status' =>
+                    'holiday',
+
+                'remarks' =>
+                    $holidayName,
+
+                'marked_by' =>
+                    auth()->id(),
+            ]);
+
+            return back()->with(
+                'success',
+                $holidayName . ' marked as holiday.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | NORMAL ATTENDANCE UPDATE
+        |--------------------------------------------------------------------------
+        */
 
         $attendance->update([
             'status' =>
-                $validated['status'],
+                strtolower(
+                    $validated['status']
+                ),
 
             'remarks' =>
                 $validated['remarks'] ?? null,
@@ -301,1102 +1281,631 @@ class AttendanceController extends Controller
         );
     }
 
+
     /**
-     * Display attendance report.
+     * =========================================================
+     * ATTENDANCE REPORT
+     * =========================================================
      */
-    public function report(Request $request)
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Normal page load
-        |--------------------------------------------------------------------------
-        */
+    public function report(
+        Request $request
+    ) {
+        $query = Attendance::query()
+            ->with('student');
 
-        if (!$request->expectsJson()) {
-
-            $academicYears = Student::query()
-                ->whereNotNull('academic_year')
-                ->where('academic_year', '!=', '')
-                ->distinct()
-                ->orderBy(
-                    'academic_year',
-                    'desc'
-                )
-                ->pluck('academic_year');
-
-            $classes = Student::query()
-                ->whereNotNull('class')
-                ->where('class', '!=', '')
-                ->distinct()
-                ->orderByRaw(
-                    'CAST(class AS UNSIGNED)'
-                )
-                ->pluck('class');
-
-            return view(
-                'admin.attendance.report',
-                compact(
-                    'academicYears',
-                    'classes'
-                )
+        if ($request->filled(
+            'academic_year'
+        )) {
+            $query->where(
+                'academic_year',
+                $request->academic_year
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validate filters
-        |--------------------------------------------------------------------------
-        */
-
-        $validated = $request->validate([
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
-
-            'class' => [
-                'required',
-                'string',
-                'max:50',
-            ],
-
-            'section' => [
-                'required',
-                'string',
-                'max:10',
-            ],
-
-            'from_date' => [
-                'required',
-                'date',
-            ],
-
-            'to_date' => [
-                'required',
-                'date',
-                'after_or_equal:from_date',
-            ],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get students
-        |--------------------------------------------------------------------------
-        */
-
-        $students = Student::query()
-            ->where(
-                'academic_year',
-                $validated['academic_year']
-            )
-            ->where(
+        if ($request->filled(
+            'class'
+        )) {
+            $query->where(
                 'class',
-                $validated['class']
-            )
-            ->where(
+                $request->class
+            );
+        }
+
+        if ($request->filled(
+            'section'
+        )) {
+            $query->where(
                 'section',
-                $validated['section']
-            )
-            ->where('status', 'active')
-            ->orderByRaw(
-                'CAST(roll_number AS UNSIGNED)'
-            )
-            ->orderBy('first_name')
-            ->get([
-                'id',
-                'student_id',
-                'roll_number',
-                'first_name',
-                'middle_name',
-                'last_name',
-            ]);
+                $request->section
+            );
+        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get attendance records
-        |--------------------------------------------------------------------------
-        */
-
-        $attendanceRecords = Attendance::query()
-            ->whereBetween(
+        if ($request->filled(
+            'date'
+        )) {
+            $query->whereDate(
                 'attendance_date',
+                $request->date
+            );
+        }
+
+        if ($request->filled(
+            'status'
+        )) {
+            $query->whereRaw(
+                'LOWER(status) = ?',
                 [
-                    $validated['from_date'],
-                    $validated['to_date'],
+                    strtolower(
+                        $request->status
+                    ),
                 ]
-            )
-            ->whereIn(
-                'student_id',
-                $students->pluck('id')
+            );
+        }
+
+        $attendance = $query
+            ->orderByDesc(
+                'attendance_date'
             )
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Group attendance by student
-        |--------------------------------------------------------------------------
-        */
-
-        $attendanceByStudent =
-            $attendanceRecords->groupBy(
-                'student_id'
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Build student report
-        |--------------------------------------------------------------------------
-        */
-
-        $studentReports = $students->map(
-            function (
-                Student $student
-            ) use (
-                $attendanceByStudent
-            ) {
-
-                $records =
-                    $attendanceByStudent->get(
-                        $student->id,
-                        collect()
-                    );
-
-                $present =
-                    $records
-                        ->where(
-                            'status',
-                            'present'
-                        )
-                        ->count();
-
-                $absent =
-                    $records
-                        ->where(
-                            'status',
-                            'absent'
-                        )
-                        ->count();
-
-                $leave =
-                    $records
-                        ->where(
-                            'status',
-                            'leave'
-                        )
-                        ->count();
-
-                $halfDay =
-                    $records
-                        ->where(
-                            'status',
-                            'half_day'
-                        )
-                        ->count();
-
-                $late =
-                    $records
-                        ->where(
-                            'status',
-                            'late'
-                        )
-                        ->count();
-
-                $workingDays =
-                    $records->count();
-
-                $attendanceValue =
-                    $present +
-                    $late +
-                    ($halfDay * 0.5);
-
-                $percentage =
-                    $workingDays > 0
-                        ? round(
-                            (
-                                $attendanceValue /
-                                $workingDays
-                            ) * 100,
-                            2
-                        )
-                        : 0;
-
-                $name =
-                    trim(
-                        $student->first_name . ' ' .
-                        ($student->middle_name ?? '') . ' ' .
-                        $student->last_name
-                    );
-
-                return [
-                    'id' =>
-                        $student->id,
-
-                    'student_id' =>
-                        $student->student_id,
-
-                    'roll_number' =>
-                        $student->roll_number,
-
-                    'name' =>
-                        $name,
-
-                    'working_days' =>
-                        $workingDays,
-
-                    'present' =>
-                        $present,
-
-                    'absent' =>
-                        $absent,
-
-                    'leave' =>
-                        $leave,
-
-                    'half_day' =>
-                        $halfDay,
-
-                    'late' =>
-                        $late,
-
-                    'attendance_percentage' =>
-                        $percentage,
-                ];
-            }
+        return view(
+            'admin.attendance.report',
+            compact('attendance')
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Overall summary
-        |--------------------------------------------------------------------------
-        */
-
-        $totalStudents =
-            $studentReports->count();
-
-        $totalPresent =
-            $studentReports->sum('present');
-
-        $totalAbsent =
-            $studentReports->sum('absent');
-
-        $totalWorkingDays =
-            $studentReports->sum('working_days');
-
-        $averageAttendance =
-            $totalWorkingDays > 0
-                ? round(
-                    (
-                        $studentReports->sum(
-                            function ($student) {
-
-                                return
-                                    $student['present'] +
-                                    $student['late'] +
-                                    (
-                                        $student['half_day']
-                                        * 0.5
-                                    );
-                            }
-                        )
-                        /
-                        $totalWorkingDays
-                    ) * 100,
-                    2
-                )
-                : 0;
-
-        return response()->json([
-            'success' =>
-                true,
-
-            'academic_year' =>
-                $validated['academic_year'],
-
-            'class' =>
-                $validated['class'],
-
-            'section' =>
-                $validated['section'],
-
-            'from_date' =>
-                $validated['from_date'],
-
-            'to_date' =>
-                $validated['to_date'],
-
-            'summary' => [
-                'total_students' =>
-                    $totalStudents,
-
-                'total_present' =>
-                    $totalPresent,
-
-                'total_absent' =>
-                    $totalAbsent,
-
-                'average_attendance' =>
-                    $averageAttendance,
-            ],
-
-            'students' =>
-                $studentReports->values(),
-        ]);
     }
 
+
     /**
-     * Display attendance report for one student.
+     * =========================================================
+     * STUDENT REPORT
+     * =========================================================
      */
     public function studentReport(
-        Student $student
-    ): View {
+        $studentId,
+        Request $request
+    ) {
+        $student =
+            Student::findOrFail($studentId);
 
-        $attendances =
-            $student->attendances()
-                ->orderByDesc(
-                    'attendance_date'
-                )
-                ->get();
+        $query = Attendance::query()
+            ->where(
+                'student_id',
+                $studentId
+            );
+
+        if ($request->filled(
+            'month'
+        )) {
+
+            try {
+
+                $date =
+                    Carbon::createFromFormat(
+                        'Y-m',
+                        $request->month
+                    );
+
+                $query->whereBetween(
+                    'attendance_date',
+                    [
+                        $date
+                            ->copy()
+                            ->startOfMonth()
+                            ->toDateString(),
+
+                        $date
+                            ->copy()
+                            ->endOfMonth()
+                            ->toDateString(),
+                    ]
+                );
+
+            } catch (\Throwable $e) {
+                // Ignore invalid month.
+            }
+        }
+
+        $attendance = $query
+            ->orderBy(
+                'attendance_date'
+            )
+            ->get();
 
         return view(
             'admin.attendance.student-report',
             compact(
                 'student',
-                'attendances'
+                'attendance'
             )
         );
     }
 
+
     /**
-     * Display monthly attendance report.
-     */
+     * =========================================================
+     * MONTHLY REPORT
+     * =========================================================
+    */
     public function monthlyReport(
         Request $request
     ) {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Normal page load
-        |--------------------------------------------------------------------------
-        */
-
-        if (!$request->expectsJson()) {
-
-            $academicYears = Student::query()
-                ->whereNotNull('academic_year')
-                ->where('academic_year', '!=', '')
-                ->distinct()
-                ->orderBy(
-                    'academic_year',
-                    'desc'
-                )
-                ->pluck('academic_year');
-
-            $classes = Student::query()
-                ->whereNotNull('class')
-                ->where('class', '!=', '')
-                ->distinct()
-                ->orderByRaw(
-                    'CAST(class AS UNSIGNED)'
-                )
-                ->pluck('class');
-
-            return view(
-                'admin.attendance.monthly',
-                compact(
-                    'academicYears',
-                    'classes'
-                )
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate
-        |--------------------------------------------------------------------------
-        */
-
-        $validated = $request->validate([
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
-
-            'class' => [
-                'required',
-                'string',
-                'max:50',
-            ],
-
-            'section' => [
-                'required',
-                'string',
-                'max:10',
-            ],
-
-            'month' => [
-                'required',
-                'date_format:Y-m',
-            ],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Month dates
-        |--------------------------------------------------------------------------
-        */
-
-        $monthStart =
-            \Carbon\Carbon::createFromFormat(
-                'Y-m',
-                $validated['month']
-            )->startOfMonth();
-
-        $monthEnd =
-            $monthStart
-                ->copy()
-                ->endOfMonth();
-
-        $daysInMonth =
-            $monthStart->daysInMonth;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get students
-        |--------------------------------------------------------------------------
-        */
-
-        $students = Student::query()
-            ->where(
-                'academic_year',
-                $validated['academic_year']
-            )
-            ->where(
-                'class',
-                $validated['class']
-            )
-            ->where(
-                'section',
-                $validated['section']
-            )
-            ->where('status', 'active')
-            ->orderByRaw(
-                'CAST(roll_number AS UNSIGNED)'
-            )
-            ->orderBy('first_name')
-            ->get([
-                'id',
-                'student_id',
-                'roll_number',
-                'first_name',
-                'middle_name',
-                'last_name',
-            ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get attendance
-        |--------------------------------------------------------------------------
-        */
-
-        $attendanceRecords =
-            Attendance::query()
-                ->whereBetween(
-                    'attendance_date',
-                    [
-                        $monthStart->toDateString(),
-                        $monthEnd->toDateString(),
-                    ]
-                )
-                ->whereIn(
-                    'student_id',
-                    $students->pluck('id')
-                )
-                ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Group by student and date
-        |--------------------------------------------------------------------------
-        */
-
-        $attendanceMap = [];
-
-        foreach ($attendanceRecords as $record) {
-
-            $date =
-                \Carbon\Carbon::parse(
-                    $record->attendance_date
-                )->format('j');
-
-            $attendanceMap[
-                $record->student_id
-            ][$date] =
-                $record->status;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Student report
-        |--------------------------------------------------------------------------
-        */
-
-        $studentReports = $students->map(
-            function (
-                Student $student
-            ) use (
-                $attendanceMap,
-                $daysInMonth
-            ) {
-
-                $days = [];
-
-                $present = 0;
-                $absent = 0;
-                $leave = 0;
-                $halfDay = 0;
-                $late = 0;
-
-                for (
-                    $day = 1;
-                    $day <= $daysInMonth;
-                    $day++
-                ) {
-
-                    $status =
-                        $attendanceMap[
-                            $student->id
-                        ][$day] ?? null;
-
-                    $days[$day] =
-                        $status;
-
-                    switch ($status) {
-
-                        case 'present':
-                            $present++;
-                            break;
-
-                        case 'absent':
-                            $absent++;
-                            break;
-
-                        case 'leave':
-                            $leave++;
-                            break;
-
-                        case 'half_day':
-                            $halfDay++;
-                            break;
-
-                        case 'late':
-                            $late++;
-                            break;
-                    }
-                }
-
-                $recordedDays =
-                    $present +
-                    $absent +
-                    $leave +
-                    $halfDay +
-                    $late;
-
-                $attendanceValue =
-                    $present +
-                    $late +
-                    ($halfDay * 0.5);
-
-                $percentage =
-                    $recordedDays > 0
-                        ? round(
-                            (
-                                $attendanceValue /
-                                $recordedDays
-                            ) * 100,
-                            2
-                        )
-                        : 0;
-
-                return [
-                    'id' =>
-                        $student->id,
-
-                    'student_id' =>
-                        $student->student_id,
-
-                    'roll_number' =>
-                        $student->roll_number,
-
-                    'name' =>
-                        trim(
-                            $student->first_name . ' ' .
-                            ($student->middle_name ?? '') . ' ' .
-                            $student->last_name
-                        ),
-
-                    'days' =>
-                        $days,
-
-                    'present' =>
-                        $present,
-
-                    'absent' =>
-                        $absent,
-
-                    'leave' =>
-                        $leave,
-
-                    'half_day' =>
-                        $halfDay,
-
-                    'late' =>
-                        $late,
-
-                    'recorded_days' =>
-                        $recordedDays,
-
-                    'attendance_percentage' =>
-                        $percentage,
-                ];
-            }
+        $month = $request->input(
+            'month',
+            now()->format('Y-m')
         );
 
-        return response()->json([
-            'success' =>
-                true,
+        try {
 
-            'academic_year' =>
-                $validated['academic_year'],
+            $date =
+                Carbon::createFromFormat(
+                    'Y-m',
+                    $month
+                );
 
-            'class' =>
-                $validated['class'],
+        } catch (\Throwable $e) {
 
-            'section' =>
-                $validated['section'],
+            $date = now();
 
-            'month' =>
-                $validated['month'],
+            $month =
+                $date->format('Y-m');
+        }
 
-            'days_in_month' =>
-                $daysInMonth,
+        $attendance = Attendance::query()
+            ->with('student')
+            ->whereBetween(
+                'attendance_date',
+                [
+                    $date
+                        ->copy()
+                        ->startOfMonth()
+                        ->toDateString(),
 
-            'students' =>
-                $studentReports->values(),
-        ]);
+                    $date
+                        ->copy()
+                        ->endOfMonth()
+                        ->toDateString(),
+                ]
+            )
+            ->orderBy(
+                'attendance_date'
+            )
+            ->get();
+
+        return view(
+            'admin.attendance.monthly-report',
+            compact(
+                'attendance',
+                'month'
+            )
+        );
     }
 
+
     /**
-     * Generate printable attendance report.
+     * =========================================================
+     * PRINT REPORT
+     * =========================================================
      */
     public function printReport(
         Request $request
-    ): View {
+    ) {
+        $query = Attendance::query()
+            ->with('student');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validate filters
-        |--------------------------------------------------------------------------
-        */
+        if ($request->filled(
+            'date'
+        )) {
+            $query->whereDate(
+                'attendance_date',
+                $request->date
+            );
+        }
 
-        $validated = $request->validate([
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
+        if ($request->filled(
+            'academic_year'
+        )) {
+            $query->where(
+                'academic_year',
+                $request->academic_year
+            );
+        }
 
-            'class' => [
-                'required',
-                'string',
-                'max:50',
-            ],
+        if ($request->filled(
+            'class'
+        )) {
+            $query->where(
+                'class',
+                $request->class
+            );
+        }
 
-            'section' => [
-                'required',
-                'string',
-                'max:10',
-            ],
+        if ($request->filled(
+            'section'
+        )) {
+            $query->where(
+                'section',
+                $request->section
+            );
+        }
 
-            'from_date' => [
-                'required',
-                'date',
-            ],
+        $attendance = $query
+            ->orderBy(
+                'attendance_date'
+            )
+            ->get();
 
-            'to_date' => [
-                'required',
-                'date',
-                'after_or_equal:from_date',
-            ],
+        return view(
+            'admin.attendance.print-report',
+            compact('attendance')
+        );
+    }
+
+
+    /**
+     * =========================================================
+     * PDF
+     * =========================================================
+     */
+  public function pdf(Request $request)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | FILTERS
+    |--------------------------------------------------------------------------
+    */
+
+    $month = $request->input(
+        'month',
+        now()->format('Y-m')
+    );
+
+    $academicYear = $request->input(
+        'academic_year'
+    );
+
+    $className = $request->input(
+        'class'
+    );
+
+    $section = $request->input(
+        'section'
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | MONTH DATE
+    |--------------------------------------------------------------------------
+    */
+
+    try {
+
+        $monthDate = Carbon::createFromFormat(
+            'Y-m',
+            $month
+        )->startOfMonth();
+
+    } catch (\Exception $e) {
+
+        $monthDate = now()->startOfMonth();
+
+        $month = $monthDate->format('Y-m');
+    }
+
+    $startDate = $monthDate
+        ->copy()
+        ->startOfMonth();
+
+    $endDate = $monthDate
+        ->copy()
+        ->endOfMonth();
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENTS
+    |--------------------------------------------------------------------------
+    */
+
+    $studentsQuery = Student::query()
+        ->where('status', 'Active')
+        ->select([
+            'id',
+            'student_id',
+            'roll_number',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'academic_year',
+            'class',
+            'section',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get School Profile
-        |--------------------------------------------------------------------------
-        |
-        | This retrieves the single school profile saved from:
-        | Admin → School Profile
-        |
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | ACADEMIC YEAR FILTER
+    |--------------------------------------------------------------------------
+    */
 
-        $school = SchoolSetting::first();
+    if (!empty($academicYear)) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get students
-        |--------------------------------------------------------------------------
-        */
+        $studentsQuery->where(
+            'academic_year',
+            $academicYear
+        );
+    }
 
-        $students = Student::query()
-            ->where(
-                'academic_year',
-                $validated['academic_year']
+    /*
+    |--------------------------------------------------------------------------
+    | CLASS FILTER
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($className)) {
+
+        $studentsQuery->where(
+            'class',
+            $className
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SECTION FILTER
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($section)) {
+
+        $studentsQuery->where(
+            'section',
+            $section
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET STUDENTS
+    |--------------------------------------------------------------------------
+    */
+
+    $students = $studentsQuery
+        ->orderBy('roll_number')
+        ->orderBy('first_name')
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | ATTENDANCE
+    |--------------------------------------------------------------------------
+    */
+
+    $attendance = collect();
+
+    if ($students->isNotEmpty()) {
+
+        $studentIds = $students->pluck('id');
+
+        $attendance = Attendance::query()
+            ->whereIn(
+                'student_id',
+                $studentIds
             )
-            ->where(
-                'class',
-                $validated['class']
+            ->whereBetween(
+                'attendance_date',
+                [
+                    $startDate->toDateString(),
+                    $endDate->toDateString(),
+                ]
             )
-            ->where(
-                'section',
-                $validated['section']
-            )
-            ->where('status', 'active')
-            ->orderByRaw(
-                'CAST(roll_number AS UNSIGNED)'
-            )
-            ->orderBy('first_name')
             ->get([
                 'id',
                 'student_id',
-                'roll_number',
-                'first_name',
-                'middle_name',
-                'last_name',
-            ]);
+                'attendance_date',
+                'status',
+            ])
+            ->groupBy('student_id');
+    }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get attendance records
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | PDF
+    |--------------------------------------------------------------------------
+    */
 
-        $attendanceRecords =
-            Attendance::query()
-                ->whereBetween(
-                    'attendance_date',
-                    [
-                        $validated['from_date'],
-                        $validated['to_date'],
-                    ]
-                )
-                ->where(
-                    'academic_year',
-                    $validated['academic_year']
-                )
-                ->where(
-                    'class',
-                    $validated['class']
-                )
-                ->where(
-                    'section',
-                    $validated['section']
-                )
-                ->whereIn(
-                    'student_id',
-                    $students->pluck('id')
-                )
-                ->orderBy(
-                    'attendance_date'
-                )
-                ->get();
+    $pdf = app(
+        'dompdf.wrapper'
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Determine recorded working days
-        |--------------------------------------------------------------------------
-        */
+    $pdf->loadView(
+        'admin.attendance.pdf',
+        compact(
+            'students',
+            'attendance',
+            'month',
+            'academicYear',
+            'className',
+            'section',
+            'startDate',
+            'endDate'
+        )
+    );
 
-        $workingDates =
-            $attendanceRecords
-                ->pluck('attendance_date')
-                ->map(function ($date) {
+    return $pdf->download(
+        'student-attendance-' .
+        $month .
+        '.pdf'
+    );
+}
+    /**
+     * =========================================================
+     * EXCEL
+     * =========================================================
+     */
+ 
+/**
+ * =========================================================
+ * EXCEL
+ * =========================================================
+ */
+public function excel(
+    Request $request
+) {
+    $month = $request->input(
+        'month',
+        now()->format('Y-m')
+    );
 
-                    return \Carbon\Carbon::parse(
-                        $date
-                    )->format('Y-m-d');
+    $academicYear = $request->input(
+        'academic_year'
+    );
 
-                })
-                ->unique()
-                ->sort()
-                ->values();
+    $className = $request->input(
+        'class'
+    );
 
-        $workingDays =
-            $workingDates->count();
+    $section = $request->input(
+        'section'
+    );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Group attendance by student
-        |--------------------------------------------------------------------------
-        */
+    return Excel::download(
+        new StudentAttendanceExport(
+            $month,
+            $academicYear,
+            $className,
+            $section
+        ),
+        'student-attendance-' . $month . '.xlsx'
+    );
+}
 
-        $attendanceByStudent =
-            $attendanceRecords
-                ->groupBy('student_id');
+    /**
+     * =========================================================
+     * STUDENT NAME
+     * =========================================================
+     */
+    public function studentName(
+        $id
+    ) {
+        $student =
+            Student::find($id);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Build report
-        |--------------------------------------------------------------------------
-        */
-
-        $studentReports = $students->map(
-            function (
-                Student $student
-            ) use (
-                $attendanceByStudent,
-                $workingDays
-            ) {
-
-                $records =
-                    $attendanceByStudent->get(
-                        $student->id,
-                        collect()
-                    );
-
-                $present =
-                    $records
-                        ->where(
-                            'status',
-                            'present'
-                        )
-                        ->count();
-
-                $absent =
-                    $records
-                        ->where(
-                            'status',
-                            'absent'
-                        )
-                        ->count();
-
-                $leave =
-                    $records
-                        ->where(
-                            'status',
-                            'leave'
-                        )
-                        ->count();
-
-                $halfDay =
-                    $records
-                        ->where(
-                            'status',
-                            'half_day'
-                        )
-                        ->count();
-
-                $late =
-                    $records
-                        ->where(
-                            'status',
-                            'late'
-                        )
-                        ->count();
-
-                /*
-                |--------------------------------------------------------------------------
-                | Attendance calculation
-                |--------------------------------------------------------------------------
-                |
-                | Present = 1
-                | Late    = 1
-                | Half Day = 0.5
-                | Absent / Leave = 0
-                |
-                */
-
-                $attendanceValue =
-                    $present +
-                    $late +
-                    ($halfDay * 0.5);
-
-                $percentage =
-                    $workingDays > 0
-                        ? round(
-                            (
-                                $attendanceValue /
-                                $workingDays
-                            ) * 100,
-                            2
-                        )
-                        : 0;
-
-                $name =
-                    trim(
-                        $student->first_name . ' ' .
-                        ($student->middle_name ?? '') . ' ' .
-                        $student->last_name
-                    );
-
-                return [
-                    'id' =>
-                        $student->id,
-
-                    'student_id' =>
-                        $student->student_id,
-
-                    'roll_number' =>
-                        $student->roll_number,
-
+        if (!$student) {
+            return response()->json(
+                [
                     'name' =>
-                        $name,
+                        'Student Not Found',
+                ],
+                404
+            );
+        }
 
-                    'working_days' =>
-                        $workingDays,
-
-                    'present' =>
-                        $present,
-
-                    'absent' =>
-                        $absent,
-
-                    'leave' =>
-                        $leave,
-
-                    'half_day' =>
-                        $halfDay,
-
-                    'late' =>
-                        $late,
-
-                    'attendance_percentage' =>
-                        $percentage,
-                ];
-            }
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Summary
-        |--------------------------------------------------------------------------
-        */
-
-        $totalStudents =
-            $studentReports->count();
-
-        $totalPresent =
-            $studentReports->sum('present');
-
-        $totalAbsent =
-            $studentReports->sum('absent');
-
-        $totalLeave =
-            $studentReports->sum('leave');
-
-        $totalHalfDay =
-            $studentReports->sum('half_day');
-
-        $totalLate =
-            $studentReports->sum('late');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Overall attendance
-        |--------------------------------------------------------------------------
-        */
-
-        $totalPossibleDays =
-            $totalStudents *
-            $workingDays;
-
-        $totalAttendanceValue =
-            $totalPresent +
-            $totalLate +
-            ($totalHalfDay * 0.5);
-
-        $averageAttendance =
-            $totalPossibleDays > 0
-                ? round(
-                    (
-                        $totalAttendanceValue /
-                        $totalPossibleDays
-                    ) * 100,
-                    2
-                )
-                : 0;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return printable view
-        |--------------------------------------------------------------------------
-        */
-
-        return view(
-            'admin.attendance.print',
+        return response()->json(
             [
-                /*
-                |--------------------------------------------------------------------------
-                | School information
-                |--------------------------------------------------------------------------
-                */
-
-                'school' =>
-                    $school,
-
-                /*
-                |--------------------------------------------------------------------------
-                | Attendance information
-                |--------------------------------------------------------------------------
-                */
-
-                'students' =>
-                    $studentReports,
-
-                'academicYear' =>
-                    $validated['academic_year'],
-
-                'className' =>
-                    $validated['class'],
-
-                'section' =>
-                    $validated['section'],
-
-                'fromDate' =>
-                    \Carbon\Carbon::parse(
-                        $validated['from_date']
-                    ),
-
-                'toDate' =>
-                    \Carbon\Carbon::parse(
-                        $validated['to_date']
-                    ),
-
-                'workingDays' =>
-                    $workingDays,
-
-                'totalStudents' =>
-                    $totalStudents,
-
-                'totalPresent' =>
-                    $totalPresent,
-
-                'totalAbsent' =>
-                    $totalAbsent,
-
-                'totalLeave' =>
-                    $totalLeave,
-
-                'totalHalfDay' =>
-                    $totalHalfDay,
-
-                'totalLate' =>
-                    $totalLate,
-
-                'averageAttendance' =>
-                    $averageAttendance,
+                'name' => trim(
+                    $student->first_name .
+                    ' ' .
+                    ($student->middle_name ?? '') .
+                    ' ' .
+                    $student->last_name
+                ),
             ]
+        );
+    }
+
+
+    /**
+     * =========================================================
+     * NATIONAL HOLIDAYS
+     * =========================================================
+     *
+     * Fixed Indian National Holidays:
+     *
+     * 26 January  - Republic Day
+     * 15 August   - Independence Day
+     * 2 October   - Gandhi Jayanti
+     *
+     */
+    private function nationalHolidays(): array
+    {
+        return [
+
+            '01-26' =>
+                'Republic Day',
+
+            '08-15' =>
+                'Independence Day',
+
+            '10-02' =>
+                'Gandhi Jayanti',
+        ];
+    }
+
+
+    /**
+     * =========================================================
+     * GET HOLIDAY NAME
+     * =========================================================
+     *
+     * Returns:
+     *
+     * Sunday
+     * Republic Day
+     * Independence Day
+     * Gandhi Jayanti
+     *
+     * Otherwise returns null.
+     *
+     */
+    private function getHolidayName(
+        Carbon $date
+    ): ?string {
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUNDAY
+        |--------------------------------------------------------------------------
+        */
+
+        if ($date->isSunday()) {
+            return 'Sunday';
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | NATIONAL HOLIDAY
+        |--------------------------------------------------------------------------
+        */
+
+        $key =
+            $date->format('m-d');
+
+        return
+            $this->nationalHolidays()[$key]
+            ?? null;
+    }
+
+
+    /**
+     * =========================================================
+     * CLASS KEY
+     * =========================================================
+     */
+    private function makeClassKey(
+        $academicYear,
+        $class,
+        $section
+    ) {
+        return strtolower(
+            trim(
+                (string) $academicYear
+            ) .
+            '|' .
+            trim(
+                (string) $class
+            ) .
+            '|' .
+            trim(
+                (string) $section
+            )
         );
     }
 }

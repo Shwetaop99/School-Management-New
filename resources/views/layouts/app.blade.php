@@ -1,12 +1,16 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
     <link
     rel="stylesheet"
@@ -25,7 +29,7 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
 >
 
-<title>@yield('title', 'School Management')</title>
+    <title>@yield('title', 'School Management')</title>
 
     <style>
         * {
@@ -70,7 +74,7 @@
 
         /* =========================================================
            APP WRAPPER
-        ========================================================== */
+        ========================================================= */
 
         .app-wrapper {
             min-height: 100vh;
@@ -79,7 +83,7 @@
 
         /* =========================================================
            SIDEBAR
-        ========================================================== */
+        ========================================================= */
 
         .sidebar {
             position: fixed;
@@ -96,17 +100,16 @@
         }
 
         /* =========================================================
-           SIDEBAR BRAND
-        ========================================================== */
+           SIDEBAR LOGO
+        ========================================================= */
 
         .sidebar-brand {
-            min-height: var(--header-height);
+            height: var(--header-height);
             display: flex;
             align-items: center;
-            padding: 6px 16px;
+            padding: 0 20px;
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
-            gap: 10px;
         }
 
         .brand-icon {
@@ -131,26 +134,24 @@
         .brand-text {
             line-height: 1.2;
             min-width: 0;
+            margin-left: 10px;
         }
 
         .brand-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             color: #17233f;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .brand-subtitle {
-            font-size: 10px;
+            font-size: 11px;
             color: #718096;
             margin-top: 3px;
         }
 
         /* =========================================================
            SIDEBAR SCROLL
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-content {
             flex: 1;
@@ -169,7 +170,7 @@
 
         /* =========================================================
            SECTION TITLE
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-section-title {
             font-size: 11px;
@@ -182,7 +183,7 @@
 
         /* =========================================================
            SIDEBAR ITEM
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-item {
             width: 100%;
@@ -239,7 +240,7 @@
 
         /* =========================================================
            SUBMENU
-        ========================================================== */
+        ========================================================= */
 
         .submenu {
             display: none;
@@ -258,9 +259,7 @@
             border-radius: 7px;
             color: #6a788d;
             font-size: 13px;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
+            transition: all 0.2s ease;
             position: relative;
         }
 
@@ -280,18 +279,14 @@
         }
 
         .submenu-item.active {
-    background: #eef4ff;
-    color: #1769d1;
-    font-weight: 600;
-}
+            background: #eef4ff;
+            color: #1769d1;
+            font-weight: 600;
+        }
 
-.submenu-item.active .submenu-dot {
-    color: #1769d1;
-}
-
-        /* =========================================================
-           NESTED SCHOOL SUPPLY MENU
-        ========================================================== */
+        .submenu-item.active .submenu-dot {
+            color: #1769d1;
+        }
 
         .nested-menu-wrapper {
             margin: 2px 0 4px;
@@ -310,9 +305,7 @@
             font-size: 13px;
             text-align: left;
             cursor: pointer;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
         .nested-menu-toggle:hover {
@@ -367,7 +360,7 @@
 
         /* =========================================================
            OTHER SECTION
-        ========================================================== */
+        ========================================================= */
 
         .other-title {
             display: flex;
@@ -383,7 +376,7 @@
 
         /* =========================================================
            LOGOUT
-        ========================================================== */
+        ========================================================= */
 
         .logout-area {
             padding: 10px;
@@ -413,7 +406,7 @@
 
         /* =========================================================
            MAIN AREA
-        ========================================================== */
+        ========================================================= */
 
         .main-area {
             margin-left: var(--sidebar-width);
@@ -425,7 +418,7 @@
 
         /* =========================================================
            HEADER
-        ========================================================== */
+        ========================================================= */
 
         .top-header {
             height: var(--header-height);
@@ -464,7 +457,7 @@
 
         /* =========================================================
            SEARCH
-        ========================================================== */
+        ========================================================= */
 
         .header-search {
             margin-left: auto;
@@ -524,7 +517,7 @@
 
         /* =========================================================
            SEARCH RESULTS
-        ========================================================== */
+        ========================================================= */
 
         .search-results {
             position: absolute;
@@ -576,7 +569,7 @@
 
         /* =========================================================
            HEADER RIGHT
-        ========================================================== */
+        ========================================================= */
 
         .header-actions {
             display: flex;
@@ -595,9 +588,7 @@
         .admin-avatar {
             width: 35px;
             height: 35px;
-            min-width: 35px;
             border-radius: 50%;
-            overflow: hidden;
             background: #172b4d;
             color: white;
             display: flex;
@@ -605,14 +596,6 @@
             justify-content: center;
             font-weight: 700;
             font-size: 13px;
-        }
-
-        .admin-avatar-img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-            border-radius: 50%;
         }
 
         .admin-info {
@@ -645,7 +628,7 @@
 
         /* =========================================================
            PAGE CONTENT
-        ========================================================== */
+        ========================================================= */
 
         .main-content {
             flex: 1;
@@ -655,7 +638,7 @@
 
         /* =========================================================
            FOOTER
-        ========================================================== */
+        ========================================================= */
 
         .app-footer {
             min-height: 48px;
@@ -675,7 +658,7 @@
 
         /* =========================================================
            MOBILE OVERLAY
-        ========================================================== */
+        ========================================================= */
 
         .sidebar-overlay {
             display: none;
@@ -687,7 +670,7 @@
 
         /* =========================================================
            RESPONSIVE
-        ========================================================== */
+        ========================================================= */
 
         @media (max-width: 1000px) {
 
@@ -751,29 +734,9 @@
     </style>
 
     @stack('styles')
-    <link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
-
-@php
-    /*
-    |--------------------------------------------------------------------------
-    | DYNAMIC SCHOOL PROFILE
-    |--------------------------------------------------------------------------
-    | $school is expected to be shared from AppServiceProvider/View Composer.
-    |
-    | Logo priority:
-    | 1. Database / Cloudinary logo
-    | 2. public/images/gurukullogo.png
-    */
-
-    $schoolName = $school?->school_name ?? 'Gurukul Vidyalaya';
-
-    $schoolLogo = $school?->logo_url
-        ?: asset('images/gurukullogo.png');
-@endphp
 
 <div class="app-wrapper">
 
@@ -788,72 +751,32 @@
 
             <div class="brand-icon">
                 <img
-                    src="{{ $schoolLogo }}"
-                    alt="{{ $schoolName }} Logo"
+                    src="{{ $schoolLogo ?? asset('images/gurukullogo.png') }}"
+                    alt="{{ $schoolName ?? 'School' }} Logo"
                     onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
                 >
             </div>
 
             <div class="brand-text">
-
-                <div class="brand-title">
-                    {{ $schoolName }}
-                </div>
-
-                <div class="brand-subtitle">
-                    School Management
-                </div>
-
+                <div class="brand-title">{{ $schoolName ?? 'Gurukul Vidyalaya' }}</div>
+                <div class="brand-subtitle">School Management</div>
             </div>
-
         </div>
 
-
-        <!-- Sidebar Navigation -->
         <div class="sidebar-content">
+            @php
+                $studentMenuActive = request()->routeIs(
+                    'admin.students.*',
+                    'admin.student-profile.*',
+                    'admin.student-documents.*',
+                    'admin.id-card.*',
+                    'admin.attendance.*',
+                    'admin.student-supply-kits.*',
+                    'admin.student-general-register.*',
+                    'admin.student-health.*'
+                );
+            @endphp
 
-           @php
-    $studentMenuActive = request()->routeIs(
-        'admin.students.*',
-        'admin.student-profile.*',
-        'admin.student-documents.*',
-        'admin.id-card.*',
-        'admin.attendance.*',
-        'admin.student-supply-kits.*',
-        'admin.student-general-register.*',
-        'admin.student-health.*'
-    );
-@endphp
-
-@php
-    $user = auth()->user();
-
-    $isSuperAdmin = $user?->role?->name === 'super_admin';
-
-    $can = function (string $permission) use ($user, $isSuperAdmin): bool {
-        if ($isSuperAdmin) {
-            return true;
-        }
-
-        return $user?->hasPermission($permission) ?? false;
-    };
-
-    $canAny = function (array $permissions) use ($user, $isSuperAdmin): bool {
-        if ($isSuperAdmin) {
-            return true;
-        }
-
-        foreach ($permissions as $permission) {
-            if ($user?->hasPermission($permission)) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-@endphp
-
-            {{-- DASHBOARD --}}
             @if($can('dashboard.view'))
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" data-search="dashboard home">
                     <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
@@ -861,141 +784,49 @@
                 </a>
             @endif
 
-            {{-- STUDENT --}}
             @if($canAny(['students.view','students.create','students.edit','students.delete']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.students.*') ? 'active open' : '' }}" data-submenu="student-menu" data-search="student students">
+                <button class="sidebar-item has-submenu {{ $studentMenuActive ? 'active open' : '' }}" data-submenu="student-menu" data-search="student students">
                     <span class="sidebar-icon"><i class="fa fa-user-graduate"></i></span>
-                    <span class="sidebar-label">Student</span><span class="sidebar-arrow">›</span>
+                    <span class="sidebar-label">Student</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
-                <div class="submenu {{ request()->routeIs('admin.students.*') ? 'open' : '' }}" id="student-menu">
+                <div class="submenu {{ $studentMenuActive ? 'open' : '' }}" id="student-menu">
                     @if($can('students.view'))
                         <a href="{{ route('admin.students.index') }}" class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">All Students</a>
-                        <a href="{{ route('admin.student-profile.index') }}" class="submenu-item">Student Profile</a>
-                        <a href="{{ route('admin.student-documents.index') }}" class="submenu-item">Student Documents</a>
-                        <a href="{{ route('admin.id-card.index') }}" class="submenu-item">Student ID</a>
-                        <a href="{{ route('admin.student-supply-kits.index') }}" class="submenu-item">School Supplies(Kit)</a>
+                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Profile</a>
+                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Documents</a>
+                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student ID</a>
+                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance</a>
+                        <a href="{{ route('admin.students.index') }}" class="submenu-item">School Supplies (Kit)</a>
                         <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Report</a>
                     @endif
                     @if($can('students.create'))
                         <a href="{{ route('admin.students.index') }}" class="submenu-item">Add Student</a>
                     @endif
-                    @if($can('attendance.view'))
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance</a>
+                </div>
+            @endif
+
+            @if($canAny(['faculty.view','faculty.create','faculty.edit','faculty.delete']))
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.faculty.*') ? 'active open' : '' }}" data-submenu="faculty-menu" data-search="faculty teacher teachers">
+                    <span class="sidebar-icon"><i class="fas fa-chalkboard-teacher"></i></span>
+                    <span class="sidebar-label">Faculty (Teacher)</span>
+                    <span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.faculty.*') ? 'open' : '' }}" id="faculty-menu">
+                    @if($can('faculty.view'))
+                        <a href="{{ route('admin.faculty.index') }}" class="submenu-item">All Faculty</a>
+                    @endif
+                    @if($canAny(['faculty.create','faculty.edit']))
+                        <a href="{{ route('admin.faculty.index') }}" class="submenu-item">Teacher Allocation</a>
                     @endif
                 </div>
             @endif
 
-            {{-- FACULTY --}}
-@if($canAny(['faculty.view','faculty.create','faculty.edit','faculty.delete']))
-    <button class="sidebar-item has-submenu {{ request()->routeIs('admin.teachers.*') ? 'active open' : '' }}"
-            data-submenu="faculty-menu"
-            data-search="faculty teacher teachers">
-
-        <span class="sidebar-icon">
-            <i class="fas fa-chalkboard-teacher"></i>
-        </span>
-
-        <span class="sidebar-label">Faculty (Teacher)</span>
-        <span class="sidebar-arrow">›</span>
-    </button>
-
-    <div class="submenu {{ request()->routeIs('admin.teachers.*') ? 'open' : '' }}"
-         id="faculty-menu">
-
-        @if($can('teachers.view'))
-            <a href="{{ route('admin.teachers.index') }}" class="submenu-item">
-                All Faculty
-            </a>
-        @endif
-
-
-        {{-- Student Profile --}}
-        @if($can('students.view'))
-            <a
-                href="{{ route('admin.student-profile.index') }}"
-                class="submenu-item {{ request()->routeIs('admin.student-profile.*') ? 'active' : '' }}"
-            >
-                Student Profile
-            </a>
-        @endif
-
-
-        {{-- Student Documents --}}
-        @if($can('students.view'))
-            <a
-                href="{{ route('admin.student-documents.index') }}"
-                class="submenu-item {{ request()->routeIs('admin.student-documents.*') ? 'active' : '' }}"
-            >
-                Student Documents
-            </a>
-        @endif
-
-
-        {{-- Student ID --}}
-        @if($can('students.view'))
-            <a
-                href="{{ route('admin.id-card.index') }}"
-                class="submenu-item {{ request()->routeIs('admin.id-card.*') ? 'active' : '' }}"
-            >
-                Student ID
-            </a>
-        @endif
-
-
-        {{-- School Supplies (Kit) --}}
-        @if($can('students.view'))
-            <a
-                href="{{ route('admin.student-supply-kits.index') }}"
-                class="submenu-item {{ request()->routeIs('admin.student-supply-kits.*') ? 'active' : '' }}"
-            >
-                School Supplies(Kit)
-            </a>
-        @endif
-
-
-        {{-- Student Report --}}
-        @if($can('students.view'))
-            <a
-                href="{{ route('admin.student-general-register.index') }}"
-                class="submenu-item {{ request()->routeIs('admin.student-general-register.*') ? 'active' : '' }}"
-            >
-                Student Report
-            </a>
-        @endif
-
-
-        {{-- Add Student --}}
-        @if($can('students.create'))
-            <a
-                href="{{ route('admin.students.create') }}"
-                class="submenu-item {{ request()->routeIs('admin.students.create') ? 'active' : '' }}"
-            >
-                Add Student
-            </a>
-        @endif
-
-
-        {{-- Attendance --}}
-        @if($can('attendance.view'))
-            <a
-                href="{{ route('admin.attendance.index') }}"
-                class="submenu-item {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}"
-            >
-                Attendance
-        @if($canAny(['teachers.create','teachers.edit']))
-            <a href="{{ route('admin.teachers.index') }}" class="submenu-item">
-                Teacher Allocation
-            </a>
-        @endif
-
-    </div>
-@endif
-
-            {{-- OTHER STAFF --}}
             @if($canAny(['staff.view','staff.create','staff.edit','staff.delete']))
                 <button class="sidebar-item has-submenu {{ request()->routeIs('admin.other-staff.*') ? 'active open' : '' }}" data-submenu="other-staff-menu" data-search="other staff employees librarian accountant receptionist peon driver">
                     <span class="sidebar-icon"><i class="fas fa-users"></i></span>
-                    <span class="sidebar-label">Other Staff</span><span class="sidebar-arrow">›</span>
+                    <span class="sidebar-label">Other Staff</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
                 <div class="submenu {{ request()->routeIs('admin.other-staff.*') ? 'open' : '' }}" id="other-staff-menu">
                     @if($can('staff.view'))
@@ -1007,10 +838,11 @@
                 </div>
             @endif
 
-            {{-- TIME TABLE: no dedicated permission exists yet --}}
             @if($isSuperAdmin)
                 <button class="sidebar-item has-submenu {{ request()->routeIs('admin.timetable.*') ? 'active open' : '' }}" data-submenu="timetable-menu" data-search="time table timetable schedule">
-                    <span class="sidebar-icon"><i class="fas fa-table"></i></span><span class="sidebar-label">Time Table</span><span class="sidebar-arrow">›</span>
+                    <span class="sidebar-icon"><i class="fas fa-table"></i></span>
+                    <span class="sidebar-label">Time Table</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
                 <div class="submenu {{ request()->routeIs('admin.timetable.*') ? 'open' : '' }}" id="timetable-menu">
                     <a href="{{ route('admin.timetable.index') }}" class="submenu-item">Class Timetable</a>
@@ -1019,10 +851,11 @@
                 </div>
             @endif
 
-            {{-- ATTENDANCE --}}
             @if($canAny(['attendance.view','attendance.manage']))
                 <button class="sidebar-item has-submenu {{ request()->routeIs('admin.attendance.*') ? 'active open' : '' }}" data-submenu="attendance-menu" data-search="attendance student faculty mark">
-                    <span class="sidebar-icon"><i class="fas fa-check"></i></span><span class="sidebar-label">Attendance</span><span class="sidebar-arrow">›</span>
+                    <span class="sidebar-icon"><i class="fas fa-check"></i></span>
+                    <span class="sidebar-label">Attendance</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
                 <div class="submenu {{ request()->routeIs('admin.attendance.*') ? 'open' : '' }}" id="attendance-menu">
                     @if($can('attendance.view'))
@@ -1036,117 +869,51 @@
                 </div>
             @endif
 
-           {{-- FEES --}}
-@if($canAny(['fees.view','fees.manage']))
-    <button class="sidebar-item has-submenu {{ request()->routeIs('admin.fees.*') ? 'active open' : '' }}"
-            data-submenu="fees-menu"
-            data-search="fees fee payment">
+            @if($canAny(['fees.view','fees.manage']))
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.fees.*') ? 'active open' : '' }}" data-submenu="fees-menu" data-search="fees fee payment scholarship">
+                    <span class="sidebar-icon">₹</span>
+                    <span class="sidebar-label">Fees</span>
+                    <span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.fees.*') ? 'open' : '' }}" id="fees-menu">
+                    @if($can('fees.view'))
+                        <a href="{{ route('admin.fees.index') }}" class="submenu-item">Fee Structure</a>
+                        <a href="{{ route('admin.fees.index') }}" class="submenu-item">Student Fee</a>
+                        <a href="{{ route('admin.fees.index') }}" class="submenu-item">Payment History</a>
+                    @endif
+                    @if($isSuperAdmin)
+                        <a href="{{ route('admin.scholarship.index') }}" class="submenu-item">Scholarship</a>
+                    @endif
+                </div>
+            @endif
 
-        <span class="sidebar-icon">₹</span>
-        <span class="sidebar-label">Fees</span>
-        <span class="sidebar-arrow">›</span>
-    </button>
-
-    <div class="submenu {{ request()->routeIs('admin.fees.*') ? 'open' : '' }}"
-         id="fees-menu">
-
-        @if($can('fees.view'))
-            <a href="{{ route('admin.fees.index') }}" class="submenu-item">
-                Fee Structure
-            </a>
-
-            <a href="{{ route('admin.fees.index') }}" class="submenu-item">
-                Student Fee
-            </a>
-
-            <a href="{{ route('admin.fees.index') }}" class="submenu-item">
-                Payment History
-            </a>
-        @endif
-
-    </div>
-@endif
-            {{-- EXAM --}}
             @if($canAny(['exams.view','exams.manage']))
-    <a href="{{ route('admin.exams.index') }}"
-       class="sidebar-item {{ request()->routeIs('admin.exams.*') ? 'active' : '' }}"
-       data-search="exam examination">
+                <a href="{{ route('admin.exam.index') }}" class="sidebar-item {{ request()->routeIs('admin.exam.*') ? 'active' : '' }}" data-search="exam examination">
+                    <span class="sidebar-icon"><i class="fas fa-file-alt"></i></span>
+                    <span class="sidebar-label">Exam</span>
+                </a>
+            @endif
 
-        <span class="sidebar-icon">
-            <i class="fas fa-file-alt"></i>
-        </span>
+            @if($isSuperAdmin)
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.results.*') ? 'active open' : '' }}" data-submenu="result-menu" data-search="result results marks grade">
+                    <span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>
+                    <span class="sidebar-label">Result</span>
+                    <span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.results.*') ? 'open' : '' }}" id="result-menu">
+                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Student Result</a>
+                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Grade Management</a>
+                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Publish Result</a>
+                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Result History</a>
+                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Result Report</a>
+                </div>
+            @endif
 
-        <span class="sidebar-label">Exam</span>
-    </a>
-@endif
-            
-{{-- RESULT --}}
-@if($isSuperAdmin)
-
-    <button
-        class="sidebar-item has-submenu {{ request()->routeIs('admin.results.*') ? 'active open' : '' }}"
-        data-submenu="result-menu"
-        data-search="result results marks grade topper toppers"
-    >
-        <span class="sidebar-icon">
-            <i class="fas fa-chart-bar"></i>
-        </span>
-
-        <span class="sidebar-label">Result</span>
-
-        <span class="sidebar-arrow">›</span>
-    </button>
-
-    <div
-        class="submenu {{ request()->routeIs('admin.results.*') ? 'open' : '' }}"
-        id="result-menu"
-    >
-
-        {{-- Result Dashboard --}}
-        <a
-            href="#"
-            class="submenu-item {{ request()->routeIs('admin.results.index') ? 'active' : '' }}"
-        >
-            <i class="fas fa-home me-2"></i>
-            Result Dashboard
-        </a>
-
-        {{-- Enter Marks --}}
-        <a
-            href="#"
-            class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}"
-        >
-            <i class="fas fa-edit me-2"></i>
-            Enter Marks
-        </a>
-
-        {{-- Student Results --}}
-        <a
-            href="#"
-            class="submenu-item {{ request()->routeIs('admin.results.students') ? 'active' : '' }}"
-        >
-            <i class="fas fa-user-graduate me-2"></i>
-            Student Results
-        </a>
-
-        {{-- Top 3 Toppers --}}
-        <a
-            href="#"
-            class="submenu-item {{ request()->routeIs('admin.results.toppers') ? 'active' : '' }}"
-        >
-            <i class="fas fa-trophy me-2"></i>
-            Top 3 Toppers
-        </a>
-
-    </div>
-
-@endif
-
-
-            {{-- NOTICE --}}
             @if($canAny(['notices.view','notices.create','notices.edit','notices.delete']))
                 <button class="sidebar-item has-submenu {{ request()->routeIs('admin.notices.*') ? 'active open' : '' }}" data-submenu="notice-menu" data-search="notice notices announcement">
-                    <span class="sidebar-icon"><i class="fas fa-flag"></i></span><span class="sidebar-label">Notice</span><span class="sidebar-arrow">›</span>
+                    <span class="sidebar-icon"><i class="fas fa-flag"></i></span>
+                    <span class="sidebar-label">Notice</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
                 <div class="submenu {{ request()->routeIs('admin.notices.*') ? 'open' : '' }}" id="notice-menu">
                     @if($can('notices.view'))
@@ -1158,10 +925,11 @@
                 </div>
             @endif
 
-            {{-- LIBRARY --}}
             @if($canAny(['library.view','library.books','library.issue','library.return','library.fines','library.reports']))
                 <button class="sidebar-item has-submenu {{ request()->routeIs('admin.library.*') ? 'active open' : '' }}" data-submenu="library-menu" data-search="library books issue return fine">
-                    <span class="sidebar-icon"><i class="fas fa-book"></i></span><span class="sidebar-label">Library</span><span class="sidebar-arrow">›</span>
+                    <span class="sidebar-icon"><i class="fas fa-book"></i></span>
+                    <span class="sidebar-label">Library</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
                 <div class="submenu {{ request()->routeIs('admin.library.*') ? 'open' : '' }}" id="library-menu">
                     @if($canAny(['library.view','library.books']))
@@ -1179,224 +947,76 @@
                 </div>
             @endif
 
-            {{-- OTHER: these modules have no dedicated permissions yet --}}
             @if($isSuperAdmin)
                 <div class="sidebar-section-title other-title">OTHER</div>
 
-            <!-- Transport -->
-
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.meals.*') ? 'active open' : '' }}" data-submenu="meal-menu" data-search="meal meals food stock">
-                    <span class="sidebar-icon"><i class="fas fa-utensils"></i></span><span class="sidebar-label">Meal Management</span><span class="sidebar-arrow">›</span>
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}" data-submenu="transport-menu" data-search="transport bus vehicle">
+                    <span class="sidebar-icon"><i class="fas fa-bus"></i></span>
+                    <span class="sidebar-label">Transport</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
-                <div class="submenu {{ request()->routeIs('admin.meals.*') ? 'open' : '' }}" id="meal-menu">
-                   <a href="{{ route('admin.meal.items.stock.index') }}"
-   class="submenu-item">
-    
-    Stock In / Stock Out
-</a>
-                    <a href="{{ route('admin.meal.logs.index') }}"
-   class="submenu-item">
-   
-    Logs
-</a>
+                <div class="submenu {{ request()->routeIs('admin.transport.*') ? 'open' : '' }}" id="transport-menu">
+                    <a href="{{ route('admin.transport.index') }}" class="submenu-item">Transport Records</a>
+                    <a href="{{ route('admin.transport.index') }}" class="submenu-item">Routes</a>
+                    <a href="{{ route('admin.transport.index') }}" class="submenu-item">Vehicles</a>
                 </div>
-            <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}"
-                    data-submenu="transport-menu"
-                    data-search="transport bus vehicle">
 
-                <span class="sidebar-icon">▣</span>
-
-                <span class="sidebar-label">
-                    Transport
-                </span>
-
-                <span class="sidebar-arrow">›</span>
-
-            </button>
-
-            <div class="sidebar-item"
-     data-search="transport bus vehicle">
-    <span class="sidebar-icon">
-        <i class="fas fa-bus"></i>
-    </span>
-    <span class="sidebar-label">Transport</span>
-</div>
-
-
-            <!-- Meal Management -->
-
-            <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.meals.*') ? 'active open' : '' }}"
-                    data-submenu="meal-menu"
-                    data-search="meal meals food stock">
-
-                <span class="sidebar-icon">♨</span>
-
-                <span class="sidebar-label">
-                    Meal Management
-                </span>
-
-                <span class="sidebar-arrow">›</span>
-
-            </button>
-
-          <div class="submenu {{ request()->routeIs('admin.meal.items.*', 'admin.meal.stock.*', 'admin.meal.logs.*') ? 'open' : '' }}"
-     id="meal-menu">
-
-    <a href="{{ route('admin.meal.items.index') }}"
-       class="submenu-item {{ request()->routeIs('admin.meal.stock.*') ? 'active' : '' }}">
-        Stock In / Stock Out
-    </a>
-
-     <a href="{{ route('admin.meal.logs.index') }}"
-   class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">
-    Logs
-</a>
-
-
-</div>
-
-            
-                <a href="{{ route('admin.salary.index') }}"
-                   class="submenu-item">
-                    Salary
-                </a>
-
-            <!-- Payroll -->
-
-            <a href="{{ route('admin.salary.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.salary.index') ? 'active' : '' }}"
-               data-search="payroll salary">
-
-                <span class="sidebar-icon">▤</span>
-
-                <span class="sidebar-label">
-                    Payroll
-                </span>
-
-            </a>
-
-
-            <!-- Sports -->
-
-            <a href="{{ route('admin.sports.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}"
-               data-search="sports">
-
-                <span class="sidebar-icon">♜</span>
-
-                <span class="sidebar-label">
-                    Sports
-                </span>
-
-            </a>
-
-
-            <!-- Scholarship -->
-
-            @if (Route::has('admin.scholarship.index'))
-    <a href="{{ route('admin.scholarship.index') }}"
-       class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}">
-        <i class="bi bi-cash-coin"></i>
-        <span class="sidebar-label">Scholarship</span>
-    </a>
-@endif
-                <span class="sidebar-icon">♢</span>
-
-                <span class="sidebar-label">
-                    Scholarship
-                </span>
-
-            </a>
-
-
-            <!-- Class -->
-
-            <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.classes.*') ? 'active open' : '' }}"
-                    data-submenu="class-menu"
-                    data-search="class classes division subjects">
-
-                <span class="sidebar-icon">▦</span>
-
-                <span class="sidebar-label">
-                    Class
-                </span>
-
-                <span class="sidebar-arrow">›</span>
-
-            </button>
-
-            <div class="submenu
-                        {{ request()->routeIs('admin.classes.*') ? 'open' : '' }}"
-                 id="class-menu">
-
-                <a href="{{ route('admin.classes.index') }}"
-                   class="submenu-item">
-                    Classes
-                </a>
-
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'active open' : '' }}" data-submenu="class-menu" data-search="class classes division subjects">
-                    <span class="sidebar-icon"><i class="fas fa-chalkboard"></i></span><span class="sidebar-label">Class</span><span class="sidebar-arrow">›</span>
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.meals.*') || request()->routeIs('admin.meal.*') ? 'active open' : '' }}" data-submenu="meal-menu" data-search="meal meals food stock">
+                    <span class="sidebar-icon"><i class="fas fa-utensils"></i></span>
+                    <span class="sidebar-label">Meal Management</span>
+                    <span class="sidebar-arrow">›</span>
                 </button>
-                <div class="submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'open' : '' }}" id="class-menu">
+                <div class="submenu {{ request()->routeIs('admin.meals.*') || request()->routeIs('admin.meal.*') ? 'open' : '' }}" id="meal-menu">
+                    <a href="{{ route('admin.meal.items.index') }}" class="submenu-item {{ request()->routeIs('admin.meal.items.*') ? 'active' : '' }}">Stock In / Stock Out</a>
+                    <a href="{{ route('admin.meal.logs.index') }}" class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">Logs</a>
+                </div>
+
+                <a href="{{ route('admin.teachers.salary.index') }}" class="sidebar-item {{ request()->routeIs('admin.teachers.salary.index') ? 'active' : '' }}" data-search="payroll salary">
+                    <span class="sidebar-icon"><i class="fas fa-money-check-alt"></i></span>
+                    <span class="sidebar-label">Payroll</span>
+                </a>
+
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.sports.*') ? 'active open' : '' }}" data-submenu="sports-menu" data-search="sports games events achievements equipment">
+                    <span class="sidebar-icon"><i class="fas fa-futbol"></i></span>
+                    <span class="sidebar-label">Sports</span>
+                    <span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.sports.*') ? 'open' : '' }}" id="sports-menu">
+                    <a href="{{ route('admin.sports.games.index') }}" class="submenu-item {{ request()->routeIs('admin.sports.games.*') ? 'active' : '' }}">Games / Events</a>
+                    <a href="{{ route('admin.sports.achievements.index') }}" class="submenu-item {{ request()->routeIs('admin.sports.achievements.*') ? 'active' : '' }}">Achievements</a>
+                    <a href="{{ route('admin.sports.equipment.index') }}" class="submenu-item {{ request()->routeIs('admin.sports.equipment.*') ? 'active' : '' }}">Sports Equipments</a>
+                </div>
+
+                <a href="{{ route('admin.scholarship.index') }}" class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}" data-search="scholarship">
+                    <span class="sidebar-icon"><i class="fas fa-graduation-cap"></i></span>
+                    <span class="sidebar-label">Scholarship</span>
+                </a>
+
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.classes.*') ? 'active open' : '' }}" data-submenu="class-menu" data-search="class classes division subjects">
+                    <span class="sidebar-icon"><i class="fas fa-chalkboard"></i></span>
+                    <span class="sidebar-label">Class</span>
+                    <span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.classes.*') ? 'open' : '' }}" id="class-menu">
                     <a href="{{ route('admin.classes.index') }}" class="submenu-item">Classes</a>
-                    <a href="{{ route('admin.subjects.index') }}" class="submenu-item">Subjects</a>
+                    <a href="{{ route('admin.subjects.index') }}" class="submenu-item {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">Subjects</a>
+                </div>
+
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}" data-submenu="settings-menu" data-search="settings role permission users backup">
+                    <span class="sidebar-icon"><i class="fas fa-cog"></i></span>
+                    <span class="sidebar-label">Settings</span>
+                    <span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.settings.*') ? 'open' : '' }}" id="settings-menu">
+                    <a href="{{ route('admin.settings.index') }}" class="submenu-item">School Profile</a>
+                    <a href="{{ route('admin.settings.index') }}" class="submenu-item">User Roles & Permission</a>
+                    <a href="{{ route('admin.settings.index') }}" class="submenu-item">Backup & Recovery</a>
                 </div>
             @endif
-               <a href="{{ route('admin.subjects.index') }}" class="submenu-item">
-    Subjects
-</a>
-
-            </div>
-
-
-            <!-- Settings -->
-
-            <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}"
-                    data-submenu="settings-menu"
-                    data-search="settings role permission users backup">
-
-                <span class="sidebar-icon">⚙</span>
-
-                <span class="sidebar-label">
-                    Settings
-                </span>
-
-                <span class="sidebar-arrow">›</span>
-
-            </button>
-
-                        <div class="submenu
-                        {{ request()->routeIs('admin.settings.*') ? 'open' : '' }}"
-                 id="settings-menu">
-
-                <a href="{{ route('admin.settings.index') }}"
-                   class="submenu-item">
-                    School Profile
-                </a>
-
-                <a href="{{ route('admin.settings.roles.index') }}"
-                   class="submenu-item">
-                    User Roles & Permission
-                </a>
-
-                <a href="{{ route('admin.settings.index') }}"
-                   class="submenu-item">
-                    Backup & Recovery
-                </a>
-
-            </div>
-
-            @endif
-
         </div>
 
-        <!-- =========================================================
-             LOGOUT
-        ========================================================== -->
+
+        <!-- Logout -->
 
         <div class="logout-area">
 
@@ -1404,10 +1024,7 @@
 
                 @csrf
 
-                <button
-                    type="submit"
-                    class="logout-button"
-                >
+                <button type="submit" class="logout-button">
 
                     <span class="sidebar-icon">
     <i class="fas fa-sign-out-alt"></i>
@@ -1426,14 +1043,9 @@
     </aside>
 
 
-    <!-- =========================================================
-         MOBILE OVERLAY
-    ========================================================== -->
+    <!-- Mobile overlay -->
 
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-    ></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 
     <!-- =========================================================
@@ -1449,87 +1061,32 @@
 
         <header class="top-header">
 
-            <button
-                type="button"
-                class="menu-toggle"
-                id="menuToggle"
-                aria-label="Toggle sidebar"
-            >
-                ☰
-            </button>
-
+            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">☰</button>
 
             <div class="page-title">
                 @yield('page-title', 'Dashboard')
             </div>
 
-
-            <!-- SEARCH -->
-
             <div class="header-search">
-
                 <div class="search-box">
-
-                    <span class="search-icon">
-                        ⌕
-                    </span>
-
-                    <input
-                        type="text"
-                        id="globalSearch"
-                        class="search-input"
-                        placeholder="Search..."
-                        autocomplete="off"
-                    >
-
-                    <button
-                        type="button"
-                        class="search-button"
-                        id="searchButton"
-                        title="Search"
-                    >
-                        ↵
-                    </button>
-
+                    <span class="search-icon">⌕</span>
+                    <input type="text" id="globalSearch" class="search-input" placeholder="Search..." autocomplete="off">
+                    <button type="button" class="search-button" id="searchButton" title="Search">↵</button>
                 </div>
-
-
-                <div
-                    class="search-results"
-                    id="searchResults"
-                ></div>
-
+                <div class="search-results" id="searchResults"></div>
             </div>
 
-
-            <!-- HEADER ACTIONS -->
-
             <div class="header-actions">
-
                 <div class="admin-profile">
-
-    <div class="admin-avatar">
-        A
-    </div>
-
+                    <div class="admin-avatar">A</div>
                     <div class="admin-info">
-
-        <div class="admin-name">
-            Admin
-        </div>
-
+                        <div class="admin-name">Admin</div>
                         <div class="admin-status">
-
                             <span class="online-dot"></span>
-
                             Online
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
         </header>
@@ -1553,8 +1110,7 @@
         <footer class="app-footer">
 
             <div>
-                © {{ date('Y') }} {{ $schoolName }}.
-                All rights reserved.
+                © {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.
             </div>
 
             <div class="footer-right">
@@ -1573,492 +1129,162 @@
 ============================================================== -->
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
-    /* ==========================================================
-       SIDEBAR MAIN SUBMENUS
-    ========================================================== */
-
-    const submenuButtons =
-        document.querySelectorAll('.has-submenu');
+    const submenuButtons = document.querySelectorAll('.has-submenu');
 
     submenuButtons.forEach(function (button) {
-
         button.addEventListener('click', function () {
-
-            const submenuId =
-                this.getAttribute('data-submenu');
-
-            const submenu =
-                document.getElementById(submenuId);
+            const submenuId = this.getAttribute('data-submenu');
+            const submenu = document.getElementById(submenuId);
 
             if (!submenu) {
                 return;
             }
 
-
-            /*
-             * Close all other main submenus
-             */
+            const shouldOpen = !submenu.classList.contains('open');
 
             submenuButtons.forEach(function (otherButton) {
-
                 if (otherButton !== button) {
-
                     otherButton.classList.remove('open');
-
-                    const otherId =
-                        otherButton.getAttribute('data-submenu');
-
-                    const otherMenu =
-                        document.getElementById(otherId);
-
+                    const otherId = otherButton.getAttribute('data-submenu');
+                    const otherMenu = document.getElementById(otherId);
                     if (otherMenu) {
                         otherMenu.classList.remove('open');
                     }
-
                 }
-
             });
 
-
-            /*
-             * Toggle selected submenu
-             */
-
-            button.classList.toggle('open');
-
-            submenu.classList.toggle('open');
-
+            button.classList.toggle('open', shouldOpen);
+            submenu.classList.toggle('open', shouldOpen);
         });
-
     });
 
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-    /* ==========================================================
-       SCHOOL SUPPLIES NESTED MENU
-    ========================================================== */
-
-    const nestedMenuButtons =
-        document.querySelectorAll('.nested-menu-toggle');
-
-    nestedMenuButtons.forEach(function (button) {
-
-        button.addEventListener('click', function (event) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            const menuId =
-                this.getAttribute('data-nested-menu');
-
-            const menu =
-                document.getElementById(menuId);
-
-            if (!menu) {
-                return;
-            }
-
-            this.classList.toggle('open');
-
-            menu.classList.toggle('open');
-
-        });
-
-    });
-
-
-    /* ==========================================================
-       MOBILE SIDEBAR
-    ========================================================== */
-
-    const menuToggle =
-        document.getElementById('menuToggle');
-
-    const sidebar =
-        document.getElementById('sidebar');
-
-    const sidebarOverlay =
-        document.getElementById('sidebarOverlay');
-
-
-    if (menuToggle) {
-
+    if (menuToggle && sidebar && sidebarOverlay) {
         menuToggle.addEventListener('click', function () {
-
             sidebar.classList.toggle('mobile-open');
-
             sidebarOverlay.classList.toggle('active');
-
         });
-
     }
-
 
     if (sidebarOverlay) {
-
         sidebarOverlay.addEventListener('click', function () {
-
             sidebar.classList.remove('mobile-open');
-
             sidebarOverlay.classList.remove('active');
-
         });
-
     }
 
+    const searchInput = document.getElementById('globalSearch');
+    const searchButton = document.getElementById('searchButton');
+    const searchResults = document.getElementById('searchResults');
 
-    /* ==========================================================
-       GLOBAL SEARCH
-    ========================================================== */
-
-    const searchInput =
-        document.getElementById('globalSearch');
-
-    const searchButton =
-        document.getElementById('searchButton');
-
-    const searchResults =
-        document.getElementById('searchResults');
-
+    if (!searchInput || !searchButton || !searchResults) {
+        return;
+    }
 
     const searchableItems = [];
 
-
-    /*
-     * Main sidebar items
-     */
-
-    document
-        .querySelectorAll('.sidebar-item[data-search]')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text:
-                    item.innerText.trim(),
-
-                keywords:
-                    item.getAttribute('data-search'),
-
-                element:
-                    item
-
-            });
-
+    document.querySelectorAll('.sidebar-item[data-search]').forEach(function (item) {
+        searchableItems.push({
+            text: item.innerText.trim(),
+            keywords: item.getAttribute('data-search') || '',
+            element: item
         });
+    });
 
-
-    /*
-     * Normal submenu links
-     */
-
-    document
-        .querySelectorAll('.submenu-item')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text:
-                    item.innerText.trim(),
-
-                keywords:
-                    item.innerText.trim(),
-
-                element:
-                    item
-
-            });
-
+    document.querySelectorAll('.submenu-item').forEach(function (item) {
+        searchableItems.push({
+            text: item.innerText.trim(),
+            keywords: item.innerText.trim(),
+            element: item
         });
-
-
-    /*
-     * Nested School Supply menu
-     */
-
-    document
-        .querySelectorAll('.nested-menu-toggle')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text:
-                    item.innerText.trim(),
-
-                keywords:
-                    'school supplies kit supply items government kit templates student kit distribution',
-
-                element:
-                    item
-
-            });
-
-        });
-
-
-    /* ==========================================================
-       SEARCH FUNCTION
-    ========================================================== */
+    });
 
     function performSearch() {
-
-        const query =
-            searchInput.value
-                .trim()
-                .toLowerCase();
-
-
+        const query = searchInput.value.trim().toLowerCase();
         searchResults.innerHTML = '';
 
-
         if (!query) {
-
             searchResults.classList.remove('show');
-
             return;
-
         }
 
-
-        const matches =
-            searchableItems.filter(function (item) {
-
-                return (
-
-                    item.text
-                        .toLowerCase()
-                        .includes(query)
-
-                    ||
-
-                    item.keywords
-                        .toLowerCase()
-                        .includes(query)
-
-                );
-
-            });
-
+        const matches = searchableItems.filter(function (item) {
+            return (
+                item.text.toLowerCase().includes(query) ||
+                item.keywords.toLowerCase().includes(query)
+            );
+        });
 
         if (matches.length === 0) {
-
             searchResults.innerHTML = `
-
                 <div class="search-empty">
-
-                    No results found for
-
-                    "<strong>${query}</strong>"
-
+                    No results found for <strong>${query}</strong>
                 </div>
+            `;
+            searchResults.classList.add('show');
+            return;
+        }
 
+        matches.slice(0, 8).forEach(function (item) {
+            const result = document.createElement('div');
+            result.className = 'search-result-item';
+            result.innerHTML = `
+                <span class="search-result-icon">🔎</span>
+                <span>${item.text}</span>
             `;
 
-            searchResults.classList.add('show');
-
-            return;
-
-        }
-
-
-        matches
-            .slice(0, 8)
-            .forEach(function (item) {
-
-                const result =
-                    document.createElement('div');
-
-                result.className =
-                    'search-result-item';
-
-
-                result.innerHTML = `
-
-                    <span class="search-result-icon">
-                        🔎
-                    </span>
-
-                    <span>
-                        ${item.text}
-                    </span>
-
-                `;
-
-
-                result.addEventListener('click', function () {
-
-
-                    /*
-                     * Normal link
-                     */
-
-                    if (
-
-                        item.element.tagName === 'A'
-
-                        &&
-
-                        item.element.href
-
-                    ) {
-
-                        window.location.href =
-                            item.element.href;
-
-                        return;
-
-                    }
-
-
-                    /*
-                     * Main parent menu
-                     */
-
-                    if (
-
-                        item.element.classList
-                            .contains('has-submenu')
-
-                    ) {
-
-                        item.element.click();
-
-                    }
-
-
-                    /*
-                     * Nested menu
-                     */
-
-                    if (
-
-                        item.element.classList
-                            .contains('nested-menu-toggle')
-
-                    ) {
-
-                        item.element.click();
-
-                    }
-
-
-                    searchResults.classList.remove('show');
-
-                    searchInput.value =
-                        item.text;
-
-                });
-
-
-                searchResults.appendChild(result);
-
-            });
-
-
-        searchResults.classList.add('show');
-
-    }
-
-
-    /* ==========================================================
-       SEARCH WHILE TYPING
-    ========================================================== */
-
-    searchInput.addEventListener(
-        'input',
-        performSearch
-    );
-
-
-    /* ==========================================================
-       SEARCH BUTTON
-    ========================================================== */
-
-    searchButton.addEventListener(
-        'click',
-        performSearch
-    );
-
-
-    /* ==========================================================
-       ENTER TO SEARCH
-    ========================================================== */
-
-    searchInput.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (event.key === 'Enter') {
-
-                event.preventDefault();
-
-                performSearch();
-
-            }
-
-        }
-    );
-
-
-    /* ==========================================================
-       CLOSE SEARCH RESULTS
-    ========================================================== */
-
-    document.addEventListener(
-        'click',
-        function (event) {
-
-            if (
-                !event.target.closest('.header-search')
-            ) {
+            result.addEventListener('click', function () {
+                if (item.element.tagName === 'A' && item.element.href) {
+                    window.location.href = item.element.href;
+                    return;
+                }
+
+                if (item.element.classList.contains('has-submenu')) {
+                    item.element.click();
+                }
 
                 searchResults.classList.remove('show');
+                searchInput.value = item.text;
+            });
 
-            }
+            searchResults.appendChild(result);
+        });
 
+        searchResults.classList.add('show');
+    }
+
+    searchInput.addEventListener('input', performSearch);
+    searchButton.addEventListener('click', performSearch);
+
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            performSearch();
         }
-    );
+    });
 
-
-    /* ==========================================================
-       CTRL + K SEARCH SHORTCUT
-    ========================================================== */
-
-    document.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (
-
-                (event.ctrlKey || event.metaKey)
-
-                &&
-
-                event.key.toLowerCase() === 'k'
-
-            ) {
-
-                event.preventDefault();
-
-                searchInput.focus();
-
-                searchInput.select();
-
-            }
-
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.header-search')) {
+            searchResults.classList.remove('show');
         }
-    );
+    });
 
+    document.addEventListener('keydown', function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            searchInput.focus();
+            searchInput.select();
+        }
+    });
 });
-
 </script>
 
-
 @stack('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>

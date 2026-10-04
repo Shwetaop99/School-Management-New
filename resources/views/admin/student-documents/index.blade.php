@@ -1347,17 +1347,7 @@
                 summary for active students.
             </p>
 
-            <a href="{{ route('admin.caste-report.index') }}"
-               class="document-button">
-
-                <span>
-                    View Report
-                </span>
-
-                <i class="bi bi-arrow-right"></i>
-
-            </a>
-
+            
         </div>
 
     </div>

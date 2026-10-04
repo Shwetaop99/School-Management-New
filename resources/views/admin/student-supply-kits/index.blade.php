@@ -1,4 +1,4 @@
-```blade
+
 @extends('layouts.app')
 
 @section('title', 'Student Kit Distribution')
@@ -41,7 +41,7 @@
 
 
         <a
-            href="{{ route('admin.student-supply-kits.create') }}"
+            href="{{ route('admin.students.supplies.create')}}"
             class="btn btn-primary px-4"
         >
             <i class="bi bi-plus-circle-fill me-1"></i>
@@ -281,7 +281,7 @@
 
             <form
                 method="GET"
-                action="{{ route('admin.student-supply-kits.index') }}"
+                action="{{ route('admin.students.supplies.index') }}"
             >
 
                 <div class="row g-3 align-items-end">
@@ -400,7 +400,7 @@
                             </button>
 
                             <a
-                                href="{{ route('admin.student-supply-kits.index') }}"
+                                href="{{ route('admin.students.supplies.index') }}"
                                 class="btn btn-outline-secondary"
                                 title="Clear Filters"
                             >
@@ -905,7 +905,7 @@
                         </p>
 
                         <a
-                            href="{{ route('admin.student-supply-kits.index') }}"
+                            href="{{ route('admin.students.supplies.index') }}"
                             class="btn btn-outline-secondary"
                         >
                             <i class="bi bi-arrow-counterclockwise me-1"></i>
@@ -919,7 +919,7 @@
                         </p>
 
                         <a
-                            href="{{ route('admin.student-supply-kits.create') }}"
+                            href="{{ route('admin.students.supplies.create') }}"
                             class="btn btn-primary"
                         >
                             <i class="bi bi-plus-circle me-1"></i>

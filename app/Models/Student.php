@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 use App\Models\IdCard;
 use App\Models\SchoolLeavingCertificate;
+use App\Models\Attendance;
+use App\Models\StudentSupplyKit;
+use App\Models\StudentHealthRecord;
 
 class Student extends Model
 {
@@ -16,11 +19,17 @@ class Student extends Model
 
     protected $table = 'students';
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mass Assignable Fields
+    |--------------------------------------------------------------------------
+    */
     protected $fillable = [
 
         // =====================================================
         // BASIC INFORMATION
         // =====================================================
+
         'student_id',
         'roll_number',
 
@@ -30,8 +39,8 @@ class Student extends Model
         'marathi_name',
 
         'gender',
-'date_of_birth',
-'birth_place',
+        'date_of_birth',
+        'birth_place',
 
         'aadhar_card_no',
         'phone',
@@ -42,6 +51,7 @@ class Student extends Model
         // =====================================================
         // ACADEMIC INFORMATION
         // =====================================================
+
         'academic_year',
         'class',
         'section',
@@ -67,6 +77,7 @@ class Student extends Model
         // =====================================================
         // PARENTS / GUARDIAN
         // =====================================================
+
         'father_name',
         'father_phone',
         'father_occupation',
@@ -82,6 +93,7 @@ class Student extends Model
         // =====================================================
         // PREVIOUS SCHOOL
         // =====================================================
+
         'previous_school_name',
         'previous_school_address',
         'previous_school_class',
@@ -95,6 +107,7 @@ class Student extends Model
         // =====================================================
         // ADDRESS
         // =====================================================
+
         'address',
         'country',
         'state',
@@ -104,6 +117,11 @@ class Student extends Model
         'pincode',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Attribute Casting
+    |--------------------------------------------------------------------------
+    */
     protected function casts(): array
     {
         return [
@@ -112,9 +130,11 @@ class Student extends Model
         ];
     }
 
-    /**
-     * Full student name.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Full Student Name
+    |--------------------------------------------------------------------------
+    */
     public function getFullNameAttribute(): string
     {
         return trim(
@@ -122,58 +142,87 @@ class Student extends Model
                 $this->first_name,
                 $this->middle_name,
                 $this->last_name,
-            ])->filter()->implode(' ')
+            ])
+                ->filter()
+                ->implode(' ')
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Student Relationship
+    |--------------------------------------------------------------------------
+    */
     public function student()
-{
-    return $this->belongsTo(Student::class, 'student_id');
-}
+    {
+        return $this->belongsTo(
+            Student::class,
+            'student_id'
+        );
+    }
 
-/**
- * Student can have multiple ID cards.
- */
-public function idCards(): HasMany
-{
-    return $this->hasMany(
-        IdCard::class,
-        'student_id'
-    );
-}
+    /*
+    |--------------------------------------------------------------------------
+    | ID Cards
+    |--------------------------------------------------------------------------
+    */
+    public function idCards(): HasMany
+    {
+        return $this->hasMany(
+            IdCard::class,
+            'student_id'
+        );
+    }
 
-/**
- * Student attendance records.
- */
-public function attendances(): HasMany
-{
-    return $this->hasMany(Attendance::class);
-}
+    /*
+    |--------------------------------------------------------------------------
+    | Attendance Records
+    |--------------------------------------------------------------------------
+    */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(
+            Attendance::class,
+            'student_id'
+        );
+    }
 
-public function schoolLeavingCertificates()
-{
-    return $this->hasMany(SchoolLeavingCertificate::class);
-}
+    /*
+    |--------------------------------------------------------------------------
+    | School Leaving Certificates
+    |--------------------------------------------------------------------------
+    */
+    public function schoolLeavingCertificates(): HasMany
+    {
+        return $this->hasMany(
+            SchoolLeavingCertificate::class,
+            'student_id'
+        );
+    }
 
-public function supplyKits()
-{
-    return $this->hasMany(
-        StudentSupplyKit::class,
-        'student_id'
-    );
-}
+    /*
+    |--------------------------------------------------------------------------
+    | Student Supply Kits
+    |--------------------------------------------------------------------------
+    */
+    public function supplyKits(): HasMany
+    {
+        return $this->hasMany(
+            StudentSupplyKit::class,
+            'student_id'
+        );
+    }
 
-/*
-|--------------------------------------------------------------------------
-| Health Records
-|--------------------------------------------------------------------------
-*/
-
-public function healthRecords(): HasMany
-{
-    return $this->hasMany(
-        StudentHealthRecord::class,
-        'student_id'
-    );
-}
+    /*
+    |--------------------------------------------------------------------------
+    | Health Records
+    |--------------------------------------------------------------------------
+    */
+    public function healthRecords(): HasMany
+    {
+        return $this->hasMany(
+            StudentHealthRecord::class,
+            'student_id'
+        );
+    }
 }
