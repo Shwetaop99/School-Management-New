@@ -564,6 +564,8 @@
 
 .card-field {
 
+
+
     position: absolute;
 
     overflow: hidden;
@@ -580,6 +582,11 @@
 
 }
 
+.card-field strong {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -588,9 +595,19 @@
 */
 
 .card-field-photo {
-
+    position: absolute;
     object-fit: cover;
+    display: block;
+}
 
+.card-field-photo.photo-circle {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.card-field-photo.photo-square {
+    border-radius: 0;
+    overflow: hidden;
 }
 
 
@@ -1156,8 +1173,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.createElement('img');
 
 
-                image.className =
-                    'card-field card-field-photo';
+                const photoShape =
+    fieldData.photo_shape ||
+    fieldData.photoShape ||
+    'circle';
+
+image.className =
+    'card-field card-field-photo ' +
+    (photoShape === 'square'
+        ? 'photo-square'
+        : 'photo-circle');
 
 
                 const photo =
@@ -1193,48 +1218,233 @@ document.addEventListener('DOMContentLoaded', function () {
                TEXT
             ================================================== */
 
-            const value =
-                getStudentFieldValue(
-                    student,
-                    key
-                );
+            /* =================================================
+   TEXT
+================================================== */
+
+const value =
+    getStudentFieldValue(
+        student,
+        key
+    );
+
+if (
+    value === null ||
+    value === undefined ||
+    String(value).trim() === ''
+) {
+    return;
+}
 
 
-            if (
-                value === null ||
-                value === undefined ||
-                String(value).trim() === ''
-            ) {
+/*
+|--------------------------------------------------------------------------
+| FORMAT DATE VALUES
+|--------------------------------------------------------------------------
+*/
 
-                return;
+/*
+|--------------------------------------------------------------------------
+| FORMAT DATE VALUES
+|--------------------------------------------------------------------------
+*/
 
-            }
+let displayValue = String(value);
+
+if (
+    key === 'date_of_birth' ||
+    key === 'dob'
+) {
+
+    let dateString =
+        String(value).trim();
+
+    /*
+     * Laravel can return:
+     * 2013-12-30T18:30:00.000000Z
+     *
+     * JavaScript may not parse the
+     * 6-digit microseconds correctly.
+     *
+     * Convert:
+     * .000000Z
+     * to:
+     * .000Z
+     */
+    dateString =
+        dateString.replace(
+            /\.(\d{3})\d+Z$/,
+            '.$1Z'
+        );
+
+    const match =
+        dateString.match(
+            /^(\d{4})-(\d{2})-(\d{2})/
+        );
+
+    if (match) {
+
+        displayValue =
+            match[3] +
+            '/' +
+            match[2] +
+            '/' +
+            match[1];
+
+    }
+
+}
 
 
-            const element =
-                document.createElement('div');
+/*
+|--------------------------------------------------------------------------
+| FALLBACK LABELS
+|--------------------------------------------------------------------------
+*/
+
+const fallbackLabels = {
+
+    full_name: 'Student Name',
+    student_name: 'Student Name',
+
+    first_name: 'First Name',
+    middle_name: 'Middle Name',
+    last_name: 'Last Name',
+
+    student_id: 'Student ID',
+
+    register_no: 'GR No',
+    gr_no: 'GR No',
+
+    class: 'Class',
+    section: 'Section',
+
+    roll_number: 'Roll No',
+    roll_no: 'Roll No',
+
+    date_of_birth: 'DOB',
+    dob: 'DOB',
+
+    blood_group: 'Blood Group',
+
+    gender: 'Gender',
+
+    father_name: 'Father Name',
+    mother_name: 'Mother Name',
+
+    phone: 'Phone',
+
+    address: 'Address',
+
+    academic_year: 'Academic Year'
+};
 
 
-            element.className =
-                'card-field';
+/*
+|--------------------------------------------------------------------------
+| USE SAVED LABEL
+|--------------------------------------------------------------------------
+*/
+
+let label =
+    String(fieldData.label || '').trim();
 
 
-            element.textContent =
-                String(value);
+/*
+|--------------------------------------------------------------------------
+| If saved label is missing,
+| use automatic fallback
+|--------------------------------------------------------------------------
+*/
+
+if (!label) {
+
+    label =
+        fallbackLabels[key] || '';
+
+}
 
 
-            applyFieldPosition(
-                element,
-                fieldData
-            );
+/*
+|--------------------------------------------------------------------------
+| Remove duplicate colon
+|--------------------------------------------------------------------------
+*/
+
+label =
+    label.replace(/:\s*$/, '');
 
 
-            cardFields.appendChild(
-                element
-            );
+/*
+|--------------------------------------------------------------------------
+| CREATE FIELD
+|--------------------------------------------------------------------------
+*/
 
-        });
+const element =
+    document.createElement('div');
 
+element.className =
+    'card-field';
+
+
+/*
+|--------------------------------------------------------------------------
+| RENDER LABEL + VALUE
+|--------------------------------------------------------------------------
+*/
+
+if (label) {
+
+    const labelElement =
+        document.createElement('strong');
+
+    labelElement.textContent =
+        label + ':';
+
+    const valueElement =
+        document.createElement('span');
+
+    valueElement.textContent =
+        ' ' + displayValue;
+
+    element.appendChild(
+        labelElement
+    );
+
+    element.appendChild(
+        valueElement
+    );
+
+} else {
+
+    element.textContent =
+        displayValue;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| APPLY POSITION
+|--------------------------------------------------------------------------
+*/
+
+applyFieldPosition(
+    element,
+    fieldData
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| ADD TO CARD
+|--------------------------------------------------------------------------
+*/
+
+cardFields.appendChild(
+    element
+);
     }
 
 
@@ -1242,7 +1452,6 @@ document.addEventListener('DOMContentLoaded', function () {
     renderCard();
 
 });
-
 </script>
 
 @endsection

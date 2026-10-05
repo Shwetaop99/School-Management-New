@@ -2092,321 +2092,117 @@
     </div>
 
 </div>
-
-
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* =========================================================
-       TABS
-    ========================================================= */
+    const form = document.getElementById('studentSearchForm');
+    const input = document.getElementById('studentId');
+    const button = document.getElementById('searchStudentBtn');
+    const loading = document.getElementById('loadingBox');
+    const profile = document.getElementById('studentProfileContent');
+    const empty = document.getElementById('emptyStudentState');
+    const alertArea = document.getElementById('alertArea');
 
-    const tabButtons =
-        document.querySelectorAll(
-            '#studentTabs [data-bs-target]'
-        );
-
-    const tabPanes =
-        document.querySelectorAll(
-            '#studentProfileContent .tab-pane'
-        );
-
-    function activateTab(button) {
-
-        if (!button) {
-            return;
-        }
-
-        const targetSelector =
-            button.getAttribute('data-bs-target');
-
-        if (!targetSelector) {
-            return;
-        }
-
-        tabButtons.forEach(function (tab) {
-
-            tab.classList.remove('active');
-
-        });
-
-        tabPanes.forEach(function (pane) {
-
-            pane.classList.remove('active');
-
-        });
-
-        button.classList.add('active');
-
-        const targetPane =
-            document.querySelector(targetSelector);
-
-        if (targetPane) {
-
-            targetPane.classList.add('active');
-
-        }
-
-    }
-
-    tabButtons.forEach(function (button) {
-
-        button.addEventListener(
-            'click',
-            function (event) {
-
-                event.preventDefault();
-
-                activateTab(this);
-
-            }
-        );
-
-    });
-
-
-    /* =========================================================
-       ALERT
-    ========================================================= */
-
-    function showAlert(
-        message,
-        type = 'danger'
-    ) {
-
-        const alertArea =
-            document.getElementById('alertArea');
-
-        if (!alertArea) {
-            return;
-        }
+    function showAlert(message, type = 'danger') {
+        if (!alertArea) return;
 
         alertArea.innerHTML = `
-
-            <div
-                class="alert alert-${type} alert-dismissible fade show"
-                role="alert"
-            >
-
+            <div class="alert alert-${type} alert-dismissible fade show">
                 ${message}
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close">
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
                 </button>
-
             </div>
-
         `;
-
     }
-
-
-    /* =========================================================
-       SAFE VALUE
-    ========================================================= */
-
-    function valueOrDash(value) {
-
-        if (
-            value === null ||
-            value === undefined ||
-            value === ''
-        ) {
-
-            return '-';
-
-        }
-
-        return value;
-
-    }
-
-
-    /* =========================================================
-       SET TEXT
-    ========================================================= */
 
     function setText(id, value) {
+        const el = document.getElementById(id);
 
-        const element =
-            document.getElementById(id);
-
-        if (element) {
-
-            element.textContent =
-                valueOrDash(value);
-
+        if (el) {
+            el.textContent =
+                value === null ||
+                value === undefined ||
+                value === ''
+                    ? '-'
+                    : value;
         }
-
     }
 
+    function formatDate(value) {
+        if (!value) return '-';
 
-    /* =========================================================
-       LOAD STUDENT
-    ========================================================= */
+        const date = new Date(value);
+
+        if (isNaN(date.getTime())) {
+            return value;
+        }
+
+        return date.toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
 
     function loadStudent(student) {
 
-        const fullName = [
+        console.log('LOADING STUDENT:', student);
 
+        const fullName = [
             student.first_name,
             student.middle_name,
             student.last_name
+        ].filter(Boolean).join(' ');
 
-        ]
-        .filter(function (value) {
+        /* Header */
+        setText('studentFullName', fullName);
+        setText('studentMarathiName', student.marathi_name);
+        setText('profileStudentId', student.student_id);
+        setText('profileClass', student.class);
+        setText('profileSection', student.section);
+        setText('profileRollNumber', student.roll_number);
 
-            return value !== null &&
-                   value !== undefined &&
-                   value !== '';
+        /* Status */
+        const status = document.getElementById('profileStatus');
 
-        })
-        .join(' ');
-
-
-        /* PROFILE HEADER */
-
-        setText(
-            'studentFullName',
-            fullName
-        );
-
-        setText(
-            'studentMarathiName',
-            student.marathi_name
-        );
-
-        setText(
-            'profileStudentId',
-            student.student_id
-        );
-
-        setText(
-            'profileClass',
-            student.class
-        );
-
-        setText(
-            'profileSection',
-            student.section
-        );
-
-        setText(
-            'profileRollNumber',
-            student.roll_number
-        );
-
-
-        /* STATUS */
-
-        const statusElement =
-            document.getElementById(
-                'profileStatus'
-            );
-
-        if (statusElement) {
-
-            const status =
-                String(
-                    student.status || 'active'
-                ).toLowerCase();
-
-            statusElement.classList.remove(
-                'sp-status-active',
-                'sp-status-inactive'
-            );
-
-            if (status === 'active') {
-
-                statusElement.classList.add(
-                    'sp-status-active'
-                );
-
-                statusElement.innerHTML =
-                    '<i class="bi bi-circle-fill"></i> Active';
-
-            } else {
-
-                statusElement.classList.add(
-                    'sp-status-inactive'
-                );
-
-                statusElement.innerHTML =
-                    '<i class="bi bi-circle-fill"></i> Inactive';
-
-            }
-
+        if (status) {
+            status.textContent =
+                String(student.status || 'active')
+                    .charAt(0)
+                    .toUpperCase() +
+                String(student.status || 'active').slice(1);
         }
 
+        /* Image */
+        const image = document.getElementById('studentProfileImage');
 
-        /* PROFILE IMAGE */
-
-        const profileImage =
-            document.getElementById(
-                'studentProfileImage'
-            );
-
-        if (profileImage) {
-
-            const imageUrl =
-                student.profile_image ||
-                student.image ||
-                (
-                    'https://ui-avatars.com/api/?name=' +
-                    encodeURIComponent(
-                        fullName || 'Student'
-                    ) +
-                    '&background=2563eb&color=fff&size=300'
-                );
-
-            profileImage.src = imageUrl;
-
-            profileImage.onerror = function () {
-
-                this.onerror = null;
-
-                this.src =
-                    'https://ui-avatars.com/api/?name=' +
-                    encodeURIComponent(
-                        fullName || 'Student'
-                    ) +
-                    '&background=2563eb&color=fff&size=300';
-
-            };
-
+        if (image) {
+            image.src = student.profile_image ||
+                'https://ui-avatars.com/api/?name=' +
+                encodeURIComponent(fullName || 'Student') +
+                '&background=2563eb&color=fff&size=300';
         }
 
-
-        /* BASIC */
-
+        /* Basic */
         setText('basicFirstName', student.first_name);
         setText('basicMiddleName', student.middle_name);
         setText('basicLastName', student.last_name);
         setText('basicMarathiName', student.marathi_name);
         setText('basicGender', student.gender);
-        setText('basicDob', student.date_of_birth);
+        setText('basicDob', formatDate(student.date_of_birth));
         setText('basicAadhar', student.aadhar_card_no);
         setText('basicPhone', student.phone);
         setText('basicEmail', student.email);
 
-
-        /* ACADEMIC */
-
-        setText(
-            'academicYear',
-            student.academic_year ||
-            student.educational_year
-        );
-
+        /* Academic */
+        setText('academicYear', student.academic_year);
         setText('academicClass', student.class);
         setText('academicSection', student.section);
         setText('academicRollNumber', student.roll_number);
         setText('academicAdmissionClass', student.admission_class);
-        setText('academicAdmissionDate', student.admission_date);
+        setText('academicAdmissionDate', formatDate(student.admission_date));
         setText('academicRegisterNo', student.register_no);
         setText('academicBookNo', student.book_no);
         setText('academicApparId', student.appar_id);
@@ -2418,9 +2214,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setText('academicCaste', student.caste);
         setText('academicSubCaste', student.sub_caste);
 
-
-        /* PARENTS */
-
+        /* Parents */
         setText('fatherName', student.father_name);
         setText('fatherPhone', student.father_phone);
         setText('fatherOccupation', student.father_occupation);
@@ -2433,344 +2227,201 @@ document.addEventListener('DOMContentLoaded', function () {
         setText('guardianRelation', student.guardian_relation);
         setText('guardianPhone', student.guardian_phone);
 
+        /* Previous School */
+        setText('previousSchoolName', student.previous_school_name);
+        setText('previousSchoolClass', student.previous_school_class);
+        setText('previousSchoolMedium', student.previous_school_medium);
+        setText('previousSchoolBoard', student.previous_school_board);
+        setText('previousSchoolResult', student.previous_school_result);
+        setText('previousSchoolRemarks', student.previous_school_remarks);
+        setText('previousSchoolAddress', student.previous_school_address);
 
-        /* PREVIOUS SCHOOL */
+        /* Address */
+        setText('addressValue', student.address);
+        setText('addressCountry', student.country);
+        setText('addressState', student.state);
+        setText('addressDistrict', student.district);
+        setText('addressTaluka', student.taluka);
+        setText('addressCityVillage', student.city_village);
+        setText('addressPincode', student.pincode);
 
-        setText(
-            'previousSchoolName',
-            student.previous_school_name
-        );
-
-        setText(
-            'previousSchoolClass',
-            student.previous_school_class
-        );
-
-        setText(
-            'previousSchoolMedium',
-            student.previous_school_medium
-        );
-
-        setText(
-            'previousSchoolBoard',
-            student.previous_school_board
-        );
-
-        setText(
-            'previousSchoolResult',
-            student.previous_school_result
-        );
-
-        setText(
-            'previousSchoolRemarks',
-            student.previous_school_remarks
-        );
-
-        setText(
-            'previousSchoolAddress',
-            student.previous_school_address
-        );
-
-
-        /* ADDRESS */
-
-        setText(
-            'addressValue',
-            student.address
-        );
-
-        setText(
-            'addressCountry',
-            student.country
-        );
-
-        setText(
-            'addressState',
-            student.state
-        );
-
-        setText(
-            'addressDistrict',
-            student.district
-        );
-
-        setText(
-            'addressTaluka',
-            student.taluka
-        );
-
-        setText(
-            'addressCityVillage',
-            student.city_village
-        );
-
-        setText(
-            'addressPincode',
-            student.pincode
-        );
-
-
-        /* SHOW PROFILE */
-
-        const profileContent =
-            document.getElementById(
-                'studentProfileContent'
-            );
-
-        const emptyState =
-            document.getElementById(
-                'emptyStudentState'
-            );
-
-        if (profileContent) {
-
-            profileContent.style.display =
-                'block';
-
+        /* Show profile */
+        if (profile) {
+            profile.style.display = 'block';
         }
 
-        if (emptyState) {
-
-            emptyState.style.display =
-                'none';
-
+        if (empty) {
+            empty.style.display = 'none';
         }
-
-
-        /* RESET BASIC TAB */
-
-        const basicTab =
-            document.querySelector(
-                '#studentTabs [data-bs-target="#basicTab"]'
-            );
-
-        if (basicTab) {
-
-            activateTab(basicTab);
-
-        }
-
     }
 
 
-    /* =========================================================
+    /* =====================================================
        SEARCH
-    ========================================================= */
+    ===================================================== */
 
-    const searchForm =
-        document.getElementById(
-            'studentSearchForm'
-        );
+    if (form) {
 
-    if (searchForm) {
+        form.addEventListener('submit', function (event) {
 
-        searchForm.addEventListener(
-            'submit',
-            function (event) {
+            event.preventDefault();
 
-                event.preventDefault();
+            const studentId = input
+                ? input.value.trim()
+                : '';
 
-                const studentInput =
-                    document.getElementById(
-                        'studentId'
-                    );
+            console.log('STUDENT ID:', studentId);
 
-                const studentId =
-                    studentInput
-                        ? studentInput.value.trim()
-                        : '';
-
-                if (!studentId) {
-
-                    showAlert(
-                        'Please enter a Student ID.',
-                        'warning'
-                    );
-
-                    if (studentInput) {
-                        studentInput.focus();
-                    }
-
-                    return;
-
-                }
-
-
-                const searchButton =
-                    document.getElementById(
-                        'searchStudentBtn'
-                    );
-
-                const loadingBox =
-                    document.getElementById(
-                        'loadingBox'
-                    );
-
-                const profileContent =
-                    document.getElementById(
-                        'studentProfileContent'
-                    );
-
-                const emptyState =
-                    document.getElementById(
-                        'emptyStudentState'
-                    );
-
-
-                if (searchButton) {
-
-                    searchButton.disabled = true;
-
-                    searchButton.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-2"></span>' +
-                        'Searching...';
-
-                }
-
-
-                if (loadingBox) {
-
-                    loadingBox.style.display =
-                        'block';
-
-                }
-
-
-                if (profileContent) {
-
-                    profileContent.style.display =
-                        'none';
-
-                }
-
-
-                const alertArea =
-                    document.getElementById(
-                        'alertArea'
-                    );
-
-                if (alertArea) {
-
-                    alertArea.innerHTML = '';
-
-                }
-
-
-                fetch(
-                    '{{ route("admin.student-profile.search") }}' +
-                    '?student_id=' +
-                    encodeURIComponent(studentId),
-                    {
-                        method: 'GET',
-
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    }
-                )
-
-                .then(function (response) {
-
-                    return response.json()
-
-                        .then(function (data) {
-
-                            return {
-                                ok: response.ok,
-                                data: data
-                            };
-
-                        });
-
-                })
-
-                .then(function (result) {
-
-                    if (!result.ok) {
-
-                        throw new Error(
-                            result.data.message ||
-                            'Student not found.'
-                        );
-
-                    }
-
-                    const student =
-                        result.data.student ||
-                        result.data.data ||
-                        result.data;
-
-                    if (!student) {
-
-                        throw new Error(
-                            'Student data was not returned.'
-                        );
-
-                    }
-
-                    loadStudent(student);
-
-                    showAlert(
-                        'Student profile loaded successfully.',
-                        'success'
-                    );
-
-                })
-
-                .catch(function (error) {
-
-                    if (profileContent) {
-
-                        profileContent.style.display =
-                            'none';
-
-                    }
-
-                    if (emptyState) {
-
-                        emptyState.style.display =
-                            'block';
-
-                    }
-
-                    showAlert(
-                        error.message ||
-                        'Unable to load student profile.',
-                        'danger'
-                    );
-
-                })
-
-                .finally(function () {
-
-                    if (loadingBox) {
-
-                        loadingBox.style.display =
-                            'none';
-
-                    }
-
-                    if (searchButton) {
-
-                        searchButton.disabled =
-                            false;
-
-                        searchButton.innerHTML =
-                            '<i class="bi bi-search me-1"></i>' +
-                            'Search Student';
-
-                    }
-
-                });
-
+            if (!studentId) {
+                showAlert(
+                    'Please enter a Student ID.',
+                    'warning'
+                );
+                return;
             }
-        );
 
+            if (button) {
+                button.disabled = true;
+                button.innerHTML =
+                    'Searching...';
+            }
+
+            if (loading) {
+                loading.style.display = 'block';
+            }
+
+            if (profile) {
+                profile.style.display = 'none';
+            }
+
+            if (empty) {
+                empty.style.display = 'none';
+            }
+
+            if (alertArea) {
+                alertArea.innerHTML = '';
+            }
+
+            /*
+             * IMPORTANT:
+             * Direct working Laravel URL
+             */
+            const url =
+                '/admin/students/profile/search?student_id=' +
+                encodeURIComponent(studentId);
+
+            console.log('REQUEST URL:', url);
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (response) {
+
+                console.log(
+                    'RESPONSE STATUS:',
+                    response.status
+                );
+
+                return response.text().then(function (text) {
+
+                    console.log(
+                        'RAW RESPONSE:',
+                        text
+                    );
+
+                    let data;
+
+                    try {
+                        data = JSON.parse(text);
+                    } catch (error) {
+                        throw new Error(
+                            'Server returned an invalid response.'
+                        );
+                    }
+
+                    return {
+                        ok: response.ok,
+                        status: response.status,
+                        data: data
+                    };
+                });
+            })
+            .then(function (result) {
+
+                console.log(
+                    'FINAL DATA:',
+                    result.data
+                );
+
+                if (!result.ok) {
+                    throw new Error(
+                        result.data.message ||
+                        'Student not found.'
+                    );
+                }
+
+                if (
+                    !result.data.success ||
+                    !result.data.student
+                ) {
+                    throw new Error(
+                        result.data.message ||
+                        'Student data was not returned.'
+                    );
+                }
+
+                /*
+                 * THIS IS THE IMPORTANT PART
+                 */
+                loadStudent(
+                    result.data.student
+                );
+
+                showAlert(
+                    'Student profile loaded successfully.',
+                    'success'
+                );
+            })
+            .catch(function (error) {
+
+                console.error(
+                    'SEARCH ERROR:',
+                    error
+                );
+
+                if (profile) {
+                    profile.style.display = 'none';
+                }
+
+                if (empty) {
+                    empty.style.display = 'block';
+                }
+
+                showAlert(
+                    error.message ||
+                    'Unable to load student profile.',
+                    'danger'
+                );
+            })
+            .finally(function () {
+
+                if (loading) {
+                    loading.style.display = 'none';
+                }
+
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML =
+                        '<i class="bi bi-search me-1"></i>' +
+                        'Search Student';
+                }
+            });
+        });
     }
 
 });
-
 </script>
-
 @endsection

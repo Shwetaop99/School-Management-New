@@ -4,7 +4,6 @@
 
 <div class="container-fluid py-4">
 
-```
 {{-- =========================================================
      HEADER
 ========================================================== --}}
@@ -128,10 +127,9 @@
                     </div>
 
 
-                    <div id="searchResults"
-                         class="mt-3">
-                    </div>
-
+                    <div id="studentSearchResults"
+     class="mt-3">
+</div>
 
                     {{-- Selected Student --}}
                     <div id="selectedStudent"
@@ -279,9 +277,9 @@
                                         {{-- IMPORTANT:
                                              Submit TEMPLATE ID, not slug --}}
                                         <input type="radio"
-                                               name="template_id"
-                                               value="{{ $template->id }}"
-                                               class="template-radio"
+       name="template"
+       value="{{ $template->slug }}"
+       class="template-radio"
 
                                                data-template-id="{{ $template->id }}"
 
@@ -291,7 +289,7 @@
 
                                                data-academic-year="{{ $template->academic_year }}"
 
-                                               data-field-positions="{{ e(json_encode($fieldPositions)) }}"
+                                               data-field-positions="{{ base64_encode(json_encode($fieldPositions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) }}"
 
                                                {{ old('template_id') == $template->id ? 'checked' : '' }}>
 
@@ -516,7 +514,7 @@
     </div>
 
 </form>
-```
+
 
 </div>
 
@@ -672,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('searchStudentBtn');
 
     const searchResults =
-        document.getElementById('searchResults');
+        document.getElementById('studentSearchResults');
 
     const selectedStudent =
         document.getElementById('selectedStudent');
@@ -716,187 +714,193 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function searchStudents() {
 
-        const value =
-            searchInput.value.trim();
+        const value = searchInput.value.trim();
 
         if (!value) {
-
             searchResults.innerHTML = '';
-
             return;
         }
 
-
         searchResults.innerHTML = `
             <div class="text-center text-muted py-3">
-
                 <span class="spinner-border spinner-border-sm me-2"></span>
-
                 Searching...
-
             </div>
         `;
 
-
         try {
 
-            const response =
-                await fetch(
-                    "{{ route('admin.id-card.search') }}?q=" +
-                    encodeURIComponent(value),
-                    {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    }
-                );
-
+            const response = await fetch(
+                "{{ route('admin.id-card.search') }}?q=" +
+                encodeURIComponent(value),
+                {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                }
+            );
 
             if (!response.ok) {
-
                 throw new Error(
-                    'Search request failed.'
+                    `Search request failed (${response.status})`
                 );
-
             }
 
+            const result = await response.json();
 
-            const students =
-                await response.json();
+            console.log('ID CARD SEARCH RESPONSE:', result);
 
+            /*
+             * The controller currently returns a JSON array.
+             * Also support {data: [...]} so the UI does not break
+             * if the API response is wrapped later.
+             */
+            let students = [];
 
-            if (
-                !Array.isArray(students) ||
-                !students.length
+            if (Array.isArray(result)) {
+                students = result;
+            } else if (
+                result &&
+                Array.isArray(result.data)
             ) {
+                students = result.data;
+            }
+
+            searchResults.innerHTML = '';
+
+            if (!students.length) {
 
                 searchResults.innerHTML = `
-                    <div class="alert alert-light text-center">
-
+                    <div class="alert alert-light text-center mb-0">
                         <i class="bi bi-person-x me-1"></i>
-
                         No students found.
-
                     </div>
                 `;
 
                 return;
             }
 
-
-            searchResults.innerHTML = '';
-
-
             students.forEach(function (student) {
 
-                const item =
-                    document.createElement('div');
+                const item = document.createElement('button');
 
+                /*
+                 * Use a button instead of relying on a generic div.
+                 * This makes the result reliably clickable.
+                 */
+                item.type = 'button';
+                item.className = 'search-result w-100 text-start bg-white';
 
-                item.className =
-                    'search-result';
+                const firstName =
+                    student.first_name || '';
 
+                const middleName =
+                    student.middle_name || '';
+
+                const lastName =
+                    student.last_name || '';
+
+                const fullName =
+                    String(
+                        student.full_name ||
+                        [firstName, middleName, lastName]
+                            .filter(function (value) {
+                                return String(value).trim() !== '';
+                            })
+                            .join(' ') ||
+                        'Student'
+                    ).trim();
+
+                const studentCode =
+                    student.student_id || '-';
+
+                const studentClass =
+                    student.class || '-';
+
+                const studentSection =
+                    student.section || '-';
 
                 item.innerHTML = `
-
                     <div class="fw-bold">
-
-                        ${escapeHtml(
-                            student.full_name ||
-                            buildStudentName(student) ||
-                            'Student'
-                        )}
-
+                        ${escapeHtml(fullName)}
                     </div>
 
-
                     <div class="small text-muted">
-
                         Student ID:
-
-                        ${escapeHtml(
-                            student.student_id || '-'
-                        )}
+                        ${escapeHtml(studentCode)}
 
                         <span class="mx-1">•</span>
 
                         Class:
-
-                        ${escapeHtml(
-                            student.class || '-'
-                        )}
+                        ${escapeHtml(studentClass)}
 
                         <span class="mx-1">•</span>
 
                         Section:
-
-                        ${escapeHtml(
-                            student.section || '-'
-                        )}
-
+                        ${escapeHtml(studentSection)}
                     </div>
-
                 `;
 
-
-                item.addEventListener(
-                    'click',
-                    function () {
-
-                        selectStudent(student);
-
-                    }
-                );
-
+                item.addEventListener('click', function () {
+                    selectStudent(student);
+                });
 
                 searchResults.appendChild(item);
-
             });
-
 
         } catch (error) {
 
-            console.error(error);
-
+            console.error(
+                'ID CARD STUDENT SEARCH ERROR:',
+                error
+            );
 
             searchResults.innerHTML = `
-
-                <div class="alert alert-danger">
-
+                <div class="alert alert-danger mb-0">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-
                     Unable to search students.
-
                 </div>
-
             `;
-
         }
-
     }
 
 
-    searchButton.addEventListener(
-        'click',
-        searchStudents
-    );
+    /* =========================================================
+       SEARCH BUTTON / ENTER KEY
+    ========================================================== */
 
+    if (searchButton) {
 
-    searchInput.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (event.key === 'Enter') {
-
-                event.preventDefault();
-
+        searchButton.addEventListener(
+            'click',
+            function () {
                 searchStudents();
+            }
+        );
+
+    }
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (event.key === 'Enter') {
+
+                    event.preventDefault();
+
+                    searchStudents();
+
+                }
 
             }
+        );
 
-        }
-    );
-
+    }
 
 
     /* =========================================================
@@ -1092,26 +1096,31 @@ document.addEventListener('DOMContentLoaded', function () {
     function getTemplateFields() {
 
         if (!currentTemplate) {
-
             return [];
-
         }
-
 
         try {
 
-            const fields =
-                JSON.parse(
-                    currentTemplate.dataset.fieldPositions || '[]'
-                );
+            const encoded =
+                currentTemplate.dataset.fieldPositions || '';
 
-
-            if (Array.isArray(fields)) {
-
-                return fields;
-
+            if (!encoded) {
+                return [];
             }
 
+            const json = atob(encoded);
+            const parsed = JSON.parse(json);
+
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+
+            if (
+                parsed &&
+                Array.isArray(parsed.fields)
+            ) {
+                return parsed.fields;
+            }
 
             return [];
 
@@ -1123,11 +1132,8 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             return [];
-
         }
-
     }
-
 
 
     /* =========================================================
@@ -1889,6 +1895,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         selectedTemplateInfo.style.display =
             'block';
+
+        renderPreview();
 
     }
 

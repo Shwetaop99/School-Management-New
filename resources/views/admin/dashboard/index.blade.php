@@ -1539,7 +1539,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.attendance.index') }}" class="quick-action">
+                    <a href="{{ route('admin.attendance.report') }}" class="quick-action">
 
                         <i class="bi bi-calendar-check-fill"></i>
 
@@ -1550,7 +1550,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.fees.index') }}" class="quick-action">
+                    <a href="{{ route('admin.fees.student-fees.index') }}" class="quick-action">
 
                         <i class="bi bi-cash-stack"></i>
 

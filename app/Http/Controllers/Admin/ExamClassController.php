@@ -5,220 +5,90 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\ExamClass;
+use App\Models\Class\SchoolClass;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ExamClassController extends Controller
 {
     /**
-     * Display all classes assigned to an exam.
+     * Display classes available for this exam.
      */
     public function index(Exam $exam)
     {
-        $examClasses = $exam->examClasses()
-            ->orderBy('sort_order')
+        $classes = SchoolClass::where('status', true)
+            ->where('academic_year', $exam->academic_year)
             ->orderBy('class_name')
+            ->orderBy('section')
             ->get();
 
+        $selectedClassIds = $exam->examClasses()
+            ->pluck('class_id')
+            ->toArray();
+
         return view(
-            'admin.exam-classes.index',
-            compact('exam', 'examClasses')
+            'admin.exams.classes.index',
+            compact(
+                'exam',
+                'classes',
+                'selectedClassIds'
+            )
         );
     }
 
     /**
-     * Show create class form.
-     */
-    public function create(Exam $exam)
-    {
-        return view(
-            'admin.exam-classes.create',
-            compact('exam')
-        );
-    }
-
-    /**
-     * Store one class.
+     * Save selected classes for the exam.
      */
     public function store(Request $request, Exam $exam)
     {
         $validated = $request->validate([
-            'class_name' => [
+            'class_ids' => [
                 'required',
-                'string',
-                'max:50',
+                'array',
+                'min:1',
+            ],
+
+            'class_ids.*' => [
+                'required',
+                'integer',
+                'exists:school_classes,id',
             ],
         ]);
 
-        $className = $validated['class_name'];
+        $classIds = SchoolClass::whereIn(
+                'id',
+                $validated['class_ids']
+            )
+            ->where('status', true)
+            ->where('academic_year', $exam->academic_year)
+            ->pluck('id')
+            ->toArray();
 
-        $exists = $exam->examClasses()
-            ->where('class_name', $className)
-            ->exists();
-
-        if ($exists) {
+        if (count($classIds) !== count($validated['class_ids'])) {
             return back()
-                ->withInput()
                 ->withErrors([
-                    'class_name' =>
-                        'This class is already assigned to this exam.',
-                ]);
+                    'class_ids' =>
+                        'One or more selected classes are invalid for this academic year.',
+                ])
+                ->withInput();
         }
 
-        $lastSortOrder = $exam->examClasses()->max('sort_order') ?? 0;
+        $exam->examClasses()->delete();
 
-        ExamClass::create([
-            'exam_id' => $exam->id,
-            'class_name' => $className,
-            'sort_order' => $lastSortOrder + 1,
-            'status' => 'active',
-        ]);
-
-        return redirect()
-            ->route('admin.exam-classes.index', $exam->id)
-            ->with('success', 'Class added successfully.');
-    }
-
-    /**
-     * Add all classes from Nursery to Class 12.
-     *
-     * Existing classes are skipped.
-     */
-    public function addAll(Exam $exam)
-    {
-        $classes = [
-            'Nursery',
-            'LKG',
-            'UKG',
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-            '10',
-            '11',
-            '12',
-        ];
-
-        DB::transaction(function () use ($exam, $classes) {
-
-            $lastSortOrder = $exam->examClasses()
-                ->max('sort_order') ?? 0;
-
-            foreach ($classes as $className) {
-
-                $exists = $exam->examClasses()
-                    ->where('class_name', $className)
-                    ->exists();
-
-                if ($exists) {
-                    continue;
-                }
-
-                $lastSortOrder++;
-
-                ExamClass::create([
-                    'exam_id' => $exam->id,
-                    'class_name' => $className,
-                    'sort_order' => $lastSortOrder,
-                    'status' => 'active',
-                ]);
-            }
-        });
-
-        return redirect()
-            ->route('admin.exam-classes.index', $exam->id)
-            ->with(
-                'success',
-                'All classes from Nursery to Class 12 have been added successfully.'
-            );
-    }
-
-    /**
-     * Show edit class form.
-     */
-    public function edit(Exam $exam, ExamClass $examClass)
-    {
-        abort_unless(
-            $examClass->exam_id === $exam->id,
-            404
-        );
-
-        return view(
-            'admin.exam-classes.edit',
-            compact('exam', 'examClass')
-        );
-    }
-
-    /**
-     * Update class.
-     */
-    public function update(
-        Request $request,
-        Exam $exam,
-        ExamClass $examClass
-    ) {
-        abort_unless(
-            $examClass->exam_id === $exam->id,
-            404
-        );
-
-        $validated = $request->validate([
-            'class_name' => [
-                'required',
-                'string',
-                'max:50',
-            ],
-            'status' => [
-                'required',
-                'in:active,inactive',
-            ],
-        ]);
-
-        $duplicate = $exam->examClasses()
-            ->where('class_name', $validated['class_name'])
-            ->where('id', '!=', $examClass->id)
-            ->exists();
-
-        if ($duplicate) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'class_name' =>
-                        'This class is already assigned to this exam.',
-                ]);
+        foreach ($classIds as $classId) {
+            ExamClass::create([
+                'exam_id' => $exam->id,
+                'class_id' => $classId,
+            ]);
         }
 
-        $examClass->update($validated);
-
         return redirect()
-            ->route('admin.exam-classes.index', $exam->id)
-            ->with('success', 'Class updated successfully.');
-    }
-
-    /**
-     * Delete class from exam.
-     */
-    public function destroy(
-        Exam $exam,
-        ExamClass $examClass
-    ) {
-        abort_unless(
-            $examClass->exam_id === $exam->id,
-            404
-        );
-
-        $examClass->delete();
-
-        return redirect()
-            ->route('admin.exam-classes.index', $exam->id)
+            ->route(
+                'admin.exams.show',
+                $exam
+            )
             ->with(
                 'success',
-                'Class removed from exam successfully.'
+                'Exam classes saved successfully.'
             );
     }
 }

@@ -5,558 +5,524 @@
 @section('content')
 
 <style>
-    .staff-profile-page {
-        padding: 24px;
+    .staff-page {
+        background: #f4f7fb;
+        min-height: calc(100vh - 64px);
+        padding: 25px;
+    }
+
+    .staff-container {
+        max-width: 1200px;
+        margin: auto;
     }
 
     .profile-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 24px;
-    }
-
-    .page-title {
-        margin: 0;
-        font-size: 26px;
-        font-weight: 700;
-        color: #172554;
-    }
-
-    .page-subtitle {
-        margin: 6px 0 0;
-        color: #64748b;
-        font-size: 14px;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 10px 16px;
-        border-radius: 9px;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        border: 1px solid transparent;
-    }
-
-    .btn-back {
-        background: #fff;
-        color: #475569;
-        border-color: #dbe3ef;
-    }
-
-    .btn-edit {
-        background: #2563eb;
-        color: #fff;
-    }
-
-    .btn-edit:hover {
-        background: #1d4ed8;
-    }
-
-    .profile-card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 4px 18px rgba(15, 23, 42, .06);
-        overflow: hidden;
-        margin-bottom: 20px;
-    }
-
-    .profile-top {
+        background: linear-gradient(135deg, #147cf5, #6c63ff);
+        border-radius: 18px;
         padding: 30px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 25px rgba(20, 124, 245, 0.18);
+    }
+
+    .profile-header-content {
         display: flex;
         align-items: center;
         gap: 25px;
-        background: linear-gradient(135deg, #eff6ff, #ffffff);
-        border-bottom: 1px solid #e5e7eb;
     }
 
-    .profile-photo {
-        width: 120px;
-        height: 120px;
-        border-radius: 18px;
+    .staff-photo-wrapper {
+        width: 125px;
+        height: 125px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        padding: 5px;
+        flex-shrink: 0;
         overflow: hidden;
-        border: 4px solid #fff;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, .12);
-        background: #e2e8f0;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
     }
 
-    .profile-photo img {
-        width: 100%;
-        height: 100%;
+    .staff-photo-wrapper img {
+        width: 115px;
+        height: 115px;
         object-fit: cover;
+        border-radius: 50%;
+        display: block;
     }
 
-    .photo-placeholder {
-        font-size: 45px;
-        color: #94a3b8;
+    .default-profile {
+        width: 115px;
+        height: 115px;
+        border-radius: 50%;
+        background: white;
+        color: #147cf5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
     }
 
-    .profile-name {
-        margin: 0 0 7px;
-        font-size: 25px;
+    .profile-info h2 {
+        margin: 0 0 8px;
+        font-size: 28px;
         font-weight: 700;
-        color: #172554;
     }
 
-    .profile-designation {
-        margin: 0 0 12px;
-        color: #475569;
+    .profile-info p {
+        margin: 5px 0;
         font-size: 15px;
+        opacity: 0.95;
     }
 
     .staff-id {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 11px;
-        border-radius: 7px;
-        background: #dbeafe;
-        color: #1d4ed8;
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: 20px;
         font-size: 13px;
-        font-weight: 700;
-    }
-
-    .section-title {
-        padding: 17px 24px;
-        background: #f8fafc;
-        border-bottom: 1px solid #e5e7eb;
-        font-size: 16px;
-        font-weight: 700;
-        color: #172554;
-    }
-
-    .details-grid {
-        padding: 24px;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px 35px;
-    }
-
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .detail-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: .4px;
-    }
-
-    .detail-value {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1e293b;
-        word-break: break-word;
-    }
-
-    .detail-item.full {
-        grid-column: 1 / -1;
+        margin-top: 8px;
     }
 
     .status-badge {
-        display: inline-flex;
-        width: fit-content;
-        padding: 5px 10px;
+        display: inline-block;
+        padding: 6px 14px;
         border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 10px;
     }
 
     .status-active {
-        background: #dcfce7;
-        color: #166534;
+        background: #d1fae5;
+        color: #047857;
     }
 
     .status-inactive {
         background: #fee2e2;
-        color: #991b1b;
+        color: #b91c1c;
+    }
+
+    .action-buttons {
+        margin-left: auto;
+        display: flex;
+        gap: 10px;
+        align-self: flex-start;
+    }
+
+    .btn-custom {
+        border: none;
+        padding: 10px 17px;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        cursor: pointer;
+    }
+
+    .btn-edit {
+        background: white;
+        color: #147cf5;
+    }
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.18);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px 30px;
+    }
+
+    .info-item {
+        padding: 12px 15px;
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .info-value {
+        font-size: 15px;
+        color: #1e293b;
+        font-weight: 500;
+        word-break: break-word;
     }
 
     .empty-value {
         color: #94a3b8;
-        font-weight: 500;
+        font-style: italic;
+    }
+
+    .danger-card {
+        border-left: 4px solid #ef4444;
     }
 
     @media (max-width: 768px) {
-
-        .staff-profile-page {
+        .staff-page {
             padding: 15px;
         }
 
-        .profile-header {
+        .profile-header-content {
             flex-direction: column;
-            align-items: flex-start;
+            text-align: center;
         }
 
-        .header-actions {
-            width: 100%;
-        }
-
-        .header-actions .btn {
-            flex: 1;
+        .action-buttons {
+            margin-left: 0;
+            align-self: center;
+            flex-wrap: wrap;
             justify-content: center;
         }
 
-        .profile-top {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .details-grid {
+        .info-grid {
             grid-template-columns: 1fr;
         }
 
-        .detail-item.full {
-            grid-column: auto;
+        .profile-info h2 {
+            font-size: 23px;
         }
     }
 </style>
 
+<div class="staff-page">
 
-<div class="staff-profile-page">
+    <div class="staff-container">
 
-    {{-- HEADER --}}
-    <div class="profile-header">
+        {{-- ================= PROFILE HEADER ================= --}}
+        <div class="profile-header">
 
-        <div>
-            <h1 class="page-title">Staff Profile</h1>
+            <div class="profile-header-content">
 
-            <p class="page-subtitle">
-                View complete staff information.
-            </p>
-        </div>
+                {{-- Cloudinary Profile Image --}}
+                <div class="staff-photo-wrapper">
 
-        <div class="header-actions">
+                    @if($otherStaff->profile_photo)
 
-            <a
-                href="{{ route('admin.other-staff.index') }}"
-                class="btn btn-back"
-            >
-                <i class="fas fa-arrow-left"></i>
-                Back to Staff
-            </a>
+                        <x-cloudinary::image
+                            public-id="{{ $otherStaff->profile_photo }}"
+                            width="115"
+                            height="115"
+                            alt="{{ $otherStaff->name }}"
+                        />
 
-            <a
-                href="{{ route('admin.other-staff.edit', $otherStaff->id) }}"
-                class="btn btn-edit"
-            >
-                <i class="fas fa-edit"></i>
-                Edit Staff
-            </a>
+                    @else
 
-        </div>
+                        <div class="default-profile">
+                            <i class="fas fa-user"></i>
+                        </div>
 
-    </div>
+                    @endif
 
+                </div>
 
-    {{-- PROFILE HEADER CARD --}}
-    <div class="profile-card">
+                {{-- Staff Basic Information --}}
+                <div class="profile-info">
 
-        <div class="profile-top">
+                    <h2>
+                        {{ $otherStaff->name }}
+                    </h2>
 
-            <div class="profile-photo">
+                    <p>
+                        <i class="fas fa-briefcase"></i>
+                        {{ $otherStaff->designation ?? 'Staff Member' }}
+                    </p>
 
-                @if($otherStaff->profile_photo)
+                    @if($otherStaff->department)
+                        <p>
+                            <i class="fas fa-building"></i>
+                            {{ $otherStaff->department }}
+                        </p>
+                    @endif
 
-                    <img
-                        src="{{ asset('storage/' . $otherStaff->profile_photo) }}"
-                        alt="{{ $otherStaff->name }}"
-                    >
-
-                @else
-
-                    <span class="photo-placeholder">
-                        <i class="fas fa-user"></i>
+                    <span class="staff-id">
+                        <i class="fas fa-id-card"></i>
+                        {{ $otherStaff->staff_id }}
                     </span>
 
-                @endif
-
-            </div>
-
-
-            <div>
-
-                <h2 class="profile-name">
-                    {{ $otherStaff->name }}
-                </h2>
-
-                <p class="profile-designation">
-                    {{ $otherStaff->designation }}
-
-                    @if($otherStaff->department)
-                        · {{ $otherStaff->department }}
-                    @endif
-                </p>
-
-                <span class="staff-id">
-                    <i class="fas fa-id-badge"></i>
-                    {{ $otherStaff->staff_id }}
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- PERSONAL INFORMATION --}}
-        <div class="section-title">
-            <i class="fas fa-user"></i>
-            &nbsp; Personal Information
-        </div>
-
-        <div class="details-grid">
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Full Name
-                </span>
-
-                <span class="detail-value">
-                    {{ $otherStaff->name }}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Gender
-                </span>
-
-                <span class="detail-value">
-                    @if($otherStaff->gender)
-                        {{ $otherStaff->gender }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Date of Birth
-                </span>
-
-                <span class="detail-value">
-
-                    @if($otherStaff->date_of_birth)
-                        {{ $otherStaff->date_of_birth->format('d M Y') }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Staff ID
-                </span>
-
-                <span class="detail-value">
-                    {{ $otherStaff->staff_id }}
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- CONTACT INFORMATION --}}
-        <div class="section-title">
-            <i class="fas fa-address-book"></i>
-            &nbsp; Contact Information
-        </div>
-
-        <div class="details-grid">
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Phone
-                </span>
-
-                <span class="detail-value">
-
-                    @if($otherStaff->phone)
-                        {{ $otherStaff->phone }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Email
-                </span>
-
-                <span class="detail-value">
-
-                    @if($otherStaff->email)
-                        {{ $otherStaff->email }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item full">
-
-                <span class="detail-label">
-                    Address
-                </span>
-
-                <span class="detail-value">
-
-                    @if($otherStaff->address)
-                        {{ $otherStaff->address }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- EMPLOYMENT INFORMATION --}}
-        <div class="section-title">
-            <i class="fas fa-briefcase"></i>
-            &nbsp; Employment Information
-        </div>
-
-        <div class="details-grid">
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Designation
-                </span>
-
-                <span class="detail-value">
-                    {{ $otherStaff->designation }}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Department
-                </span>
-
-                <span class="detail-value">
-
-                    @if($otherStaff->department)
-                        {{ $otherStaff->department }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Qualification
-                </span>
-
-                <span class="detail-value">
-
-                    @if($otherStaff->qualification)
-                        {{ $otherStaff->qualification }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Joining Date
-                </span>
-
-                <span class="detail-value">
-
-                    @if($otherStaff->joining_date)
-                        {{ $otherStaff->joining_date->format('d M Y') }}
-                    @else
-                        <span class="empty-value">Not provided</span>
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Status
-                </span>
-
-                <span class="detail-value">
+                    <br>
 
                     @if($otherStaff->status === 'Active')
-
                         <span class="status-badge status-active">
                             <i class="fas fa-check-circle"></i>
-                            &nbsp; Active
+                            Active
                         </span>
-
                     @else
-
                         <span class="status-badge status-inactive">
                             <i class="fas fa-times-circle"></i>
-                            &nbsp; Inactive
+                            Inactive
                         </span>
-
                     @endif
 
-                </span>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="action-buttons">
+
+                    <a
+                        href="{{ route('admin.other-staff.edit', $otherStaff->id) }}"
+                        class="btn-custom btn-edit"
+                    >
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </a>
+
+                    <a
+                        href="{{ route('admin.other-staff.index') }}"
+                        class="btn-custom btn-back"
+                    >
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ================= PERSONAL INFORMATION ================= --}}
+        <div class="info-card">
+
+            <div class="card-title">
+                <i class="fas fa-user"></i>
+                Personal Information
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">
+                        {{ $otherStaff->name }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Staff ID</div>
+                    <div class="info-value">
+                        {{ $otherStaff->staff_id }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Gender</div>
+                    <div class="info-value">
+                        {{ $otherStaff->gender ?: 'Not Provided' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Date of Birth</div>
+                    <div class="info-value">
+                        @if($otherStaff->date_of_birth)
+                            {{ \Carbon\Carbon::parse($otherStaff->date_of_birth)->format('d M Y') }}
+                        @else
+                            <span class="empty-value">Not Provided</span>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ================= CONTACT INFORMATION ================= --}}
+        <div class="info-card">
+
+            <div class="card-title">
+                <i class="fas fa-address-book"></i>
+                Contact Information
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">
+                        @if($otherStaff->phone)
+                            <i class="fas fa-phone"></i>
+                            {{ $otherStaff->phone }}
+                        @else
+                            <span class="empty-value">Not Provided</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">
+                        @if($otherStaff->email)
+                            <i class="fas fa-envelope"></i>
+                            {{ $otherStaff->email }}
+                        @else
+                            <span class="empty-value">Not Provided</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label">Address</div>
+                    <div class="info-value">
+                        @if($otherStaff->address)
+                            {{ $otherStaff->address }}
+                        @else
+                            <span class="empty-value">Not Provided</span>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ================= PROFESSIONAL INFORMATION ================= --}}
+        <div class="info-card">
+
+            <div class="card-title">
+                <i class="fas fa-briefcase"></i>
+                Professional Information
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <div class="info-label">Designation</div>
+                    <div class="info-value">
+                        {{ $otherStaff->designation ?: 'Not Provided' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Department</div>
+                    <div class="info-value">
+                        {{ $otherStaff->department ?: 'Not Provided' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Qualification</div>
+                    <div class="info-value">
+                        {{ $otherStaff->qualification ?: 'Not Provided' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">License Number</div>
+                    <div class="info-value">
+                        {{ $otherStaff->license_number ?: 'Not Provided' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">License Expiry</div>
+                    <div class="info-value">
+                        @if($otherStaff->license_expiry)
+                            {{ \Carbon\Carbon::parse($otherStaff->license_expiry)->format('d M Y') }}
+                        @else
+                            <span class="empty-value">Not Provided</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Joining Date</div>
+                    <div class="info-value">
+                        @if($otherStaff->joining_date)
+                            {{ \Carbon\Carbon::parse($otherStaff->joining_date)->format('d M Y') }}
+                        @else
+                            <span class="empty-value">Not Provided</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">
+                        @if($otherStaff->status === 'Active')
+                            <span style="color:#047857;font-weight:600;">
+                                <i class="fas fa-check-circle"></i>
+                                Active
+                            </span>
+                        @else
+                            <span style="color:#b91c1c;font-weight:600;">
+                                <i class="fas fa-times-circle"></i>
+                                Inactive
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ================= RECORD INFORMATION ================= --}}
+        <div class="info-card">
+
+            <div class="card-title">
+                <i class="fas fa-clock"></i>
+                Record Information
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <div class="info-label">Created At</div>
+                    <div class="info-value">
+                        @if($otherStaff->created_at)
+                            {{ $otherStaff->created_at->format('d M Y, h:i A') }}
+                        @else
+                            <span class="empty-value">Not Available</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Last Updated</div>
+                    <div class="info-value">
+                        @if($otherStaff->updated_at)
+                            {{ $otherStaff->updated_at->format('d M Y, h:i A') }}
+                        @else
+                            <span class="empty-value">Not Available</span>
+                        @endif
+                    </div>
+                </div>
 
             </div>
 

@@ -1,453 +1,399 @@
-@extends('layouts.app')
-
-@section('title', 'Add Staff')
-@section('page-title', 'Add Staff')
+﻿@extends('layouts.app')
 
 @section('content')
 
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
->
-
 <style>
-    /* =========================================================
-       ADD STAFF PAGE
-    ========================================================= */
-
     .staff-create-page {
-        width: 100%;
-        max-width: 1500px;
-        margin: 0 auto;
-        padding: 10px 0 30px;
+        padding: 24px;
     }
 
-    .staff-header {
-        background: linear-gradient(135deg, #147cf5, #6c63ff);
-        border-radius: 18px;
-        padding: 24px 28px;
-        color: #fff;
-        margin-bottom: 22px;
-        box-shadow: 0 8px 25px rgba(30, 80, 180, 0.15);
-    }
-
-    .staff-header-inner {
+    .page-header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: 20px;
-    }
-
-    .staff-header-left {
-        display: flex;
         align-items: center;
+        margin-bottom: 24px;
         gap: 15px;
     }
 
-    .staff-header-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.18);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 25px;
-    }
-
-    .staff-header h2 {
+    .page-title h1 {
         margin: 0;
+        color: #172033;
         font-size: 24px;
         font-weight: 700;
     }
 
-    .staff-header p {
-        margin: 5px 0 0;
-        font-size: 14px;
-        opacity: 0.9;
+    .page-title p {
+        margin: 6px 0 0;
+        color: #7b8497;
+        font-size: 13px;
     }
 
     .back-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 7px;
+        padding: 10px 15px;
+        border: 1px solid #dce2eb;
+        border-radius: 8px;
         background: #fff;
-        color: #1769d1;
-        border: none;
-        border-radius: 10px;
-        padding: 11px 17px;
+        color: #455066;
         text-decoration: none;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
-        transition: 0.2s ease;
     }
 
     .back-btn:hover {
-        color: #1769d1;
-        transform: translateY(-1px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+        background: #f7f9fc;
     }
 
-    /* =========================================================
-       FORM CARD
-    ========================================================= */
-
-    .staff-card {
+    .form-card {
         background: #fff;
-        border-radius: 18px;
-        border: 1px solid #e7edf7;
-        box-shadow: 0 6px 24px rgba(31, 52, 90, 0.07);
+        border: 1px solid #e7ebf2;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(25, 45, 75, .04);
         overflow: hidden;
     }
 
-    .card-section {
-        padding: 25px 28px;
-        border-bottom: 1px solid #edf1f7;
+    .form-section {
+        padding: 22px;
+        border-bottom: 1px solid #edf0f5;
     }
 
-    .card-section:last-child {
+    .form-section:last-child {
         border-bottom: none;
     }
 
-    .section-heading {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        margin-bottom: 20px;
+    .section-title {
+        margin-bottom: 18px;
     }
 
-    .section-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: #eef5ff;
-        color: #147cf5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-
-    .section-heading h3 {
+    .section-title h3 {
         margin: 0;
-        font-size: 17px;
+        color: #172033;
+        font-size: 16px;
         font-weight: 700;
-        color: #26364d;
     }
 
-    .section-heading p {
-        margin: 3px 0 0;
-        color: #8995a7;
+    .section-title p {
+        margin: 5px 0 0;
+        color: #8a93a5;
         font-size: 12px;
     }
 
-    .form-label {
-        color: #34445a;
-        font-size: 13px;
-        font-weight: 600;
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
         margin-bottom: 7px;
+        color: #455066;
+        font-size: 12px;
+        font-weight: 650;
     }
 
     .required {
-        color: #dc3545;
+        color: #d32f2f;
     }
 
-    .form-control,
-    .form-select {
-        min-height: 44px;
-        border: 1px solid #dce4ef;
-        border-radius: 10px;
-        padding: 10px 13px;
-        color: #334155;
-        font-size: 14px;
-        background-color: #fff;
-        box-shadow: none;
-        transition: 0.2s ease;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #6c63ff;
-        box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.10);
+    .form-control {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #dfe4ec;
+        border-radius: 7px;
+        background: #fff;
+        color: #343d50;
+        font-size: 13px;
+        outline: none;
+        box-sizing: border-box;
     }
 
     textarea.form-control {
-        min-height: 105px;
+        height: 100px;
+        padding: 11px 12px;
         resize: vertical;
     }
 
-    .form-text {
-        color: #8a96a8;
+    .form-control:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, .08);
+    }
+
+    .readonly-field {
+        background: #f5f7fa;
+        color: #5f6b80;
+        cursor: not-allowed;
+        font-weight: 650;
+    }
+
+    .file-input {
+        height: auto;
+        padding: 9px 12px;
+    }
+
+    .form-help {
+        margin-top: 5px;
+        color: #8a93a5;
         font-size: 11px;
+    }
+
+    .error-message {
         margin-top: 5px;
+        color: #d32f2f;
+        font-size: 11px;
     }
 
-    .is-invalid {
-        border-color: #dc3545 !important;
-    }
-
-    .invalid-feedback {
-        display: block;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    /* =========================================================
-       STAFF ID
-    ========================================================= */
-
-    .staff-id-wrapper {
-        position: relative;
-    }
-
-    .staff-id-wrapper .form-control {
-        padding-right: 45px;
-        background: #f7f9fd;
-        font-weight: 700;
-        color: #1769d1;
-    }
-
-    .staff-id-icon {
-        position: absolute;
-        right: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c63ff;
-        pointer-events: none;
-    }
-
-    /* =========================================================
-       PHOTO UPLOAD
-    ========================================================= */
-
-    .photo-upload-box {
-        border: 2px dashed #d8e2f0;
-        border-radius: 14px;
-        padding: 20px;
-        background: #f9fbff;
-        text-align: center;
-        transition: 0.2s ease;
-    }
-
-    .photo-upload-box:hover {
-        border-color: #6c63ff;
-        background: #f6f7ff;
-    }
-
-    .photo-icon {
-        width: 55px;
-        height: 55px;
-        margin: 0 auto 10px;
-        border-radius: 14px;
-        background: #eef5ff;
-        color: #147cf5;
+    /* Photo preview */
+    .photo-upload-area {
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 25px;
-    }
-
-    .photo-upload-box label {
-        cursor: pointer;
-    }
-
-    .photo-title {
-        display: block;
-        color: #34445a;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 3px;
-    }
-
-    .photo-subtitle {
-        color: #8a96a8;
-        font-size: 12px;
-        margin-bottom: 12px;
+        gap: 18px;
     }
 
     .photo-preview {
-        display: none;
-        width: 90px;
-        height: 90px;
+        width: 82px;
+        height: 82px;
+        border-radius: 50%;
         object-fit: cover;
-        border-radius: 12px;
-        margin: 12px auto 0;
-        border: 3px solid #fff;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+        border: 2px solid #e1e6ef;
+        background: #f5f7fa;
+        display: none;
     }
 
-    /* =========================================================
-       FOOTER BUTTONS
-    ========================================================= */
-
-    .form-footer {
-        padding: 20px 28px;
-        background: #f9fbfe;
-        border-top: 1px solid #edf1f7;
+    .photo-placeholder {
+        width: 82px;
+        height: 82px;
+        border-radius: 50%;
+        background: #eef4ff;
+        color: #1976d2;
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        gap: 12px;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        flex-shrink: 0;
     }
 
-    .btn-cancel,
-    .btn-save {
-        min-height: 44px;
-        border-radius: 10px;
-        padding: 10px 20px;
-        font-size: 14px;
+    .photo-info {
+        flex: 1;
+    }
+
+    .photo-size {
+        margin-top: 5px;
+        font-size: 11px;
+        color: #7b8497;
+    }
+
+    .compression-status {
+        margin-top: 6px;
+        font-size: 11px;
         font-weight: 600;
+    }
+
+    .compression-success {
+        color: #2e7d32;
+    }
+
+    .compression-warning {
+        color: #ef6c00;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 20px 22px;
+        background: #fafbfd;
+        border-top: 1px solid #edf0f5;
+    }
+
+    .cancel-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        min-width: 100px;
+        height: 40px;
+        padding: 0 15px;
+        border-radius: 7px;
+        background: #f0f2f6;
+        color: #596579;
         text-decoration: none;
-        transition: 0.2s ease;
-    }
-
-    .btn-cancel {
-        background: #fff;
-        border: 1px solid #d9e1ec;
-        color: #5c6b7e;
-    }
-
-    .btn-cancel:hover {
-        color: #334155;
-        background: #f4f7fb;
-    }
-
-    .btn-save {
-        border: none;
-        background: linear-gradient(135deg, #147cf5, #6c63ff);
-        color: #fff;
-        box-shadow: 0 5px 15px rgba(67, 90, 220, 0.20);
-    }
-
-    .btn-save:hover {
-        color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 7px 18px rgba(67, 90, 220, 0.28);
-    }
-
-    /* =========================================================
-       ALERT
-    ========================================================= */
-
-    .error-alert {
-        border: none;
-        border-radius: 12px;
-        background: #fff1f2;
-        color: #b42318;
-        padding: 14px 16px;
-        margin-bottom: 20px;
         font-size: 13px;
+        font-weight: 600;
     }
 
-    .error-alert ul {
-        margin: 7px 0 0 18px;
-        padding: 0;
+    .save-btn {
+        border: none;
+        min-width: 120px;
+        height: 40px;
+        padding: 0 18px;
+        border-radius: 7px;
+        background: #1976d2;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
     }
 
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
+    .save-btn:hover {
+        background: #1565c0;
+    }
 
-    @media (max-width: 768px) {
+    .save-btn:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+    }
+
+    /* =========================================
+       ROLE SPECIFIC STAFF FIELDS
+    ========================================== */
+
+    .role-specific-section {
+        display: none;
+        grid-column: 1 / -1;
+        margin-top: 4px;
+        padding: 18px;
+        background: #f8fafc;
+        border: 1px solid #e5eaf1;
+        border-radius: 10px;
+    }
+
+    .role-specific-section.show {
+        display: block;
+    }
+
+    .role-specific-header {
+        margin-bottom: 16px;
+    }
+
+    .role-specific-header h4 {
+        margin: 0;
+        color: #172033;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .role-specific-header p {
+        margin: 5px 0 0;
+        color: #8a93a5;
+        font-size: 11px;
+    }
+
+    .role-specific-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .role-specific-grid .full {
+        grid-column: 1 / -1;
+    }
+
+    @media (max-width: 700px) {
         .staff-create-page {
-            padding: 5px 0 20px;
+            padding: 15px;
         }
 
-        .staff-header {
-            padding: 20px;
-            border-radius: 14px;
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        .staff-header-inner {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: auto;
+        }
+
+        .role-specific-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .role-specific-grid .full {
+            grid-column: auto;
+        }
+
+        .photo-upload-area {
             align-items: flex-start;
             flex-direction: column;
         }
 
-        .staff-header h2 {
-            font-size: 20px;
-        }
-
-        .back-btn {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .card-section {
-            padding: 20px;
-        }
-
-        .form-footer {
-            padding: 18px 20px;
+        .form-actions {
             flex-direction: column-reverse;
         }
 
-        .btn-cancel,
-        .btn-save {
+        .cancel-btn,
+        .save-btn {
             width: 100%;
         }
     }
 </style>
 
+
 <div class="staff-create-page">
 
-    {{-- =====================================================
-         HEADER
-    ====================================================== --}}
-    <div class="staff-header">
-        <div class="staff-header-inner">
+    {{-- Header --}}
+    <div class="page-header">
 
-            <div class="staff-header-left">
+        <div class="page-title">
+            <h1>Add Staff Member</h1>
 
-                <div class="staff-header-icon">
-                    <i class="bi bi-person-plus-fill"></i>
-                </div>
-
-                <div>
-                    <h2>Add Staff</h2>
-                    <p>Create a new non-teaching staff member.</p>
-                </div>
-
-            </div>
-
-            <a
-                href="{{ route('admin.other-staff.index') }}"
-                class="back-btn"
-            >
-                <i class="bi bi-arrow-left"></i>
-                Back to Staff
-            </a>
-
+            <p>
+                Add a new non-teaching staff member to the school.
+            </p>
         </div>
+
+        <a href="{{ route('admin.other-staff.index') }}"
+           class="back-btn">
+            ΓåÉ Back to Staff
+        </a>
+
     </div>
 
-    {{-- =====================================================
-         VALIDATION ERRORS
-    ====================================================== --}}
-    @if ($errors->any())
-        <div class="error-alert">
 
-            <strong>
-                <i class="bi bi-exclamation-circle me-1"></i>
-                Please correct the following errors:
-            </strong>
+    {{-- Validation Errors --}}
+    @if($errors->any())
 
-            <ul>
-                @foreach ($errors->all() as $error)
+        <div style="
+            background:#ffebee;
+            color:#c62828;
+            border:1px solid #ffcdd2;
+            padding:14px 16px;
+            border-radius:8px;
+            margin-bottom:20px;
+            font-size:13px;
+        ">
+
+            <strong>Please fix the following:</strong>
+
+            <ul style="margin:8px 0 0 18px;">
+
+                @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
+
             </ul>
 
         </div>
+
     @endif
 
-    {{-- =====================================================
-         FORM
-    ====================================================== --}}
+
     <form
+        id="staffForm"
         action="{{ route('admin.other-staff.store') }}"
         method="POST"
         enctype="multipart/form-data"
@@ -455,478 +401,479 @@
 
         @csrf
 
-        <div class="staff-card">
 
-            {{-- =================================================
-                 BASIC INFORMATION
-            ================================================== --}}
-            <div class="card-section">
+        <div class="form-card">
 
-                <div class="section-heading">
 
-                    <div class="section-icon">
-                        <i class="bi bi-person-vcard"></i>
-                    </div>
+            {{-- =========================
+                 PERSONAL INFORMATION
+            ========================== --}}
 
-                    <div>
-                        <h3>Basic Information</h3>
-                        <p>Enter the staff member's basic details.</p>
-                    </div>
+            <div class="form-section">
+
+                <div class="section-title">
+
+                    <h3>Personal Information</h3>
+
+                    <p>
+                        Basic information about the staff member.
+                    </p>
 
                 </div>
 
-                <div class="row g-4">
 
-                    {{-- STAFF ID --}}
-                    <div class="col-lg-4 col-md-6">
+                <div class="form-grid">
 
-                        <label class="form-label">
-                            Staff ID <span class="required">*</span>
+
+                    {{-- Staff ID --}}
+                    <div class="form-group">
+
+                        <label>
+                            Staff ID
                         </label>
 
-                        <div class="staff-id-wrapper">
+                        <input
+                            type="text"
+                            name="staff_id"
+                            class="form-control"
+                            value="{{ old('staff_id', $nextStaffId) }}"
+                            required
+                        >
 
-                            <input
-                                type="text"
-                                name="staff_id"
-                                value="{{ old('staff_id', $nextStaffId) }}"
-                                class="form-control @error('staff_id') is-invalid @enderror"
-                                readonly
-                            >
-
-                            <i class="bi bi-shield-check staff-id-icon"></i>
-
-                        </div>
-
-                        @error('staff_id')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                        <div class="form-text">
-                            Staff ID is generated automatically.
-                        </div>
+                        <span class="form-help">
+                            Staff ID is automatically generated.
+                        </span>
 
                     </div>
 
-                    {{-- NAME --}}
-                    <div class="col-lg-8 col-md-6">
 
-                        <label class="form-label">
-                            Full Name <span class="required">*</span>
+                    {{-- Full Name --}}
+                    <div class="form-group">
+
+                        <label>
+                            Full Name
+                            <span class="required">*</span>
                         </label>
 
                         <input
                             type="text"
                             name="name"
+                            class="form-control"
+                            placeholder="Enter full name"
                             value="{{ old('name') }}"
-                            class="form-control @error('name') is-invalid @enderror"
-                            placeholder="Enter staff full name"
-                            maxlength="255"
                             required
                         >
 
                         @error('name')
-                            <div class="invalid-feedback">
+                            <span class="error-message">
                                 {{ $message }}
-                            </div>
+                            </span>
                         @enderror
 
                     </div>
 
-                    {{-- DESIGNATION --}}
-                    <div class="col-lg-4 col-md-6">
 
-                        <label class="form-label">
-                            Designation <span class="required">*</span>
-                        </label>
+                    {{-- Gender --}}
+                    <div class="form-group">
 
-                        <select
-                            name="designation"
-                            class="form-select @error('designation') is-invalid @enderror"
-                            required
-                        >
-
-                            <option value="">
-                                Select designation
-                            </option>
-
-                            @foreach ([
-                                'Librarian',
-                                'Accountant',
-                                'Receptionist',
-                                'Peon',
-                                'Driver',
-                                'Other'
-                            ] as $designation)
-
-                                <option
-                                    value="{{ $designation }}"
-                                    @selected(old('designation') === $designation)
-                                >
-                                    {{ $designation }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        @error('designation')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-                    {{-- DEPARTMENT --}}
-                    <div class="col-lg-4 col-md-6">
-
-                        <label class="form-label">
-                            Department
-                        </label>
-
-                        <input
-                            type="text"
-                            name="department"
-                            value="{{ old('department') }}"
-                            class="form-control @error('department') is-invalid @enderror"
-                            placeholder="Enter department"
-                            maxlength="255"
-                        >
-
-                        @error('department')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-                    {{-- STATUS --}}
-                    <div class="col-lg-4 col-md-6">
-
-                        <label class="form-label">
-                            Status <span class="required">*</span>
-                        </label>
-
-                        <select
-                            name="status"
-                            class="form-select @error('status') is-invalid @enderror"
-                            required
-                        >
-
-                            <option value="Active"
-                                @selected(old('status', 'Active') === 'Active')
-                            >
-                                Active
-                            </option>
-
-                            <option value="Inactive"
-                                @selected(old('status') === 'Inactive')
-                            >
-                                Inactive
-                            </option>
-
-                        </select>
-
-                        @error('status')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            {{-- =================================================
-                 PERSONAL INFORMATION
-            ================================================== --}}
-            <div class="card-section">
-
-                <div class="section-heading">
-
-                    <div class="section-icon">
-                        <i class="bi bi-person-lines-fill"></i>
-                    </div>
-
-                    <div>
-                        <h3>Personal Information</h3>
-                        <p>Enter personal and contact information.</p>
-                    </div>
-
-                </div>
-
-                <div class="row g-4">
-
-                    {{-- GENDER --}}
-                    <div class="col-lg-4 col-md-6">
-
-                        <label class="form-label">
+                        <label>
                             Gender
                         </label>
 
                         <select
                             name="gender"
-                            class="form-select @error('gender') is-invalid @enderror"
+                            class="form-control"
                         >
 
                             <option value="">
-                                Select gender
+                                Select Gender
                             </option>
 
                             <option value="Male"
-                                @selected(old('gender') === 'Male')
-                            >
+                                {{ old('gender') === 'Male' ? 'selected' : '' }}>
                                 Male
                             </option>
 
                             <option value="Female"
-                                @selected(old('gender') === 'Female')
-                            >
+                                {{ old('gender') === 'Female' ? 'selected' : '' }}>
                                 Female
                             </option>
 
                             <option value="Other"
-                                @selected(old('gender') === 'Other')
-                            >
+                                {{ old('gender') === 'Other' ? 'selected' : '' }}>
                                 Other
                             </option>
 
                         </select>
 
-                        @error('gender')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
                     </div>
 
-                    {{-- DATE OF BIRTH --}}
-                    <div class="col-lg-4 col-md-6">
 
-                        <label class="form-label">
+                    {{-- Date of Birth --}}
+                    <div class="form-group">
+
+                        <label>
                             Date of Birth
                         </label>
 
                         <input
                             type="date"
                             name="date_of_birth"
+                            class="form-control"
                             value="{{ old('date_of_birth') }}"
-                            class="form-control @error('date_of_birth') is-invalid @enderror"
                         >
-
-                        @error('date_of_birth')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
                     </div>
 
-                    {{-- JOINING DATE --}}
-                    <div class="col-lg-4 col-md-6">
 
-                        <label class="form-label">
-                            Joining Date
+                    {{-- Profile Photo --}}
+                    <div class="form-group full">
+
+                        <label>
+                            Profile Photo
                         </label>
 
-                        <input
-                            type="date"
-                            name="joining_date"
-                            value="{{ old('joining_date') }}"
-                            class="form-control @error('joining_date') is-invalid @enderror"
-                            max="{{ date('Y-m-d') }}"
-                        >
+                        <div class="photo-upload-area">
 
-                        @error('joining_date')
-                            <div class="invalid-feedback">
-                                {{ $message }}
+                            <div
+                                class="photo-placeholder"
+                                id="photoPlaceholder"
+                            >
+                                ≡ƒæñ
                             </div>
+
+                            <img
+                                id="photoPreview"
+                                class="photo-preview"
+                                alt="Profile Preview"
+                            >
+
+                            <div class="photo-info">
+
+                                <input
+                                    type="file"
+                                    id="profilePhoto"
+                                    name="profile_photo"
+                                    class="form-control file-input"
+                                    accept=".jpg,.jpeg,.png,.webp"
+                                >
+
+                                <div class="form-help">
+                                    JPG, JPEG, PNG or WEBP.
+                                    Image will be compressed to approximately 250 KB.
+                                </div>
+
+                                <div
+                                    id="compressionStatus"
+                                    class="compression-status"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                        @error('profile_photo')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
                         @enderror
 
                     </div>
 
-                    {{-- PHONE --}}
-                    <div class="col-lg-4 col-md-6">
+                </div>
 
-                        <label class="form-label">
+            </div>
+
+
+            {{-- =========================
+                 CONTACT INFORMATION
+            ========================== --}}
+
+            <div class="form-section">
+
+                <div class="section-title">
+
+                    <h3>Contact Information</h3>
+
+                    <p>
+                        Contact details and residential address.
+                    </p>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    {{-- Phone --}}
+                    <div class="form-group">
+
+                        <label>
                             Phone Number
                         </label>
 
                         <input
                             type="text"
                             name="phone"
-                            value="{{ old('phone') }}"
-                            class="form-control @error('phone') is-invalid @enderror"
+                            class="form-control"
                             placeholder="Enter phone number"
-                            maxlength="20"
+                            value="{{ old('phone') }}"
                         >
-
-                        @error('phone')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
                     </div>
 
-                    {{-- EMAIL --}}
-                    <div class="col-lg-4 col-md-6">
 
-                        <label class="form-label">
+                    {{-- Email --}}
+                    <div class="form-group">
+
+                        <label>
                             Email Address
                         </label>
 
                         <input
                             type="email"
                             name="email"
-                            value="{{ old('email') }}"
-                            class="form-control @error('email') is-invalid @enderror"
+                            class="form-control"
                             placeholder="Enter email address"
-                            maxlength="255"
+                            value="{{ old('email') }}"
                         >
 
                         @error('email')
-                            <div class="invalid-feedback">
+                            <span class="error-message">
                                 {{ $message }}
-                            </div>
+                            </span>
                         @enderror
 
                     </div>
 
-                    {{-- QUALIFICATION --}}
-                    <div class="col-lg-4 col-md-6">
 
-                        <label class="form-label">
-                            Qualification
-                        </label>
+                    {{-- Address --}}
+                    <div class="form-group full">
 
-                        <input
-                            type="text"
-                            name="qualification"
-                            value="{{ old('qualification') }}"
-                            class="form-control @error('qualification') is-invalid @enderror"
-                            placeholder="Enter qualification"
-                            maxlength="255"
-                        >
-
-                        @error('qualification')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-                    {{-- ADDRESS --}}
-                    <div class="col-12">
-
-                        <label class="form-label">
+                        <label>
                             Address
                         </label>
 
                         <textarea
                             name="address"
-                            class="form-control @error('address') is-invalid @enderror"
+                            class="form-control"
                             placeholder="Enter complete address"
                         >{{ old('address') }}</textarea>
 
-                        @error('address')
-                            <div class="invalid-feedback">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- =========================
+                 EMPLOYMENT INFORMATION
+            ========================== --}}
+
+            <div class="form-section">
+
+                <div class="section-title">
+
+                    <h3>Employment Information</h3>
+
+                    <p>
+                        Role and employment details.
+                    </p>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    {{-- Designation --}}
+                    <div class="form-group">
+
+                        <label>
+                            Designation
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="designation"
+                            id="designation"
+                            class="form-control"
+                            required
+                        >
+
+                            <option value="">
+                                Select Designation
+                            </option>
+
+                            <option value="Librarian"
+                                {{ old('designation') === 'Librarian' ? 'selected' : '' }}>
+                                Librarian
+                            </option>
+
+                            <option value="Accountant"
+                                {{ old('designation') === 'Accountant' ? 'selected' : '' }}>
+                                Accountant
+                            </option>
+
+                            <option value="Receptionist"
+                                {{ old('designation') === 'Receptionist' ? 'selected' : '' }}>
+                                Receptionist
+                            </option>
+
+                            <option value="Peon"
+                                {{ old('designation') === 'Peon' ? 'selected' : '' }}>
+                                Peon
+                            </option>
+
+                            <option value="Driver"
+                                {{ old('designation') === 'Driver' ? 'selected' : '' }}>
+                                Driver
+                            </option>
+
+                            <option value="Other"
+                                {{ old('designation') === 'Other' ? 'selected' : '' }}>
+                                Other
+                            </option>
+
+                        </select>
+
+                        @error('designation')
+                            <span class="error-message">
                                 {{ $message }}
-                            </div>
+                            </span>
                         @enderror
 
                     </div>
 
-                </div>
 
-            </div>
+                    {{-- Department --}}
+                    <div class="form-group">
 
-            {{-- =================================================
-                 PROFILE PHOTO
-            ================================================== --}}
-            <div class="card-section">
+                        <label>
+                            Department
+                        </label>
 
-                <div class="section-heading">
+                        <input
+                            type="text"
+                            name="department"
+                            id="department"
+                            class="form-control readonly-field"
+                            placeholder="Select designation first"
+                            value="{{ old('department') }}"
+                            readonly
+                        >
 
-                    <div class="section-icon">
-                        <i class="bi bi-camera"></i>
-                    </div>
-
-                    <div>
-                        <h3>Profile Photo</h3>
-                        <p>Upload a photo of the staff member.</p>
-                    </div>
-
-                </div>
-
-                <div class="photo-upload-box">
-
-                    <div class="photo-icon">
-                        <i class="bi bi-cloud-arrow-up"></i>
-                    </div>
-
-                    <label for="profile_photo">
-
-                        <span class="photo-title">
-                            Choose Profile Photo
+                        <span class="form-help">
+                            Department is assigned automatically according to designation.
                         </span>
 
-                        <span class="photo-subtitle">
-                            JPG, JPEG, PNG or WEBP — maximum 2 MB
-                        </span>
+                    </div>
 
-                    </label>
 
-                    <input
-                        type="file"
-                        id="profile_photo"
-                        name="profile_photo"
-                        class="form-control @error('profile_photo') is-invalid @enderror"
-                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                    {{-- Role-specific information --}}
+                    <div
+                        id="roleSpecificSection"
+                        class="role-specific-section"
                     >
 
-                    <img
-                        id="photoPreview"
-                        class="photo-preview"
-                        alt="Profile photo preview"
-                    >
+                        <div class="role-specific-header">
 
-                    @error('profile_photo')
-                        <div class="invalid-feedback">
-                            {{ $message }}
+                            <h4 id="roleSpecificTitle">
+                                Role Information
+                            </h4>
+
+                            <p id="roleSpecificDescription">
+                                Select a designation to see the fields for that role.
+                            </p>
+
                         </div>
-                    @enderror
+
+                        <div
+                            id="roleSpecificFields"
+                            class="role-specific-grid"
+                        ></div>
+
+                    </div>
+
+
+                    {{-- Joining Date --}}
+                    <div class="form-group">
+
+                        <label>
+                            Joining Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="joining_date"
+                            id="joiningDate"
+                            class="form-control"
+                            value="{{ old('joining_date') }}"
+                            max="{{ date('Y-m-d') }}"
+                        >
+
+                        <span class="form-help">
+                            Future joining dates are not allowed.
+                        </span>
+
+                        @error('joining_date')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- Employment Status --}}
+                    <div class="form-group">
+
+                        <label>
+                            Employment Status
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="status"
+                            class="form-control"
+                            required
+                        >
+
+                            <option value="Active"
+                                {{ old('status', 'Active') === 'Active' ? 'selected' : '' }}>
+                                Active
+                            </option>
+
+                            <option value="Inactive"
+                                {{ old('status') === 'Inactive' ? 'selected' : '' }}>
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
 
                 </div>
 
             </div>
 
-            {{-- =================================================
-                 FORM FOOTER
-            ================================================== --}}
-            <div class="form-footer">
+
+            {{-- Actions --}}
+            <div class="form-actions">
 
                 <a
                     href="{{ route('admin.other-staff.index') }}"
-                    class="btn-cancel"
+                    class="cancel-btn"
                 >
-                    <i class="bi bi-x-lg"></i>
                     Cancel
                 </a>
 
                 <button
                     type="submit"
-                    class="btn-save"
+                    id="saveButton"
+                    class="save-btn"
                 >
-                    <i class="bi bi-check-circle"></i>
                     Save Staff
                 </button>
 
@@ -938,42 +885,1127 @@
 
 </div>
 
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
-        const photoInput = document.getElementById('profile_photo');
-        const photoPreview = document.getElementById('photoPreview');
+    /*
+    |--------------------------------------------------------------------------
+    | Designation Based Staff Fields
+    |--------------------------------------------------------------------------
+    */
 
-        if (photoInput && photoPreview) {
+    const designation =
+        document.getElementById('designation');
 
-            photoInput.addEventListener('change', function (event) {
+    const department =
+        document.getElementById('department');
 
-                const file = event.target.files[0];
+    const roleSpecificSection =
+        document.getElementById('roleSpecificSection');
 
-                if (!file) {
-                    photoPreview.style.display = 'none';
-                    photoPreview.removeAttribute('src');
-                    return;
-                }
+    const roleSpecificFields =
+        document.getElementById('roleSpecificFields');
 
-                if (!file.type.startsWith('image/')) {
-                    photoPreview.style.display = 'none';
-                    photoPreview.removeAttribute('src');
-                    return;
-                }
+    const roleSpecificTitle =
+        document.getElementById('roleSpecificTitle');
 
-                const reader = new FileReader();
+    const roleSpecificDescription =
+        document.getElementById('roleSpecificDescription');
 
-                reader.onload = function (e) {
-                    photoPreview.src = e.target.result;
-                    photoPreview.style.display = 'block';
-                };
 
-                reader.readAsDataURL(file);
-            });
+    /*
+    |--------------------------------------------------------------------------
+    | Department Mapping
+    |--------------------------------------------------------------------------
+    */
+
+    const departmentMap = {
+        Librarian: 'Library',
+        Accountant: 'Accounts',
+        Receptionist: 'Administration',
+        Peon: 'Maintenance',
+        Driver: 'Transport',
+        Other: 'Other'
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Role Specific Fields
+    |--------------------------------------------------------------------------
+    */
+
+    const roleTemplates = {
+
+        Driver: {
+
+            title: 'Driver Information',
+
+            description:
+                'Enter vehicle, route and driving license details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Bus Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[bus_number]"
+                        class="form-control"
+                        placeholder="e.g. BUS-101"
+                        value="{{ old('role_details.bus_number') }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Vehicle Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[vehicle_number]"
+                        class="form-control"
+                        placeholder="e.g. MH12AB1234"
+                        value="{{ old('role_details.vehicle_number') }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Route Name
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[route_name]"
+                        class="form-control"
+                        placeholder="e.g. Pune Station - School"
+                        value="{{ old('role_details.route_name') }}"
+                        required
+                    >
+
+                </div>
+
+
+                {{-- =====================================
+                     NEW: DRIVING LICENSE NUMBER
+                ====================================== --}}
+
+                <div class="form-group">
+
+                    <label>
+                        Driving License Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="license_number"
+                        class="form-control"
+                        placeholder="Enter driving license number"
+                        value="{{ old('license_number') }}"
+                    >
+
+                    <span class="form-help">
+                        This license number will be available when assigning this driver to a vehicle.
+                    </span>
+
+                    @if($errors->has('license_number'))
+                        <span class="error-message">
+                            {{ $errors->first('license_number') }}
+                        </span>
+                    @endif
+
+                </div>
+
+
+                {{-- =====================================
+                     NEW: LICENSE EXPIRY DATE
+                ====================================== --}}
+
+                <div class="form-group">
+
+                    <label>
+                        License Expiry Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="license_expiry"
+                        class="form-control"
+                        value="{{ old('license_expiry') }}"
+                    >
+
+                    @if($errors->has('license_expiry'))
+                        <span class="error-message">
+                            {{ $errors->first('license_expiry') }}
+                        </span>
+                    @endif
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+            `
+        },
+
+
+        Receptionist: {
+
+            title: 'Receptionist Information',
+
+            description:
+                'Enter reception desk and working shift details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Extension Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[extension_number]"
+                        class="form-control"
+                        placeholder="e.g. 101"
+                        value="{{ old('role_details.extension_number') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter receptionist responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Peon: {
+
+            title: 'Peon Information',
+
+            description:
+                'Enter assigned area, shift and responsibilities.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Assigned Area
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[assigned_area]"
+                        class="form-control"
+                        placeholder="e.g. Main Building"
+                        value="{{ old('role_details.assigned_area') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Duties / Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[duties]"
+                        class="form-control"
+                        placeholder="Enter assigned duties"
+                    >{{ old('role_details.duties') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Librarian: {
+
+            title: 'Librarian Information',
+
+            description:
+                'Enter library assignment and working details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Library Section
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[library_section]"
+                        class="form-control"
+                        placeholder="e.g. Reference Section"
+                        value="{{ old('role_details.library_section') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Library Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter library responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Accountant: {
+
+            title: 'Accountant Information',
+
+            description:
+                'Enter accounting and financial work details.',
+
+            fields: `
+
+                <div class="form-group">
+
+                    <label>
+                        Accounting Software
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role_details[accounting_software]"
+                        class="form-control"
+                        placeholder="e.g. Tally"
+                        value="{{ old('role_details.accounting_software') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Shift
+                    </label>
+
+                    <select
+                        name="role_details[shift]"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select Shift
+                        </option>
+
+                        <option value="Morning">
+                            Morning
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Evening">
+                            Evening
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Responsibilities
+                    </label>
+
+                    <textarea
+                        name="role_details[responsibilities]"
+                        class="form-control"
+                        placeholder="Enter accounting responsibilities"
+                    >{{ old('role_details.responsibilities') }}</textarea>
+
+                </div>
+
+            `
+        },
+
+
+        Other: {
+
+            title: 'Staff Role Information',
+
+            description:
+                'Enter information about this staff member\'s role.',
+
+            fields: `
+
+                <div class="form-group full">
+
+                    <label>
+                        Role Description
+                    </label>
+
+                    <textarea
+                        name="role_details[description]"
+                        class="form-control"
+                        placeholder="Describe the staff member's role and responsibilities"
+                    >{{ old('role_details.description') }}</textarea>
+
+                </div>
+
+            `
         }
 
-    });
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Role Fields
+    |--------------------------------------------------------------------------
+    */
+
+    function updateRoleFields() {
+
+        const selectedRole =
+            designation.value;
+
+
+        // Automatically assign department
+        if (departmentMap[selectedRole]) {
+
+            department.value =
+                departmentMap[selectedRole];
+
+        } else {
+
+            department.value = '';
+
+        }
+
+
+        // Remove previous role fields
+        roleSpecificFields.innerHTML = '';
+
+
+        // Hide role section if no designation is selected
+        if (
+            !selectedRole ||
+            !roleTemplates[selectedRole]
+        ) {
+
+            roleSpecificSection.classList.remove('show');
+
+            return;
+        }
+
+
+        const role =
+            roleTemplates[selectedRole];
+
+
+        roleSpecificTitle.textContent =
+            role.title;
+
+        roleSpecificDescription.textContent =
+            role.description;
+
+
+        // Add fields for selected role
+        roleSpecificFields.innerHTML =
+            role.fields;
+
+
+        // Show role-specific section
+        roleSpecificSection.classList.add('show');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Restore old role_details values
+        |--------------------------------------------------------------------------
+        */
+
+        const oldRoleDetails =
+            @json(old('role_details', []));
+
+        Object.keys(oldRoleDetails).forEach(function (key) {
+
+            const field =
+                document.querySelector(
+                    `[name="role_details[${key}]"]`
+                );
+
+            if (field) {
+
+                field.value =
+                    oldRoleDetails[key] ?? '';
+
+            }
+
+        });
+
+    }
+
+
+    designation.addEventListener(
+        'change',
+        updateRoleFields
+    );
+
+
+    // Run on page load
+    updateRoleFields();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Joining Date Protection
+    |--------------------------------------------------------------------------
+    */
+
+    const joiningDate =
+        document.getElementById('joiningDate');
+
+    joiningDate.addEventListener(
+        'change',
+        function () {
+
+            const today =
+                new Date();
+
+            today.setHours(
+                0,
+                0,
+                0,
+                0
+            );
+
+            const selectedDate =
+                new Date(this.value);
+
+            if (selectedDate > today) {
+
+                alert(
+                    'Joining date cannot be in the future.'
+                );
+
+                this.value = '';
+
+            }
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Photo Preview + Compression
+    |--------------------------------------------------------------------------
+    */
+
+    const photoInput =
+        document.getElementById('profilePhoto');
+
+    const photoPreview =
+        document.getElementById('photoPreview');
+
+    const photoPlaceholder =
+        document.getElementById('photoPlaceholder');
+
+    const compressionStatus =
+        document.getElementById('compressionStatus');
+
+    const TARGET_SIZE =
+        250 * 1024;
+
+
+    photoInput.addEventListener(
+        'change',
+        async function () {
+
+            const file =
+                this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+
+            if (!file.type.startsWith('image/')) {
+
+                alert(
+                    'Please select a valid image.'
+                );
+
+                this.value = '';
+
+                return;
+            }
+
+
+            compressionStatus.textContent =
+                'Processing image...';
+
+            compressionStatus.className =
+                'compression-status';
+
+
+            try {
+
+                const compressedFile =
+                    await compressImage(file);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Replace selected file with compressed file
+                |--------------------------------------------------------------------------
+                */
+
+                const dataTransfer =
+                    new DataTransfer();
+
+                dataTransfer.items.add(
+                    compressedFile
+                );
+
+                photoInput.files =
+                    dataTransfer.files;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Preview compressed image
+                |--------------------------------------------------------------------------
+                */
+
+                const previewUrl =
+                    URL.createObjectURL(
+                        compressedFile
+                    );
+
+                photoPreview.src =
+                    previewUrl;
+
+                photoPreview.style.display =
+                    'block';
+
+                photoPlaceholder.style.display =
+                    'none';
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Compression Status
+                |--------------------------------------------------------------------------
+                */
+
+                const sizeKB =
+                    compressedFile.size / 1024;
+
+
+                if (
+                    compressedFile.size <=
+                    TARGET_SIZE
+                ) {
+
+                    compressionStatus.textContent =
+                        'Γ£ô Compressed successfully: ' +
+                        sizeKB.toFixed(0) +
+                        ' KB';
+
+                    compressionStatus.className =
+                        'compression-status compression-success';
+
+                } else {
+
+                    compressionStatus.textContent =
+                        'Image compressed to ' +
+                        sizeKB.toFixed(0) +
+                        ' KB';
+
+                    compressionStatus.className =
+                        'compression-status compression-warning';
+
+                }
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                compressionStatus.textContent =
+                    'Unable to compress image. Please choose another image.';
+
+                compressionStatus.className =
+                    'compression-status compression-warning';
+
+                this.value = '';
+
+            }
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image Compression Function
+    |--------------------------------------------------------------------------
+    */
+
+    async function compressImage(file) {
+
+        const image =
+            await loadImage(file);
+
+        let width =
+            image.width;
+
+        let height =
+            image.height;
+
+
+        const maxWidth =
+            1200;
+
+        const maxHeight =
+            1200;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resize large images
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            width > maxWidth ||
+            height > maxHeight
+        ) {
+
+            const ratio =
+                Math.min(
+                    maxWidth / width,
+                    maxHeight / height
+                );
+
+            width =
+                Math.round(
+                    width * ratio
+                );
+
+            height =
+                Math.round(
+                    height * ratio
+                );
+
+        }
+
+
+        let quality =
+            0.85;
+
+
+        let blob =
+            await createBlob(
+                image,
+                width,
+                height,
+                quality
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reduce quality progressively
+        |--------------------------------------------------------------------------
+        */
+
+        while (
+            blob.size > TARGET_SIZE &&
+            quality > 0.35
+        ) {
+
+            quality -= 0.05;
+
+            blob =
+                await createBlob(
+                    image,
+                    width,
+                    height,
+                    quality
+                );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | If still too large, reduce dimensions
+        |--------------------------------------------------------------------------
+        */
+
+        while (
+            blob.size > TARGET_SIZE &&
+            width > 600
+        ) {
+
+            width =
+                Math.round(
+                    width * 0.85
+                );
+
+            height =
+                Math.round(
+                    height * 0.85
+                );
+
+            quality =
+                0.75;
+
+
+            blob =
+                await createBlob(
+                    image,
+                    width,
+                    height,
+                    quality
+                );
+
+
+            while (
+                blob.size > TARGET_SIZE &&
+                quality > 0.35
+            ) {
+
+                quality -= 0.05;
+
+                blob =
+                    await createBlob(
+                        image,
+                        width,
+                        height,
+                        quality
+                    );
+
+            }
+
+        }
+
+
+        return new File(
+            [blob],
+            'staff-photo.jpg',
+            {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+            }
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Image
+    |--------------------------------------------------------------------------
+    */
+
+    function loadImage(file) {
+
+        return new Promise(
+            (resolve, reject) => {
+
+                const img =
+                    new Image();
+
+                const url =
+                    URL.createObjectURL(file);
+
+
+                img.onload =
+                    function () {
+
+                        URL.revokeObjectURL(
+                            url
+                        );
+
+                        resolve(img);
+
+                    };
+
+
+                img.onerror =
+                    reject;
+
+
+                img.src =
+                    url;
+
+            }
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create Compressed Blob
+    |--------------------------------------------------------------------------
+    */
+
+    function createBlob(
+        image,
+        width,
+        height,
+        quality
+    ) {
+
+        return new Promise(
+            (resolve) => {
+
+                const canvas =
+                    document.createElement(
+                        'canvas'
+                    );
+
+                canvas.width =
+                    width;
+
+                canvas.height =
+                    height;
+
+
+                const context =
+                    canvas.getContext(
+                        '2d'
+                    );
+
+
+                context.drawImage(
+                    image,
+                    0,
+                    0,
+                    width,
+                    height
+                );
+
+
+                canvas.toBlob(
+                    resolve,
+                    'image/jpeg',
+                    quality
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prevent Accidental Double Submission
+    |--------------------------------------------------------------------------
+    */
+
+    const form =
+        document.getElementById(
+            'staffForm'
+        );
+
+    const saveButton =
+        document.getElementById(
+            'saveButton'
+        );
+
+
+    form.addEventListener(
+        'submit',
+        function () {
+
+            saveButton.disabled =
+                true;
+
+            saveButton.textContent =
+                'Saving...';
+
+        }
+    );
+
+});
 </script>
 
 @endsection

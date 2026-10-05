@@ -22,13 +22,11 @@ class SchoolServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Prevent errors when the school_settings table
-        // has not been created yet.
-        if (!Schema::hasTable('school_settings')) {
-            return;
+        if (Schema::hasTable('school_settings')) {
+            View::share('school', SchoolSetting::first());
+        } else {
+            View::share('school', null);
         }
-
-        View::share('school', SchoolSetting::first());
 
         logger('SchoolServiceProvider is loaded');
     }

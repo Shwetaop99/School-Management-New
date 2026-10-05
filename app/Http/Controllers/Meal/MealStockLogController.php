@@ -284,11 +284,7 @@ class MealStockLogController extends Controller
     /**
      * Build the common filtered query.
      *
-<<<<<<< HEAD
-     * Used by:
-=======
      * This query is used by:
->>>>>>> 0a09c488f4a20273ecd9ae676f586922e6c95631
      * - Logs page
      * - PDF export
      * - Excel export
@@ -336,40 +332,36 @@ class MealStockLogController extends Controller
             $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
-
                 $q->where(
                     'reason',
                     'like',
                     "%{$search}%"
                 )
-
-                ->orWhere(
-                    'remarks',
-                    'like',
-                    "%{$search}%"
-                )
-
-                ->orWhereHas(
-                    'mealItem',
-                    function ($itemQuery) use ($search) {
-                        $itemQuery->where(
-                            'item_name',
-                            'like',
-                            "%{$search}%"
-                        );
-                    }
-                )
-
-                ->orWhereHas(
-                    'stockTransaction',
-                    function ($transactionQuery) use ($search) {
-                        $transactionQuery->where(
-                            'supplier',
-                            'like',
-                            "%{$search}%"
-                        );
-                    }
-                );
+                    ->orWhere(
+                        'remarks',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhereHas(
+                        'mealItem',
+                        function ($itemQuery) use ($search) {
+                            $itemQuery->where(
+                                'item_name',
+                                'like',
+                                "%{$search}%"
+                            );
+                        }
+                    )
+                    ->orWhereHas(
+                        'stockTransaction',
+                        function ($transactionQuery) use ($search) {
+                            $transactionQuery->where(
+                                'supplier',
+                                'like',
+                                "%{$search}%"
+                            );
+                        }
+                    );
             });
         }
 

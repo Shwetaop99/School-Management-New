@@ -2,38 +2,31 @@
 
 namespace App\Models;
 
+use App\Models\Class\SchoolClass;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExamClass extends Model
 {
+    use HasFactory;
+
+    protected $table = 'exam_classes';
+
     protected $fillable = [
         'exam_id',
-        'class_name',
-        'sort_order',
-        'status',
+        'class_id',
     ];
 
-    /**
-     * Exam relationship
-     */
-    public function exam(): BelongsTo
+    public function exam()
     {
-        return $this->belongsTo(
-            Exam::class,
-            'exam_id'
-        );
+        return $this->belongsTo(Exam::class);
     }
 
-    /**
-     * Sections belonging to this exam class
-     */
-    public function sections(): HasMany
+    public function schoolClass()
     {
-        return $this->hasMany(
-            ExamClassSection::class,
-            'exam_class_id'
+        return $this->belongsTo(
+            SchoolClass::class,
+            'class_id'
         );
     }
 }

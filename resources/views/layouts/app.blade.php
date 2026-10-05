@@ -1,29 +1,21 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-    crossorigin="anonymous"
->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
 
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <title>@yield('title', 'School Management')</title>
 
@@ -289,7 +281,7 @@
         }
 
         .other-title::before {
-            content: "•••";
+            content: "���";
             letter-spacing: 2px;
         }
 
@@ -734,12 +726,12 @@
                     All Students
                 </a>
 
-             <a href="{{ route('admin.students.create') }}"
-   class="submenu-item">
-    Add Student
-</a>
+                <a href="{{ route('admin.students.create') }}"
+                   class="submenu-item">
+                    Add Student
+                </a>
 
-<a href="{{ route('admin.students.profile') }}"
+               <a href="{{ route('admin.students.profile') }}"
    class="submenu-item {{ request()->routeIs('admin.students.profile') ? 'active' : '' }}">
     Student Profile
 </a>
@@ -750,7 +742,7 @@
 </a>
 
 <a href="{{ route('admin.students.id-card') }}"
-   class="submenu-item {{ request()->routeIs('admin.students.id-card') ? 'active' : '' }}">
+   class="submenu-item {{ request()->routeIs('admin.students.id-card') || request()->routeIs('admin.id-card.*') ? 'active' : '' }}">
     Student ID
 </a>
 
@@ -758,8 +750,6 @@
    class="submenu-item {{ request()->routeIs('admin.students.supplies.*') ? 'active' : '' }}">
     School Supplies (Kit)
 </a>
-
-                
 
             </div>
 
@@ -769,7 +759,7 @@
             ================================================== -->
 
             <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.faculty.*') ? 'active open' : '' }}"
+                    {{ request()->routeIs('admin.faculty.*') || request()->routeIs('admin.teachers.*') ? 'active open' : '' }}"
                     data-submenu="faculty-menu"
                     data-search="faculty teacher teachers">
 
@@ -786,7 +776,7 @@
             </button>
 
             <div class="submenu
-                        {{ request()->routeIs('admin.faculty.*') ? 'open' : '' }}"
+                        {{ request()->routeIs('admin.faculty.*') || request()->routeIs('admin.teachers.*') ? 'open' : '' }}"
                  id="faculty-menu">
 
                 <a href="{{ route('admin.teachers.index') }}"
@@ -824,7 +814,7 @@
                     Other Staff
                 </span>
 
-                <span class="sidebar-arrow">›</span>
+           <span class="sidebar-arrow">›</span>
 
             </button>
 
@@ -861,8 +851,8 @@
                 <span class="sidebar-label">
                     Time Table
                 </span>
-
-                <span class="sidebar-arrow">›</span>
+<span class="sidebar-arrow">›</span>
+       
 
             </button>
 
@@ -889,11 +879,11 @@
 
 
             <!-- =================================================
-                 ATTENDANCE
+                 ATTENDANCE  (FIXED)
             ================================================== -->
 
             <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.attendance.*') ? 'active open' : '' }}"
+                    {{ request()->routeIs('admin.attendance.*') || request()->routeIs('admin.teachers.attendance.*') ? 'active open' : '' }}"
                     data-submenu="attendance-menu"
                     data-search="attendance student faculty mark">
 
@@ -905,25 +895,27 @@
                     Attendance
                 </span>
 
-                <span class="sidebar-arrow">›</span>
+   <span class="sidebar-arrow">›</span>
 
             </button>
 
             <div class="submenu
-                        {{ request()->routeIs('admin.attendance.*') ? 'open' : '' }}"
+                        {{ request()->routeIs('admin.attendance.*') || request()->routeIs('admin.teachers.attendance.*') ? 'open' : '' }}"
                  id="attendance-menu">
 
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="submenu-item">
+                {{-- Main Student Attendance Page --}}
+                <a href="{{ route('admin.attendance.student') }}"
+                   class="submenu-item {{ request()->routeIs('admin.attendance.student') ? 'active' : '' }}">
                     Student Attendance
                 </a>
 
+                {{-- Faculty Attendance --}}
                 <a href="{{ route('admin.teachers.attendance.index') }}"
-                   class="submenu-item">
+                   class="submenu-item {{ request()->routeIs('admin.teachers.attendance.*') ? 'active' : '' }}">
                     Faculty Attendance
                 </a>
 
-            
+                
 
             </div>
 
@@ -932,59 +924,72 @@
                  FEES
             ================================================== -->
 
-            <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.fees.*') ? 'active open' : '' }}"
-                    data-submenu="fees-menu"
-                    data-search="fees fee payment scholarship">
 
-                <span class="sidebar-icon">₹</span>
+<button class="sidebar-item has-submenu
+                {{ request()->routeIs('admin.fees.*') ? 'active open' : '' }}"
+        data-submenu="fees-menu"
+        data-search="fees fee payment scholarship">
 
-                <span class="sidebar-label">
-                    Fees
-                </span>
+    <span class="sidebar-icon">
+        <i class="bi bi-cash-stack"></i>
+    </span>
 
-                <span class="sidebar-arrow">›</span>
+    <span class="sidebar-label">
+        Fees
+    </span>
 
-            </button>
+    <span class="sidebar-arrow">›</span>
 
-            <div class="submenu
-                        {{ request()->routeIs('admin.fees.*') ? 'open' : '' }}"
-                 id="fees-menu">
+</button>
 
-                <a href="{{ route('admin.fees.index') }}"
-                   class="submenu-item">
-                    Fee Structure
-                </a>
+<div class="submenu
+            {{ request()->routeIs('admin.fees.*') ? 'open' : '' }}"
+     id="fees-menu">
 
-                <a href="{{ route('admin.fees.index') }}"
-                   class="submenu-item">
-                    Student Fee
-                </a>
+    {{-- Fee Structure --}}
+    <a href="{{ route('admin.fees.fee-structures.index') }}"
+       class="submenu-item
+              {{ request()->routeIs('admin.fees.fee-structures.*') ? 'active' : '' }}">
 
-                <a href="{{ route('admin.fees.index') }}"
-                   class="submenu-item">
-                    Payment History
-                </a>
+        <i class="bi bi-diagram-3 me-2"></i>
+        Fee Structure
 
-                <a href="{{ route('admin.scholarship.index') }}"
-                   class="submenu-item">
-                    Scholarship
-                </a>
+    </a>
 
-            </div>
+    {{-- Student Fees --}}
+    <a href="{{ route('admin.fees.student-fees.index') }}"
+       class="submenu-item
+              {{ request()->routeIs('admin.fees.student-fees.*') ? 'active' : '' }}">
+
+        <i class="bi bi-person-vcard me-2"></i>
+        Student Fees
+
+    </a>
+
+    {{-- Payment History --}}
+    <a href="{{ route('admin.fees.payment-history.index') }}"
+       class="submenu-item
+              {{ request()->routeIs('admin.fees.payment-history.*') ? 'active' : '' }}">
+
+        <i class="bi bi-receipt me-2"></i>
+        Payment History
+
+    </a>
+
+</div>
 
 
             <!-- =================================================
                  EXAM
             ================================================== -->
 
-            <a href="{{ route('admin.exam.index') }}"
+            <a href="{{ route('admin.exams.index') }}"
                class="sidebar-item {{ request()->routeIs('admin.exam.*') ? 'active' : '' }}"
                data-search="exam examination">
 
                 <span class="sidebar-icon">
-                    <i class="fas fa-file-alt"></i>
-                </span>
+    <i class="bi bi-cash-stack"></i>
+</span>
 
                 <span class="sidebar-label">
                     Exam
@@ -1096,7 +1101,7 @@
                     Library
                 </span>
 
-                <span class="sidebar-arrow">›</span>
+<span class="sidebar-arrow">›</span>
 
             </button>
 
@@ -1135,13 +1140,15 @@
                 OTHER
             </div>
 
-
-            <!-- Transport -->
+{{-- =================================================
+                 TRANSPORT
+            ================================================== --}}
 
             <button class="sidebar-item has-submenu
                     {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}"
                     data-submenu="transport-menu"
-                    data-search="transport bus vehicle">
+                    data-search="transport bus vehicle"
+                    type="button">
 
                 <span class="sidebar-icon">
                     <i class="fas fa-bus"></i>
@@ -1151,30 +1158,27 @@
                     Transport
                 </span>
 
-                <span class="sidebar-arrow">›</span>
-
+             <span class="sidebar-arrow">›</span>
             </button>
 
             <div class="submenu
                         {{ request()->routeIs('admin.transport.*') ? 'open' : '' }}"
                  id="transport-menu">
 
-                <a href="{{ route('admin.transport.index') }}"
+                <a href="{{ route('admin.transport.records.index') }}"
                    class="submenu-item">
                     Transport Records
                 </a>
 
-                <a href="{{ route('admin.transport.index') }}"
+                <a href="{{ route('admin.transport.routes.index') }}"
                    class="submenu-item">
                     Routes
                 </a>
 
-                <a href="{{ route('admin.transport.index') }}"
+                <a href="{{ route('admin.transport.vehicles.index') }}"
                    class="submenu-item">
                     Vehicles
                 </a>
-
-               
 
             </div>
 
@@ -1183,59 +1187,39 @@
                  MEAL MANAGEMENT
             ================================================== -->
 
-          {{-- =================================================
-                     MEAL MANAGEMENT
-                     FIXED: admin.meal.* / items spelling
-                ================================================== --}}
-
-                <button
-                    class="sidebar-item has-submenu {{ request()->routeIs('admin.meal.*') ? 'active open' : '' }}"
+            <button class="sidebar-item has-submenu {{ request()->routeIs('admin.meal.*') ? 'active open' : '' }}"
                     data-submenu="meal-menu"
-                    data-search="meal meals food stock"
-                >
+                    data-search="meal meals food stock">
 
-                    <span class="sidebar-icon">
-                        <i class="fas fa-utensils"></i>
-                    </span>
+                <span class="sidebar-icon">
+                    <i class="fas fa-utensils"></i>
+                </span>
 
-                    <span class="sidebar-label">
-                        Meal Management
-                    </span>
+                <span class="sidebar-label">
+                    Meal Management
+                </span>
 
-                    <span class="sidebar-arrow">
-                        ›
-                    </span>
+                <span class="sidebar-arrow"><i class="bi bi-chevron-down"></i></span>
 
-                </button>
+            </button>
 
+            <div class="submenu {{ request()->routeIs('admin.meal.*') ? 'open' : '' }}"
+                 id="meal-menu">
 
-                <div
-                    class="submenu {{ request()->routeIs('admin.meal.*') ? 'open' : '' }}"
-                    id="meal-menu"
-                >
+                <a href="{{ route('admin.meal.items.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.meal.items.*') ? 'active' : '' }}">
+                    Stock In / Stock Out
+                </a>
 
-                    <a
-                        href="{{ route('admin.meal.items.index') }}"
-                        class="submenu-item {{ request()->routeIs('admin.meal.items.*') ? 'active' : '' }}"
-                    >
-                        Stock In / Stock Out
-                    </a>
+                <a href="{{ route('admin.meal.logs.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">
+                    Logs
+                </a>
 
-                    <a
-                        href="{{ route('admin.meal.logs.index') }}"
-                        class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}"
-                    >
-                        Logs
-                    </a>
+            </div>
 
-                </div>
-
-            <!-- Salary -->
-
-          
 
             <!-- Payroll -->
-
             <a href="{{ route('admin.teachers.salary.index') }}"
                class="sidebar-item {{ request()->routeIs('admin.teachers.salary.*') ? 'active' : '' }}"
                data-search="payroll salary">
@@ -1255,62 +1239,44 @@
                  SPORTS
             ================================================== -->
 
-           {{-- =================================================
-                     SPORTS
-                ================================================== --}}
-
-                <button
-                    class="sidebar-item has-submenu {{ request()->routeIs('admin.sports.*') ? 'active open' : '' }}"
+            <button class="sidebar-item has-submenu {{ request()->routeIs('admin.sports.*') ? 'active open' : '' }}"
                     data-submenu="sports-menu"
-                    data-search="sports games events achievement equipment"
-                >
+                    data-search="sports games events achievement equipment">
 
-                    <span class="sidebar-icon">
-                        <i class="fas fa-futbol"></i>
-                    </span>
+                <span class="sidebar-icon">
+                    <i class="fas fa-futbol"></i>
+                </span>
 
-                    <span class="sidebar-label">
-                        Sports
-                    </span>
+                <span class="sidebar-label">
+                    Sports
+                </span>
 
-                    <span class="sidebar-arrow">
-                        ›
-                    </span>
+                <span class="sidebar-arrow"><i class="bi bi-chevron-down"></i></span>
 
-                </button>
+            </button>
 
+            <div class="submenu {{ request()->routeIs('admin.sports.*') ? 'open' : '' }}"
+                 id="sports-menu">
 
-                <div
-                    class="submenu {{ request()->routeIs('admin.sports.*') ? 'open' : '' }}"
-                    id="sports-menu"
-                >
+                <a href="{{ route('admin.sports.games.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.games.*') ? 'active' : '' }}">
+                    Games / Events
+                </a>
 
-                    <a
-                        href="{{ route('admin.sports.games.index') }}"
-                        class="submenu-item {{ request()->routeIs('admin.sports.games.*') ? 'active' : '' }}"
-                    >
-                        Games / Events
-                    </a>
+                <a href="{{ route('admin.sports.achievements.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.achievements.*') ? 'active' : '' }}">
+                    Sports Achievement
+                </a>
 
-                    <a
-                        href="{{ route('admin.sports.achievements.index') }}"
-                        class="submenu-item {{ request()->routeIs('admin.sports.achievements.*') ? 'active' : '' }}"
-                    >
-                        Sports Achievement
-                    </a>
+                <a href="{{ route('admin.sports.equipment.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.equipment.*') ? 'active' : '' }}">
+                    Sports Equipment
+                </a>
 
-                    <a
-                        href="{{ route('admin.sports.equipment.index') }}"
-                        class="submenu-item {{ request()->routeIs('admin.sports.equipment.*') ? 'active' : '' }}"
-                    >
-                        Sports Equipment
-                    </a>
-
-                </div>
+            </div>
 
 
             <!-- Scholarship -->
-
             <a href="{{ route('admin.scholarship.index') }}"
                class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}"
                data-search="scholarship">
@@ -1343,7 +1309,7 @@
                     Class
                 </span>
 
-                <span class="sidebar-arrow">›</span>
+                <span class="sidebar-arrow"><i class="bi bi-chevron-down"></i></span>
 
             </button>
 
@@ -1381,7 +1347,7 @@
                     Settings
                 </span>
 
-                <span class="sidebar-arrow">›</span>
+                <span class="sidebar-arrow"><i class="bi bi-chevron-down"></i></span>
 
             </button>
 
@@ -1394,14 +1360,15 @@
                     School Profile
                 </a>
 
-<a href="{{ route('admin.settings.roles.index') }}"
-   class="submenu-item {{ request()->routeIs('admin.settings.roles.*') ? 'active' : '' }}">
-    Roles & Permissions
-</a>
-<a href="{{ route('admin.settings.users.index') }}"
-   class="submenu-item {{ request()->routeIs('admin.settings.users.*') ? 'active' : '' }}">
-   Roles Management
-</a>
+                <a href="{{ route('admin.settings.roles.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.settings.roles.*') ? 'active' : '' }}">
+                    Roles & Permissions
+                </a>
+
+                <a href="{{ route('admin.settings.users.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.settings.users.*') ? 'active' : '' }}">
+                    Roles Management
+                </a>
 
                 <a href="{{ route('admin.settings.index') }}"
                    class="submenu-item">
@@ -1414,11 +1381,9 @@
 
 
         <!-- Logout -->
-
         <div class="logout-area">
 
             <form method="POST" action="{{ route('admin.logout') }}">
-
                 @csrf
 
                 <button type="submit" class="logout-button">
@@ -1441,7 +1406,6 @@
 
 
     <!-- Mobile overlay -->
-
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 
@@ -1452,15 +1416,13 @@
     <div class="main-area">
 
         <!-- HEADER -->
-
         <header class="top-header">
 
-            <button
-                type="button"
-                class="menu-toggle"
-                id="menuToggle"
-                aria-label="Toggle sidebar">
-                ☰
+            <button type="button"
+                    class="menu-toggle"
+                    id="menuToggle"
+                    aria-label="Toggle sidebar">
+                <i class="bi bi-list"></i>
             </button>
 
             <div class="page-title">
@@ -1469,7 +1431,6 @@
 
 
             <!-- SEARCH -->
-
             <div class="header-search">
 
                 <div class="search-box">
@@ -1478,35 +1439,27 @@
                         <i class="fas fa-search"></i>
                     </span>
 
-                    <input
-                        type="text"
-                        id="globalSearch"
-                        class="search-input"
-                        placeholder="Search..."
-                        autocomplete="off">
+                    <input type="text"
+                           id="globalSearch"
+                           class="search-input"
+                           placeholder="Search..."
+                           autocomplete="off">
 
-                    <button
-                        type="button"
-                        class="search-button"
-                        id="searchButton"
-                        title="Search">
-
+                    <button type="button"
+                            class="search-button"
+                            id="searchButton"
+                            title="Search">
                         <i class="fas fa-arrow-right"></i>
-
                     </button>
 
                 </div>
 
-                <div
-                    class="search-results"
-                    id="searchResults">
-                </div>
+                <div class="search-results" id="searchResults"></div>
 
             </div>
 
 
             <!-- HEADER ACTIONS -->
-
             <div class="header-actions">
 
                 <div class="admin-profile">
@@ -1536,24 +1489,20 @@
 
 
         <!-- PAGE CONTENT -->
-
         <main class="main-content">
-
             @yield('content')
-
         </main>
 
 
         <!-- FOOTER -->
-
         <footer class="app-footer">
 
             <div>
-                © {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.
+                 {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.
             </div>
 
             <div class="footer-right">
-                School Management System • v1.0.0
+                School Management System v1.0.0
             </div>
 
         </footer>
@@ -1575,36 +1524,28 @@ document.addEventListener('DOMContentLoaded', function () {
        SIDEBAR SUBMENUS
     ========================================================= */
 
-    const submenuButtons =
-        document.querySelectorAll('.has-submenu');
+    const submenuButtons = document.querySelectorAll('.has-submenu');
 
     submenuButtons.forEach(function (button) {
 
         button.addEventListener('click', function () {
 
-            const submenuId =
-                this.getAttribute('data-submenu');
-
-            const submenu =
-                document.getElementById(submenuId);
+            const submenuId = this.getAttribute('data-submenu');
+            const submenu = document.getElementById(submenuId);
 
             if (!submenu) {
                 return;
             }
 
             /* Close other submenus */
-
             submenuButtons.forEach(function (otherButton) {
 
                 if (otherButton !== button) {
 
                     otherButton.classList.remove('open');
 
-                    const otherId =
-                        otherButton.getAttribute('data-submenu');
-
-                    const otherMenu =
-                        document.getElementById(otherId);
+                    const otherId = otherButton.getAttribute('data-submenu');
+                    const otherMenu = document.getElementById(otherId);
 
                     if (otherMenu) {
                         otherMenu.classList.remove('open');
@@ -1613,7 +1554,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             /* Toggle selected submenu */
-
             button.classList.toggle('open');
             submenu.classList.toggle('open');
 
@@ -1626,33 +1566,20 @@ document.addEventListener('DOMContentLoaded', function () {
        MOBILE SIDEBAR
     ========================================================= */
 
-    const menuToggle =
-        document.getElementById('menuToggle');
-
-    const sidebar =
-        document.getElementById('sidebar');
-
-    const sidebarOverlay =
-        document.getElementById('sidebarOverlay');
-
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
 
     if (menuToggle && sidebar && sidebarOverlay) {
 
         menuToggle.addEventListener('click', function () {
-
             sidebar.classList.toggle('mobile-open');
-
             sidebarOverlay.classList.toggle('active');
-
         });
 
-
         sidebarOverlay.addEventListener('click', function () {
-
             sidebar.classList.remove('mobile-open');
-
             sidebarOverlay.classList.remove('active');
-
         });
 
     }
@@ -1662,61 +1589,33 @@ document.addEventListener('DOMContentLoaded', function () {
        GLOBAL SEARCH
     ========================================================= */
 
-    const searchInput =
-        document.getElementById('globalSearch');
-
-    const searchButton =
-        document.getElementById('searchButton');
-
-    const searchResults =
-        document.getElementById('searchResults');
-
+    const searchInput = document.getElementById('globalSearch');
+    const searchButton = document.getElementById('searchButton');
+    const searchResults = document.getElementById('searchResults');
 
     if (!searchInput || !searchButton || !searchResults) {
         return;
     }
 
-
     const searchableItems = [];
 
-
     /* Parent sidebar items */
-
-    document
-        .querySelectorAll('.sidebar-item[data-search]')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text: item.innerText.trim(),
-
-                keywords:
-                    item.getAttribute('data-search') || '',
-
-                element: item
-
-            });
-
+    document.querySelectorAll('.sidebar-item[data-search]').forEach(function (item) {
+        searchableItems.push({
+            text: item.innerText.trim(),
+            keywords: item.getAttribute('data-search') || '',
+            element: item
         });
-
+    });
 
     /* Submenu links */
-
-    document
-        .querySelectorAll('.submenu-item')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text: item.innerText.trim(),
-
-                keywords: item.innerText.trim(),
-
-                element: item
-
-            });
-
+    document.querySelectorAll('.submenu-item').forEach(function (item) {
+        searchableItems.push({
+            text: item.innerText.trim(),
+            keywords: item.innerText.trim(),
+            element: item
         });
+    });
 
 
     /* =========================================================
@@ -1725,200 +1624,101 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function performSearch() {
 
-        const query =
-            searchInput.value.trim().toLowerCase();
-
+        const query = searchInput.value.trim().toLowerCase();
         searchResults.innerHTML = '';
 
-
         if (!query) {
-
             searchResults.classList.remove('show');
-
             return;
         }
 
-
-        const matches =
-            searchableItems.filter(function (item) {
-
-                return (
-                    item.text
-                        .toLowerCase()
-                        .includes(query)
-                    ||
-                    item.keywords
-                        .toLowerCase()
-                        .includes(query)
-                );
-
-            });
-
+        const matches = searchableItems.filter(function (item) {
+            return (
+                item.text.toLowerCase().includes(query) ||
+                item.keywords.toLowerCase().includes(query)
+            );
+        });
 
         if (matches.length === 0) {
-
             searchResults.innerHTML = `
                 <div class="search-empty">
-                    No results found for
-                    "<strong>${query}</strong>"
+                    No results found for "<strong>${query}</strong>"
                 </div>
             `;
-
             searchResults.classList.add('show');
-
             return;
         }
 
+        matches.slice(0, 8).forEach(function (item) {
 
-        matches
-            .slice(0, 8)
-            .forEach(function (item) {
+            const result = document.createElement('div');
+            result.className = 'search-result-item';
 
-                const result =
-                    document.createElement('div');
+            result.innerHTML = `
+                <span class="search-result-icon">
+                    <i class="fas fa-search"></i>
+                </span>
+                <span>${item.text}</span>
+            `;
 
-                result.className =
-                    'search-result-item';
+            result.addEventListener('click', function () {
 
+                if (item.element.tagName === 'A' && item.element.href) {
+                    window.location.href = item.element.href;
+                    return;
+                }
 
-                result.innerHTML = `
-                    <span class="search-result-icon">
-                        <i class="fas fa-search"></i>
-                    </span>
+                if (item.element.classList.contains('has-submenu')) {
+                    item.element.click();
+                }
 
-                    <span>
-                        ${item.text}
-                    </span>
-                `;
-
-
-                result.addEventListener('click', function () {
-
-                    /* Normal link */
-
-                    if (
-                        item.element.tagName === 'A'
-                        &&
-                        item.element.href
-                    ) {
-
-                        window.location.href =
-                            item.element.href;
-
-                        return;
-                    }
-
-
-                    /* Parent menu */
-
-                    if (
-                        item.element.classList
-                            .contains('has-submenu')
-                    ) {
-
-                        item.element.click();
-
-                    }
-
-
-                    searchResults.classList.remove('show');
-
-                    searchInput.value =
-                        item.text;
-
-                });
-
-
-                searchResults.appendChild(result);
+                searchResults.classList.remove('show');
+                searchInput.value = item.text;
 
             });
 
+            searchResults.appendChild(result);
+
+        });
 
         searchResults.classList.add('show');
-
     }
 
 
     /* Search while typing */
-
-    searchInput.addEventListener(
-        'input',
-        performSearch
-    );
-
+    searchInput.addEventListener('input', performSearch);
 
     /* Search button */
-
-    searchButton.addEventListener(
-        'click',
-        performSearch
-    );
-
+    searchButton.addEventListener('click', performSearch);
 
     /* Press Enter */
-
-    searchInput.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (event.key === 'Enter') {
-
-                event.preventDefault();
-
-                performSearch();
-
-            }
-
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            performSearch();
         }
-    );
+    });
 
 
     /* Close search results outside click */
-
-    document.addEventListener(
-        'click',
-        function (event) {
-
-            if (
-                !event.target.closest(
-                    '.header-search'
-                )
-            ) {
-
-                searchResults.classList.remove(
-                    'show'
-                );
-
-            }
-
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.header-search')) {
+            searchResults.classList.remove('show');
         }
-    );
+    });
 
 
     /* =========================================================
        CTRL + K SEARCH
     ========================================================= */
 
-    document.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (
-                (event.ctrlKey || event.metaKey)
-                &&
-                event.key.toLowerCase() === 'k'
-            ) {
-
-                event.preventDefault();
-
-                searchInput.focus();
-
-                searchInput.select();
-
-            }
-
+    document.addEventListener('keydown', function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            searchInput.focus();
+            searchInput.select();
         }
-    );
+    });
 
 });
 
