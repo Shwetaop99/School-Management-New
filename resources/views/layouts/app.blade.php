@@ -1,1290 +1,455 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-
-    <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
->
-
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-    crossorigin="anonymous"
->
-
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
->
-
     <title>@yield('title', 'School Management')</title>
+    <script>document.documentElement.classList.add('is-loading');</script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --primary: #1677f0;
-            --primary-dark: #0d5fd1;
-            --sidebar-width: 260px;
-            --header-height: 64px;
-            --text: #26344a;
-            --muted: #718096;
-            --border: #e7edf5;
-            --bg: #f5f8fc;
-            --white: #ffffff;
-            --hover: #eef5ff;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button,
-        input {
-            font-family: inherit;
-        }
-
-        /* =========================================================
-           APP WRAPPER
-        ========================================================= */
-
-        .app-wrapper {
-            min-height: 100vh;
-            display: flex;
-        }
-
-        /* =========================================================
-           SIDEBAR
-        ========================================================= */
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: #ffffff;
-            border-right: 1px solid var(--border);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-        }
-
-        /* =========================================================
-           SIDEBAR LOGO
-        ========================================================= */
-
-        .sidebar-brand {
-            height: var(--header-height);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-
-        .brand-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: #ffffff;
-        }
-
-        .brand-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-
-        .brand-text {
-            line-height: 1.2;
-            min-width: 0;
-            margin-left: 10px;
-        }
-
-        .brand-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #17233f;
-        }
-
-        .brand-subtitle {
-            font-size: 11px;
-            color: #718096;
-            margin-top: 3px;
-        }
-
-        /* =========================================================
-           SIDEBAR SCROLL
-        ========================================================= */
-
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px 10px 20px;
-        }
-
-        .sidebar-content::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        /* =========================================================
-           SECTION TITLE
-        ========================================================= */
-
-        .sidebar-section-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #9aa7b8;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-            padding: 16px 14px 8px;
-        }
-
-        /* =========================================================
-           SIDEBAR ITEM
-        ========================================================= */
-
-        .sidebar-item {
-            width: 100%;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            padding: 10px 12px;
-            border-radius: 9px;
-            color: #52627a;
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 3px;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
-            border: none;
-            background: transparent;
-            text-align: left;
-        }
-
-        .sidebar-item:hover {
-            background: var(--hover);
-            color: var(--primary);
-        }
-
-        .sidebar-item.active {
-            background: #e9f2ff;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .sidebar-icon {
-            width: 25px;
-            min-width: 25px;
-            text-align: center;
-            font-size: 17px;
-            margin-right: 9px;
-        }
-
-        .sidebar-label {
-            flex: 1;
-        }
-
-        .sidebar-arrow {
-            font-size: 13px;
-            color: #8391a5;
-            transition: transform 0.25s ease;
-        }
-
-        .sidebar-item.open .sidebar-arrow {
-            transform: rotate(90deg);
-        }
-
-        /* =========================================================
-           SUBMENU
-        ========================================================= */
-
-        .submenu {
-            display: none;
-            padding: 2px 0 5px 34px;
-        }
-
-        .submenu.open {
-            display: block;
-        }
-
-        .submenu-item {
-            display: flex;
-            align-items: center;
-            min-height: 36px;
-            padding: 7px 10px;
-            border-radius: 7px;
-            color: #6a788d;
-            font-size: 13px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .submenu-item::before {
-            content: "";
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #b7c2d1;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-
-        .submenu-item:hover {
-            background: #f3f7fc;
-            color: var(--primary);
-        }
-
-        .submenu-item.active {
-            background: #eef4ff;
-            color: #1769d1;
-            font-weight: 600;
-        }
-
-        .submenu-item.active .submenu-dot {
-            color: #1769d1;
-        }
-
-        .nested-menu-wrapper {
-            margin: 2px 0 4px;
-        }
-
-        .nested-menu-toggle {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            min-height: 36px;
-            padding: 7px 10px;
-            border: none;
-            border-radius: 7px;
-            background: transparent;
-            color: #6a788d;
-            font-size: 13px;
-            text-align: left;
-            cursor: pointer;
-            transition: background 0.2s ease, color 0.2s ease;
-        }
-
-        .nested-menu-toggle:hover {
-            background: #f3f7fc;
-            color: var(--primary);
-        }
-
-        .nested-menu-toggle.active {
-            color: var(--primary);
-            font-weight: 600;
-            background: #f0f6ff;
-        }
-
-        .nested-menu-toggle::before {
-            content: "";
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #b7c2d1;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-
-        .nested-menu-toggle.active::before {
-            background: var(--primary);
-        }
-
-        .nested-menu-arrow {
-            margin-left: auto;
-            font-size: 11px;
-            transition: transform 0.2s ease;
-        }
-
-        .nested-menu-toggle.open .nested-menu-arrow {
-            transform: rotate(90deg);
-        }
-
-        .nested-menu {
-            display: none;
-            padding-left: 18px;
-            margin-top: 2px;
-        }
-
-        .nested-menu.open {
-            display: block;
-        }
-
-        .nested-menu .submenu-item {
-            font-size: 12.5px;
-            min-height: 34px;
-        }
-
-        /* =========================================================
-           OTHER SECTION
-        ========================================================= */
-
-        .other-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #9aa7b8;
-        }
-
-        .other-title::before {
-            content: "•••";
-            letter-spacing: 2px;
-        }
-
-        /* =========================================================
-           LOGOUT
-        ========================================================= */
-
-        .logout-area {
-            padding: 10px;
-            border-top: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-
-        .logout-button {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px 13px;
-            border-radius: 9px;
-            color: #64748b;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            text-align: left;
-        }
-
-        .logout-button:hover {
-            background: #fff1f2;
-            color: #ef4444;
-        }
-
-        /* =========================================================
-           MAIN AREA
-        ========================================================= */
-
-        .main-area {
-            margin-left: var(--sidebar-width);
-            width: calc(100% - var(--sidebar-width));
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* =========================================================
-           HEADER
-        ========================================================= */
-
-        .top-header {
-            height: var(--header-height);
-            background: white;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 22px;
-            gap: 18px;
-            position: sticky;
-            top: 0;
-            z-index: 900;
-        }
-
-        .menu-toggle {
-            width: 38px;
-            height: 38px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            font-size: 22px;
-            color: #596a80;
-            cursor: pointer;
-        }
-
-        .menu-toggle:hover {
-            background: #f1f5f9;
-        }
-
-        .page-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #16233e;
-            white-space: nowrap;
-        }
-
-        /* =========================================================
-           SEARCH
-        ========================================================= */
-
-        .header-search {
-            margin-left: auto;
-            position: relative;
-            width: 300px;
-        }
-
-        .search-box {
-            height: 38px;
-            width: 100%;
-            border: 1px solid #e4eaf2;
-            background: #f5f7fa;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-            transition: all 0.2s ease;
-        }
-
-        .search-box:focus-within {
-            background: white;
-            border-color: #8bbcf8;
-            box-shadow: 0 0 0 3px rgba(22, 119, 240, 0.08);
-        }
-
-        .search-icon {
-            font-size: 16px;
-            color: #718096;
-            margin-right: 8px;
-        }
-
-        .search-input {
-            width: 100%;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: #26344a;
-            font-size: 13px;
-        }
-
-        .search-input::placeholder {
-            color: #8a97a9;
-        }
-
-        .search-button {
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            color: #718096;
-            font-size: 15px;
-            padding: 4px;
-        }
-
-        .search-button:hover {
-            color: var(--primary);
-        }
-
-        /* =========================================================
-           SEARCH RESULTS
-        ========================================================= */
-
-        .search-results {
-            position: absolute;
-            top: 46px;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e4eaf2;
-            border-radius: 10px;
-            box-shadow: 0 12px 35px rgba(30, 55, 90, 0.14);
-            padding: 7px;
-            display: none;
-            max-height: 320px;
-            overflow-y: auto;
-            z-index: 2000;
-        }
-
-        .search-results.show {
-            display: block;
-        }
-
-        .search-result-item {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 9px 10px;
-            border-radius: 7px;
-            font-size: 13px;
-            color: #52627a;
-            cursor: pointer;
-        }
-
-        .search-result-item:hover {
-            background: #eef5ff;
-            color: var(--primary);
-        }
-
-        .search-result-icon {
-            width: 23px;
-            text-align: center;
-        }
-
-        .search-empty {
-            padding: 14px 10px;
-            text-align: center;
-            color: #94a3b8;
-            font-size: 13px;
-        }
-
-        /* =========================================================
-           HEADER RIGHT
-        ========================================================= */
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-profile {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding-left: 7px;
-            border-left: 1px solid #e7edf5;
-        }
-
-        .admin-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: #172b4d;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 13px;
-        }
-
-        .admin-info {
-            line-height: 1.2;
-        }
-
-        .admin-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: #25334a;
-        }
-
-        .admin-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #16a34a;
-            margin-top: 3px;
-        }
-
-        .online-dot {
-            width: 7px;
-            height: 7px;
-            background: #22c55e;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
-        }
-
-        /* =========================================================
-           PAGE CONTENT
-        ========================================================= */
-
-        .main-content {
-            flex: 1;
-            width: 100%;
-            padding: 22px;
-        }
-
-        /* =========================================================
-           FOOTER
-        ========================================================= */
-
-        .app-footer {
-            min-height: 48px;
-            background: white;
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 22px;
-            color: #7b8798;
-            font-size: 12px;
-        }
-
-        .footer-right {
-            color: #8b98a9;
-        }
-
-        /* =========================================================
-           MOBILE OVERLAY
-        ========================================================= */
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.35);
-            z-index: 999;
-        }
-
-        /* =========================================================
-           RESPONSIVE
-        ========================================================= */
-
-        @media (max-width: 1000px) {
-
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.mobile-open {
-                transform: translateX(0);
-            }
-
-            .sidebar-overlay.active {
-                display: block;
-            }
-
-            .main-area {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .header-search {
-                width: 250px;
-            }
-        }
-
-        @media (max-width: 700px) {
-
-            .top-header {
-                padding: 0 12px;
-                gap: 8px;
-            }
-
-            .page-title {
-                display: none;
-            }
-
-            .header-search {
-                width: auto;
-                flex: 1;
-                margin-left: 0;
-            }
-
-            .admin-info {
-                display: none;
-            }
-
-            .header-actions {
-                gap: 3px;
-            }
-
-            .main-content {
-                padding: 14px;
-            }
-
-            .app-footer {
-                padding: 12px 14px;
-                flex-direction: column;
-                gap: 5px;
-            }
-        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --ink:#1d3a33; --ink-2:#2a4a41; --ink-line:rgba(238,242,230,.18);
+            --side-text:#d9e1d0; --chalk:#f2b632; --wood:#8a5a2c;
+            --accent:#2b5d8a; --accent-soft:#e6eef6;
+            --text:#26302c; --muted:#6a756f; --line:#e6e0d2; --bg:#fbf8f1; --white:#fff;
+            --red:#e4572e; --green:#3a9d6b;
+            --sidebar-width:268px; --header-height:66px;
+            --serif:'Fraunces',Georgia,serif; --hand:'Caveat','Comic Sans MS',cursive;
+        }
+        html{scroll-behavior:smooth}
+        body{font-family:'Public Sans',Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;font-size:14px}
+        a{text-decoration:none;color:inherit}
+        button{font-family:inherit}
+        :focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+
+        .app-wrapper{min-height:100vh;display:flex}
+
+        /* ---------- Chalkboard sidebar ---------- */
+        .sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);z-index:1000;display:flex;flex-direction:column;transition:transform .3s ease;
+            background:radial-gradient(ellipse at 18% 8%,rgba(255,255,255,.08),transparent 55%),radial-gradient(ellipse at 85% 88%,rgba(255,255,255,.06),transparent 50%),var(--ink);
+            border-right:8px solid var(--wood);box-shadow:inset -3px 0 6px rgba(0,0,0,.28)}
+        .sidebar-brand{height:var(--header-height);display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:2px dashed var(--ink-line);flex-shrink:0}
+        .brand-icon{width:42px;height:42px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 3px var(--ink),0 0 0 4px var(--chalk)}
+        .brand-icon img{width:100%;height:100%;object-fit:contain}
+        .brand-title{font-family:var(--serif);font-size:16px;font-weight:700;color:#fff;line-height:1.2}
+        .brand-subtitle{font-family:var(--hand);font-size:17px;color:var(--chalk);line-height:1}
+
+        .sidebar-content{flex:1;overflow-y:auto;padding:8px 12px 18px 14px}
+        .sidebar-content::-webkit-scrollbar{width:5px}
+        .sidebar-content::-webkit-scrollbar-thumb{background:var(--ink-line);border-radius:10px}
+
+        .nav-group{font-family:var(--hand);font-size:21px;font-weight:700;color:var(--chalk);padding:16px 10px 4px;letter-spacing:.3px}
+
+        .nav-item{position:relative;width:100%;min-height:40px;display:flex;align-items:center;gap:12px;padding:9px 12px;margin-bottom:2px;border:none;border-radius:8px;background:transparent;color:var(--side-text);font-size:14px;font-weight:500;text-align:left;cursor:pointer;transition:background .15s,color .15s}
+        .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+        .nav-item.active{background:rgba(242,182,50,.15);color:#fff}
+        .nav-item.active::before{content:"";position:absolute;left:-14px;top:8px;bottom:8px;width:5px;border-radius:0 5px 5px 0;background:var(--chalk)}
+        .nav-icon{width:20px;text-align:center;font-size:15px;flex-shrink:0;opacity:.9}
+        .nav-item.active .nav-icon{color:var(--chalk);opacity:1}
+        .nav-label{flex:1}
+        .nav-arrow{font-size:10px;transition:transform .2s}
+        .nav-item.open .nav-arrow{transform:rotate(90deg)}
+
+        .submenu{display:none;margin:2px 0 6px 22px;padding-left:12px;border-left:2px dashed var(--ink-line)}
+        .submenu.open{display:block}
+        .submenu-item{display:block;padding:7px 12px;margin-bottom:1px;border-radius:7px;color:var(--side-text);font-size:13.5px;transition:background .15s,color .15s}
+        .submenu-item:hover{color:#fff;background:rgba(255,255,255,.08)}
+        .submenu-item.active{color:var(--ink);background:var(--chalk);font-weight:600}
+
+        .logout-area{padding:12px 14px;border-top:2px dashed var(--ink-line);flex-shrink:0}
+        .logout-button{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;border-radius:8px;background:transparent;color:var(--side-text);font-size:14px;font-weight:500;cursor:pointer}
+        .logout-button:hover{background:rgba(228,87,46,.18);color:#ffb3a1}
+
+        /* ---------- Main ---------- */
+        .main-area{margin-left:var(--sidebar-width);width:calc(100% - var(--sidebar-width));min-height:100vh;display:flex;flex-direction:column}
+        .top-header{height:var(--header-height);background:var(--white);display:flex;align-items:center;gap:14px;padding:0 28px;position:sticky;top:0;z-index:900;border-bottom:1px solid var(--line)}
+        .top-header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:4px;background:linear-gradient(90deg,var(--red) 0 25%,var(--chalk) 25% 50%,var(--green) 50% 75%,var(--accent) 75% 100%)}
+        .menu-toggle{display:none;width:38px;height:38px;border:none;background:transparent;border-radius:8px;font-size:20px;color:var(--muted);cursor:pointer}
+        .page-title{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink)}
+        .header-actions{margin-left:auto;display:flex;align-items:center;gap:14px}
+        .header-date{font-size:13px;color:var(--muted);text-align:right;line-height:1.3}
+        .header-date b{display:block;font-family:var(--serif);font-size:15px;color:var(--ink)}
+        .admin-profile{display:flex;align-items:center;gap:10px;padding-left:14px;border-left:1px solid var(--line)}
+        .admin-avatar{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--chalk);display:flex;align-items:center;justify-content:center;font-family:var(--hand);font-weight:700;font-size:22px;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--wood)}
+
+        .avatar-wrap{position:relative;flex-shrink:0}
+        .status-dot{position:absolute;right:-1px;bottom:0;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid #fff}
+        .status-dot::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid #22c55e;opacity:0;animation:ping 2.2s ease-out infinite}
+        @keyframes ping{0%{transform:scale(.8);opacity:.7}100%{transform:scale(2);opacity:0}}
+        .online-pill{display:inline-flex;align-items:center;gap:5px;margin-left:6px;padding:1px 8px 1px 6px;border-radius:20px;background:#e3f6ea;color:#17843f;font-size:11px;font-weight:600;vertical-align:1px}
+        .online-pill i{width:6px;height:6px;border-radius:50%;background:#22c55e}
+        .admin-name{font-size:13px;font-weight:600;line-height:1.2}
+        .admin-role{font-size:12px;color:var(--muted)}
+
+        /* ruled notebook paper */
+        .main-content{flex:1;width:100%;padding:28px;background-color:var(--bg);background-image:repeating-linear-gradient(transparent 0 31px,rgba(43,93,138,.08) 31px 32px)}
+        .app-footer{min-height:46px;background:var(--white);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;color:var(--muted);font-size:12px}
+
+        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:999}
+
+        @media (max-width:1000px){
+            .sidebar{transform:translateX(-100%)}
+            .sidebar.mobile-open{transform:translateX(0)}
+            .sidebar-overlay.active{display:block}
+            .main-area{margin-left:0;width:100%}
+            .menu-toggle{display:block}
+            .top-header{padding:0 16px}
+            .header-date{display:none}
+        }
+        @media (max-width:700px){
+            .main-content{padding:16px}
+            .admin-info{display:none}
+            .app-footer{padding:12px 16px;flex-direction:column;gap:4px}
+        }
+
+        /* ---------- Loaders ---------- */
+        #topbar{position:fixed;top:0;left:0;height:4px;width:0;z-index:3000;opacity:1;pointer-events:none;
+            background:linear-gradient(90deg,var(--red) 0 25%,var(--chalk) 25% 50%,var(--green) 50% 75%,var(--accent) 75% 100%);
+            border-radius:0 4px 4px 0;box-shadow:0 0 8px rgba(242,182,50,.6);transition:width .4s ease,opacity .35s ease}
+
+        /* skeleton: cards turn into shimmering placeholders until the page is ready */
+        .is-loading .paper,.is-loading .card{position:relative;overflow:hidden;border-color:transparent}
+        .is-loading .paper>*,.is-loading .card>*{visibility:hidden}
+        .is-loading .paper::after,.is-loading .card::after{content:"";position:absolute;inset:0;z-index:5;border-radius:inherit;
+            background:linear-gradient(90deg,#eee8d8 25%,#f9f5ea 50%,#eee8d8 75%);background-size:220% 100%;animation:shimmer 1.3s linear infinite}
+        .is-loading .kpi-tab{visibility:hidden}
+        @keyframes shimmer{0%{background-position:120% 0}100%{background-position:-120% 0}}
+
+        /* button spinner */
+        .btn-spin{display:inline-block;width:14px;height:14px;margin-right:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:spin .7s linear infinite}
+        .is-busy{pointer-events:none;opacity:.8}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* full-screen loader for long actions (add data-loader="Message" to a form) */
+        .page-loader{position:fixed;inset:0;z-index:2500;display:none;align-items:center;justify-content:center;background:rgba(29,58,51,.65);backdrop-filter:blur(2px)}
+        .page-loader.show{display:flex}
+        .loader-card{min-width:260px;padding:26px 34px 22px;text-align:center;color:#fff;border-radius:14px;border:6px solid var(--wood);
+            background:radial-gradient(ellipse at 20% 0,rgba(255,255,255,.1),transparent 60%),var(--ink);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+        .loader-dots{display:flex;justify-content:center;gap:9px;height:26px;margin-bottom:8px}
+        .loader-dots i{width:14px;height:14px;border-radius:50%;animation:bounce .9s ease-in-out infinite}
+        .loader-dots i:nth-child(1){background:var(--red)}
+        .loader-dots i:nth-child(2){background:var(--chalk);animation-delay:.12s}
+        .loader-dots i:nth-child(3){background:var(--green);animation-delay:.24s}
+        .loader-dots i:nth-child(4){background:#5aa0d6;animation-delay:.36s}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+        .loader-text{font-family:var(--hand);font-size:26px;color:var(--chalk);line-height:1.1}
+        .loader-sub{font-size:12.5px;color:#c5d0bd;margin-top:4px}
+
+        @media (prefers-reduced-motion:reduce){.is-loading .paper::after,.is-loading .card::after{animation:none}}
+        @media (prefers-reduced-motion:reduce){*{transition:none!important}}
     </style>
 
     @stack('styles')
 </head>
 
 <body>
+<div id="topbar"></div>
+
+<div class="page-loader" id="pageLoader" role="status" aria-live="polite">
+    <div class="loader-card">
+        <div class="loader-dots"><i></i><i></i><i></i><i></i></div>
+        <div class="loader-text" id="loaderText">Please wait...</div>
+        <div class="loader-sub">This may take a few moments.</div>
+    </div>
+</div>
+@php
+    /* Safe route helper: returns '#' if a route doesn't exist. */
+    $route = function ($name, $fallback = '#') {
+        try {
+            return \Illuminate\Support\Facades\Route::has($name) ? route($name) : $fallback;
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
+    };
+
+    /*
+     * Sidebar definition.
+     * l = label, i = icon, a = route patterns that mark the item active,
+     * r = route (single link) or c = children [label, route name].
+     */
+    $menu = [
+        'Main' => [
+            ['l'=>'Dashboard','i'=>'fa-gauge-high','a'=>['admin.dashboard'],'r'=>'admin.dashboard'],
+            ['l'=>'Student','i'=>'fa-user-graduate','a'=>['admin.students.*','admin.student-*','admin.id-card.*'],
+                'c'=>[['All Students','admin.students.index'],['Student Profile','admin.students.index'],['Student Documents','admin.students.index'],['Student ID','admin.students.index'],['Attendance','admin.attendance.students'],['School Supplies (Kit)','admin.students.index'],['Student Report','admin.students.index'],['Add Student','admin.students.index']]],
+            ['l'=>'Faculty (Teacher)','i'=>'fa-chalkboard-user','a'=>['admin.faculty.*'],
+                'c'=>[['All Faculty','admin.faculty.index'],['Teacher Allocation','admin.faculty.index']]],
+            ['l'=>'Other Staff','i'=>'fa-users','a'=>['admin.other-staff.*'],
+                'c'=>[['All Staff','admin.other-staff.index'],['Add Staff','admin.other-staff.create']]],
+            ['l'=>'Time Table','i'=>'fa-table-cells','a'=>['admin.timetable.*'],
+                'c'=>[['Class Timetable','admin.timetable.index'],['Teacher Timetable','admin.timetable.index'],['Create Timetable','admin.timetable.index']]],
+            ['l'=>'Attendance','i'=>'fa-check','a'=>['admin.attendance.*','admin.teachers.attendance.*'],
+                'c'=>[['Student Attendance','admin.attendance.students'],['Faculty Attendance','admin.teachers.attendance.index']]],
+            ['l'=>'Fees','i'=>'fa-indian-rupee-sign','a'=>['admin.fees.*'],
+                'c'=>[['Fee Structure','admin.fees.index'],['Student Fee','admin.fees.index'],['Payment History','admin.fees.index'],['Scholarship','admin.scholarship.index']]],
+            ['l'=>'Exam','i'=>'fa-file-lines','a'=>['admin.exam.*'],'r'=>'admin.exam.index'],
+            ['l'=>'Result','i'=>'fa-chart-column','a'=>['admin.results.*'],
+                'c'=>[['Student Result','admin.results.index'],['Grade Management','admin.results.index'],['Publish Result','admin.results.index'],['Result History','admin.results.index'],['Result Report','admin.results.index']]],
+            ['l'=>'Notice','i'=>'fa-flag','a'=>['admin.notices.*'],
+                'c'=>[['All Notices','admin.notices.index'],['Add Notice','admin.notices.create']]],
+            ['l'=>'Library','i'=>'fa-book','a'=>['admin.library.*'],
+                'c'=>[['Total Books','admin.library.books.index'],['Issues / Returns / Fine','admin.library.issues.index'],['Librarian','admin.library.librarian.index'],['Reports','admin.library.reports.index']]],
+        ],
+        'Other' => [
+            ['l'=>'Transport','i'=>'fa-bus','a'=>['admin.transport.*'],
+                'c'=>[['Transport Records','admin.transport.index'],['Routes','admin.transport.index'],['Vehicles','admin.transport.index']]],
+            ['l'=>'Meal Management','i'=>'fa-utensils','a'=>['admin.meal.*','admin.meals.*'],
+                'c'=>[['Stock In / Stock Out','admin.meal.items.index'],['Logs','admin.meal.logs.index']]],
+            ['l'=>'Payroll','i'=>'fa-money-check-dollar','a'=>['admin.teachers.salary.*'],'r'=>'admin.teachers.salary.index'],
+            ['l'=>'Sports','i'=>'fa-futbol','a'=>['admin.sports.*'],
+                'c'=>[['Games / Events','admin.sports.games.index'],['Achievements','admin.sports.achievements.index'],['Sports Equipments','admin.sports.equipment.index']]],
+            ['l'=>'Scholarship','i'=>'fa-graduation-cap','a'=>['admin.scholarship.*'],'r'=>'admin.scholarship.index'],
+            ['l'=>'Class','i'=>'fa-chalkboard','a'=>['admin.classes.*','admin.subjects.*'],
+                'c'=>[['Classes','admin.classes.index'],['Subjects','admin.subjects.index']]],
+            ['l'=>'Reports','i'=>'fa-chart-pie','a'=>['admin.reports.*'],'r'=>'admin.reports.index'],
+            ['l'=>'Settings','i'=>'fa-gear','a'=>['admin.settings.*','admin.backup.*'],
+                'c'=>[['School Profile','admin.settings.index'],['User Roles & Permission','admin.settings.index'],['Backup & Recovery','admin.backup.index']]],
+        ],
+    ];
+@endphp
 
 <div class="app-wrapper">
 
-    <!-- =========================================================
-         SIDEBAR
-    ========================================================== -->
-
+    {{-- ================= SIDEBAR ================= --}}
     <aside class="sidebar" id="sidebar">
 
-        <!-- Brand -->
         <div class="sidebar-brand">
-
             <div class="brand-icon">
-                <img
-                    src="{{ $schoolLogo ?? asset('images/gurukullogo.png') }}"
-                    alt="{{ $schoolName ?? 'School' }} Logo"
-                    onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
-                >
+                <img src="{{ $schoolLogo ?? asset('images/gurukullogo.png') }}"
+                     alt="{{ $schoolName ?? 'School' }} logo"
+                     onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';">
             </div>
-
-            <div class="brand-text">
+            <div>
                 <div class="brand-title">{{ $schoolName ?? 'Gurukul Vidyalaya' }}</div>
-                <div class="brand-subtitle">School Management</div>
+                <div class="brand-subtitle">School management</div>
             </div>
         </div>
 
-        <div class="sidebar-content">
-            @php
-                $studentMenuActive = request()->routeIs(
-                    'admin.students.*',
-                    'admin.student-profile.*',
-                    'admin.student-documents.*',
-                    'admin.id-card.*',
-                    'admin.attendance.*',
-                    'admin.student-supply-kits.*',
-                    'admin.student-general-register.*',
-                    'admin.student-health.*'
-                );
-            @endphp
+        <nav class="sidebar-content" aria-label="Main navigation">
+            @foreach ($menu as $group => $items)
+                <div class="nav-group">{{ $group }}</div>
 
-            @if($can('dashboard.view'))
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" data-search="dashboard home">
-                    <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
-                    <span class="sidebar-label">Dashboard</span>
-                </a>
-            @endif
+                @foreach ($items as $n => $item)
+                    @php
+                        $isActive = request()->routeIs(...$item['a']);
+                        $id = \Illuminate\Support\Str::slug($group . '-' . $item['l']);
+                    @endphp
 
-            @if($canAny(['students.view','students.create','students.edit','students.delete']))
-                <button class="sidebar-item has-submenu {{ $studentMenuActive ? 'active open' : '' }}" data-submenu="student-menu" data-search="student students">
-                    <span class="sidebar-icon"><i class="fa fa-user-graduate"></i></span>
-                    <span class="sidebar-label">Student</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ $studentMenuActive ? 'open' : '' }}" id="student-menu">
-                    @if($can('students.view'))
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">All Students</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Profile</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Documents</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student ID</a>
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">School Supplies (Kit)</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Report</a>
+                    @if (isset($item['c']))
+                        <button type="button" class="nav-item has-submenu {{ $isActive ? 'active open' : '' }}" data-submenu="{{ $id }}">
+                            <span class="nav-icon"><i class="fas {{ $item['i'] }}"></i></span>
+                            <span class="nav-label">{{ $item['l'] }}</span>
+                            <i class="fas fa-chevron-right nav-arrow"></i>
+                        </button>
+                        <div class="submenu {{ $isActive ? 'open' : '' }}" id="{{ $id }}">
+                            @php $matched = false; @endphp
+                            @foreach ($item['c'] as $child)
+                                @php
+                                    // Several children can share one route; highlight only the first match.
+                                    $childActive = !$matched && request()->routeIs($child[1]);
+                                    if ($childActive) { $matched = true; }
+                                @endphp
+                                <a href="{{ $route($child[1]) }}"
+                                   class="submenu-item {{ $childActive ? 'active' : '' }}">{{ $child[0] }}</a>
+                            @endforeach
+                        </div>
+                    @elseif (\Illuminate\Support\Facades\Route::has($item['r']))
+                        <a href="{{ route($item['r']) }}" class="nav-item {{ $isActive ? 'active' : '' }}">
+                            <span class="nav-icon"><i class="fas {{ $item['i'] }}"></i></span>
+                            <span class="nav-label">{{ $item['l'] }}</span>
+                        </a>
                     @endif
-                    @if($can('students.create'))
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Add Student</a>
-                    @endif
-                </div>
-            @endif
-
-            @if($canAny(['faculty.view','faculty.create','faculty.edit','faculty.delete']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.faculty.*') ? 'active open' : '' }}" data-submenu="faculty-menu" data-search="faculty teacher teachers">
-                    <span class="sidebar-icon"><i class="fas fa-chalkboard-teacher"></i></span>
-                    <span class="sidebar-label">Faculty (Teacher)</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.faculty.*') ? 'open' : '' }}" id="faculty-menu">
-                    @if($can('faculty.view'))
-                        <a href="{{ route('admin.faculty.index') }}" class="submenu-item">All Faculty</a>
-                    @endif
-                    @if($canAny(['faculty.create','faculty.edit']))
-                        <a href="{{ route('admin.faculty.index') }}" class="submenu-item">Teacher Allocation</a>
-                    @endif
-                </div>
-            @endif
-
-            @if($canAny(['staff.view','staff.create','staff.edit','staff.delete']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.other-staff.*') ? 'active open' : '' }}" data-submenu="other-staff-menu" data-search="other staff employees librarian accountant receptionist peon driver">
-                    <span class="sidebar-icon"><i class="fas fa-users"></i></span>
-                    <span class="sidebar-label">Other Staff</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.other-staff.*') ? 'open' : '' }}" id="other-staff-menu">
-                    @if($can('staff.view'))
-                        <a href="{{ route('admin.other-staff.index') }}" class="submenu-item {{ request()->routeIs('admin.other-staff.index') ? 'active' : '' }}">All Staff</a>
-                    @endif
-                    @if($can('staff.create'))
-                        <a href="{{ route('admin.other-staff.create') }}" class="submenu-item {{ request()->routeIs('admin.other-staff.create') ? 'active' : '' }}">Add Staff</a>
-                    @endif
-                </div>
-            @endif
-
-            @if($isSuperAdmin)
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.timetable.*') ? 'active open' : '' }}" data-submenu="timetable-menu" data-search="time table timetable schedule">
-                    <span class="sidebar-icon"><i class="fas fa-table"></i></span>
-                    <span class="sidebar-label">Time Table</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.timetable.*') ? 'open' : '' }}" id="timetable-menu">
-                    <a href="{{ route('admin.timetable.index') }}" class="submenu-item">Class Timetable</a>
-                    <a href="{{ route('admin.timetable.index') }}" class="submenu-item">Teacher Timetable</a>
-                    <a href="{{ route('admin.timetable.index') }}" class="submenu-item">Create Timetable</a>
-                </div>
-            @endif
-
-            @if($canAny(['attendance.view','attendance.manage']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.attendance.*') ? 'active open' : '' }}" data-submenu="attendance-menu" data-search="attendance student faculty mark">
-                    <span class="sidebar-icon"><i class="fas fa-check"></i></span>
-                    <span class="sidebar-label">Attendance</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.attendance.*') ? 'open' : '' }}" id="attendance-menu">
-                    @if($can('attendance.view'))
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Student Attendance</a>
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Faculty Attendance</a>
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance Report</a>
-                    @endif
-                    @if($can('attendance.manage'))
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Manage Attendance</a>
-                    @endif
-                </div>
-            @endif
-
-            @if($canAny(['fees.view','fees.manage']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.fees.*') ? 'active open' : '' }}" data-submenu="fees-menu" data-search="fees fee payment scholarship">
-                    <span class="sidebar-icon">₹</span>
-                    <span class="sidebar-label">Fees</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.fees.*') ? 'open' : '' }}" id="fees-menu">
-                    @if($can('fees.view'))
-                        <a href="{{ route('admin.fees.index') }}" class="submenu-item">Fee Structure</a>
-                        <a href="{{ route('admin.fees.index') }}" class="submenu-item">Student Fee</a>
-                        <a href="{{ route('admin.fees.index') }}" class="submenu-item">Payment History</a>
-                    @endif
-                    @if($isSuperAdmin)
-                        <a href="{{ route('admin.scholarship.index') }}" class="submenu-item">Scholarship</a>
-                    @endif
-                </div>
-            @endif
-
-            @if($canAny(['exams.view','exams.manage']))
-                <a href="{{ route('admin.exam.index') }}" class="sidebar-item {{ request()->routeIs('admin.exam.*') ? 'active' : '' }}" data-search="exam examination">
-                    <span class="sidebar-icon"><i class="fas fa-file-alt"></i></span>
-                    <span class="sidebar-label">Exam</span>
-                </a>
-            @endif
-
-            @if($isSuperAdmin)
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.results.*') ? 'active open' : '' }}" data-submenu="result-menu" data-search="result results marks grade">
-                    <span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>
-                    <span class="sidebar-label">Result</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.results.*') ? 'open' : '' }}" id="result-menu">
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Student Result</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Grade Management</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Publish Result</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Result History</a>
-                    <a href="{{ route('admin.results.index') }}" class="submenu-item">Result Report</a>
-                </div>
-            @endif
-
-            @if($canAny(['notices.view','notices.create','notices.edit','notices.delete']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.notices.*') ? 'active open' : '' }}" data-submenu="notice-menu" data-search="notice notices announcement">
-                    <span class="sidebar-icon"><i class="fas fa-flag"></i></span>
-                    <span class="sidebar-label">Notice</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.notices.*') ? 'open' : '' }}" id="notice-menu">
-                    @if($can('notices.view'))
-                        <a href="{{ route('admin.notices.index') }}" class="submenu-item">All Notices</a>
-                    @endif
-                    @if($can('notices.create'))
-                        <a href="{{ route('admin.notices.create') }}" class="submenu-item">Add Notice</a>
-                    @endif
-                </div>
-            @endif
-
-            @if($canAny(['library.view','library.books','library.issue','library.return','library.fines','library.reports']))
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.library.*') ? 'active open' : '' }}" data-submenu="library-menu" data-search="library books issue return fine">
-                    <span class="sidebar-icon"><i class="fas fa-book"></i></span>
-                    <span class="sidebar-label">Library</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.library.*') ? 'open' : '' }}" id="library-menu">
-                    @if($canAny(['library.view','library.books']))
-                        <a href="{{ route('admin.library.books.index') }}" class="submenu-item {{ request()->routeIs('admin.library.books.*') ? 'active' : '' }}">Total Books</a>
-                    @endif
-                    @if($canAny(['library.issue','library.return','library.fines']))
-                        <a href="{{ route('admin.library.issues.index') }}" class="submenu-item {{ request()->routeIs('admin.library.issues.*') || request()->routeIs('admin.library.returns.*') || request()->routeIs('admin.library.fines.*') ? 'active' : '' }}">Issues / Returns / Fine</a>
-                    @endif
-                    @if($can('library.view'))
-                        <a href="{{ route('admin.library.librarian.index') }}" class="submenu-item {{ request()->routeIs('admin.library.librarian.index') ? 'active' : '' }}">Librarian</a>
-                    @endif
-                    @if($can('library.reports'))
-                        <a href="{{ route('admin.library.reports.index') }}" class="submenu-item {{ request()->routeIs('admin.library.reports.*') ? 'active' : '' }}">Reports</a>
-                    @endif
-                </div>
-            @endif
-
-            @if($isSuperAdmin)
-                <div class="sidebar-section-title other-title">OTHER</div>
-
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}" data-submenu="transport-menu" data-search="transport bus vehicle">
-                    <span class="sidebar-icon"><i class="fas fa-bus"></i></span>
-                    <span class="sidebar-label">Transport</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.transport.*') ? 'open' : '' }}" id="transport-menu">
-                    <a href="{{ route('admin.transport.index') }}" class="submenu-item">Transport Records</a>
-                    <a href="{{ route('admin.transport.index') }}" class="submenu-item">Routes</a>
-                    <a href="{{ route('admin.transport.index') }}" class="submenu-item">Vehicles</a>
-                </div>
-
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.meals.*') || request()->routeIs('admin.meal.*') ? 'active open' : '' }}" data-submenu="meal-menu" data-search="meal meals food stock">
-                    <span class="sidebar-icon"><i class="fas fa-utensils"></i></span>
-                    <span class="sidebar-label">Meal Management</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.meals.*') || request()->routeIs('admin.meal.*') ? 'open' : '' }}" id="meal-menu">
-                    <a href="{{ route('admin.meal.items.index') }}" class="submenu-item {{ request()->routeIs('admin.meal.items.*') ? 'active' : '' }}">Stock In / Stock Out</a>
-                    <a href="{{ route('admin.meal.logs.index') }}" class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">Logs</a>
-                </div>
-
-                <a href="{{ route('admin.teachers.salary.index') }}" class="sidebar-item {{ request()->routeIs('admin.teachers.salary.index') ? 'active' : '' }}" data-search="payroll salary">
-                    <span class="sidebar-icon"><i class="fas fa-money-check-alt"></i></span>
-                    <span class="sidebar-label">Payroll</span>
-                </a>
-
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.sports.*') ? 'active open' : '' }}" data-submenu="sports-menu" data-search="sports games events achievements equipment">
-                    <span class="sidebar-icon"><i class="fas fa-futbol"></i></span>
-                    <span class="sidebar-label">Sports</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.sports.*') ? 'open' : '' }}" id="sports-menu">
-                    <a href="{{ route('admin.sports.games.index') }}" class="submenu-item {{ request()->routeIs('admin.sports.games.*') ? 'active' : '' }}">Games / Events</a>
-                    <a href="{{ route('admin.sports.achievements.index') }}" class="submenu-item {{ request()->routeIs('admin.sports.achievements.*') ? 'active' : '' }}">Achievements</a>
-                    <a href="{{ route('admin.sports.equipment.index') }}" class="submenu-item {{ request()->routeIs('admin.sports.equipment.*') ? 'active' : '' }}">Sports Equipments</a>
-                </div>
-
-                <a href="{{ route('admin.scholarship.index') }}" class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}" data-search="scholarship">
-                    <span class="sidebar-icon"><i class="fas fa-graduation-cap"></i></span>
-                    <span class="sidebar-label">Scholarship</span>
-                </a>
-
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.classes.*') ? 'active open' : '' }}" data-submenu="class-menu" data-search="class classes division subjects">
-                    <span class="sidebar-icon"><i class="fas fa-chalkboard"></i></span>
-                    <span class="sidebar-label">Class</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.classes.*') ? 'open' : '' }}" id="class-menu">
-                    <a href="{{ route('admin.classes.index') }}" class="submenu-item">Classes</a>
-                    <a href="{{ route('admin.subjects.index') }}" class="submenu-item {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">Subjects</a>
-                </div>
-
-                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}" data-submenu="settings-menu" data-search="settings role permission users backup">
-                    <span class="sidebar-icon"><i class="fas fa-cog"></i></span>
-                    <span class="sidebar-label">Settings</span>
-                    <span class="sidebar-arrow">›</span>
-                </button>
-                <div class="submenu {{ request()->routeIs('admin.settings.*') ? 'open' : '' }}" id="settings-menu">
-                    <a href="{{ route('admin.settings.index') }}" class="submenu-item">School Profile</a>
-                    <a href="{{ route('admin.settings.index') }}" class="submenu-item">User Roles & Permission</a>
-                    <a href="{{ route('admin.settings.index') }}" class="submenu-item">Backup & Recovery</a>
-                </div>
-            @endif
-        </div>
-
-
-        <!-- Logout -->
+                @endforeach
+            @endforeach
+        </nav>
 
         <div class="logout-area">
-
-            <form method="POST" action="{{ route('admin.logout') }}">
-
+            <form method="POST" action="{{ $route('admin.logout') }}">
                 @csrf
-
                 <button type="submit" class="logout-button">
-
-                    <span class="sidebar-icon">
-    <i class="fas fa-sign-out-alt"></i>
-</span>
-
-<span class="sidebar-label">
-    Logout
-</span>
-
+                    <span class="nav-icon"><i class="fas fa-arrow-right-from-bracket"></i></span>
+                    <span>Log out</span>
                 </button>
-
             </form>
-
         </div>
-
     </aside>
-
-
-    <!-- Mobile overlay -->
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-
-    <!-- =========================================================
-         MAIN AREA
-    ========================================================== -->
-
+    {{-- ================= MAIN ================= --}}
     <div class="main-area">
 
-
-        <!-- =====================================================
-             HEADER
-        ====================================================== -->
-
         <header class="top-header">
+            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
 
-            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">☰</button>
-
-            <div class="page-title">
-                @yield('page-title', 'Dashboard')
-            </div>
-
-            <div class="header-search">
-                <div class="search-box">
-                    <span class="search-icon">⌕</span>
-                    <input type="text" id="globalSearch" class="search-input" placeholder="Search..." autocomplete="off">
-                    <button type="button" class="search-button" id="searchButton" title="Search">↵</button>
-                </div>
-                <div class="search-results" id="searchResults"></div>
-            </div>
+            <div class="page-title">@yield('page-title', 'Dashboard')</div>
 
             <div class="header-actions">
+                <div class="header-date"><b id="liveClock">{{ now()->format('h:i A') }}</b>{{ now()->format('l, d F Y') }}</div>
                 <div class="admin-profile">
-                    <div class="admin-avatar">A</div>
+                    <div class="avatar-wrap"><div class="admin-avatar">A</div><span class="status-dot" title="Online"></span></div>
                     <div class="admin-info">
-                        <div class="admin-name">Admin</div>
-                        <div class="admin-status">
-                            <span class="online-dot"></span>
-                            Online
-                        </div>
+                        <div class="admin-name">Admin <span class="online-pill"><i></i>Online</span></div>
+                        <div class="admin-role">Administrator</div>
                     </div>
                 </div>
             </div>
-
         </header>
 
-
-        <!-- =====================================================
-             PAGE CONTENT
-        ====================================================== -->
-
         <main class="main-content">
-
             @yield('content')
-
         </main>
 
-
-        <!-- =====================================================
-             FOOTER
-        ====================================================== -->
-
         <footer class="app-footer">
-
-            <div>
-                © {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.
-            </div>
-
-            <div class="footer-right">
-                School Management System • v1.0.0
-            </div>
-
+            <div>© {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.</div>
+            <div>School Management System v1.0.0</div>
         </footer>
-
     </div>
-
 </div>
-
-
-<!-- =============================================================
-     JAVASCRIPT
-============================================================== -->
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const submenuButtons = document.querySelectorAll('.has-submenu');
+    const buttons = document.querySelectorAll('.has-submenu');
 
-    submenuButtons.forEach(function (button) {
+    buttons.forEach(function (button) {
         button.addEventListener('click', function () {
-            const submenuId = this.getAttribute('data-submenu');
-            const submenu = document.getElementById(submenuId);
+            const menu = document.getElementById(this.dataset.submenu);
+            if (!menu) return;
+            const open = !menu.classList.contains('open');
 
-            if (!submenu) {
-                return;
-            }
-
-            const shouldOpen = !submenu.classList.contains('open');
-
-            submenuButtons.forEach(function (otherButton) {
-                if (otherButton !== button) {
-                    otherButton.classList.remove('open');
-                    const otherId = otherButton.getAttribute('data-submenu');
-                    const otherMenu = document.getElementById(otherId);
-                    if (otherMenu) {
-                        otherMenu.classList.remove('open');
-                    }
+            buttons.forEach(function (other) {
+                if (other !== button) {
+                    other.classList.remove('open');
+                    const m = document.getElementById(other.dataset.submenu);
+                    if (m) m.classList.remove('open');
                 }
             });
 
-            button.classList.toggle('open', shouldOpen);
-            submenu.classList.toggle('open', shouldOpen);
+            button.classList.toggle('open', open);
+            menu.classList.toggle('open', open);
         });
     });
 
-    const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const overlay = document.getElementById('sidebarOverlay');
 
-    if (menuToggle && sidebar && sidebarOverlay) {
-        menuToggle.addEventListener('click', function () {
-            sidebar.classList.toggle('mobile-open');
-            sidebarOverlay.classList.toggle('active');
-        });
-    }
-
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function () {
-            sidebar.classList.remove('mobile-open');
-            sidebarOverlay.classList.remove('active');
-        });
-    }
-
-    const searchInput = document.getElementById('globalSearch');
-    const searchButton = document.getElementById('searchButton');
-    const searchResults = document.getElementById('searchResults');
-
-    if (!searchInput || !searchButton || !searchResults) {
-        return;
-    }
-
-    const searchableItems = [];
-
-    document.querySelectorAll('.sidebar-item[data-search]').forEach(function (item) {
-        searchableItems.push({
-            text: item.innerText.trim(),
-            keywords: item.getAttribute('data-search') || '',
-            element: item
-        });
+    document.getElementById('menuToggle').addEventListener('click', function () {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
     });
 
-    document.querySelectorAll('.submenu-item').forEach(function (item) {
-        searchableItems.push({
-            text: item.innerText.trim(),
-            keywords: item.innerText.trim(),
-            element: item
-        });
-    });
-
-    function performSearch() {
-        const query = searchInput.value.trim().toLowerCase();
-        searchResults.innerHTML = '';
-
-        if (!query) {
-            searchResults.classList.remove('show');
-            return;
-        }
-
-        const matches = searchableItems.filter(function (item) {
-            return (
-                item.text.toLowerCase().includes(query) ||
-                item.keywords.toLowerCase().includes(query)
-            );
-        });
-
-        if (matches.length === 0) {
-            searchResults.innerHTML = `
-                <div class="search-empty">
-                    No results found for <strong>${query}</strong>
-                </div>
-            `;
-            searchResults.classList.add('show');
-            return;
-        }
-
-        matches.slice(0, 8).forEach(function (item) {
-            const result = document.createElement('div');
-            result.className = 'search-result-item';
-            result.innerHTML = `
-                <span class="search-result-icon">🔎</span>
-                <span>${item.text}</span>
-            `;
-
-            result.addEventListener('click', function () {
-                if (item.element.tagName === 'A' && item.element.href) {
-                    window.location.href = item.element.href;
-                    return;
-                }
-
-                if (item.element.classList.contains('has-submenu')) {
-                    item.element.click();
-                }
-
-                searchResults.classList.remove('show');
-                searchInput.value = item.text;
-            });
-
-            searchResults.appendChild(result);
-        });
-
-        searchResults.classList.add('show');
-    }
-
-    searchInput.addEventListener('input', performSearch);
-    searchButton.addEventListener('click', performSearch);
-
-    searchInput.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            performSearch();
-        }
-    });
-
-    document.addEventListener('click', function (event) {
-        if (!event.target.closest('.header-search')) {
-            searchResults.classList.remove('show');
-        }
-    });
-
-    document.addEventListener('keydown', function (event) {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-            event.preventDefault();
-            searchInput.focus();
-            searchInput.select();
-        }
+    overlay.addEventListener('click', function () {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
     });
 });
 </script>
 
+<script>
+(function(){
+    const el=document.getElementById('liveClock');
+    if(!el) return;
+    function tick(){el.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+    tick(); setInterval(tick,15000);
+})();
+</script>
+
+<script>
+(function () {
+    const root = document.documentElement;
+    const bar = document.getElementById('topbar');
+    const loader = document.getElementById('pageLoader');
+    const loaderText = document.getElementById('loaderText');
+    const started = performance.now();
+    let creep = null;
+
+    /* ----- top progress bar ----- */
+    function barStart() {
+        clearInterval(creep);
+        bar.style.transition = 'none';
+        bar.style.opacity = 1;
+        bar.style.width = '0';
+        bar.offsetWidth;
+        bar.style.transition = 'width .4s ease, opacity .35s ease';
+        let w = 12;
+        bar.style.width = w + '%';
+        creep = setInterval(function () {
+            w += (90 - w) * 0.08;
+            bar.style.width = w + '%';
+        }, 250);
+    }
+    function barDone() {
+        clearInterval(creep);
+        bar.style.width = '100%';
+        setTimeout(function () { bar.style.opacity = 0; }, 350);
+    }
+
+    /* ----- skeleton: remove once page is ready (min 600 ms so it never flickers) ----- */
+    function ready() {
+        const wait = Math.max(0, 600 - (performance.now() - started));
+        setTimeout(function () { root.classList.remove('is-loading'); barDone(); }, wait);
+    }
+    barStart();
+    if (document.readyState === 'complete') { ready(); } else { window.addEventListener('load', ready); }
+    setTimeout(function () { root.classList.remove('is-loading'); }, 5000);
+
+    /* ----- navigation: links ----- */
+    document.addEventListener('click', function (e) {
+        const a = e.target.closest('a[href]');
+        if (!a || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        if (a.target === '_blank' || a.hasAttribute('download')) return;
+        const href = a.getAttribute('href');
+        if (!href || href.charAt(0) === '#' || href.indexOf('javascript:') === 0) return;
+        if (a.origin !== location.origin) return;
+        barStart();
+    });
+
+    /* ----- forms: button spinner + optional full-screen loader ----- */
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (e.defaultPrevented) return;          // e.g. user pressed Cancel on a confirm()
+        barStart();
+
+        const btn = form.querySelector('button[type="submit"], button:not([type])');
+        if (btn && !btn.classList.contains('is-busy')) {
+            btn.classList.add('is-busy');
+            btn.setAttribute('aria-busy', 'true');
+            btn.insertAdjacentHTML('afterbegin', '<span class="btn-spin"></span>');
+        }
+
+        const msg = form.getAttribute('data-loader');
+        if (msg) {
+            loaderText.textContent = msg;
+            loader.classList.add('show');
+        }
+    });
+
+    /* ----- coming back with the browser Back button ----- */
+    window.addEventListener('pageshow', function (e) {
+        if (!e.persisted) return;
+        loader.classList.remove('show');
+        document.querySelectorAll('.is-busy').forEach(function (b) {
+            b.classList.remove('is-busy');
+            b.removeAttribute('aria-busy');
+            const sp = b.querySelector('.btn-spin');
+            if (sp) sp.remove();
+        });
+        root.classList.remove('is-loading');
+        barDone();
+    });
+})();
+</script>
+
 @stack('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
