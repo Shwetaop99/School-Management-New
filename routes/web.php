@@ -1159,6 +1159,11 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
                 ->middleware('permission:notices.view');
 
+                Route::get('/notices/{notice}/whatsapp', [
+    NoticeController::class,
+    'whatsapp'
+])->name('notices.whatsapp');
+
 
 
 

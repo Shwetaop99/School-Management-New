@@ -77,67 +77,50 @@ class NoticeController extends Controller
     ));
 }
 
-    public function create()
-    {
-        return view('admin.notices.create');
+public function create()
+{
+    return view('admin.notices.create');
+}
+
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => ['required', 'string', 'max:255'],
+        'content' => ['required', 'string'],
+        'category' => ['required', 'string', 'max:100'],
+        'publish_date' => ['nullable', 'date'],
+        'expiry_date' => ['nullable', 'date', 'after_or_equal:publish_date'],
+        'status' => ['required', 'in:Draft,Published'],
+        'priority' => ['required', 'in:Normal,Important,Urgent'],
+        'attachment' => [
+            'nullable',
+            'file',
+            'mimes:pdf,doc,docx,jpg,jpeg,png',
+            'max:5120'
+        ],
+    ]);
+
+    if ($request->hasFile('attachment')) {
+        $validated['attachment'] = $request
+            ->file('attachment')
+            ->store('notices', 'public');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
+    $validated['created_by'] = auth()->id();
 
-            'content' => ['required', 'string'],
+    $notice = Notice::create($validated);
 
-            'category' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-
-            'publish_date' => [
-                'nullable',
-                'date'
-            ],
-
-            'expiry_date' => [
-                'nullable',
-                'date',
-                'after_or_equal:publish_date'
-            ],
-
-            'status' => [
-                'required',
-                'in:Draft,Published'
-            ],
-
-            'priority' => [
-                'required',
-                'in:Normal,Important,Urgent'
-            ],
-
-            'attachment' => [
-                'nullable',
-                'file',
-                'mimes:pdf,doc,docx,jpg,jpeg,png',
-                'max:5120'
-            ],
-        ]);
-
-        if ($request->hasFile('attachment')) {
-            $validated['attachment'] = $request
-                ->file('attachment')
-                ->store('notices', 'public');
-        }
-
-        $validated['created_by'] = auth()->id();
-
-        Notice::create($validated);
-
-        return redirect()
-            ->route('admin.notices.index')
-            ->with('success', 'Notice created successfully.');
+    if ($notice->status === 'Published') {
+        return redirect()->route(
+            'admin.notices.whatsapp',
+            $notice
+        );
     }
+
+    return redirect()
+        ->route('admin.notices.index')
+        ->with('success', 'Notice saved as draft.');
+}
 
     public function show(Notice $notice)
 {
@@ -211,5 +194,34 @@ public function destroy(Notice $notice)
     return redirect()
         ->route('admin.notices.index')
         ->with('success', 'Notice deleted successfully.');
+}
+public function whatsapp(Notice $notice)
+{
+    $message =
+        "*GURUKUL VIDYALAYA*\n" .
+        "*School Notice*\n\n" .
+
+        "*" . $notice->title . "*\n\n" .
+
+        $notice->content . "\n\n" .
+
+        "*Priority:* " . $notice->priority . "\n";
+
+    if ($notice->publish_date) {
+        $message .=
+            "*Published:* " .
+            \Carbon\Carbon::parse($notice->publish_date)
+                ->format('d F Y') .
+            "\n";
+    }
+
+    $message .=
+        "\nThank you,\n" .
+        "Gurukul Vidyalaya";
+
+    $whatsappUrl =
+        'https://wa.me/?text=' . rawurlencode($message);
+
+    return redirect()->away($whatsappUrl);
 }
 }
