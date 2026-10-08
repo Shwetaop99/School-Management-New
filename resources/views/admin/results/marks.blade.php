@@ -1,15 +1,10 @@
-
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Enter Marks')
 
 @section('content')
 
 <style>
-    /* ============================================================
-       ENTER MARKS PAGE
-    ============================================================ */
-
     .marks-page {
         --primary: #1677f0;
         --primary-dark: #0d5fc7;
@@ -63,7 +58,8 @@
         border-color: #fff;
     }
 
-    .marks-page .modern-card {
+    .marks-page .modern-card,
+    .marks-page .marks-card {
         border: 1px solid var(--border);
         border-radius: 16px;
         box-shadow: 0 5px 20px rgba(15, 23, 42, .055);
@@ -87,6 +83,7 @@
         align-items: center;
         justify-content: center;
         font-size: 1.05rem;
+        flex-shrink: 0;
     }
 
     .marks-page .section-title {
@@ -185,10 +182,6 @@
         font-weight: 600;
     }
 
-    /* ============================================================
-       EXAM INFORMATION
-    ============================================================ */
-
     .marks-page .exam-banner {
         background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
         border: 1px solid #dcecff;
@@ -229,17 +222,6 @@
         color: #087990;
     }
 
-    /* ============================================================
-       MARKS TABLE
-    ============================================================ */
-
-    .marks-page .marks-card {
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .055);
-        overflow: hidden;
-    }
-
     .marks-page .marks-table-wrapper {
         max-height: 68vh;
         overflow: auto;
@@ -270,10 +252,6 @@
         padding: 11px;
         font-size: .84rem;
         vertical-align: middle;
-    }
-
-    .marks-page .marks-table tbody tr {
-        transition: background .15s ease;
     }
 
     .marks-page .marks-table tbody tr:hover {
@@ -346,29 +324,6 @@
         margin-right: 5px;
     }
 
-    /* ============================================================
-       STATUS
-    ============================================================ */
-
-    .marks-page .status-present {
-        background: #eaf8f0;
-        color: #137a43;
-    }
-
-    .marks-page .status-absent {
-        background: #fff4e5;
-        color: #a45a00;
-    }
-
-    .marks-page .status-na {
-        background: #f0f1f3;
-        color: #626b76;
-    }
-
-    /* ============================================================
-       TABLE FOOTER
-    ============================================================ */
-
     .marks-page .marks-footer {
         background: #fff;
         border-top: 1px solid var(--border);
@@ -384,10 +339,6 @@
         color: var(--text-muted);
         font-size: .76rem;
     }
-
-    /* ============================================================
-       EMPTY STATE
-    ============================================================ */
 
     .marks-page .empty-state {
         padding: 70px 20px;
@@ -406,12 +357,7 @@
         font-size: 2rem;
     }
 
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-
     @media (max-width: 767.98px) {
-
         .marks-page .page-header {
             padding: 18px;
             border-radius: 14px;
@@ -452,492 +398,536 @@
     }
 </style>
 
-
 <div class="container-fluid py-4 marks-page">
 
-    {{-- ============================================================
-         PAGE HEADER
-    ============================================================ --}}
-    <div class="page-header mb-4">
+```
+{{-- PAGE HEADER --}}
+<div class="page-header mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
 
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <div class="header-icon me-3">
+                <i class="bi bi-pencil-square"></i>
+            </div>
 
+            <div>
+                <h4 class="mb-1 fw-bold">Enter Marks</h4>
+
+                <p class="mb-0">
+                    Enter and manage Internal, Theory and Practical marks.
+                </p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <a href="{{ route('admin.results.index') }}" class="btn">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Results
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{{-- FLASH MESSAGES --}}
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Success:</strong>
+        {{ session('success') }}
+
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>Error:</strong>
+        {{ session('error') }}
+
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+{{-- ============================================================
+     SELECTION MODE
+============================================================= --}}
+@if($selectionMode)
+
+    <div class="modern-card">
+
+        <div class="card-header-modern">
             <div class="d-flex align-items-center">
 
-                <div class="header-icon me-3">
-                    <i class="bi bi-pencil-square"></i>
+                <div class="section-icon me-3">
+                    <i class="bi bi-funnel-fill"></i>
                 </div>
 
                 <div>
-                    <h4 class="mb-1 fw-bold">
-                        Enter Marks
-                    </h4>
+                    <div class="section-title">
+                        Select Marks Entry Details
+                    </div>
 
-                    <p class="mb-0">
-                        Enter and manage Internal, Theory and Practical marks.
+                    <p class="section-subtitle">
+                        Choose examination, class, section and subject.
                     </p>
                 </div>
 
             </div>
+        </div>
 
-            <div class="header-actions">
+        <div class="p-4">
 
-                <a
-                    href="{{ route('admin.results.index') }}"
-                    class="btn"
-                >
-                    <i class="bi bi-arrow-left me-1"></i>
-                    Back to Results
-                </a>
+            <form
+                method="GET"
+                action="{{ route('admin.results.marks') }}"
+                id="marksSelectionForm"
+            >
 
+                <div class="row g-3">
+
+                    {{-- EXAM --}}
+                    <div class="col-xl-3 col-md-6">
+
+                        <label for="exam_id" class="form-label fw-semibold">
+                            Examination
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="exam_id"
+                            id="exam_id"
+                            class="form-select"
+                            required
+                        >
+                            <option value="">Select Examination</option>
+
+                            @foreach($exams as $item)
+
+                                <option
+                                    value="{{ $item->id }}"
+                                    {{ (string) request('exam_id') === (string) $item->id ? 'selected' : '' }}
+                                >
+                                    {{ $item->exam_name }}
+                                    @if($item->academic_year)
+                                        ({{ $item->academic_year }})
+                                    @endif
+                                </option>
+
+                            @endforeach
+                        </select>
+
+                    </div>
+
+                    {{-- CLASS --}}
+                    <div class="col-xl-3 col-md-6">
+
+                        <label for="class_id" class="form-label fw-semibold">
+                            Class
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="class_id"
+                            id="class_id"
+                            class="form-select"
+                            {{ !$exam ? 'disabled' : '' }}
+                            required
+                        >
+
+                            <option value="">Select Class</option>
+
+                            @foreach($examClasses as $item)
+
+                                @if($item->schoolClass)
+
+                                    <option
+                                        value="{{ $item->class_id }}"
+                                        data-section="{{ $item->schoolClass->section ?? '' }}"
+                                        {{ (string) request('class_id') === (string) $item->class_id ? 'selected' : '' }}
+                                    >
+                                        {{ $item->schoolClass->class_name }}
+
+                                        @if($item->schoolClass->section)
+                                            - Section {{ $item->schoolClass->section }}
+                                        @endif
+                                    </option>
+
+                                @endif
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+                    {{-- SECTION --}}
+                    <div class="col-xl-3 col-md-6">
+
+                        <label for="section" class="form-label fw-semibold">
+                            Section
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="section"
+                            id="section"
+                            class="form-select"
+                            {{ !$exam ? 'disabled' : '' }}
+                            required
+                        >
+                            <option value="">Select Section</option>
+
+                            @if(isset($sections) && $sections->count())
+
+                                @foreach($sections as $sectionItem)
+
+                                    <option
+                                        value="{{ $sectionItem }}"
+                                        {{ (string) request('section') === (string) $sectionItem ? 'selected' : '' }}
+                                    >
+                                        Section {{ $sectionItem }}
+                                    </option>
+
+                                @endforeach
+
+                            @endif
+                        </select>
+
+                    </div>
+
+                    {{-- SUBJECT --}}
+                    <div class="col-xl-3 col-md-6">
+
+                        <label for="subject_id" class="form-label fw-semibold">
+                            Subject
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="subject_id"
+                            id="subject_id"
+                            class="form-select"
+                            disabled
+                            required
+                        >
+                            <option value="">Select Subject</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+                {{-- MARK CONFIGURATION --}}
+                <div class="mt-4">
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        <div class="section-icon me-3">
+                            <i class="bi bi-bar-chart-line-fill"></i>
+                        </div>
+
+                        <div>
+                            <div class="section-title">
+                                Marks Configuration
+                            </div>
+
+                            <p class="section-subtitle">
+                                Maximum and passing marks for the selected subject.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-3">
+
+                            <div class="info-box primary">
+
+                                <span class="label">
+                                    <i class="bi bi-award me-1"></i>
+                                    Maximum Marks
+                                </span>
+
+                                <span
+                                    class="value"
+                                    id="maximum_marks_display"
+                                >
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="info-box">
+
+                                <span class="label">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Passing Marks
+                                </span>
+
+                                <span
+                                    class="value"
+                                    id="passing_marks_display"
+                                >
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {{-- Unique hidden fields --}}
+                    <input
+                        type="hidden"
+                        id="maximum_marks_value"
+                        value=""
+                    >
+
+                    <input
+                        type="hidden"
+                        id="passing_marks_value"
+                        value=""
+                    >
+
+                </div>
+
+                {{-- LOAD STUDENTS --}}
+                <div class="selection-footer">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                        <div class="text-muted small">
+
+                            <i class="bi bi-info-circle me-1"></i>
+
+                            Select all required fields before loading students.
+
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary px-4"
+                            id="loadStudentsBtn"
+                        >
+                            <i class="bi bi-people-fill me-2"></i>
+                            Load Students
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+@else
+
+    {{-- ============================================================
+         EXAM INFORMATION
+    ============================================================= --}}
+
+    <div class="exam-banner mb-4">
+
+        <div class="row align-items-center g-3">
+
+            <div class="col-lg-7">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="section-icon me-3">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="exam-title">
+                            {{ $exam->exam_name }}
+                        </div>
+
+                        <div class="exam-meta mt-1">
+
+                            <i class="bi bi-calendar3 me-1"></i>
+
+                            Academic Year:
+                            <strong>
+                                {{ $exam->academic_year }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-5">
+
+                <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+
+                    <span class="exam-badge badge-class">
+                        <i class="bi bi-mortarboard-fill me-1"></i>
+                        {{ $examClass->schoolClass->class_name }}
+                    </span>
+
+                    <span class="exam-badge badge-section">
+                        <i class="bi bi-diagram-3 me-1"></i>
+                        Section {{ $section }}
+                    </span>
+
+                    <span class="exam-badge badge-subject">
+                        <i class="bi bi-book me-1"></i>
+                        {{ $examSubject->subject->subject_name ?? 'Subject' }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row g-3 mt-3 pt-3 border-top">
+
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="label">
+                        <i class="bi bi-book me-1"></i>
+                        Subject
+                    </span>
+
+                    <span class="value">
+                        {{ $examSubject->subject->subject_name ?? '-' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="label">
+                        <i class="bi bi-bullseye me-1"></i>
+                        Maximum Marks
+                    </span>
+
+                    <span class="value">
+                        {{ $examSubject->maximum_marks }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="label">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Passing Marks
+                    </span>
+
+                    <span class="value">
+                        {{ $examSubject->passing_marks }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="info-box primary">
+                    <span class="label">
+                        <i class="bi bi-people-fill me-1"></i>
+                        Students
+                    </span>
+
+                    <span class="value">
+                        {{ $students->count() }}
+                    </span>
+                </div>
             </div>
 
         </div>
 
     </div>
 
+    {{-- MARKS FORM --}}
+    <form
+        method="POST"
+        action="{{ route('admin.results.save-marks') }}"
+        id="marksForm"
+    >
 
-    {{-- ============================================================
-         FLASH MESSAGES
-    ============================================================ --}}
-    @if(session('success'))
+        @csrf
 
-        <div
-            class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4"
-            role="alert"
+        <input
+            type="hidden"
+            name="exam_id"
+            value="{{ $exam->id }}"
         >
-            <i class="bi bi-check-circle-fill me-2"></i>
 
-            <strong>Success:</strong>
-            {{ session('success') }}
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
-        </div>
-
-    @endif
-
-
-    @if(session('error'))
-
-        <div
-            class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4"
-            role="alert"
+        <input
+            type="hidden"
+            name="exam_class_id"
+            value="{{ $examClass->id }}"
         >
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
 
-            <strong>Error:</strong>
-            {{ session('error') }}
+        <input
+            type="hidden"
+            name="class_id"
+            value="{{ $examClass->class_id }}"
+        >
 
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
-        </div>
+        <input
+            type="hidden"
+            name="section"
+            value="{{ $section }}"
+        >
 
-    @endif
+        <input
+            type="hidden"
+            name="subject_id"
+            value="{{ $examSubject->subject_id }}"
+        >
 
+        <div class="marks-card">
 
-    {{-- ============================================================
-         SELECTION MODE
-    ============================================================ --}}
-    @if($selectionMode)
-
-        <div class="modern-card">
-
-            {{-- CARD HEADER --}}
             <div class="card-header-modern">
 
-                <div class="d-flex align-items-center">
-
-                    <div class="section-icon me-3">
-                        <i class="bi bi-funnel-fill"></i>
-                    </div>
-
-                    <div>
-                        <div class="section-title">
-                            Select Marks Entry Details
-                        </div>
-
-                        <p class="section-subtitle">
-                            Choose examination, class, section and subject.
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- CARD BODY --}}
-            <div class="p-4">
-
-                <form
-                    method="GET"
-                    action="{{ route('admin.results.marks') }}"
-                    id="marksSelectionForm"
-                >
-
-                    {{-- ====================================================
-                         MAIN SELECTION
-                    ===================================================== --}}
-                    <div class="row g-3">
-
-                        {{-- EXAM --}}
-                        <div class="col-xl-3 col-md-6">
-
-                            <label
-                                for="exam_id"
-                                class="form-label fw-semibold"
-                            >
-                                Examination
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="exam_id"
-                                id="exam_id"
-                                class="form-select"
-                                required
-                            >
-
-                                <option value="">
-                                    Select Examination
-                                </option>
-
-                                @foreach($exams as $item)
-
-                                    <option
-                                        value="{{ $item->id }}"
-                                        {{ request('exam_id') == $item->id ? 'selected' : '' }}
-                                    >
-                                        {{ $item->exam_name }}
-                                        @if($item->academic_year)
-                                            ({{ $item->academic_year }})
-                                        @endif
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-
-                        {{-- CLASS --}}
-                        <div class="col-xl-3 col-md-6">
-
-                            <label
-                                for="class_id"
-                                class="form-label fw-semibold"
-                            >
-                                Class
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="class_id"
-                                id="class_id"
-                                class="form-select"
-                                {{ !$exam ? 'disabled' : '' }}
-                                required
-                            >
-
-                                <option value="">
-                                    Select Class
-                                </option>
-
-                                @foreach($examClasses as $item)
-
-                                    @if($item->schoolClass)
-
-                                        <option
-                                            value="{{ $item->class_id }}"
-                                            data-section="{{ $item->schoolClass->section }}"
-                                            {{ request('class_id') == $item->class_id ? 'selected' : '' }}
-                                        >
-                                            {{ $item->schoolClass->class_name }}
-                                        </option>
-
-                                    @endif
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-
-                        {{-- SECTION --}}
-                        <div class="col-xl-3 col-md-6">
-
-                            <label
-                                for="section"
-                                class="form-label fw-semibold"
-                            >
-                                Section
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="section"
-                                id="section"
-                                class="form-select"
-                                {{ !$exam ? 'disabled' : '' }}
-                                required
-                            >
-
-                                <option value="">
-                                    Select Section
-                                </option>
-
-                                @if(isset($sections) && $sections->count())
-
-                                    @foreach($sections as $sectionItem)
-
-                                        <option
-                                            value="{{ $sectionItem }}"
-                                            {{ request('section') == $sectionItem ? 'selected' : '' }}
-                                        >
-                                            Section {{ $sectionItem }}
-                                        </option>
-
-                                    @endforeach
-
-                                @endif
-
-                            </select>
-
-                        </div>
-
-
-                        {{-- SUBJECT --}}
-                        <div class="col-xl-3 col-md-6">
-
-                            <label
-                                for="subject_id"
-                                class="form-label fw-semibold"
-                            >
-                                Subject
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="subject_id"
-                                id="subject_id"
-                                class="form-select"
-                                {{ !$exam ? 'disabled' : '' }}
-                                required
-                            >
-
-                                <option value="">
-                                    Select Subject
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- ====================================================
-                         MARK CONFIGURATION
-                    ===================================================== --}}
-                    <div class="mt-4">
-
-                        <div class="d-flex align-items-center mb-3">
-
-                            <div class="section-icon me-3">
-                                <i class="bi bi-bar-chart-line-fill"></i>
-                            </div>
-
-                            <div>
-                                <div class="section-title">
-                                    Marks Configuration
-                                </div>
-
-                                <p class="section-subtitle">
-                                    Maximum and passing marks for the selected subject.
-                                </p>
-                            </div>
-
-                        </div>
-
-
-                        <div class="row g-3">
-
-                            <div class="col-md-3">
-
-                                <div class="info-box primary">
-
-                                    <span class="label">
-                                        <i class="bi bi-award me-1"></i>
-                                        Maximum Marks
-                                    </span>
-
-                                    <span
-                                        class="value"
-                                        id="maximum_marks"
-                                    >
-                                        -
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-3">
-
-                                <div class="info-box">
-
-                                    <span class="label">
-                                        <i class="bi bi-check-circle me-1"></i>
-                                        Passing Marks
-                                    </span>
-
-                                    <span
-                                        class="value"
-                                        id="passing_marks"
-                                    >
-                                        -
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {{-- Hidden readonly fields for existing JS --}}
-                        <input
-                            type="hidden"
-                            id="maximum_marks"
-                            value=""
-                        >
-
-                        <input
-                            type="hidden"
-                            id="passing_marks"
-                            value=""
-                        >
-
-                    </div>
-
-
-                    {{-- ====================================================
-                         LOAD STUDENTS
-                    ===================================================== --}}
-                    <div class="selection-footer">
-
-                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-
-                            <div class="text-muted small">
-
-                                <i class="bi bi-info-circle me-1"></i>
-
-                                Select all required fields before loading students.
-
-                            </div>
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary px-4"
-                                id="loadStudentsBtn"
-                            >
-                                <i class="bi bi-people-fill me-2"></i>
-                                Load Students
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </div>
-
-
-    {{-- ============================================================
-         MARKS ENTRY MODE
-    ============================================================ --}}
-    @else
-
-        {{-- ============================================================
-             EXAM INFORMATION
-        ============================================================ --}}
-        <div class="exam-banner mb-4">
-
-            <div class="row align-items-center g-3">
-
-                <div class="col-lg-7">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
 
                     <div class="d-flex align-items-center">
 
                         <div class="section-icon me-3">
-
-                            <i class="bi bi-journal-text"></i>
-
+                            <i class="bi bi-table"></i>
                         </div>
 
                         <div>
 
-                            <div class="exam-title">
-                                {{ $exam->exam_name }}
+                            <div class="section-title">
+                                Student Marks
                             </div>
 
-                            <div class="exam-meta mt-1">
-
-                                <i class="bi bi-calendar3 me-1"></i>
-
-                                Academic Year:
-                                <strong>
-                                    {{ $exam->academic_year }}
-                                </strong>
-
-                            </div>
+                            <p class="section-subtitle">
+                                Enter marks for each student and select the attendance status.
+                            </p>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div>
 
+                        <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
 
-                <div class="col-lg-5">
+                            <i class="bi bi-people-fill me-1"></i>
 
-                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
-
-                        <span class="exam-badge badge-class">
-
-                            <i class="bi bi-mortarboard-fill me-1"></i>
-
-                            {{ $examClass->schoolClass->class_name }}
-
-                        </span>
-
-
-                        <span class="exam-badge badge-section">
-
-                            <i class="bi bi-diagram-3 me-1"></i>
-
-                            Section {{ $section }}
-
-                        </span>
-
-
-                        <span class="exam-badge badge-subject">
-
-                            <i class="bi bi-book me-1"></i>
-
-                            {{ $examSubject->subject->subject_name ?? 'Subject' }}
+                            {{ $students->count() }}
+                            Students
 
                         </span>
 
@@ -947,78 +937,321 @@
 
             </div>
 
+            <div class="card-body p-0">
 
-            {{-- ========================================================
-                 INFORMATION STRIP
-            ========================================================= --}}
-            <div class="row g-3 mt-3 pt-3 border-top">
+                @if($students->count())
 
-                <div class="col-md-3">
+                    <div class="table-responsive marks-table-wrapper">
 
-                    <div class="info-box">
+                        <table class="table align-middle marks-table">
 
-                        <span class="label">
-                            <i class="bi bi-book me-1"></i>
-                            Subject
-                        </span>
+                            <thead>
+                                <tr>
 
-                        <span class="value">
-                            {{ $examSubject->subject->subject_name ?? '-' }}
-                        </span>
+                                    <th
+                                        class="text-center"
+                                        style="width:55px;"
+                                    >
+                                        #
+                                    </th>
+
+                                    <th>
+                                        <i class="bi bi-person-badge table-heading-icon"></i>
+                                        Student ID
+                                    </th>
+
+                                    <th>
+                                        <i class="bi bi-person table-heading-icon"></i>
+                                        Student Name
+                                    </th>
+
+                                    <th
+                                        class="text-center"
+                                        style="width:125px;"
+                                    >
+                                        Internal
+                                    </th>
+
+                                    <th
+                                        class="text-center"
+                                        style="width:125px;"
+                                    >
+                                        Theory
+                                    </th>
+
+                                    <th
+                                        class="text-center"
+                                        style="width:125px;"
+                                    >
+                                        Practical
+                                    </th>
+
+                                    <th
+                                        class="text-center"
+                                        style="width:105px;"
+                                    >
+                                        Total
+                                    </th>
+
+                                    <th
+                                        class="text-center"
+                                        style="width:125px;"
+                                    >
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        <i class="bi bi-chat-left-text table-heading-icon"></i>
+                                        Remarks
+                                    </th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                            @foreach($students as $index => $student)
+
+                                @php
+
+                                    $mark = $student->examMark;
+
+                                    $status = $mark->status ?? 'present';
+
+                                    $internal = $mark->internal_marks ?? 0;
+
+                                    $theory = $mark->theory_marks ?? 0;
+
+                                    $practical = $mark->practical_marks ?? 0;
+
+                                    $fullName = trim(
+                                        collect([
+                                            $student->first_name,
+                                            $student->middle_name,
+                                            $student->last_name
+                                        ])
+                                        ->filter()
+                                        ->implode(' ')
+                                    );
+
+                                    $total =
+                                        (float) $internal +
+                                        (float) $theory +
+                                        (float) $practical;
+
+                                @endphp
+
+                                <tr>
+
+                                    <td class="serial">
+                                        {{ $index + 1 }}
+                                    </td>
+
+                                    <td>
+
+                                        <div class="student-id">
+                                            {{ $student->student_id }}
+                                        </div>
+
+                                        @if($student->roll_number)
+
+                                            <div class="roll-number">
+                                                Roll No: {{ $student->roll_number }}
+                                            </div>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="student-name">
+                                            {{ $fullName ?: '-' }}
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            max="{{ $examSubject->maximum_marks }}"
+                                            class="form-control mark-input internal-input"
+                                            name="marks[{{ $student->id }}][internal_marks]"
+                                            value="{{ $internal }}"
+                                            data-student="{{ $student->id }}"
+                                            {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
+                                        >
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            max="{{ $examSubject->maximum_marks }}"
+                                            class="form-control mark-input theory-input"
+                                            name="marks[{{ $student->id }}][theory_marks]"
+                                            value="{{ $theory }}"
+                                            data-student="{{ $student->id }}"
+                                            {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
+                                        >
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            max="{{ $examSubject->maximum_marks }}"
+                                            class="form-control mark-input practical-input"
+                                            name="marks[{{ $student->id }}][practical_marks]"
+                                            value="{{ $practical }}"
+                                            data-student="{{ $student->id }}"
+                                            {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
+                                        >
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="text"
+                                            class="form-control total-input text-center fw-bold"
+                                            value="{{ number_format($total, 2) }}"
+                                            data-student="{{ $student->id }}"
+                                            readonly
+                                        >
+
+                                    </td>
+
+                                    <td>
+
+                                        <select
+                                            class="form-select status-select"
+                                            name="marks[{{ $student->id }}][status]"
+                                            data-student="{{ $student->id }}"
+                                        >
+
+                                            <option
+                                                value="present"
+                                                {{ $status == 'present' ? 'selected' : '' }}
+                                            >
+                                                Present
+                                            </option>
+
+                                            <option
+                                                value="absent"
+                                                {{ $status == 'absent' ? 'selected' : '' }}
+                                            >
+                                                Absent
+                                            </option>
+
+                                            <option
+                                                value="na"
+                                                {{ $status == 'na' ? 'selected' : '' }}
+                                            >
+                                                N/A
+                                            </option>
+
+                                        </select>
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="text"
+                                            class="form-control remarks-input"
+                                            name="marks[{{ $student->id }}][remarks]"
+                                            value="{{ $mark->remarks ?? '' }}"
+                                            placeholder="Optional remark"
+                                        >
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                            </tbody>
+
+                        </table>
 
                     </div>
 
-                </div>
+                @else
 
+                    <div class="empty-state">
 
-                <div class="col-md-3">
+                        <div class="empty-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
 
-                    <div class="info-box">
+                        <h5 class="mt-4 fw-bold">
+                            No Students Found
+                        </h5>
 
-                        <span class="label">
-                            <i class="bi bi-bullseye me-1"></i>
-                            Maximum Marks
-                        </span>
+                        <p class="text-muted mb-4">
+                            No active students were found for this
+                            class, section and academic year.
+                        </p>
 
-                        <span class="value">
-                            {{ $examSubject->maximum_marks }}
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-3">
-
-                    <div class="info-box">
-
-                        <span class="label">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Passing Marks
-                        </span>
-
-                        <span class="value">
-                            {{ $examSubject->passing_marks }}
-                        </span>
+                        <a
+                            href="{{ route('admin.results.marks') }}"
+                            class="btn btn-outline-primary"
+                        >
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Change Selection
+                        </a>
 
                     </div>
 
-                </div>
+                @endif
 
+            </div>
 
-                <div class="col-md-3">
+            <div class="marks-footer">
 
-                    <div class="info-box primary">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
 
-                        <span class="label">
-                            <i class="bi bi-people-fill me-1"></i>
-                            Students
-                        </span>
+                    <div class="footer-note">
 
-                        <span class="value">
-                            {{ $students->count() }}
-                        </span>
+                        <i class="bi bi-info-circle me-1"></i>
+
+                        Marks are calculated automatically from
+                        Internal + Theory + Practical.
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <a
+                            href="{{ route('admin.results.marks') }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Back
+                        </a>
+
+                        @if($students->count())
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary save-button"
+                                id="saveMarksBtn"
+                            >
+                                <i class="bi bi-check2-circle me-1"></i>
+                                Save All Marks
+                            </button>
+
+                        @endif
 
                     </div>
 
@@ -1028,546 +1261,346 @@
 
         </div>
 
+    </form>
 
-        {{-- ============================================================
-             MARKS FORM
-        ============================================================ --}}
-        <form
-            method="POST"
-            action="{{ route('admin.results.save-marks') }}"
-            id="marksForm"
-        >
-
-            @csrf
-
-
-            <input
-                type="hidden"
-                name="exam_id"
-                value="{{ $exam->id }}"
-            >
-
-
-            <input
-                type="hidden"
-                name="exam_class_id"
-                value="{{ $examClass->id }}"
-            >
-
-
-            <input
-                type="hidden"
-                name="class_id"
-                value="{{ $examClass->class_id }}"
-            >
-
-
-            <input
-                type="hidden"
-                name="section"
-                value="{{ $section }}"
-            >
-
-
-            <input
-                type="hidden"
-                name="subject_id"
-                value="{{ $examSubject->subject_id }}"
-            >
-
-
-            {{-- ========================================================
-                 STUDENT MARKS CARD
-            ========================================================= --}}
-            <div class="marks-card">
-
-                {{-- CARD HEADER --}}
-                <div class="card-header-modern">
-
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-
-                        <div class="d-flex align-items-center">
-
-                            <div class="section-icon me-3">
-
-                                <i class="bi bi-table"></i>
-
-                            </div>
-
-                            <div>
-
-                                <div class="section-title">
-                                    Student Marks
-                                </div>
-
-                                <p class="section-subtitle">
-                                    Enter marks for each student and select the attendance status.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div>
-
-                            <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
-
-                                <i class="bi bi-people-fill me-1"></i>
-
-                                {{ $students->count() }}
-                                Students
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- TABLE BODY --}}
-                <div class="card-body p-0">
-
-                    @if($students->count())
-
-                        <div class="table-responsive marks-table-wrapper">
-
-                            <table class="table align-middle marks-table">
-
-                                <thead>
-
-                                    <tr>
-
-                                        <th
-                                            class="text-center"
-                                            style="width:55px;"
-                                        >
-                                            #
-                                        </th>
-
-                                        <th>
-                                            <i class="bi bi-person-badge table-heading-icon"></i>
-                                            Student ID
-                                        </th>
-
-                                        <th>
-                                            <i class="bi bi-person table-heading-icon"></i>
-                                            Student Name
-                                        </th>
-
-                                        <th
-                                            class="text-center"
-                                            style="width:125px;"
-                                        >
-                                            Internal
-                                        </th>
-
-                                        <th
-                                            class="text-center"
-                                            style="width:125px;"
-                                        >
-                                            Theory
-                                        </th>
-
-                                        <th
-                                            class="text-center"
-                                            style="width:125px;"
-                                        >
-                                            Practical
-                                        </th>
-
-                                        <th
-                                            class="text-center"
-                                            style="width:105px;"
-                                        >
-                                            Total
-                                        </th>
-
-                                        <th
-                                            class="text-center"
-                                            style="width:125px;"
-                                        >
-                                            Status
-                                        </th>
-
-                                        <th>
-                                            <i class="bi bi-chat-left-text table-heading-icon"></i>
-                                            Remarks
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-
-                                <tbody>
-
-                                @foreach($students as $index => $student)
-
-                                    @php
-
-                                        $mark = $student->examMark;
-
-                                        $status = $mark->status ?? 'present';
-
-                                        $internal = $mark->internal_marks ?? 0;
-
-                                        $theory = $mark->theory_marks ?? 0;
-
-                                        $practical = $mark->practical_marks ?? 0;
-
-                                        $fullName = trim(
-                                            collect([
-                                                $student->first_name,
-                                                $student->middle_name,
-                                                $student->last_name
-                                            ])
-                                            ->filter()
-                                            ->implode(' ')
-                                        );
-
-                                        $total =
-                                            (float) $internal +
-                                            (float) $theory +
-                                            (float) $practical;
-
-                                    @endphp
-
-
-                                    <tr>
-
-                                        {{-- NUMBER --}}
-                                        <td class="serial">
-                                            {{ $index + 1 }}
-                                        </td>
-
-
-                                        {{-- STUDENT ID --}}
-                                        <td>
-
-                                            <div class="student-id">
-                                                {{ $student->student_id }}
-                                            </div>
-
-                                            @if($student->roll_number)
-
-                                                <div class="roll-number">
-                                                    Roll No: {{ $student->roll_number }}
-                                                </div>
-
-                                            @endif
-
-                                        </td>
-
-
-                                        {{-- STUDENT NAME --}}
-                                        <td>
-
-                                            <div class="student-name">
-
-                                                {{ $fullName ?: '-' }}
-
-                                            </div>
-
-                                        </td>
-
-
-                                        {{-- INTERNAL --}}
-                                        <td>
-
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                max="{{ $examSubject->maximum_marks }}"
-                                                class="form-control mark-input internal-input"
-                                                name="marks[{{ $student->id }}][internal_marks]"
-                                                value="{{ $internal }}"
-                                                data-student="{{ $student->id }}"
-                                                {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
-                                            >
-
-                                        </td>
-
-
-                                        {{-- THEORY --}}
-                                        <td>
-
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                max="{{ $examSubject->maximum_marks }}"
-                                                class="form-control mark-input theory-input"
-                                                name="marks[{{ $student->id }}][theory_marks]"
-                                                value="{{ $theory }}"
-                                                data-student="{{ $student->id }}"
-                                                {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
-                                            >
-
-                                        </td>
-
-
-                                        {{-- PRACTICAL --}}
-                                        <td>
-
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                max="{{ $examSubject->maximum_marks }}"
-                                                class="form-control mark-input practical-input"
-                                                name="marks[{{ $student->id }}][practical_marks]"
-                                                value="{{ $practical }}"
-                                                data-student="{{ $student->id }}"
-                                                {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
-                                            >
-
-                                        </td>
-
-
-                                        {{-- TOTAL --}}
-                                        <td>
-
-                                            <input
-                                                type="text"
-                                                class="form-control total-input text-center fw-bold"
-                                                value="{{ number_format($total, 2) }}"
-                                                data-student="{{ $student->id }}"
-                                                readonly
-                                            >
-
-                                        </td>
-
-
-                                        {{-- STATUS --}}
-                                        <td>
-
-                                            <select
-                                                class="form-select status-select"
-                                                name="marks[{{ $student->id }}][status]"
-                                                data-student="{{ $student->id }}"
-                                            >
-
-                                                <option
-                                                    value="present"
-                                                    {{ $status == 'present' ? 'selected' : '' }}
-                                                >
-                                                    Present
-                                                </option>
-
-                                                <option
-                                                    value="absent"
-                                                    {{ $status == 'absent' ? 'selected' : '' }}
-                                                >
-                                                    Absent
-                                                </option>
-
-                                                <option
-                                                    value="na"
-                                                    {{ $status == 'na' ? 'selected' : '' }}
-                                                >
-                                                    N/A
-                                                </option>
-
-                                            </select>
-
-                                        </td>
-
-
-                                        {{-- REMARKS --}}
-                                        <td>
-
-                                            <input
-                                                type="text"
-                                                class="form-control remarks-input"
-                                                name="marks[{{ $student->id }}][remarks]"
-                                                value="{{ $mark->remarks ?? '' }}"
-                                                placeholder="Optional remark"
-                                            >
-
-                                        </td>
-
-                                    </tr>
-
-                                @endforeach
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                    @else
-
-                        {{-- EMPTY STATE --}}
-                        <div class="empty-state">
-
-                            <div class="empty-icon">
-
-                                <i class="bi bi-people"></i>
-
-                            </div>
-
-                            <h5 class="mt-4 fw-bold">
-                                No Students Found
-                            </h5>
-
-                            <p class="text-muted mb-4">
-                                No active students were found for this
-                                class, section and academic year.
-                            </p>
-
-                            <a
-                                href="{{ route('admin.results.marks') }}"
-                                class="btn btn-outline-primary"
-                            >
-                                <i class="bi bi-arrow-left me-1"></i>
-                                Change Selection
-                            </a>
-
-                        </div>
-
-                    @endif
-
-                </div>
-
-
-                {{-- ====================================================
-                     FOOTER
-                ===================================================== --}}
-                <div class="marks-footer">
-
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-
-                        <div class="footer-note">
-
-                            <i class="bi bi-info-circle me-1"></i>
-
-                            Marks are calculated automatically from
-                            Internal + Theory + Practical.
-
-                        </div>
-
-
-                        <div class="d-flex gap-2">
-
-                            <a
-                                href="{{ route('admin.results.marks') }}"
-                                class="btn btn-outline-secondary"
-                            >
-                                <i class="bi bi-arrow-left me-1"></i>
-                                Back
-                            </a>
-
-
-                            @if($students->count())
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary save-button"
-                                    id="saveMarksBtn"
-                                >
-                                    <i class="bi bi-check2-circle me-1"></i>
-                                    Save All Marks
-                                </button>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    @endif
+@endif
+```
 
 </div>
 
-
-{{-- ================================================================
-     JAVASCRIPT
-================================================================= --}}
 @push('scripts')
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SELECTION PAGE ELEMENTS
+    | SELECTION ELEMENTS
     |--------------------------------------------------------------------------
     */
 
-    const examSelect =
-        document.getElementById('exam_id');
-
-    const classSelect =
-        document.getElementById('class_id');
-
-    const sectionSelect =
-        document.getElementById('section');
-
-    const subjectSelect =
-        document.getElementById('subject_id');
-
-    /*
-     * These IDs are used by the existing JavaScript.
-     * The visible marks configuration uses separate display elements.
-     */
-    const maximumMarksInput =
-        document.querySelector(
-            '#maximum_marks[type="hidden"]'
-        );
-
-    const passingMarksInput =
-        document.querySelector(
-            '#passing_marks[type="hidden"]'
-        );
+    const examSelect = document.getElementById('exam_id');
+    const classSelect = document.getElementById('class_id');
+    const sectionSelect = document.getElementById('section');
+    const subjectSelect = document.getElementById('subject_id');
 
     const maximumMarksDisplay =
-        document.querySelector(
-            '.marks-page .info-box.primary .value'
-        );
+        document.getElementById('maximum_marks_display');
 
     const passingMarksDisplay =
-        document.querySelector(
-            '.marks-page .info-box:not(.primary) .value'
-        );
+        document.getElementById('passing_marks_display');
+
+    const maximumMarksValue =
+        document.getElementById('maximum_marks_value');
+
+    const passingMarksValue =
+        document.getElementById('passing_marks_value');
 
 
     /*
     |--------------------------------------------------------------------------
-    | UPDATE MARK DISPLAY
+    | MARK CONFIGURATION DISPLAY
     |--------------------------------------------------------------------------
     */
 
     function updateMarksDisplay(maximum, passing) {
 
-        if (maximumMarksInput) {
-            maximumMarksInput.value = maximum || '';
-        }
-
-        if (passingMarksInput) {
-            passingMarksInput.value = passing || '';
-        }
+        maximum = maximum ?? '';
+        passing = passing ?? '';
 
         if (maximumMarksDisplay) {
             maximumMarksDisplay.textContent =
-                maximum || '-';
+                maximum !== '' ? maximum : '-';
         }
 
         if (passingMarksDisplay) {
             passingMarksDisplay.textContent =
-                passing || '-';
+                passing !== '' ? passing : '-';
         }
+
+        if (maximumMarksValue) {
+            maximumMarksValue.value = maximum;
+        }
+
+        if (passingMarksValue) {
+            passingMarksValue.value = passing;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESET SUBJECT
+    |--------------------------------------------------------------------------
+    */
+
+    function resetSubject() {
+
+        if (!subjectSelect) {
+            return;
+        }
+
+        subjectSelect.innerHTML =
+            '<option value="">Select Subject</option>';
+
+        subjectSelect.disabled = true;
+
+        updateMarksDisplay('', '');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESET SECTION
+    |--------------------------------------------------------------------------
+    */
+
+    function resetSection() {
+
+        if (!sectionSelect) {
+            return;
+        }
+
+        sectionSelect.innerHTML =
+            '<option value="">Select Section</option>';
+
+        sectionSelect.disabled = true;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET CLASS SECTION
+    |--------------------------------------------------------------------------
+    */
+
+    function getSelectedSection() {
+
+        if (!classSelect) {
+            return '';
+        }
+
+        const option =
+            classSelect.options[classSelect.selectedIndex];
+
+        if (!option) {
+            return '';
+        }
+
+        return option.dataset.section || '';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD SUBJECTS
+    |--------------------------------------------------------------------------
+    */
+
+    function loadSubjects(
+        examId,
+        classId,
+        selectedSubjectId = ''
+    ) {
+
+        if (!subjectSelect) {
+            return;
+        }
+
+        if (!examId || !classId) {
+
+            resetSubject();
+
+            return;
+        }
+
+
+        subjectSelect.disabled = true;
+
+        subjectSelect.innerHTML =
+            '<option value="">Loading Subjects...</option>';
+
+        updateMarksDisplay('', '');
+
+
+        const url =
+            "{{ route('admin.results.load-subjects') }}" +
+            "?exam_id=" +
+            encodeURIComponent(examId) +
+            "&class_id=" +
+            encodeURIComponent(classId);
+
+
+        fetch(url, {
+            method: 'GET',
+
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+
+            credentials: 'same-origin'
+
+        })
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                return response.text().then(function (text) {
+
+                    console.error(
+                        'Load subjects HTTP error:',
+                        response.status,
+                        text
+                    );
+
+                    throw new Error(
+                        'HTTP ' + response.status
+                    );
+
+                });
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(function (data) {
+
+            console.log(
+                'Subjects API response:',
+                data
+            );
+
+
+            subjectSelect.innerHTML =
+                '<option value="">Select Subject</option>';
+
+
+            if (
+                !data ||
+                data.success !== true
+            ) {
+
+                subjectSelect.innerHTML =
+                    '<option value="">No Subjects Found</option>';
+
+                subjectSelect.disabled = true;
+
+                return;
+            }
+
+
+            const subjects =
+                Array.isArray(data.subjects)
+                    ? data.subjects
+                    : [];
+
+
+            if (subjects.length === 0) {
+
+                subjectSelect.innerHTML =
+                    '<option value="">No Subjects Found</option>';
+
+                subjectSelect.disabled = true;
+
+                return;
+            }
+
+
+            let restoredSubject = false;
+
+
+            subjects.forEach(function (subject) {
+
+                const option =
+                    document.createElement('option');
+
+
+                option.value =
+                    subject.id;
+
+
+                option.textContent =
+                    subject.name +
+                    (
+                        subject.code
+                            ? ' (' + subject.code + ')'
+                            : ''
+                    ) +
+                    (
+                        subject.maximum_marks !== null &&
+                        subject.maximum_marks !== undefined
+                            ? ' - ' + subject.maximum_marks + ' Marks'
+                            : ''
+                    );
+
+
+                option.dataset.maximum =
+                    subject.maximum_marks ?? '';
+
+                option.dataset.passing =
+                    subject.passing_marks ?? '';
+
+
+                if (
+                    selectedSubjectId &&
+                    String(subject.id) ===
+                    String(selectedSubjectId)
+                ) {
+
+                    option.selected = true;
+
+                    restoredSubject = true;
+
+                    updateMarksDisplay(
+                        subject.maximum_marks,
+                        subject.passing_marks
+                    );
+                }
+
+
+                subjectSelect.appendChild(option);
+
+            });
+
+
+            subjectSelect.disabled = false;
+
+
+            /*
+            | If there was no previous selection,
+            | keep the placeholder selected.
+            */
+
+            if (!restoredSubject) {
+
+                subjectSelect.selectedIndex = 0;
+
+                updateMarksDisplay('', '');
+
+            }
+
+        })
+
+        .catch(function (error) {
+
+            console.error(
+                'Subjects loading error:',
+                error
+            );
+
+
+            subjectSelect.innerHTML =
+                '<option value="">Unable to load subjects</option>';
+
+            subjectSelect.disabled = true;
+
+            updateMarksDisplay('', '');
+
+        });
 
     }
 
@@ -1576,6 +1609,9 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     | EXAM CHANGE
     |--------------------------------------------------------------------------
+    |
+    | Reload the page for the selected exam.
+    |
     */
 
     if (examSelect) {
@@ -1584,8 +1620,8 @@ document.addEventListener('DOMContentLoaded', function () {
             'change',
             function () {
 
-                const examId =
-                    this.value;
+                const examId = this.value;
+
 
                 if (!examId) {
 
@@ -1596,14 +1632,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                const url =
+                window.location.href =
                     "{{ route('admin.results.marks') }}" +
                     "?exam_id=" +
                     encodeURIComponent(examId);
-
-
-                window.location.href =
-                    url;
 
             }
         );
@@ -1615,9 +1647,6 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     | CLASS CHANGE
     |--------------------------------------------------------------------------
-    |
-    | Section comes directly from the selected class option.
-    |
     */
 
     if (classSelect) {
@@ -1626,125 +1655,70 @@ document.addEventListener('DOMContentLoaded', function () {
             'change',
             function () {
 
-                const selectedOption =
-                    this.options[this.selectedIndex];
+                const examId =
+                    examSelect
+                        ? examSelect.value
+                        : '';
 
                 const classId =
                     this.value;
 
                 const section =
-                    selectedOption
-                        ? selectedOption.dataset.section
-                        : '';
+                    getSelectedSection();
 
 
                 /*
-                | Clear subject
+                | Reset old values
                 */
 
-                if (subjectSelect) {
+                resetSubject();
 
-                    subjectSelect.innerHTML =
-                        '<option value="">Select Subject</option>';
+                resetSection();
 
-                    subjectSelect.disabled =
-                        true;
-
-                }
-
-
-                /*
-                | Clear marks information
-                */
-
-                updateMarksDisplay('', '');
-
-
-                /*
-                | Clear section
-                */
-
-                if (sectionSelect) {
-
-                    sectionSelect.innerHTML =
-                        '<option value="">Select Section</option>';
-
-                }
-
-
-                /*
-                | No class selected
-                */
 
                 if (!classId) {
-
-                    if (sectionSelect) {
-                        sectionSelect.disabled = true;
-                    }
-
                     return;
-
                 }
 
 
                 /*
-                | Section not found
+                | Load section
                 */
 
-                if (!section) {
+                if (section) {
 
-                    if (sectionSelect) {
-
-                        sectionSelect.innerHTML =
-                            '<option value="">No Section Found</option>';
-
-                        sectionSelect.disabled =
-                            true;
-
-                    }
-
-                    return;
-
-                }
-
-
-                /*
-                | Add section
-                */
-
-                if (sectionSelect) {
-
-                    const option =
+                    const sectionOption =
                         document.createElement('option');
 
-                    option.value =
+                    sectionOption.value =
                         section;
 
-                    option.textContent =
+                    sectionOption.textContent =
                         'Section ' + section;
 
-                    option.selected =
+                    sectionOption.selected =
                         true;
 
-                    sectionSelect.appendChild(option);
+                    sectionSelect.appendChild(
+                        sectionOption
+                    );
 
                     sectionSelect.disabled =
                         false;
-
                 }
 
 
                 /*
-                | Load subjects
+                | Load subjects immediately.
+                |
+                | Subject does NOT depend on section.
+                |
                 */
 
-                if (
-                    examSelect &&
-                    examSelect.value
-                ) {
+                if (examId) {
 
                     loadSubjects(
-                        examSelect.value,
+                        examId,
                         classId
                     );
 
@@ -1768,49 +1742,12 @@ document.addEventListener('DOMContentLoaded', function () {
             'change',
             function () {
 
-                const examId =
-                    examSelect
-                        ? examSelect.value
-                        : '';
+                /*
+                | Section does not control subjects.
+                | Subjects are already loaded from Exam + Class.
+                */
 
-                const classId =
-                    classSelect
-                        ? classSelect.value
-                        : '';
-
-                const section =
-                    this.value;
-
-
-                if (subjectSelect) {
-
-                    subjectSelect.innerHTML =
-                        '<option value="">Select Subject</option>';
-
-                    subjectSelect.disabled =
-                        true;
-
-                }
-
-
-                updateMarksDisplay('', '');
-
-
-                if (
-                    !examId ||
-                    !classId ||
-                    !section
-                ) {
-
-                    return;
-
-                }
-
-
-                loadSubjects(
-                    examId,
-                    classId
-                );
+                return;
 
             }
         );
@@ -1842,7 +1779,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateMarksDisplay('', '');
 
                     return;
-
                 }
 
 
@@ -1853,164 +1789,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
         );
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD SUBJECTS
-    |--------------------------------------------------------------------------
-    */
-
-    function loadSubjects(
-        examId,
-        classId,
-        selectedSubjectId = ''
-    ) {
-
-        if (!subjectSelect) {
-            return;
-        }
-
-
-        subjectSelect.innerHTML =
-            '<option value="">Loading Subjects...</option>';
-
-        subjectSelect.disabled =
-            true;
-
-
-        const url =
-            "{{ route('admin.results.load-subjects') }}" +
-            "?exam_id=" +
-            encodeURIComponent(examId) +
-            "&class_id=" +
-            encodeURIComponent(classId);
-
-
-        fetch(
-            url,
-            {
-                method: 'GET',
-
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            }
-        )
-
-        .then(function (response) {
-
-            if (!response.ok) {
-
-                throw new Error(
-                    'Unable to load subjects.'
-                );
-
-            }
-
-            return response.json();
-
-        })
-
-        .then(function (data) {
-
-            subjectSelect.innerHTML =
-                '<option value="">Select Subject</option>';
-
-
-            const subjects =
-                Array.isArray(data.subjects)
-                    ? data.subjects
-                    : [];
-
-
-            if (subjects.length === 0) {
-
-                subjectSelect.innerHTML =
-                    '<option value="">No Subjects Found</option>';
-
-                subjectSelect.disabled =
-                    true;
-
-                updateMarksDisplay('', '');
-
-                return;
-
-            }
-
-
-            subjects.forEach(
-                function (subject) {
-
-                    const option =
-                        document.createElement('option');
-
-
-                    option.value =
-                        subject.id;
-
-
-                    option.textContent =
-                        subject.name +
-                        ' (' +
-                        subject.maximum_marks +
-                        ' Marks)';
-
-
-                    option.dataset.maximum =
-                        subject.maximum_marks;
-
-
-                    option.dataset.passing =
-                        subject.passing_marks;
-
-
-                    if (
-                        selectedSubjectId &&
-                        String(subject.id) ===
-                        String(selectedSubjectId)
-                    ) {
-
-                        option.selected =
-                            true;
-
-
-                        updateMarksDisplay(
-                            subject.maximum_marks,
-                            subject.passing_marks
-                        );
-
-                    }
-
-
-                    subjectSelect.appendChild(option);
-
-                }
-            );
-
-
-            subjectSelect.disabled =
-                false;
-
-        })
-
-        .catch(function (error) {
-
-            console.error(error);
-
-
-            subjectSelect.innerHTML =
-                '<option value="">Unable to load subjects</option>';
-
-            subjectSelect.disabled =
-                true;
-
-            updateMarksDisplay('', '');
-
-        });
 
     }
 
@@ -2028,6 +1806,9 @@ document.addEventListener('DOMContentLoaded', function () {
         subjectSelect
     ) {
 
+        const existingExamId =
+            "{{ request('exam_id') }}";
+
         const existingClassId =
             "{{ request('class_id') }}";
 
@@ -2038,53 +1819,48 @@ document.addEventListener('DOMContentLoaded', function () {
             "{{ request('subject_id') }}";
 
 
+        /*
+        | Existing exam is already selected by Blade.
+        */
+
         if (
-            existingClassId &&
-            classSelect.value === existingClassId
+            existingExamId &&
+            existingClassId
         ) {
 
-            const selectedOption =
-                classSelect.options[
-                    classSelect.selectedIndex
-                ];
+            classSelect.value =
+                existingClassId;
 
 
             const section =
-                selectedOption
-                    ? selectedOption.dataset.section
-                    : '';
+                getSelectedSection();
+
+
+            resetSection();
 
 
             /*
-            | Fill section
+            | Restore section
             */
 
             if (section) {
 
-                sectionSelect.innerHTML =
-                    '<option value="">Select Section</option>';
-
-
-                const option =
+                const sectionOption =
                     document.createElement('option');
 
-
-                option.value =
+                sectionOption.value =
                     section;
 
-                option.textContent =
+                sectionOption.textContent =
                     'Section ' + section;
 
-
-                sectionSelect.appendChild(option);
+                sectionSelect.appendChild(
+                    sectionOption
+                );
 
                 sectionSelect.disabled =
                     false;
 
-
-                /*
-                | Restore requested section
-                */
 
                 if (existingSection) {
 
@@ -2093,26 +1869,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 }
 
-
-                /*
-                | Load subjects
-                */
-
-                if (
-                    examSelect.value &&
-                    classSelect.value &&
-                    sectionSelect.value
-                ) {
-
-                    loadSubjects(
-                        examSelect.value,
-                        classSelect.value,
-                        existingSubjectId
-                    );
-
-                }
-
             }
+
+
+            /*
+            | IMPORTANT:
+            | Load subjects using Exam + Class.
+            */
+
+            loadSubjects(
+                existingExamId,
+                existingClassId,
+                existingSubjectId
+            );
 
         }
 
@@ -2137,12 +1906,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ) || 0;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULATE TOTAL
-        |--------------------------------------------------------------------------
-        */
-
         function calculateTotal(studentId) {
 
             const internal =
@@ -2152,7 +1915,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     '"]'
                 );
 
-
             const theory =
                 document.querySelector(
                     '.theory-input[data-student="' +
@@ -2160,14 +1922,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     '"]'
                 );
 
-
             const practical =
                 document.querySelector(
                     '.practical-input[data-student="' +
                     studentId +
                     '"]'
                 );
-
 
             const total =
                 document.querySelector(
@@ -2185,17 +1945,14 @@ document.addEventListener('DOMContentLoaded', function () {
             ) {
 
                 return;
-
             }
 
 
             const internalValue =
                 parseFloat(internal.value) || 0;
 
-
             const theoryValue =
                 parseFloat(theory.value) || 0;
-
 
             const practicalValue =
                 parseFloat(practical.value) || 0;
@@ -2207,10 +1964,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 practicalValue;
 
 
-            /*
-            | Prevent total above maximum marks
-            */
-
             if (calculated > maxMarks) {
                 calculated = maxMarks;
             }
@@ -2218,109 +1971,91 @@ document.addEventListener('DOMContentLoaded', function () {
 
             total.value =
                 calculated.toFixed(2);
-
         }
 
 
         /*
-        |--------------------------------------------------------------------------
         | MARK INPUT EVENTS
-        |--------------------------------------------------------------------------
         */
 
         document
             .querySelectorAll('.mark-input')
-            .forEach(
-                function (input) {
+            .forEach(function (input) {
 
-                    input.addEventListener(
-                        'input',
-                        function () {
+                input.addEventListener(
+                    'input',
+                    function () {
 
-                            calculateTotal(
-                                this.dataset.student
-                            );
+                        calculateTotal(
+                            this.dataset.student
+                        );
 
-                        }
-                    );
+                    }
+                );
 
-                }
-            );
+            });
 
 
         /*
-        |--------------------------------------------------------------------------
-        | STATUS CHANGE
-        |--------------------------------------------------------------------------
+        | STATUS EVENTS
         */
 
         document
             .querySelectorAll('.status-select')
-            .forEach(
-                function (select) {
+            .forEach(function (select) {
 
-                    select.addEventListener(
-                        'change',
-                        function () {
+                select.addEventListener(
+                    'change',
+                    function () {
 
-                            const studentId =
-                                this.dataset.student;
-
-
-                            const inputs =
-                                document.querySelectorAll(
-                                    '.mark-input[data-student="' +
-                                    studentId +
-                                    '"]'
-                                );
+                        const studentId =
+                            this.dataset.student;
 
 
-                            if (
-                                this.value === 'absent' ||
-                                this.value === 'na'
-                            ) {
-
-                                inputs.forEach(
-                                    function (input) {
-
-                                        input.value =
-                                            0;
-
-                                        input.disabled =
-                                            true;
-
-                                    }
-                                );
-
-                            } else {
-
-                                inputs.forEach(
-                                    function (input) {
-
-                                        input.disabled =
-                                            false;
-
-                                    }
-                                );
-
-                            }
-
-
-                            calculateTotal(
-                                studentId
+                        const inputs =
+                            document.querySelectorAll(
+                                '.mark-input[data-student="' +
+                                studentId +
+                                '"]'
                             );
 
-                        }
-                    );
 
-                }
-            );
+                        if (
+                            this.value === 'absent' ||
+                            this.value === 'na'
+                        ) {
+
+                            inputs.forEach(function (input) {
+
+                                input.value = 0;
+
+                                input.disabled = true;
+
+                            });
+
+                        } else {
+
+                            inputs.forEach(function (input) {
+
+                                input.disabled = false;
+
+                            });
+
+                        }
+
+
+                        calculateTotal(
+                            studentId
+                        );
+
+                    }
+                );
+
+            });
 
 
         /*
-        |--------------------------------------------------------------------------
-        | SAVE ALL MARKS
-        |--------------------------------------------------------------------------
+        | SAVE MARKS
         */
 
         marksForm.addEventListener(
@@ -2335,9 +2070,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (saveButton) {
 
-                    saveButton.disabled =
-                        true;
-
+                    saveButton.disabled = true;
 
                     saveButton.innerHTML =
                         '<span class="spinner-border spinner-border-sm me-1"></span>' +
@@ -2351,7 +2084,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
-
 </script>
 
 @endpush

@@ -819,7 +819,7 @@
         'admin.student-documents.*',
         'admin.id-card.*',
         'admin.attendance.*',
-        'admin.student-supply-kits.*',
+        'admin.government-schemes.*',
         'admin.student-general-register.*',
         'admin.student-health.*'
     );
@@ -945,8 +945,8 @@
         {{-- School Supplies (Kit) --}}
         @if($can('students.view'))
             <a
-                href="{{ route('admin.student-supply-kits.index') }}"
-                class="submenu-item {{ request()->routeIs('admin.student-supply-kits.*') ? 'active' : '' }}"
+                href="{{ route('admin.government-schemes.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.government-schemes.*') ? 'active' : '' }}"
             >
                 School Supplies(Kit)
             </a>

@@ -18,6 +18,10 @@ class KitTemplateItem extends Model
         'remarks',
     ];
 
+    protected $casts = [
+        'quantity' => 'integer',
+    ];
+
     public function kitTemplate()
     {
         return $this->belongsTo(

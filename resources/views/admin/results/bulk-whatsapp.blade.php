@@ -1,4 +1,4 @@
-
+```blade
 @extends('layouts.app')
 
 @section('title', 'Bulk WhatsApp Result Notification')
@@ -10,6 +10,7 @@
     {{-- =========================================================
         PAGE HEADER
     ========================================================== --}}
+
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 
         <div class="d-flex align-items-center gap-3">
@@ -31,6 +32,7 @@
             </div>
 
             <div>
+
                 <h4 class="fw-bold mb-1">
                     Bulk WhatsApp Result Notification
                 </h4>
@@ -38,15 +40,21 @@
                 <div class="text-muted small">
                     Send online result links to selected parents
                 </div>
+
             </div>
 
         </div>
 
         <div>
+
             <span class="badge bg-light text-dark border px-3 py-2">
+
                 <i class="bi bi-people me-1"></i>
+
                 {{ $students->count() }} Students
+
             </span>
+
         </div>
 
     </div>
@@ -55,6 +63,7 @@
     {{-- =========================================================
         CLASS / EXAM INFORMATION
     ========================================================== --}}
+
     <div class="info-card mb-4">
 
         <div class="d-flex align-items-center gap-3">
@@ -79,9 +88,9 @@
 
                     {{ $exam->exam_name ?? 'Examination' }}
 
-                    •
-
-                    {{ $exam->academic_year ?? '' }}
+                    @if(!empty($exam->academic_year))
+                        • {{ $exam->academic_year }}
+                    @endif
 
                 </div>
 
@@ -92,10 +101,10 @@
     </div>
 
 
-
     {{-- =========================================================
         PROGRESS CARD
     ========================================================== --}}
+
     <div class="card border-0 shadow-sm rounded-4 mb-4">
 
         <div class="card-body p-4">
@@ -135,8 +144,8 @@
                     class="progress-bar"
                     id="bulkProgress"
                     role="progressbar"
-                    style="width: 0%;">
-                </div>
+                    style="width: 0%;"
+                ></div>
 
             </div>
 
@@ -147,11 +156,10 @@
                     type="button"
                     id="startBulkBtn"
                     class="btn btn-success px-4 rounded-3"
-                    onclick="startBulkWhatsApp()">
-
+                    onclick="startBulkWhatsApp()"
+                >
                     <i class="bi bi-whatsapp me-2"></i>
                     WhatsApp
-
                 </button>
 
 
@@ -159,11 +167,10 @@
                     type="button"
                     id="nextStudentBtn"
                     class="btn btn-primary px-4 rounded-3 d-none"
-                    onclick="openNextAfterSent()">
-
+                    onclick="openNextAfterSent()"
+                >
                     <i class="bi bi-arrow-right-circle me-2"></i>
                     Mark Sent & Next
-
                 </button>
 
 
@@ -171,11 +178,10 @@
                     type="button"
                     id="pauseBulkBtn"
                     class="btn btn-outline-secondary px-4 rounded-3 d-none"
-                    onclick="pauseBulkWhatsApp()">
-
+                    onclick="pauseBulkWhatsApp()"
+                >
                     <i class="bi bi-pause-circle me-2"></i>
                     Pause
-
                 </button>
 
 
@@ -183,11 +189,10 @@
                     type="button"
                     id="resumeBulkBtn"
                     class="btn btn-outline-primary px-4 rounded-3 d-none"
-                    onclick="resumeBulkWhatsApp()">
-
+                    onclick="resumeBulkWhatsApp()"
+                >
                     <i class="bi bi-play-circle me-2"></i>
                     Resume
-
                 </button>
 
             </div>
@@ -200,9 +205,11 @@
     {{-- =========================================================
         CURRENT STUDENT CARD
     ========================================================== --}}
+
     <div
         class="current-student-card d-none mb-4"
-        id="currentStudentCard">
+        id="currentStudentCard"
+    >
 
         <div class="current-student-inner">
 
@@ -224,13 +231,19 @@
 
                     Student ID:
 
-                    <strong id="currentStudentId">-</strong>
+                    <strong id="currentStudentId">
+                        -
+                    </strong>
 
-                    <span class="mx-2">•</span>
+                    <span class="mx-2">
+                        •
+                    </span>
 
                     Parent:
 
-                    <strong id="currentStudentPhone">-</strong>
+                    <strong id="currentStudentPhone">
+                        -
+                    </strong>
 
                 </div>
 
@@ -240,10 +253,9 @@
 
                 <div
                     class="badge bg-success-subtle text-success px-3 py-2"
-                    id="currentStatus">
-
+                    id="currentStatus"
+                >
                     Ready
-
                 </div>
 
             </div>
@@ -256,6 +268,7 @@
     {{-- =========================================================
         STUDENT LIST
     ========================================================== --}}
+
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
 
         <div class="card-header bg-white border-0 p-4">
@@ -286,31 +299,28 @@
                     <button
                         type="button"
                         class="btn btn-sm btn-outline-primary rounded-3"
-                        onclick="selectAllStudents()">
-
+                        onclick="selectAllStudents()"
+                    >
                         <i class="bi bi-check2-square me-1"></i>
                         Select All
-
                     </button>
 
 
                     <button
                         type="button"
                         class="btn btn-sm btn-outline-secondary rounded-3"
-                        onclick="clearAllStudents()">
-
+                        onclick="clearAllStudents()"
+                    >
                         <i class="bi bi-x-square me-1"></i>
                         Clear
-
                     </button>
 
 
                     <span
                         class="badge bg-primary-subtle text-primary px-3 py-2"
-                        id="selectedCount">
-
+                        id="selectedCount"
+                    >
                         0 Selected
-
                     </span>
 
                 </div>
@@ -334,23 +344,38 @@
                                 type="checkbox"
                                 class="form-check-input"
                                 id="selectAllCheckbox"
-                                onchange="toggleAllStudents(this)">
+                                onchange="toggleAllStudents(this)"
+                            >
 
                         </th>
 
-                        <th>#</th>
+                        <th>
+                            #
+                        </th>
 
-                        <th>Student</th>
+                        <th>
+                            Student
+                        </th>
 
-                        <th>Student ID</th>
+                        <th>
+                            Student ID
+                        </th>
 
-                        <th>Parent WhatsApp</th>
+                        <th>
+                            Parent WhatsApp
+                        </th>
 
-                        <th>Result</th>
+                        <th>
+                            Result
+                        </th>
 
-                        <th>Publication</th>
+                        <th>
+                            Publication
+                        </th>
 
-                        <th>Status</th>
+                        <th>
+                            Status
+                        </th>
 
                         <th class="text-end">
                             Action
@@ -385,7 +410,12 @@
                         )
                         ->filter()
                         ->take(2)
-                        ->map(fn($name) => strtoupper(substr($name, 0, 1)))
+                        ->map(
+                            fn($name) =>
+                                strtoupper(
+                                    substr($name, 0, 1)
+                                )
+                        )
                         ->implode('');
 
 
@@ -398,49 +428,43 @@
 
 
                         $publicationStatus =
-                            $result?->publication_status ?? 'pending';
+                            $result?->publication_status
+                            ?? 'pending';
 
 
-                        $hasValidPhone = !empty($phone);
+                        $hasValidPhone =
+                            !empty(trim((string) $phone));
 
                     @endphp
 
 
                     <tr
                         class="student-row"
-
                         data-student-id="{{ $student->id }}"
-
                         data-name="{{ $studentName }}"
-
                         data-student-code="{{ $student->student_id ?? $student->id }}"
-
                         data-phone="{{ $phone }}"
-
                         data-publication="{{ $publicationStatus }}"
-
                         data-result-url="{{ route('result.public') }}"
                     >
 
 
                         {{-- CHECKBOX --}}
+
                         <td>
 
                             <input
                                 type="checkbox"
                                 class="form-check-input student-checkbox"
-
                                 value="{{ $student->id }}"
-
                                 onchange="updateSelectedCount()"
-
-                                {{ !$hasValidPhone ? 'disabled' : '' }}
                             >
 
                         </td>
 
 
                         {{-- NUMBER --}}
+
                         <td class="text-muted fw-semibold">
 
                             {{ $index + 1 }}
@@ -449,6 +473,7 @@
 
 
                         {{-- STUDENT --}}
+
                         <td>
 
                             <div class="d-flex align-items-center gap-3">
@@ -482,6 +507,7 @@
 
 
                         {{-- STUDENT ID --}}
+
                         <td>
 
                             <span class="student-id">
@@ -494,6 +520,7 @@
 
 
                         {{-- PARENT WHATSAPP --}}
+
                         <td>
 
                             @if($hasValidPhone)
@@ -524,6 +551,7 @@
 
 
                         {{-- RESULT --}}
+
                         <td>
 
                             @if($result)
@@ -543,9 +571,7 @@
                             @else
 
                                 <span class="text-muted">
-
                                     Pending
-
                                 </span>
 
                             @endif
@@ -554,6 +580,7 @@
 
 
                         {{-- PUBLICATION --}}
+
                         <td>
 
                             @php
@@ -599,6 +626,7 @@
 
                                 @endif
 
+
                                 {{ ucfirst($publicationStatus) }}
 
                             </span>
@@ -607,11 +635,11 @@
 
 
                         {{-- SEND STATUS --}}
+
                         <td>
 
                             <span
                                 class="student-send-status pending-status"
-
                                 data-status-for="{{ $student->id }}"
                             >
 
@@ -625,6 +653,7 @@
 
 
                         {{-- ACTION --}}
+
                         <td class="text-end">
 
                             @if($hasValidPhone)
@@ -632,9 +661,7 @@
                                 <button
                                     type="button"
                                     class="btn btn-sm btn-success rounded-3"
-
                                     onclick="openIndividualStudent({{ $student->id }})"
-
                                     title="Send WhatsApp Result Link"
                                 >
 
@@ -647,9 +674,7 @@
                                 <button
                                     type="button"
                                     class="btn btn-sm btn-light border rounded-3"
-
                                     disabled
-
                                     title="Parent WhatsApp number unavailable"
                                 >
 
@@ -707,6 +732,7 @@
         {{-- =====================================================
             FOOTER
         ====================================================== --}}
+
         <div class="card-footer bg-white border-0 p-4">
 
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -717,7 +743,6 @@
 
                     The WhatsApp message contains only the student's
                     name, Student ID and online result link.
-
                     The parent must press Send in WhatsApp.
 
                 </div>
@@ -730,7 +755,6 @@
                         'class_id' => request('class_id'),
                         'section' => request('section'),
                     ]) }}"
-
                     class="btn btn-light border rounded-3"
                 >
 
@@ -752,16 +776,15 @@
 {{-- =============================================================
     STYLES
 ============================================================= --}}
+
 <style>
 
     :root {
-
         --primary-blue: #1677f0;
         --primary-dark: #0f5dcc;
         --border-color: #e8edf3;
         --text-dark: #172033;
         --muted: #718096;
-
     }
 
 
@@ -769,11 +792,9 @@
 
         width: 48px;
         height: 48px;
-
         border-radius: 14px;
 
         background: #e9fff3;
-
         color: #25d366;
 
         display: flex;
@@ -808,11 +829,9 @@
         border-radius: 13px;
 
         background: #edf5ff;
-
         color: var(--primary-blue);
 
         display: flex;
-
         align-items: center;
         justify-content: center;
 
@@ -879,11 +898,9 @@
         border-radius: 15px;
 
         background: #25d366;
-
         color: #fff;
 
         display: flex;
-
         align-items: center;
         justify-content: center;
 
@@ -1018,7 +1035,6 @@
     .status-generated {
 
         background: #edf5ff;
-
         color: #1677f0;
 
     }
@@ -1027,7 +1043,6 @@
     .status-verified {
 
         background: #fff8e6;
-
         color: #b77900;
 
     }
@@ -1036,7 +1051,6 @@
     .status-approved {
 
         background: #f1edff;
-
         color: #6f42c1;
 
     }
@@ -1045,7 +1059,6 @@
     .status-published {
 
         background: #e9fff3;
-
         color: #16834a;
 
     }
@@ -1054,7 +1067,6 @@
     .status-pending {
 
         background: #f3f4f6;
-
         color: #6b7280;
 
     }
@@ -1072,30 +1084,22 @@
 
 
     .pending-status {
-
         color: #98a2b3;
-
     }
 
 
     .opened-status {
-
         color: #1677f0;
-
     }
 
 
     .sent-status {
-
         color: #16834a;
-
     }
 
 
     .skipped-status {
-
         color: #b77900;
-
     }
 
 
@@ -1116,7 +1120,6 @@
         border-radius: 18px;
 
         background: #f3f6fa;
-
         color: #98a2b3;
 
         display: flex;
@@ -1132,8 +1135,32 @@
 
 
     .btn {
-
         font-weight: 600;
+    }
+
+
+    .student-checkbox,
+    #selectAllCheckbox {
+
+        width: 18px;
+        height: 18px;
+
+        cursor: pointer;
+
+    }
+
+
+    .student-checkbox:checked,
+    #selectAllCheckbox:checked {
+
+        accent-color: #1677f0;
+
+    }
+
+
+    .student-row.selected {
+
+        background: #f0f7ff;
 
     }
 
@@ -1172,6 +1199,7 @@
 {{-- =============================================================
     JAVASCRIPT
 ============================================================= --}}
+
 <script>
 
     /*
@@ -1202,7 +1230,7 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Select All
+    | Toggle All Students
     |--------------------------------------------------------------------------
     */
 
@@ -1210,12 +1238,14 @@
 
         const checkboxes =
             document.querySelectorAll(
-                '.student-checkbox:not(:disabled)'
+                '.student-checkbox'
             );
 
-        checkboxes.forEach(cb => {
+        checkboxes.forEach(function (cb) {
 
             cb.checked = checkbox.checked;
+
+            updateRowSelection(cb);
 
         });
 
@@ -1224,10 +1254,18 @@
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Select All
+    |--------------------------------------------------------------------------
+    */
+
     function selectAllStudents() {
 
         const master =
-            document.getElementById('selectAllCheckbox');
+            document.getElementById(
+                'selectAllCheckbox'
+            );
 
         master.checked = true;
 
@@ -1236,21 +1274,59 @@
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Clear All
+    |--------------------------------------------------------------------------
+    */
+
     function clearAllStudents() {
 
         document
             .querySelectorAll('.student-checkbox')
-            .forEach(cb => {
+            .forEach(function (cb) {
 
                 cb.checked = false;
 
+                updateRowSelection(cb);
+
             });
+
 
         document
             .getElementById('selectAllCheckbox')
             .checked = false;
 
+
         updateSelectedCount();
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Individual Row Selection Visual
+    |--------------------------------------------------------------------------
+    */
+
+    function updateRowSelection(checkbox) {
+
+        const row =
+            checkbox.closest('.student-row');
+
+        if (!row) {
+            return;
+        }
+
+        if (checkbox.checked) {
+
+            row.classList.add('selected');
+
+        } else {
+
+            row.classList.remove('selected');
+
+        }
 
     }
 
@@ -1266,8 +1342,10 @@
         const rows = [];
 
         document
-            .querySelectorAll('.student-checkbox:checked')
-            .forEach(checkbox => {
+            .querySelectorAll(
+                '.student-checkbox:checked'
+            )
+            .forEach(function (checkbox) {
 
                 const row =
                     checkbox.closest('.student-row');
@@ -1296,15 +1374,74 @@
         const selected =
             getSelectedStudents();
 
+
         selectedStudents =
-            selected.map(
-                row => row.dataset.studentId
-            );
+            selected.map(function (row) {
+
+                return row.dataset.studentId;
+
+            });
+
 
         document
             .getElementById('selectedCount')
             .innerText =
                 `${selected.length} Selected`;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update master checkbox state
+        |--------------------------------------------------------------------------
+        */
+
+        const allCheckboxes =
+            document.querySelectorAll(
+                '.student-checkbox'
+            );
+
+
+        const checkedCheckboxes =
+            document.querySelectorAll(
+                '.student-checkbox:checked'
+            );
+
+
+        const master =
+            document.getElementById(
+                'selectAllCheckbox'
+            );
+
+
+        if (master) {
+
+            master.checked =
+                allCheckboxes.length > 0 &&
+                checkedCheckboxes.length ===
+                allCheckboxes.length;
+
+
+            master.indeterminate =
+                checkedCheckboxes.length > 0 &&
+                checkedCheckboxes.length <
+                allCheckboxes.length;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update row highlighting
+        |--------------------------------------------------------------------------
+        */
+
+        document
+            .querySelectorAll('.student-checkbox')
+            .forEach(function (checkbox) {
+
+                updateRowSelection(checkbox);
+
+            });
 
     }
 
@@ -1318,6 +1455,7 @@
     function startBulkWhatsApp() {
 
         updateSelectedCount();
+
 
         if (selectedStudents.length === 0) {
 
@@ -1364,8 +1502,10 @@
 
 
         /*
-         * Open first student immediately.
-         */
+        |--------------------------------------------------------------------------
+        | Open first student
+        |--------------------------------------------------------------------------
+        */
 
         openNextStudent();
 
@@ -1381,16 +1521,12 @@
     function openNextStudent() {
 
         if (paused) {
-
             return;
-
         }
 
 
         if (selectedStudents.length === 0) {
-
             return;
-
         }
 
 
@@ -1398,8 +1534,10 @@
 
 
         /*
-         * Find next incomplete student.
-         */
+        |--------------------------------------------------------------------------
+        | Find next incomplete student
+        |--------------------------------------------------------------------------
+        */
 
         for (
             let i = currentIndex + 1;
@@ -1423,9 +1561,10 @@
 
 
         /*
-         * If nothing found after current index,
-         * search from beginning.
-         */
+        |--------------------------------------------------------------------------
+        | Search from beginning if necessary
+        |--------------------------------------------------------------------------
+        */
 
         if (nextIndex === -1) {
 
@@ -1453,8 +1592,10 @@
 
 
         /*
-         * All completed.
-         */
+        |--------------------------------------------------------------------------
+        | All completed
+        |--------------------------------------------------------------------------
+        */
 
         if (nextIndex === -1) {
 
@@ -1490,8 +1631,10 @@
 
 
         /*
-         * Check phone number.
-         */
+        |--------------------------------------------------------------------------
+        | Check phone number
+        |--------------------------------------------------------------------------
+        */
 
         const phone =
             row.dataset.phone || '';
@@ -1505,7 +1648,7 @@
             );
 
 
-            setTimeout(() => {
+            setTimeout(function () {
 
                 openNextStudent();
 
@@ -1518,30 +1661,38 @@
 
 
         /*
-         * Show current student.
-         */
+        |--------------------------------------------------------------------------
+        | Show Current Student
+        |--------------------------------------------------------------------------
+        */
 
         showCurrentStudent(row);
 
 
         /*
-         * Mark WhatsApp opened.
-         */
+        |--------------------------------------------------------------------------
+        | Mark WhatsApp Opened
+        |--------------------------------------------------------------------------
+        */
 
         markStudentOpened(studentId);
 
 
         /*
-         * Build WhatsApp URL.
-         */
+        |--------------------------------------------------------------------------
+        | Build WhatsApp URL
+        |--------------------------------------------------------------------------
+        */
 
         const whatsappUrl =
             buildWhatsAppUrl(row);
 
 
         /*
-         * Open WhatsApp.
-         */
+        |--------------------------------------------------------------------------
+        | Open WhatsApp
+        |--------------------------------------------------------------------------
+        */
 
         window.open(
             whatsappUrl,
@@ -1550,8 +1701,10 @@
 
 
         /*
-         * Admin must click this after sending.
-         */
+        |--------------------------------------------------------------------------
+        | Mark Sent & Next Button
+        |--------------------------------------------------------------------------
+        */
 
         document
             .getElementById('nextStudentBtn')
@@ -1579,6 +1732,7 @@
             document.getElementById(
                 'currentStudentCard'
             );
+
 
         card.classList.remove('d-none');
 
@@ -1621,11 +1775,13 @@
         const initials =
             words
                 .slice(0, 2)
-                .map(word =>
-                    word
+                .map(function (word) {
+
+                    return word
                         .substring(0, 1)
-                        .toUpperCase()
-                )
+                        .toUpperCase();
+
+                })
                 .join('');
 
 
@@ -1648,15 +1804,14 @@
 
 
         /*
-         * Scroll current row into view.
-         */
+        |--------------------------------------------------------------------------
+        | Scroll current row into view
+        |--------------------------------------------------------------------------
+        */
 
         row.scrollIntoView({
-
             behavior: 'smooth',
-
             block: 'center'
-
         });
 
     }
@@ -1668,14 +1823,10 @@
     |--------------------------------------------------------------------------
     |
     | IMPORTANT:
-    | The WhatsApp message contains ONLY:
     |
-    | 1. Student name
-    | 2. Student ID
-    | 3. Online result link
+    | Only Student Name, Student ID and public result link
+    | are included.
     |
-    | Marks, Percentage and Grade are NOT included.
-    |--------------------------------------------------------------------------
     */
 
     function buildWhatsAppUrl(row) {
@@ -1709,8 +1860,15 @@ ${PUBLIC_RESULT_URL}
 Please use the Student ID and Mother's Name to access the result.
 
 Regards,
+
 School Management`;
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Correct WhatsApp URL
+        |--------------------------------------------------------------------------
+        */
 
         return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
@@ -1726,12 +1884,15 @@ School Management`;
     function normalizePhone(phone) {
 
         phone =
-            phone.replace(/\D/g, '');
+            String(phone)
+                .replace(/\D/g, '');
 
 
         /*
-         * 10 digit Indian number
-         */
+        |--------------------------------------------------------------------------
+        | 10 digit Indian number
+        |--------------------------------------------------------------------------
+        */
 
         if (phone.length === 10) {
 
@@ -1741,8 +1902,10 @@ School Management`;
 
 
         /*
-         * Remove leading 0 from 091XXXXXXXXXX
-         */
+        |--------------------------------------------------------------------------
+        | Remove leading 0 from 091XXXXXXXXXX
+        |--------------------------------------------------------------------------
+        */
 
         if (
             phone.startsWith('091') &&
@@ -1778,9 +1941,7 @@ School Management`;
 
 
         if (!status) {
-
             return;
-
         }
 
 
@@ -1803,9 +1964,7 @@ School Management`;
     function openNextAfterSent() {
 
         if (currentIndex < 0) {
-
             return;
-
         }
 
 
@@ -1814,8 +1973,10 @@ School Management`;
 
 
         /*
-         * Mark current student completed.
-         */
+        |--------------------------------------------------------------------------
+        | Mark current student completed
+        |--------------------------------------------------------------------------
+        */
 
         completedStudents.add(studentId);
 
@@ -1842,10 +2003,12 @@ School Management`;
 
 
         /*
-         * Open next student.
-         */
+        |--------------------------------------------------------------------------
+        | Open next student
+        |--------------------------------------------------------------------------
+        */
 
-        setTimeout(() => {
+        setTimeout(function () {
 
             openNextStudent();
 
@@ -2020,16 +2183,22 @@ School Management`;
                 'Bulk WhatsApp Completed';
 
 
-        document
-            .getElementById('currentStatus')
-            .innerText =
+        const currentStatus =
+            document.getElementById(
+                'currentStatus'
+            );
+
+
+        if (currentStatus) {
+
+            currentStatus.innerText =
                 'Completed';
 
 
-        document
-            .getElementById('currentStatus')
-            .className =
+            currentStatus.className =
                 'badge bg-success-subtle text-success px-3 py-2';
+
+        }
 
 
         document
@@ -2069,9 +2238,7 @@ School Management`;
 
 
         if (!row) {
-
             return;
-
         }
 
 
@@ -2091,14 +2258,27 @@ School Management`;
 
 
         window.open(
-
             buildWhatsAppUrl(row),
-
             '_blank'
-
         );
 
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initialize Selection State
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+
+            updateSelectedCount();
+
+        }
+    );
 
 </script>
 

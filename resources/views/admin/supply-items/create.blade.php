@@ -6,6 +6,7 @@
 
 <div class="container-fluid py-4">
 
+    {{-- Page Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
@@ -30,6 +31,7 @@
     </div>
 
 
+    {{-- Form Card --}}
     <div class="card border-0 shadow-sm">
 
         <div class="card-body p-4">
@@ -45,7 +47,7 @@
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
-                            Item Code <span class="text-danger">*</span>
+                            Item Code
                         </label>
 
                         <input type="text"
@@ -67,50 +69,18 @@
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
-                            Item Name <span class="text-danger">*</span>
+                            Item Name
+                            <span class="text-danger">*</span>
                         </label>
 
                         <input type="text"
                                name="item_name"
                                class="form-control @error('item_name') is-invalid @enderror"
                                value="{{ old('item_name') }}"
-                               placeholder="Example: Notebook 200 Pages">
+                               placeholder="Example: Notebook 200 Pages"
+                               required>
 
                         @error('item_name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-
-                    {{-- Category --}}
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Category
-                        </label>
-
-                        <select name="category"
-                                class="form-select @error('category') is-invalid @enderror">
-
-                            <option value="">
-                                Select Category
-                            </option>
-
-                            @foreach($categories as $category)
-
-                                <option value="{{ $category }}"
-                                    @selected(old('category') == $category)>
-                                    {{ $category }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        @error('category')
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
@@ -123,20 +93,52 @@
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
-                            Unit <span class="text-danger">*</span>
+                            Unit
+                            <span class="text-danger">*</span>
                         </label>
 
                         <select name="unit"
-                                class="form-select @error('unit') is-invalid @enderror">
+                                class="form-select @error('unit') is-invalid @enderror"
+                                required>
 
-                            @foreach($units as $unit)
+                            <option value="">
+                                Select Unit
+                            </option>
 
-                                <option value="{{ $unit }}"
-                                    @selected(old('unit', 'Piece') == $unit)>
-                                    {{ $unit }}
-                                </option>
+                            <option value="Piece"
+                                @selected(old('unit') === 'Piece')>
+                                Piece
+                            </option>
 
-                            @endforeach
+                            <option value="Set"
+                                @selected(old('unit') === 'Set')>
+                                Set
+                            </option>
+
+                            <option value="Box"
+                                @selected(old('unit') === 'Box')>
+                                Box
+                            </option>
+
+                            <option value="Pack"
+                                @selected(old('unit') === 'Pack')>
+                                Pack
+                            </option>
+
+                            <option value="Kg"
+                                @selected(old('unit') === 'Kg')>
+                                Kg
+                            </option>
+
+                            <option value="Litre"
+                                @selected(old('unit') === 'Litre')>
+                                Litre
+                            </option>
+
+                            <option value="Other"
+                                @selected(old('unit') === 'Other')>
+                                Other
+                            </option>
 
                         </select>
 
@@ -149,91 +151,17 @@
                     </div>
 
 
-                    {{-- Stock --}}
-                    <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Quantity in Stock
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="number"
-                               name="quantity_in_stock"
-                               min="0"
-                               class="form-control @error('quantity_in_stock') is-invalid @enderror"
-                               value="{{ old('quantity_in_stock', 0) }}">
-
-                        @error('quantity_in_stock')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-
-                    {{-- Minimum Stock --}}
-                    <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Minimum Stock
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="number"
-                               name="minimum_stock"
-                               min="0"
-                               class="form-control @error('minimum_stock') is-invalid @enderror"
-                               value="{{ old('minimum_stock', 0) }}">
-
-                        @error('minimum_stock')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-
-                    {{-- Price --}}
-                    <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Unit Price
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <div class="input-group">
-
-                            <span class="input-group-text">₹</span>
-
-                            <input type="number"
-                                   name="unit_price"
-                                   step="0.01"
-                                   min="0"
-                                   class="form-control @error('unit_price') is-invalid @enderror"
-                                   value="{{ old('unit_price', 0) }}">
-
-                        </div>
-
-                        @error('unit_price')
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-
                     {{-- Status --}}
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
-                            Status <span class="text-danger">*</span>
+                            Status
+                            <span class="text-danger">*</span>
                         </label>
 
                         <select name="status"
-                                class="form-select">
+                                class="form-select @error('status') is-invalid @enderror"
+                                required>
 
                             <option value="active"
                                 @selected(old('status', 'active') === 'active')>
@@ -247,6 +175,12 @@
 
                         </select>
 
+                        @error('status')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
                     </div>
 
 
@@ -259,8 +193,14 @@
 
                         <textarea name="description"
                                   rows="4"
-                                  class="form-control"
+                                  class="form-control @error('description') is-invalid @enderror"
                                   placeholder="Optional description">{{ old('description') }}</textarea>
+
+                        @error('description')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
 
                     </div>
 
@@ -270,6 +210,7 @@
                 <hr class="my-4">
 
 
+                {{-- Form Buttons --}}
                 <div class="d-flex justify-content-end gap-2">
 
                     <a href="{{ route('admin.supply-items.index') }}"

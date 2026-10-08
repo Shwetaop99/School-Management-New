@@ -29,9 +29,9 @@ class Student extends Model
         // =====================================================
         // BASIC INFORMATION
         // =====================================================
-
-        'student_id',
-        'roll_number',
+'student_id',
+'roll_number',
+'saral_id',
 
         'first_name',
         'middle_name',

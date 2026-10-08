@@ -1339,45 +1339,22 @@
                                     ?? '-';
 
 
-                                $maximumMarks =
+                                $maximumMarks = (float) ($detail->max_marks ?? 0);
 
-                                    $detail->max_marks
+if ($maximumMarks <= 0) {
+    $maximumMarks = (float) ($detail->total_marks ?? 0);
+}
 
-                                    ?? $detail->maximum_marks
+$obtainedMarks = (float) (
+    $detail->obtained_marks
+    ?? $detail->marks_obtained
+    ?? $detail->marks
+    ?? 0
+);
 
-                                    ?? $detail->total_marks
-
-                                    ?? 0;
-
-
-                                $obtainedMarks =
-
-                                    $detail->obtained_marks
-
-                                    ?? $detail->marks_obtained
-
-                                    ?? $detail->marks
-
-                                    ?? 0;
-
-
-                                $percentage =
-
-                                    $maximumMarks > 0
-
-                                    ? (
-
-                                        (
-
-                                            (float) $obtainedMarks /
-
-                                            (float) $maximumMarks
-
-                                        ) * 100
-
-                                    )
-
-                                    : 0;
+$percentage = $maximumMarks > 0
+    ? ($obtainedMarks / $maximumMarks) * 100
+    : 0;
 
 
                             @endphp

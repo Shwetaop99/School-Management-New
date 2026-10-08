@@ -113,25 +113,52 @@ class LocationController extends Controller
     /**
      * Get ALL locations / pincodes for selected taluka.
      */
-    public function locations(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'tehsil_id' => [
-                'required',
-                'integer',
-            ],
-        ]);
+    /**
+ * Get ALL locations / pincodes for selected tehsil.
+ */
+public function locations(Request $request): JsonResponse
+{
+    $validated = $request->validate([
+        'tehsil_id' => [
+            'required',
+            'integer',
+        ],
+    ]);
 
-        $url = rtrim(config('services.location.url'), '/')
-            . '/tehsils/'
-            . $validated['tehsil_id']
-            . '/districts';
+    $url = rtrim(config('services.location.url'), '/')
+        . '/tehsils/'
+        . $validated['tehsil_id']
+        . '/locations';
+
+    try {
 
         $response = $this->api()->get($url);
+
+        \Log::info('LOCATION API REQUEST', [
+            'tehsil_id' => $validated['tehsil_id'],
+            'url' => $url,
+            'status' => $response->status(),
+            'response' => $response->json(),
+        ]);
 
         return response()->json(
             $response->json(),
             $response->status()
         );
+
+    } catch (\Throwable $e) {
+
+        \Log::error('LOCATION API ERROR', [
+            'tehsil_id' => $validated['tehsil_id'],
+            'url' => $url,
+            'message' => $e->getMessage(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Unable to load locations.',
+            'data' => [],
+        ], 500);
     }
+}
 }

@@ -4,37 +4,51 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentSupplyKitItem extends Model
 {
     use HasFactory;
 
+    protected $table = 'student_supply_kit_items';
+
     protected $fillable = [
         'student_supply_kit_id',
         'supply_item_id',
         'quantity',
-        'condition',
+        'issued_quantity',
         'remarks',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
+        'issued_quantity' => 'integer',
     ];
 
-    /**
-     * Student supply kit.
-     */
-    public function studentSupplyKit(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Student Supply Kit
+    |--------------------------------------------------------------------------
+    */
+
+    public function studentSupplyKit()
     {
-        return $this->belongsTo(StudentSupplyKit::class);
+        return $this->belongsTo(
+            StudentSupplyKit::class,
+            'student_supply_kit_id'
+        );
     }
 
-    /**
-     * Supply item.
-     */
-    public function supplyItem(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Supply Item
+    |--------------------------------------------------------------------------
+    */
+
+    public function supplyItem()
     {
-        return $this->belongsTo(SupplyItem::class);
+        return $this->belongsTo(
+            SupplyItem::class,
+            'supply_item_id'
+        );
     }
 }

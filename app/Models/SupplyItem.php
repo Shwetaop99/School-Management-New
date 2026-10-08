@@ -4,43 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 
 class SupplyItem extends Model
 {
     use HasFactory;
 
+    protected $table = 'supply_items';
+
     protected $fillable = [
-        'item_code',
         'item_name',
-        'category',
-        'description',
+        'item_code',
         'unit',
-        'quantity_in_stock',
-        'minimum_stock',
-        'unit_price',
+        'description',
         'status',
     ];
 
-    protected $casts = [
-        'quantity_in_stock' => 'integer',
-        'minimum_stock' => 'integer',
-        'unit_price' => 'decimal:2',
-    ];
-
-    /**
-     * Kit template items using this supply item.
-     */
-    public function kitTemplateItems(): HasMany
+    public function kitTemplateItems()
     {
-        return $this->hasMany(KitTemplateItem::class);
+        return $this->hasMany(
+            KitTemplateItem::class,
+            'supply_item_id'
+        );
     }
 
-    /**
-     * Student supply kit items using this supply item.
-     */
-    public function studentSupplyKitItems(): HasMany
-    {
-        return $this->hasMany(StudentSupplyKitItem::class);
-    }
+    public function stock(): HasOne
+{
+    return $this->hasOne(
+        SupplyStock::class,
+        'supply_item_id'
+    );
+}
 }

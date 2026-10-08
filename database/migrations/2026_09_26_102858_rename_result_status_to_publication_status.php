@@ -8,17 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $table->string('publication_status')
-                ->default('generated')
-                ->after('result_status');
-        });
+        // publication_status was already added by the previous migration.
+        // Nothing needs to be added here.
     }
 
     public function down(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $table->dropColumn('publication_status');
-        });
+        // Do not remove publication_status here because it belongs
+        // to the previous publishing-fields migration.
     }
 };

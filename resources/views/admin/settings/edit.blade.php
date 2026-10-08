@@ -19,7 +19,7 @@
 
         <div class="d-flex gap-2">
 
-            <a href="{{ route('admin.settings.show', $schoolSetting->id) }}"
+            <a href="{{ route('admin.settings.index', $schoolSetting->id) }}"
                class="btn btn-outline-primary">
 
                 <i class="bi bi-eye me-1"></i>

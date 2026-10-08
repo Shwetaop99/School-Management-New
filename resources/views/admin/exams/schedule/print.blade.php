@@ -1,1232 +1,784 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
 
+    <title>
+        {{ $exam->exam_name }} - Examination Timetable
+    </title>
 
-<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>
-    {{ $exam->exam_name }} - Exam Timetable
-</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 12mm 12mm 15mm 12mm;
+        }
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+        * {
+            box-sizing: border-box;
+        }
 
-<style>
-
-    /* =========================================================
-       PAGE
-    ========================================================= */
-
-    @page {
-        size: A4 landscape;
-        margin: 12mm;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: DejaVu Sans, Arial, sans-serif;
-        color: #202938;
-        background: #ffffff;
-        font-size: 11px;
-    }
-
-
-    /* =========================================================
-       CENTER FAINT WATERMARK
-    ========================================================= */
-
-    .watermark {
-        position: fixed;
-
-        top: 50%;
-        left: 50%;
-
-        width: 300px;
-        height: 300px;
-
-        margin-left: -150px;
-        margin-top: -150px;
-
-        opacity: 0.045;
-
-        z-index: -1;
-
-        text-align: center;
-    }
-
-    .watermark img {
-        width: 300px;
-        height: 300px;
-
-        object-fit: contain;
-
-        display: block;
-    }
-
-
-    /* =========================================================
-       MAIN CONTAINER
-    ========================================================= */
-
-    .page {
-        position: relative;
-        width: 100%;
-    }
-
-
-    /* =========================================================
-       SCHOOL HEADER
-    ========================================================= */
-
-    .header {
-        position: relative;
-
-        text-align: center;
-
-        padding: 10px 15px 11px;
-
-        margin-bottom: 10px;
-
-        border: 1px solid #cfd8e3;
-
-        border-radius: 8px;
-
-        background: #ffffff;
-    }
-
-
-    .logo {
-        width: 65px;
-        height: 65px;
-
-        object-fit: contain;
-
-        margin-bottom: 4px;
-    }
-
-
-    .school-name {
-        color: #172033;
-
-        font-size: 20px;
-
-        font-weight: bold;
-
-        text-transform: uppercase;
-
-        letter-spacing: 0.6px;
-
-        margin-bottom: 3px;
-    }
-
-
-    .school-address {
-        color: #5f6b7a;
-
-        font-size: 9.5px;
-
-        line-height: 1.5;
-
-        margin-bottom: 5px;
-    }
-
-
-    .school-contact {
-        color: #6b7788;
-
-        font-size: 8px;
-
-        margin-top: 3px;
-    }
-
-
-    .header-line {
-        width: 50%;
-
-        margin: 7px auto 0;
-
-        border-top: 2px solid #1677f0;
-    }
-
-
-    /* =========================================================
-       TITLE
-    ========================================================= */
-
-    .title {
-        display: inline-block;
-
-        color: #0d5fc4;
-
-        background: #eef6ff;
-
-        border: 1px solid #c7ddf7;
-
-        border-radius: 20px;
-
-        padding: 4px 15px;
-
-        font-size: 9px;
-
-        font-weight: bold;
-
-        letter-spacing: 0.8px;
-
-        margin-top: 7px;
-    }
-
-
-    .exam-info {
-        margin-top: 5px;
-
-        color: #596577;
-
-        font-size: 9px;
-    }
-
-
-    .exam-info strong {
-        color: #172033;
-
-        font-size: 10px;
-    }
-
-
-    /* =========================================================
-       FILTER INFORMATION
-    ========================================================= */
-
-    .filter-info {
-        text-align: center;
-
-        margin: 8px 0 12px;
-
-        padding: 6px 10px;
-
-        color: #415065;
-
-        background: #f7f9fc;
-
-        border: 1px solid #d8e0e9;
-
-        border-radius: 5px;
-
-        font-size: 9px;
-    }
-
-
-    .filter-label {
-        color: #6c7888;
-
-        font-weight: normal;
-    }
-
-
-    .filter-value {
-        color: #172033;
-
-        font-weight: bold;
-    }
-
-
-    /* =========================================================
-       DATE BLOCK
-    ========================================================= */
-
-    .date-block {
-        margin-top: 10px;
-
-        page-break-inside: avoid;
-    }
-
-
-    .date-header {
-        position: relative;
-
-        background: #eef6ff;
-
-        border: 1px solid #bfd8f5;
-
-        border-left: 4px solid #1677f0;
-
-        border-radius: 5px;
-
-        padding: 7px 11px;
-
-        color: #164f91;
-
-        font-size: 11px;
-
-        font-weight: bold;
-    }
-
-
-    .date-weekday {
-        color: #687589;
-
-        font-weight: normal;
-    }
-
-
-    .paper-count {
-        float: right;
-
-        color: #526174;
-
-        font-size: 8px;
-
-        font-weight: normal;
-
-        padding-top: 2px;
-    }
-
-
-    /* =========================================================
-       TABLE
-    ========================================================= */
-
-    table {
-        width: 100%;
-
-        border-collapse: collapse;
-
-        margin-bottom: 10px;
-    }
-
-
-    th {
-        color: #ffffff;
-
-        background: #1677f0;
-
-        border: 1px solid #1268d4;
-
-        padding: 7px 8px;
-
-        text-align: center;
-
-        font-size: 8.5px;
-
-        font-weight: bold;
-
-        text-transform: uppercase;
-
-        letter-spacing: 0.2px;
-    }
-
-
-    td {
-        border: 1px solid #d1d9e3;
-
-        padding: 7px 8px;
-
-        vertical-align: middle;
-
-        background: rgba(255, 255, 255, 0.96);
-
-        font-size: 9px;
-    }
-
-
-    tbody tr:nth-child(even):not(.session-separator) td {
-        background: rgba(248, 250, 253, 0.96);
-    }
-
-
-    .time {
-        width: 17%;
-
-        text-align: center;
-
-        white-space: nowrap;
-
-        color: #183d68;
-
-        font-weight: 600;
-    }
-
-
-    .class {
-        width: 12%;
-
-        text-align: center;
-
-        color: #26364a;
-
-        font-weight: 600;
-    }
-
-
-    .subject {
-        width: 31%;
-
-        color: #202938;
-
-        font-weight: 600;
-    }
-
-
-    .marks {
-        width: 10%;
-
-        text-align: center;
-
-        color: #227345;
-
-        font-weight: bold;
-    }
-
-
-    .teacher {
-        width: 30%;
-
-        color: #3e4b5d;
-
-        text-align: center;
-    }
-
-
-    /* =========================================================
-       BADGES
-    ========================================================= */
-
-    .class-badge {
-        display: inline-block;
-
-        padding: 3px 7px;
-
-        background: #f0f4f8;
-
-        border: 1px solid #d5dee8;
-
-        border-radius: 12px;
-
-        color: #354457;
-
-        font-weight: bold;
-    }
-
-
-    .marks-badge {
-        display: inline-block;
-
-        min-width: 38px;
-
-        padding: 3px 8px;
-
-        background: #edf8f2;
-
-        border: 1px solid #c8e5d3;
-
-        border-radius: 12px;
-
-        color: #227345;
-
-        font-weight: bold;
-    }
-
-
-    .subject-code {
-        display: block;
-
-        margin-top: 2px;
-
-        color: #7a8797;
-
-        font-size: 7px;
-
-        font-weight: normal;
-    }
-
-
-    .teacher-name {
-        color: #344054;
-
-        font-weight: bold;
-    }
-
-
-    .teacher-designation {
-        margin-top: 2px;
-
-        color: #7a8797;
-
-        font-size: 7px;
-    }
-
-
-    /* =========================================================
-       TIME EMPTY
-    ========================================================= */
-
-    .time-empty {
-        color: transparent;
-    }
-
-
-    /* =========================================================
-       SESSION SEPARATOR
-    ========================================================= */
-
-    .session-separator td {
-        height: 4px;
-
-        padding: 0;
-
-        border: none;
-
-        background: #eef2f7 !important;
-    }
-
-
-    /* =========================================================
-       NO DATA
-    ========================================================= */
-
-    .no-data {
-        margin-top: 15px;
-
-        padding: 28px;
-
-        border: 1px dashed #b9c6d5;
-
-        border-radius: 7px;
-
-        background: #f8fafc;
-
-        color: #657184;
-
-        text-align: center;
-
-        font-size: 10px;
-
-        font-weight: bold;
-    }
-
-
-    /* =========================================================
-       FOOTER
-    ========================================================= */
-
-    .footer {
-        margin-top: 12px;
-
-        padding-top: 5px;
-
-        border-top: 1px solid #dce2e8;
-
-        text-align: right;
-
-        color: #7a8594;
-
-        font-size: 7.5px;
-    }
-
-
-    .footer-school {
-        float: left;
-
-        color: #667386;
-    }
-
-
-    /* =========================================================
-       PRINT
-    ========================================================= */
-
-    @media print {
-
+        html,
         body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: #202938;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 9px;
+        }
+
+        .page {
+            width: 100%;
+            position: relative;
+        }
+
+        /* =========================
+           WATERMARK
+        ========================== */
+
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            margin-left: -150px;
+            margin-top: -150px;
+            opacity: 0.045;
+            z-index: -1;
+            text-align: center;
+        }
+
+        .watermark img {
+            width: 300px;
+            height: 300px;
+            object-fit: contain;
+        }
+
+        /* =========================
+           SCHOOL HEADER
+        ========================== */
+
+        .school-header {
+            width: 100%;
+            text-align: center;
+            border: 1px solid #cfd8e3;
+            border-radius: 7px;
+            padding: 9px 12px 10px;
             background: #ffffff;
         }
 
-        .watermark {
-            display: block;
+        .logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 3px;
         }
 
-    }
+        .school-name {
+            color: #172033;
+            font-size: 19px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-</style>
+        .school-address {
+            margin-top: 3px;
+            color: #526071;
+            font-size: 8px;
+            line-height: 1.4;
+        }
 
+        .school-contact {
+            margin-top: 3px;
+            color: #6c7888;
+            font-size: 7.5px;
+        }
 
+        .school-divider {
+            width: 50%;
+            margin: 6px auto 0;
+            border-top: 2px solid #1677f0;
+        }
+
+        /* =========================
+           TITLE
+        ========================== */
+
+        .document-title {
+            text-align: center;
+            margin-top: 7px;
+        }
+
+        .title-label {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            background: #eef6ff;
+            color: #0d5fc4;
+            font-size: 7.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .document-title h1 {
+            margin: 4px 0 0;
+            font-size: 16px;
+            color: #172033;
+            text-transform: uppercase;
+        }
+
+        .exam-name {
+            margin-top: 2px;
+            color: #0d5fc4;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           EXAM INFORMATION
+        ========================== */
+
+        .exam-info {
+            width: 100%;
+            margin-top: 7px;
+            border-collapse: collapse;
+        }
+
+        .exam-info td {
+            border: 1px solid #cfd8e3;
+            padding: 5px 7px;
+        }
+
+        .exam-info .label {
+            width: 12%;
+            background: #f5f7fa;
+            color: #596577;
+            font-size: 7px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .exam-info .value {
+            width: 21%;
+            color: #172033;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           DATE
+        ========================== */
+
+        .date-block {
+            margin-top: 9px;
+            page-break-inside: avoid;
+        }
+
+        .date-header {
+            padding: 6px 9px;
+            border: 1px solid #bfd8f5;
+            border-left: 4px solid #1677f0;
+            border-radius: 5px 5px 0 0;
+            background: #eef6ff;
+            color: #164f91;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .date-weekday {
+            color: #687589;
+            font-weight: normal;
+        }
+
+        .paper-count {
+            float: right;
+            color: #687589;
+            font-size: 7px;
+            font-weight: normal;
+        }
+
+        /* =========================
+           TIMETABLE
+        ========================== */
+
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: auto;
+        }
+
+        .timetable thead {
+            display: table-header-group;
+        }
+
+        .timetable tr {
+            page-break-inside: avoid;
+        }
+
+        .timetable th {
+            padding: 5px 6px;
+            border: 1px solid #1268d4;
+            background: #1677f0;
+            color: #ffffff;
+            font-size: 7.5px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .timetable td {
+            padding: 5px 6px;
+            border: 1px solid #cfd8e3;
+            background: #ffffff;
+            vertical-align: middle;
+        }
+
+        .timetable tbody tr:nth-child(even) td {
+            background: #fbfcfe;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .time {
+            width: 16%;
+            text-align: center;
+            color: #183d68;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .class {
+            width: 14%;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .subject {
+            width: 30%;
+            font-weight: bold;
+        }
+
+        .marks {
+            width: 10%;
+            text-align: center;
+        }
+
+        .duration {
+            width: 10%;
+            text-align: center;
+        }
+
+        .teacher {
+            width: 20%;
+            text-align: center;
+        }
+
+        .class-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: #f0f4f8;
+            border: 1px solid #d5dee8;
+            color: #354457;
+        }
+
+        .marks-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: #edf8f2;
+            border: 1px solid #c8e5d3;
+            color: #227345;
+            font-weight: bold;
+        }
+
+        .subject-code {
+            display: block;
+            margin-top: 2px;
+            color: #7a8797;
+            font-size: 6.5px;
+            font-weight: normal;
+        }
+
+        .teacher-name {
+            color: #344054;
+            font-weight: bold;
+        }
+
+        .teacher-designation {
+            margin-top: 2px;
+            color: #7a8797;
+            font-size: 6.5px;
+        }
+
+        .not-assigned {
+            color: #8a95a5;
+            font-style: italic;
+        }
+
+        /* =========================
+           NO DATA
+        ========================== */
+
+        .no-data {
+            margin-top: 12px;
+            padding: 25px;
+            border: 1px dashed #b9c6d5;
+            border-radius: 6px;
+            background: #f8fafc;
+            color: #657184;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* =========================
+           FOOTER
+        ========================== */
+
+        .footer {
+            margin-top: 12px;
+            padding-top: 5px;
+            border-top: 1px solid #dce2e8;
+            color: #7a8594;
+            font-size: 7px;
+            text-align: right;
+        }
+
+        .footer-school {
+            float: left;
+            color: #667386;
+        }
+
+        /* =========================
+           PRINT
+        ========================== */
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: #ffffff;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="page">
 
-
-{{-- =========================================================
-     FAINT CENTER SCHOOL LOGO WATERMARK
-========================================================== --}}
-
-@if(!empty($logoData))
-
-    <div class="watermark">
-
-        <img
-            src="{{ $logoData }}"
-            alt="School Logo Watermark"
-        >
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     SCHOOL HEADER
-========================================================== --}}
-
-<div class="header">
-
-
+    {{-- =========================
+         WATERMARK
+    ========================== --}}
     @if(!empty($logoData))
-
-        <img
-            src="{{ $logoData }}"
-            class="logo"
-            alt="School Logo"
-        >
-
+        <div class="watermark">
+            <img
+                src="{{ $logoData }}"
+                alt="School Logo"
+            >
+        </div>
     @endif
 
 
-    @if($school?->school_name)
+    {{-- =========================
+         SCHOOL HEADER
+    ========================== --}}
+    <div class="school-header">
+
+        @if(!empty($logoData))
+            <img
+                src="{{ $logoData }}"
+                class="logo"
+                alt="School Logo"
+            >
+        @endif
 
         <div class="school-name">
-
-            {{ $school->school_name }}
-
+            {{ $school?->school_name ?? 'School Name' }}
         </div>
 
-    @endif
-
-
-    @if(
-        $school?->address ||
-        $school?->city ||
-        $school?->district ||
-        $school?->state
-    )
-
-        <div class="school-address">
-
-            {{ $school?->address }}
-
-            @if($school?->city)
-
-                , {{ $school->city }}
-
-            @endif
-
-
-            @if($school?->district)
-
-                , {{ $school->district }}
-
-            @endif
-
-
-            @if($school?->state)
-
-                , {{ $school->state }}
-
-            @endif
-
-
-            @if($school?->pincode)
-
-                - {{ $school->pincode }}
-
-            @endif
-
-        </div>
-
-    @endif
-
-
-    @if(
-        $school?->phone ||
-        $school?->email ||
-        $school?->udise_code
-    )
-
-        <div class="school-contact">
-
-            @if($school?->phone)
-
-                Phone:
-                {{ $school->phone }}
-
-            @endif
-
-
-            @if($school?->email)
-
-                &nbsp;&nbsp; | &nbsp;&nbsp;
-
-                Email:
-                {{ $school->email }}
-
-            @endif
-
-
-            @if($school?->udise_code)
-
-                &nbsp;&nbsp; | &nbsp;&nbsp;
-
-                UDISE:
-                {{ $school->udise_code }}
-
-            @endif
-
-        </div>
-
-    @endif
-
-
-    <div class="header-line"></div>
-
-
-    {{-- =====================================================
-         TITLE
-    ====================================================== --}}
-
-    <div class="title">
-
-        EXAMINATION TIMETABLE
-
-    </div>
-
-
-    {{-- =====================================================
-         EXAM INFORMATION
-    ====================================================== --}}
-
-    <div class="exam-info">
-
-        <strong>
-            {{ $exam->exam_name }}
-        </strong>
-
-
-        @if($exam->exam_type)
-
-            &nbsp; | &nbsp;
-
-            {{ $exam->exam_type }}
-
-        @endif
-
-
-        @if($exam->academic_year)
-
-            &nbsp; | &nbsp;
-
-            Academic Year:
-            {{ $exam->academic_year }}
-
-        @endif
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     FILTER INFORMATION
-========================================================== --}}
-
-@if($selectedClass || request('exam_date'))
-
-    <div class="filter-info">
-
-
-        @if($selectedClass)
-
-            <span class="filter-label">
-                Class:
-            </span>
-
-            <span class="filter-value">
-
-                {{ $selectedClass->class_name }}
-
-                @if($selectedClass->section)
-
-                    - {{ $selectedClass->section }}
-
+        @if(
+            $school?->address ||
+            $school?->city ||
+            $school?->district ||
+            $school?->state ||
+            $school?->pincode
+        )
+            <div class="school-address">
+
+                @if($school?->address)
+                    {{ $school->address }}
                 @endif
 
-            </span>
+                @if($school?->city)
+                    , {{ $school->city }}
+                @endif
 
-        @endif
+                @if($school?->district)
+                    , {{ $school->district }}
+                @endif
 
+                @if($school?->state)
+                    , {{ $school->state }}
+                @endif
 
-        @if(request('exam_date'))
-
-            @if($selectedClass)
-
-                &nbsp; | &nbsp;
-
-            @endif
-
-
-            <span class="filter-label">
-                Date:
-            </span>
-
-            <span class="filter-value">
-
-                {{ \Illuminate\Support\Carbon::parse(
-                    request('exam_date')
-                )->format('d F Y') }}
-
-            </span>
-
-        @endif
-
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     TIMETABLE
-========================================================== --}}
-
-@php
-
-    $groupedByDate = $timetables->groupBy(function ($schedule) {
-
-        return \Illuminate\Support\Carbon::parse(
-            $schedule->exam_date
-        )->format('Y-m-d');
-
-    });
-
-@endphp
-
-
-@if($groupedByDate->isEmpty())
-
-
-    <div class="no-data">
-
-        No examination timetable entries are available.
-
-    </div>
-
-
-@else
-
-
-    @foreach($groupedByDate as $date => $dateSchedules)
-
-
-        {{-- =================================================
-             DATE BLOCK
-        ================================================== --}}
-
-        <div class="date-block">
-
-
-            {{-- =================================================
-                 DATE HEADER
-            ================================================== --}}
-
-            <div class="date-header">
-
-
-                {{ \Illuminate\Support\Carbon::parse(
-                    $date
-                )->format('d F Y') }}
-
-
-                <span class="date-weekday">
-
-                    &nbsp; - &nbsp;
-
-                    {{ \Illuminate\Support\Carbon::parse(
-                        $date
-                    )->format('l') }}
-
-                </span>
-
-
-                <span class="paper-count">
-
-                    {{ $dateSchedules->count() }}
-
-                    {{ $dateSchedules->count() === 1
-                        ? 'Paper'
-                        : 'Papers'
-                    }}
-
-                </span>
-
+                @if($school?->pincode)
+                    - {{ $school->pincode }}
+                @endif
 
             </div>
+        @endif
+
+        @if(
+            $school?->phone ||
+            $school?->email ||
+            $school?->udise_code ||
+            $school?->school_code
+        )
+            <div class="school-contact">
+
+                @if($school?->phone)
+                    Phone: {{ $school->phone }}
+                @endif
+
+                @if($school?->email)
+                    &nbsp; | &nbsp;
+                    Email: {{ $school->email }}
+                @endif
+
+                @if($school?->udise_code)
+                    &nbsp; | &nbsp;
+                    UDISE: {{ $school->udise_code }}
+                @endif
+
+                @if($school?->school_code)
+                    &nbsp; | &nbsp;
+                    School Code: {{ $school->school_code }}
+                @endif
+
+            </div>
+        @endif
+
+        <div class="school-divider"></div>
+
+    </div>
 
 
-            @php
+    {{-- =========================
+         DOCUMENT TITLE
+    ========================== --}}
+    <div class="document-title">
 
-                $groupedByTime = $dateSchedules->groupBy(
-                    function ($schedule) {
+        <span class="title-label">
+            Official Examination Document
+        </span>
 
-                        return
+        <h1>
+            Examination Timetable
+        </h1>
 
-                            \Illuminate\Support\Carbon::parse(
-                                $schedule->start_time
-                            )->format('H:i')
+        <div class="exam-name">
+            {{ $exam->exam_name }}
+        </div>
 
-                            . '|'
-
-                            .
-
-                            \Illuminate\Support\Carbon::parse(
-                                $schedule->end_time
-                            )->format('H:i');
-
-                    }
-                );
-
-            @endphp
+    </div>
 
 
-            {{-- =================================================
-                 TIMETABLE TABLE
-            ================================================== --}}
+    {{-- =========================
+         EXAM INFORMATION
+    ========================== --}}
+    <table class="exam-info">
 
-            <table>
+        <tr>
+            <td class="label">Academic Year</td>
+            <td class="value">
+                {{ $exam->academic_year ?? '-' }}
+            </td>
+
+            <td class="label">Exam Type</td>
+            <td class="value">
+                {{ $exam->exam_type ?? '-' }}
+            </td>
+
+            <td class="label">Exam Period</td>
+            <td class="value">
+
+                @if($exam->start_date)
+                    {{ \Carbon\Carbon::parse($exam->start_date)->format('d M Y') }}
+                @endif
+
+                @if($exam->end_date)
+                    -
+                    {{ \Carbon\Carbon::parse($exam->end_date)->format('d M Y') }}
+                @endif
+
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Status</td>
+            <td class="value">
+                {{ ucfirst($exam->status ?? '-') }}
+            </td>
+
+            <td class="label">Total Papers</td>
+            <td class="value">
+                {{ $timetables->count() }}
+            </td>
+
+            <td class="label">Generated On</td>
+            <td class="value">
+                {{ now()->format('d M Y') }}
+            </td>
+        </tr>
+
+    </table>
 
 
-                <thead>
+    {{-- =========================
+         TIMETABLE
+    ========================== --}}
 
-                    <tr>
+    @if($timetables->count())
 
-                        <th class="time">
-                            Time
-                        </th>
-
-                        <th class="class">
-                            Class
-                        </th>
-
-                        <th class="subject">
-                            Subject
-                        </th>
-
-                        <th class="marks">
-                            Marks
-                        </th>
-
-                        <th class="teacher">
-                            Teacher / Supervisor
-                        </th>
-
-                    </tr>
-
-                </thead>
+        @php
+            $groupedByDate = $timetables
+                ->sortBy([
+                    ['exam_date', 'asc'],
+                    ['start_time', 'asc'],
+                    ['class_id', 'asc'],
+                ])
+                ->groupBy(function ($schedule) {
+                    return \Carbon\Carbon::parse(
+                        $schedule->exam_date
+                    )->format('Y-m-d');
+                });
+        @endphp
 
 
-                <tbody>
+        @foreach($groupedByDate as $date => $dateSchedules)
+
+            <div class="date-block">
+
+                <div class="date-header">
+
+                    {{ \Carbon\Carbon::parse($date)->format('d F Y') }}
+
+                    <span class="date-weekday">
+                        &nbsp; | &nbsp;
+                        {{ \Carbon\Carbon::parse($date)->format('l') }}
+                    </span>
+
+                    <span class="paper-count">
+                        {{ $dateSchedules->count() }}
+                        {{ $dateSchedules->count() === 1 ? 'Paper' : 'Papers' }}
+                    </span>
+
+                </div>
 
 
-                @foreach($groupedByTime as $time => $timeSchedules)
+                <table class="timetable">
 
+                    <thead>
+                        <tr>
 
-                    @php
+                            <th class="time">
+                                Time
+                            </th>
 
-                        [$startTime, $endTime] =
-                            explode('|', $time);
+                            <th class="class">
+                                Class
+                            </th>
 
-                    @endphp
+                            <th class="subject">
+                                Subject
+                            </th>
 
+                            <th class="duration">
+                                Duration
+                            </th>
 
-                    @foreach($timeSchedules as $index => $schedule)
+                            <th class="marks">
+                                Maximum Marks
+                            </th>
 
+                            <th class="teacher">
+                                Teacher / Supervisor
+                            </th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    @foreach($dateSchedules as $schedule)
+
+                        @php
+                            $className =
+                                $schedule->schoolClass?->class_name ?? '-';
+
+                            $section =
+                                $schedule->schoolClass?->section ?? null;
+
+                            $subject =
+                                $schedule->examSubject?->subject;
+
+                            $subjectName =
+                                $subject?->subject_name ?? '-';
+
+                            $subjectCode =
+                                $subject?->subject_code ?? null;
+
+                            $start =
+                                \Carbon\Carbon::parse(
+                                    $schedule->start_time
+                                );
+
+                            $end =
+                                \Carbon\Carbon::parse(
+                                    $schedule->end_time
+                                );
+
+                            $teacherName = null;
+
+                            if ($schedule->teacher) {
+                                $teacherName = trim(
+                                    ($schedule->teacher->first_name ?? '') .
+                                    ' ' .
+                                    ($schedule->teacher->last_name ?? '')
+                                );
+                            }
+                        @endphp
 
                         <tr>
 
-
-                            {{-- =================================
-                                 TIME
-                            ================================== --}}
-
                             <td class="time">
-
-
-                                @if($index === 0)
-
-
-                                    {{ \Illuminate\Support\Carbon::createFromFormat(
-                                        'H:i',
-                                        $startTime
-                                    )->format('h:i A') }}
-
-
-                                    <br>
-
-                                    <span style="
-                                        color:#8793a3;
-                                        font-size:7px;
-                                        font-weight:normal;
-                                    ">
-                                        to
-                                    </span>
-
-                                    <br>
-
-
-                                    {{ \Illuminate\Support\Carbon::createFromFormat(
-                                        'H:i',
-                                        $endTime
-                                    )->format('h:i A') }}
-
-
-                                @else
-
-
-                                    <span class="time-empty">
-                                        —
-                                    </span>
-
-
-                                @endif
-
-
+                                {{ $start->format('h:i A') }}
+                                <br>
+                                <span style="font-size:7px;color:#8793a3;">
+                                    to
+                                </span>
+                                <br>
+                                {{ $end->format('h:i A') }}
                             </td>
-
-
-                            {{-- =================================
-                                 CLASS
-                            ================================== --}}
 
                             <td class="class">
 
-
                                 <span class="class-badge">
 
+                                    {{ $className }}
 
-                                    {{ optional(
-                                        $schedule->schoolClass
-                                    )->class_name }}
-
-
-                                    @if(
-                                        optional(
-                                            $schedule->schoolClass
-                                        )->section
-                                    )
-
-                                        -
-                                        {{ optional(
-                                            $schedule->schoolClass
-                                        )->section }}
-
+                                    @if($section)
+                                        -{{ $section }}
                                     @endif
-
 
                                 </span>
 
-
                             </td>
-
-
-                            {{-- =================================
-                                 SUBJECT
-                            ================================== --}}
 
                             <td class="subject">
 
+                                {{ $subjectName }}
 
-                                {{ optional(
-                                    optional(
-                                        $schedule->examSubject
-                                    )->subject
-                                )->subject_name ?? '—' }}
-
-
-                                @if(
-                                    optional(
-                                        optional(
-                                            $schedule->examSubject
-                                        )->subject
-                                    )->subject_code
-                                )
-
+                                @if($subjectCode)
                                     <span class="subject-code">
-
-                                        Code:
-                                        {{ optional(
-                                            optional(
-                                                $schedule->examSubject
-                                            )->subject
-                                        )->subject_code }}
-
+                                        Code: {{ $subjectCode }}
                                     </span>
-
                                 @endif
-
 
                             </td>
 
+                            <td class="duration center">
 
-                            {{-- =================================
-                                 MARKS
-                            ================================== --}}
+                                {{ $schedule->duration_minutes ?? '-' }}
+                                min
+
+                            </td>
 
                             <td class="marks">
 
-
                                 <span class="marks-badge">
-
-                                    {{ $schedule->maximum_marks }}
-
+                                    {{ $schedule->maximum_marks ?? '-' }}
                                 </span>
 
-
                             </td>
-
-
-                            {{-- =================================
-                                 TEACHER
-                            ================================== --}}
 
                             <td class="teacher">
 
-
-                                @if($schedule->teacher)
-
+                                @if($teacherName)
 
                                     <div class="teacher-name">
-
-                                        {{ trim(
-                                            $schedule->teacher->first_name
-                                            . ' ' .
-                                            $schedule->teacher->last_name
-                                        ) }}
-
+                                        {{ $teacherName }}
                                     </div>
 
-
-                                    @if(
-                                        $schedule->teacher->designation
-                                    )
-
+                                    @if($schedule->teacher?->designation)
                                         <div class="teacher-designation">
-
                                             {{ $schedule->teacher->designation }}
-
                                         </div>
-
                                     @endif
-
 
                                 @else
 
-
-                                    <span style="color:#8a95a5;">
+                                    <span class="not-assigned">
                                         Not Assigned
                                     </span>
 
-
                                 @endif
-
 
                             </td>
 
-
                         </tr>
-
 
                     @endforeach
 
+                    </tbody>
 
-                    {{-- =============================================
-                         SESSION SEPARATOR
-                    ============================================== --}}
+                </table>
 
-                    @if(!$loop->last)
+            </div>
 
+        @endforeach
 
-                        <tr class="session-separator">
+    @else
 
-                            <td colspan="5"></td>
-
-                        </tr>
-
-
-                    @endif
-
-
-                @endforeach
-
-
-                </tbody>
-
-
-            </table>
-
-
+        <div class="no-data">
+            No examination timetable entries are available.
         </div>
 
-
-    @endforeach
-
-
-@endif
+    @endif
 
 
-{{-- =========================================================
-     FOOTER
-========================================================== --}}
+    {{-- =========================
+         FOOTER
+    ========================== --}}
+    <div class="footer">
 
-<div class="footer">
+        <span class="footer-school">
+            {{ $school?->school_name ?? 'School Management System' }}
+        </span>
 
+        Generated on:
+        {{ now()->format('d F Y, h:i A') }}
 
-    <span class="footer-school">
-
-        {{ $school?->school_name ?? 'School Management System' }}
-
-    </span>
-
-
-    Generated on:
-
-    {{ now()->format('d F Y h:i A') }}
-
+    </div>
 
 </div>
 
-
-</div>
-
-{{-- =========================================================
-AUTO PRINT
-========================================================== --}}
 
 <script>
-
     window.onload = function () {
-
         window.print();
-
     };
-
 </script>
 
 </body>
-
 </html>

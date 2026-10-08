@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\TwoFactorController;
-
+use App\Http\Controllers\Admin\SupplyStockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,8 +54,6 @@ use App\Http\Controllers\Admin\StaffReportController;
 use App\Http\Controllers\Admin\AttendanceReportController;
 use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\SchoolSettingController;
-use App\Http\Controllers\Admin\SupplyItemController;
-use App\Http\Controllers\Admin\KitTemplateController;
 use App\Http\Controllers\Admin\ExamController;
 use App\Http\Controllers\Admin\ExamClassController;
 use App\Http\Controllers\Admin\ExamSubjectController;
@@ -97,8 +95,17 @@ use App\Http\Controllers\Meal\MealItemController;
 use App\Http\Controllers\Meal\MealStockLogController;
 use App\Http\Controllers\Meal\MealStockTransactionController;
 
-
+use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\PublicResultController;
+
+/*
+|--------------------------------------------------------------------------
+| Goverment Suppy kit MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\Admin\GovernmentSchemeController;
+use App\Http\Controllers\Admin\SupplyItemController;
+use App\Http\Controllers\Admin\KitTemplateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -112,6 +119,30 @@ use App\Http\Controllers\Sports\EquipmentController;
 use App\Http\Controllers\Sports\GameController;
 
 
+
+/*
+|--------------------------------------------------------------------------
+| Admin Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // Login page
+    Route::get('/login', [
+        LoginController::class,
+        'showLogin'
+    ])->name('login');
+
+    // Login submit
+    Route::post('/login', [
+        LoginController::class,
+        'login'
+    ])->name('login.submit');
+
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
@@ -122,21 +153,95 @@ Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-        /*
-        |--------------------------------------------------------------------------
-        | AUTHENTICATION
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Government Schemes
+    |--------------------------------------------------------------------------
+    */
 
-        Route::get('/login', [
-            LoginController::class,
-            'showLogin'
-        ])->name('login');
+    Route::resource(
+        'government-schemes',
+        GovernmentSchemeController::class
+    );
 
-        Route::post('/login', [
-            LoginController::class,
-            'login'
-        ])->name('login.submit');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supply Stock Management
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        'supply-stocks',
+        [SupplyStockController::class, 'index']
+    )->name('supply-stocks.index');
+
+    Route::post(
+        'supply-stocks/receive',
+        [SupplyStockController::class, 'receive']
+    )->name('supply-stocks.receive');
+
+    Route::post(
+        'supply-stocks/adjust',
+        [SupplyStockController::class, 'adjust']
+    )->name('supply-stocks.adjust');
+
+    Route::get(
+        'supply-stocks/{supplyItemId}/history',
+        [SupplyStockController::class, 'history']
+    )->name('supply-stocks.history');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Student Supply Kit - Class-Wise Distribution
+    |--------------------------------------------------------------------------
+    */
+
+    // Open class-wise distribution page
+    Route::get(
+        'student-supply-kits/distribution/create',
+        [StudentSupplyKitController::class, 'distributionCreate']
+    )->name('student-supply-kits.distribution.create');
+
+    // Load students according to Academic Year / Class / Section
+    Route::get(
+        'student-supply-kits/distribution/students',
+        [StudentSupplyKitController::class, 'distributionStudents']
+    )->name('student-supply-kits.distribution.students');
+
+    // Distribute selected students' kits
+    Route::post(
+        'student-supply-kits/distribution',
+        [StudentSupplyKitController::class, 'distributionStore']
+    )->name('student-supply-kits.distribution.store');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Student Supply Kit Reports / Print
+    |--------------------------------------------------------------------------
+    */
+
+    // Consolidated class-wise report
+    Route::get(
+        'student-supply-kits/print',
+        [StudentSupplyKitController::class, 'print']
+    )->name('student-supply-kits.print');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Kit Templates
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource(
+        'kit-templates',
+        KitTemplateController::class
+    );
+
+});
 
 
         /*
@@ -177,8 +282,10 @@ Route::prefix('admin')
         |--------------------------------------------------------------------------
         */
 
-        Route::middleware('auth')->group(function () {
-
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware('auth')
+    ->group(function () {
             /*
             |--------------------------------------------------------------------------
             | TWO FACTOR AUTHENTICATION
@@ -228,43 +335,45 @@ Route::prefix('admin')
             |--------------------------------------------------------------------------
             */
 
-            Route::prefix('results')
-                ->name('results.')
-                ->group(function () {
+           Route::prefix('results')
+    ->name('results.')
+    ->group(function () {
 
-                    Route::get('/', [ResultController::class, 'index'])->name('index');
+        Route::get('/', [ResultController::class, 'index'])->name('index');
 
-                    Route::get('/marks', [ResultController::class, 'marks'])->name('marks');
-                    Route::post('/save-marks', [ResultController::class, 'saveMarks'])->name('save-marks');
+        Route::get('/marks', [ResultController::class, 'marks'])->name('marks');
+        Route::post('/save-marks', [ResultController::class, 'saveMarks'])->name('save-marks');
 
-                    Route::get('/load-subjects', [ResultController::class, 'loadSubjects'])->name('load-subjects');
-                    Route::get('/load-students', [ResultController::class, 'loadStudents'])->name('load-students');
-                    Route::get('/load-classes', [ResultController::class, 'loadClasses'])->name('load-classes');
-                    Route::get('/exam-classes', [ResultController::class, 'getExamClasses'])->name('exam-classes');
+        Route::get('/load-subjects', [ResultController::class, 'loadSubjects'])->name('load-subjects');
+        Route::get('/load-students', [ResultController::class, 'loadStudents'])->name('load-students');
+        Route::get('/load-classes', [ResultController::class, 'loadClasses'])->name('load-classes');
+        Route::get('/exam-classes', [ResultController::class, 'getExamClasses'])->name('exam-classes');
 
-                    Route::get('/generate', [ResultController::class, 'generate'])->name('generate');
-                    Route::post('/generate-result', [ResultController::class, 'generateResult'])->name('generate-result');
-                    Route::get('/class-results', [ResultController::class, 'classResults'])->name('class-results');
+        Route::get('/generate', [ResultController::class, 'generate'])->name('generate');
+        Route::post('/generate-result', [ResultController::class, 'generateResult'])->name('generate-result');
+        Route::get('/class-results', [ResultController::class, 'classResults'])->name('class-results');
 
-                    Route::post('/verify-class', [ResultController::class, 'verifyClassResults'])->name('verify-class');
-                    Route::post('/approve-class', [ResultController::class, 'approveClassResults'])->name('approve-class');
-                    Route::post('/publish-class', [ResultController::class, 'publishClassResults'])->name('publish-class');
+        Route::post('/verify-class', [ResultController::class, 'verifyClassResults'])->name('verify-class');
+        Route::post('/approve-class', [ResultController::class, 'approveClassResults'])->name('approve-class');
+        Route::post('/publish-class', [ResultController::class, 'publishClassResults'])->name('publish-class');
 
-                    Route::get('/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])->name('bulk-whatsapp');
+        Route::get('/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])->name('bulk-whatsapp');
 
-                    Route::get('/history/{result}', [ResultController::class, 'history'])->name('history');
-                    Route::get('/history/{result}/version/{version}', [ResultController::class, 'historyVersion'])->name('history-version');
+        Route::get('/history/{result}', [ResultController::class, 'history'])->name('history');
+        Route::get('/history/{result}/version/{version}', [ResultController::class, 'historyVersion'])->name('history-version');
 
-                    Route::get('/{result}/whatsapp', [ResultController::class, 'whatsapp'])->name('whatsapp');
-                    Route::get('/{result}/print', [ResultController::class, 'print'])->name('print');
-                    Route::get('/{result}/pdf', [ResultController::class, 'pdf'])->name('pdf');
+        Route::get('/{result}/whatsapp', [ResultController::class, 'whatsapp'])->name('whatsapp');
+        Route::get('/{result}/print', [ResultController::class, 'print'])->name('print');
+        Route::get('/{result}/pdf', [ResultController::class, 'pdf'])->name('pdf');
 
-                    Route::post('/{result}/verify', [ResultController::class, 'verify'])->name('verify');
-                    Route::post('/{result}/approve', [ResultController::class, 'approve'])->name('approve');
-                    Route::post('/{result}/publish', [ResultController::class, 'publish'])->name('publish');
+        Route::post('/{result}/verify', [ResultController::class, 'verify'])->name('verify');
+        Route::post('/{result}/approve', [ResultController::class, 'approve'])->name('approve');
+        Route::post('/{result}/publish', [ResultController::class, 'publish'])->name('publish');
 
-                    Route::get('/{result}', [ResultController::class, 'show'])->name('show');
-                });
+        Route::get('/{result}', [ResultController::class, 'show'])->name('show');
+    });
+
+    
             /*
             |--------------------------------------------------------------------------
             | LOCATION API
@@ -1146,51 +1255,24 @@ Route::prefix('admin')
                 SupplyItemController::class
             )->names('supply-items');
 
+            
+/*
+|--------------------------------------------------------------------------
+| KIT TEMPLATES
+|--------------------------------------------------------------------------
+*/
 
-            /*
-            |--------------------------------------------------------------------------
-            | KIT TEMPLATES
-            |--------------------------------------------------------------------------
-            */
-
-            Route::resource(
-                'kit-templates',
-                KitTemplateController::class
-            )->names('kit-templates');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT SUPPLY KIT - AJAX
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get(
-                '/student-supply-kits/students/search',
-                [
-                    StudentSupplyKitController::class,
-                    'searchStudents'
-                ]
-            )->name('student-supply-kits.students.search');
-
-            Route::get(
-                '/student-supply-kits/template/items',
-                [
-                    StudentSupplyKitController::class,
-                    'templateItems'
-                ]
-            )->name('student-supply-kits.template.items');
-
-            Route::get(
-                '/student-supply-kits/supply-items',
-                [
-                    StudentSupplyKitController::class,
-                    'supplyItems'
-                ]
-            )->name('student-supply-kits.supply-items');
+Route::resource(
+    'kit-templates',
+    KitTemplateController::class
+)->names('kit-templates');
 
 
-
+/*
+|--------------------------------------------------------------------------
+| STUDENT SUPPLY KIT - AJAX
+|--------------------------------------------------------------------------
+*/
 /*
 |--------------------------------------------------------------------------
 | SCHOOL SETTINGS
@@ -1299,19 +1381,8 @@ Route::prefix('admin')
                 ->middleware('permission:roles.manage');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT SUPPLY KIT - PRINT
-            |--------------------------------------------------------------------------
-            */
+          
 
-            Route::get(
-                '/student-supply-kits/{studentSupplyKit}/print',
-                [
-                    StudentSupplyKitController::class,
-                    'print'
-                ]
-            )->name('student-supply-kits.print');
 
 Route::get('/students/create', [StudentController::class, 'create'])
     ->name('students.create');
@@ -1334,45 +1405,32 @@ Route::put('/students/{student}', [StudentController::class, 'update'])
 Route::delete('/students/{student}', [StudentController::class, 'destroy'])
     ->name('students.destroy');
 
-    /*
+   
+/*
 |--------------------------------------------------------------------------
 | STUDENT SUPPLY KITS
 |--------------------------------------------------------------------------
 */
 
-Route::get('/student-supply-kits', [StudentSupplyKitController::class, 'index'])
-    ->name('student-supply-kits.index');
+Route::get(
+    'student-supply-kits/students/search',
+    [StudentSupplyKitController::class, 'searchStudents']
+)->name('student-supply-kits.students.search');
 
-Route::get('/student-supply-kits/create', [StudentSupplyKitController::class, 'create'])
-    ->name('student-supply-kits.create');
+Route::get(
+    'student-supply-kits/template/items',
+    [StudentSupplyKitController::class, 'templateItems']
+)->name('student-supply-kits.template.items');
 
+Route::get(
+    'student-supply-kits/supply-items',
+    [StudentSupplyKitController::class, 'supplyItems']
+)->name('student-supply-kits.supply-items');
 
-Route::post('/student-supply-kits', [StudentSupplyKitController::class, 'store'])
-    ->name('student-supply-kits.store');
-
-Route::get('/student-supply-kits/search-students', [StudentSupplyKitController::class, 'searchStudents'])
-    ->name('student-supply-kits.search-students');
-
-Route::get('/student-supply-kits/template-items', [StudentSupplyKitController::class, 'templateItems'])
-    ->name('student-supply-kits.template-items');
-
-Route::get('/student-supply-kits/supply-items', [StudentSupplyKitController::class, 'supplyItems'])
-    ->name('student-supply-kits.supply-items');
-
-Route::get('/student-supply-kits/{studentSupplyKit}/print', [StudentSupplyKitController::class, 'print'])
-    ->name('student-supply-kits.print');
-
-Route::get('/student-supply-kits/{studentSupplyKit}/edit', [StudentSupplyKitController::class, 'edit'])
-    ->name('student-supply-kits.edit');
-
-Route::get('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'show'])
-    ->name('student-supply-kits.show');
-
-Route::put('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'update'])
-    ->name('student-supply-kits.update');
-
-Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'destroy'])
-    ->name('student-supply-kits.destroy');
+Route::resource(
+    'student-supply-kits',
+    StudentSupplyKitController::class
+)->names('student-supply-kits');
 
 
 /*
@@ -1392,13 +1450,13 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
     ])->name('teachers.attendance.store');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | AUTHENTICATED ADMIN ROUTES
-    |--------------------------------------------------------------------------
-    */
+   /*
+|--------------------------------------------------------------------------
+| AUTHENTICATED ADMIN ROUTES
+|--------------------------------------------------------------------------
+*/
 
-    Route::middleware('auth')->group(function () {
+Route::group([], function () {
 
 
     Route::get('/teachers/salary/attendance-data', [
@@ -1671,17 +1729,6 @@ Route::get('/age-report', [AgeReportController::class, 'index'])
 Route::get('/age-report/print', [AgeReportController::class, 'print'])
     ->name('age-report.print');
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT SUPPLY KIT CRUD
-            |--------------------------------------------------------------------------
-            */
-
-            Route::resource(
-                'student-supply-kits',
-                StudentSupplyKitController::class
-            )->names('student-supply-kits');
 
 
             Route::get('/id-cards/search', [IdCardController::class, 'search'])
@@ -2772,6 +2819,7 @@ Route::prefix('admin/meal/items')
     });
 
 
+
 /*
 |--------------------------------------------------------------------------
 | MEAL MANAGEMENT MAIN MENU
@@ -2799,15 +2847,11 @@ Route::prefix('admin/meal/logs')
         |--------------------------------------------------------------------------
         */
 
-        // Log details
-        Route::get('/{mealStockLog}', [MealStockLogController::class, 'show'])
-            ->name('show');
-    });
-
         Route::get('/', [
             MealStockLogController::class,
             'index'
         ])->name('index');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -2850,38 +2894,49 @@ Route::prefix('admin/meal/logs')
         |--------------------------------------------------------------------------
         */
 
-         Route::get('/{mealStockLog}', [
+        Route::get('/{mealStockLog}', [
             MealStockLogController::class,
             'show'
         ])->name('show');
+
     });
 
 
-Route::get(
-    '/result',
-    [PublicResultController::class, 'index']
-)->name('result.public');
 
-Route::post(
-    '/result/search',
-    [PublicResultController::class, 'search']
-)->name('result.search');
+/*
+|--------------------------------------------------------------------------
+| PUBLIC RESULT ROUTES
+|--------------------------------------------------------------------------
+*/
 
-Route::get(
-    '/result/show',
-    [PublicResultController::class, 'show']
-)->name('result.public.show');
-
-Route::get(
-    '/result/{student}/pdf',
-    [PublicResultController::class, 'pdf']
-)->name('result.pdf');
-
-Route::get(
-    '/result/{student}/pdf/download',
-    [PublicResultController::class, 'downloadPdf']
-)->name('result.pdf.download');
-
+Route::get('/result', [PublicResultController::class, 'index'])
+    ->name('result.public');
 
 Route::get('/result/captcha', [PublicResultController::class, 'refreshCaptcha'])
     ->name('result.captcha');
+
+Route::post('/result/search', [PublicResultController::class, 'search'])
+    ->name('result.search');
+
+    Route::get('/result/{student}/show', function ($student) {
+    return redirect()->route('result.public.show', [
+        'student' => $student,
+    ]);
+})->name('result.public.show.legacy');
+
+Route::get('/result/{student}/show', [PublicResultController::class, 'show'])
+    ->name('result.public.show');
+
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC RESULT PDF
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/result/{student}/pdf', [PublicResultController::class, 'pdf'])
+    ->name('result.pdf');
+
+Route::get('/result/{student}/pdf/download', 
+    [PublicResultController::class, 'downloadPdf'])
+    ->name('result.pdf.download');

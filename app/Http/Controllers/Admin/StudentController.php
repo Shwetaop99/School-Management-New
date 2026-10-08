@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\Class\SchoolClass;
+use App\Models\SchoolSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -154,50 +155,55 @@ class StudentController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function create()
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD ACTIVE CLASSES FROM SCHOOL CLASSES MODULE
-        |--------------------------------------------------------------------------
-        */
+    /*
+|--------------------------------------------------------------------------
+| CREATE
+|--------------------------------------------------------------------------
+*/
 
-        $classes = SchoolClass::query()
-            ->where('status', true)
-            ->whereNotNull('class_name')
-            ->where('class_name', '!=', '')
-            ->select('class_name')
-            ->distinct()
-            ->orderBy('class_name')
-            ->pluck('class_name')
-            ->values()
-            ->toArray();
 
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD ACTIVE SECTIONS FROM SCHOOL CLASSES MODULE
-        |--------------------------------------------------------------------------
-        */
+public function create()
+{
+    $schoolClasses = SchoolClass::query()
+        ->where('status', true)
+        ->whereNotNull('class_name')
+        ->where('class_name', '!=', '')
+        ->orderBy('class_name')
+        ->orderBy('section')
+        ->get([
+            'class_name',
+            'section',
+            'academic_year',
+        ]);
 
-        $sections = SchoolClass::query()
-            ->where('status', true)
-            ->whereNotNull('section')
-            ->where('section', '!=', '')
-            ->select('section')
-            ->distinct()
-            ->orderBy('section')
-            ->pluck('section')
-            ->values()
-            ->toArray();
+    $classes = $schoolClasses
+        ->pluck('class_name')
+        ->filter()
+        ->unique()
+        ->values()
+        ->toArray();
 
-        return view(
-            'admin.students.create',
-            compact(
-                'classes',
-                'sections'
-            )
-        );
-    }
+    $sectionsByClass = $schoolClasses
+        ->groupBy('class_name')
+        ->map(function ($rows) {
+            return $rows
+                ->pluck('section')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+        })
+        ->toArray();
+
+    return view(
+        'admin.students.create',
+        compact(
+            'classes',
+            'sectionsByClass'
+        )
+    );
+}
+
 
     /*
     |--------------------------------------------------------------------------
@@ -205,212 +211,250 @@ class StudentController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request)
-    {
-        $validated = $this->validateStudent($request);
+    
+public function store(Request $request)
+{
+    $validated = $this->validateStudent($request);
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
+    try {
 
-            $validated['country'] = $request->input(
-                'country',
-                'India'
+        /*
+        |--------------------------------------------------------------------------
+        | DEFAULT VALUES
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['country'] = $request->input(
+            'country',
+            'India'
+        );
+
+        $validated['state'] = $request->input(
+            'state',
+            'Maharashtra'
+        );
+
+        $validated['status'] = $request->input(
+            'status',
+            'active'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMISSION CLASS
+        |--------------------------------------------------------------------------
+        | Current Class is removed.
+        | Admission Class is now the class selected by the user.
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['admission_class'] = $request->input(
+            'admission_class'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLASS
+        |--------------------------------------------------------------------------
+        | Keep the database `class` field synchronized with Admission Class
+        | so existing modules that use students.class continue to work.
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['class'] = $request->input(
+            'admission_class'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SECTION
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['section'] = $request->input(
+            'section'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MEDIUM
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['medium'] = $request->input(
+            'medium'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PREVIOUS SCHOOL BOARD
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['previous_school_board'] =
+            $request->input(
+                'previous_school_board',
+                $request->input('board')
             );
 
-            $validated['state'] = $request->input(
-                'state',
-                'Maharashtra'
+
+        /*
+        |--------------------------------------------------------------------------
+        | DISTRICT - TEXT
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['district'] =
+            $request->input(
+                'district',
+                $request->input('district_id')
             );
 
-            $validated['status'] = $request->input(
-                'status',
-                'active'
+
+        /*
+        |--------------------------------------------------------------------------
+        | TALUKA - TEXT
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['taluka'] =
+            $request->input(
+                'taluka',
+                $request->input('taluka_id')
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | CLASS
-            |--------------------------------------------------------------------------
-            */
 
-            $validated['class'] = $request->input(
-                'class',
-                $request->input('current_class')
+        /*
+        |--------------------------------------------------------------------------
+        | STUDENT ID
+        |--------------------------------------------------------------------------
+        | Student ID remains automatically generated.
+        |--------------------------------------------------------------------------
+        */
+
+        $validated['student_id'] =
+            $this->generateStudentId(
+                $validated['admission_class'] ?? null,
+                $request->input('section'),
+                $request->input('academic_year')
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | MEDIUM
-            |--------------------------------------------------------------------------
-            */
 
-            $validated['medium'] = $request->input(
-                'medium'
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | MANUAL STUDENT IDENTIFICATION NUMBERS
+        |--------------------------------------------------------------------------
+        | These are now entered manually by the user.
+        |--------------------------------------------------------------------------
+        */
 
-            /*
-            |--------------------------------------------------------------------------
-            | PREVIOUS SCHOOL BOARD
-            |--------------------------------------------------------------------------
-            */
+        $validated['roll_number'] =
+            $request->input('roll_number');
 
-            $validated['previous_school_board'] =
-                $request->input(
-                    'previous_school_board',
-                    $request->input('board')
-                );
+        $validated['register_no'] =
+            $request->input('register_no');
 
-            /*
-            |--------------------------------------------------------------------------
-            | DISTRICT - TEXT
-            |--------------------------------------------------------------------------
-            */
+        $validated['book_no'] =
+            $request->input('book_no');
 
-            $validated['district'] =
-                $request->input(
-                    'district',
-                    $request->input('district_id')
-                );
+        $validated['appar_id'] =
+            $request->input('appar_id');
 
-            /*
-            |--------------------------------------------------------------------------
-            | TALUKA - TEXT
-            |--------------------------------------------------------------------------
-            */
+        $validated['pen_no'] =
+            $request->input('pen_no');
 
-            $validated['taluka'] =
-                $request->input(
-                    'taluka',
-                    $request->input('taluka_id')
-                );
+        $validated['saral_id'] =
+            $request->input('saral_id');
 
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT ID
-            |--------------------------------------------------------------------------
-            */
 
-            $validated['student_id'] =
-                $this->generateStudentId();
+        /*
+        |--------------------------------------------------------------------------
+        | BIRTH PLACE
+        |--------------------------------------------------------------------------
+        | This is manually entered from the student form.
+        |--------------------------------------------------------------------------
+        */
 
-            /*
-            |--------------------------------------------------------------------------
-            | ROLL NUMBER
-            |--------------------------------------------------------------------------
-            */
+        $validated['birth_place'] =
+            $request->input('birth_place');
 
-            if (
-                $request->filled('class') ||
-                $request->filled('current_class')
-            ) {
 
-                $studentClass = $request->input(
-                    'class',
-                    $request->input('current_class')
-                );
+        /*
+        |--------------------------------------------------------------------------
+        | PROFILE IMAGE
+        |--------------------------------------------------------------------------
+        */
 
-                $validated['roll_number'] =
-                    $this->generateRollNumber(
-                        $studentClass,
-                        $request->input('section'),
-                        $request->input('academic_year')
-                    );
+        $validated['profile_image'] = null;
 
-            } else {
+        if ($request->hasFile('profile_image')) {
 
-                $validated['roll_number'] = null;
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | REGISTER NUMBER
-            |--------------------------------------------------------------------------
-            */
-
-            $validated['register_no'] =
-                $this->generateRegisterNumber();
-
-            /*
-            |--------------------------------------------------------------------------
-            | BOOK NUMBER
-            |--------------------------------------------------------------------------
-            */
-
-            $validated['book_no'] =
-                $this->generateBookNumber();
-
-            /*
-            |--------------------------------------------------------------------------
-            | APAAR INTERNAL REFERENCE
-            |--------------------------------------------------------------------------
-            */
-
-            $validated['appar_id'] =
-                $this->generateAparId();
-
-            /*
-            |--------------------------------------------------------------------------
-            | PEN INTERNAL REFERENCE
-            |--------------------------------------------------------------------------
-            */
-
-            $validated['pen_no'] =
-                $this->generatePenNumber();
-
-            /*
-            |--------------------------------------------------------------------------
-            | PROFILE IMAGE
-            |--------------------------------------------------------------------------
-            */
-
-            $validated['profile_image'] = null;
-
-            if ($request->hasFile('profile_image')) {
-
-                $validated['profile_image'] =
-                    $this->uploadToCloudinary(
-                        $request->file('profile_image'),
-                        'student_' . uniqid()
-                    );
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE STUDENT
-            |--------------------------------------------------------------------------
-            */
-
-            $student = Student::create($validated);
-
-            DB::commit();
-
-            return redirect()
-                ->route(
-                    'admin.students.show',
-                    $student
-                )
-                ->with(
-                    'success',
-                    'Student registered successfully. Student ID: ' .
-                    $student->student_id
-                );
-
-        } catch (Throwable $e) {
-
-            DB::rollBack();
-
-            report($e);
-
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'Student registration failed: ' .
-                    $e->getMessage()
+            $validated['profile_image'] =
+                $this->uploadToCloudinary(
+                    $request->file('profile_image'),
+                    'student_' . uniqid()
                 );
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE STUDENT
+        |--------------------------------------------------------------------------
+        */
+
+        $student = Student::create($validated);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | COMMIT
+        |--------------------------------------------------------------------------
+        */
+
+        DB::commit();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUCCESS
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route(
+                'admin.students.show',
+                $student
+            )
+            ->with(
+                'success',
+                'Student registered successfully. Student ID: ' .
+                $student->student_id
+            );
+
+
+    } catch (Throwable $e) {
+
+        DB::rollBack();
+
+        report($e);
+
+        return back()
+            ->withInput()
+            ->with(
+                'error',
+                'Student registration failed: ' .
+                $e->getMessage()
+            );
     }
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -1893,61 +1937,273 @@ class StudentController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    private function generateStudentId(): string
-    {
-        $lastStudentId = Student::withTrashed()
-            ->where(
-                'student_id',
-                'like',
-                'STU%'
-            )
-            ->orderByRaw(
-                "CAST(SUBSTRING(student_id, 4) AS UNSIGNED) DESC"
-            )
-            ->value('student_id');
+    /*
+|--------------------------------------------------------------------------
+| GENERATE STUDENT ID
+|--------------------------------------------------------------------------
+|
+| Supported placeholders:
+|
+| {YEAR}           = 2026
+| {YY}             = 26
+| {CLASS}          = Student's class
+| {SECTION}        = Student's section
+| {NUMBER}         = Sequential number
+|
+| Example:
+|
+| STU-{YEAR}-{NUMBER}
+| → STU-2026-0001
+|
+| SCH-{YY}-{CLASS}{SECTION}-{NUMBER}
+| → SCH-26-10A-0001
+|
+|--------------------------------------------------------------------------
+*/
 
-        $nextNumber = 1;
+private function generateStudentId(
+    ?string $class = null,
+    ?string $section = null,
+    ?string $academicYear = null
+): string {
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET SCHOOL SETTINGS
+    |--------------------------------------------------------------------------
+    |
+    | lockForUpdate() prevents two students being registered
+    | at exactly the same time from receiving the same number.
+    |
+    */
+
+    $school = SchoolSetting::query()
+        ->lockForUpdate()
+        ->first();
+
+    /*
+    |--------------------------------------------------------------------------
+    | DEFAULT SETTINGS
+    |--------------------------------------------------------------------------
+    */
+
+    $format = $school?->student_id_format
+        ?: 'STU-{YEAR}-{NUMBER}';
+
+    $startNumber = (int) (
+        $school?->student_id_start
+        ?: 1
+    );
+
+    $numberLength = (int) (
+        $school?->student_id_length
+        ?: 4
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | CURRENT YEAR
+    |--------------------------------------------------------------------------
+    */
+
+    $year = now()->year;
+
+    $shortYear = substr(
+        (string) $year,
+        -2
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLEAN CLASS / SECTION
+    |--------------------------------------------------------------------------
+    */
+
+    $class = trim(
+        (string) ($class ?? '')
+    );
+
+    $section = trim(
+        (string) ($section ?? '')
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | FIND EXISTING STUDENT IDs
+    |--------------------------------------------------------------------------
+    |
+    | We only consider IDs generated using the CURRENT format.
+    | Existing old IDs such as STU01 are not changed.
+    |
+    */
+
+    $students = Student::withTrashed()
+        ->whereNotNull('student_id')
+        ->pluck('student_id');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FIND NEXT SEQUENCE NUMBER
+    |--------------------------------------------------------------------------
+    */
+
+    $nextNumber = $startNumber;
+
+    foreach ($students as $existingId) {
+
+        /*
+        |----------------------------------------------------------------------
+        | Convert the configured format into a regular expression.
+        |----------------------------------------------------------------------
+        */
+
+        $pattern = preg_quote(
+            $format,
+            '/'
+        );
+
+        /*
+        |----------------------------------------------------------------------
+        | NUMBER PLACEHOLDER
+        |----------------------------------------------------------------------
+        */
+
+        $pattern = str_replace(
+            '\{NUMBER\}',
+            '([0-9]+)',
+            $pattern
+        );
+
+        /*
+        |----------------------------------------------------------------------
+        | Other placeholders
+        |----------------------------------------------------------------------
+        */
+
+        $pattern = str_replace(
+            '\{YEAR\}',
+            preg_quote(
+                (string) $year,
+                '/'
+            ),
+            $pattern
+        );
+
+        $pattern = str_replace(
+            '\{YY\}',
+            preg_quote(
+                $shortYear,
+                '/'
+            ),
+            $pattern
+        );
+
+        $pattern = str_replace(
+            '\{CLASS\}',
+            '.*?',
+            $pattern
+        );
+
+        $pattern = str_replace(
+            '\{SECTION\}',
+            '.*?',
+            $pattern
+        );
+
+        /*
+        |----------------------------------------------------------------------
+        | Match Existing ID
+        |----------------------------------------------------------------------
+        */
 
         if (
-            $lastStudentId &&
             preg_match(
-                '/^STU(\d+)$/',
-                $lastStudentId,
+                '/^' . $pattern . '$/',
+                $existingId,
                 $matches
             )
         ) {
 
-            $nextNumber =
-                ((int) $matches[1]) + 1;
-        }
+            if (
+                isset($matches[1]) &&
+                is_numeric($matches[1])
+            ) {
 
-        do {
+                $existingNumber =
+                    (int) $matches[1];
 
-            $studentId =
-                'STU' .
-                str_pad(
-                    $nextNumber,
-                    2,
-                    '0',
-                    STR_PAD_LEFT
-                );
+                if (
+                    $existingNumber >=
+                    $nextNumber
+                ) {
 
-            $exists = Student::withTrashed()
-                ->where(
-                    'student_id',
-                    $studentId
-                )
-                ->exists();
-
-            if ($exists) {
-                $nextNumber++;
+                    $nextNumber =
+                        $existingNumber + 1;
+                }
             }
-
-        } while ($exists);
-
-        return $studentId;
+        }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | GENERATE ID
+    |--------------------------------------------------------------------------
+    */
+
+    do {
+
+        $number = str_pad(
+            (string) $nextNumber,
+            $numberLength,
+            '0',
+            STR_PAD_LEFT
+        );
+
+        /*
+        |----------------------------------------------------------------------
+        | Replace placeholders
+        |----------------------------------------------------------------------
+        */
+
+        $studentId = str_replace(
+            [
+                '{YEAR}',
+                '{YY}',
+                '{CLASS}',
+                '{SECTION}',
+                '{NUMBER}',
+            ],
+            [
+                $year,
+                $shortYear,
+                $class,
+                $section,
+                $number,
+            ],
+            $format
+        );
+
+        /*
+        |----------------------------------------------------------------------
+        | FINAL UNIQUENESS CHECK
+        |----------------------------------------------------------------------
+        */
+
+        $exists = Student::withTrashed()
+            ->where(
+                'student_id',
+                $studentId
+            )
+            ->exists();
+
+        if ($exists) {
+            $nextNumber++;
+        }
+
+    } while ($exists);
+
+    return $studentId;
+}
     /*
     |--------------------------------------------------------------------------
     | GENERATE REGISTER NUMBER
