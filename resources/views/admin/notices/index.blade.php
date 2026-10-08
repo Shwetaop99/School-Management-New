@@ -109,9 +109,7 @@
             <h1>Notice management</h1>
             <p>Manage school announcements, notices and important updates.</p>
         </div>
-        <a href="{{ route('admin.notices.create') }}" class="ni-create">
-            <i class="bi bi-plus-lg"></i> Create notice
-        </a>
+       
     </div>
 
     {{-- Stats --}}
