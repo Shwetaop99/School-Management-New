@@ -4,64 +4,256 @@
 
 @php
 
-$student = $certificate->student;
+    /*
+    |--------------------------------------------------------------------------
+    | CERTIFICATE
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| Student Information
-|--------------------------------------------------------------------------
-*/
+    $bonafideCertificate = $certificate ?? null;
 
-$fullName = trim(
-    ($student->first_name ?? '') . ' ' .
-    ($student->middle_name ?? '') . ' ' .
-    ($student->last_name ?? '')
-);
 
-$dob = $student->date_of_birth
-    ?? $student->dob
-    ?? null;
+    /*
+    |--------------------------------------------------------------------------
+    | SCHOOL
+    |--------------------------------------------------------------------------
+    */
 
-$formattedDob = '';
+    $school = $schoolSetting
+        ?? \App\Models\SchoolSetting::first();
 
-if ($dob) {
-    try {
-        $formattedDob = \Carbon\Carbon::parse($dob)->format('d/m/Y');
-    } catch (\Throwable $e) {
-        $formattedDob = '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT
+    |--------------------------------------------------------------------------
+    */
+
+    $student = $bonafideCertificate
+        ? $bonafideCertificate->student
+        : null;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT NAME
+    |--------------------------------------------------------------------------
+    */
+
+    $fullName = trim(
+        ($student ? $student->first_name : '') . ' ' .
+        ($student ? $student->middle_name : '') . ' ' .
+        ($student ? $student->last_name : '')
+    );
+
+    if (!$fullName && $student) {
+        $fullName = $student->name ?? '';
     }
-}
 
-$registrationNo = $student->register_no
-    ?? $student->registration_no
-    ?? '';
 
-$aadharNo = $student->aadhar_card_no
-    ?? $student->aadhar_no
-    ?? '';
+    /*
+    |--------------------------------------------------------------------------
+    | DATE OF BIRTH
+    |--------------------------------------------------------------------------
+    */
 
-$academicYear = $student->educational_year
-    ?? $student->academic_year
-    ?? '';
+    $dob = $student
+        ? ($student->date_of_birth ?? $student->dob ?? null)
+        : null;
 
-$className = $student->class ?? '';
+    $formattedDob = '';
 
-$section = $student->section ?? '';
+    if ($dob) {
 
-$division = $section;
+        try {
 
-$motherName = $student->mother_name ?? '';
+            $formattedDob =
+                \Carbon\Carbon::parse($dob)
+                    ->format('d/m/Y');
 
-$religion = $student->religion ?? '';
+        } catch (\Throwable $e) {
 
-$caste = $student->caste ?? '';
+            $formattedDob = '';
 
-$casteReligion = trim(
-    $caste . ($caste && $religion ? ' / ' : '') . $religion
-);
+        }
 
-$reason = $certificate->reason
-    ?: 'To avail of travel benefits';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REGISTRATION NUMBER
+    |--------------------------------------------------------------------------
+    */
+
+    $registrationNo = $student
+        ? ($student->register_no
+            ?? $student->registration_no
+            ?? '')
+        : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AADHAR NUMBER
+    |--------------------------------------------------------------------------
+    */
+
+    $aadharNo = $student
+        ? ($student->aadhar_card_no
+            ?? $student->aadhar_no
+            ?? '')
+        : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACADEMIC YEAR
+    |--------------------------------------------------------------------------
+    */
+
+    $academicYear = $student
+        ? ($student->educational_year
+            ?? $student->academic_year
+            ?? '')
+        : '';
+
+    if (!$academicYear && $bonafideCertificate) {
+
+        $academicYear =
+            $bonafideCertificate->academic_year
+            ?? '';
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLASS
+    |--------------------------------------------------------------------------
+    */
+
+    $className = '';
+
+    if ($student) {
+
+        $className =
+            $student->class
+            ?? $student->class_name
+            ?? $student->admission_class
+            ?? '';
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SECTION / DIVISION
+    |--------------------------------------------------------------------------
+    */
+
+    $section = $student
+        ? ($student->section
+            ?? $student->division
+            ?? '')
+        : '';
+
+    $division = $section;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MOTHER NAME
+    |--------------------------------------------------------------------------
+    */
+
+    $motherName = $student
+        ? ($student->mother_name ?? '')
+        : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELIGION
+    |--------------------------------------------------------------------------
+    */
+
+    $religion = $student
+        ? ($student->religion ?? '')
+        : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CASTE
+    |--------------------------------------------------------------------------
+    */
+
+    $caste = $student
+        ? ($student->caste ?? '')
+        : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CASTE + RELIGION
+    |--------------------------------------------------------------------------
+    */
+
+    $casteReligion = trim(
+        $caste .
+        ($caste && $religion ? ' / ' : '') .
+        $religion
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REASON
+    |--------------------------------------------------------------------------
+    */
+
+    $reason = $bonafideCertificate
+        ? (
+            $bonafideCertificate->reason
+            ?: 'To avail of travel benefits'
+        )
+        : 'To avail of travel benefits';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SCHOOL LOGO
+    |--------------------------------------------------------------------------
+    */
+
+    $logo = $school->logo ?? null;
+
+    if ($logo) {
+
+        if (
+            str_starts_with($logo, 'http://')
+            ||
+            str_starts_with($logo, 'https://')
+        ) {
+
+            $logoUrl = $logo;
+
+        } else {
+
+            $logoUrl = asset(
+                'storage/' . ltrim($logo, '/')
+            );
+
+        }
+
+    } else {
+
+        $logoUrl = asset(
+            'images/gurukullogo.png'
+        );
+
+    }
 
 @endphp
 
@@ -69,455 +261,549 @@ $reason = $certificate->reason
 <div class="bonafide-wrapper">
 
 
-{{-- =========================================================
-     ACTION BAR
-========================================================== --}}
+    {{-- =========================================================
+         ACTION BAR
+    ========================================================== --}}
 
-<div class="certificate-actions no-print">
+    <div class="certificate-actions no-print">
 
-    <a href="{{ route('admin.bonafide.index') }}"
-       class="btn btn-outline-secondary btn-sm">
-
-        <i class="bi bi-arrow-left me-1"></i>
-        Back
-
-    </a>
-
-
-    <div class="d-flex gap-2">
-
-        <a href="{{ route('admin.bonafide.edit', $certificate->id) }}"
-           class="btn btn-primary btn-sm">
-
-            <i class="bi bi-pencil me-1"></i>
-            Edit
-
+        <a
+            href="{{ route('admin.bonafide.index') }}"
+            class="btn btn-outline-secondary btn-sm"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back
         </a>
 
 
-        <button type="button"
-                onclick="window.print()"
-                class="btn btn-dark btn-sm">
+        @if($bonafideCertificate)
 
-            <i class="bi bi-printer me-1"></i>
-            Print Certificate
+            <div class="d-flex gap-2">
 
-        </button>
+                <a
+                    href="{{ route(
+                        'admin.bonafide.edit',
+                        $bonafideCertificate->id
+                    ) }}"
+                    class="btn btn-primary btn-sm"
+                >
+                    <i class="bi bi-pencil me-1"></i>
+                    Edit
+                </a>
+
+
+                <a
+                    href="{{ route(
+                        'admin.bonafide.print',
+                        $bonafideCertificate->id
+                    ) }}"
+                    target="_blank"
+                    class="btn btn-primary btn-sm"
+                >
+                    <i class="bi bi-printer me-1"></i>
+                    Print Certificate
+                </a>
+
+            </div>
+
+        @endif
 
     </div>
 
-</div>
+
+    {{-- =========================================================
+         A4 LANDSCAPE CERTIFICATE
+    ========================================================== --}}
+
+    <div class="certificate-page">
 
 
-{{-- =========================================================
-     A4 CERTIFICATE
-========================================================== --}}
+        {{-- =====================================================
+             SCHOOL HEADER
+        ====================================================== --}}
 
-<div class="certificate-page">
-
-
-    {{-- =====================================================
-         SCHOOL HEADER
-    ====================================================== --}}
-
-    <div class="school-header">
-
-        {{-- SCHOOL LOGO --}}
-        <div class="school-logo">
-
-            <img
-                src="{{ $school?->logo_url ?? asset('images/gurukullogo.png') }}"
-                alt="{{ $school?->school_name ?? 'School Logo' }}"
-            >
-
-        </div>
+        <div class="school-header">
 
 
-        {{-- SCHOOL INFORMATION --}}
-        <div class="school-information">
+            {{-- SCHOOL LOGO --}}
 
-            <div class="school-name">
+            <div class="school-logo">
 
-                {{ $school?->school_name ?? 'School Name' }}
+                <img
+                    src="{{ $logoUrl }}"
+                    alt="{{ $school->school_name ?? 'School Logo' }}"
+                >
 
             </div>
 
 
-            @if($school?->address || $school?->city || $school?->district || $school?->state || $school?->pincode)
+            {{-- SCHOOL INFORMATION --}}
 
-                <div class="school-line">
+            <div class="school-information">
 
-                    @if($school?->address)
-                        {{ $school->address }}
-                    @endif
 
-                    @if($school?->city)
-                        @if($school?->address), @endif
-                        {{ $school->city }}
-                    @endif
+                {{-- SCHOOL NAME --}}
 
-                    @if($school?->district)
-                        @if($school?->city || $school?->address), @endif
-                        {{ $school->district }}
-                    @endif
+                <div class="school-name">
 
-                    @if($school?->state)
-                        @if($school?->district || $school?->city || $school?->address), @endif
-                        {{ $school->state }}
-                    @endif
+                    {{ $school->school_name ?? 'School Name' }}
 
-                    @if($school?->pincode)
-                        @if($school?->state || $school?->district || $school?->city || $school?->address)
-                            -
+                </div>
+
+
+                {{-- ADDRESS --}}
+
+                @if(
+                    $school &&
+                    (
+                        $school->address ||
+                        $school->city ||
+                        $school->district ||
+                        $school->state ||
+                        $school->pincode
+                    )
+                )
+
+                    <div class="school-line">
+
+                        @if($school->address)
+
+                            {{ $school->address }}
+
                         @endif
-                        {{ $school->pincode }}
-                    @endif
-
-                </div>
-
-            @endif
 
 
-            <div class="school-line school-code-line">
+                        @if($school->city)
 
-                @if($school?->school_code)
+                            @if($school->address)
+                                ,
+                            @endif
 
-                    <span>
-                        School Code : {{ $school->school_code }}
-                    </span>
+                            {{ $school->city }}
+
+                        @endif
+
+
+                        @if($school->district)
+
+                            @if(
+                                $school->city ||
+                                $school->address
+                            )
+                                ,
+                            @endif
+
+                            {{ $school->district }}
+
+                        @endif
+
+
+                        @if($school->state)
+
+                            @if(
+                                $school->district ||
+                                $school->city ||
+                                $school->address
+                            )
+                                ,
+                            @endif
+
+                            {{ $school->state }}
+
+                        @endif
+
+
+                        @if($school->pincode)
+
+                            @if(
+                                $school->state ||
+                                $school->district ||
+                                $school->city ||
+                                $school->address
+                            )
+                                -
+                            @endif
+
+                            {{ $school->pincode }}
+
+                        @endif
+
+                    </div>
 
                 @endif
 
 
-                @if($school?->udise_code)
+                {{-- SCHOOL CODE / UDISE --}}
 
-                    <span>
-                        UDISE No : {{ $school->udise_code }}
-                    </span>
+                @if(
+                    $school &&
+                    (
+                        $school->school_code ||
+                        $school->udise_code
+                    )
+                )
+
+                    <div class="school-line school-code-line">
+
+                        @if($school->school_code)
+
+                            <span>
+                                School Code :
+                                {{ $school->school_code }}
+                            </span>
+
+                        @endif
+
+
+                        @if($school->udise_code)
+
+                            <span>
+                                UDISE No :
+                                {{ $school->udise_code }}
+                            </span>
+
+                        @endif
+
+                    </div>
+
+                @endif
+
+
+                {{-- CONTACT DETAILS --}}
+
+                @if(
+                    $school &&
+                    (
+                        $school->phone ||
+                        $school->email ||
+                        $school->website
+                    )
+                )
+
+                    <div class="school-line school-contact-line">
+
+                        @if($school->phone)
+
+                            <span>
+                                Phone :
+                                {{ $school->phone }}
+                            </span>
+
+                        @endif
+
+
+                        @if($school->email)
+
+                            <span>
+                                Email :
+                                {{ $school->email }}
+                            </span>
+
+                        @endif
+
+
+                        @if($school->website)
+
+                            <span>
+                                Website :
+                                {{ $school->website }}
+                            </span>
+
+                        @endif
+
+                    </div>
+
+                @endif
+
+
+                {{-- PRINCIPAL --}}
+
+                @if(
+                    $school &&
+                    $school->principal_name
+                )
+
+                    <div class="school-line">
+
+                        Principal :
+                        {{ $school->principal_name }}
+
+                    </div>
 
                 @endif
 
             </div>
 
-
-            @if($school?->phone || $school?->email || $school?->website)
-
-                <div class="school-line school-contact-line">
-
-                    @if($school?->phone)
-
-                        <span>
-                            Phone : {{ $school->phone }}
-                        </span>
-
-                    @endif
+        </div>
 
 
-                    @if($school?->email)
+        {{-- =====================================================
+             CERTIFICATE TITLE
+        ====================================================== --}}
 
-                        <span>
-                            Email : {{ $school->email }}
-                        </span>
+        <div class="certificate-title">
 
-                    @endif
+            Bonafide Certificate
+
+        </div>
 
 
-                    @if($school?->website)
+        {{-- =====================================================
+             TOP INFORMATION
+        ====================================================== --}}
 
-                        <span>
-                            Website : {{ $school->website }}
-                        </span>
+        <div class="top-info">
 
-                    @endif
+            <div class="top-left">
+
+                <strong>
+                    Registration Number :
+                </strong>
+
+                <span>
+                    {{ $registrationNo ?: '-' }}
+                </span>
+
+            </div>
+
+
+            <div class="top-right">
+
+                <strong>
+                    Aadhar No :
+                </strong>
+
+                <span>
+                    {{ $aadharNo ?: '-' }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+             CERTIFIED TEXT
+        ====================================================== --}}
+
+        <div class="certified-text">
+
+            It is certified that
+
+        </div>
+
+
+        {{-- =====================================================
+             STUDENT DETAILS
+        ====================================================== --}}
+
+        <div class="student-details">
+
+
+            {{-- LEFT COLUMN --}}
+
+            <div class="detail-left">
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Full name of student :
+                    </span>
+
+                    <span class="value">
+                        {{ $fullName ?: '-' }}
+                    </span>
 
                 </div>
 
-            @endif
 
+                <div class="detail-row">
 
-            @if($school?->principal_name)
+                    <span class="label">
+                        Mother's name :
+                    </span>
 
-                <div class="school-line">
-
-                    Principal :
-                    {{ $school->principal_name }}
+                    <span class="value">
+                        {{ $motherName ?: '-' }}
+                    </span>
 
                 </div>
 
-            @endif
 
-        </div>
+                <div class="detail-row">
 
-    </div>
+                    <span class="label">
+                        Academic Year :
+                    </span>
 
+                    <span class="value">
+                        {{ $academicYear ?: '-' }}
+                    </span>
 
-    {{-- =====================================================
-         CERTIFICATE TITLE
-    ====================================================== --}}
-
-    <div class="certificate-title">
-
-        Bonafide Certificate
-
-    </div>
+                </div>
 
 
-    {{-- =====================================================
-         TOP INFORMATION
-    ====================================================== --}}
+                <div class="detail-row">
 
-    <div class="top-info">
+                    <span class="label">
+                        Caste and religion :
+                    </span>
 
-        <div class="top-left">
+                    <span class="value">
+                        {{ $casteReligion ?: '-' }}
+                    </span>
 
-            <strong>
-                Registration Number :
-            </strong>
-
-            <span>
-                {{ $registrationNo }}
-            </span>
-
-        </div>
+                </div>
 
 
-        <div class="top-right">
+                <div class="detail-row">
 
-            <strong>
-                Aadhar No :
-            </strong>
+                    <span class="label">
+                        Reason :
+                    </span>
 
-            <span>
-                {{ $aadharNo }}
-            </span>
+                    <span class="value">
+                        {{ $reason }}
+                    </span>
 
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         CERTIFIED TEXT
-    ====================================================== --}}
-
-    <div class="certified-text">
-
-        It is certified that
-
-    </div>
-
-
-    {{-- =====================================================
-         STUDENT DETAILS
-    ====================================================== --}}
-
-    <div class="student-details">
-
-
-        {{-- LEFT COLUMN --}}
-
-        <div class="detail-left">
-
-
-            <div class="detail-row">
-
-                <span class="label">
-                    Full name of student :
-                </span>
-
-                <span class="value">
-                    {{ $fullName }}
-                </span>
+                </div>
 
             </div>
 
 
-            <div class="detail-row">
+            {{-- RIGHT COLUMN --}}
 
-                <span class="label">
-                    Mother's name :
-                </span>
-
-                <span class="value">
-                    {{ $motherName }}
-                </span>
-
-            </div>
+            <div class="detail-right">
 
 
-            <div class="detail-row">
+                <div class="detail-row">
 
-                <span class="label">
-                    Academic Year :
-                </span>
+                    <span class="label">
+                        Date of Birth :
+                    </span>
 
-                <span class="value">
-                    {{ $academicYear }}
-                </span>
+                    <span class="value">
+                        {{ $formattedDob ?: '-' }}
+                    </span>
 
-            </div>
-
-
-            <div class="detail-row">
-
-                <span class="label">
-                    Caste and religion :
-                </span>
-
-                <span class="value">
-                    {{ $casteReligion }}
-                </span>
-
-            </div>
+                </div>
 
 
-            <div class="detail-row">
+                <div class="detail-row">
 
-                <span class="label">
-                    Reason :
-                </span>
+                    <span class="label">
+                        Class :
+                    </span>
 
-                <span class="value">
-                    {{ $reason }}
-                </span>
+                    <span class="value">
+                        {{ $className ?: '-' }}
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Division :
+                    </span>
+
+                    <span class="value">
+                        {{ $division ?: '-' }}
+                    </span>
+
+                </div>
 
             </div>
 
         </div>
 
 
-        {{-- RIGHT COLUMN --}}
+        {{-- =====================================================
+             CERTIFICATE PARAGRAPH
+        ====================================================== --}}
 
-        <div class="detail-right">
+        <div class="certificate-paragraph">
 
-
-            <div class="detail-row">
-
-                <span class="label">
-                    Date of Birth :
-                </span>
-
-                <span class="value">
-                    {{ $formattedDob }}
-                </span>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <span class="label">
-                    Class :
-                </span>
-
-                <span class="value">
-                    {{ $className }}
-                </span>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <span class="label">
-                    Division :
-                </span>
-
-                <span class="value">
-                    {{ $division }}
-                </span>
-
-            </div>
+            This student belongs to our school and all the information
+            given above is correct. According to our information, her
+            behavior is satisfactory.
 
         </div>
 
-    </div>
+
+        {{-- =====================================================
+             SIGNATURE AREA
+        ====================================================== --}}
+
+        <div class="signature-area">
 
 
-    {{-- =====================================================
-         CERTIFICATE PARAGRAPH
-    ====================================================== --}}
+            {{-- PRINCIPAL --}}
 
-    <div class="certificate-paragraph">
+            <div class="principal-signature">
 
-        This student belongs to our school and all the information
-        given above is correct. According to our information, her
-        behavior is satisfactory.
+                <div class="signature-space"></div>
 
-    </div>
+                <div class="signature-line"></div>
 
+                <div class="signature-label">
 
-    {{-- =====================================================
-         SIGNATURE AREA
-    ====================================================== --}}
+                    {{ $school->principal_name ?? 'Principal / Dean' }}
 
-    <div class="signature-area">
+                </div>
 
+                <div class="signature-role">
 
-        {{-- PRINCIPAL --}}
+                    Principal / Head
 
-        <div class="principal-signature">
-
-            <div class="signature-space"></div>
-
-            <div class="signature-line"></div>
-
-            <div class="signature-label">
-
-                {{ $school?->principal_name ?? 'Principal / Dean' }}
+                </div>
 
             </div>
 
-            <div class="signature-role">
 
-                Principal / Head
+            {{-- SCHOOL SEAL --}}
+
+            <div class="school-signature">
+
+                <div class="seal-space">
+
+                    <span class="seal-circle">
+                        SEAL
+                    </span>
+
+                </div>
+
+                <div class="signature-label">
+
+                    {{ $school->school_name ?? 'School' }}
+
+                </div>
+
+                <div class="official-seal">
+
+                    (Official Seal)
+
+                </div>
 
             </div>
 
         </div>
 
 
-        {{-- SCHOOL SEAL --}}
-
-        <div class="school-signature">
-
-            <div class="seal-space">
-
-                <span class="seal-circle">
-
-                    SEAL
-
-                </span>
-
-            </div>
-
-            <div class="signature-label">
-
-                {{ $school?->school_name ?? 'School' }}
-
-            </div>
-
-            <div class="official-seal">
-
-                (Official Seal)
-
-            </div>
-
-        </div>
-
     </div>
-
-
-</div>
 
 </div>
 
 
 <style>
 
-/* ============================================================
-   PAGE WRAPPER
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| PAGE WRAPPER
+|--------------------------------------------------------------------------
+*/
 
 .bonafide-wrapper {
 
@@ -534,15 +820,17 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   ACTION BAR
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| ACTION BAR
+|--------------------------------------------------------------------------
+*/
 
 .certificate-actions {
 
     width: 100%;
 
-    max-width: 850px;
+    max-width: 1120px;
 
     margin: 0 auto 15px;
 
@@ -557,19 +845,21 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   A4 CERTIFICATE
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| A4 LANDSCAPE CERTIFICATE
+|--------------------------------------------------------------------------
+*/
 
 .certificate-page {
 
     position: relative;
 
-    width: 210mm;
+    width: 297mm;
 
-    height: 297mm;
+    height: 210mm;
 
-    min-height: 297mm;
+    min-height: 210mm;
 
     margin: 0 auto;
 
@@ -595,9 +885,11 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   SCHOOL HEADER
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| SCHOOL HEADER
+|--------------------------------------------------------------------------
+*/
 
 .school-header {
 
@@ -619,10 +911,6 @@ $reason = $certificate->reason
 
 }
 
-
-/* ============================================================
-   SCHOOL LOGO
-============================================================ */
 
 .school-logo {
 
@@ -651,10 +939,6 @@ $reason = $certificate->reason
 
 }
 
-
-/* ============================================================
-   SCHOOL INFORMATION
-============================================================ */
 
 .school-information {
 
@@ -721,9 +1005,11 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   CERTIFICATE TITLE
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| CERTIFICATE TITLE
+|--------------------------------------------------------------------------
+*/
 
 .certificate-title {
 
@@ -752,9 +1038,11 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   TOP INFORMATION
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| TOP INFORMATION
+|--------------------------------------------------------------------------
+*/
 
 .top-info {
 
@@ -792,9 +1080,11 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   CERTIFIED TEXT
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| CERTIFIED TEXT
+|--------------------------------------------------------------------------
+*/
 
 .certified-text {
 
@@ -807,9 +1097,11 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   STUDENT DETAILS
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| STUDENT DETAILS
+|--------------------------------------------------------------------------
+*/
 
 .student-details {
 
@@ -873,9 +1165,11 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   CERTIFICATE PARAGRAPH
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| CERTIFICATE PARAGRAPH
+|--------------------------------------------------------------------------
+*/
 
 .certificate-paragraph {
 
@@ -890,9 +1184,11 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   SIGNATURE AREA
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| SIGNATURE AREA
+|--------------------------------------------------------------------------
+*/
 
 .signature-area {
 
@@ -1012,39 +1308,42 @@ $reason = $certificate->reason
 }
 
 
-/* ============================================================
-   SCREEN RESPONSIVE
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| SCREEN
+|--------------------------------------------------------------------------
+*/
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1200px) {
 
     .bonafide-wrapper {
-
-        padding: 10px;
 
         overflow-x: auto;
 
     }
 
-
     .certificate-page {
 
-        margin: 0 auto;
+        margin-left: 0;
+
+        margin-right: 0;
 
     }
 
 }
 
 
-/* ============================================================
-   PRINT
-============================================================ */
+/*
+|--------------------------------------------------------------------------
+| PRINT
+|--------------------------------------------------------------------------
+*/
 
 @media print {
 
     @page {
 
-        size: A4 portrait;
+        size: A4 landscape;
 
         margin: 0;
 
@@ -1053,9 +1352,9 @@ $reason = $certificate->reason
 
     html {
 
-        width: 210mm !important;
+        width: 297mm !important;
 
-        height: 297mm !important;
+        height: 210mm !important;
 
         margin: 0 !important;
 
@@ -1066,9 +1365,9 @@ $reason = $certificate->reason
 
     body {
 
-        width: 210mm !important;
+        width: 297mm !important;
 
-        height: 297mm !important;
+        height: 210mm !important;
 
         margin: 0 !important;
 
@@ -1078,14 +1377,12 @@ $reason = $certificate->reason
 
         overflow: hidden !important;
 
+        -webkit-print-color-adjust: exact !important;
+
+        print-color-adjust: exact !important;
+
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Hide complete Laravel layout
-    |--------------------------------------------------------------------------
-    */
 
     body * {
 
@@ -1093,12 +1390,6 @@ $reason = $certificate->reason
 
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Show only certificate
-    |--------------------------------------------------------------------------
-    */
 
     .certificate-page,
     .certificate-page * {
@@ -1108,12 +1399,6 @@ $reason = $certificate->reason
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Exact A4 Page
-    |--------------------------------------------------------------------------
-    */
-
     .certificate-page {
 
         position: absolute !important;
@@ -1122,11 +1407,11 @@ $reason = $certificate->reason
 
         top: 0 !important;
 
-        width: 210mm !important;
+        width: 297mm !important;
 
-        height: 297mm !important;
+        height: 210mm !important;
 
-        min-height: 297mm !important;
+        min-height: 210mm !important;
 
         margin: 0 !important;
 
@@ -1149,19 +1434,13 @@ $reason = $certificate->reason
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Wrapper
-    |--------------------------------------------------------------------------
-    */
-
     .bonafide-wrapper {
 
-        width: 210mm !important;
+        width: 297mm !important;
 
-        height: 297mm !important;
+        height: 210mm !important;
 
-        min-height: 297mm !important;
+        min-height: 210mm !important;
 
         padding: 0 !important;
 
@@ -1174,12 +1453,6 @@ $reason = $certificate->reason
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Hide Buttons
-    |--------------------------------------------------------------------------
-    */
-
     .no-print {
 
         display: none !important;
@@ -1188,12 +1461,6 @@ $reason = $certificate->reason
 
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Print School Header
-    |--------------------------------------------------------------------------
-    */
 
     .school-header {
 

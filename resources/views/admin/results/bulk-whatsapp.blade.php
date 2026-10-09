@@ -1,9 +1,53 @@
-```blade
 @extends('layouts.app')
 
-@section('title', 'Bulk WhatsApp Result Notification')
+@section('title', 'WhatsApp Group Result Message')
 
 @section('content')
+
+@php
+
+    /*
+    |--------------------------------------------------------------------------
+    | Basic Data
+    |--------------------------------------------------------------------------
+    */
+
+    $resultUrl = route('result.public');
+
+    $className =
+        $schoolClass->class_name
+        ?? 'Class';
+
+    $section =
+        $schoolClass->section
+        ?? request('section')
+        ?? '';
+
+    $examName =
+        $exam->exam_name
+        ?? 'Examination';
+
+    $academicYear =
+        $exam->academic_year
+        ?? '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Count Published Results
+    |--------------------------------------------------------------------------
+    */
+
+    $publishedCount = $students->filter(function ($student) use ($results) {
+
+        $result = $results->get($student->id);
+
+        return $result
+            && $result->publication_status === 'published';
+
+    })->count();
+
+@endphp
+
 
 <div class="container-fluid py-4">
 
@@ -15,35 +59,29 @@
 
         <div class="d-flex align-items-center gap-3">
 
-            <a href="{{ route('admin.results.class-results', [
-                'exam_id' => request('exam_id'),
-                'exam_class_id' => request('exam_class_id'),
-                'class_id' => request('class_id'),
-                'section' => request('section'),
-            ]) }}"
-               class="btn btn-light border rounded-3">
-
-                <i class="bi bi-arrow-left"></i>
-
-            </a>
-
             <div class="page-icon">
+
                 <i class="bi bi-whatsapp"></i>
+
             </div>
 
             <div>
 
                 <h4 class="fw-bold mb-1">
-                    Bulk WhatsApp Result Notification
+                    WhatsApp Group Result Message
                 </h4>
 
-                <div class="text-muted small">
-                    Send online result links to selected parents
+                <div class="text-muted">
+
+                    Send one common result notification
+                    to the school WhatsApp group.
+
                 </div>
 
             </div>
 
         </div>
+
 
         <div>
 
@@ -69,27 +107,36 @@
         <div class="d-flex align-items-center gap-3">
 
             <div class="info-icon">
+
                 <i class="bi bi-mortarboard-fill"></i>
+
             </div>
 
             <div>
 
                 <div class="fw-bold">
 
-                    {{ $schoolClass->class_name ?? 'Class' }}
+                    {{ $className }}
 
-                    @if(!empty($schoolClass->section))
-                        - Section {{ $schoolClass->section }}
+                    @if(!empty($section))
+
+                        - Section {{ $section }}
+
                     @endif
 
                 </div>
 
+
                 <div class="small text-muted">
 
-                    {{ $exam->exam_name ?? 'Examination' }}
+                    {{ $examName }}
 
-                    @if(!empty($exam->academic_year))
-                        • {{ $exam->academic_year }}
+                    @if(!empty($academicYear))
+
+                        <span class="mx-1">•</span>
+
+                        {{ $academicYear }}
+
                     @endif
 
                 </div>
@@ -102,35 +149,77 @@
 
 
     {{-- =========================================================
-        PROGRESS CARD
+        GROUP MESSAGE CARD
     ========================================================== --}}
 
     <div class="card border-0 shadow-sm rounded-4 mb-4">
 
         <div class="card-body p-4">
 
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
 
                 <div>
 
-                    <div class="small text-muted">
-                        Bulk Sending Progress
-                    </div>
+                    <h5 class="fw-bold mb-1">
 
-                    <h5 class="fw-bold mb-0" id="progressTitle">
-                        Ready to Start
+                        <i class="bi bi-chat-left-text me-2 text-success"></i>
+
+                        Group Message
+
                     </h5>
 
-                </div>
-
-                <div class="text-end">
-
-                    <div class="fw-bold fs-5" id="progressCount">
-                        0 / 0
-                    </div>
-
                     <div class="small text-muted">
-                        Students completed
+
+                        This message is common for all parents/students
+                        in the selected class.
+
+                    </div>
+
+                </div>
+
+
+                <span class="badge bg-success-subtle text-success px-3 py-2">
+
+                    <i class="bi bi-check-circle me-1"></i>
+
+                    {{ $publishedCount }} Published Results
+
+                </span>
+
+            </div>
+
+
+            {{-- =================================================
+                IMPORTANT INFORMATION
+            ================================================== --}}
+
+            <div class="group-info-alert mb-4">
+
+                <div class="d-flex gap-3">
+
+                    <div class="alert-icon">
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="fw-bold mb-1">
+
+                            How this works
+
+                        </div>
+
+                        <div class="small">
+
+                            Click <strong>Open WhatsApp</strong>.
+                            WhatsApp will open with this message already
+                            prepared. Select your school WhatsApp group
+                            and press <strong>Send</strong> once.
+
+                        </div>
+
                     </div>
 
                 </div>
@@ -138,62 +227,132 @@
             </div>
 
 
-            <div class="progress progress-custom mb-3">
+            {{-- =================================================
+                MESSAGE PREVIEW
+            ================================================== --}}
+
+            <label
+                for="groupMessage"
+                class="form-label fw-bold"
+            >
+
+                WhatsApp Message
+
+            </label>
+
+
+            <textarea
+                id="groupMessage"
+                class="form-control message-box"
+                rows="14"
+            >📢 Result Published
+
+Dear Parents/Students,
+
+The result for {{ $examName }}{{ !empty($section) ? ' - ' . $className . ' Section ' . $section : ' - ' . $className }}{{ !empty($academicYear) ? ', Academic Year ' . $academicYear : '' }} has been published online.
+
+Please check the result using the link below:
+
+{{ $resultUrl }}
+
+To view the result, enter:
+
+• Student ID
+• Mother's Name
+• CAPTCHA
+
+Please use the Student ID and Mother's Name registered with the school.
+
+Regards,
+School Administration</textarea>
+
+
+            {{-- =================================================
+                CHARACTER COUNT
+            ================================================== --}}
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+
+                <div class="small text-muted">
+
+                    <i class="bi bi-shield-check me-1"></i>
+
+                    Common message for the WhatsApp group
+
+                </div>
+
 
                 <div
-                    class="progress-bar"
-                    id="bulkProgress"
-                    role="progressbar"
-                    style="width: 0%;"
-                ></div>
+                    class="small text-muted"
+                    id="messageLength"
+                >
+
+                    0 characters
+
+                </div>
 
             </div>
 
 
-            <div class="d-flex flex-wrap gap-2">
+            {{-- =================================================
+                ACTION BUTTONS
+            ================================================== --}}
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
 
                 <button
                     type="button"
-                    id="startBulkBtn"
                     class="btn btn-success px-4 rounded-3"
-                    onclick="startBulkWhatsApp()"
+                    onclick="openWhatsAppGroup()"
                 >
+
                     <i class="bi bi-whatsapp me-2"></i>
-                    WhatsApp
+
+                    Open WhatsApp
+
                 </button>
 
 
                 <button
                     type="button"
-                    id="nextStudentBtn"
-                    class="btn btn-primary px-4 rounded-3 d-none"
-                    onclick="openNextAfterSent()"
+                    class="btn btn-outline-primary px-4 rounded-3"
+                    onclick="copyGroupMessage()"
                 >
-                    <i class="bi bi-arrow-right-circle me-2"></i>
-                    Mark Sent & Next
+
+                    <i class="bi bi-copy me-2"></i>
+
+                    Copy Message
+
                 </button>
 
 
                 <button
                     type="button"
-                    id="pauseBulkBtn"
-                    class="btn btn-outline-secondary px-4 rounded-3 d-none"
-                    onclick="pauseBulkWhatsApp()"
+                    class="btn btn-outline-secondary px-4 rounded-3"
+                    onclick="resetGroupMessage()"
                 >
-                    <i class="bi bi-pause-circle me-2"></i>
-                    Pause
+
+                    <i class="bi bi-arrow-counterclockwise me-2"></i>
+
+                    Reset Message
+
                 </button>
 
+            </div>
 
-                <button
-                    type="button"
-                    id="resumeBulkBtn"
-                    class="btn btn-outline-primary px-4 rounded-3 d-none"
-                    onclick="resumeBulkWhatsApp()"
-                >
-                    <i class="bi bi-play-circle me-2"></i>
-                    Resume
-                </button>
+
+            {{-- =================================================
+                STATUS
+            ================================================== --}}
+
+            <div
+                id="groupMessageStatus"
+                class="group-message-status d-none mt-4"
+            >
+
+                <i class="bi bi-check-circle-fill me-2"></i>
+
+                Message copied successfully.
 
             </div>
 
@@ -203,70 +362,7 @@
 
 
     {{-- =========================================================
-        CURRENT STUDENT CARD
-    ========================================================== --}}
-
-    <div
-        class="current-student-card d-none mb-4"
-        id="currentStudentCard"
-    >
-
-        <div class="current-student-inner">
-
-            <div class="current-avatar" id="currentAvatar">
-                --
-            </div>
-
-            <div class="flex-grow-1">
-
-                <div class="small text-muted">
-                    Currently Processing
-                </div>
-
-                <h5 class="fw-bold mb-1" id="currentStudentName">
-                    -
-                </h5>
-
-                <div class="small text-muted">
-
-                    Student ID:
-
-                    <strong id="currentStudentId">
-                        -
-                    </strong>
-
-                    <span class="mx-2">
-                        •
-                    </span>
-
-                    Parent:
-
-                    <strong id="currentStudentPhone">
-                        -
-                    </strong>
-
-                </div>
-
-            </div>
-
-            <div class="text-end">
-
-                <div
-                    class="badge bg-success-subtle text-success px-3 py-2"
-                    id="currentStatus"
-                >
-                    Ready
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        STUDENT LIST
+        STUDENT / RESULT PREVIEW
     ========================================================== --}}
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -281,13 +377,13 @@
 
                         <i class="bi bi-people me-2 text-primary"></i>
 
-                        Students
+                        Result Preview
 
                     </h5>
 
                     <div class="small text-muted">
 
-                        Select the students who should receive the result link.
+                        Students included in this class/exam result view.
 
                     </div>
 
@@ -296,31 +392,19 @@
 
                 <div class="d-flex flex-wrap gap-2">
 
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary rounded-3"
-                        onclick="selectAllStudents()"
-                    >
-                        <i class="bi bi-check2-square me-1"></i>
-                        Select All
-                    </button>
+                    <span class="badge bg-success-subtle text-success px-3 py-2">
+
+                        Published:
+                        {{ $publishedCount }}
+
+                    </span>
 
 
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-secondary rounded-3"
-                        onclick="clearAllStudents()"
-                    >
-                        <i class="bi bi-x-square me-1"></i>
-                        Clear
-                    </button>
+                    <span class="badge bg-light text-dark border px-3 py-2">
 
+                        Total:
+                        {{ $students->count() }}
 
-                    <span
-                        class="badge bg-primary-subtle text-primary px-3 py-2"
-                        id="selectedCount"
-                    >
-                        0 Selected
                     </span>
 
                 </div>
@@ -338,18 +422,7 @@
 
                     <tr>
 
-                        <th width="55">
-
-                            <input
-                                type="checkbox"
-                                class="form-check-input"
-                                id="selectAllCheckbox"
-                                onchange="toggleAllStudents(this)"
-                            >
-
-                        </th>
-
-                        <th>
+                        <th width="60">
                             #
                         </th>
 
@@ -362,10 +435,6 @@
                         </th>
 
                         <th>
-                            Parent WhatsApp
-                        </th>
-
-                        <th>
                             Result
                         </th>
 
@@ -373,95 +442,59 @@
                             Publication
                         </th>
 
-                        <th>
-                            Status
-                        </th>
-
-                        <th class="text-end">
-                            Action
-                        </th>
-
                     </tr>
 
                 </thead>
 
 
-                <tbody id="studentTableBody">
+                <tbody>
 
                 @forelse($students as $index => $student)
 
                     @php
 
-                        $result = $results->get($student->id);
+                        $result =
+                            $results->get($student->id);
 
-                        $studentName = collect([
-                            $student->first_name ?? null,
-                            $student->middle_name ?? null,
-                            $student->last_name ?? null,
-                        ])
-                        ->filter()
-                        ->implode(' ');
+                        $studentName =
+                            collect([
+                                $student->first_name ?? null,
+                                $student->middle_name ?? null,
+                                $student->last_name ?? null,
+                            ])
+                            ->filter()
+                            ->implode(' ');
 
-                        $studentName = $studentName ?: 'Student';
+                        $studentName =
+                            $studentName ?: 'Student';
 
 
-                        $initials = collect(
-                            preg_split('/\s+/', trim($studentName))
-                        )
-                        ->filter()
-                        ->take(2)
-                        ->map(
-                            fn($name) =>
-                                strtoupper(
-                                    substr($name, 0, 1)
+                        $initials =
+                            collect(
+                                preg_split(
+                                    '/\s+/',
+                                    trim($studentName)
                                 )
-                        )
-                        ->implode('');
-
-
-                        $phone =
-                            $student->parent_phone
-                            ?? $student->father_phone
-                            ?? $student->mother_phone
-                            ?? $student->phone
-                            ?? '';
+                            )
+                            ->filter()
+                            ->take(2)
+                            ->map(
+                                fn($name) =>
+                                    strtoupper(
+                                        substr($name, 0, 1)
+                                    )
+                            )
+                            ->implode('');
 
 
                         $publicationStatus =
                             $result?->publication_status
                             ?? 'pending';
 
-
-                        $hasValidPhone =
-                            !empty(trim((string) $phone));
-
                     @endphp
 
 
-                    <tr
-                        class="student-row"
-                        data-student-id="{{ $student->id }}"
-                        data-name="{{ $studentName }}"
-                        data-student-code="{{ $student->student_id ?? $student->id }}"
-                        data-phone="{{ $phone }}"
-                        data-publication="{{ $publicationStatus }}"
-                        data-result-url="{{ route('result.public') }}"
-                    >
-
-
-                        {{-- CHECKBOX --}}
-
-                        <td>
-
-                            <input
-                                type="checkbox"
-                                class="form-check-input student-checkbox"
-                                value="{{ $student->id }}"
-                                onchange="updateSelectedCount()"
-                            >
-
-                        </td>
-
+                    <tr>
 
                         {{-- NUMBER --}}
 
@@ -484,6 +517,7 @@
 
                                 </div>
 
+
                                 <div>
 
                                     <div class="fw-semibold">
@@ -491,6 +525,7 @@
                                         {{ $studentName }}
 
                                     </div>
+
 
                                     <div class="small text-muted">
 
@@ -519,37 +554,6 @@
                         </td>
 
 
-                        {{-- PARENT WHATSAPP --}}
-
-                        <td>
-
-                            @if($hasValidPhone)
-
-                                <div class="d-flex align-items-center gap-2">
-
-                                    <span class="whatsapp-dot"></span>
-
-                                    <span>
-                                        {{ $phone }}
-                                    </span>
-
-                                </div>
-
-                            @else
-
-                                <span class="text-danger small">
-
-                                    <i class="bi bi-exclamation-circle me-1"></i>
-
-                                    No number
-
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
                         {{-- RESULT --}}
 
                         <td>
@@ -557,6 +561,8 @@
                             @if($result)
 
                                 <div class="fw-semibold text-success">
+
+                                    <i class="bi bi-check-circle-fill me-1"></i>
 
                                     Result Available
 
@@ -571,7 +577,11 @@
                             @else
 
                                 <span class="text-muted">
+
+                                    <i class="bi bi-clock me-1"></i>
+
                                     Pending
+
                                 </span>
 
                             @endif
@@ -585,24 +595,32 @@
 
                             @php
 
-                                $publicationClass = match($publicationStatus) {
+                                $publicationClass =
+                                    match($publicationStatus) {
 
-                                    'published' => 'status-published',
+                                        'published' =>
+                                            'status-published',
 
-                                    'approved' => 'status-approved',
+                                        'approved' =>
+                                            'status-approved',
 
-                                    'verified' => 'status-verified',
+                                        'verified' =>
+                                            'status-verified',
 
-                                    'generated' => 'status-generated',
+                                        'generated' =>
+                                            'status-generated',
 
-                                    default => 'status-pending',
+                                        default =>
+                                            'status-pending',
 
-                                };
+                                    };
 
                             @endphp
 
 
-                            <span class="status-pill {{ $publicationClass }}">
+                            <span
+                                class="status-pill {{ $publicationClass }}"
+                            >
 
                                 @if($publicationStatus === 'published')
 
@@ -633,66 +651,13 @@
 
                         </td>
 
-
-                        {{-- SEND STATUS --}}
-
-                        <td>
-
-                            <span
-                                class="student-send-status pending-status"
-                                data-status-for="{{ $student->id }}"
-                            >
-
-                                <i class="bi bi-clock me-1"></i>
-
-                                Pending
-
-                            </span>
-
-                        </td>
-
-
-                        {{-- ACTION --}}
-
-                        <td class="text-end">
-
-                            @if($hasValidPhone)
-
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-success rounded-3"
-                                    onclick="openIndividualStudent({{ $student->id }})"
-                                    title="Send WhatsApp Result Link"
-                                >
-
-                                    <i class="bi bi-whatsapp"></i>
-
-                                </button>
-
-                            @else
-
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-light border rounded-3"
-                                    disabled
-                                    title="Parent WhatsApp number unavailable"
-                                >
-
-                                    <i class="bi bi-slash-circle"></i>
-
-                                </button>
-
-                            @endif
-
-                        </td>
-
                     </tr>
 
                 @empty
 
                     <tr>
 
-                        <td colspan="9">
+                        <td colspan="5">
 
                             <div class="empty-state">
 
@@ -702,15 +667,18 @@
 
                                 </div>
 
+
                                 <h5 class="fw-bold mt-3">
 
                                     No Students Found
 
                                 </h5>
 
+
                                 <p class="text-muted mb-0">
 
-                                    There are no students available for this class.
+                                    There are no students available
+                                    for this class.
 
                                 </p>
 
@@ -741,9 +709,8 @@
 
                     <i class="bi bi-info-circle me-1"></i>
 
-                    The WhatsApp message contains only the student's
-                    name, Student ID and online result link.
-                    The parent must press Send in WhatsApp.
+                    This page creates one common message.
+                    It does not send individual messages to parents.
 
                 </div>
 
@@ -780,11 +747,17 @@
 <style>
 
     :root {
+
         --primary-blue: #1677f0;
+
         --primary-dark: #0f5dcc;
+
         --border-color: #e8edf3;
+
         --text-dark: #172033;
+
         --muted: #718096;
+
     }
 
 
@@ -792,13 +765,17 @@
 
         width: 48px;
         height: 48px;
+
         border-radius: 14px;
 
         background: #e9fff3;
+
         color: #25d366;
 
         display: flex;
+
         align-items: center;
+
         justify-content: center;
 
         font-size: 23px;
@@ -829,10 +806,13 @@
         border-radius: 13px;
 
         background: #edf5ff;
+
         color: var(--primary-blue);
 
         display: flex;
+
         align-items: center;
+
         justify-content: center;
 
         font-size: 20px;
@@ -840,73 +820,88 @@
     }
 
 
-    .progress-custom {
+    .group-info-alert {
 
-        height: 10px;
-
-        background: #edf1f6;
-
-        border-radius: 20px;
-
-        overflow: hidden;
-
-    }
-
-
-    .progress-custom .progress-bar {
-
-        background: #25d366;
-
-        border-radius: 20px;
-
-        transition: width .35s ease;
-
-    }
-
-
-    .current-student-card {
+        background: #f0fff6;
 
         border: 1px solid #cceedd;
 
-        background: #f4fff8;
+        border-radius: 14px;
 
-        border-radius: 18px;
+        padding: 16px 18px;
 
-        padding: 5px;
+        color: #315b45;
 
     }
 
 
-    .current-student-inner {
+    .alert-icon {
+
+        width: 35px;
+        height: 35px;
+
+        min-width: 35px;
+
+        border-radius: 10px;
+
+        background: #dff8ea;
+
+        color: #16834a;
 
         display: flex;
 
         align-items: center;
 
-        gap: 15px;
-
-        padding: 18px;
-
-    }
-
-
-    .current-avatar {
-
-        width: 54px;
-        height: 54px;
-
-        border-radius: 15px;
-
-        background: #25d366;
-        color: #fff;
-
-        display: flex;
-        align-items: center;
         justify-content: center;
 
-        font-weight: 700;
+    }
 
-        font-size: 18px;
+
+    .message-box {
+
+        border: 1px solid #dce3eb;
+
+        border-radius: 14px;
+
+        padding: 16px;
+
+        font-size: 14px;
+
+        line-height: 1.65;
+
+        resize: vertical;
+
+        min-height: 280px;
+
+        color: var(--text-dark);
+
+    }
+
+
+    .message-box:focus {
+
+        border-color: var(--primary-blue);
+
+        box-shadow: 0 0 0 .2rem rgba(22, 119, 240, .10);
+
+    }
+
+
+    .group-message-status {
+
+        background: #e9fff3;
+
+        border: 1px solid #bce8ce;
+
+        color: #16834a;
+
+        border-radius: 12px;
+
+        padding: 12px 15px;
+
+        font-size: 13px;
+
+        font-weight: 600;
 
     }
 
@@ -973,6 +968,7 @@
         display: flex;
 
         align-items: center;
+
         justify-content: center;
 
         font-weight: 700;
@@ -993,20 +989,6 @@
         padding: 5px 8px;
 
         border-radius: 7px;
-
-    }
-
-
-    .whatsapp-dot {
-
-        width: 8px;
-        height: 8px;
-
-        border-radius: 50%;
-
-        background: #25d366;
-
-        display: inline-block;
 
     }
 
@@ -1035,6 +1017,7 @@
     .status-generated {
 
         background: #edf5ff;
+
         color: #1677f0;
 
     }
@@ -1043,6 +1026,7 @@
     .status-verified {
 
         background: #fff8e6;
+
         color: #b77900;
 
     }
@@ -1051,6 +1035,7 @@
     .status-approved {
 
         background: #f1edff;
+
         color: #6f42c1;
 
     }
@@ -1059,6 +1044,7 @@
     .status-published {
 
         background: #e9fff3;
+
         color: #16834a;
 
     }
@@ -1067,39 +1053,9 @@
     .status-pending {
 
         background: #f3f4f6;
+
         color: #6b7280;
 
-    }
-
-
-    .student-send-status {
-
-        font-size: 12px;
-
-        font-weight: 600;
-
-        white-space: nowrap;
-
-    }
-
-
-    .pending-status {
-        color: #98a2b3;
-    }
-
-
-    .opened-status {
-        color: #1677f0;
-    }
-
-
-    .sent-status {
-        color: #16834a;
-    }
-
-
-    .skipped-status {
-        color: #b77900;
     }
 
 
@@ -1120,11 +1076,13 @@
         border-radius: 18px;
 
         background: #f3f6fa;
+
         color: #98a2b3;
 
         display: flex;
 
         align-items: center;
+
         justify-content: center;
 
         margin: auto;
@@ -1135,59 +1093,17 @@
 
 
     .btn {
+
         font-weight: 600;
-    }
-
-
-    .student-checkbox,
-    #selectAllCheckbox {
-
-        width: 18px;
-        height: 18px;
-
-        cursor: pointer;
-
-    }
-
-
-    .student-checkbox:checked,
-    #selectAllCheckbox:checked {
-
-        accent-color: #1677f0;
-
-    }
-
-
-    .student-row.selected {
-
-        background: #f0f7ff;
 
     }
 
 
     @media (max-width: 768px) {
 
-        .current-student-inner {
+        .message-box {
 
-            align-items: flex-start;
-
-            flex-wrap: wrap;
-
-        }
-
-
-        .current-student-inner .text-end {
-
-            width: 100%;
-
-            text-align: left !important;
-
-        }
-
-
-        .student-table {
-
-            min-width: 1050px;
+            min-height: 350px;
 
         }
 
@@ -1204,127 +1120,89 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Bulk WhatsApp State
+    | Update Message Character Count
     |--------------------------------------------------------------------------
     */
 
-    let selectedStudents = [];
+    function updateMessageLength() {
 
-    let currentIndex = -1;
+        const message =
+            document.getElementById('groupMessage');
 
-    let completedStudents = new Set();
-
-    let openedStudents = new Set();
-
-    let paused = false;
+        const counter =
+            document.getElementById('messageLength');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Public Result URL
-    |--------------------------------------------------------------------------
-    */
+        if (!message || !counter) {
 
-    const PUBLIC_RESULT_URL = @json(route('result.public'));
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Toggle All Students
-    |--------------------------------------------------------------------------
-    */
-
-    function toggleAllStudents(checkbox) {
-
-        const checkboxes =
-            document.querySelectorAll(
-                '.student-checkbox'
-            );
-
-        checkboxes.forEach(function (cb) {
-
-            cb.checked = checkbox.checked;
-
-            updateRowSelection(cb);
-
-        });
-
-        updateSelectedCount();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Select All
-    |--------------------------------------------------------------------------
-    */
-
-    function selectAllStudents() {
-
-        const master =
-            document.getElementById(
-                'selectAllCheckbox'
-            );
-
-        master.checked = true;
-
-        toggleAllStudents(master);
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clear All
-    |--------------------------------------------------------------------------
-    */
-
-    function clearAllStudents() {
-
-        document
-            .querySelectorAll('.student-checkbox')
-            .forEach(function (cb) {
-
-                cb.checked = false;
-
-                updateRowSelection(cb);
-
-            });
-
-
-        document
-            .getElementById('selectAllCheckbox')
-            .checked = false;
-
-
-        updateSelectedCount();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Individual Row Selection Visual
-    |--------------------------------------------------------------------------
-    */
-
-    function updateRowSelection(checkbox) {
-
-        const row =
-            checkbox.closest('.student-row');
-
-        if (!row) {
             return;
+
         }
 
-        if (checkbox.checked) {
 
-            row.classList.add('selected');
+        counter.innerText =
+            `${message.value.length} characters`;
 
-        } else {
+    }
 
-            row.classList.remove('selected');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Copy Group Message
+    |--------------------------------------------------------------------------
+    */
+
+    async function copyGroupMessage() {
+
+        const message =
+            document.getElementById('groupMessage');
+
+
+        if (!message) {
+
+            return;
+
+        }
+
+
+        const text =
+            message.value.trim();
+
+
+        if (!text) {
+
+            alert('Message is empty.');
+
+            return;
+
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(text);
+
+            showGroupMessageStatus(
+                'Message copied successfully.'
+            );
+
+        } catch (error) {
+
+            /*
+            |------------------------------------------------------------------
+            | Fallback for browsers where Clipboard API is unavailable
+            |------------------------------------------------------------------
+            */
+
+            message.focus();
+
+            message.select();
+
+            document.execCommand('copy');
+
+            showGroupMessageStatus(
+                'Message copied successfully.'
+            );
 
         }
 
@@ -1333,366 +1211,48 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Get Selected Students
+    | Open WhatsApp
     |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    |
+    | WhatsApp does not allow this page to automatically select a
+    | particular group.
+    |
+    | WhatsApp opens with the common message prepared.
+    | The user selects the school group and presses Send.
+    |
     */
 
-    function getSelectedStudents() {
+    function openWhatsAppGroup() {
 
-        const rows = [];
-
-        document
-            .querySelectorAll(
-                '.student-checkbox:checked'
-            )
-            .forEach(function (checkbox) {
-
-                const row =
-                    checkbox.closest('.student-row');
-
-                if (row) {
-
-                    rows.push(row);
-
-                }
-
-            });
-
-        return rows;
-
-    }
+        const message =
+            document.getElementById('groupMessage');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Update Selected Count
-    |--------------------------------------------------------------------------
-    */
-
-    function updateSelectedCount() {
-
-        const selected =
-            getSelectedStudents();
-
-
-        selectedStudents =
-            selected.map(function (row) {
-
-                return row.dataset.studentId;
-
-            });
-
-
-        document
-            .getElementById('selectedCount')
-            .innerText =
-                `${selected.length} Selected`;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update master checkbox state
-        |--------------------------------------------------------------------------
-        */
-
-        const allCheckboxes =
-            document.querySelectorAll(
-                '.student-checkbox'
-            );
-
-
-        const checkedCheckboxes =
-            document.querySelectorAll(
-                '.student-checkbox:checked'
-            );
-
-
-        const master =
-            document.getElementById(
-                'selectAllCheckbox'
-            );
-
-
-        if (master) {
-
-            master.checked =
-                allCheckboxes.length > 0 &&
-                checkedCheckboxes.length ===
-                allCheckboxes.length;
-
-
-            master.indeterminate =
-                checkedCheckboxes.length > 0 &&
-                checkedCheckboxes.length <
-                allCheckboxes.length;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update row highlighting
-        |--------------------------------------------------------------------------
-        */
-
-        document
-            .querySelectorAll('.student-checkbox')
-            .forEach(function (checkbox) {
-
-                updateRowSelection(checkbox);
-
-            });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Start Bulk WhatsApp
-    |--------------------------------------------------------------------------
-    */
-
-    function startBulkWhatsApp() {
-
-        updateSelectedCount();
-
-
-        if (selectedStudents.length === 0) {
-
-            alert(
-                'Please select at least one student.'
-            );
+        if (!message) {
 
             return;
 
         }
 
 
-        completedStudents.clear();
-
-        openedStudents.clear();
-
-        currentIndex = -1;
-
-        paused = false;
+        const text =
+            message.value.trim();
 
 
-        document
-            .getElementById('startBulkBtn')
-            .classList.add('d-none');
+        if (!text) {
 
-
-        document
-            .getElementById('pauseBulkBtn')
-            .classList.remove('d-none');
-
-
-        document
-            .getElementById('nextStudentBtn')
-            .classList.remove('d-none');
-
-
-        document
-            .getElementById('progressTitle')
-            .innerText =
-                'Bulk WhatsApp Started';
-
-
-        updateProgress();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Open first student
-        |--------------------------------------------------------------------------
-        */
-
-        openNextStudent();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Open Next Student
-    |--------------------------------------------------------------------------
-    */
-
-    function openNextStudent() {
-
-        if (paused) {
-            return;
-        }
-
-
-        if (selectedStudents.length === 0) {
-            return;
-        }
-
-
-        let nextIndex = -1;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Find next incomplete student
-        |--------------------------------------------------------------------------
-        */
-
-        for (
-            let i = currentIndex + 1;
-            i < selectedStudents.length;
-            i++
-        ) {
-
-            if (
-                !completedStudents.has(
-                    selectedStudents[i]
-                )
-            ) {
-
-                nextIndex = i;
-
-                break;
-
-            }
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Search from beginning if necessary
-        |--------------------------------------------------------------------------
-        */
-
-        if (nextIndex === -1) {
-
-            for (
-                let i = 0;
-                i < selectedStudents.length;
-                i++
-            ) {
-
-                if (
-                    !completedStudents.has(
-                        selectedStudents[i]
-                    )
-                ) {
-
-                    nextIndex = i;
-
-                    break;
-
-                }
-
-            }
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | All completed
-        |--------------------------------------------------------------------------
-        */
-
-        if (nextIndex === -1) {
-
-            finishBulkWhatsApp();
+            alert('Message is empty.');
 
             return;
 
         }
 
-
-        currentIndex = nextIndex;
-
-
-        const studentId =
-            selectedStudents[currentIndex];
-
-
-        const row =
-            document.querySelector(
-                `.student-row[data-student-id="${studentId}"]`
-            );
-
-
-        if (!row) {
-
-            completedStudents.add(studentId);
-
-            openNextStudent();
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check phone number
-        |--------------------------------------------------------------------------
-        */
-
-        const phone =
-            row.dataset.phone || '';
-
-
-        if (!phone.trim()) {
-
-            markStudentSkipped(
-                studentId,
-                'No WhatsApp number'
-            );
-
-
-            setTimeout(function () {
-
-                openNextStudent();
-
-            }, 300);
-
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Show Current Student
-        |--------------------------------------------------------------------------
-        */
-
-        showCurrentStudent(row);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Mark WhatsApp Opened
-        |--------------------------------------------------------------------------
-        */
-
-        markStudentOpened(studentId);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Build WhatsApp URL
-        |--------------------------------------------------------------------------
-        */
 
         const whatsappUrl =
-            buildWhatsAppUrl(row);
+            `https://wa.me/?text=${encodeURIComponent(text)}`;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Open WhatsApp
-        |--------------------------------------------------------------------------
-        */
 
         window.open(
             whatsappUrl,
@@ -1700,574 +1260,115 @@
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Mark Sent & Next Button
-        |--------------------------------------------------------------------------
-        */
-
-        document
-            .getElementById('nextStudentBtn')
-            .innerHTML =
-                '<i class="bi bi-arrow-right-circle me-2"></i> Mark Sent & Next';
-
-
-        document
-            .getElementById('progressTitle')
-            .innerText =
-                `Student ${currentIndex + 1} is ready`;
+        showGroupMessageStatus(
+            'WhatsApp opened. Select the school group and press Send.'
+        );
 
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | Show Current Student
+    | Reset Message
     |--------------------------------------------------------------------------
     */
 
-    function showCurrentStudent(row) {
-
-        const card =
-            document.getElementById(
-                'currentStudentCard'
-            );
-
-
-        card.classList.remove('d-none');
-
-
-        const name =
-            row.dataset.name || 'Student';
-
-
-        const studentCode =
-            row.dataset.studentCode ||
-            row.dataset.studentId;
-
-
-        const phone =
-            row.dataset.phone || '-';
-
-
-        document
-            .getElementById('currentStudentName')
-            .innerText =
-                name;
-
-
-        document
-            .getElementById('currentStudentId')
-            .innerText =
-                studentCode;
-
-
-        document
-            .getElementById('currentStudentPhone')
-            .innerText =
-                phone;
-
-
-        const words =
-            name.trim().split(/\s+/);
-
-
-        const initials =
-            words
-                .slice(0, 2)
-                .map(function (word) {
-
-                    return word
-                        .substring(0, 1)
-                        .toUpperCase();
-
-                })
-                .join('');
-
-
-        document
-            .getElementById('currentAvatar')
-            .innerText =
-                initials || 'S';
-
-
-        document
-            .getElementById('currentStatus')
-            .innerText =
-                'WhatsApp Opened';
-
-
-        document
-            .getElementById('currentStatus')
-            .className =
-                'badge bg-primary-subtle text-primary px-3 py-2';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Scroll current row into view
-        |--------------------------------------------------------------------------
-        */
-
-        row.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Build WhatsApp Message
-    |--------------------------------------------------------------------------
-    |
-    | IMPORTANT:
-    |
-    | Only Student Name, Student ID and public result link
-    | are included.
-    |
-    */
-
-    function buildWhatsAppUrl(row) {
-
-        const name =
-            row.dataset.name || 'Student';
-
-
-        const studentId =
-            row.dataset.studentCode ||
-            row.dataset.studentId;
-
-
-        const phone =
-            normalizePhone(
-                row.dataset.phone || ''
-            );
-
+    function resetGroupMessage() {
 
         const message =
-`Dear Parent,
+            document.getElementById('groupMessage');
 
-The result of ${name} has been published online.
 
-Student ID: ${studentId}
+        if (!message) {
 
-You can view the complete result using the link below:
+            return;
 
-${PUBLIC_RESULT_URL}
+        }
 
-Please use the Student ID and Mother's Name to access the result.
+
+        const defaultMessage =
+`📢 Result Published
+
+Dear Parents/Students,
+
+The result for {{ $examName }}{{ !empty($section) ? ' - ' . $className . ' Section ' . $section : ' - ' . $className }}{{ !empty($academicYear) ? ', Academic Year ' . $academicYear : '' }} has been published online.
+
+Please check the result using the link below:
+
+{{ $resultUrl }}
+
+To view the result, enter:
+
+• Student ID
+• Mother's Name
+• CAPTCHA
+
+Please use the Student ID and Mother's Name registered with the school.
 
 Regards,
-
-School Management`;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Correct WhatsApp URL
-        |--------------------------------------------------------------------------
-        */
-
-        return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-    }
+School Administration`;
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Normalize Indian Phone Number
-    |--------------------------------------------------------------------------
-    */
-
-    function normalizePhone(phone) {
-
-        phone =
-            String(phone)
-                .replace(/\D/g, '');
+        message.value =
+            defaultMessage;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | 10 digit Indian number
-        |--------------------------------------------------------------------------
-        */
-
-        if (phone.length === 10) {
-
-            phone = '91' + phone;
-
-        }
+        updateMessageLength();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Remove leading 0 from 091XXXXXXXXXX
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            phone.startsWith('091') &&
-            phone.length === 13
-        ) {
-
-            phone =
-                phone.substring(1);
-
-        }
-
-
-        return phone;
+        showGroupMessageStatus(
+            'Message restored to the default format.'
+        );
 
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | Mark Student Opened
+    | Status Message
     |--------------------------------------------------------------------------
     */
 
-    function markStudentOpened(studentId) {
-
-        openedStudents.add(studentId);
-
+    function showGroupMessageStatus(text) {
 
         const status =
-            document.querySelector(
-                `[data-status-for="${studentId}"]`
+            document.getElementById(
+                'groupMessageStatus'
             );
 
 
         if (!status) {
+
             return;
+
         }
-
-
-        status.className =
-            'student-send-status opened-status';
 
 
         status.innerHTML =
-            '<i class="bi bi-whatsapp me-1"></i> WhatsApp Opened';
+            `<i class="bi bi-check-circle-fill me-2"></i>${text}`;
 
-    }
 
+        status.classList.remove('d-none');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mark Student Sent + Move Next
-    |--------------------------------------------------------------------------
-    */
 
-    function openNextAfterSent() {
-
-        if (currentIndex < 0) {
-            return;
-        }
-
-
-        const studentId =
-            selectedStudents[currentIndex];
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Mark current student completed
-        |--------------------------------------------------------------------------
-        */
-
-        completedStudents.add(studentId);
-
-
-        const status =
-            document.querySelector(
-                `[data-status-for="${studentId}"]`
-            );
-
-
-        if (status) {
-
-            status.className =
-                'student-send-status sent-status';
-
-
-            status.innerHTML =
-                '<i class="bi bi-check-circle-fill me-1"></i> Sent';
-
-        }
-
-
-        updateProgress();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Open next student
-        |--------------------------------------------------------------------------
-        */
-
-        setTimeout(function () {
-
-            openNextStudent();
-
-        }, 400);
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pause
-    |--------------------------------------------------------------------------
-    */
-
-    function pauseBulkWhatsApp() {
-
-        paused = true;
-
-
-        document
-            .getElementById('pauseBulkBtn')
-            .classList.add('d-none');
-
-
-        document
-            .getElementById('resumeBulkBtn')
-            .classList.remove('d-none');
-
-
-        document
-            .getElementById('progressTitle')
-            .innerText =
-                'Bulk WhatsApp Paused';
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Resume
-    |--------------------------------------------------------------------------
-    */
-
-    function resumeBulkWhatsApp() {
-
-        paused = false;
-
-
-        document
-            .getElementById('resumeBulkBtn')
-            .classList.add('d-none');
-
-
-        document
-            .getElementById('pauseBulkBtn')
-            .classList.remove('d-none');
-
-
-        document
-            .getElementById('progressTitle')
-            .innerText =
-                'Bulk WhatsApp Resumed';
-
-
-        openNextStudent();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Skip Student
-    |--------------------------------------------------------------------------
-    */
-
-    function markStudentSkipped(
-        studentId,
-        reason = 'Skipped'
-    ) {
-
-        completedStudents.add(studentId);
-
-
-        const status =
-            document.querySelector(
-                `[data-status-for="${studentId}"]`
-            );
-
-
-        if (status) {
-
-            status.className =
-                'student-send-status skipped-status';
-
-
-            status.innerHTML =
-                `<i class="bi bi-exclamation-circle me-1"></i> ${reason}`;
-
-        }
-
-
-        updateProgress();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Progress
-    |--------------------------------------------------------------------------
-    */
-
-    function updateProgress() {
-
-        const total =
-            selectedStudents.length;
-
-
-        const completed =
-            completedStudents.size;
-
-
-        const percentage =
-            total > 0
-                ? Math.round(
-                    (completed / total) * 100
-                )
-                : 0;
-
-
-        document
-            .getElementById('bulkProgress')
-            .style.width =
-                percentage + '%';
-
-
-        document
-            .getElementById('progressCount')
-            .innerText =
-                `${completed} / ${total}`;
-
-
-        if (total > 0) {
-
-            document
-                .getElementById('progressTitle')
-                .innerText =
-                    `${percentage}% Completed`;
-
-        }
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Finish Bulk WhatsApp
-    |--------------------------------------------------------------------------
-    */
-
-    function finishBulkWhatsApp() {
-
-        paused = true;
-
-
-        updateProgress();
-
-
-        document
-            .getElementById('progressTitle')
-            .innerText =
-                'Bulk WhatsApp Completed';
-
-
-        const currentStatus =
-            document.getElementById(
-                'currentStatus'
-            );
-
-
-        if (currentStatus) {
-
-            currentStatus.innerText =
-                'Completed';
-
-
-            currentStatus.className =
-                'badge bg-success-subtle text-success px-3 py-2';
-
-        }
-
-
-        document
-            .getElementById('nextStudentBtn')
-            .classList.add('d-none');
-
-
-        document
-            .getElementById('pauseBulkBtn')
-            .classList.add('d-none');
-
-
-        document
-            .getElementById('resumeBulkBtn')
-            .classList.add('d-none');
-
-
-        alert(
-            'Bulk WhatsApp process completed.'
+        clearTimeout(
+            window.groupMessageStatusTimer
         );
 
-    }
 
+        window.groupMessageStatusTimer =
+            setTimeout(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Individual Student
-    |--------------------------------------------------------------------------
-    */
+                status.classList.add('d-none');
 
-    function openIndividualStudent(studentId) {
-
-        const row =
-            document.querySelector(
-                `.student-row[data-student-id="${studentId}"]`
-            );
-
-
-        if (!row) {
-            return;
-        }
-
-
-        const phone =
-            row.dataset.phone || '';
-
-
-        if (!phone.trim()) {
-
-            alert(
-                'WhatsApp number is not available for this student.'
-            );
-
-            return;
-
-        }
-
-
-        window.open(
-            buildWhatsAppUrl(row),
-            '_blank'
-        );
+            }, 5000);
 
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | Initialize Selection State
+    | Message Input Listener
     |--------------------------------------------------------------------------
     */
 
@@ -2275,7 +1376,23 @@ School Management`;
         'DOMContentLoaded',
         function () {
 
-            updateSelectedCount();
+            const message =
+                document.getElementById(
+                    'groupMessage'
+                );
+
+
+            if (message) {
+
+                updateMessageLength();
+
+
+                message.addEventListener(
+                    'input',
+                    updateMessageLength
+                );
+
+            }
 
         }
     );

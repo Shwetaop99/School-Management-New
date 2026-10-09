@@ -47,20 +47,72 @@ class BonafideCertificateController extends Controller
     }
 
     /**
+ * Display all classes for bonafide certificate generation.
+ */
+public function classes()
+{
+    $classes = Student::query()
+        ->where('status', 'active')
+        ->whereNotNull('class')
+        ->where('class', '!=', '')
+        ->select('class')
+        ->distinct()
+        ->orderBy('class')
+        ->get();
+
+    return view(
+        'admin.bonafide-certificate.classes',
+        compact('classes')
+    );
+}
+
+/**
+ * Display students of the selected class.
+ */
+public function students($class)
+{
+    $students = Student::query()
+        ->where('status', 'active')
+        ->where('class', $class)
+        ->orderBy('first_name')
+        ->orderBy('middle_name')
+        ->orderBy('last_name')
+        ->get();
+
+    return view(
+        'admin.bonafide-certificate.students',
+        compact('students', 'class')
+    );
+}
+
+    /**
      * Show create certificate form.
      */
-    public function create()
-    {
-        $students = Student::where('status', 'active')
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
+    public function create(Request $request)
+{
+    $studentId = $request->query('student_id');
 
-        return view(
-            'admin.bonafide-certificate.create',
-            compact('students')
-        );
+    if (!$studentId) {
+        return redirect()
+            ->route('admin.bonafide.classes')
+            ->with('error', 'Please select a student first.');
     }
+
+    $student = Student::where('id', $studentId)
+        ->where('status', 'active')
+        ->first();
+
+    if (!$student) {
+        return redirect()
+            ->route('admin.bonafide.classes')
+            ->with('error', 'The selected student does not exist or is not active.');
+    }
+
+    return view(
+        'admin.bonafide-certificate.create',
+        compact('student')
+    );
+}
 
     /**
      * Store a new bonafide certificate.
@@ -364,4 +416,17 @@ class BonafideCertificateController extends Controller
                 );
         }
     }
+
+    public function print(BonafideCertificate $bonafideCertificate)
+{
+    $bonafideCertificate->load([
+        'student'
+    ]);
+
+    return view(
+        'admin.bonafide-certificate.print',
+        compact('bonafideCertificate')
+    );
+}
+
 }

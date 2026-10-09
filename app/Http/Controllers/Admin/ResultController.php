@@ -4032,4 +4032,205 @@ class ResultController extends Controller
             )
         );
     }
+
+    public function classWiseToppers(Request $request)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | Academic Years
+    |--------------------------------------------------------------------------
+    */
+
+    $academicYears = Result::query()
+        ->whereNotNull('academic_year')
+        ->where('academic_year', '!=', '')
+        ->select('academic_year')
+        ->distinct()
+        ->orderByDesc('academic_year')
+        ->pluck('academic_year');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Examinations
+    |--------------------------------------------------------------------------
+    */
+
+    $exams = Exam::query()
+        ->orderByDesc('id')
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default
+    |--------------------------------------------------------------------------
+    */
+
+    $classWiseToppers = collect();
+
+    $selectedExam = null;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate All Class Toppers
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('exam_id')) {
+
+        $selectedExam = Exam::findOrFail(
+            $request->exam_id
+        );
+
+        /*
+        | Get all passed results for selected examination
+        */
+
+        $results = Result::query()
+            ->with([
+                'student',
+                'exam',
+            ])
+            ->where(
+                'exam_id',
+                $selectedExam->id
+            )
+            ->where(
+                'academic_year',
+                $selectedExam->academic_year
+            )
+            ->where(
+                'result_status',
+                'pass'
+            )
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Group Results Class-wise
+        |--------------------------------------------------------------------------
+        */
+
+        $groupedResults = $results
+            ->groupBy(function ($result) {
+                return trim(
+                    (string) $result->class_name
+                );
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Find Top 3 of Every Class
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($groupedResults as $className => $classResults) {
+
+            /*
+            | Sort highest percentage first
+            */
+
+            $sortedResults = $classResults
+                ->sortByDesc(function ($result) {
+                    return (float) (
+                        $result->percentage ?? 0
+                    );
+                })
+                ->values();
+
+
+            /*
+            | Competition Ranking
+            |
+            | Example:
+            | 95 = Rank 1
+            | 95 = Rank 1
+            | 92 = Rank 3
+            */
+
+            $rank = 0;
+
+            $previousPercentage = null;
+
+            foreach (
+                $sortedResults as $index => $result
+            ) {
+
+                $percentage = (float) (
+                    $result->percentage ?? 0
+                );
+
+
+                if (
+                    $previousPercentage === null ||
+                    $percentage < $previousPercentage
+                ) {
+                    $rank = $index + 1;
+                }
+
+
+                $result->topper_rank = $rank;
+
+                $previousPercentage = $percentage;
+            }
+
+
+            /*
+            | Keep Top 3 ranks
+            */
+
+            $topThree = $sortedResults
+                ->filter(function ($result) {
+                    return $result->topper_rank <= 3;
+                })
+                ->values();
+
+
+            /*
+            | Add class-wise topper group
+            */
+
+            $classWiseToppers->push([
+                'class_name' => $className,
+                'toppers' => $topThree,
+            ]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sort Classes
+        |--------------------------------------------------------------------------
+        */
+
+        $classWiseToppers = $classWiseToppers
+            ->sortBy(function ($item) {
+
+                return $item['class_name'];
+            })
+            ->values();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Return View
+    |--------------------------------------------------------------------------
+    */
+
+    return view(
+        'admin.results.class-wise-toppers',
+        compact(
+            'academicYears',
+            'exams',
+            'classWiseToppers',
+            'selectedExam'
+        )
+    );
+}
+
 }

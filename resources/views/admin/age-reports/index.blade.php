@@ -6,523 +6,521 @@
 
 <style>
 
-    /* =========================================================
-       PAGE
-    ========================================================= */
+/* =========================================================
+   PAGE
+========================================================= */
+
+.age-report-page {
+    background: #f5f7fb;
+    min-height: calc(100vh - 70px);
+    padding: 24px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.age-report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+
+.age-report-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.age-report-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f1ff;
+    color: #1677f0;
+    font-size: 23px;
+}
+
+.age-report-title h3 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+    color: #172033;
+}
+
+.age-report-title p {
+    margin: 4px 0 0;
+    color: #7b8497;
+    font-size: 14px;
+}
+
+.age-report-actions {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.age-report-actions .btn {
+    border-radius: 9px;
+    font-weight: 600;
+    padding: 9px 15px;
+}
+
+
+/* =========================================================
+   FILTER CARD
+========================================================= */
+
+.filter-card {
+    background: #ffffff;
+    border: 1px solid #e8ebf2;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(26, 39, 65, 0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.filter-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #edf0f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-card-header h5 {
+    margin: 0;
+    color: #202a3c;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.filter-card-header h5 i {
+    color: #1677f0;
+    margin-right: 7px;
+}
+
+.filter-card-body {
+    padding: 20px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #505b70;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.filter-control {
+    height: 43px;
+    border: 1px solid #dfe4ec;
+    border-radius: 9px;
+    color: #303a4e;
+    font-size: 14px;
+    box-shadow: none !important;
+}
+
+.filter-control:focus {
+    border-color: #1677f0;
+    box-shadow: 0 0 0 3px rgba(22, 119, 240, 0.08) !important;
+}
+
+.filter-buttons {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+}
+
+.filter-buttons .btn {
+    height: 43px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.summary-card {
+    background: #ffffff;
+    border: 1px solid #e8ebf2;
+    border-radius: 14px;
+    padding: 18px;
+    height: 100%;
+    box-shadow: 0 5px 18px rgba(26, 39, 65, 0.04);
+}
+
+.summary-label {
+    color: #737d90;
+    font-size: 13px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.summary-value {
+    color: #172033;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.summary-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef5ff;
+    color: #1769d1;
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   REPORT CARD
+========================================================= */
+
+.report-card {
+    background: #ffffff;
+    border: 1px solid #e8ebf2;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(26, 39, 65, 0.05);
+    overflow: hidden;
+}
+
+.report-card-header {
+    padding: 17px 20px;
+    border-bottom: 1px solid #edf0f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.report-card-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #202a3c;
+}
+
+.report-count {
+    font-size: 13px;
+    color: #697386;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.report-table-wrapper {
+    overflow-x: auto;
+}
+
+.report-table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.report-table thead th {
+    background: #172033;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 8px;
+    border: 1px solid #30394c;
+    white-space: nowrap;
+}
+
+.report-table thead th:first-child {
+    text-align: left;
+    padding-left: 14px;
+}
+
+.report-table tbody td {
+    padding: 9px 8px;
+    border: 1px solid #e2e6ed;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 13px;
+    color: #384255;
+}
+
+.report-table tbody td:first-child {
+    text-align: left;
+    padding-left: 14px;
+}
+
+.report-table tbody tr:hover td {
+    background: #f8faff;
+}
+
+
+/* =========================================================
+   AGE GROUP
+========================================================= */
+
+.age-group-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 75px;
+    padding: 5px 10px;
+    background: #eef5ff;
+    color: #1769d1;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   GENDER
+========================================================= */
+
+.gender-boys {
+    color: #1769d1;
+    font-weight: 600;
+}
+
+.gender-girls {
+    color: #b13c78;
+    font-weight: 600;
+}
+
+.gender-total {
+    color: #202a3c;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   NUMBER CELLS
+========================================================= */
+
+.number-cell {
+    font-weight: 600;
+}
+
+.total-cell {
+    background: #f7f9fc;
+    font-weight: 700 !important;
+    color: #172033 !important;
+}
+
+.age-total-row td {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   GRAND TOTAL
+========================================================= */
+
+.grand-total-row td {
+    background: #172033 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-report {
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.empty-report-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: #f0f3f8;
+    color: #8791a3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.empty-report h6 {
+    color: #3a4457;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.empty-report p {
+    color: #818a9c;
+    margin: 0;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 991px) {
 
     .age-report-page {
-        background: #f5f7fb;
-        min-height: calc(100vh - 70px);
-        padding: 24px;
+        padding: 16px;
     }
-
-
-    /* =========================================================
-       HEADER
-    ========================================================= */
 
     .age-report-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 22px;
-        flex-wrap: wrap;
-    }
-
-    .age-report-title-wrap {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .age-report-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #e8f1ff;
-        color: #1677f0;
-        font-size: 23px;
-    }
-
-    .age-report-title h3 {
-        margin: 0;
-        font-size: 25px;
-        font-weight: 700;
-        color: #172033;
-    }
-
-    .age-report-title p {
-        margin: 4px 0 0;
-        color: #7b8497;
-        font-size: 14px;
+        align-items: flex-start;
+        flex-direction: column;
     }
 
     .age-report-actions {
-        display: flex;
-        gap: 9px;
-        flex-wrap: wrap;
-    }
-
-    .age-report-actions .btn {
-        border-radius: 9px;
-        font-weight: 600;
-        padding: 9px 15px;
-    }
-
-
-    /* =========================================================
-       FILTER CARD
-    ========================================================= */
-
-    .filter-card {
-        background: #ffffff;
-        border: 1px solid #e8ebf2;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(26, 39, 65, 0.05);
-        margin-bottom: 20px;
-        overflow: hidden;
-    }
-
-    .filter-card-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid #edf0f5;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .filter-card-header h5 {
-        margin: 0;
-        color: #202a3c;
-        font-size: 16px;
-        font-weight: 700;
-    }
-
-    .filter-card-header h5 i {
-        color: #1677f0;
-        margin-right: 7px;
-    }
-
-    .filter-card-body {
-        padding: 20px;
-    }
-
-    .filter-label {
-        display: block;
-        margin-bottom: 7px;
-        color: #505b70;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .filter-control {
-        height: 43px;
-        border: 1px solid #dfe4ec;
-        border-radius: 9px;
-        color: #303a4e;
-        font-size: 14px;
-        box-shadow: none !important;
-    }
-
-    .filter-control:focus {
-        border-color: #1677f0;
-        box-shadow: 0 0 0 3px rgba(22, 119, 240, 0.08) !important;
+        width: 100%;
     }
 
     .filter-buttons {
-        display: flex;
-        align-items: end;
-        gap: 8px;
+        margin-top: 5px;
+    }
+}
+
+
+@media (max-width: 575px) {
+
+    .age-report-page {
+        padding: 12px;
     }
 
-    .filter-buttons .btn {
-        height: 43px;
-        border-radius: 9px;
-        font-size: 14px;
-        font-weight: 600;
+    .age-report-title h3 {
+        font-size: 21px;
     }
 
-
-    /* =========================================================
-       SUMMARY CARDS
-    ========================================================= */
-
-    .summary-card {
-        background: #ffffff;
-        border: 1px solid #e8ebf2;
-        border-radius: 14px;
-        padding: 18px;
-        height: 100%;
-        box-shadow: 0 5px 18px rgba(26, 39, 65, 0.04);
-    }
-
-    .summary-label {
-        color: #737d90;
-        font-size: 13px;
-        margin-bottom: 5px;
-        font-weight: 600;
-    }
-
-    .summary-value {
-        color: #172033;
-        font-size: 26px;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-
-    .summary-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #eef5ff;
-        color: #1769d1;
-        font-size: 20px;
-    }
-
-
-    /* =========================================================
-       REPORT CARD
-    ========================================================= */
-
-    .report-card {
-        background: #ffffff;
-        border: 1px solid #e8ebf2;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(26, 39, 65, 0.05);
-        overflow: hidden;
+    .age-report-icon {
+        width: 45px;
+        height: 45px;
     }
 
     .report-card-header {
-        padding: 17px 20px;
-        border-bottom: 1px solid #edf0f5;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+
+    @page {
+        size: A4 landscape;
+        margin: 7mm;
     }
 
-    .report-card-header h5 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-        color: #202a3c;
+    body {
+        background: #ffffff !important;
     }
 
-    .report-count {
-        font-size: 13px;
-        color: #697386;
+    .age-report-page {
+        padding: 0 !important;
+        background: #ffffff !important;
+        min-height: auto !important;
     }
 
+    .no-print,
+    .filter-card,
+    .age-report-actions {
+        display: none !important;
+    }
 
-    /* =========================================================
-       TABLE
-       FORMAT 1:
-       AGE GROUP | GENDER | CLASSES | TOTAL
-    ========================================================= */
+    .age-report-header {
+        margin-bottom: 10px !important;
+    }
+
+    .age-report-icon {
+        display: none !important;
+    }
+
+    .age-report-title h3 {
+        font-size: 18px !important;
+    }
+
+    .age-report-title p {
+        font-size: 10px !important;
+    }
+
+    .summary-card {
+        box-shadow: none !important;
+        padding: 5px !important;
+    }
+
+    .summary-card .summary-value {
+        font-size: 15px !important;
+    }
+
+    .report-card {
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .report-card-header {
+        padding: 5px 0 !important;
+        border-bottom: 1px solid #222 !important;
+    }
 
     .report-table-wrapper {
-        overflow-x: auto;
+        overflow: visible !important;
     }
 
     .report-table {
-        width: 100%;
-        min-width: 1150px;
-        border-collapse: collapse;
-        margin: 0;
+        min-width: 0 !important;
+        width: 100% !important;
+        table-layout: fixed;
     }
 
     .report-table thead th {
-        background: #172033;
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 700;
-        text-align: center;
-        vertical-align: middle;
-        padding: 12px 8px;
-        border: 1px solid #30394c;
-        white-space: nowrap;
-    }
-
-    .report-table thead th:first-child {
-        text-align: left;
-        padding-left: 14px;
+        font-size: 8px !important;
+        padding: 5px 3px !important;
     }
 
     .report-table tbody td {
-        padding: 9px 8px;
-        border: 1px solid #e2e6ed;
-        text-align: center;
-        vertical-align: middle;
-        font-size: 13px;
-        color: #384255;
+        font-size: 8px !important;
+        padding: 4px 3px !important;
     }
-
-    .report-table tbody td:first-child {
-        text-align: left;
-        padding-left: 14px;
-    }
-
-    .report-table tbody tr:hover td {
-        background: #f8faff;
-    }
-
-
-    /* =========================================================
-       AGE GROUP BADGE
-    ========================================================= */
 
     .age-group-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 75px;
-        padding: 5px 10px;
-        background: #eef5ff;
-        color: #1769d1;
-        border-radius: 7px;
-        font-size: 12px;
-        font-weight: 700;
+        background: transparent !important;
+        color: #000000 !important;
+        padding: 0 !important;
     }
-
-
-    /* =========================================================
-       GENDER
-    ========================================================= */
-
-    .gender-boys {
-        color: #1769d1;
-        font-weight: 600;
-    }
-
-    .gender-girls {
-        color: #b13c78;
-        font-weight: 600;
-    }
-
-    .gender-total {
-        color: #202a3c;
-        font-weight: 700;
-    }
-
-
-    /* =========================================================
-       NUMBER CELLS
-    ========================================================= */
-
-    .number-cell {
-        font-weight: 600;
-    }
-
-    .total-cell {
-        background: #f7f9fc;
-        font-weight: 700 !important;
-        color: #172033 !important;
-    }
-
-    .age-total-row td {
-        background: #f8fafc;
-        font-weight: 700;
-    }
-
-
-    /* =========================================================
-       GRAND TOTAL
-    ========================================================= */
 
     .grand-total-row td {
-        background: #172033 !important;
-        color: #ffffff !important;
-        font-weight: 700;
-        font-size: 13px;
+        background: #eeeeee !important;
+        color: #000000 !important;
     }
 
-
-    /* =========================================================
-       EMPTY STATE
-    ========================================================= */
-
-    .empty-report {
-        padding: 55px 20px;
-        text-align: center;
+    .report-table tr {
+        page-break-inside: avoid;
     }
-
-    .empty-report-icon {
-        width: 58px;
-        height: 58px;
-        margin: 0 auto 14px;
-        border-radius: 50%;
-        background: #f0f3f8;
-        color: #8791a3;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-    }
-
-    .empty-report h6 {
-        color: #3a4457;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    .empty-report p {
-        color: #818a9c;
-        margin: 0;
-        font-size: 13px;
-    }
-
-
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
-
-    @media (max-width: 991px) {
-
-        .age-report-page {
-            padding: 16px;
-        }
-
-        .age-report-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .age-report-actions {
-            width: 100%;
-        }
-
-        .filter-buttons {
-            margin-top: 5px;
-        }
-    }
-
-
-    @media (max-width: 575px) {
-
-        .age-report-page {
-            padding: 12px;
-        }
-
-        .age-report-title h3 {
-            font-size: 21px;
-        }
-
-        .age-report-icon {
-            width: 45px;
-            height: 45px;
-        }
-
-        .report-card-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-    }
-
-
-    /* =========================================================
-       PRINT
-    ========================================================= */
-
-    @media print {
-
-        @page {
-            size: A4 landscape;
-            margin: 7mm;
-        }
-
-        body {
-            background: #ffffff !important;
-        }
-
-        .age-report-page {
-            padding: 0 !important;
-            background: #ffffff !important;
-            min-height: auto !important;
-        }
-
-        .no-print,
-        .filter-card,
-        .age-report-actions {
-            display: none !important;
-        }
-
-        .age-report-header {
-            margin-bottom: 10px !important;
-        }
-
-        .age-report-icon {
-            display: none !important;
-        }
-
-        .age-report-title h3 {
-            font-size: 18px !important;
-        }
-
-        .age-report-title p {
-            font-size: 10px !important;
-        }
-
-        .summary-card {
-            box-shadow: none !important;
-            padding: 5px !important;
-        }
-
-        .summary-card .summary-value {
-            font-size: 15px !important;
-        }
-
-        .report-card {
-            border: 0 !important;
-            box-shadow: none !important;
-        }
-
-        .report-card-header {
-            padding: 5px 0 !important;
-            border-bottom: 1px solid #222 !important;
-        }
-
-        .report-table-wrapper {
-            overflow: visible !important;
-        }
-
-        .report-table {
-            min-width: 0 !important;
-            width: 100% !important;
-            table-layout: fixed;
-        }
-
-        .report-table thead th {
-            font-size: 8px !important;
-            padding: 5px 3px !important;
-        }
-
-        .report-table tbody td {
-            font-size: 8px !important;
-            padding: 4px 3px !important;
-        }
-
-        .age-group-badge {
-            background: transparent !important;
-            color: #000000 !important;
-            padding: 0 !important;
-        }
-
-        .grand-total-row td {
-            background: #eeeeee !important;
-            color: #000000 !important;
-        }
-
-        .report-table tr {
-            page-break-inside: avoid;
-        }
-    }
+}
 
 </style>
 
@@ -539,8 +537,11 @@
         <div class="age-report-title-wrap">
 
             <div class="age-report-icon">
+
                 <i class="bi bi-calendar3"></i>
+
             </div>
+
 
             <div class="age-report-title">
 
@@ -560,12 +561,18 @@
         <div class="age-report-actions no-print">
 
             <a
-                href="{{ route('admin.age-report.print', request()->query()) }}"
+                href="{{ route(
+                    'admin.age-report.print',
+                    request()->query()
+                ) }}"
                 target="_blank"
                 class="btn btn-primary"
             >
+
                 <i class="bi bi-printer-fill me-1"></i>
+
                 Print Report
+
             </a>
 
         </div>
@@ -582,9 +589,13 @@
         <div class="filter-card-header">
 
             <h5>
+
                 <i class="bi bi-funnel-fill"></i>
+
                 Report Filters
+
             </h5>
+
 
             @if(
                 request('academic_year') ||
@@ -613,15 +624,14 @@
                 <div class="row g-3">
 
 
-                    {{-- =================================================
-                         ACADEMIC YEAR
-                    ================================================== --}}
+                    {{-- ACADEMIC YEAR --}}
 
                     <div class="col-xl-2 col-lg-3 col-md-6">
 
                         <label class="filter-label">
                             Academic Year
                         </label>
+
 
                         <select
                             name="academic_year"
@@ -632,13 +642,18 @@
                                 All Academic Years
                             </option>
 
+
                             @foreach($academicYears as $year)
 
                                 <option
                                     value="{{ $year }}"
-                                    {{ request('academic_year') == $year ? 'selected' : '' }}
+                                    {{ request('academic_year') == $year
+                                        ? 'selected'
+                                        : '' }}
                                 >
+
                                     {{ $year }}
+
                                 </option>
 
                             @endforeach
@@ -648,15 +663,14 @@
                     </div>
 
 
-                    {{-- =================================================
-                         CLASS
-                    ================================================== --}}
+                    {{-- CLASS --}}
 
                     <div class="col-xl-2 col-lg-3 col-md-6">
 
                         <label class="filter-label">
                             Class
                         </label>
+
 
                         <select
                             name="class"
@@ -667,13 +681,18 @@
                                 All Classes
                             </option>
 
+
                             @foreach($classes as $class)
 
                                 <option
                                     value="{{ $class }}"
-                                    {{ request('class') == $class ? 'selected' : '' }}
+                                    {{ request('class') == $class
+                                        ? 'selected'
+                                        : '' }}
                                 >
+
                                     {{ $class }}
+
                                 </option>
 
                             @endforeach
@@ -683,15 +702,14 @@
                     </div>
 
 
-                    {{-- =================================================
-                         SECTION
-                    ================================================== --}}
+                    {{-- SECTION --}}
 
                     <div class="col-xl-2 col-lg-3 col-md-6">
 
                         <label class="filter-label">
                             Section
                         </label>
+
 
                         <select
                             name="section"
@@ -702,13 +720,18 @@
                                 All Sections
                             </option>
 
+
                             @foreach($sections as $section)
 
                                 <option
                                     value="{{ $section }}"
-                                    {{ request('section') == $section ? 'selected' : '' }}
+                                    {{ request('section') == $section
+                                        ? 'selected'
+                                        : '' }}
                                 >
+
                                     {{ $section }}
+
                                 </option>
 
                             @endforeach
@@ -718,15 +741,14 @@
                     </div>
 
 
-                    {{-- =================================================
-                         GENDER
-                    ================================================== --}}
+                    {{-- GENDER --}}
 
                     <div class="col-xl-2 col-lg-3 col-md-6">
 
                         <label class="filter-label">
                             Gender
                         </label>
+
 
                         <select
                             name="gender"
@@ -737,16 +759,22 @@
                                 All Genders
                             </option>
 
+
                             <option
                                 value="Male"
-                                {{ request('gender') === 'Male' ? 'selected' : '' }}
+                                {{ request('gender') === 'Male'
+                                    ? 'selected'
+                                    : '' }}
                             >
                                 Male
                             </option>
 
+
                             <option
                                 value="Female"
-                                {{ request('gender') === 'Female' ? 'selected' : '' }}
+                                {{ request('gender') === 'Female'
+                                    ? 'selected'
+                                    : '' }}
                             >
                                 Female
                             </option>
@@ -756,9 +784,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                         AGE AS ON
-                    ================================================== --}}
+                    {{-- AGE AS ON --}}
 
                     <div class="col-xl-2 col-lg-3 col-md-6">
 
@@ -766,19 +792,21 @@
                             Age As On
                         </label>
 
+
                         <input
                             type="date"
                             name="age_as_on"
                             class="form-control filter-control"
-                            value="{{ request('age_as_on', $ageAsOn ?? now()->format('Y-m-d')) }}"
+                            value="{{ request(
+                                'age_as_on',
+                                $ageAsOn
+                            ) }}"
                         >
 
                     </div>
 
 
-                    {{-- =================================================
-                         BUTTONS
-                    ================================================== --}}
+                    {{-- BUTTONS --}}
 
                     <div class="col-xl-2 col-lg-3 col-md-6">
 
@@ -786,23 +814,31 @@
                             &nbsp;
                         </label>
 
+
                         <div class="filter-buttons">
 
                             <button
                                 type="submit"
                                 class="btn btn-primary"
                             >
+
                                 <i class="bi bi-search me-1"></i>
+
                                 Apply
+
                             </button>
 
 
                             <a
-                                href="{{ route('admin.age-report.index') }}"
+                                href="{{ route(
+                                    'admin.age-report.index'
+                                ) }}"
                                 class="btn btn-outline-secondary"
                                 title="Reset Filters"
                             >
+
                                 <i class="bi bi-arrow-counterclockwise"></i>
+
                             </a>
 
                         </div>
@@ -819,7 +855,7 @@
 
 
     {{-- =====================================================
-         SUMMARY CARDS
+         SUMMARY
     ====================================================== --}}
 
     <div class="row g-3 mb-4">
@@ -831,7 +867,9 @@
 
             <div class="summary-card">
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div
+                    class="d-flex justify-content-between align-items-center"
+                >
 
                     <div>
 
@@ -845,8 +883,11 @@
 
                     </div>
 
+
                     <div class="summary-icon">
+
                         <i class="bi bi-people-fill"></i>
+
                     </div>
 
                 </div>
@@ -862,7 +903,9 @@
 
             <div class="summary-card">
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div
+                    class="d-flex justify-content-between align-items-center"
+                >
 
                     <div>
 
@@ -876,8 +919,11 @@
 
                     </div>
 
+
                     <div class="summary-icon">
+
                         <i class="bi bi-person-fill"></i>
+
                     </div>
 
                 </div>
@@ -893,7 +939,9 @@
 
             <div class="summary-card">
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div
+                    class="d-flex justify-content-between align-items-center"
+                >
 
                     <div>
 
@@ -907,8 +955,11 @@
 
                     </div>
 
+
                     <div class="summary-icon">
+
                         <i class="bi bi-person-heart"></i>
+
                     </div>
 
                 </div>
@@ -943,7 +994,11 @@
                 Age As On:
 
                 <strong>
-                    {{ \Carbon\Carbon::parse($ageAsOn ?? now())->format('d-m-Y') }}
+
+                    {{ \Carbon\Carbon::parse(
+                        $ageAsOn
+                    )->format('d-m-Y') }}
+
                 </strong>
 
             </span>
@@ -951,53 +1006,10 @@
         </div>
 
 
-        @if($report->count())
+        @if($report->count() && $classes->count())
 
 
             @php
-
-                /*
-                |--------------------------------------------------------------------------
-                | AGE GROUPS
-                |--------------------------------------------------------------------------
-                */
-
-                $ageGroups = [
-                    'Below 5',
-                    '5–6',
-                    '7–8',
-                    '9–10',
-                    '11–12',
-                    '13–14',
-                    '15–16',
-                    '17+',
-                ];
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CLASSES
-                |--------------------------------------------------------------------------
-                */
-
-                $classes = [
-                    'Nursery',
-                    'LKG',
-                    'UKG',
-                    '1',
-                    '2',
-                    '3',
-                    '4',
-                    '5',
-                    '6',
-                    '7',
-                    '8',
-                    '9',
-                    '10',
-                    '11',
-                    '12',
-                ];
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -1005,16 +1017,21 @@
                 |--------------------------------------------------------------------------
                 */
 
-                $groupedReport = $report->groupBy(function ($row) {
+                $groupedReport =
+                    $report->groupBy(
+                        function ($row) {
 
-                    return trim($row->age_group);
+                            return trim(
+                                $row->age_group
+                            );
 
-                });
+                        }
+                    );
 
 
                 /*
                 |--------------------------------------------------------------------------
-                | GRAND CLASS TOTALS
+                | GRAND TOTALS
                 |--------------------------------------------------------------------------
                 */
 
@@ -1049,6 +1066,7 @@
                                 Gender
                             </th>
 
+
                             @foreach($classes as $class)
 
                                 <th>
@@ -1056,6 +1074,7 @@
                                 </th>
 
                             @endforeach
+
 
                             <th>
                                 Total
@@ -1073,26 +1092,35 @@
 
                             @php
 
-                                $ageRows = $groupedReport->get(
-                                    $ageGroup,
-                                    collect()
-                                );
+                                $ageRows =
+                                    $groupedReport->get(
+                                        $ageGroup,
+                                        collect()
+                                    );
 
 
                                 $classData = [];
 
+
                                 foreach ($classes as $class) {
 
-                                    $row = $ageRows->first(
-                                        function ($item) use ($class) {
+                                    $row =
+                                        $ageRows->first(
+                                            function ($item) use ($class) {
 
-                                            return trim($item->class) === $class;
+                                                return trim(
+                                                    (string) $item->class
+                                                ) ===
+                                                trim(
+                                                    (string) $class
+                                                );
 
-                                        }
-                                    );
+                                            }
+                                        );
 
 
                                     $classData[$class] = [
+
                                         'boys' => $row
                                             ? (int) $row->boys
                                             : 0,
@@ -1104,6 +1132,7 @@
                                         'total' => $row
                                             ? (int) $row->total
                                             : 0,
+
                                     ];
 
                                 }
@@ -1129,29 +1158,34 @@
 
 
                                     $grandClassTotals[$class]['boys']
-                                        += $classData[$class]['boys'];
+                                        +=
+                                        $classData[$class]['boys'];
+
 
                                     $grandClassTotals[$class]['girls']
-                                        += $classData[$class]['girls'];
+                                        +=
+                                        $classData[$class]['girls'];
+
 
                                     $grandClassTotals[$class]['total']
-                                        += $classData[$class]['total'];
+                                        +=
+                                        $classData[$class]['total'];
 
                                 }
 
                             @endphp
 
 
-                            {{-- =================================================
-                                 BOYS
-                            ================================================== --}}
+                            {{-- BOYS --}}
 
                             <tr>
 
                                 <td rowspan="3">
 
                                     <span class="age-group-badge">
+
                                         {{ $ageGroup }}
+
                                     </span>
 
                                 </td>
@@ -1182,9 +1216,7 @@
                             </tr>
 
 
-                            {{-- =================================================
-                                 GIRLS
-                            ================================================== --}}
+                            {{-- GIRLS --}}
 
                             <tr>
 
@@ -1213,9 +1245,7 @@
                             </tr>
 
 
-                            {{-- =================================================
-                                 TOTAL
-                            ================================================== --}}
+                            {{-- TOTAL --}}
 
                             <tr class="age-total-row">
 
@@ -1247,9 +1277,7 @@
                         @endforeach
 
 
-                        {{-- =====================================================
-                             GRAND TOTAL
-                        ====================================================== --}}
+                        {{-- GRAND TOTAL --}}
 
                         <tr class="grand-total-row">
 
@@ -1292,9 +1320,7 @@
         @else
 
 
-            {{-- =================================================
-                 EMPTY STATE
-            ================================================== --}}
+            {{-- EMPTY STATE --}}
 
             <div class="empty-report">
 
@@ -1304,12 +1330,17 @@
 
                 </div>
 
+
                 <h6>
                     No Age Report Data Found
                 </h6>
 
+
                 <p>
-                    No active students match the selected filters.
+
+                    No active students match the selected
+                    filters.
+
                 </p>
 
             </div>

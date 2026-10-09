@@ -1,23 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        {{ $reportTitle ?? 'Student Supply Kit Report' }}
-    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $reportTitle ?? 'Student Supply Kit Report' }}</title>
 
     <style>
-
         * {
             box-sizing: border-box;
+        }
+
+        html {
+            width: 100%;
         }
 
         body {
@@ -30,15 +25,22 @@
         }
 
         .print-page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            background: #ffffff;
             padding: 25px;
+            background: #fff;
         }
 
-        /* =========================================================
-           SCHOOL HEADER
-        ========================================================== */
+        /* FAINT SCHOOL LOGO WATERMARK */
+
+        .print-watermark {
+            display: none;
+        }
+
+        /* SCHOOL HEADER */
 
         .school-header {
             text-align: center;
@@ -63,6 +65,7 @@
 
         .school-details {
             text-align: center;
+            min-width: 0;
         }
 
         .school-name {
@@ -82,6 +85,7 @@
             margin-top: 4px;
             font-size: 12px;
             color: #6b7280;
+            overflow-wrap: anywhere;
         }
 
         .report-title {
@@ -92,9 +96,7 @@
             text-transform: uppercase;
         }
 
-        /* =========================================================
-           REPORT INFORMATION
-        ========================================================== */
+        /* REPORT INFORMATION */
 
         .report-info {
             border: 1px solid #dfe5ec;
@@ -106,7 +108,7 @@
 
         .report-info-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 10px;
         }
 
@@ -115,36 +117,34 @@
         }
 
         .info-label {
+            margin-bottom: 3px;
             font-size: 10px;
             color: #6b7280;
             text-transform: uppercase;
             font-weight: 700;
-            margin-bottom: 3px;
         }
 
         .info-value {
             font-size: 13px;
             font-weight: 600;
             color: #1f2937;
-            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
-        /* =========================================================
-           FILTER SUMMARY
-        ========================================================== */
+        /* FILTERS */
 
         .filter-summary {
             border: 1px solid #dfe5ec;
             border-radius: 7px;
             padding: 11px 14px;
             margin-bottom: 18px;
-            background: #ffffff;
+            background: #fff;
         }
 
         .filter-heading {
+            margin-bottom: 8px;
             font-size: 12px;
             font-weight: 700;
-            margin-bottom: 8px;
             color: #374151;
         }
 
@@ -165,13 +165,11 @@
             border: 1px solid #d6e9ff;
         }
 
-        /* =========================================================
-           SUMMARY
-        ========================================================== */
+        /* SUMMARY CARDS */
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 10px;
             margin-bottom: 18px;
         }
@@ -181,7 +179,7 @@
             border-radius: 7px;
             padding: 10px;
             text-align: center;
-            background: #ffffff;
+            background: #fff;
         }
 
         .summary-number {
@@ -214,13 +212,11 @@
             color: #6c757d;
         }
 
-        /* =========================================================
-           TABLE
-        ========================================================== */
+        /* TABLE */
 
         .report-table-wrapper {
             width: 100%;
-            overflow: hidden;
+            overflow-x: auto;
         }
 
         .report-table {
@@ -231,7 +227,7 @@
 
         .report-table th {
             background: #1677f0;
-            color: #ffffff;
+            color: #fff;
             border: 1px solid #0d5fc7;
             padding: 9px 7px;
             font-size: 10px;
@@ -239,6 +235,7 @@
             text-transform: uppercase;
             text-align: left;
             vertical-align: middle;
+            overflow-wrap: anywhere;
         }
 
         .report-table td {
@@ -247,7 +244,7 @@
             font-size: 11px;
             vertical-align: middle;
             color: #374151;
-            word-wrap: break-word;
+            overflow-wrap: anywhere;
         }
 
         .report-table tbody tr:nth-child(even) {
@@ -274,9 +271,7 @@
             font-size: 9px;
         }
 
-        /* =========================================================
-           STATUS
-        ========================================================== */
+        /* STATUS */
 
         .status {
             display: inline-block;
@@ -307,9 +302,7 @@
             background: #e9ecef;
         }
 
-        /* =========================================================
-           EMPTY
-        ========================================================== */
+        /* EMPTY STATE */
 
         .empty-state {
             text-align: center;
@@ -319,10 +312,10 @@
         }
 
         .empty-title {
+            margin-bottom: 5px;
             font-size: 17px;
             font-weight: 700;
             color: #374151;
-            margin-bottom: 5px;
         }
 
         .empty-text {
@@ -330,9 +323,7 @@
             font-size: 12px;
         }
 
-        /* =========================================================
-           FOOTER
-        ========================================================== */
+        /* FOOTER */
 
         .report-footer {
             margin-top: 20px;
@@ -345,11 +336,10 @@
             color: #6b7280;
         }
 
-        /* =========================================================
-           BUTTONS
-        ========================================================== */
+        /* ACTION BUTTONS */
 
         .print-actions {
+            width: 100%;
             max-width: 1400px;
             margin: 0 auto 15px;
             display: flex;
@@ -359,6 +349,7 @@
 
         .print-button,
         .back-button {
+            display: inline-block;
             border: 0;
             border-radius: 6px;
             padding: 9px 15px;
@@ -370,95 +361,297 @@
 
         .print-button {
             background: #1677f0;
-            color: #ffffff;
+            color: #fff;
         }
 
         .back-button {
-            background: #ffffff;
+            background: #fff;
             color: #374151;
             border: 1px solid #dfe5ec;
         }
 
-        /* =========================================================
-           PRINT
-        ========================================================== */
+        /* A4 LANDSCAPE PRINT SETTINGS */
+
+        @page {
+            size: A4 landscape;
+            margin: 7mm;
+        }
 
         @media print {
-
-            @page {
-                size: A4 landscape;
-                margin: 10mm;
-            }
-
+            html,
             body {
-                background: #ffffff;
-                padding: 0;
-                margin: 0;
+                width: auto !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                color: #000;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 8px;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .print-actions {
                 display: none !important;
             }
 
-            .print-page {
-                max-width: none;
+            /*
+             * Watermark stays behind report content.
+             * A fixed watermark can repeat on printed pages.
+             */
+            .print-watermark {
+                display: flex !important;
+                position: fixed;
+                z-index: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
                 width: 100%;
-                margin: 0;
-                padding: 0;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                pointer-events: none;
+            }
+
+            .print-watermark img {
+                display: block !important;
+                width: 42%;
+                max-width: 350px;
+                max-height: 75%;
+                object-fit: contain;
+                opacity: 0.07 !important;
+            }
+
+            .print-page {
+                position: relative;
+                z-index: 1;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
             }
 
             .school-header {
-                margin-bottom: 12px;
+                padding-bottom: 5px;
+                margin-bottom: 7px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .school-header-inner {
+                flex-direction: row;
+                gap: 9px;
+            }
+
+            .school-logo {
+                width: 45px;
+                height: 45px;
+            }
+
+            .school-name {
+                font-size: 16px;
+                color: #111827 !important;
+            }
+
+            .school-address {
+                margin-top: 3px;
+                font-size: 8px;
+            }
+
+            .school-contact {
+                margin-top: 2px;
+                font-size: 7px;
+            }
+
+            .report-title {
+                font-size: 12px;
+                margin-top: 5px;
             }
 
             .report-info {
-                margin-bottom: 10px;
+                padding: 5px 7px;
+                margin-bottom: 6px;
+                background: transparent !important;
+                border-radius: 2px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .report-info-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 4px;
+            }
+
+            .info-label {
+                font-size: 7px;
+            }
+
+            .info-value {
+                font-size: 8px;
             }
 
             .filter-summary {
-                margin-bottom: 10px;
+                padding: 5px 7px;
+                margin-bottom: 6px;
+                background: transparent !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .filter-heading {
+                font-size: 8px;
+                margin-bottom: 3px;
+            }
+
+            .filter-list {
+                gap: 4px;
+            }
+
+            .filter-badge {
+                padding: 2px 4px;
+                font-size: 7px;
+                background: transparent !important;
             }
 
             .summary-grid {
-                margin-bottom: 10px;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 4px;
+                margin-bottom: 6px;
+                break-inside: avoid;
+                page-break-inside: avoid;
             }
 
-            .report-table th {
-                background: #1677f0 !important;
-                color: #ffffff !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            .summary-box {
+                padding: 4px 2px;
+                border-radius: 2px;
+                background: transparent !important;
             }
 
-            .status {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            .summary-number {
+                font-size: 12px;
+            }
+
+            .summary-label {
+                font-size: 6px;
+            }
+
+            .report-table-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: visible !important;
             }
 
             .report-table {
+                width: 100% !important;
+                max-width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
                 page-break-inside: auto;
-            }
-
-            .report-table tr {
-                page-break-inside: avoid;
-                page-break-after: auto;
             }
 
             .report-table thead {
                 display: table-header-group;
             }
 
+            .report-table tfoot {
+                display: table-footer-group;
+            }
+
+            .report-table tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .report-table th {
+                padding: 4px 2px;
+                font-size: 6.5px;
+                line-height: 1.15;
+                background: #1677f0 !important;
+                color: #fff !important;
+                border: 1px solid #0d5fc7 !important;
+                overflow-wrap: anywhere;
+                word-break: normal;
+            }
+
+            .report-table td {
+                padding: 3px 2px;
+                font-size: 7px;
+                line-height: 1.15;
+                color: #222 !important;
+                border: 1px solid #cbd5e1 !important;
+                overflow-wrap: anywhere;
+                word-break: normal;
+                background-color: transparent !important;
+            }
+
+            .report-table tbody tr:nth-child(even) {
+                background: transparent !important;
+            }
+
+            .student-name,
+            .kit-name {
+                font-size: 7px;
+            }
+
+            .scheme-name {
+                font-size: 6px;
+            }
+
+            .status {
+                padding: 2px;
+                font-size: 6px;
+                white-space: normal;
+                border-radius: 2px;
+                background: transparent !important;
+                border: 1px solid currentColor;
+            }
+
+            .empty-state {
+                padding: 15px;
+                background: transparent !important;
+                break-inside: avoid;
+            }
+
+            .empty-title {
+                font-size: 12px;
+            }
+
+            .empty-text {
+                font-size: 9px;
+            }
+
             .report-footer {
+                margin-top: 6px;
+                padding-top: 4px;
+                font-size: 7px;
+                background: transparent !important;
+                break-inside: avoid;
                 page-break-inside: avoid;
+            }
+
+            /*
+             * Avoid clipping due to screen-specific styles.
+             */
+            .print-page *,
+            .report-table-wrapper {
+                max-width: 100%;
+            }
+
+            a {
+                color: inherit !important;
+                text-decoration: none !important;
             }
         }
 
-        /* =========================================================
-           RESPONSIVE
-        ========================================================== */
+        /* SCREEN RESPONSIVENESS */
 
-        @media (max-width: 900px) {
-
+        @media screen and (max-width: 900px) {
             body {
                 padding: 10px;
             }
@@ -468,11 +661,11 @@
             }
 
             .report-info-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .summary-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
             .school-header-inner {
@@ -480,721 +673,325 @@
             }
         }
 
-        @media (max-width: 600px) {
-
+        @media screen and (max-width: 600px) {
             .report-info-grid {
                 grid-template-columns: 1fr;
             }
 
             .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .school-name {
                 font-size: 20px;
             }
         }
-
     </style>
-
 </head>
 
 <body>
 
-    {{-- =========================================================
-         ACTION BUTTONS
-    ========================================================== --}}
+@php
+    $school = $schoolSetting ?? \App\Models\SchoolSetting::first();
 
-    <div class="print-actions">
+    $schoolName = $school?->school_name ?? 'School Name';
 
-        <a
-            href="{{ url()->previous() }}"
-            class="back-button"
-        >
-            ← Back
-        </a>
+    $schoolAddress = implode(', ', array_filter([
+        $school?->address,
+        $school?->city,
+        $school?->district,
+        $school?->state,
+        $school?->pincode,
+    ]));
 
-        <button
-            type="button"
-            onclick="window.print()"
-            class="print-button"
-        >
-            Print Report
-        </button>
+    $contactParts = [];
 
-    </div>
+    if ($school?->phone) {
+        $contactParts[] = 'Phone: ' . $school->phone;
+    }
 
+    if ($school?->email) {
+        $contactParts[] = 'Email: ' . $school->email;
+    }
 
-    <div class="print-page">
+    if ($school?->udise_code) {
+        $contactParts[] = 'UDISE: ' . $school->udise_code;
+    }
 
-        {{-- =========================================================
-             SCHOOL PROFILE
-        ========================================================== --}}
+    if ($school?->school_code) {
+        $contactParts[] = 'School Code: ' . $school->school_code;
+    }
 
-        @php
+    $schoolLogo = null;
 
-            $school = $schoolSetting
-                ?? \App\Models\SchoolSetting::first();
+    if ($school?->logo) {
+        $schoolLogo = preg_match('~^https?://~i', $school->logo)
+            ? $school->logo
+            : asset('storage/' . ltrim($school->logo, '/'));
+    }
 
-            $schoolName = $school?->school_name
-                ?? 'School Name';
+    $watermarkLogo = $schoolLogo ?: asset('images/gurukullogo.png');
 
-            $schoolAddressParts = array_filter([
-                $school?->address,
-                $school?->city,
-                $school?->district,
-                $school?->state,
-                $school?->pincode,
-            ]);
+    $displayAcademicYear = $academicYear ?? '—';
+    $reportStudents = $students ?? collect();
+    $reportSummary = $summary ?? [];
+    $reportMode = $reportMode ?? 'all';
+@endphp
 
-            $schoolAddress = implode(
-                ', ',
-                $schoolAddressParts
-            );
+{{-- FAINT BACKGROUND SCHOOL LOGO --}}
+<div class="print-watermark" aria-hidden="true">
+    <img src="{{ $watermarkLogo }}" alt="">
+</div>
 
-            $contactParts = [];
+{{-- ACTION BUTTONS --}}
+<div class="print-actions">
+    <a href="{{ url()->previous() }}" class="back-button">
+        &larr; Back
+    </a>
 
-            if (!empty($school?->phone)) {
-                $contactParts[] =
-                    'Phone: ' . $school->phone;
-            }
+    <button type="button" onclick="window.print()" class="print-button">
+        Print Report
+    </button>
+</div>
 
-            if (!empty($school?->email)) {
-                $contactParts[] =
-                    'Email: ' . $school->email;
-            }
+<div class="print-page">
 
-            if (!empty($school?->udise_code)) {
-                $contactParts[] =
-                    'UDISE: ' . $school->udise_code;
-            }
+    {{-- SCHOOL HEADER --}}
+    <div class="school-header">
+        <div class="school-header-inner">
 
-            if (!empty($school?->school_code)) {
-                $contactParts[] =
-                    'School Code: ' . $school->school_code;
-            }
+            @if($schoolLogo)
+                <img
+                    src="{{ $schoolLogo }}"
+                    alt="School Logo"
+                    class="school-logo"
+                >
+            @endif
 
-            $schoolLogo = null;
+            <div class="school-details">
+                <h1 class="school-name">{{ $schoolName }}</h1>
 
-            if (!empty($school?->logo)) {
-
-                if (
-                    str_starts_with(
-                        $school->logo,
-                        'http://'
-                    )
-                    ||
-                    str_starts_with(
-                        $school->logo,
-                        'https://'
-                    )
-                ) {
-
-                    $schoolLogo = $school->logo;
-
-                } else {
-
-                    $schoolLogo = asset(
-                        'storage/' .
-                        ltrim(
-                            $school->logo,
-                            '/'
-                        )
-                    );
-                }
-            }
-
-        @endphp
-
-
-        {{-- =========================================================
-             SCHOOL HEADER
-        ========================================================== --}}
-
-        <div class="school-header">
-
-            <div class="school-header-inner">
-
-                @if($schoolLogo)
-
-                    <img
-                        src="{{ $schoolLogo }}"
-                        alt="School Logo"
-                        class="school-logo"
-                    >
-
+                @if($schoolAddress)
+                    <div class="school-address">{{ $schoolAddress }}</div>
                 @endif
 
-
-                <div class="school-details">
-
-                    <h1 class="school-name">
-                        {{ $schoolName }}
-                    </h1>
-
-                    @if($schoolAddress)
-
-                        <div class="school-address">
-                            {{ $schoolAddress }}
-                        </div>
-
-                    @endif
-
-
-                    @if(!empty($contactParts))
-
-                        <div class="school-contact">
-                            {{ implode(' | ', $contactParts) }}
-                        </div>
-
-                    @endif
-
-                </div>
-
+                @if(count($contactParts))
+                    <div class="school-contact">
+                        {{ implode(' | ', $contactParts) }}
+                    </div>
+                @endif
             </div>
-
-
-            <div class="report-title">
-                {{ $reportTitle ?? 'Student Supply Kit Report' }}
-            </div>
-
         </div>
 
-
-        {{-- =========================================================
-             REPORT INFORMATION
-        ========================================================== --}}
-
-        <div class="report-info">
-
-            <div class="report-info-grid">
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Academic Year
-                    </div>
-
-                    <div class="info-value">
-                        {{ $academicYear ?? '-' }}
-                    </div>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Class
-                    </div>
-
-                    <div class="info-value">
-
-                        @if(!empty($selectedClass))
-
-                            {{ $selectedClass }}
-
-                        @else
-
-                            All Classes
-
-                        @endif
-
-                    </div>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Section
-                    </div>
-
-                    <div class="info-value">
-
-                        @if(!empty($section))
-
-                            {{ $section }}
-
-                        @else
-
-                            All Sections
-
-                        @endif
-
-                    </div>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Generated On
-                    </div>
-
-                    <div class="info-value">
-                        {{ now()->format('d-m-Y h:i A') }}
-                    </div>
-
-                </div>
-
-            </div>
-
+        <div class="report-title">
+            {{ $reportTitle ?? 'Student Supply Kit Report' }}
         </div>
-
-
-        {{-- =========================================================
-             FILTERS
-        ========================================================== --}}
-
-        @if(
-            !empty($search)
-            || !empty($status)
-            || !empty($schemeId)
-            || !empty($kitTemplateId)
-        )
-
-            <div class="filter-summary">
-
-                <div class="filter-heading">
-                    Applied Filters
-                </div>
-
-                <div class="filter-list">
-
-                    @if(!empty($search))
-
-                        <span class="filter-badge">
-                            Search: {{ $search }}
-                        </span>
-
-                    @endif
-
-
-                    @if(!empty($status))
-
-                        <span class="filter-badge">
-                            Status:
-                            {{ ucwords(
-                                str_replace(
-                                    '_',
-                                    ' ',
-                                    $status
-                                )
-                            ) }}
-                        </span>
-
-                    @endif
-
-
-                    @if(!empty($schemeId))
-
-                        <span class="filter-badge">
-
-                            Scheme:
-                            {{ $selectedScheme?->scheme_name ?? '-' }}
-
-                        </span>
-
-                    @endif
-
-
-                    @if(!empty($kitTemplateId))
-
-                        <span class="filter-badge">
-
-                            Kit:
-                            {{ $selectedKitTemplate?->kit_name ?? '-' }}
-
-                        </span>
-
-                    @endif
-
-                </div>
-
-            </div>
-
-        @endif
-
-
-        {{-- =========================================================
-             SUMMARY
-        ========================================================== --}}
-
-        <div class="summary-grid">
-
-            <div class="summary-box">
-
-                <div class="summary-number">
-                    {{ $summary['total'] ?? 0 }}
-                </div>
-
-                <div class="summary-label">
-                    Total Students
-                </div>
-
-            </div>
-
-
-            <div class="summary-box summary-issued">
-
-                <div class="summary-number">
-                    {{ $summary['issued'] ?? 0 }}
-                </div>
-
-                <div class="summary-label">
-                    Issued
-                </div>
-
-            </div>
-
-
-            <div class="summary-box summary-pending">
-
-                <div class="summary-number">
-                    {{ $summary['pending'] ?? 0 }}
-                </div>
-
-                <div class="summary-label">
-                    Pending
-                </div>
-
-            </div>
-
-
-            <div class="summary-box summary-cancelled">
-
-                <div class="summary-number">
-                    {{ $summary['cancelled'] ?? 0 }}
-                </div>
-
-                <div class="summary-label">
-                    Cancelled
-                </div>
-
-            </div>
-
-
-            <div class="summary-box summary-not-assigned">
-
-                <div class="summary-number">
-                    {{ $summary['not_assigned'] ?? 0 }}
-                </div>
-
-                <div class="summary-label">
-                    Not Assigned
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- =========================================================
-             STUDENT DATA
-        ========================================================== --}}
-
-        @if($students && $students->count() > 0)
-
-            <div class="report-table-wrapper">
-
-                <table class="report-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th
-                                style="width: 4%;"
-                                class="text-center"
-                            >
-                                #
-                            </th>
-
-
-                            {{-- CLASS COLUMN ONLY FOR ALL-CLASS REPORT --}}
-
-                            @if(($reportMode ?? 'all') === 'all')
-
-                                <th
-                                    style="width: 10%;"
-                                >
-                                    Class
-                                </th>
-
-                            @endif
-
-
-                            <th
-                                style="width: 18%;"
-                            >
-                                Student
-                            </th>
-
-
-                            <th
-                                style="width: 10%;"
-                            >
-                                Student ID
-                            </th>
-
-
-                            <th
-                                style="width: 7%;"
-                                class="text-center"
-                            >
-                                Section
-                            </th>
-
-
-                            <th
-                                style="width: 10%;"
-                                class="text-center"
-                            >
-                                Academic Year
-                            </th>
-
-
-                            <th
-                                style="width: 20%;"
-                            >
-                                Kit
-                            </th>
-
-
-                            <th
-                                style="width: 10%;"
-                                class="text-center"
-                            >
-                                Distribution Date
-                            </th>
-
-
-                            <th
-                                style="width: 11%;"
-                                class="text-center"
-                            >
-                                Status
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        @foreach($students as $student)
-
-                            @php
-
-                                $studentName = trim(
-                                    implode(
-                                        ' ',
-                                        array_filter([
-                                            $student->first_name ?? '',
-                                            $student->middle_name ?? '',
-                                            $student->last_name ?? '',
-                                        ])
-                                    )
-                                );
-
-                                $kit =
-                                    $student->supplyKitRecord
-                                    ?? null;
-
-                                $kitStatus =
-                                    $kit?->status
-                                    ?? 'not_assigned';
-
-                            @endphp
-
-
-                            <tr>
-
-                                {{-- NUMBER --}}
-
-                                <td class="text-center">
-                                    {{ $loop->iteration }}
-                                </td>
-
-
-                                {{-- CLASS --}}
-
-                                @if(($reportMode ?? 'all') === 'all')
-
-                                    <td>
-                                        {{ $student->admission_class ?: '-' }}
-                                    </td>
-
-                                @endif
-
-
-                                {{-- STUDENT --}}
-
-                                <td>
-
-                                    <div class="student-name">
-                                        {{ $studentName ?: '-' }}
-                                    </div>
-
-                                </td>
-
-
-                                {{-- STUDENT ID --}}
-
-                                <td>
-                                    {{ $student->student_id ?: '-' }}
-                                </td>
-
-
-                                {{-- SECTION --}}
-
-                                <td class="text-center">
-                                    {{ $student->section ?: '-' }}
-                                </td>
-
-
-                                {{-- ACADEMIC YEAR --}}
-
-                                <td class="text-center">
-                                    {{ $student->academic_year ?: $academicYear }}
-                                </td>
-
-
-                                {{-- KIT --}}
-
-                                <td>
-
-                                    @if($kit)
-
-                                        <div class="kit-name">
-
-                                            {{ $kit->kitTemplate?->kit_name ?? '-' }}
-
-                                        </div>
-
-
-                                        @if($kit->kitTemplate?->scheme)
-
-                                            <div class="scheme-name">
-
-                                                {{ $kit->kitTemplate->scheme->scheme_name }}
-
-                                            </div>
-
-                                        @endif
-
-                                    @else
-
-                                        <span>
-                                            Not Assigned
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- DISTRIBUTION DATE --}}
-
-                                <td class="text-center">
-
-                                    @if($kit?->distribution_date)
-
-                                        {{ \Illuminate\Support\Carbon::parse(
-                                            $kit->distribution_date
-                                        )->format('d-m-Y') }}
-
-                                    @else
-
-                                        -
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- STATUS --}}
-
-                                <td class="text-center">
-
-                                    @if($kitStatus === 'issued')
-
-                                        <span class="status status-issued">
-                                            Issued
-                                        </span>
-
-                                    @elseif($kitStatus === 'pending')
-
-                                        <span class="status status-pending">
-                                            Pending
-                                        </span>
-
-                                    @elseif($kitStatus === 'cancelled')
-
-                                        <span class="status status-cancelled">
-                                            Cancelled
-                                        </span>
-
-                                    @else
-
-                                        <span class="status status-not-assigned">
-                                            Not Assigned
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-                            </tr>
-
-                        @endforeach
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        @else
-
-            <div class="empty-state">
-
-                <div class="empty-title">
-                    No Students Found
-                </div>
-
-                <div class="empty-text">
-                    No students match the selected academic year or filters.
-                </div>
-
-            </div>
-
-        @endif
-
-
-        {{-- =========================================================
-             FOOTER
-        ========================================================== --}}
-
-        <div class="report-footer">
-
-            <div>
-                Student Supply Kit Management Report
-            </div>
-
-            <div>
-                Total Records:
-                {{ $students?->count() ?? 0 }}
-            </div>
-
-        </div>
-
     </div>
 
-</body>
+    {{-- REPORT INFORMATION --}}
+    <div class="report-info">
+        <div class="report-info-grid">
 
+            <div class="info-item">
+                <div class="info-label">Academic Year</div>
+                <div class="info-value">{{ $displayAcademicYear }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Class</div>
+                <div class="info-value">
+                    {{ !empty($selectedClass) ? $selectedClass : 'All Classes' }}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Section</div>
+                <div class="info-value">
+                    {{ !empty($section) ? $section : 'All Sections' }}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Generated On</div>
+                <div class="info-value">{{ now()->format('d-m-Y h:i A') }}</div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- APPLIED FILTERS --}}
+    @if(!empty($search) || !empty($status) || !empty($schemeId) || !empty($kitTemplateId))
+        <div class="filter-summary">
+            <div class="filter-heading">Applied Filters</div>
+
+            <div class="filter-list">
+                @if(!empty($search))
+                    <span class="filter-badge">Search: {{ $search }}</span>
+                @endif
+
+                @if(!empty($status))
+                    <span class="filter-badge">
+                        Status: {{ ucwords(str_replace('_', ' ', $status)) }}
+                    </span>
+                @endif
+
+                @if(!empty($schemeId))
+                    <span class="filter-badge">
+                        Scheme: {{ $selectedScheme?->scheme_name ?? '—' }}
+                    </span>
+                @endif
+
+                @if(!empty($kitTemplateId))
+                    <span class="filter-badge">
+                        Kit: {{ $selectedKitTemplate?->kit_name ?? '—' }}
+                    </span>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    {{-- SUMMARY --}}
+    <div class="summary-grid">
+        <div class="summary-box">
+            <div class="summary-number">{{ $reportSummary['total'] ?? 0 }}</div>
+            <div class="summary-label">Total Students</div>
+        </div>
+
+        <div class="summary-box summary-issued">
+            <div class="summary-number">{{ $reportSummary['issued'] ?? 0 }}</div>
+            <div class="summary-label">Issued</div>
+        </div>
+
+        <div class="summary-box summary-pending">
+            <div class="summary-number">{{ $reportSummary['pending'] ?? 0 }}</div>
+            <div class="summary-label">Pending</div>
+        </div>
+
+        <div class="summary-box summary-cancelled">
+            <div class="summary-number">{{ $reportSummary['cancelled'] ?? 0 }}</div>
+            <div class="summary-label">Cancelled</div>
+        </div>
+
+        <div class="summary-box summary-not-assigned">
+            <div class="summary-number">{{ $reportSummary['not_assigned'] ?? 0 }}</div>
+            <div class="summary-label">Not Assigned</div>
+        </div>
+    </div>
+
+    {{-- STUDENT DATA --}}
+    @if($reportStudents->isNotEmpty())
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%;" class="text-center">#</th>
+
+                        @if($reportMode === 'all')
+                            <th style="width: 10%;">Class</th>
+                        @endif
+
+                        <th style="width: 18%;">Student</th>
+                        <th style="width: 10%;">Student ID</th>
+                        <th style="width: 7%;" class="text-center">Section</th>
+                        <th style="width: 10%;" class="text-center">Academic Year</th>
+                        <th style="width: 20%;">Kit</th>
+                        <th style="width: 10%;" class="text-center">Distribution Date</th>
+                        <th style="width: 11%;" class="text-center">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach($reportStudents as $student)
+                        @php
+                            $studentName = trim(implode(' ', array_filter([
+                                $student->first_name ?? '',
+                                $student->middle_name ?? '',
+                                $student->last_name ?? '',
+                            ])));
+
+                            $kit = $student->supplyKitRecord ?? null;
+                            $kitStatus = $kit?->status ?? 'not_assigned';
+                        @endphp
+
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+
+                            @if($reportMode === 'all')
+                                <td>{{ $student->admission_class ?: '—' }}</td>
+                            @endif
+
+                            <td>
+                                <div class="student-name">
+                                    {{ $studentName ?: '—' }}
+                                </div>
+                            </td>
+
+                            <td>{{ $student->student_id ?: '—' }}</td>
+
+                            <td class="text-center">
+                                {{ $student->section ?: '—' }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ $student->academic_year ?: $displayAcademicYear }}
+                            </td>
+
+                            <td>
+                                @if($kit)
+                                    <div class="kit-name">
+                                        {{ $kit->kitTemplate?->kit_name ?? '—' }}
+                                    </div>
+
+                                    @if($kit->kitTemplate?->scheme)
+                                        <div class="scheme-name">
+                                            {{ $kit->kitTemplate->scheme->scheme_name }}
+                                        </div>
+                                    @endif
+                                @else
+                                    Not Assigned
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if($kit?->distribution_date)
+                                    {{ \Illuminate\Support\Carbon::parse($kit->distribution_date)->format('d-m-Y') }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if($kitStatus === 'issued')
+                                    <span class="status status-issued">Issued</span>
+                                @elseif($kitStatus === 'pending')
+                                    <span class="status status-pending">Pending</span>
+                                @elseif($kitStatus === 'cancelled')
+                                    <span class="status status-cancelled">Cancelled</span>
+                                @else
+                                    <span class="status status-not-assigned">Not Assigned</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @else
+        <div class="empty-state">
+            <div class="empty-title">No Students Found</div>
+            <div class="empty-text">
+                No students match the selected academic year or filters.
+            </div>
+        </div>
+    @endif
+
+    {{-- FOOTER --}}
+    <div class="report-footer">
+        <div>Student Supply Kit Management Report</div>
+        <div>Total Records: {{ $reportStudents->count() }}</div>
+    </div>
+
+</div>
+
+</body>
 </html>

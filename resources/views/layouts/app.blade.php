@@ -1103,13 +1103,13 @@
     >
 
         {{-- Result Dashboard --}}
-        <a
-            href="#"
-            class="submenu-item {{ request()->routeIs('admin.results.index') ? 'active' : '' }}"
-        >
-            <i class="fas fa-home me-2"></i>
-            Result Dashboard
-        </a>
+        <a 
+    href="{{ route('admin.results.index') }}" 
+    class="submenu-item {{ request()->routeIs('admin.results.index') ? 'active' : '' }}"
+>
+    <i class="fas fa-home me-2"></i>
+    Result Dashboard
+</a>
 
         {{-- Enter Marks --}}
         <a
@@ -1131,8 +1131,8 @@
 
         {{-- Top 3 Toppers --}}
         <a
-            href="#"
-            class="submenu-item {{ request()->routeIs('admin.results.toppers') ? 'active' : '' }}"
+            href="{{ route('admin.results.class-wise-toppers') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.class-wise-toppers') ? 'active' : '' }}"
         >
             <i class="fas fa-trophy me-2"></i>
             Top 3 Toppers

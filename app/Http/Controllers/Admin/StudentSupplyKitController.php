@@ -1425,12 +1425,12 @@ public function print(Request $request)
         $academicYear
     ];
 
-    dd([
-    'academicYear' => $academicYear,
-    'academicYearVariants' => $academicYearVariants,
-    'variant_count' => count($academicYearVariants),
-    'variant_values' => implode(' | ', $academicYearVariants),
-]);
+//     dd([
+//     'academicYear' => $academicYear,
+//     'academicYearVariants' => $academicYearVariants,
+//     'variant_count' => count($academicYearVariants),
+//     'variant_values' => implode(' | ', $academicYearVariants),
+// ]);
 
     if (
         preg_match(

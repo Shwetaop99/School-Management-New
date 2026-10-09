@@ -1255,7 +1255,7 @@
                         bonafide certificate for official school use.
                     </p>
 
-                    <a href="{{ route('admin.bonafide.index') }}"
+                    <a href="{{ route('admin.bonafide.classes') }}"
                        class="document-button">
 
                         <span>
@@ -1322,13 +1322,9 @@
 {{-- =================================================
      CASTE / CATEGORY REPORT
 ================================================== --}}
-
 <div class="col-xl-3 col-lg-6 col-md-6">
-
     <div class="document-card caste-report">
-
         <div class="document-card-inner">
-
             <div class="document-icon">
                 <i class="bi bi-bar-chart-fill"></i>
             </div>
@@ -1338,21 +1334,22 @@
                 Report
             </span>
 
-            <h5>
-                Caste Report
-            </h5>
+            <h5>Caste Report</h5>
 
             <p>
                 View class-wise caste, boys and girls
                 summary for active students.
             </p>
 
-
+            <a href="{{ route('admin.caste-report.index') }}"
+               class="document-button">
+                <span>View Report</span>
+                <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
-
     </div>
-
 </div>
+
 
 
 {{-- =================================================

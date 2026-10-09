@@ -334,8 +334,7 @@ Route::prefix('admin')
             | RESULTS
             |--------------------------------------------------------------------------
             */
-
-           Route::prefix('results')
+Route::prefix('results')
     ->name('results.')
     ->group(function () {
 
@@ -351,6 +350,7 @@ Route::prefix('admin')
 
         Route::get('/generate', [ResultController::class, 'generate'])->name('generate');
         Route::post('/generate-result', [ResultController::class, 'generateResult'])->name('generate-result');
+
         Route::get('/class-results', [ResultController::class, 'classResults'])->name('class-results');
 
         Route::post('/verify-class', [ResultController::class, 'verifyClassResults'])->name('verify-class');
@@ -359,18 +359,59 @@ Route::prefix('admin')
 
         Route::get('/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])->name('bulk-whatsapp');
 
-        Route::get('/history/{result}', [ResultController::class, 'history'])->name('history');
-        Route::get('/history/{result}/version/{version}', [ResultController::class, 'historyVersion'])->name('history-version');
+        /*
+        |--------------------------------------------------------------------------
+        | Class-wise Toppers
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/class-wise-toppers', [ResultController::class, 'classWiseToppers'])
+            ->name('class-wise-toppers');
 
-        Route::get('/{result}/whatsapp', [ResultController::class, 'whatsapp'])->name('whatsapp');
-        Route::get('/{result}/print', [ResultController::class, 'print'])->name('print');
-        Route::get('/{result}/pdf', [ResultController::class, 'pdf'])->name('pdf');
 
-        Route::post('/{result}/verify', [ResultController::class, 'verify'])->name('verify');
-        Route::post('/{result}/approve', [ResultController::class, 'approve'])->name('approve');
-        Route::post('/{result}/publish', [ResultController::class, 'publish'])->name('publish');
+        /*
+        |--------------------------------------------------------------------------
+        | Result History
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/history/{result}', [ResultController::class, 'history'])
+            ->name('history');
 
-        Route::get('/{result}', [ResultController::class, 'show'])->name('show');
+        Route::get('/history/{result}/version/{version}', [ResultController::class, 'historyVersion'])
+            ->name('history-version');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Result Actions
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/{result}/whatsapp', [ResultController::class, 'whatsapp'])
+            ->name('whatsapp');
+
+        Route::get('/{result}/print', [ResultController::class, 'print'])
+            ->name('print');
+
+        Route::get('/{result}/pdf', [ResultController::class, 'pdf'])
+            ->name('pdf');
+
+        Route::post('/{result}/verify', [ResultController::class, 'verify'])
+            ->name('verify');
+
+        Route::post('/{result}/approve', [ResultController::class, 'approve'])
+            ->name('approve');
+
+        Route::post('/{result}/publish', [ResultController::class, 'publish'])
+            ->name('publish');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Result Details - KEEP THIS LAST
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/{result}', [ResultController::class, 'show'])
+            ->name('show');
+
     });
 
     
@@ -591,54 +632,29 @@ Route::prefix('admin')
                 ->name('notices.show')
                 ->middleware('permission:notices.view');
 
+                //Bonafied
 
-            /*
-            |--------------------------------------------------------------------------
-            | BONAFIDE CERTIFICATE
-            |--------------------------------------------------------------------------
-            */
+Route::prefix('bonafide')
+    ->name('bonafide.')
+    ->controller(BonafideCertificateController::class)
+    ->group(function () {
 
-            Route::prefix('bonafide-certificate')
-                ->name('bonafide.')
-                ->group(function () {
+        Route::get('/', 'index')->name('index');
 
-                    Route::get('/', [
-                        BonafideCertificateController::class,
-                        'index'
-                    ])->name('index');
+        Route::get('/classes', 'classes')->name('classes');
+        Route::get('/class/{class}/students', 'students')->name('students');
 
-                    Route::get('/create', [
-                        BonafideCertificateController::class,
-                        'create'
-                    ])->name('create');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
 
-                    Route::post('/', [
-                        BonafideCertificateController::class,
-                        'store'
-                    ])->name('store');
+        Route::get('/{id}', 'show')->name('show');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
 
-                    Route::get('/{bonafide}/edit', [
-                        BonafideCertificateController::class,
-                        'edit'
-                    ])->name('edit');
-
-                    Route::get('/{bonafide}', [
-                        BonafideCertificateController::class,
-                        'show'
-                    ])->name('show');
-
-                    Route::put('/{bonafide}', [
-                        BonafideCertificateController::class,
-                        'update'
-                    ])->name('update');
-
-                    Route::delete('/{bonafide}', [
-                        BonafideCertificateController::class,
-                        'destroy'
-                    ])->name('destroy');
-                });
-
-
+        Route::get('/{bonafideCertificate}/print', 'print')
+            ->name('print');
+    });
             /*
             |--------------------------------------------------------------------------
             | SCHOOL LEAVING CERTIFICATE
@@ -1103,6 +1119,17 @@ Route::prefix('admin')
                 CasteReportController::class,
                 'classWisePrint'
             ])->name('caste-report.class-wise-print');
+
+            Route::get('/caste-report/print', [
+    CasteReportController::class,
+    'print',
+])->name('caste-report.print');
+
+
+Route::get('/caste-report/pdf/download', [
+    CasteReportController::class,
+    'pdfDownload',
+])->name('caste-report.pdf-download');
 
 
             /*
@@ -1840,32 +1867,7 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
     Route::get('/locations/locations', [LocationController::class, 'locations'])
     ->name('locations.locations');
 
-            /* BONAFIDE CERTIFICATE */
 
-            Route::prefix('bonafide-certificate')
-                ->name('bonafide.')
-                ->group(function () {
-                    Route::get('/', [BonafideCertificateController::class, 'index'])
-                        ->name('index');
-
-                    Route::get('/create', [BonafideCertificateController::class, 'create'])
-                        ->name('create');
-
-                    Route::post('/', [BonafideCertificateController::class, 'store'])
-                        ->name('store');
-
-                    Route::get('/{bonafide}/edit', [BonafideCertificateController::class, 'edit'])
-                        ->name('edit');
-
-                    Route::get('/{bonafide}', [BonafideCertificateController::class, 'show'])
-                        ->name('show');
-
-                    Route::put('/{bonafide}', [BonafideCertificateController::class, 'update'])
-                        ->name('update');
-
-                    Route::delete('/{bonafide}', [BonafideCertificateController::class, 'destroy'])
-                        ->name('destroy');
-                });
 
             /* STUDENT ATTENDANCE */
 
