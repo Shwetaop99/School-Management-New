@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <title>@yield('title', 'School Management')</title>
 
@@ -57,7 +69,6 @@
             display: flex;
         }
 
-
         /* =========================================================
            SIDEBAR
         ========================================================= */
@@ -76,7 +87,6 @@
             transition: transform 0.3s ease;
         }
 
-
         /* =========================================================
            SIDEBAR LOGO
         ========================================================= */
@@ -91,26 +101,27 @@
         }
 
         .brand-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: #ffffff;
-}
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #ffffff;
+        }
 
-.brand-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-}
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
 
         .brand-text {
             line-height: 1.2;
+            margin-left: 10px;
         }
 
         .brand-title {
@@ -124,7 +135,6 @@
             color: #718096;
             margin-top: 3px;
         }
-
 
         /* =========================================================
            SIDEBAR SCROLL
@@ -145,7 +155,6 @@
             border-radius: 10px;
         }
 
-
         /* =========================================================
            SECTION TITLE
         ========================================================= */
@@ -158,7 +167,6 @@
             letter-spacing: 0.7px;
             padding: 16px 14px 8px;
         }
-
 
         /* =========================================================
            SIDEBAR ITEM
@@ -176,9 +184,7 @@
             font-weight: 500;
             margin-bottom: 3px;
             cursor: pointer;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
+            transition: background 0.2s ease, color 0.2s ease;
             border: none;
             background: transparent;
             text-align: left;
@@ -216,7 +222,6 @@
         .sidebar-item.open .sidebar-arrow {
             transform: rotate(90deg);
         }
-
 
         /* =========================================================
            SUBMENU
@@ -259,15 +264,10 @@
         }
 
         .submenu-item.active {
-            color: var(--primary);
+            background: #eef4ff;
+            color: #1769d1;
             font-weight: 600;
-            background: #f0f6ff;
         }
-
-        .submenu-item.active::before {
-            background: var(--primary);
-        }
-
 
         /* =========================================================
            OTHER SECTION
@@ -284,7 +284,6 @@
             content: "•••";
             letter-spacing: 2px;
         }
-
 
         /* =========================================================
            LOGOUT
@@ -316,7 +315,6 @@
             color: #ef4444;
         }
 
-
         /* =========================================================
            MAIN AREA
         ========================================================= */
@@ -328,7 +326,6 @@
             display: flex;
             flex-direction: column;
         }
-
 
         /* =========================================================
            HEADER
@@ -368,7 +365,6 @@
             color: #16233e;
             white-space: nowrap;
         }
-
 
         /* =========================================================
            SEARCH
@@ -430,7 +426,6 @@
             color: var(--primary);
         }
 
-
         /* =========================================================
            SEARCH RESULTS
         ========================================================= */
@@ -483,7 +478,6 @@
             font-size: 13px;
         }
 
-
         /* =========================================================
            HEADER RIGHT
         ========================================================= */
@@ -493,24 +487,6 @@
             align-items: center;
             gap: 12px;
         }
-
-        .header-icon-button {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            color: #64748b;
-            font-size: 18px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .header-icon-button:hover {
-            background: #f1f5f9;
-        }
-
-        
 
         .admin-profile {
             display: flex;
@@ -543,30 +519,23 @@
             color: #25334a;
         }
 
-        .admin-role {
-            font-size: 10px;
-            color: #8491a4;
+        .admin-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #16a34a;
             margin-top: 3px;
         }
 
-        .admin-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #16a34a;
-    margin-top: 3px;
-}
-
-.online-dot {
-    width: 7px;
-    height: 7px;
-    background: #22c55e;
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
-}
-
+        .online-dot {
+            width: 7px;
+            height: 7px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+        }
 
         /* =========================================================
            PAGE CONTENT
@@ -577,7 +546,6 @@
             width: 100%;
             padding: 22px;
         }
-
 
         /* =========================================================
            FOOTER
@@ -599,7 +567,6 @@
             color: #8b98a9;
         }
 
-
         /* =========================================================
            MOBILE OVERLAY
         ========================================================= */
@@ -611,7 +578,6 @@
             background: rgba(15, 23, 42, 0.35);
             z-index: 999;
         }
-
 
         /* =========================================================
            RESPONSIVE
@@ -640,7 +606,6 @@
                 width: 250px;
             }
         }
-
 
         @media (max-width: 700px) {
 
@@ -695,9 +660,10 @@
         <!-- Brand -->
         <div class="sidebar-brand">
 
-           <div class="brand-icon">
-    <img src="{{ asset('images/gurukullogo.png') }}" alt="Gurukul Logo">
-</div>
+            <div class="brand-icon">
+                <img src="{{ asset('images/gurukullogo.png') }}"
+                     alt="Gurukul Logo">
+            </div>
 
             <div class="brand-text">
                 <div class="brand-title">
@@ -711,23 +677,21 @@
 
         </div>
 
-
         <!-- Sidebar Navigation -->
         <div class="sidebar-content">
 
             <!-- Dashboard -->
-
             <a href="{{ route('admin.dashboard') }}"
                class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                data-search="dashboard home">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-tachometer-alt"></i>
-</span>
+                    <i class="fas fa-tachometer-alt"></i>
+                </span>
 
-<span class="sidebar-label">
-    Dashboard
-</span>
+                <span class="sidebar-label">
+                    Dashboard
+                </span>
 
             </a>
 
@@ -742,12 +706,12 @@
                     data-search="student students">
 
                 <span class="sidebar-icon">
-    <i class="fa fa-user-graduate"></i>
-</span>
+                    <i class="fa fa-user-graduate"></i>
+                </span>
 
-<span class="sidebar-label">
-    Student
-</span>
+                <span class="sidebar-label">
+                    Student
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -762,42 +726,30 @@
                     All Students
                 </a>
 
-                <a href="{{ route('admin.students.index') }}"
+                <a href="{{ route('admin.students.create') }}"
                    class="submenu-item">
                     Add Student
                 </a>
 
-                <a href="{{ route('admin.students.index') }}"
-                   class="submenu-item">
-                    Student Profile
-                </a>
+               <a href="{{ route('admin.students.profile') }}"
+   class="submenu-item {{ request()->routeIs('admin.students.profile') ? 'active' : '' }}">
+    Student Profile
+</a>
 
-                <a href="{{ route('admin.students.index') }}"
-                   class="submenu-item">
-                    Student Documents
-                </a>
+<a href="{{ route('admin.students.documents') }}"
+   class="submenu-item {{ request()->routeIs('admin.students.documents') ? 'active' : '' }}">
+    Student Documents
+</a>
 
-                <a href="{{ route('admin.students.index') }}"
-                   class="submenu-item">
-                    Student ID
-                </a>
+<a href="{{ route('admin.students.id-card') }}"
+   class="submenu-item {{ request()->routeIs('admin.students.id-card') || request()->routeIs('admin.id-card.*') ? 'active' : '' }}">
+    Student ID
+</a>
 
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="submenu-item">
-                    Attendance
-                </a>
-
-                <a href="{{ route('admin.students.index') }}"
-                   class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">
-                    School Supplies(Kit)
-                </a>
-
-                <a href="{{ route('admin.students.index') }}"
-                   class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">
-                    Student Report
-                </a>
-
-
+<a href="{{ route('admin.students.supplies.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.students.supplies.*') ? 'active' : '' }}">
+    School Supplies (Kit)
+</a>
 
             </div>
 
@@ -807,64 +759,77 @@
             ================================================== -->
 
             <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.faculty.*') ? 'active open' : '' }}"
+                    {{ request()->routeIs('admin.faculty.*') || request()->routeIs('admin.teachers.*') ? 'active open' : '' }}"
                     data-submenu="faculty-menu"
                     data-search="faculty teacher teachers">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-chalkboard-teacher"></i>
-</span>
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </span>
 
-<span class="sidebar-label">
-    Faculty (Teacher)
-</span>
+                <span class="sidebar-label">
+                    Faculty (Teacher)
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
             </button>
 
             <div class="submenu
-                        {{ request()->routeIs('admin.faculty.*') ? 'open' : '' }}"
+                        {{ request()->routeIs('admin.faculty.*') || request()->routeIs('admin.teachers.*') ? 'open' : '' }}"
                  id="faculty-menu">
 
-                <a href="{{ route('admin.faculty.index') }}"
+                <a href="{{ route('admin.teachers.index') }}"
                    class="submenu-item">
-                    All Faculty
+                    All Teachers
                 </a>
 
-                <a href="{{ route('admin.faculty.index') }}"
+                <a href="{{ route('admin.teachers.assign-class.index') }}"
                    class="submenu-item">
-                    Add Faculty
+                    Teacher Allocation
                 </a>
 
-                <a href="{{ route('admin.faculty.index') }}"
+                <a href="{{ route('admin.leave-applications.index') }}"
                    class="submenu-item">
-                    Faculty Profile
+                    Leave Applications
                 </a>
 
-                <a href="{{ route('admin.attendance.index') }}"
+            </div>
+
+
+            <!-- =================================================
+                 OTHER STAFF
+            ================================================== -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.other-staff.*') ? 'active open' : '' }}"
+                    data-submenu="other-staff-menu"
+                    data-search="other staff employees librarian accountant receptionist peon driver">
+
+                <span class="sidebar-icon">
+                    <i class="fas fa-users"></i>
+                </span>
+
+                <span class="sidebar-label">
+                    Other Staff
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.other-staff.*') ? 'open' : '' }}"
+                 id="other-staff-menu">
+
+                <a href="{{ route('admin.other-staff.index') }}"
                    class="submenu-item">
-                    Attendance
+                    All Staff
                 </a>
 
-                <a href="{{ route('admin.faculty.index') }}"
+                <a href="{{ route('admin.other-staff.create') }}"
                    class="submenu-item">
-                    Class Teacher Assignment
-                </a>
-
-                <a href="{{ route('admin.timetable.index') }}"
-                   class="submenu-item">
-                    Time Table
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Salary
-                </a>
-
-                <a href="{{ route('admin.faculty.index') }}"
-                   class="submenu-item">
-                    Report
+                    Add Staff
                 </a>
 
             </div>
@@ -880,12 +845,12 @@
                     data-search="time table timetable schedule">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-table"></i>
-</span>
+                    <i class="fas fa-table"></i>
+                </span>
 
-<span class="sidebar-label">
-    Time Table
-</span>
+                <span class="sidebar-label">
+                    Time Table
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -895,12 +860,12 @@
                         {{ request()->routeIs('admin.timetable.*') ? 'open' : '' }}"
                  id="timetable-menu">
 
-                <a href="{{ route('admin.timetable.index') }}"
+                <a href="{{ route('admin.timetable.class') }}"
                    class="submenu-item">
                     Class Timetable
                 </a>
 
-                <a href="{{ route('admin.timetable.index') }}"
+                <a href="{{ route('admin.timetable.teacher') }}"
                    class="submenu-item">
                     Teacher Timetable
                 </a>
@@ -914,44 +879,43 @@
 
 
             <!-- =================================================
-                 ATTENDANCE
+                 ATTENDANCE  (FIXED)
             ================================================== -->
 
             <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.attendance.*') ? 'active open' : '' }}"
+                    {{ request()->routeIs('admin.attendance.*') || request()->routeIs('admin.teachers.attendance.*') ? 'active open' : '' }}"
                     data-submenu="attendance-menu"
                     data-search="attendance student faculty mark">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-check"></i>
-</span>
+                    <i class="fas fa-check"></i>
+                </span>
 
-<span class="sidebar-label">
-    Attendance
-</span>
+                <span class="sidebar-label">
+                    Attendance
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
             </button>
 
             <div class="submenu
-                        {{ request()->routeIs('admin.attendance.*') ? 'open' : '' }}"
+                        {{ request()->routeIs('admin.attendance.*') || request()->routeIs('admin.teachers.attendance.*') ? 'open' : '' }}"
                  id="attendance-menu">
 
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="submenu-item">
-                    Student Attendance
-                </a>
+                {{-- Main Student Attendance Page --}}
+<a href="{{ route('admin.attendance.student') }}"
+   class="submenu-item {{ request()->routeIs('admin.attendance.student') ? 'active' : '' }}">
+    Student Attendance
+</a>
 
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="submenu-item">
-                    Faculty Attendance
-                </a>
+{{-- Faculty Attendance --}}
+<a href="{{ route('admin.teachers.attendance.index') }}"
+   class="submenu-item {{ request()->routeIs('teachers.attendance.*') ? 'active' : '' }}">
+    Faculty Attendance
+</a>
 
-                <a href="{{ route('admin.attendance.index') }}"
-                   class="submenu-item">
-                    Attendance Report
-                </a>
+                
 
             </div>
 
@@ -994,7 +958,7 @@
                     Payment History
                 </a>
 
-                <a href="{{ route('admin.scholarship.index') }}"
+                <a href="{{ route('admin.scholarship.merit.concession.index') }}"
                    class="submenu-item">
                     Scholarship
                 </a>
@@ -1006,17 +970,17 @@
                  EXAM
             ================================================== -->
 
-            <a href="{{ route('admin.exam.index') }}"
+            <a href="{{ route('admin.exams.index') }}"
                class="sidebar-item {{ request()->routeIs('admin.exam.*') ? 'active' : '' }}"
                data-search="exam examination">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-file-alt"></i>
-</span>
+                    <i class="fas fa-file-alt"></i>
+                </span>
 
-<span class="sidebar-label">
-    Exam
-</span>
+                <span class="sidebar-label">
+                    Exam
+                </span>
 
             </a>
 
@@ -1031,12 +995,12 @@
                     data-search="result results marks grade">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-chart-bar"></i>
-</span>
+                    <i class="fas fa-chart-bar"></i>
+                </span>
 
-<span class="sidebar-label">
-    Result
-</span>
+                <span class="sidebar-label">
+                    Result
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1047,29 +1011,29 @@
                  id="result-menu">
 
                 <a href="{{ route('admin.results.index') }}"
-                   class="submenu-item">
-                    Student Result
-                </a>
+   class="submenu-item">
+    Student Result
+</a>
+
+                <a href="{{ route('admin.results.generate') }}"
+   class="submenu-item">
+    Generate Result
+</a>
 
                 <a href="{{ route('admin.results.index') }}"
-                   class="submenu-item">
-                    Grade Management
-                </a>
+   class="submenu-item">
+    Publish Result
+</a>
 
                 <a href="{{ route('admin.results.index') }}"
-                   class="submenu-item">
-                    Publish Result
-                </a>
+   class="submenu-item">
+    Result History
+</a>
 
-                <a href="{{ route('admin.results.index') }}"
-                   class="submenu-item">
-                    Result History
-                </a>
-
-                <a href="{{ route('admin.results.index') }}"
-                   class="submenu-item">
-                    Result Report
-                </a>
+                <a href="{{ route('admin.results.class-results') }}"
+   class="submenu-item">
+    Result Report
+</a>
 
             </div>
 
@@ -1083,13 +1047,13 @@
                     data-submenu="notice-menu"
                     data-search="notice notices announcement">
 
-               <span class="sidebar-icon">
-    <i class="fas fa-flag"></i>
-</span>
+                <span class="sidebar-icon">
+                    <i class="fas fa-flag"></i>
+                </span>
 
-<span class="sidebar-label">
-    Notice
-</span>
+                <span class="sidebar-label">
+                    Notice
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1117,12 +1081,12 @@
                     data-search="library books issue return fine">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-book"></i>
-</span>
+                    <i class="fas fa-book"></i>
+                </span>
 
-<span class="sidebar-label">
-    Library
-</span>
+                <span class="sidebar-label">
+                    Library
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1132,32 +1096,22 @@
                         {{ request()->routeIs('admin.library.*') ? 'open' : '' }}"
                  id="library-menu">
 
-                <a href="{{ route('admin.library.index') }}"
+                <a href="{{ route('admin.library.books.index') }}"
                    class="submenu-item">
                     Total Books
                 </a>
 
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Book Categories
-                </a>
-
-                <a href="{{ route('admin.library.index') }}"
-                   class="submenu-item">
-                    Add Books
-                </a>
-
-                <a href="{{ route('admin.library.index') }}"
+                <a href="{{ route('admin.library.issues.index') }}"
                    class="submenu-item">
                     Issues / Returns / Fine
                 </a>
 
-                <a href="{{ route('admin.library.index') }}"
+                <a href="{{ route('admin.library.librarian.index') }}"
                    class="submenu-item">
-                    Incharge Profile
+                    Librarian
                 </a>
 
-                <a href="{{ route('admin.library.index') }}"
+                <a href="{{ route('admin.library.reports.index') }}"
                    class="submenu-item">
                     Reports
                 </a>
@@ -1173,21 +1127,23 @@
                 OTHER
             </div>
 
-
-            <!-- Transport -->
+{{-- =================================================
+                 TRANSPORT
+            ================================================== --}}
 
             <button class="sidebar-item has-submenu
                     {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}"
                     data-submenu="transport-menu"
-                    data-search="transport bus vehicle">
+                    data-search="transport bus vehicle"
+                    type="button">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-bus"></i>
-</span>
+                    <i class="fas fa-bus"></i>
+                </span>
 
-<span class="sidebar-label">
-    Transport
-</span>
+                <span class="sidebar-label">
+                    Transport
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1197,17 +1153,17 @@
                         {{ request()->routeIs('admin.transport.*') ? 'open' : '' }}"
                  id="transport-menu">
 
-                <a href="{{ route('admin.transport.index') }}"
+                <a href="{{ route('admin.transport.records.index') }}"
                    class="submenu-item">
                     Transport Records
                 </a>
 
-                <a href="{{ route('admin.transport.index') }}"
+                <a href="{{ route('admin.transport.routes.index') }}"
                    class="submenu-item">
                     Routes
                 </a>
 
-                <a href="{{ route('admin.transport.index') }}"
+                <a href="{{ route('admin.transport.vehicles.index') }}"
                    class="submenu-item">
                     Vehicles
                 </a>
@@ -1215,36 +1171,36 @@
             </div>
 
 
-            <!-- Meal Management -->
+            <!-- =================================================
+                 MEAL MANAGEMENT
+            ================================================== -->
 
-            <button class="sidebar-item has-submenu
-                    {{ request()->routeIs('admin.meals.*') ? 'active open' : '' }}"
+            <button class="sidebar-item has-submenu {{ request()->routeIs('admin.meal.*') ? 'active open' : '' }}"
                     data-submenu="meal-menu"
                     data-search="meal meals food stock">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-utensils"></i>
-</span>
+                    <i class="fas fa-utensils"></i>
+                </span>
 
-<span class="sidebar-label">
-    Meal Management
-</span>
+                <span class="sidebar-label">
+                    Meal Management
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
             </button>
 
-            <div class="submenu
-                        {{ request()->routeIs('admin.meals.*') ? 'open' : '' }}"
+            <div class="submenu {{ request()->routeIs('admin.meal.*') ? 'open' : '' }}"
                  id="meal-menu">
 
-                <a href="{{ route('admin.meals.index') }}"
-                   class="submenu-item">
+                <a href="{{ route('admin.meal.items.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.meal.items.*') ? 'active' : '' }}">
                     Stock In / Stock Out
                 </a>
 
-                <a href="{{ route('admin.meals.index') }}"
-                   class="submenu-item">
+                <a href="{{ route('admin.meal.logs.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">
                     Logs
                 </a>
 
@@ -1252,57 +1208,103 @@
 
 
             <!-- Payroll -->
-
-            <a href="{{ route('admin.payroll.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}"
+            <a href="{{ route('admin.teachers.salary.index') }}"
+               class="sidebar-item {{ request()->routeIs('admin.teachers.salary.*') ? 'active' : '' }}"
                data-search="payroll salary">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-money-check-alt"></i>
-</span>
+                    <i class="fas fa-money-check-alt"></i>
+                </span>
 
-<span class="sidebar-label">
-    Payroll
-</span>
+                <span class="sidebar-label">
+                    Payroll
+                </span>
 
             </a>
 
 
-            <!-- Sports -->
+            <!-- =================================================
+                 SPORTS
+            ================================================== -->
 
-            <a href="{{ route('admin.sports.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}"
-               data-search="sports">
+            <button class="sidebar-item has-submenu {{ request()->routeIs('admin.sports.*') ? 'active open' : '' }}"
+                    data-submenu="sports-menu"
+                    data-search="sports games events achievement equipment">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-futbol"></i>
-</span>
+                    <i class="fas fa-futbol"></i>
+                </span>
 
-<span class="sidebar-label">
-    Sports
-</span>
+                <span class="sidebar-label">
+                    Sports
+                </span>
 
-            </a>
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu {{ request()->routeIs('admin.sports.*') ? 'open' : '' }}"
+                 id="sports-menu">
+
+                <a href="{{ route('admin.sports.games.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.games.*') ? 'active' : '' }}">
+                    Games / Events
+                </a>
+
+                <a href="{{ route('admin.sports.achievements.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.achievements.*') ? 'active' : '' }}">
+                    Sports Achievement
+                </a>
+
+                <a href="{{ route('admin.sports.equipment.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.sports.equipment.*') ? 'active' : '' }}">
+                    Sports Equipment
+                </a>
+
+            </div>
 
 
-            <!-- Scholarship -->
+            <!-- =================================================
+     SCHOLARSHIP
+================================================== -->
 
-            <a href="{{ route('admin.scholarship.index') }}"
-               class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}"
-               data-search="scholarship">
+<button class="sidebar-item has-submenu
+        {{ request()->routeIs('admin.scholarship.*') ? 'active open' : '' }}"
+        data-submenu="scholarship-menu"
+        data-search="scholarship scholarship exam category scholarship">
 
-                <span class="sidebar-icon">
-    <i class="fas fa-graduation-cap"></i>
-</span>
+    <span class="sidebar-icon">
+        <i class="fas fa-graduation-cap"></i>
+    </span>
 
-<span class="sidebar-label">
-    Scholarship
-</span>
+    <span class="sidebar-label">
+        Scholarship
+    </span>
 
-            </a>
+    <span class="sidebar-arrow">›</span>
+
+</button>
+
+<div class="submenu
+            {{ request()->routeIs('admin.scholarship.*') ? 'open' : '' }}"
+     id="scholarship-menu">
+
+    <a href="{{ route('admin.scholarship.merit.concession.index') }}"
+       class="submenu-item">
+        Merit Concession
+    </a>
+
+    <a href="{{ route('admin.scholarship.exams.index') }}"
+       class="submenu-item">
+        Scholarship Exam
+    </a>
+
+</div>
 
 
-            <!-- Class -->
+            <!-- =================================================
+                 CLASS
+            ================================================== -->
 
             <button class="sidebar-item has-submenu
                     {{ request()->routeIs('admin.classes.*') ? 'active open' : '' }}"
@@ -1310,12 +1312,12 @@
                     data-search="class classes division subjects">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-chalkboard"></i>
-</span>
+                    <i class="fas fa-chalkboard"></i>
+                </span>
 
-<span class="sidebar-label">
-    Class
-</span>
+                <span class="sidebar-label">
+                    Class
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1330,7 +1332,7 @@
                     Classes
                 </a>
 
-                <a href="{{ route('admin.classes.index') }}"
+                <a href="{{ route('admin.subjects.index') }}"
                    class="submenu-item">
                     Subjects
                 </a>
@@ -1338,7 +1340,9 @@
             </div>
 
 
-            <!-- Settings -->
+            <!-- =================================================
+                 SETTINGS
+            ================================================== -->
 
             <button class="sidebar-item has-submenu
                     {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}"
@@ -1346,12 +1350,12 @@
                     data-search="settings role permission users backup">
 
                 <span class="sidebar-icon">
-    <i class="fas fa-cog"></i>
-</span>
+                    <i class="fas fa-cog"></i>
+                </span>
 
-<span class="sidebar-label">
-    Settings
-</span>
+                <span class="sidebar-label">
+                    Settings
+                </span>
 
                 <span class="sidebar-arrow">›</span>
 
@@ -1366,9 +1370,14 @@
                     School Profile
                 </a>
 
-                <a href="{{ route('admin.settings.index') }}"
-                   class="submenu-item">
-                    User Roles & Permission
+                <a href="{{ route('admin.settings.roles.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.settings.roles.*') ? 'active' : '' }}">
+                    Roles & Permissions
+                </a>
+
+                <a href="{{ route('admin.settings.users.index') }}"
+                   class="submenu-item {{ request()->routeIs('admin.settings.users.*') ? 'active' : '' }}">
+                    Roles Management
                 </a>
 
                 <a href="{{ route('admin.settings.index') }}"
@@ -1382,22 +1391,20 @@
 
 
         <!-- Logout -->
-
         <div class="logout-area">
 
             <form method="POST" action="{{ route('admin.logout') }}">
-
                 @csrf
 
                 <button type="submit" class="logout-button">
 
                     <span class="sidebar-icon">
-    <i class="fas fa-sign-out-alt"></i>
-</span>
+                        <i class="fas fa-sign-out-alt"></i>
+                    </span>
 
-<span class="sidebar-label">
-    Logout
-</span>
+                    <span class="sidebar-label">
+                        Logout
+                    </span>
 
                 </button>
 
@@ -1409,7 +1416,6 @@
 
 
     <!-- Mobile overlay -->
-
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 
@@ -1419,23 +1425,15 @@
 
     <div class="main-area">
 
-
-        <!-- =====================================================
-             HEADER
-        ====================================================== -->
-
+        <!-- HEADER -->
         <header class="top-header">
 
-            <button
-                type="button"
-                class="menu-toggle"
-                id="menuToggle"
-                aria-label="Toggle sidebar">
-
+            <button type="button"
+                    class="menu-toggle"
+                    id="menuToggle"
+                    aria-label="Toggle sidebar">
                 ☰
-
             </button>
-
 
             <div class="page-title">
                 @yield('page-title', 'Dashboard')
@@ -1443,89 +1441,70 @@
 
 
             <!-- SEARCH -->
-
             <div class="header-search">
 
                 <div class="search-box">
 
                     <span class="search-icon">
-                        ⌕
+                        <i class="fas fa-search"></i>
                     </span>
 
-                    <input
-                        type="text"
-                        id="globalSearch"
-                        class="search-input"
-                        placeholder="Search..."
-                        autocomplete="off"
-                    >
+                    <input type="text"
+                           id="globalSearch"
+                           class="search-input"
+                           placeholder="Search..."
+                           autocomplete="off">
 
-                    <button
-                        type="button"
-                        class="search-button"
-                        id="searchButton"
-                        title="Search">
-
-                        ↵
-
+                    <button type="button"
+                            class="search-button"
+                            id="searchButton"
+                            title="Search">
+                        <i class="fas fa-arrow-right"></i>
                     </button>
 
                 </div>
 
-
-                <div
-                    class="search-results"
-                    id="searchResults">
-                </div>
+                <div class="search-results" id="searchResults"></div>
 
             </div>
 
 
-            <!-- Header actions -->
-
+            <!-- HEADER ACTIONS -->
             <div class="header-actions">
-
-                
 
                 <div class="admin-profile">
 
-    <div class="admin-avatar">
-        A
-    </div>
+                    <div class="admin-avatar">
+                        A
+                    </div>
 
-    <div class="admin-info">
+                    <div class="admin-info">
 
-        <div class="admin-name">
-            Admin
-        </div>
+                        <div class="admin-name">
+                            Admin
+                        </div>
 
-        <div class="admin-status">
-            <span class="online-dot"></span>
-            Online
-        </div>
+                        <div class="admin-status">
+                            <span class="online-dot"></span>
+                            Online
+                        </div>
 
-    </div>
+                    </div>
 
-</div>
+                </div>
+
+            </div>
 
         </header>
 
 
-        <!-- =====================================================
-             PAGE CONTENT
-        ====================================================== -->
-
+        <!-- PAGE CONTENT -->
         <main class="main-content">
-
             @yield('content')
-
         </main>
 
 
-        <!-- =====================================================
-             FOOTER
-        ====================================================== -->
-
+        <!-- FOOTER -->
         <footer class="app-footer">
 
             <div>
@@ -1551,45 +1530,32 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | SIDEBAR SUBMENUS
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       SIDEBAR SUBMENUS
+    ========================================================= */
 
-    const submenuButtons =
-        document.querySelectorAll('.has-submenu');
+    const submenuButtons = document.querySelectorAll('.has-submenu');
 
     submenuButtons.forEach(function (button) {
 
         button.addEventListener('click', function () {
 
-            const submenuId =
-                this.getAttribute('data-submenu');
-
-            const submenu =
-                document.getElementById(submenuId);
+            const submenuId = this.getAttribute('data-submenu');
+            const submenu = document.getElementById(submenuId);
 
             if (!submenu) {
                 return;
             }
 
-
-            /*
-             * Close all other submenus
-             */
-
+            /* Close other submenus */
             submenuButtons.forEach(function (otherButton) {
 
                 if (otherButton !== button) {
 
                     otherButton.classList.remove('open');
 
-                    const otherId =
-                        otherButton.getAttribute('data-submenu');
-
-                    const otherMenu =
-                        document.getElementById(otherId);
+                    const otherId = otherButton.getAttribute('data-submenu');
+                    const otherMenu = document.getElementById(otherId);
 
                     if (otherMenu) {
                         otherMenu.classList.remove('open');
@@ -1597,13 +1563,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-
-            /*
-             * Toggle selected submenu
-             */
-
+            /* Toggle selected submenu */
             button.classList.toggle('open');
-
             submenu.classList.toggle('open');
 
         });
@@ -1611,332 +1572,174 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | MOBILE SIDEBAR
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       MOBILE SIDEBAR
+    ========================================================= */
 
-    const menuToggle =
-        document.getElementById('menuToggle');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-    const sidebar =
-        document.getElementById('sidebar');
+    if (menuToggle && sidebar && sidebarOverlay) {
 
-    const sidebarOverlay =
-        document.getElementById('sidebarOverlay');
+        menuToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('mobile-open');
+            sidebarOverlay.classList.toggle('active');
+        });
 
+        sidebarOverlay.addEventListener('click', function () {
+            sidebar.classList.remove('mobile-open');
+            sidebarOverlay.classList.remove('active');
+        });
 
-    menuToggle.addEventListener('click', function () {
-
-        sidebar.classList.toggle('mobile-open');
-
-        sidebarOverlay.classList.toggle('active');
-
-    });
+    }
 
 
-    sidebarOverlay.addEventListener('click', function () {
+    /* =========================================================
+       GLOBAL SEARCH
+    ========================================================= */
 
-        sidebar.classList.remove('mobile-open');
+    const searchInput = document.getElementById('globalSearch');
+    const searchButton = document.getElementById('searchButton');
+    const searchResults = document.getElementById('searchResults');
 
-        sidebarOverlay.classList.remove('active');
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | GLOBAL SEARCH
-    |--------------------------------------------------------------------------
-    */
-
-    const searchInput =
-        document.getElementById('globalSearch');
-
-    const searchButton =
-        document.getElementById('searchButton');
-
-    const searchResults =
-        document.getElementById('searchResults');
-
-
-    /*
-     * Collect sidebar links/items
-     */
+    if (!searchInput || !searchButton || !searchResults) {
+        return;
+    }
 
     const searchableItems = [];
 
-
-    document
-        .querySelectorAll('.sidebar-item[data-search]')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text:
-                    item.innerText
-                    .trim(),
-
-                keywords:
-                    item.getAttribute('data-search'),
-
-                element:
-                    item
-
-            });
-
+    /* Parent sidebar items */
+    document.querySelectorAll('.sidebar-item[data-search]').forEach(function (item) {
+        searchableItems.push({
+            text: item.innerText.trim(),
+            keywords: item.getAttribute('data-search') || '',
+            element: item
         });
+    });
 
-
-    document
-        .querySelectorAll('.submenu-item')
-        .forEach(function (item) {
-
-            searchableItems.push({
-
-                text:
-                    item.innerText
-                    .trim(),
-
-                keywords:
-                    item.innerText
-                    .trim(),
-
-                element:
-                    item
-
-            });
-
+    /* Submenu links */
+    document.querySelectorAll('.submenu-item').forEach(function (item) {
+        searchableItems.push({
+            text: item.innerText.trim(),
+            keywords: item.innerText.trim(),
+            element: item
         });
+    });
 
 
-    /*
-     * Search function
-     */
+    /* =========================================================
+       SEARCH FUNCTION
+    ========================================================= */
 
     function performSearch() {
 
-        const query =
-            searchInput.value
-                .trim()
-                .toLowerCase();
-
-
+        const query = searchInput.value.trim().toLowerCase();
         searchResults.innerHTML = '';
 
-
         if (!query) {
-
             searchResults.classList.remove('show');
-
             return;
         }
 
-
-        const matches =
-            searchableItems.filter(function (item) {
-
-                return (
-                    item.text
-                        .toLowerCase()
-                        .includes(query)
-                    ||
-                    item.keywords
-                        .toLowerCase()
-                        .includes(query)
-                );
-
-            });
-
+        const matches = searchableItems.filter(function (item) {
+            return (
+                item.text.toLowerCase().includes(query) ||
+                item.keywords.toLowerCase().includes(query)
+            );
+        });
 
         if (matches.length === 0) {
-
             searchResults.innerHTML = `
                 <div class="search-empty">
                     No results found for "<strong>${query}</strong>"
                 </div>
             `;
-
             searchResults.classList.add('show');
-
             return;
         }
 
+        matches.slice(0, 8).forEach(function (item) {
 
-        matches
-            .slice(0, 8)
-            .forEach(function (item) {
+            const result = document.createElement('div');
+            result.className = 'search-result-item';
 
-                const result =
-                    document.createElement('div');
+            result.innerHTML = `
+                <span class="search-result-icon">
+                    <i class="fas fa-search"></i>
+                </span>
+                <span>${item.text}</span>
+            `;
 
-                result.className =
-                    'search-result-item';
+            result.addEventListener('click', function () {
 
+                if (item.element.tagName === 'A' && item.element.href) {
+                    window.location.href = item.element.href;
+                    return;
+                }
 
-                result.innerHTML = `
-                    <span class="search-result-icon">
-                        🔎
-                    </span>
+                if (item.element.classList.contains('has-submenu')) {
+                    item.element.click();
+                }
 
-                    <span>
-                        ${item.text}
-                    </span>
-                `;
-
-
-                result.addEventListener('click', function () {
-
-                    /*
-                     * If the result is a normal link,
-                     * follow it.
-                     */
-
-                    if (
-                        item.element.tagName === 'A'
-                        &&
-                        item.element.href
-                    ) {
-
-                        window.location.href =
-                            item.element.href;
-
-                        return;
-                    }
-
-
-                    /*
-                     * If it's a parent menu,
-                     * open its submenu.
-                     */
-
-                    if (
-                        item.element.classList
-                            .contains('has-submenu')
-                    ) {
-
-                        item.element.click();
-
-                    }
-
-
-                    searchResults.classList.remove('show');
-
-                    searchInput.value =
-                        item.text;
-
-                });
-
-
-                searchResults.appendChild(result);
+                searchResults.classList.remove('show');
+                searchInput.value = item.text;
 
             });
 
+            searchResults.appendChild(result);
+
+        });
 
         searchResults.classList.add('show');
-
     }
 
 
-    /*
-     * Search while typing
-     */
+    /* Search while typing */
+    searchInput.addEventListener('input', performSearch);
 
-    searchInput.addEventListener(
-        'input',
-        performSearch
-    );
+    /* Search button */
+    searchButton.addEventListener('click', performSearch);
 
-
-    /*
-     * Search button
-     */
-
-    searchButton.addEventListener(
-        'click',
-        performSearch
-    );
-
-
-    /*
-     * Press Enter to search
-     */
-
-    searchInput.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (event.key === 'Enter') {
-
-                event.preventDefault();
-
-                performSearch();
-
-            }
-
+    /* Press Enter */
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            performSearch();
         }
-    );
+    });
 
 
-    /*
-     * Close search results when
-     * clicking outside.
-     */
-
-    document.addEventListener(
-        'click',
-        function (event) {
-
-            if (
-                !event.target.closest(
-                    '.header-search'
-                )
-            ) {
-
-                searchResults.classList.remove(
-                    'show'
-                );
-
-            }
-
+    /* Close search results outside click */
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.header-search')) {
+            searchResults.classList.remove('show');
         }
-    );
+    });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CTRL + K SEARCH SHORTCUT
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       CTRL + K SEARCH
+    ========================================================= */
 
-    document.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (
-                (event.ctrlKey || event.metaKey)
-                &&
-                event.key.toLowerCase() === 'k'
-            ) {
-
-                event.preventDefault();
-
-                searchInput.focus();
-
-                searchInput.select();
-
-            }
-
+    document.addEventListener('keydown', function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            searchInput.focus();
+            searchInput.select();
         }
-    );
+    });
 
 });
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
 
 </body>
 </html>
+
+
+
