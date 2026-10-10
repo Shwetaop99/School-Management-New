@@ -63,7 +63,7 @@ use App\Http\Controllers\Admin\ExamHolidayController;
 use App\Http\Controllers\Admin\StudentReportController;
 use App\Http\Controllers\Admin\MealReportController;
 use App\Http\Controllers\Admin\TransportReportController;
-
+use App\Http\Controllers\Admin\StudentBulkImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -152,6 +152,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+    
+
+Route::get('students/bulk-create', [
+    \App\Http\Controllers\Admin\BulkStudentController::class,
+    'create',
+])->name('students.bulk-create');
+
+Route::post('students/bulk-store', [
+    \App\Http\Controllers\Admin\BulkStudentController::class,
+    'store',
+])->name('students.bulk-store');
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -412,6 +426,8 @@ Route::prefix('results')
         Route::get('/{result}', [ResultController::class, 'show'])
             ->name('show');
 
+            
+
     });
 
     
@@ -469,16 +485,35 @@ Route::prefix('results')
             ])->name('students.class-wise.print');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | STUDENT CRUD
-            |--------------------------------------------------------------------------
-            */
+            
+/*
+|--------------------------------------------------------------------------
+| STUDENT EXCEL IMPORT
+|--------------------------------------------------------------------------
+*/
 
-            Route::resource(
-                'students',
-                StudentController::class
-            );
+Route::get('/students/import/template', [
+    StudentBulkImportController::class,
+    'downloadTemplate',
+])->name('students.import.template');
+
+Route::post('/students/import', [
+    StudentBulkImportController::class,
+    'import',
+])->name('students.import');
+
+
+/*
+|--------------------------------------------------------------------------
+| STUDENT CRUD
+|--------------------------------------------------------------------------
+*/
+
+Route::resource(
+    'students',
+    StudentController::class
+);
+
 
 
             /*

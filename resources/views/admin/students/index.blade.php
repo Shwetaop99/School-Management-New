@@ -504,24 +504,59 @@
         </div>
     </div>
 
-    {{-- PAGE HEADER --}}
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        <div>
-            <h3 class="fw-bold mb-1">
-                <i class="bi bi-people-fill text-primary me-2"></i>
-                Students
-            </h3>
-            <div class="text-muted small">
-                Manage and view all registered students
-            </div>
+    
+{{-- PAGE HEADER --}}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="bi bi-people-fill text-primary me-2"></i>
+            Students
+        </h3>
+        <div class="text-muted small">
+            Manage and view all registered students
         </div>
+    </div>
 
-        <a href="{{ route('admin.students.create') }}"
+    <div class="d-flex align-items-center flex-wrap gap-2">
+
+        {{-- DOWNLOAD EXCEL TEMPLATE --}}
+        <a href="{{ route('admin.students.import.template') }}"
+           class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold">
+            <i class="bi bi-file-earmark-excel me-2"></i>
+            Download Template
+        </a>
+
+        {{-- IMPORT STUDENTS --}}
+        <form action="{{ route('admin.students.import') }}"
+              method="POST"
+              enctype="multipart/form-data"
+              class="d-flex align-items-center flex-wrap gap-2">
+            @csrf
+
+            <input type="file"
+                   name="file"
+                   class="form-control"
+                   accept=".xlsx,.xls,.csv"
+                   required
+                   style="max-width: 230px;">
+
+            <button type="submit"
+                    class="btn btn-success px-3 py-2 rounded-3 fw-semibold">
+                <i class="bi bi-upload me-2"></i>
+                Import Students
+            </button>
+        </form>
+
+        {{-- EXISTING ADD STUDENT BUTTON --}}
+        <a href="{{ route('admin.students.bulk-create') }}"
            class="btn btn-primary px-4 py-2 rounded-3 fw-semibold shadow-sm">
             <i class="bi bi-person-plus-fill me-2"></i>
             Add Student
         </a>
+
     </div>
+</div>
+
 
     {{-- ALERTS --}}
     @if(session('success'))
@@ -543,6 +578,29 @@
                     aria-label="Close"></button>
         </div>
     @endif
+
+    
+@if(session('import_errors'))
+    <div class="alert alert-warning border-0 shadow-sm rounded-3">
+        <h6 class="fw-bold">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Import validation errors
+        </h6>
+
+        <ul class="mb-0">
+            @foreach(session('import_errors') as $importError)
+                @if(is_array($importError))
+                    @foreach($importError as $message)
+                        <li>{{ $message }}</li>
+                    @endforeach
+                @else
+                    <li>{{ $importError }}</li>
+                @endif
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 
     {{-- STATISTICS --}}
     <div class="row g-3 mb-4">
