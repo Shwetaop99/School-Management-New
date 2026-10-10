@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
 
@@ -101,6 +101,17 @@ use App\Http\Controllers\Transport\TransportVehicleController;
 */
 use App\Http\Controllers\Scholarship\MeritConcessionController;
 use App\Http\Controllers\Scholarship\ScholarshipExamController;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentReportExport;
+use App\Http\Controllers\Admin\StudentHealthController;
+use App\Http\Controllers\Admin\StudentGeneralRegisterController;
+use App\Http\Controllers\Admin\CasteReportController;
+use App\Http\Controllers\Admin\TransportReportController;
+use App\Http\Controllers\Admin\MealReportController;
+use App\Http\Controllers\Admin\AttendanceReportController;
+use App\Http\Controllers\Admin\StaffReportController;
+use App\Http\Controllers\Admin\StudentReportController;
+use App\Http\Controllers\Admin\ReportsController;
 
 
 /*
@@ -1943,6 +1954,84 @@ Route::prefix('admin')
                 });
 
 
+            // REPORTS
+            Route::get('/reports', [ReportsController::class, 'index'])
+                ->name('reports.index');
+
+            Route::get('/reports/students', [StudentReportController::class, 'index'])
+                ->name('reports.students');
+            Route::get('/reports/students/pdf', [StudentReportController::class, 'pdf'])
+                ->name('reports.students.pdf');
+            Route::get('/reports/students/excel', function (\Illuminate\Http\Request $request) {
+                $filters = $request->only([
+                    'search', 'academic_year', 'class', 'section', 'gender', 'status'
+                ]);
+                return Excel::download(
+                    new StudentReportExport($filters),
+                    'student-report.xlsx'
+                );
+            })->name('reports.students.excel');
+
+            Route::get('/reports/staff', [StaffReportController::class, 'index'])
+                ->name('reports.staff');
+            Route::get('/reports/staff/pdf', [StaffReportController::class, 'pdf'])
+                ->name('reports.staff.pdf');
+            Route::get('/reports/staff/excel', [StaffReportController::class, 'excel'])
+                ->name('reports.staff.excel');
+            Route::get('/reports/staff/{otherStaff}', [StaffReportController::class, 'show'])
+                ->name('reports.staff.show');
+
+            Route::get('/reports/attendance', [AttendanceReportController::class, 'index'])
+                ->name('reports.attendance');
+            Route::get('/reports/attendance/pdf', [AttendanceReportController::class, 'pdf'])
+                ->name('reports.attendance.pdf');
+            Route::get('/reports/attendance/excel', [AttendanceReportController::class, 'excel'])
+                ->name('reports.attendance.excel');
+
+            Route::get('/reports/meal', [MealReportController::class, 'index'])
+                ->name('reports.meal');
+            Route::get('/reports/meal/pdf', [MealReportController::class, 'pdf'])
+                ->name('reports.meal.pdf');
+            Route::get('/reports/meal/excel', [MealReportController::class, 'excel'])
+                ->name('reports.meal.excel');
+
+            Route::get('/reports/transport', [TransportReportController::class, 'index'])
+                ->name('reports.transport');
+            Route::get('/reports/transport/pdf', [TransportReportController::class, 'pdf'])
+                ->name('reports.transport.pdf');
+            Route::get('/reports/transport/excel', [TransportReportController::class, 'excel'])
+                ->name('reports.transport.excel');
+            Route::get('/reports/transport/student-search', [TransportReportController::class, 'studentSearch'])
+                ->name('reports.transport.student-search');
+            Route::get('/reports/transport/student-travel', [TransportReportController::class, 'studentTravel'])
+                ->name('reports.transport.student-travel');
+            Route::get('/reports/transport/student-travel/pdf', [TransportReportController::class, 'studentTravelPdf'])
+                ->name('reports.transport.student-travel.pdf');
+            Route::get('/reports/transport/student-travel/excel', [TransportReportController::class, 'studentTravelExcel'])
+                ->name('reports.transport.student-travel.excel');
+            Route::get('/reports/transport/vehicle', [TransportReportController::class, 'vehicle'])
+                ->name('reports.transport.vehicle');
+            Route::get('/reports/transport/vehicle/pdf', [TransportReportController::class, 'vehiclePdf'])
+                ->name('reports.transport.vehicle.pdf');
+            Route::get('/reports/transport/vehicle/excel', [TransportReportController::class, 'vehicleExcel'])
+                ->name('reports.transport.vehicle.excel');
+
+            Route::get('/caste-report', [CasteReportController::class, 'index'])
+                ->name('caste-report.index');
+            Route::get('/caste-report/classwise-print', [CasteReportController::class, 'classwisePrint'])
+                ->name('caste-report.classwise-print');
+
+            Route::get('/student-health', [StudentHealthController::class, 'index'])
+                ->name('student-health.index');
+            Route::get('/student-health/{student}', [StudentHealthController::class, 'show'])
+                ->name('student-health.show');
+
+            Route::get('/student-general-register', [StudentGeneralRegisterController::class, 'index'])
+                ->name('student-general-register.index');
+            Route::get('/student-general-register/print', [StudentGeneralRegisterController::class, 'print'])
+                ->name('student-general-register.print');
+            Route::get('/student-general-register/{student}', [StudentGeneralRegisterController::class, 'show'])
+                ->name('student-general-register.show');
             /*
             |--------------------------------------------------------------------------
             | ADMIN LOGOUT
@@ -2094,6 +2183,7 @@ Route::prefix('admin/meal/logs')
             'show'
         ])->name('show');
     });
+
 
 
 

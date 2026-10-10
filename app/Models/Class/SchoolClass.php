@@ -3,6 +3,7 @@
 namespace App\Models\Class;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SchoolClass extends Model
 {
@@ -18,4 +19,9 @@ class SchoolClass extends Model
     protected $casts = [
         'status' => 'boolean',
     ];
+
+    public function subjects(): HasMany
+    {
+        return $this->hasMany(Subject::class, 'class_id');
+    }
 }

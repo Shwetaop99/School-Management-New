@@ -12,9 +12,21 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Guest Redirect
+        |--------------------------------------------------------------------------
+        */
+
         $middleware->redirectGuestsTo(function () {
             return route('admin.login');
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permission Middleware
+        |--------------------------------------------------------------------------
+        */
 
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,

@@ -332,40 +332,36 @@ class MealStockLogController extends Controller
             $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
-
                 $q->where(
                     'reason',
                     'like',
                     "%{$search}%"
                 )
-
-                ->orWhere(
-                    'remarks',
-                    'like',
-                    "%{$search}%"
-                )
-
-                ->orWhereHas(
-                    'mealItem',
-                    function ($itemQuery) use ($search) {
-                        $itemQuery->where(
-                            'item_name',
-                            'like',
-                            "%{$search}%"
-                        );
-                    }
-                )
-
-                ->orWhereHas(
-                    'stockTransaction',
-                    function ($transactionQuery) use ($search) {
-                        $transactionQuery->where(
-                            'supplier',
-                            'like',
-                            "%{$search}%"
-                        );
-                    }
-                );
+                    ->orWhere(
+                        'remarks',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhereHas(
+                        'mealItem',
+                        function ($itemQuery) use ($search) {
+                            $itemQuery->where(
+                                'item_name',
+                                'like',
+                                "%{$search}%"
+                            );
+                        }
+                    )
+                    ->orWhereHas(
+                        'stockTransaction',
+                        function ($transactionQuery) use ($search) {
+                            $transactionQuery->where(
+                                'supplier',
+                                'like',
+                                "%{$search}%"
+                            );
+                        }
+                    );
             });
         }
 

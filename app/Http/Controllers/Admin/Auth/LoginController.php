@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +18,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Handle admin login.
+     * Handle user login.
      */
     public function login(Request $request)
     {
@@ -33,33 +34,145 @@ class LoginController extends Controller
             ],
         ]);
 
-        $remember = $request->boolean('remember');
+        /*
+        |--------------------------------------------------------------------------
+        | Find User
+        |--------------------------------------------------------------------------
+        |
+        | Users log in using the email address assigned to their account.
+        |
+        */
 
-        if (!Auth::attempt($credentials, $remember)) {
+        $user = User::with('role')
+            ->where('email', $credentials['email'])
+            ->first();
+
+        /*
+        |--------------------------------------------------------------------------
+        | User Not Found
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user) {
             return back()
                 ->withErrors([
-                    'email' => 'Invalid admin credentials.',
+                    'email' => 'Invalid email or password.',
                 ])
-                ->withInput($request->only('email'));
+                ->withInput(
+                    $request->only('email')
+                );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Account Status
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->status !== 'Active') {
+            return back()
+                ->withErrors([
+                    'email' => 'This account is inactive. Please contact the administrator.',
+                ])
+                ->withInput(
+                    $request->only('email')
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Assigned Role
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->role) {
+            return back()
+                ->withErrors([
+                    'email' => 'No role has been assigned to this account. Please contact the administrator.',
+                ])
+                ->withInput(
+                    $request->only('email')
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Role Status
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->role->status !== 'Active') {
+            return back()
+                ->withErrors([
+                    'email' => 'The role assigned to this account is inactive. Please contact the administrator.',
+                ])
+                ->withInput(
+                    $request->only('email')
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authenticate Email + Password
+        |--------------------------------------------------------------------------
+        */
+
+        $remember = $request->boolean('remember');
+
+        if (!Auth::attempt(
+            [
+                'email' => $credentials['email'],
+                'password' => $credentials['password'],
+            ],
+            $remember
+        )) {
+            return back()
+                ->withErrors([
+                    'email' => 'Invalid email or password.',
+                ])
+                ->withInput(
+                    $request->only('email')
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Regenerate Session
+        |--------------------------------------------------------------------------
+        */
 
         $request->session()->regenerate();
 
         /*
         |--------------------------------------------------------------------------
-        | 2FA
+        | Reset 2FA Verification
         |--------------------------------------------------------------------------
-        |
-        | We will add the actual 2FA verification here.
-        | For now, keep the authentication flow ready for it.
-        |
+        */
+
+        $request->session()->forget('two_factor_verified');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Store User Role
+        |--------------------------------------------------------------------------
+        */
+
+        $request->session()->put(
+            'user_role',
+            $user->role->name
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Continue to 2FA
+        |--------------------------------------------------------------------------
         */
 
         return redirect()->route('admin.2fa.setup');
     }
 
     /**
-     * Logout admin.
+     * Logout user.
      */
     public function logout(Request $request)
     {

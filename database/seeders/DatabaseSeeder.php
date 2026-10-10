@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -9,6 +9,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Create or update default admin user
         User::updateOrCreate(
             [
                 'email' => 'admin@example.com',
@@ -18,5 +19,11 @@ class DatabaseSeeder extends Seeder
                 'password' => 'Admin@12345',
             ]
         );
+
+        // Seed ID Card Templates, Roles and Permissions
+        $this->call([
+            IdCardTemplateSeeder::class,
+            RolePermissionSeeder::class,
+        ]);
     }
 }

@@ -1099,13 +1099,13 @@
 
 .meal-summary-card {
     position: relative;
-    min-height: 165px;
-    padding: 24px 25px;
+    min-height: 118px;
+    padding: 18px;
     display: flex;
     align-items: center;
     gap: 14px;
     overflow: hidden;
-    border-radius: 17px;
+    border-radius: 10px;
     color: #ffffff;
     box-shadow: 0 6px 16px rgba(25, 55, 95, 0.08);
     transition: transform 0.22s ease, box-shadow 0.22s ease;

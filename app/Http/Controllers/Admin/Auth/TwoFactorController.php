@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use PragmaRX\Google2FA\Google2FA;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -32,12 +33,12 @@ class TwoFactorController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | If 2FA is already verified, don't show setup again
+        | If 2FA is already verified
         |--------------------------------------------------------------------------
         */
 
         if (session('two_factor_verified') === true) {
-            return redirect()->route('admin.dashboard');
+            return $this->redirectByRole($user);
         }
 
         $google2fa = new Google2FA();
@@ -112,7 +113,6 @@ class TwoFactorController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | Get authenticated user
@@ -125,10 +125,51 @@ class TwoFactorController extends Controller
             return redirect()->route('admin.login');
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure the account is still active
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->status !== 'Active') {
+
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('admin.login')
+                ->withErrors([
+                    'login_id' => 'This account is inactive. Please contact the administrator.',
+                ]);
+        }
 
         /*
         |--------------------------------------------------------------------------
-        | Verify Google Authenticator code
+        | Make sure the user still has an active role
+        |--------------------------------------------------------------------------
+        */
+
+        $user->load('role');
+
+        if (!$user->role || $user->role->status !== 'Active') {
+
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('admin.login')
+                ->withErrors([
+                    'login_id' => 'Your assigned role is inactive or unavailable. Please contact the administrator.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verify Google Authenticator Code
         |--------------------------------------------------------------------------
         */
 
@@ -139,10 +180,9 @@ class TwoFactorController extends Controller
             $request->code
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Invalid code
+        | Invalid Code
         |--------------------------------------------------------------------------
         */
 
@@ -155,10 +195,9 @@ class TwoFactorController extends Controller
                 ->withInput();
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | 2FA successful
+        | 2FA Successful
         |--------------------------------------------------------------------------
         */
 
@@ -167,13 +206,97 @@ class TwoFactorController extends Controller
             true
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Redirect to dashboard
+        | Store Current Role
         |--------------------------------------------------------------------------
         */
 
-        return redirect()->route('admin.dashboard');
+        $request->session()->put(
+            'user_role',
+            $user->role->name
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirect According To Role
+        |--------------------------------------------------------------------------
+        */
+
+        return $this->redirectByRole($user);
+    }
+
+
+    /**
+     * Redirect the authenticated user according to their assigned role.
+     */
+    private function redirectByRole($user)
+    {
+        $user->load('role');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure a role exists
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->role) {
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'No role is assigned to this account.');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Role-based destinations
+        |--------------------------------------------------------------------------
+        |
+        | These route names can be changed later when each module's
+        | dedicated landing page is created.
+        |
+        */
+
+        $roleRoutes = [
+
+            // Super Admin
+            'super_admin' => 'admin.dashboard',
+
+            // Admin
+            'admin' => 'admin.dashboard',
+
+            // Librarian
+            'librarian' => 'admin.library.librarian.index',
+
+            // Teacher
+            'teacher' => 'admin.faculty.index',
+
+            // Accountant
+            'accountant' => 'admin.fees.index',
+
+            // Receptionist
+            'receptionist' => 'admin.other-staff.index',
+
+            // Other Staff
+            'other_staff' => 'admin.other-staff.index',
+        ];
+
+        $roleName = $user->role->name;
+
+        $destination = $roleRoutes[$roleName] ?? 'admin.dashboard';
+
+        /*
+        |--------------------------------------------------------------------------
+        | Safety Check
+        |--------------------------------------------------------------------------
+        |
+        | Prevent Laravel from throwing RouteNotFoundException if a module's
+        | landing route has not been created yet.
+        |
+        */
+
+        if (!Route::has($destination)) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect()->route($destination);
     }
 }

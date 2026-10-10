@@ -628,14 +628,7 @@
              SCHOOL LOGO
         =================================================== -->
 
-        <div class="admin-logo">
-
-            <img
-                src="{{ asset('images/gurukullogo.png') }}"
-                alt="Gurukul Vidyalaya Logo"
-            >
-
-        </div>
+        
 
 
         <!-- Heading -->

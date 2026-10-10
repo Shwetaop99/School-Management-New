@@ -24,6 +24,7 @@ class OtherStaffController extends Controller
                 $q->where('staff_id', 'like', '%' . $search . '%')
                     ->orWhere('name', 'like', '%' . $search . '%')
                     ->orWhere('phone', 'like', '%' . $search . '%')
+                    ->orWhere('license_number', 'like', '%' . $search . '%')
                     ->orWhere('email', 'like', '%' . $search . '%');
             });
         }
@@ -61,36 +62,51 @@ class OtherStaffController extends Controller
             ->orderBy('designation')
             ->pluck('designation');
 
-        return view('admin.other-staff.index', compact(
-            'staff',
-            'totalStaff',
-            'activeStaff',
-            'inactiveStaff',
-            'librarians',
-            'designations'
-        ));
+        return view(
+            'admin.other-staff.index',
+            compact(
+                'staff',
+                'totalStaff',
+                'activeStaff',
+                'inactiveStaff',
+                'librarians',
+                'designations'
+            )
+        );
     }
-
 
     /**
      * Show the form for creating a new staff member.
      */
     public function create()
-{
-    $lastStaff = OtherStaff::orderByDesc('id')->first();
+    {
+        $lastStaff = OtherStaff::orderByDesc('id')->first();
 
-    if ($lastStaff) {
-        $lastNumber = (int) preg_replace('/[^0-9]/', '', $lastStaff->staff_id);
-        $nextNumber = $lastNumber + 1;
-    } else {
-        $nextNumber = 1;
+        if ($lastStaff) {
+            $lastNumber = (int) preg_replace(
+                '/[^0-9]/',
+                '',
+                $lastStaff->staff_id
+            );
+
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $nextStaffId = 'STF-' .
+            str_pad(
+                $nextNumber,
+                3,
+                '0',
+                STR_PAD_LEFT
+            );
+
+        return view(
+            'admin.other-staff.create',
+            compact('nextStaffId')
+        );
     }
-
-    $nextStaffId = 'STF-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-
-    return view('admin.other-staff.create', compact('nextStaffId'));
-}
-
 
     /**
      * Store a newly created staff member.
@@ -98,28 +114,112 @@ class OtherStaffController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'staff_id' => 'required|string|max:50|unique:other_staff,staff_id',
-            'name' => 'required|string|max:255',
+            'staff_id' => [
+                'required',
+                'string',
+                'max:50',
+                'unique:other_staff,staff_id'
+            ],
 
-            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
 
-            'gender' => 'nullable|in:Male,Female,Other',
-            'date_of_birth' => 'nullable|date',
+            'profile_photo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
 
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255|unique:other_staff,email',
-            'address' => 'nullable|string',
+            'gender' => [
+                'nullable',
+                'in:Male,Female,Other'
+            ],
 
-            'designation' => 'required|in:Librarian,Accountant,Receptionist,Peon,Driver,Other',
+            'date_of_birth' => [
+                'nullable',
+                'date'
+            ],
 
-            'department' => 'nullable|string|max:255',
-            'qualification' => 'nullable|string|max:255',
-            'joining_date' => 'nullable|date|before_or_equal:today',
+            'phone' => [
+                'nullable',
+                'string',
+                'max:20'
+            ],
 
-            'status' => 'required|in:Active,Inactive',
+            /*
+             * Driving Licence Details
+             */
+            'license_number' => [
+                'nullable',
+                'string',
+                'max:100'
+            ],
+
+            'license_expiry' => [
+                'nullable',
+                'date',
+                'after_or_equal:today'
+            ],
+
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                'unique:other_staff,email'
+            ],
+
+            'address' => [
+                'nullable',
+                'string'
+            ],
+
+            'designation' => [
+                'required',
+                'in:Librarian,Accountant,Receptionist,Peon,Driver,Other'
+            ],
+
+            'department' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'qualification' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'joining_date' => [
+                'nullable',
+                'date',
+                'before_or_equal:today'
+            ],
+
+            'status' => [
+                'required',
+                'in:Active,Inactive'
+            ],
         ]);
 
-        // Upload profile photo
+        /*
+         * License details are applicable to drivers.
+         *
+         * If the staff member is not a Driver,
+         * clear any accidentally submitted license details.
+         */
+        if ($validated['designation'] !== 'Driver') {
+            $validated['license_number'] = null;
+            $validated['license_expiry'] = null;
+        }
+
+        /*
+         * Upload profile photo.
+         */
         if ($request->hasFile('profile_photo')) {
             $validated['profile_photo'] = $request
                 ->file('profile_photo')
@@ -130,18 +230,22 @@ class OtherStaffController extends Controller
 
         return redirect()
             ->route('admin.other-staff.index')
-            ->with('success', 'Staff member added successfully.');
+            ->with(
+                'success',
+                'Staff member added successfully.'
+            );
     }
-
 
     /**
      * Display a specific staff member.
      */
     public function show(OtherStaff $otherStaff)
-{
-    return view('admin.other-staff.show', compact('otherStaff'));
-}
-
+    {
+        return view(
+            'admin.other-staff.show',
+            compact('otherStaff')
+        );
+    }
 
     /**
      * Show the form for editing a staff member.
@@ -154,7 +258,6 @@ class OtherStaffController extends Controller
         );
     }
 
-
     /**
      * Update a staff member.
      */
@@ -163,29 +266,109 @@ class OtherStaffController extends Controller
         OtherStaff $otherStaff
     ) {
         $validated = $request->validate([
-            'staff_id' => 'required|string|max:255|unique:other_staff,staff_id,' . $otherStaff->id,
+            'staff_id' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:other_staff,staff_id,' . $otherStaff->id
+            ],
 
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
 
-            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'profile_photo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
 
-            'gender' => 'nullable|in:Male,Female,Other',
-            'date_of_birth' => 'nullable|date',
+            'gender' => [
+                'nullable',
+                'in:Male,Female,Other'
+            ],
 
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255|unique:other_staff,email,' . $otherStaff->id,
-            'address' => 'nullable|string',
+            'date_of_birth' => [
+                'nullable',
+                'date'
+            ],
 
-            'designation' => 'required|in:Librarian,Accountant,Receptionist,Peon,Driver,Other',
+            'phone' => [
+                'nullable',
+                'string',
+                'max:20'
+            ],
 
-            'department' => 'nullable|string|max:255',
-            'qualification' => 'nullable|string|max:255',
-            'joining_date' => 'nullable|date|before_or_equal:today',
+            /*
+             * Driving Licence Details
+             */
+            'license_number' => [
+                'nullable',
+                'string',
+                'max:100'
+            ],
 
-            'status' => 'required|in:Active,Inactive',
+            'license_expiry' => [
+                'nullable',
+                'date',
+                'after_or_equal:today'
+            ],
+
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                'unique:other_staff,email,' . $otherStaff->id
+            ],
+
+            'address' => [
+                'nullable',
+                'string'
+            ],
+
+            'designation' => [
+                'required',
+                'in:Librarian,Accountant,Receptionist,Peon,Driver,Other'
+            ],
+
+            'department' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'qualification' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'joining_date' => [
+                'nullable',
+                'date',
+                'before_or_equal:today'
+            ],
+
+            'status' => [
+                'required',
+                'in:Active,Inactive'
+            ],
         ]);
 
-        // Replace profile photo
+        /*
+         * Only Drivers should have driving licence details.
+         */
+        if ($validated['designation'] !== 'Driver') {
+            $validated['license_number'] = null;
+            $validated['license_expiry'] = null;
+        }
+
+        /*
+         * Replace profile photo if a new photo is uploaded.
+         */
         if ($request->hasFile('profile_photo')) {
 
             if ($otherStaff->profile_photo) {
@@ -201,17 +384,24 @@ class OtherStaffController extends Controller
         $otherStaff->update($validated);
 
         return redirect()
-            ->route('admin.other-staff.show', $otherStaff)
-            ->with('success', 'Staff member updated successfully.');
+            ->route(
+                'admin.other-staff.show',
+                $otherStaff
+            )
+            ->with(
+                'success',
+                'Staff member updated successfully.'
+            );
     }
-
 
     /**
      * Delete a staff member.
      */
     public function destroy(OtherStaff $otherStaff)
     {
-        // Delete profile photo
+        /*
+         * Delete profile photo.
+         */
         if ($otherStaff->profile_photo) {
             Storage::disk('public')
                 ->delete($otherStaff->profile_photo);
@@ -221,6 +411,9 @@ class OtherStaffController extends Controller
 
         return redirect()
             ->route('admin.other-staff.index')
-            ->with('success', 'Staff member deleted successfully.');
+            ->with(
+                'success',
+                'Staff member deleted successfully.'
+            );
     }
 }
