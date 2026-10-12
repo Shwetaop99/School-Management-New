@@ -33,16 +33,16 @@
 
             <div class="meal-header-actions">
 
-                <a href="{{ route('admin.meal.items.index') }}"
-                   class="btn meal-back-btn">
+                <a href="{{ route('admin.admin.meal.items.index') }}"
+    class="btn meal-back-btn">
 
                     <i class="fas fa-arrow-left me-1"></i>
                     Meal Items
 
                 </a>
 
-                <a href="{{ route('admin.meal.items.stock.create') }}"
-                   class="btn meal-stock-btn">
+                <a href="{{ route('admin.admin.meal.items.index') }}"
+    class="btn meal-back-btn">
 
                     <i class="fas fa-plus me-1"></i>
                     Add Stock In / Out
@@ -268,7 +268,7 @@
             <div class="meal-filter-wrapper">
 
                 <form method="GET"
-                      action="{{ route('admin.meal.items.stock.index') }}"
+                      action="{{ route('admin.admin.meal.items.stock.index') }}"
                       class="meal-filter-form">
 
                     {{-- SEARCH --}}
@@ -613,7 +613,7 @@
                             No stock in transactions have been recorded yet.
                         </p>
 
-                        <a href="{{ route('admin.meal.items.stock.create') }}"
+                        <a href="{{ route('admin.admin.meal.items.stock.create') }}"
                            class="btn meal-stock-btn">
 
                             <i class="fas fa-plus me-1"></i>

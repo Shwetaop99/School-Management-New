@@ -177,19 +177,67 @@
     $menu = [
         'Main' => [
             ['l'=>'Dashboard','i'=>'fa-gauge-high','a'=>['admin.dashboard'],'r'=>'admin.dashboard'],
-            ['l'=>'Student','i'=>'fa-user-graduate','a'=>['admin.students.*','admin.student-*','admin.id-card.*'],
-                'c'=>[['All Students','admin.students.index'],['Student Profile','admin.students.index'],['Student Documents','admin.students.index'],['Student ID','admin.students.index'],['Attendance','admin.attendance.students'],['School Supplies (Kit)','admin.students.index'],['Student Report','admin.students.index'],['Add Student','admin.students.index']]],
+           
+
+[
+    'l' => 'Student',
+    'i' => 'fa-user-graduate',
+    'a' => [
+        'admin.students.*',
+        'admin.student-profile.*',
+        'admin.student-documents.*',
+        'admin.id-card.*',
+        'admin.attendance.*',
+        'admin.reports.students',
+    ],
+    'c' => [
+        ['All Students', 'admin.students.index'],
+        ['Student Profile', 'admin.student-profile.index'],
+        ['Student Documents', 'admin.student-documents.index'],
+        ['Student ID', 'admin.id-card.index'],
+        ['Attendance', 'admin.attendance.index'],
+        ['School Supplies (Kit)', 'admin.supply-items.index'],
+        ['Student Report', 'admin.reports.index'],
+        ['Add Student', 'admin.students.create'],
+    ],
+],
+
+
             ['l'=>'Faculty (Teacher)','i'=>'fa-chalkboard-user','a'=>['admin.faculty.*'],
                 'c'=>[['All Faculty','admin.faculty.index'],['Teacher Allocation','admin.faculty.index']]],
             ['l'=>'Other Staff','i'=>'fa-users','a'=>['admin.other-staff.*'],
                 'c'=>[['All Staff','admin.other-staff.index'],['Add Staff','admin.other-staff.create']]],
             ['l'=>'Time Table','i'=>'fa-table-cells','a'=>['admin.timetable.*'],
                 'c'=>[['Class Timetable','admin.timetable.index'],['Teacher Timetable','admin.timetable.index'],['Create Timetable','admin.timetable.index']]],
+            
             ['l'=>'Attendance','i'=>'fa-check','a'=>['admin.attendance.*','admin.teachers.attendance.*'],
-                'c'=>[['Student Attendance','admin.attendance.students'],['Faculty Attendance','admin.teachers.attendance.index']]],
-            ['l'=>'Fees','i'=>'fa-indian-rupee-sign','a'=>['admin.fees.*'],
-                'c'=>[['Fee Structure','admin.fees.index'],['Student Fee','admin.fees.index'],['Payment History','admin.fees.index'],['Scholarship','admin.scholarship.index']]],
-            ['l'=>'Exam','i'=>'fa-file-lines','a'=>['admin.exam.*'],'r'=>'admin.exam.index'],
+                'c'=>[
+                    ['Student Attendance', 'admin.attendance.student.sheet'],
+                    ['Faculty Attendance', 'admin.teachers.attendance.index']
+                ]
+            ],
+
+
+            
+
+[
+    'l' => 'Fees',
+    'i' => 'fa-indian-rupee-sign',
+    'a' => [
+        'admin.fees.fee-structures.*',
+        'admin.fees.student-fees.*',
+        'admin.fees.payment-history.*',
+    ],
+    'c' => [
+        ['Fee Structure', 'admin.fees.fee-structures.index'],
+        ['Student Fee', 'admin.fees.student-fees.index'],
+        ['Payment History', 'admin.fees.payment-history.index'],
+    ],
+],
+
+
+
+          ['l'=>'Exam','i'=>'fa-file-lines','a'=>['admin.exams.*'],'r'=>'admin.exams.index'],
             ['l'=>'Result','i'=>'fa-chart-column','a'=>['admin.results.*'],
                 'c'=>[['Student Result','admin.results.index'],['Grade Management','admin.results.index'],['Publish Result','admin.results.index'],['Result History','admin.results.index'],['Result Report','admin.results.index']]],
             ['l'=>'Notice','i'=>'fa-flag','a'=>['admin.notices.*'],
@@ -197,22 +245,82 @@
             ['l'=>'Library','i'=>'fa-book','a'=>['admin.library.*'],
                 'c'=>[['Total Books','admin.library.books.index'],['Issues / Returns / Fine','admin.library.issues.index'],['Librarian','admin.library.librarian.index'],['Reports','admin.library.reports.index']]],
         ],
-        'Other' => [
-            ['l'=>'Transport','i'=>'fa-bus','a'=>['admin.transport.*'],
-                'c'=>[['Transport Records','admin.transport.index'],['Routes','admin.transport.index'],['Vehicles','admin.transport.index']]],
-            ['l'=>'Meal Management','i'=>'fa-utensils','a'=>['admin.meal.*','admin.meals.*'],
-                'c'=>[['Stock In / Stock Out','admin.meal.items.index'],['Logs','admin.meal.logs.index']]],
-            ['l'=>'Payroll','i'=>'fa-money-check-dollar','a'=>['admin.teachers.salary.*'],'r'=>'admin.teachers.salary.index'],
-            ['l'=>'Sports','i'=>'fa-futbol','a'=>['admin.sports.*'],
-                'c'=>[['Games / Events','admin.sports.games.index'],['Achievements','admin.sports.achievements.index'],['Sports Equipments','admin.sports.equipment.index']]],
-            ['l'=>'Scholarship','i'=>'fa-graduation-cap','a'=>['admin.scholarship.*'],'r'=>'admin.scholarship.index'],
-            ['l'=>'Class','i'=>'fa-chalkboard','a'=>['admin.classes.*','admin.subjects.*'],
-                'c'=>[['Classes','admin.classes.index'],['Subjects','admin.subjects.index']]],
-            ['l'=>'Reports','i'=>'fa-chart-pie','a'=>['admin.reports.*'],'r'=>'admin.reports.index'],
-            ['l'=>'Settings','i'=>'fa-gear','a'=>['admin.settings.*','admin.backup.*'],
-                'c'=>[['School Profile','admin.settings.index'],['User Roles & Permission','admin.settings.index'],['Backup & Recovery','admin.backup.index']]],
+       
+'Other' => [
+    [
+        'l' => 'Transport',
+        'i' => 'fa-bus',
+        'a' => [
+            'admin.transport.records.*',
+            'admin.transport.routes.*',
+            'admin.transport.vehicles.*',
+        ],
+        'c' => [
+            ['Transport Records', 'admin.transport.records.index'],
+            ['Routes', 'admin.transport.routes.index'],
+            ['Vehicles', 'admin.transport.vehicles.index'],
+        ],
+    ],
+
+          
+[
+    'l' => 'Meal Management',
+    'i' => 'fa-utensils',
+    'a' => [
+        'admin.admin.meal.*',
+        'admin.admin.meals.*',
+    ],
+    'c' => [
+        ['Stock In / Stock Out', 'admin.admin.meal.items.stock.index'],
+        ['Logs', 'admin.admin.meal.items.index'],
+    ],
+],
+
+           
+['l'=>'Payroll','i'=>'fa-money-check-dollar','a'=>['admin.teachers.salary.*'],'r'=>'admin.teachers.salary.index'],
+
+['l'=>'Sports','i'=>'fa-futbol','a'=>['admin.sports.*'],
+    'c'=>[
+        ['Games / Events','admin.sports.games.index'],
+        ['Achievements','admin.sports.achievements.index'],
+        ['Sports Equipments','admin.sports.equipment.index']
+    ]
+],
+
+['l'=>'Scholarship','i'=>'fa-graduation-cap',
+    'a'=>['admin.scholarship.*'],
+    'r'=>'admin.scholarship.index'
+],
+
+['l'=>'Class','i'=>'fa-chalkboard','a'=>['admin.classes.*','admin.subjects.*'],
+    'c'=>[
+        ['Classes','admin.classes.index'],
+        ['Subjects','admin.admin.subjects.index']
+    ]
+],
+
+['l'=>'Reports','i'=>'fa-chart-pie','a'=>['admin.reports.*'],'r'=>'admin.reports.index'],
+
+          
+[
+    'l' => 'Settings',
+    'i' => 'fa-gear',
+    'a' => [
+        'admin.settings.*',
+        'admin.backup.*',
+        'admin.2fa.*',
+    ],
+    'c' => [
+        ['School Profile', 'admin.settings.index'],
+['User Roles & Permission', 'admin.settings.roles.index'],
+        ['Security', 'admin.2fa.security'],
+        ['Backup & Recovery', 'admin.backup.index'],
+    ],
+],
+
         ],
     ];
+
 @endphp
 
 <div class="app-wrapper">

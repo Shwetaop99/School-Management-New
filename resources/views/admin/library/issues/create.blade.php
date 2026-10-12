@@ -416,7 +416,7 @@
                             type="date"
                             name="due_date"
                             class="form-input"
-                            value="{{ old('due_date', date('Y-m-d', strtotime('+14 days'))) }}"
+                            value="{{ old('due_date', date('Y-m-d', strtotime('+7 days'))) }}"
                             required
                         >
 

@@ -357,9 +357,10 @@
         </div>
 
         <a href="{{ route('admin.other-staff.index') }}"
-           class="back-btn">
-            ΓåÉ Back to Staff
-        </a>
+   class="back-btn">
+    <i class="fas fa-arrow-left"></i>
+    Back to Staff
+</a>
 
     </div>
 
@@ -539,7 +540,7 @@
                                 class="photo-placeholder"
                                 id="photoPlaceholder"
                             >
-                                ≡ƒæñ
+                                <i class="fas fa-user"></i>
                             </div>
 
                             <img
@@ -613,12 +614,19 @@
                         </label>
 
                         <input
-                            type="text"
-                            name="phone"
-                            class="form-control"
-                            placeholder="Enter phone number"
-                            value="{{ old('phone') }}"
-                        >
+    type="tel"
+    name="phone"
+    class="form-control"
+    placeholder="Enter 10-digit phone number"
+    value="{{ old('phone') }}"
+    maxlength="10"
+    minlength="10"
+    pattern="[0-9]{10}"
+    inputmode="numeric"
+    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
+    title="Please enter a valid 10-digit phone number"
+    required
+>
 
                     </div>
 
@@ -630,19 +638,24 @@
                             Email Address
                         </label>
 
-                        <input
-                            type="email"
-                            name="email"
-                            class="form-control"
-                            placeholder="Enter email address"
-                            value="{{ old('email') }}"
-                        >
+                        
+<input
+    type="email"
+    name="email"
+    class="form-control"
+    placeholder="Enter email address"
+    value="{{ old('email') }}"
+    maxlength="254"
+    required
+    autocomplete="email"
+>
 
-                        @error('email')
-                            <span class="error-message">
-                                {{ $message }}
-                            </span>
-                        @enderror
+@error('email')
+    <span class="error-message">
+        {{ $message }}
+    </span>
+@enderror
+
 
                     </div>
 
@@ -1122,36 +1135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
 
 
-                <div class="form-group">
-
-                    <label>
-                        Shift
-                    </label>
-
-                    <select
-                        name="role_details[shift]"
-                        class="form-control"
-                    >
-
-                        <option value="">
-                            Select Shift
-                        </option>
-
-                        <option value="Morning">
-                            Morning
-                        </option>
-
-                        <option value="General">
-                            General
-                        </option>
-
-                        <option value="Evening">
-                            Evening
-                        </option>
-
-                    </select>
-
-                </div>
+    
 
 
                 <div class="form-group full">

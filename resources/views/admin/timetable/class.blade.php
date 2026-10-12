@@ -21,7 +21,7 @@
     width: 100%;
     max-width: 1600px;
     margin: 0 auto;
-    padding: 28px;
+    padding: 20px;
     background: #f4f7fb;
     min-height: calc(100vh - 120px);
 }
@@ -34,21 +34,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
-    margin-bottom: 24px;
+    gap: 15px;
+    margin-bottom: 18px;
 }
 
 .class-timetable-header-left h2 {
     margin: 0;
     color: #1e293b;
-    font-size: 26px;
+    font-size: 23px;
     font-weight: 700;
 }
 
 .class-timetable-header-left p {
-    margin: 7px 0 0;
+    margin: 5px 0 0;
     color: #64748b;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 /* =========================================================
@@ -58,27 +58,27 @@
 .selection-card {
     background: #ffffff;
     border: 1px solid #e4eaf2;
-    border-radius: 18px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(30, 64, 175, 0.07);
-    margin-bottom: 25px;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 4px 15px rgba(30, 64, 175, 0.06);
+    margin-bottom: 18px;
 }
 
 .selection-card-header {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .selection-card-header h3 {
     margin: 0;
     color: #1e293b;
-    font-size: 19px;
+    font-size: 16px;
     font-weight: 700;
 }
 
 .selection-card-header p {
-    margin: 5px 0 0;
+    margin: 4px 0 0;
     color: #64748b;
-    font-size: 13px;
+    font-size: 11px;
 }
 
 /* =========================================================
@@ -88,7 +88,7 @@
 .selection-form {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
-    gap: 18px;
+    gap: 12px;
     align-items: end;
 }
 
@@ -98,28 +98,28 @@
 }
 
 .form-group-custom label {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: #334155;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
 }
 
 .form-control-custom {
     width: 100%;
-    height: 46px;
-    padding: 0 14px;
+    height: 40px;
+    padding: 0 11px;
     border: 1px solid #d7e0eb;
-    border-radius: 10px;
+    border-radius: 8px;
     background: #ffffff;
     color: #334155;
-    font-size: 14px;
+    font-size: 12px;
     outline: none;
     transition: all 0.2s ease;
 }
 
 .form-control-custom:focus {
     border-color: #147cf5;
-    box-shadow: 0 0 0 3px rgba(20, 124, 245, 0.10);
+    box-shadow: 0 0 0 3px rgba(20, 124, 245, 0.08);
 }
 
 .form-control-custom:hover {
@@ -131,13 +131,13 @@
 ========================================================= */
 
 .view-timetable-btn {
-    height: 46px;
-    padding: 0 22px;
+    height: 40px;
+    padding: 0 17px;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     background: #147cf5;
     color: #ffffff;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -153,12 +153,12 @@
 ========================================================= */
 
 .timetable-result-card {
-    margin-top: 25px;
+    margin-top: 18px;
     background: #ffffff;
-    border-radius: 18px;
-    padding: 24px;
+    border-radius: 14px;
+    padding: 16px;
     border: 1px solid #e4eaf2;
-    box-shadow: 0 5px 20px rgba(30, 64, 175, 0.08);
+    box-shadow: 0 4px 16px rgba(30, 64, 175, 0.07);
 }
 
 /* =========================================================
@@ -169,21 +169,21 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 22px;
+    gap: 15px;
+    margin-bottom: 15px;
 }
 
 .timetable-result-header h3 {
     margin: 0;
     color: #1e293b;
-    font-size: 21px;
+    font-size: 17px;
     font-weight: 700;
 }
 
 .timetable-result-header p {
-    margin: 6px 0 0;
+    margin: 4px 0 0;
     color: #64748b;
-    font-size: 14px;
+    font-size: 11px;
 }
 
 /* =========================================================
@@ -193,26 +193,26 @@
 .timetable-download-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 7px;
 }
 
 .download-btn {
-    height: 40px;
-    padding: 0 15px;
+    height: 34px;
+    padding: 0 11px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    border-radius: 9px;
+    gap: 5px;
+    border-radius: 7px;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 700;
     transition: all 0.2s ease;
     white-space: nowrap;
 }
 
 .download-btn i {
-    font-size: 16px;
+    font-size: 13px;
 }
 
 /* PDF */
@@ -251,7 +251,7 @@
     width: 100%;
     overflow-x: auto;
     border: 1px solid #e5eaf1;
-    border-radius: 12px;
+    border-radius: 9px;
 }
 
 /* =========================================================
@@ -260,9 +260,10 @@
 
 .weekly-timetable {
     width: 100%;
-    min-width: 1050px;
+    min-width: 850px;
     border-collapse: separate;
     border-spacing: 0;
+    table-layout: fixed;
 }
 
 /* =========================================================
@@ -270,23 +271,23 @@
 ========================================================= */
 
 .weekly-timetable th {
-    padding: 15px 12px;
+    padding: 9px 7px;
     background: #147cf5;
     color: #ffffff;
     text-align: center;
     border-right: 1px solid rgba(255, 255, 255, 0.25);
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
 }
 
 .weekly-timetable th:first-child {
-    border-top-left-radius: 10px;
+    border-top-left-radius: 8px;
 }
 
 .weekly-timetable th:last-child {
     border-right: none;
-    border-top-right-radius: 10px;
+    border-top-right-radius: 8px;
 }
 
 /* =========================================================
@@ -294,18 +295,21 @@
 ========================================================= */
 
 .day-column {
-    width: 120px;
-    min-width: 120px;
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
 }
 
 .day-name {
-    width: 120px;
-    min-width: 120px;
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
     background: #f4f7fb !important;
     color: #1e293b !important;
     text-align: center;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 700;
+    padding: 8px 5px !important;
 }
 
 /* =========================================================
@@ -313,13 +317,13 @@
 ========================================================= */
 
 .period-title {
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 700;
 }
 
 .period-time {
-    margin-top: 5px;
-    font-size: 11px;
+    margin-top: 3px;
+    font-size: 9px;
     font-weight: 400;
     opacity: 0.9;
     white-space: nowrap;
@@ -330,9 +334,9 @@
 ========================================================= */
 
 .weekly-timetable td {
-    min-width: 150px;
-    height: 125px;
-    padding: 10px;
+    min-width: 120px;
+    height: 95px;
+    padding: 6px;
     background: #ffffff;
     border-right: 1px solid #e5eaf1;
     border-bottom: 1px solid #e5eaf1;
@@ -348,47 +352,50 @@
 ========================================================= */
 
 .subject-cell {
-    min-height: 95px;
-    padding: 12px;
-    border-radius: 11px;
+    min-height: 72px;
+    padding: 8px;
+    border-radius: 8px;
     background: #f5f9ff;
-    border-left: 4px solid #147cf5;
+    border-left: 3px solid #147cf5;
     transition: all 0.2s ease;
 }
 
 .subject-cell:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(20, 124, 245, 0.12);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(20, 124, 245, 0.10);
 }
 
 .subject-name {
     color: #1268ca;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 700;
-    margin-bottom: 7px;
-    line-height: 1.3;
+    margin-bottom: 4px;
+    line-height: 1.2;
+    word-break: break-word;
 }
 
 .teacher-name {
     color: #475569;
-    font-size: 12px;
-    margin-bottom: 5px;
-    line-height: 1.3;
+    font-size: 10px;
+    margin-bottom: 3px;
+    line-height: 1.2;
+    word-break: break-word;
 }
 
 .room-name {
     color: #64748b;
-    font-size: 11px;
-    margin-bottom: 7px;
+    font-size: 9px;
+    margin-bottom: 4px;
+    word-break: break-word;
 }
 
 .subject-type {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 20px;
+    padding: 3px 6px;
+    border-radius: 12px;
     background: #e7f1ff;
     color: #147cf5;
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 700;
 }
 
@@ -397,9 +404,9 @@
 ========================================================= */
 
 .special-period {
-    min-height: 95px;
-    padding: 12px;
-    border-radius: 11px;
+    min-height: 72px;
+    padding: 7px;
+    border-radius: 8px;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -408,20 +415,22 @@
 }
 
 .special-icon {
-    font-size: 25px;
+    font-size: 18px;
     line-height: 1;
 }
 
 .special-title {
-    margin-top: 7px;
-    font-size: 14px;
+    margin-top: 4px;
+    font-size: 11px;
     font-weight: 700;
+    line-height: 1.2;
+    word-break: break-word;
 }
 
 .special-time {
-    margin-top: 5px;
+    margin-top: 3px;
     color: #64748b;
-    font-size: 10px;
+    font-size: 8px;
     white-space: nowrap;
 }
 
@@ -464,17 +473,22 @@
     color: #6d28d9;
 }
 
+.activity-period .teacher-name {
+    margin-top: 3px;
+    margin-bottom: 2px;
+}
+
 /* =========================================================
    FREE PERIOD
 ========================================================= */
 
 .free-period {
-    min-height: 95px;
+    min-height: 72px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #94a3b8;
-    font-size: 12px;
+    font-size: 10px;
     font-style: italic;
 }
 
@@ -485,24 +499,24 @@
 .timetable-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 20px;
-    padding-top: 18px;
+    gap: 13px;
+    margin-top: 14px;
+    padding-top: 13px;
     border-top: 1px solid #e5eaf1;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 5px;
     color: #64748b;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .legend-box {
-    width: 13px;
-    height: 13px;
-    border-radius: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
     display: inline-block;
 }
 
@@ -531,30 +545,30 @@
 ========================================================= */
 
 .empty-timetable {
-    margin-top: 25px;
-    padding: 55px 25px;
+    margin-top: 18px;
+    padding: 40px 20px;
     background: #ffffff;
     border: 1px solid #e6edf7;
-    border-radius: 16px;
+    border-radius: 14px;
     text-align: center;
-    box-shadow: 0 4px 18px rgba(30, 64, 175, 0.06);
+    box-shadow: 0 4px 15px rgba(30, 64, 175, 0.05);
 }
 
 .empty-icon {
-    font-size: 42px;
-    margin-bottom: 12px;
+    font-size: 34px;
+    margin-bottom: 8px;
 }
 
 .empty-timetable h3 {
-    margin: 0 0 8px;
+    margin: 0 0 6px;
     color: #1e293b;
-    font-size: 20px;
+    font-size: 17px;
 }
 
 .empty-timetable p {
     margin: 0;
     color: #64748b;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 /* =========================================================
@@ -562,30 +576,30 @@
 ========================================================= */
 
 .initial-state {
-    margin-top: 25px;
-    padding: 55px 25px;
+    margin-top: 18px;
+    padding: 40px 20px;
     background: #ffffff;
     border: 1px solid #e6edf7;
-    border-radius: 16px;
+    border-radius: 14px;
     text-align: center;
-    box-shadow: 0 4px 18px rgba(30, 64, 175, 0.06);
+    box-shadow: 0 4px 15px rgba(30, 64, 175, 0.05);
 }
 
 .initial-state-icon {
-    font-size: 42px;
-    margin-bottom: 12px;
+    font-size: 34px;
+    margin-bottom: 8px;
 }
 
 .initial-state h3 {
-    margin: 0 0 8px;
+    margin: 0 0 6px;
     color: #1e293b;
-    font-size: 20px;
+    font-size: 17px;
 }
 
 .initial-state p {
     margin: 0;
     color: #64748b;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 /* =========================================================
@@ -595,7 +609,7 @@
 @media (max-width: 900px) {
 
     .class-timetable-page {
-        padding: 18px;
+        padding: 14px;
     }
 
     .class-timetable-header {
@@ -612,13 +626,13 @@
     }
 
     .timetable-result-card {
-        padding: 18px;
+        padding: 12px;
     }
 
     .timetable-result-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 10px;
     }
 
     .timetable-download-actions {
@@ -628,11 +642,17 @@
     .download-btn {
         flex: 1;
     }
+
+    .weekly-timetable {
+        min-width: 850px;
+    }
 }
 
 </style>
 
+
 <div class="class-timetable-page">
+
 {{-- =====================================================
      PAGE HEADER
 ====================================================== --}}
@@ -759,6 +779,7 @@
                 type="submit"
                 class="view-timetable-btn"
             >
+                <i class="bi bi-calendar3 me-1"></i>
                 View Timetable
             </button>
 
@@ -780,7 +801,7 @@
         <div class="timetable-result-card">
 
             {{-- =================================================
-                 RESULT HEADER + DOWNLOAD BUTTONS
+                 RESULT HEADER
             ================================================== --}}
 
             <div class="timetable-result-header">
@@ -800,9 +821,9 @@
                 </div>
 
 
-                <div class="timetable-download-actions">
+                {{-- DOWNLOAD BUTTONS --}}
 
-                    {{-- PDF --}}
+                <div class="timetable-download-actions">
 
                     <a
                         href="{{ route('admin.timetable.class.pdf', [
@@ -816,12 +837,10 @@
 
                         <i class="bi bi-file-earmark-pdf"></i>
 
-                        Download PDF
+                        PDF
 
                     </a>
 
-
-                    {{-- EXCEL --}}
 
                     <a
                         href="{{ route('admin.timetable.class.excel', [
@@ -834,7 +853,7 @@
 
                         <i class="bi bi-file-earmark-spreadsheet"></i>
 
-                        Export Excel
+                        Excel
 
                     </a>
 
@@ -893,7 +912,7 @@
                                 <th>
 
                                     <div class="period-title">
-                                        Period {{ $periodNumber }}
+                                        P{{ $periodNumber }}
                                     </div>
 
                                     @if($period->start_time && $period->end_time)
@@ -952,7 +971,9 @@
 
                                         @if($entry)
 
-                                            {{-- BREAK --}}
+                                            {{-- =====================================
+                                                 BREAK
+                                            ====================================== --}}
 
                                             @if($entry->period_type === 'Break')
 
@@ -983,7 +1004,9 @@
                                                 </div>
 
 
-                                            {{-- LUNCH --}}
+                                            {{-- =====================================
+                                                 LUNCH
+                                            ====================================== --}}
 
                                             @elseif($entry->period_type === 'Lunch')
 
@@ -1014,7 +1037,9 @@
                                                 </div>
 
 
-                                            {{-- ACTIVITY --}}
+                                            {{-- =====================================
+                                                 ACTIVITY
+                                            ====================================== --}}
 
                                             @elseif($entry->period_type === 'Activity')
 
@@ -1064,7 +1089,9 @@
                                                 </div>
 
 
-                                            {{-- REGULAR SUBJECT --}}
+                                            {{-- =====================================
+                                                 REGULAR SUBJECT
+                                            ====================================== --}}
 
                                             @else
 
@@ -1138,47 +1165,28 @@
             <div class="timetable-legend">
 
                 <div class="legend-item">
-
                     <span class="legend-box regular"></span>
-
-                    Regular Subject
-
+                    Regular
                 </div>
 
-
                 <div class="legend-item">
-
                     <span class="legend-box break"></span>
-
                     Break
-
                 </div>
 
-
                 <div class="legend-item">
-
                     <span class="legend-box lunch"></span>
-
                     Lunch
-
                 </div>
 
-
                 <div class="legend-item">
-
                     <span class="legend-box activity"></span>
-
                     Activity
-
                 </div>
 
-
                 <div class="legend-item">
-
                     <span class="legend-box free"></span>
-
-                    Free Period
-
+                    Free
                 </div>
 
             </div>
@@ -1250,6 +1258,7 @@
 
 </div>
 
+
 <script>
 
 /* =========================================================
@@ -1266,15 +1275,12 @@ function loadSections(classValue)
         return;
     }
 
-
     const url = new URL(
         "{{ route('admin.timetable.class') }}",
         window.location.origin
     );
 
-
     url.searchParams.set('class', classValue);
-
 
     window.location.href = url.toString();
 }

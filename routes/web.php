@@ -14,6 +14,12 @@ use Illuminate\Support\Facades\Route;
 
 \|--------------------------------------------------------------------------
 
+use App\Http\Controllers\Admin\FeePaymentController;
+
+/*
+|--------------------------------------------------------------------------
+| SPORTS CONTROLLERS
+|--------------------------------------------------------------------------
 */
 
 use App\Http\Controllers\Sports\GameController;
@@ -81,6 +87,7 @@ use App\Http\Controllers\Admin\StaffCategoryController;
 use App\Http\Controllers\Admin\LeaveApplicationController;
 
 use App\Http\Controllers\Admin\ClassTeacherController;
+use App\Http\Controllers\Admin\StudentFeeController;
 
 use App\Http\Controllers\Admin\StudentController;
 
@@ -134,12 +141,33 @@ use App\Http\Controllers\Admin\ExamSessionController;
 
 use App\Http\Controllers\Admin\ExamHolidayController;
 
+use App\Http\Controllers\Admin\FeeTypeController;
+
 use App\Http\Controllers\Admin\StudentReportController;
 
 use App\Http\Controllers\Admin\MealReportController;
 
 use App\Http\Controllers\Admin\TransportReportController;
 use App\Http\Controllers\Admin\SportsReportController;
+use App\Http\Controllers\Admin\FeePaymentController;
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| MEAL CONTROLLERS
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\Meal\MealItemController;
+use App\Http\Controllers\Meal\MealStockLogController;
+use App\Http\Controllers\Meal\MealStockTransactionController;
+
+/*
+|--------------------------------------------------------------------------
+| CLASS MANAGEMENT CONTROLLERS
+|--------------------------------------------------------------------------
+*/
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Admin\BackupController;
 
@@ -168,6 +196,16 @@ use Maatwebsite\Excel\Facades\Excel;
 */
 
 use App\Http\Controllers\Class\SubjectController;
+use App\Http\Controllers\Admin\FeeStructureController;
+
+/*
+|--------------------------------------------------------------------------
+| TRANSPORT CONTROLLERS
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\Transport\TransportRecordController;
+use App\Http\Controllers\Transport\TransportRouteController;
+use App\Http\Controllers\Transport\TransportVehicleController;
 
 
 
@@ -182,18 +220,6 @@ use App\Http\Controllers\Class\SubjectController;
 \|--------------------------------------------------------------------------
 
 */
-
-
-
-use App\Http\Controllers\Meal\MealItemController;
-
-use App\Http\Controllers\Meal\MealStockLogController;
-
-use App\Http\Controllers\Meal\MealStockTransactionController;
-
-
-
-
 
 /*
 
@@ -267,7 +293,7 @@ Route::prefix('admin')
 
         ])->name('login.submit');
 
-        /*
+/*
 |--------------------------------------------------------------------------
 | BACKUP & RECOVERY
 |--------------------------------------------------------------------------
@@ -295,8 +321,6 @@ Route::delete('/backup/{backup}', [
 
 
 
-
-
         /*
 
         |--------------------------------------------------------------------------
@@ -314,7 +338,6 @@ Route::delete('/backup/{backup}', [
             ->name('sports.')
 
             ->group(function () {
-
 
 
                 Route::get('/', [
@@ -359,14 +382,23 @@ Route::delete('/backup/{backup}', [
 
 
 
+        Route::get('/teachers/attendance/excel', [
+            TeacherAttendanceController::class,
+            'excel'
+        ])->name('teachers.attendance.excel');
+
+
+        
+Route::resource(
+    'exams',
+    ExamController::class
+)->names('exams');
 
 
         /*
 
         |--------------------------------------------------------------------------
-
-        | AUTHENTICATED ADMIN AREA
-
+        | AUTHENTICATED ADMIN ROUTES
         |--------------------------------------------------------------------------
 
         */
@@ -374,8 +406,6 @@ Route::delete('/backup/{backup}', [
 
 
         Route::middleware('auth')->group(function () {
-
-
 
             /*
 
@@ -451,6 +481,58 @@ Route::post('/settings/security/disable', [
 
             /*
             |--------------------------------------------------------------------------
+            | TEACHER SALARY
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('teachers/salary')
+                ->name('teachers.salary.')
+                ->group(function () {
+
+                    Route::get('/', [
+                        TeacherSalaryController::class,
+                        'index'
+                    ])->name('index');
+
+                    Route::get('/create', [
+                        TeacherSalaryController::class,
+                        'create'
+                    ])->name('create');
+
+                    Route::post('/', [
+                        TeacherSalaryController::class,
+                        'store'
+                    ])->name('store');
+
+                    Route::get('/attendance-data', [
+                        TeacherSalaryController::class,
+                        'attendanceData'
+                    ])->name('attendance-data');
+
+                    Route::get('/{salary}', [
+                        TeacherSalaryController::class,
+                        'show'
+                    ])->name('show');
+
+                    Route::get('/{salary}/edit', [
+                        TeacherSalaryController::class,
+                        'edit'
+                    ])->name('edit');
+
+                    Route::put('/{salary}', [
+                        TeacherSalaryController::class,
+                        'update'
+                    ])->name('update');
+
+                    Route::delete('/{salary}', [
+                        TeacherSalaryController::class,
+                        'destroy'
+                    ])->name('destroy');
+                });
+
+
+            /*
+            |--------------------------------------------------------------------------
             | REPORTS
             |--------------------------------------------------------------------------
             */
@@ -480,6 +562,7 @@ Route::post('/settings/security/disable', [
 // SPORTS REPORT
 // ---------------------------------------------------------
 
+/*
 Route::get('/reports/sports', [
     SportsReportController::class,
     'index'
@@ -494,6 +577,7 @@ Route::get('/reports/sports/excel', [
     SportsReportController::class,
     'excel'
 ])->name('reports.sports.excel');
+*/
 
 /*
 |--------------------------------------------------------------------------
@@ -508,14 +592,15 @@ Route::get('/attendance', [
 ])->name('attendance.index');
 
 // Student Attendance
+// Student Attendance - fetch student records
 Route::get('/attendance/students', [
     AttendanceController::class,
-    'classes'
+    'students'
 ])->name('attendance.students');
 
 Route::get('/attendance/student-sheet', [
     AttendanceController::class,
-    'index'
+    'sheet'
 ])->name('attendance.student.sheet');
 
 // Save student attendance
@@ -682,6 +767,22 @@ Route::get('/reports/teacher-attendance/excel', [
                 ->name('reports.transport.vehicle.pdf');
             Route::get('/reports/transport/vehicle/excel', [TransportReportController::class, 'vehicleExcel'])
                 ->name('reports.transport.vehicle.excel');
+            
+/*
+|--------------------------------------------------------------------------
+| TRANSPORT MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+
+Route::resource('transport-records', TransportRecordController::class)
+    ->names('transport.records');
+
+Route::resource('transport-routes', TransportRouteController::class)
+    ->names('transport.routes');
+
+Route::resource('transport-vehicles', TransportVehicleController::class)
+    ->names('transport.vehicles');
+
 
                 Route::prefix('classes')
     ->name('classes.')
@@ -733,6 +834,7 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             | LOCATION API
 
+            | LOCATIONS
             |--------------------------------------------------------------------------
 
             */
@@ -787,6 +889,7 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             | STUDENT AJAX ROUTES
 
+            | STUDENTS
             |--------------------------------------------------------------------------
 
             */
@@ -872,26 +975,28 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
 
             Route::get('/student-profile', [
-
-                StudentProfileController::class,
-
-                'index'
-
-            ])->name('student-profile.index');
+    StudentProfileController::class,
+    'index'
+])->name('student-profile.index');
+            
 
 
 
             Route::get('/student-profile/search', [
+    StudentProfileController::class,
+    'search',
+])->name('student-profile.search');
 
+            Route::get('/students/profile/search', [
                 StudentProfileController::class,
 
                 'search'
 
             ])->name('student-profile.search');
 
-
-
-
+            Route::get('/test-profile', function () {
+                return 'Profile route is working';
+            })->name('test.profile');
 
             /*
 
@@ -903,8 +1008,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             */
 
-
-
             Route::get('/student-documents', [
 
                 StudentDocumentsController::class,
@@ -912,10 +1015,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
                 'index'
 
             ])->name('student-documents.index');
-
-
-
-
 
             /*
 
@@ -926,8 +1025,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
             |--------------------------------------------------------------------------
 
             */
-
-
 
             Route::get('/student-health', [
 
@@ -1007,10 +1104,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             ])->name('student-health.destroy');
 
-
-
-
-
             /*
 
             |--------------------------------------------------------------------------
@@ -1020,8 +1113,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
             |--------------------------------------------------------------------------
 
             */
-
-
 
             Route::get('/student-general-register', [
 
@@ -1051,10 +1142,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             ])->name('student-general-register.show');
 
-
-
-
-
             /*
 
             |--------------------------------------------------------------------------
@@ -1064,8 +1151,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
             |--------------------------------------------------------------------------
 
             */
-
-
 
             Route::get('/notices', [
 
@@ -1372,6 +1457,7 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             | ID CARD MANAGEMENT
 
+            | AGE REPORT
             |--------------------------------------------------------------------------
 
             */
@@ -2196,6 +2282,11 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
                 });
 
+            Route::resource(
+                'teachers',
+                TeacherController::class
+            );
+
 
 
 
@@ -2327,7 +2418,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
             /*
 
             |--------------------------------------------------------------------------
-
             | TEACHER REPORTS
 
             |--------------------------------------------------------------------------
@@ -2386,9 +2476,12 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             |--------------------------------------------------------------------------
 
+            /*
+
+
+            | LEAVE APPLICATIONS
+            |--------------------------------------------------------------------------
             */
-
-
 
             Route::resource(
 
@@ -2408,6 +2501,7 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
             | NOTICE MANAGEMENT
 
+            | STUDENT ATTENDANCE
             |--------------------------------------------------------------------------
 
             */
@@ -2683,7 +2777,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
             /*
 
             |--------------------------------------------------------------------------
-
             | LIBRARY - RETURNS
 
             |--------------------------------------------------------------------------
@@ -2763,7 +2856,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
                 LibrarianController::class,
 
                 'index'
-
             ])
 
                 ->name('library.librarian.index')
@@ -2777,7 +2869,6 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
                 LibrarianController::class,
 
                 'show'
-
             ])
 
                 ->name('library.librarian.show')
@@ -3669,12 +3760,83 @@ Route::prefix('admin/meal/logs')
 
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | FEES MANAGEMENT
+    |--------------------------------------------------------------------------
+    */
 
+    Route::prefix('admin')
+    ->name('admin.')
+    ->middleware('auth')
+    ->group(function () {
 
-    Route::get('/fees', function () {
+        Route::prefix('fees')
+            ->name('fees.')
+            ->group(function () {
 
-    return 'Fees Management';
+            // Fee Types
+            Route::resource(
+                'fee-types',
+                FeeTypeController::class
+            )->names('fee-types');
 
-})->name('fees.index');
+            // Fee Structure Sections AJAX
+            Route::get(
+                'fee-structures/sections/{classId}',
+                [FeeStructureController::class, 'sections']
+            )->name('fee-structures.sections');
 
+            // Fee Structures
+            Route::resource(
+                'fee-structures',
+                FeeStructureController::class
+            )->names('fee-structures');
 
+            // Student Fees
+            Route::resource(
+                'student-fees',
+                StudentFeeController::class
+            )->only([
+                'index',
+                'create',
+                'store',
+                'show',
+                'destroy',
+            ]);
+
+            // Student Fee Payments
+            Route::get(
+                'student-fees/{studentFee}/payment',
+                [FeePaymentController::class, 'create']
+            )->name('student-fees.payment.create');
+
+            Route::post(
+                'student-fees/{studentFee}/payment',
+                [FeePaymentController::class, 'store']
+            )->name('student-fees.payment.store');
+
+            // Payment History
+            Route::get(
+                'payment-history',
+                [FeePaymentController::class, 'index']
+            )->name('payment-history.index');
+
+            Route::get(
+                'payment-history/{feePayment}',
+                [FeePaymentController::class, 'show']
+            )->name('payment-history.show');
+
+            /*
+|--------------------------------------------------------------------------
+| BACKUP & RECOVERY
+|--------------------------------------------------------------------------
+*/
+Route::prefix('backup')->name('backup.')->group(function () {
+    Route::get('/', [BackupController::class, 'index'])->name('index');
+    Route::post('/create', [BackupController::class, 'create'])->name('create');
+    Route::get('/download/{backup}', [BackupController::class, 'download'])->name('download');
+    Route::delete('/{backup}', [BackupController::class, 'destroy'])->name('destroy');
+});
+            });
+        });

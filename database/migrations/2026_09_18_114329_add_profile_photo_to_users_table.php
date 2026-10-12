@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+<<<<<<< HEAD
     /**
      * Run the migrations.
      */
@@ -28,5 +29,23 @@ return new class extends Migration
                 $table->dropColumn('profile_photo');
             }
         });
+=======
+    public function up(): void
+    {
+        if (!Schema::hasColumn('users', 'profile_photo')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('profile_photo')->nullable()->after('email');
+            });
+        }
+    }
+
+    public function down(): void
+    {
+        if (Schema::hasColumn('users', 'profile_photo')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('profile_photo');
+            });
+        }
+>>>>>>> origin/Fees
     }
 };

@@ -484,5 +484,4 @@
 })();
 </script>
 @endpush
-
 @endsection

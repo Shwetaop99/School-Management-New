@@ -1564,7 +1564,12 @@
 
                                     {{-- VIEW --}}
                                     <a
-                                        href="{{ route('admin.transport.vehicles.show', ['transportVehicle' => $vehicle->id]) }}"
+                                        
+href="{{ route(
+    'admin.transport.vehicles.show',
+    ['transport_vehicle' => $vehicle->id]
+) }}"
+
                                         class="vehicle-action view"
                                         title="View Vehicle"
                                     >
@@ -1576,7 +1581,12 @@
 
                                     {{-- EDIT --}}
                                     <a
-                                        href="{{ route('admin.transport.vehicles.edit', ['transportVehicle' => $vehicle->id]) }}"
+                                        
+href="{{ route(
+    'admin.transport.vehicles.edit',
+    ['transport_vehicle' => $vehicle->id]
+) }}"
+
                                         class="vehicle-action edit"
                                         title="Edit Vehicle"
                                     >
@@ -1588,7 +1598,9 @@
 
                                     {{-- DELETE --}}
                                     <form
-                                        action="{{ route('admin.transport.vehicles.destroy', ['transportVehicle' => $vehicle->id]) }}"
+                                        
+action="{{ route('admin.transport.vehicles.destroy', ['transport_vehicle' => $vehicle->id]) }}"
+
                                         method="POST"
                                         class="d-inline"
                                         onsubmit="return confirm('Are you sure you want to delete this vehicle?');"

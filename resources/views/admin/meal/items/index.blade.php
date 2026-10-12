@@ -33,7 +33,7 @@
 
             <div class="meal-header-actions">
 
-                <a href="{{ route('admin.meal.items.stock.create') }}"
+                <a href="{{ route('admin.admin.meal.items.stock.create') }}"
                    class="btn meal-stock-btn">
 
                     <i class="fas fa-right-left me-1"></i>
@@ -41,7 +41,7 @@
 
                 </a>
 
-                <a href="{{ route('admin.meal.items.create') }}"
+                <a href="{{ route('admin.admin.meal.items.stock.create') }}"
                    class="btn meal-add-btn">
 
                     <i class="fas fa-plus me-1"></i>
@@ -345,7 +345,7 @@
             <div class="meal-filter-wrapper">
 
                 <form method="GET"
-                      action="{{ route('admin.meal.items.index') }}"
+                      action="{{ route('admin.admin.meal.items.index') }}"
                       class="meal-filter-form">
 
                     <div class="filter-search">
@@ -396,7 +396,7 @@
 
                     @if(request()->hasAny(['search', 'status']))
 
-                        <a href="{{ route('admin.meal.items.index') }}"
+                        action="{{ route('admin.admin.meal.items.index') }}"
                            class="reset-filter-btn"
                            title="Clear Filters">
 
@@ -625,7 +625,7 @@
                                             <div class="action-wrapper">
 
                                                 {{-- STOCK --}}
-                                                <a href="{{ route('admin.meal.items.stock.create') }}"
+                                                action="{{ route('admin.admin.meal.items.index') }}"
                                                    class="action-btn stock-action"
                                                    title="Stock In / Stock Out">
 
@@ -635,7 +635,7 @@
 
 
                                                 {{-- EDIT --}}
-                                                <a href="{{ route('admin.meal.items.edit', $item) }}"
+                                                <a href="{{ route('admin.admin.meal.items.edit', $item) }}">
                                                    class="action-btn edit-btn"
                                                    title="Edit Item">
 
@@ -646,7 +646,7 @@
 
                                                 {{-- DELETE --}}
                                                 <form method="POST"
-                                                      action="{{ route('admin.meal.items.destroy', $item) }}"
+                                                      action="{{ route('admin.admin.meal.items.destroy', $item) }}"
                                                       class="d-inline"
                                                       onsubmit="return confirm('Are you sure you want to delete this meal item?');">
 
@@ -757,7 +757,7 @@
 
                     </div>
 
-                    <a href="{{ route('admin.meal.items.stock.index') }}"
+                    <a href="{{ route('admin.admin.meal.items.stock.index') }}"
                        class="view-all-link">
 
                         View All
@@ -924,7 +924,7 @@
                                 No stock movements recorded yet.
                             </span>
 
-                            <a href="{{ route('admin.meal.items.stock.create') }}">
+                            <a href="{{ route('admin.admin.meal.items.stock.create') }}">
                                 Add Stock Movement
                             </a>
 

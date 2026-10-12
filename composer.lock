@@ -1198,7 +1198,10 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/Fees
             "name": "ezyang/htmlpurifier",
             "version": "v4.19.1",
             "source": {
@@ -1260,7 +1263,10 @@
             "time": "2026-09-15T15:42:51+00:00"
         },
         {
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/Fees
             "name": "fruitcake/php-cors",
             "version": "v1.4.0",
             "source": {
