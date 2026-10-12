@@ -1320,615 +1320,359 @@ class ResultController extends Controller
         ]);
     }
 
-    /**
-     * Generate student results.
-     */
-    public function generateResult(Request $request)
-    {
-        $validated = $request->validate([
-            'exam_id' => [
-                'required',
-                'integer',
-                'exists:exams,id',
-            ],
-
-            'class_id' => [
-                'required',
-                'integer',
-                'exists:school_classes,id',
-            ],
-
-            'section' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-
-            'exam_class_id' => [
-                'nullable',
-                'integer',
-                'exists:exam_classes,id',
-            ],
-        ]);
-
-        $exam =
-            Exam::findOrFail(
-                $validated['exam_id']
-            );
-
-        $schoolClass =
-            SchoolClass::findOrFail(
-                $validated['class_id']
-            );
-
-        $examClassQuery =
-            ExamClass::where(
-                'exam_id',
-                $exam->id
-            )
-                ->where(
-                    'class_id',
-                    $schoolClass->id
-                );
-
-        if (
-            !empty(
-                $validated['exam_class_id']
-            )
-        ) {
-
-            $examClassQuery->where(
-                'id',
-                $validated['exam_class_id']
-            );
-        }
-
-        $examClass =
-            $examClassQuery->first();
-
-        if (!$examClass) {
-
-            return back()->with(
-                'error',
-                'This class/section is not assigned to the selected examination.'
-            );
-        }
-
-        $section =
-            !empty($validated['section'])
-                ? trim(
-                    $validated['section']
-                )
-                : trim(
-                    (string)
-                    $schoolClass->section
-                );
-
-        $students =
-            $this->getStudentsForExamClass(
-                $exam,
-                $schoolClass,
-                $section
-            );
-
-        if (
-            $students->isEmpty()
-        ) {
-
-            return back()->with(
-                'error',
-                'No active students found for the selected class and section.'
-            );
-        }
-
-        $examMarks =
-            ExamMark::with('subject')
-                ->where(
-                    'exam_id',
-                    $exam->id
-                )
-                ->where(
-                    'exam_class_id',
-                    $examClass->id
-                )
-                ->whereIn(
-                    'student_id',
-                    $students->pluck('id')
-                )
-                ->get()
-                ->groupBy(
-                    'student_id'
-                );
-
-        if (
-            $examMarks->isEmpty()
-        ) {
-
-            return back()->with(
-                'error',
-                'No marks have been entered for this examination.'
-            );
-        }
-
-        DB::transaction(
-            function () use (
-                $students,
-                $examMarks,
-                $exam,
-                $schoolClass,
-                $section
-            ) {
-
-                foreach (
-                    $students
-                    as $student
-                ) {
-
-                    $studentMarks =
-                        $examMarks->get(
-                            $student->id,
-                            collect()
-                        );
-
-                    if (
-                        $studentMarks->isEmpty()
-                    ) {
-                        continue;
-                    }
-
-                    $totalMaximumMarks = 0;
-                    $totalObtainedMarks = 0;
-
-                    $hasFailedSubject = false;
-                    $hasAbsentSubject = false;
-
-                    foreach (
-                        $studentMarks
-                        as $mark
-                    ) {
-
-                        $maximumMarks =
-                            (float)
-                            $mark->max_marks;
-
-                        $obtainedMarks =
-                            (float)
-                            $mark->total_marks;
-
-                        $totalMaximumMarks +=
-                            $maximumMarks;
-
-                        $totalObtainedMarks +=
-                            $obtainedMarks;
-
-                        if (
-                            $mark->status ===
-                            'absent'
-                        ) {
-
-                            $hasAbsentSubject = true;
-                        }
-
-                        $examSubject =
-                            ExamSubject::query()
-                                ->where(
-                                    'exam_id',
-                                    $exam->id
-                                )
-                                ->where(
-                                    'class_id',
-                                    $schoolClass->id
-                                )
-                                ->where(
-                                    'subject_id',
-                                    $mark->subject_id
-                                )
-                                ->first();
-
-                        if (
-                            $mark->status ===
-                                'present' &&
-                            $examSubject &&
-                            $obtainedMarks <
-                                (float)
-                                $examSubject->passing_marks
-                        ) {
-
-                            $hasFailedSubject = true;
-                        }
-                    }
-
-                    $percentage =
-                        $totalMaximumMarks > 0
-                            ? (
-                                $totalObtainedMarks /
-                                $totalMaximumMarks
-                            ) * 100
-                            : 0;
-
-                    $percentage =
-                        round(
-                            $percentage,
-                            2
-                        );
-
-                    $grade =
-                        $this->calculateGrade(
-                            $percentage
-                        );
-
-                    if (
-                        $hasFailedSubject
-                    ) {
-
-                        $resultStatus =
-                            'fail';
-
-                    } elseif (
-                        $hasAbsentSubject
-                    ) {
-
-                        $resultStatus =
-                            'absent';
-
-                    } else {
-
-                        $resultStatus =
-                            'pass';
-                    }
-
-                    /*
-                     * --------------------------------------------------
-                     * Create / update result
-                     * --------------------------------------------------
-                     */
-                    $result =
-                        Result::updateOrCreate(
-                            [
-                                'student_id' =>
-                                    $student->id,
-
-                                'exam_id' =>
-                                    $exam->id,
-                            ],
-                            [
-                                'academic_year' =>
-                                    $exam->academic_year,
-
-                                'class_name' =>
-                                    $schoolClass->class_name,
-
-                                'section' =>
-                                    $section,
-
-                                'total_marks' =>
-                                    $totalMaximumMarks,
-
-                                'obtained_marks' =>
-                                    $totalObtainedMarks,
-
-                                'percentage' =>
-                                    $percentage,
-
-                                'grade' =>
-                                    $grade,
-
-                                'result_status' =>
-                                    $resultStatus,
-
-                                /*
-                                 * Every new generation starts
-                                 * the publication workflow again.
-                                 */
-                                'publication_status' =>
-                                    'generated',
-
-                                'published_at' =>
-                                    null,
-
-                                'published_by' =>
-                                    null,
-
-                                'generated_at' =>
-                                    now(),
-
-                                'remarks' =>
-                                    null,
-                            ]
-                        );
-
-                    /*
-                     * --------------------------------------------------
-                     * Result Version
-                     * --------------------------------------------------
-                     */
-                    $lastVersion =
-                        ResultVersion::where(
-                            'result_id',
-                            $result->id
-                        )->max(
-                            'version_number'
-                        );
-
-                    $nextVersion =
-                        ((int)
-                            $lastVersion) + 1;
-
-                    $resultVersion =
-                        ResultVersion::create([
-                            'result_id' =>
-                                $result->id,
-
-                            'version_number' =>
-                                $nextVersion,
-
-                            'student_id_snapshot' =>
-                                $student->student_id,
-
-                            'student_name_snapshot' =>
-                                trim(
-                                    collect([
-                                        $student->first_name,
-                                        $student->middle_name,
-                                        $student->last_name,
-                                    ])
-                                        ->filter()
-                                        ->implode(' ')
-                                ),
-
-                            'exam_name_snapshot' =>
-                                $exam->exam_name,
-
-                            'academic_year' =>
-                                $exam->academic_year,
-
-                            'class_name' =>
-                                $schoolClass->class_name,
-
-                            'section' =>
-                                $section,
-
-                            'total_marks' =>
-                                $totalMaximumMarks,
-
-                            'obtained_marks' =>
-                                $totalObtainedMarks,
-
-                            'percentage' =>
-                                $percentage,
-
-                            'grade' =>
-                                $grade,
-
-                            'result_status' =>
-                                $resultStatus,
-
-                            'remarks' =>
-                                null,
-
-                            'generated_at' =>
-                                now(),
-                        ]);
-
-                    /*
-                     * --------------------------------------------------
-                     * Result Version Details
-                     * --------------------------------------------------
-                     */
-                    foreach (
-                        $studentMarks
-                        as $mark
-                    ) {
-
-                        $subjectName =
-                            $mark->subject
-                                ? $mark->subject->subject_name
-                                : 'Unknown Subject';
-
-                        $subjectMaximumMarks =
-                            (float)
-                            $mark->max_marks;
-
-                        $subjectObtainedMarks =
-                            (float)
-                            $mark->total_marks;
-
-                        $subjectPercentage =
-                            $subjectMaximumMarks > 0
-                                ? (
-                                    $subjectObtainedMarks /
-                                    $subjectMaximumMarks
-                                ) * 100
-                                : 0;
-
-                        $subjectPercentage =
-                            round(
-                                $subjectPercentage,
-                                2
-                            );
-
-                        $subjectGrade =
-                            $this->calculateGrade(
-                                $subjectPercentage
-                            );
-
-                        ResultVersionDetail::create([
-                            'result_version_id' =>
-                                $resultVersion->id,
-
-                            'subject_id' =>
-                                $mark->subject_id,
-
-                            'subject_name' =>
-                                $subjectName,
-
-                            'max_marks' =>
-                                $subjectMaximumMarks,
-
-                            'internal_marks' =>
-                                $mark->internal_marks,
-
-                            'theory_marks' =>
-                                $mark->theory_marks,
-
-                            'practical_marks' =>
-                                $mark->practical_marks,
-
-                            /*
-                             * Existing database structure:
-                             * total_marks stores obtained total
-                             * for ResultVersionDetail.
-                             */
-                            'total_marks' =>
-                                $subjectObtainedMarks,
-
-                            'obtained_marks' =>
-                                $subjectObtainedMarks,
-
-                            'grade' =>
-                                $subjectGrade,
-
-                            'grade_point' =>
-                                $this->calculateGradePoint(
-                                    $subjectPercentage
-                                ),
-
-                            'status' =>
-                                $mark->status,
-
-                            'remarks' =>
-                                $mark->remarks,
-                        ]);
-                    }
-
-                    /*
-                     * --------------------------------------------------
-                     * Replace current Result Details
-                     * --------------------------------------------------
-                     */
-                    $result->details()->delete();
-
-                    foreach (
-                        $studentMarks
-                        as $mark
-                    ) {
-
-                        $subjectName =
-                            $mark->subject
-                                ? $mark->subject->subject_name
-                                : 'Unknown Subject';
-
-                        $subjectMaximumMarks =
-                            (float)
-                            $mark->max_marks;
-
-                        $subjectObtainedMarks =
-                            (float)
-                            $mark->total_marks;
-
-                        $subjectPercentage =
-                            $subjectMaximumMarks > 0
-                                ? (
-                                    $subjectObtainedMarks /
-                                    $subjectMaximumMarks
-                                ) * 100
-                                : 0;
-
-                        $subjectPercentage =
-                            round(
-                                $subjectPercentage,
-                                2
-                            );
-
-                        $subjectGrade =
-                            $this->calculateGrade(
-                                $subjectPercentage
-                            );
-
-                        ResultDetail::create([
-                            'result_id' =>
-                                $result->id,
-
-                            'subject_id' =>
-                                $mark->subject_id,
-
-                            'subject_name' =>
-                                $subjectName,
-
-                            /*
-                             * IMPORTANT:
-                             *
-                             * total_marks =
-                             * maximum marks
-                             *
-                             * obtained_marks =
-                             * student's obtained marks
-                             */
-                            'total_marks' =>
-                                $subjectMaximumMarks,
-
-                            'obtained_marks' =>
-                                $subjectObtainedMarks,
-
-                            'internal_marks' =>
-                                $mark->internal_marks,
-
-                            'theory_marks' =>
-                                $mark->theory_marks,
-
-                            'practical_marks' =>
-                                $mark->practical_marks,
-
-                            'grade' =>
-                                $subjectGrade,
-
-                            'grade_point' =>
-                                $this->calculateGradePoint(
-                                    $subjectPercentage
-                                ),
-                        ]);
-                    }
-                }
-            }
+    
+/**
+ * Generate student results.
+ *
+ * Pass criteria:
+ * 1. Overall percentage must be at least 35%.
+ * 2. Every subject must meet its configured passing marks.
+ *
+ * If either pass condition fails, result_status = fail.
+ * If neither fails but any subject is absent, result_status = absent.
+ */
+public function generateResult(Request $request)
+{
+    $validated = $request->validate([
+        'exam_id' => [
+            'required',
+            'integer',
+            'exists:exams,id',
+        ],
+        'class_id' => [
+            'required',
+            'integer',
+            'exists:school_classes,id',
+        ],
+        'section' => [
+            'nullable',
+            'string',
+            'max:50',
+        ],
+        'exam_class_id' => [
+            'nullable',
+            'integer',
+            'exists:exam_classes,id',
+        ],
+    ]);
+
+    $exam = Exam::findOrFail($validated['exam_id']);
+
+    $schoolClass = SchoolClass::findOrFail(
+        $validated['class_id']
+    );
+
+    $examClassQuery = ExamClass::where(
+        'exam_id',
+        $exam->id
+    )->where(
+        'class_id',
+        $schoolClass->id
+    );
+
+    if (!empty($validated['exam_class_id'])) {
+        $examClassQuery->where(
+            'id',
+            $validated['exam_class_id']
         );
-
-        Log::info(
-            'RESULT GENERATION COMPLETED',
-            [
-                'result_student_count' =>
-                    $students->count(),
-
-                'exam_id' =>
-                    $exam->id,
-
-                'class_id' =>
-                    $schoolClass->id,
-
-                'section' =>
-                    $section,
-
-                'redirect_route' =>
-                    'admin.results.index',
-
-                'redirect_url' =>
-                    route(
-                        'admin.results.index'
-                    ),
-            ]
-        );
-
-        return redirect()
-            ->route(
-                'admin.results.index'
-            )
-            ->with(
-                'success',
-                'Results generated successfully for ' .
-                $students->count() .
-                ' student(s).'
-            );
     }
 
+    $examClass = $examClassQuery->first();
+
+    if (!$examClass) {
+        return back()->with(
+            'error',
+            'This class/section is not assigned to the selected examination.'
+        );
+    }
+
+    $section = !empty($validated['section'])
+        ? trim($validated['section'])
+        : trim((string) $schoolClass->section);
+
+    $students = $this->getStudentsForExamClass(
+        $exam,
+        $schoolClass,
+        $section
+    );
+
+    if ($students->isEmpty()) {
+        return back()->with(
+            'error',
+            'No active students found for the selected class and section.'
+        );
+    }
+
+    // Get subjects assigned to this exam and class.
+    $examSubjects = ExamSubject::query()
+        ->where('exam_id', $exam->id)
+        ->where('class_id', $schoolClass->id)
+        ->where('status', true)
+        ->get()
+        ->keyBy('subject_id');
+
+    if ($examSubjects->isEmpty()) {
+        return back()->with(
+            'error',
+            'No subjects are assigned to this examination and class.'
+        );
+    }
+
+    // Load marks for all students in this exam class.
+    $examMarks = ExamMark::with('subject')
+        ->where('exam_id', $exam->id)
+        ->where('exam_class_id', $examClass->id)
+        ->whereIn('student_id', $students->pluck('id'))
+        ->get()
+        ->groupBy('student_id');
+
+    if ($examMarks->isEmpty()) {
+        return back()->with(
+            'error',
+            'No marks have been entered for this examination.'
+        );
+    }
+
+    $minimumPassingPercentage = 35.0;
+
+    DB::transaction(function () use (
+        $students,
+        $examMarks,
+        $examSubjects,
+        $exam,
+        $schoolClass,
+        $section,
+        $minimumPassingPercentage
+    ) {
+        foreach ($students as $student) {
+            $studentMarks = $examMarks->get(
+                $student->id,
+                collect()
+            );
+
+            // Do not generate a result when no marks exist.
+            if ($studentMarks->isEmpty()) {
+                continue;
+            }
+
+            $totalMaximumMarks = 0;
+            $totalObtainedMarks = 0;
+
+            $hasFailedSubject = false;
+            $hasAbsentSubject = false;
+
+            // Identify marks by subject so missing subject marks
+            // cannot silently be treated as a passed subject.
+            $marksBySubject = $studentMarks->keyBy('subject_id');
+
+            foreach ($examSubjects as $subjectId => $examSubject) {
+                $mark = $marksBySubject->get($subjectId);
+
+                if (!$mark) {
+                    throw ValidationException::withMessages([
+                        'marks' =>
+                            'Marks are missing for student ' .
+                            ($student->student_id ?? $student->id) .
+                            ' in subject ' .
+                            ($examSubject->subject?->subject_name
+                                ?? 'ID ' . $subjectId) .
+                            '. Enter all subject marks before generating results.',
+                    ]);
+                }
+
+                $maximumMarks = (float) $mark->max_marks;
+                $obtainedMarks = (float) $mark->total_marks;
+
+                $totalMaximumMarks += $maximumMarks;
+                $totalObtainedMarks += $obtainedMarks;
+
+                if ($mark->status === 'absent') {
+                    $hasAbsentSubject = true;
+                }
+
+                // Every present subject must meet its configured
+                // passing marks from the examination setup.
+                if (
+                    $mark->status === 'present' &&
+                    $obtainedMarks < (float) $examSubject->passing_marks
+                ) {
+                    $hasFailedSubject = true;
+                }
+            }
+
+            $percentage = $totalMaximumMarks > 0
+                ? ($totalObtainedMarks / $totalMaximumMarks) * 100
+                : 0;
+
+            $percentage = round($percentage, 2);
+
+            $grade = $this->calculateGrade($percentage);
+
+            // BOTH conditions must be satisfied to pass.
+            if (
+                $hasFailedSubject ||
+                $percentage < $minimumPassingPercentage ||
+                $totalMaximumMarks <= 0
+            ) {
+                $resultStatus = 'fail';
+            } elseif ($hasAbsentSubject) {
+                $resultStatus = 'absent';
+            } else {
+                $resultStatus = 'pass';
+            }
+
+            /*
+             * Create or update the current result.
+             */
+            $result = Result::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'exam_id' => $exam->id,
+                ],
+                [
+                    'academic_year' => $exam->academic_year,
+                    'class_name' => $schoolClass->class_name,
+                    'section' => $section,
+                    'total_marks' => $totalMaximumMarks,
+                    'obtained_marks' => $totalObtainedMarks,
+                    'percentage' => $percentage,
+                    'grade' => $grade,
+                    'result_status' => $resultStatus,
+
+                    // Regeneration restarts publication workflow.
+                    'publication_status' => 'generated',
+                    'published_at' => null,
+                    'published_by' => null,
+                    'generated_at' => now(),
+                    'remarks' => null,
+                ]
+            );
+
+            /*
+             * Create a new result history version.
+             */
+            $lastVersion = ResultVersion::where(
+                'result_id',
+                $result->id
+            )->max('version_number');
+
+            $nextVersion = ((int) $lastVersion) + 1;
+
+            $resultVersion = ResultVersion::create([
+                'result_id' => $result->id,
+                'version_number' => $nextVersion,
+                'student_id_snapshot' => $student->student_id,
+                'student_name_snapshot' => trim(
+                    collect([
+                        $student->first_name,
+                        $student->middle_name,
+                        $student->last_name,
+                    ])->filter()->implode(' ')
+                ),
+                'exam_name_snapshot' => $exam->exam_name,
+                'academic_year' => $exam->academic_year,
+                'class_name' => $schoolClass->class_name,
+                'section' => $section,
+                'total_marks' => $totalMaximumMarks,
+                'obtained_marks' => $totalObtainedMarks,
+                'percentage' => $percentage,
+                'grade' => $grade,
+                'result_status' => $resultStatus,
+                'remarks' => null,
+                'generated_at' => now(),
+            ]);
+
+            /*
+             * Save historical subject details.
+             */
+            foreach ($studentMarks as $mark) {
+                $subjectName = $mark->subject
+                    ? $mark->subject->subject_name
+                    : 'Unknown Subject';
+
+                $subjectMaximumMarks = (float) $mark->max_marks;
+                $subjectObtainedMarks = (float) $mark->total_marks;
+
+                $subjectPercentage = $subjectMaximumMarks > 0
+                    ? ($subjectObtainedMarks / $subjectMaximumMarks) * 100
+                    : 0;
+
+                $subjectPercentage = round($subjectPercentage, 2);
+
+                ResultVersionDetail::create([
+                    'result_version_id' => $resultVersion->id,
+                    'subject_id' => $mark->subject_id,
+                    'subject_name' => $subjectName,
+                    'max_marks' => $subjectMaximumMarks,
+                    'internal_marks' => $mark->internal_marks,
+                    'theory_marks' => $mark->theory_marks,
+                    'practical_marks' => $mark->practical_marks,
+                    'total_marks' => $subjectObtainedMarks,
+                    'obtained_marks' => $subjectObtainedMarks,
+                    'grade' => $this->calculateGrade($subjectPercentage),
+                    'grade_point' => $this->calculateGradePoint($subjectPercentage),
+                    'status' => $mark->status,
+                    'remarks' => $mark->remarks,
+                ]);
+            }
+
+            /*
+             * Replace current subject result details.
+             */
+            $result->details()->delete();
+
+            foreach ($studentMarks as $mark) {
+                $subjectName = $mark->subject
+                    ? $mark->subject->subject_name
+                    : 'Unknown Subject';
+
+                $subjectMaximumMarks = (float) $mark->max_marks;
+                $subjectObtainedMarks = (float) $mark->total_marks;
+
+                $subjectPercentage = $subjectMaximumMarks > 0
+                    ? ($subjectObtainedMarks / $subjectMaximumMarks) * 100
+                    : 0;
+
+                $subjectPercentage = round($subjectPercentage, 2);
+
+                ResultDetail::create([
+                    'result_id' => $result->id,
+                    'subject_id' => $mark->subject_id,
+                    'subject_name' => $subjectName,
+
+                    // total_marks stores maximum marks in ResultDetail.
+                    'total_marks' => $subjectMaximumMarks,
+                    'obtained_marks' => $subjectObtainedMarks,
+
+                    'internal_marks' => $mark->internal_marks,
+                    'theory_marks' => $mark->theory_marks,
+                    'practical_marks' => $mark->practical_marks,
+
+                    'grade' => $this->calculateGrade($subjectPercentage),
+                    'grade_point' => $this->calculateGradePoint($subjectPercentage),
+                ]);
+            }
+        }
+    });
+
+    Log::info('RESULT GENERATION COMPLETED', [
+        'result_student_count' => $students->count(),
+        'exam_id' => $exam->id,
+        'class_id' => $schoolClass->id,
+        'section' => $section,
+        'redirect_route' => 'admin.results.index',
+        'redirect_url' => route('admin.results.index'),
+    ]);
+
+    return redirect()
+        ->route('admin.results.index')
+        ->with(
+            'success',
+            'Results generated successfully for ' .
+            $students->count() .
+            ' student(s).'
+        );
+}
     /**
      * Show all generated versions.
      */
@@ -4033,8 +3777,23 @@ class ResultController extends Controller
         );
     }
 
-    public function classWiseToppers(Request $request)
+    
+/**
+ * Show class-wise top three ranks for a selected examination.
+ *
+ * Only published, passed results are included.
+ * Tied students share the same competition rank.
+ */
+public function classWiseToppers(Request $request)
 {
+    $validated = $request->validate([
+        'exam_id' => [
+            'nullable',
+            'integer',
+            'exists:exams,id',
+        ],
+    ]);
+
     /*
     |--------------------------------------------------------------------------
     | Academic Years
@@ -4044,11 +3803,9 @@ class ResultController extends Controller
     $academicYears = Result::query()
         ->whereNotNull('academic_year')
         ->where('academic_year', '!=', '')
-        ->select('academic_year')
         ->distinct()
         ->orderByDesc('academic_year')
         ->pluck('academic_year');
-
 
     /*
     |--------------------------------------------------------------------------
@@ -4060,127 +3817,101 @@ class ResultController extends Controller
         ->orderByDesc('id')
         ->get();
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default
-    |--------------------------------------------------------------------------
-    */
-
     $classWiseToppers = collect();
-
     $selectedExam = null;
 
-
     /*
     |--------------------------------------------------------------------------
-    | Generate All Class Toppers
+    | Load Results for Selected Examination
     |--------------------------------------------------------------------------
     */
 
     if ($request->filled('exam_id')) {
-
         $selectedExam = Exam::findOrFail(
-            $request->exam_id
+            $validated['exam_id']
         );
-
-        /*
-        | Get all passed results for selected examination
-        */
 
         $results = Result::query()
             ->with([
                 'student',
                 'exam',
             ])
-            ->where(
-                'exam_id',
-                $selectedExam->id
-            )
-            ->where(
-                'academic_year',
-                $selectedExam->academic_year
-            )
-            ->where(
-                'result_status',
-                'pass'
-            )
+            ->where('exam_id', $selectedExam->id)
+            ->where('result_status', 'pass')
+            ->where('publication_status', 'published')
+            ->whereHas('student')
+            ->orderByDesc('percentage')
+            ->orderBy('student_id')
             ->get();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Group Results by Class and Section
+        |--------------------------------------------------------------------------
+        |
+        | Results are grouped by their stored class and section.
+        | Including the section prevents students from different sections
+        | from being mixed into the same topper list.
+        */
+
+        $groupedResults = $results->groupBy(function ($result) {
+            $className = trim(
+                (string) (
+                    $result->class_name
+                    ?: $result->student?->class
+                    ?: 'Unassigned Class'
+                )
+            );
+
+            $section = trim(
+                (string) (
+                    $result->section
+                    ?: $result->student?->section
+                    ?: ''
+                )
+            );
+
+            return $className . '||' . $section;
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | Group Results Class-wise
+        | Calculate Competition Ranks
         |--------------------------------------------------------------------------
         */
 
-        $groupedResults = $results
-            ->groupBy(function ($result) {
-                return trim(
-                    (string) $result->class_name
-                );
-            });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Find Top 3 of Every Class
-        |--------------------------------------------------------------------------
-        */
-
-        foreach ($groupedResults as $className => $classResults) {
-
-            /*
-            | Sort highest percentage first
-            */
-
+        foreach ($groupedResults as $groupKey => $classResults) {
             $sortedResults = $classResults
                 ->sortByDesc(function ($result) {
-                    return (float) (
-                        $result->percentage ?? 0
-                    );
+                    return (float) ($result->percentage ?? 0);
                 })
                 ->values();
 
-
-            /*
-            | Competition Ranking
-            |
-            | Example:
-            | 95 = Rank 1
-            | 95 = Rank 1
-            | 92 = Rank 3
-            */
-
             $rank = 0;
-
             $previousPercentage = null;
 
-            foreach (
-                $sortedResults as $index => $result
-            ) {
-
-                $percentage = (float) (
-                    $result->percentage ?? 0
+            foreach ($sortedResults as $index => $result) {
+                $percentage = round(
+                    (float) ($result->percentage ?? 0),
+                    2
                 );
 
-
                 if (
-                    $previousPercentage === null ||
-                    $percentage < $previousPercentage
+                    $previousPercentage === null
+                    || $percentage < $previousPercentage
                 ) {
                     $rank = $index + 1;
                 }
-
 
                 $result->topper_rank = $rank;
 
                 $previousPercentage = $percentage;
             }
 
-
             /*
-            | Keep Top 3 ranks
+            |--------------------------------------------------------------------------
+            | Keep Top Three Ranks
+            |--------------------------------------------------------------------------
             */
 
             $topThree = $sortedResults
@@ -4189,38 +3920,59 @@ class ResultController extends Controller
                 })
                 ->values();
 
+            if ($topThree->isEmpty()) {
+                continue;
+            }
 
-            /*
-            | Add class-wise topper group
-            */
+            $firstResult = $topThree->first();
+
+            $className = trim(
+                (string) (
+                    $firstResult->class_name
+                    ?: $firstResult->student?->class
+                    ?: 'Unassigned Class'
+                )
+            );
+
+            $section = trim(
+                (string) (
+                    $firstResult->section
+                    ?: $firstResult->student?->section
+                    ?: ''
+                )
+            );
 
             $classWiseToppers->push([
                 'class_name' => $className,
+                'section' => $section,
                 'toppers' => $topThree,
             ]);
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Sort Classes
+        | Sort Classes and Sections
         |--------------------------------------------------------------------------
         */
 
         $classWiseToppers = $classWiseToppers
-            ->sortBy(function ($item) {
+            ->sort(function ($a, $b) {
+                $classComparison = strnatcasecmp(
+                    $a['class_name'],
+                    $b['class_name']
+                );
 
-                return $item['class_name'];
+                if ($classComparison !== 0) {
+                    return $classComparison;
+                }
+
+                return strnatcasecmp(
+                    $a['section'],
+                    $b['section']
+                );
             })
             ->values();
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Return View
-    |--------------------------------------------------------------------------
-    */
 
     return view(
         'admin.results.class-wise-toppers',

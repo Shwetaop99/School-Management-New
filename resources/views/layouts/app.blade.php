@@ -874,10 +874,10 @@
                         <a href="{{ route('admin.student-documents.index') }}" class="submenu-item">Student Documents</a>
                         <a href="{{ route('admin.id-card.index') }}" class="submenu-item">Student ID</a>
                         <a href="{{ route('admin.student-supply-kits.index') }}" class="submenu-item">School Supplies(Kit)</a>
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Student Report</a>
+                        <a href="{{ route('admin.student-general-register.index') }}" class="submenu-item">Student Register</a>
                     @endif
                     @if($can('students.create'))
-                        <a href="{{ route('admin.students.index') }}" class="submenu-item">Add Student</a>
+                        <a href="{{ route('admin.students.bulk-create') }}" class="submenu-item">Add Student</a>
                     @endif
                     @if($can('attendance.view'))
                         <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance</a>

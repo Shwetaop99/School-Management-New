@@ -42,11 +42,9 @@ class StudentGeneralRegisterController extends Controller
 
         // Search
         if ($request->filled('search')) {
-
-            $search = $request->search;
+            $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
-
                 $q->where('student_id', 'like', "%{$search}%")
                     ->orWhere('register_no', 'like', "%{$search}%")
                     ->orWhere('first_name', 'like', "%{$search}%")
@@ -56,29 +54,34 @@ class StudentGeneralRegisterController extends Controller
             });
         }
 
+        // Pagination: 10 students per page
         $students = $query
-            ->orderByRaw(
-                'CAST(register_no AS UNSIGNED) ASC'
-            )
+            ->orderByRaw('CAST(register_no AS UNSIGNED) ASC')
             ->orderBy('first_name')
-            ->paginate(25)
+            ->paginate(10)
             ->withQueryString();
 
+        // Academic Years
         $academicYears = Student::query()
+            ->where('status', 'active')
             ->whereNotNull('academic_year')
             ->where('academic_year', '!=', '')
             ->distinct()
             ->orderByDesc('academic_year')
             ->pluck('academic_year');
 
+        // Classes
         $classes = Student::query()
+            ->where('status', 'active')
             ->whereNotNull('class')
             ->where('class', '!=', '')
             ->distinct()
             ->orderBy('class')
             ->pluck('class');
 
+        // Sections
         $sections = Student::query()
+            ->where('status', 'active')
             ->whereNotNull('section')
             ->where('section', '!=', '')
             ->distinct()
@@ -115,6 +118,7 @@ class StudentGeneralRegisterController extends Controller
         $query = Student::query()
             ->where('status', 'active');
 
+        // Academic Year
         if ($request->filled('academic_year')) {
             $query->where(
                 'academic_year',
@@ -122,6 +126,7 @@ class StudentGeneralRegisterController extends Controller
             );
         }
 
+        // Current Class
         if ($request->filled('class')) {
             $query->where(
                 'class',
@@ -129,6 +134,7 @@ class StudentGeneralRegisterController extends Controller
             );
         }
 
+        // Section
         if ($request->filled('section')) {
             $query->where(
                 'section',
@@ -136,10 +142,23 @@ class StudentGeneralRegisterController extends Controller
             );
         }
 
+        // Search
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->where('student_id', 'like', "%{$search}%")
+                    ->orWhere('register_no', 'like', "%{$search}%")
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('middle_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('aadhar_card_no', 'like', "%{$search}%");
+            });
+        }
+
+        // Print all students matching the filters
         $students = $query
-            ->orderByRaw(
-                'CAST(register_no AS UNSIGNED) ASC'
-            )
+            ->orderByRaw('CAST(register_no AS UNSIGNED) ASC')
             ->orderBy('first_name')
             ->get();
 
