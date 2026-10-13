@@ -125,6 +125,13 @@ use App\Http\Controllers\Admin\MealReportController;
 
 use App\Http\Controllers\Admin\TransportReportController;
 use App\Http\Controllers\Admin\StudentBulkImportController;
+use App\Http\Controllers\Admin\BackupController;
+
+use App\Http\Controllers\Admin\FeeStructureController;
+
+use App\Http\Controllers\Admin\FeePaymentController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -844,8 +851,16 @@ Route::resource(
                 NoticeController::class,
                 'show'
             ])
+
+            
                 ->name('notices.show')
                 ->middleware('permission:notices.view');
+
+                Route::get('/notices/{notice}/whatsapp', [
+    NoticeController::class,
+    'whatsapp'
+])
+    ->name('notices.whatsapp');
 
                 //Bonafied
 
@@ -2146,7 +2161,8 @@ Route::group([], function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::resource('teachers', TeacherController::class);
+        Route::resource('teachers', TeacherController::class)
+    ->whereNumber('teacher');
 
 
         /*
@@ -2223,6 +2239,24 @@ Route::delete('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolL
 
 Route::get('/school-leaving-certificate/{schoolLeavingCertificate}/print', [SchoolLeavingCertificateController::class, 'print'])
     ->name('school-leaving-certificate.print');
+
+    
+/*
+|--------------------------------------------------------------------------
+| FACULTY ATTENDANCE
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/teachers/attendance', [
+    TeacherAttendanceController::class,
+    'index'
+])->name('teachers.attendance.index');
+
+Route::post('/teachers/attendance', [
+    TeacherAttendanceController::class,
+    'store'
+])->name('teachers.attendance.store');
+
 
     /*
 |--------------------------------------------------------------------------
@@ -2375,7 +2409,8 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
                 ->name('faculty.index')
                 ->middleware('permission:faculty.view');
 
-            Route::resource('teachers', TeacherController::class);
+            Route::resource('teachers', TeacherController::class)
+    ->whereNumber('teacher');
 
             /* CLASS TEACHER ASSIGNMENT */
 
@@ -2448,9 +2483,68 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/fees', function () {
-                return 'Fees Management';
-            })->name('fees.index');
+            
+Route::get('/fees', function () {
+    return view('admin.fees.index');
+})->name('fees.index');
+
+Route::get('/reports/fees', [
+    \App\Http\Controllers\Admin\FeeReportController::class,
+    'index',
+])->name('reports.fees');
+
+
+/*
+|--------------------------------------------------------------------------
+| FEES MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('fees')
+    ->name('fees.')
+    ->middleware('auth')
+    ->group(function () {
+
+        // Fee Types
+        Route::resource('fee-types', FeeTypeController::class);
+
+        // Fee Structure sections dropdown
+        Route::get(
+            'fee-structures/sections/{classId}',
+            [FeeStructureController::class, 'sections']
+        )->name('fee-structures.sections');
+
+        // Fee Structures
+        Route::resource('fee-structures', FeeStructureController::class);
+
+        // Student Fees
+        Route::resource('student-fees', StudentFeeController::class)
+            ->only(['index', 'create', 'store', 'show', 'destroy']);
+
+        // Record a student fee payment
+        Route::get(
+            'student-fees/{studentFee}/payment',
+            [FeePaymentController::class, 'create']
+        )->name('student-fees.payment.create');
+
+        Route::post(
+            'student-fees/{studentFee}/payment',
+            [FeePaymentController::class, 'store']
+        )->name('student-fees.payment.store');
+
+        // Payment History
+        Route::get(
+            'payment-history',
+            [FeePaymentController::class, 'index']
+        )->name('payment-history.index');
+
+        Route::get(
+            'payment-history/{feePayment}',
+            [FeePaymentController::class, 'show']
+        )->name('payment-history.show');
+    });
+
+
 
             /*
             |--------------------------------------------------------------------------
@@ -2683,10 +2777,44 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
                 ->name('transport.')
                 ->group(function () {
 
-                Route::get(
-    'reports/student-search',
-    [TransportReportController::class, 'studentSearch']
-)->name('reports.student-search');
+                
+Route::get('/reports/student-search', [
+    TransportReportController::class,
+    'index',
+])->name('reports.student-search');
+
+
+
+Route::get('/reports/student-travel', [
+    TransportReportController::class,
+    'studentTravel'
+])->name('reports.student-travel');
+
+Route::get('/reports/student-travel/pdf', [
+    TransportReportController::class,
+    'studentTravelPdf'
+])->name('reports.student-travel.pdf');
+
+Route::get('/reports/student-travel/excel', [
+    TransportReportController::class,
+    'studentTravelExcel'
+])->name('reports.student-travel.excel');
+
+Route::get('/reports/vehicle', [
+    TransportReportController::class,
+    'vehicle'
+])->name('reports.vehicle');
+
+Route::get('/reports/vehicle/pdf', [
+    TransportReportController::class,
+    'vehiclePdf'
+])->name('reports.vehicle.pdf');
+
+Route::get('/reports/vehicle/excel', [
+    TransportReportController::class,
+    'vehicleExcel'
+])->name('reports.vehicle.excel');
+
 
 
                     /*
@@ -3004,9 +3132,7 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
 
     //ALL REPORTS
         // Notice
-        Route::get('/notices', function () {
-            return 'Notice Management';
-        })->name('notices.index');
+       
 
 Route::get('/admin/reports', [ReportsController::class, 'index'])
     ->name('reports.index');
@@ -3144,9 +3270,26 @@ Route::get('/reports/students', [StudentReportController::class, 'index'])
 
     });
 
+    Route::get('/reports/staff', [StaffReportController::class, 'index'])
+    ->name('reports.staff.index');
+
 
 Route::get('/reports/staff/excel', [StaffReportController::class, 'excel'])
     ->name('reports.staff.excel');
+
+   
+Route::get('/reports/staff/pdf', [
+    StaffReportController::class,
+    'pdf'
+])->name('reports.staff.pdf');
+
+
+Route::get('/reports/staff/{otherStaff}', [
+    StaffReportController::class,
+    'show'
+])->name('reports.staff.show');
+
+
 
 
 
@@ -3467,3 +3610,7 @@ Route::get('/result/{student}/pdf', [PublicResultController::class, 'pdf'])
 Route::get('/result/{student}/pdf/download', 
     [PublicResultController::class, 'downloadPdf'])
     ->name('result.pdf.download');
+
+    Route::get('/faculty-report-test', function () {
+    return 'Faculty test route works';
+});

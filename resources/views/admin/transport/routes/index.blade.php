@@ -1730,7 +1730,7 @@
                                             
 href="{{ route(
     'admin.transport.routes.show',
-    ['transport_route' => $route->id]
+    ['transportRoute' => $route->id]
 ) }}"
 
                                             class="action-btn view"
@@ -1746,11 +1746,9 @@ href="{{ route(
 
                                         <a
                                             href="{{ route(
-                                                'admin.transport.routes.edit',
-                                                
-['transport_route' => $route->id]
-
-                                            ) }}"
+    'admin.transport.routes.edit',
+    ['transportRoute' => $route->id]
+) }}"
                                             class="action-btn edit"
                                             title="Edit Route"
                                         >
@@ -1764,11 +1762,9 @@ href="{{ route(
 
                                         <form
                                             action="{{ route(
-                                                'admin.transport.routes.destroy',
-                                                
-['transport_route' => $route->id]
-
-                                            ) }}"
+    'admin.transport.routes.destroy',
+    ['transportRoute' => $route->id]
+) }}"
                                             method="POST"
                                             style="display:inline;"
                                             onsubmit="return confirm(

@@ -2414,13 +2414,7 @@ href="{{ route('admin.transport.records.index') }}"
 
                                     <a
 
-href="{{ route(
-
-    'admin.transport.records.show',
-
-    ['transport_record' => $record->id]
-
-) }}"
+href="{{ route('admin.transport.records.show', $record->id) }}"
 
                                         class="action-btn view"
 
@@ -2436,13 +2430,7 @@ href="{{ route(
 
                                     <a
 
-href="{{ route(
-
-    'admin.transport.records.edit',
-
-    ['transport_record' => $record->id]
-
-) }}"
+href="{{ route('admin.transport.records.edit', $record->id) }}"
 
                                         class="action-btn edit"
 
@@ -2459,12 +2447,9 @@ href="{{ route(
                                     <form
 
                                         action="{{ route(
-
-                                            'admin.transport.records.destroy',
-
-                                            ['transport_record' => $record->id]
-
-                                        ) }}"
+    'admin.transport.records.destroy',
+    ['transportRecord' => $record->id]
+) }}"
 
                                         method="POST"
 

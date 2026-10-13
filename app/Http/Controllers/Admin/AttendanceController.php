@@ -1287,72 +1287,67 @@ class AttendanceController extends Controller
      * ATTENDANCE REPORT
      * =========================================================
      */
-    public function report(
-        Request $request
-    ) {
-        $query = Attendance::query()
-            ->with('student');
+    public function report(Request $request)
+{
+    $query = Attendance::query()->with('student');
 
-        if ($request->filled(
-            'academic_year'
-        )) {
-            $query->where(
-                'academic_year',
-                $request->academic_year
-            );
-        }
-
-        if ($request->filled(
-            'class'
-        )) {
-            $query->where(
-                'class',
-                $request->class
-            );
-        }
-
-        if ($request->filled(
-            'section'
-        )) {
-            $query->where(
-                'section',
-                $request->section
-            );
-        }
-
-        if ($request->filled(
-            'date'
-        )) {
-            $query->whereDate(
-                'attendance_date',
-                $request->date
-            );
-        }
-
-        if ($request->filled(
-            'status'
-        )) {
-            $query->whereRaw(
-                'LOWER(status) = ?',
-                [
-                    strtolower(
-                        $request->status
-                    ),
-                ]
-            );
-        }
-
-        $attendance = $query
-            ->orderByDesc(
-                'attendance_date'
-            )
-            ->get();
-
-        return view(
-            'admin.attendance.report',
-            compact('attendance')
-        );
+    if ($request->filled('academic_year')) {
+        $query->where('academic_year', $request->academic_year);
     }
+
+    if ($request->filled('class')) {
+        $query->where('class', $request->class);
+    }
+
+    if ($request->filled('section')) {
+        $query->where('section', $request->section);
+    }
+
+    if ($request->filled('date')) {
+        $query->whereDate('attendance_date', $request->date);
+    }
+
+    if ($request->filled('status')) {
+        $query->whereRaw('LOWER(status) = ?', [
+            strtolower($request->status),
+        ]);
+    }
+
+    $attendance = $query
+        ->orderByDesc('attendance_date')
+        ->get();
+
+    $academicYears = Student::query()
+        ->whereNotNull('academic_year')
+        ->where('academic_year', '!=', '')
+        ->distinct()
+        ->orderByDesc('academic_year')
+        ->pluck('academic_year');
+
+    $classes = Student::query()
+        ->whereNotNull('class')
+        ->where('class', '!=', '')
+        ->distinct()
+        ->orderBy('class')
+        ->pluck('class');
+
+    $sections = Student::query()
+        ->whereNotNull('section')
+        ->where('section', '!=', '')
+        ->distinct()
+        ->orderBy('section')
+        ->pluck('section');
+
+    return view(
+        'admin.attendance.report',
+        compact(
+            'attendance',
+            'academicYears',
+            'classes',
+            'sections'
+        )
+    );
+}
 
 
     /**

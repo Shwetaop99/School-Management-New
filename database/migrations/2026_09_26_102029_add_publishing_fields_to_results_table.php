@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,36 +9,70 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $table->string('publication_status', 20)
-                ->default('draft')
-                ->after('result_status');
+        if (!Schema::hasTable('results')) {
+            return;
+        }
 
-            $table->timestamp('published_at')
-                ->nullable()
-                ->after('publication_status');
+        if (!Schema::hasColumn('results', 'publication_status')) {
+            Schema::table('results', function (Blueprint $table) {
+                $table->string('publication_status', 20)
+                    ->default('draft');
+            });
+        }
 
-            $table->unsignedBigInteger('published_by')
-                ->nullable()
-                ->after('published_at');
+        if (!Schema::hasColumn('results', 'published_at')) {
+            Schema::table('results', function (Blueprint $table) {
+                $table->timestamp('published_at')->nullable();
+            });
+        }
 
-            $table->index(
-                'publication_status',
-                'results_publication_status_index'
-            );
-        });
+        if (!Schema::hasColumn('results', 'published_by')) {
+            Schema::table('results', function (Blueprint $table) {
+                $table->unsignedBigInteger('published_by')->nullable();
+            });
+        }
+
+        if (!Schema::hasIndex(
+            'results',
+            'results_publication_status_index'
+        )) {
+            Schema::table('results', function (Blueprint $table) {
+                $table->index(
+                    'publication_status',
+                    'results_publication_status_index'
+                );
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $table->dropIndex('results_publication_status_index');
+        if (!Schema::hasTable('results')) {
+            return;
+        }
 
-            $table->dropColumn([
-                'publication_status',
-                'published_at',
-                'published_by',
-            ]);
-        });
+        if (Schema::hasIndex(
+            'results',
+            'results_publication_status_index'
+        )) {
+            Schema::table('results', function (Blueprint $table) {
+                $table->dropIndex('results_publication_status_index');
+            });
+        }
+
+        $columns = array_filter([
+            'published_by' => Schema::hasColumn('results', 'published_by')
+                ? 'published_by' : null,
+            'published_at' => Schema::hasColumn('results', 'published_at')
+                ? 'published_at' : null,
+            'publication_status' => Schema::hasColumn('results', 'publication_status')
+                ? 'publication_status' : null,
+        ]);
+
+        if (!empty($columns)) {
+            Schema::table('results', function (Blueprint $table) use ($columns) {
+                $table->dropColumn(array_values($columns));
+            });
+        }
     }
 };
