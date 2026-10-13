@@ -161,7 +161,10 @@ class SchoolSettingController extends Controller
                 );
         }
 
-        $validated = $this->validateSchool($request);
+        $validated = $this->validateSchool(
+            $request,
+            $schoolSetting
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -259,9 +262,45 @@ class SchoolSettingController extends Controller
 
     /**
      * Validate school profile fields.
+     *
+     * Student ID settings are optional from the form.
+     * Sensible defaults are applied when they are not supplied.
      */
-    private function validateSchool(Request $request)
-    {
+    private function validateSchool(
+        Request $request,
+        ?SchoolSetting $schoolSetting = null
+    ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Student ID Defaults
+        |--------------------------------------------------------------------------
+        |
+        | These values are used when the School Profile form does not
+        | contain the student ID configuration fields.
+        |
+        */
+
+        $studentIdFormat = $request->input(
+            'student_id_format',
+            $schoolSetting?->student_id_format ?? 'STU{YYYY}{####}'
+        );
+
+        $studentIdStart = $request->input(
+            'student_id_start',
+            $schoolSetting?->student_id_start ?? 1
+        );
+
+        $studentIdLength = $request->input(
+            'student_id_length',
+            $schoolSetting?->student_id_length ?? 4
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate
+        |--------------------------------------------------------------------------
+        */
+
         return $request->validate([
 
             /*
@@ -369,6 +408,33 @@ class SchoolSettingController extends Controller
 
             /*
             |--------------------------------------------------------------------------
+            | Student ID Settings
+            |--------------------------------------------------------------------------
+            */
+
+            'student_id_format' => [
+                'nullable',
+                'string',
+                'max:100',
+                'regex:/^[A-Za-z0-9{}_\-\/\.]+$/',
+            ],
+
+            'student_id_start' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:999999999',
+            ],
+
+            'student_id_length' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:10',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
             | Logo
             |--------------------------------------------------------------------------
             */
@@ -379,7 +445,20 @@ class SchoolSettingController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
-        ]);
+        ]) + [
+
+            /*
+            |--------------------------------------------------------------------------
+            | Apply Student ID Defaults
+            |--------------------------------------------------------------------------
+            */
+
+            'student_id_format' => $studentIdFormat,
+
+            'student_id_start' => $studentIdStart,
+
+            'student_id_length' => $studentIdLength,
+        ];
     }
 
     /**
@@ -413,7 +492,6 @@ class SchoolSettingController extends Controller
      * Delete an image from Cloudinary.
      *
      * Database stores the complete secure Cloudinary URL.
-     * This method extracts the public ID from that URL.
      */
     private function deleteCloudinaryImage($url)
     {

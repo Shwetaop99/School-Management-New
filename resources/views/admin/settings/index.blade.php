@@ -22,7 +22,7 @@
     </div>
 
     {{-- ADD NEW SCHOOL --}}
-    <a href="{{ route('admin.settings.create') }}"
+    <a href="{{ route('admin.settings.index') }}"
        class="btn btn-primary">
 
         <i class="bi bi-plus-circle me-1"></i>

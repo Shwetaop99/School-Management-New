@@ -147,150 +147,504 @@
     </style>
 
     @stack('styles')
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
-<div id="topbar"></div>
 
-<div class="page-loader" id="pageLoader" role="status" aria-live="polite">
-    <div class="loader-card">
-        <div class="loader-dots"><i></i><i></i><i></i><i></i></div>
-        <div class="loader-text" id="loaderText">Please wait...</div>
-        <div class="loader-sub">This may take a few moments.</div>
-    </div>
-</div>
 @php
-    /* Safe route helper: returns '#' if a route doesn't exist. */
-    $route = function ($name, $fallback = '#') {
-        try {
-            return \Illuminate\Support\Facades\Route::has($name) ? route($name) : $fallback;
-        } catch (\Throwable $e) {
-            return $fallback;
-        }
-    };
-
     /*
-     * Sidebar definition.
-     * l = label, i = icon, a = route patterns that mark the item active,
-     * r = route (single link) or c = children [label, route name].
-     */
-    $menu = [
-        'Main' => [
-            ['l'=>'Dashboard','i'=>'fa-gauge-high','a'=>['admin.dashboard'],'r'=>'admin.dashboard'],
-           
+    |--------------------------------------------------------------------------
+    | DYNAMIC SCHOOL PROFILE
+    |--------------------------------------------------------------------------
+    | $school is expected to be shared from AppServiceProvider/View Composer.
+    |
+    | Logo priority:
+    | 1. Database / Cloudinary logo
+    | 2. public/images/gurukullogo.png
+    */
 
-[
-    'l' => 'Student',
-    'i' => 'fa-user-graduate',
-    'a' => [
+    $schoolName = $school?->school_name ?? 'Gurukul Vidyalaya';
+
+    $schoolLogo = $school?->logo_url
+        ?: asset('images/gurukullogo.png');
+@endphp
+
+<div class="app-wrapper">
+
+    <!-- =========================================================
+         SIDEBAR
+    ========================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                <img
+                    src="{{ $schoolLogo }}"
+                    alt="{{ $schoolName }} Logo"
+                    onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
+                >
+            </div>
+
+            <div class="brand-text">
+
+                <div class="brand-title">
+                    {{ $schoolName }}
+                </div>
+
+                <div class="brand-subtitle">
+                    School Management
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Sidebar Navigation -->
+        <div class="sidebar-content">
+
+           @php
+    $studentMenuActive = request()->routeIs(
         'admin.students.*',
         'admin.student-profile.*',
         'admin.student-documents.*',
         'admin.id-card.*',
         'admin.attendance.*',
-        'admin.reports.students',
-    ],
-    'c' => [
-        ['All Students', 'admin.students.index'],
-        ['Student Profile', 'admin.student-profile.index'],
-        ['Student Documents', 'admin.student-documents.index'],
-        ['Student ID', 'admin.id-card.index'],
-        ['Attendance', 'admin.attendance.index'],
-        ['School Supplies (Kit)', 'admin.supply-items.index'],
-        ['Student Report', 'admin.reports.index'],
-        ['Add Student', 'admin.students.create'],
-    ],
-],
+        'admin.government-schemes.*',
+        'admin.student-general-register.*',
+        'admin.student-health.*'
+    );
+@endphp
+
+@php
+    $user = auth()->user();
+
+    $isSuperAdmin = $user?->role?->name === 'super_admin';
+
+    $can = function (string $permission) use ($user, $isSuperAdmin): bool {
+        if ($isSuperAdmin) {
+            return true;
+        }
+
+        return $user?->hasPermission($permission) ?? false;
+    };
+
+    $canAny = function (array $permissions) use ($user, $isSuperAdmin): bool {
+        if ($isSuperAdmin) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if ($user?->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+@endphp
+
+            {{-- DASHBOARD --}}
+            @if($can('dashboard.view'))
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" data-search="dashboard home">
+                    <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
+                    <span class="sidebar-label">Dashboard</span>
+                </a>
+            @endif
+
+            {{-- STUDENT --}}
+            @if($canAny(['students.view','students.create','students.edit','students.delete']))
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.students.*') ? 'active open' : '' }}" data-submenu="student-menu" data-search="student students">
+                    <span class="sidebar-icon"><i class="fa fa-user-graduate"></i></span>
+                    <span class="sidebar-label">Student</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.students.*') ? 'open' : '' }}" id="student-menu">
+                    @if($can('students.view'))
+                        <a href="{{ route('admin.students.index') }}" class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">All Students</a>
+                        <a href="{{ route('admin.student-profile.index') }}" class="submenu-item">Student Profile</a>
+                        <a href="{{ route('admin.student-documents.index') }}" class="submenu-item">Student Documents</a>
+                        <a href="{{ route('admin.id-card.index') }}" class="submenu-item">Student ID</a>
+                        <a href="{{ route('admin.student-supply-kits.index') }}" class="submenu-item">School Supplies(Kit)</a>
+                        <a href="{{ route('admin.student-general-register.index') }}" class="submenu-item">Student Register</a>
+                    @endif
+                    @if($can('students.create'))
+                        <a href="{{ route('admin.students.bulk-create') }}" class="submenu-item">Add Student</a>
+                    @endif
+                    @if($can('attendance.view'))
+                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance</a>
+                    @endif
+                </div>
+            @endif
+
+            {{-- FACULTY --}}
+@if($canAny(['faculty.view','faculty.create','faculty.edit','faculty.delete']))
+    <button class="sidebar-item has-submenu {{ request()->routeIs('admin.teachers.*') ? 'active open' : '' }}"
+            data-submenu="faculty-menu"
+            data-search="faculty teacher teachers">
+
+        <span class="sidebar-icon">
+            <i class="fas fa-chalkboard-teacher"></i>
+        </span>
+
+        <span class="sidebar-label">Faculty (Teacher)</span>
+        <span class="sidebar-arrow">›</span>
+    </button>
+
+    <div class="submenu {{ request()->routeIs('admin.teachers.*') ? 'open' : '' }}"
+         id="faculty-menu">
+
+        @if($can('teachers.view'))
+            <a href="{{ route('admin.teachers.index') }}" class="submenu-item">
+                All Faculty
+            </a>
+        @endif
 
 
-            ['l'=>'Faculty (Teacher)','i'=>'fa-chalkboard-user','a'=>['admin.faculty.*'],
-                'c'=>[['All Faculty','admin.faculty.index'],['Teacher Allocation','admin.faculty.index']]],
-            ['l'=>'Other Staff','i'=>'fa-users','a'=>['admin.other-staff.*'],
-                'c'=>[['All Staff','admin.other-staff.index'],['Add Staff','admin.other-staff.create']]],
-            ['l'=>'Time Table','i'=>'fa-table-cells','a'=>['admin.timetable.*'],
-                'c'=>[['Class Timetable','admin.timetable.index'],['Teacher Timetable','admin.timetable.index'],['Create Timetable','admin.timetable.index']]],
+        {{-- Student Profile --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-profile.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-profile.*') ? 'active' : '' }}"
+            >
+                Student Profile
+            </a>
+        @endif
+
+
+        {{-- Student Documents --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-documents.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-documents.*') ? 'active' : '' }}"
+            >
+                Student Documents
+            </a>
+        @endif
+
+
+        {{-- Student ID --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.id-card.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.id-card.*') ? 'active' : '' }}"
+            >
+                Student ID
+            </a>
+        @endif
+
+
+        {{-- School Supplies (Kit) --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.government-schemes.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.government-schemes.*') ? 'active' : '' }}"
+            >
+                School Supplies(Kit)
+            </a>
+        @endif
+
+
+        {{-- Student Report --}}
+        @if($can('students.view'))
+            <a
+                href="{{ route('admin.student-general-register.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.student-general-register.*') ? 'active' : '' }}"
+            >
+                Student Report
+            </a>
+        @endif
+
+
+        {{-- Add Student --}}
+        @if($can('students.create'))
+            <a
+                href="{{ route('admin.students.create') }}"
+                class="submenu-item {{ request()->routeIs('admin.students.create') ? 'active' : '' }}"
+            >
+                Add Student
+            </a>
+        @endif
+
+
+        {{-- Attendance --}}
+        @if($can('attendance.view'))
+            <a
+                href="{{ route('admin.attendance.index') }}"
+                class="submenu-item {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}"
+            >
+                Attendance
+        @if($canAny(['teachers.create','teachers.edit']))
+            <a href="{{ route('admin.teachers.index') }}" class="submenu-item">
+                Teacher Allocation
+            </a>
+        @endif
+
+    </div>
+@endif
+
+            {{-- OTHER STAFF --}}
+            @if($canAny(['staff.view','staff.create','staff.edit','staff.delete']))
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.other-staff.*') ? 'active open' : '' }}" data-submenu="other-staff-menu" data-search="other staff employees librarian accountant receptionist peon driver">
+                    <span class="sidebar-icon"><i class="fas fa-users"></i></span>
+                    <span class="sidebar-label">Other Staff</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.other-staff.*') ? 'open' : '' }}" id="other-staff-menu">
+                    @if($can('staff.view'))
+                        <a href="{{ route('admin.other-staff.index') }}" class="submenu-item {{ request()->routeIs('admin.other-staff.index') ? 'active' : '' }}">All Staff</a>
+                    @endif
+                    @if($can('staff.create'))
+                        <a href="{{ route('admin.other-staff.create') }}" class="submenu-item {{ request()->routeIs('admin.other-staff.create') ? 'active' : '' }}">Add Staff</a>
+                    @endif
+                </div>
+            @endif
+
+            {{-- TIME TABLE: no dedicated permission exists yet --}}
+            @if($isSuperAdmin)
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.timetable.*') ? 'active open' : '' }}" data-submenu="timetable-menu" data-search="time table timetable schedule">
+                    <span class="sidebar-icon"><i class="fas fa-table"></i></span><span class="sidebar-label">Time Table</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.timetable.*') ? 'open' : '' }}" id="timetable-menu">
+                    <a href="{{ route('admin.timetable.index') }}" class="submenu-item">Class Timetable</a>
+                    <a href="{{ route('admin.timetable.index') }}" class="submenu-item">Teacher Timetable</a>
+                    <a href="{{ route('admin.timetable.index') }}" class="submenu-item">Create Timetable</a>
+                </div>
+            @endif
+
+            {{-- ATTENDANCE --}}
+            @if($canAny(['attendance.view','attendance.manage']))
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.attendance.*') ? 'active open' : '' }}" data-submenu="attendance-menu" data-search="attendance student faculty mark">
+                    <span class="sidebar-icon"><i class="fas fa-check"></i></span><span class="sidebar-label">Attendance</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.attendance.*') ? 'open' : '' }}" id="attendance-menu">
+                    @if($can('attendance.view'))
+                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Student Attendance</a>
+                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Faculty Attendance</a>
+                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance Report</a>
+                    @endif
+                    @if($can('attendance.manage'))
+                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Manage Attendance</a>
+                    @endif
+                </div>
+            @endif
+
+           {{-- FEES --}}
+@if($canAny(['fees.view','fees.manage']))
+    <button class="sidebar-item has-submenu {{ request()->routeIs('admin.fees.*') ? 'active open' : '' }}"
+            data-submenu="fees-menu"
+            data-search="fees fee payment">
+
+        <span class="sidebar-icon">₹</span>
+        <span class="sidebar-label">Fees</span>
+        <span class="sidebar-arrow">›</span>
+    </button>
+
+    <div class="submenu {{ request()->routeIs('admin.fees.*') ? 'open' : '' }}"
+         id="fees-menu">
+
+        @if($can('fees.view'))
+            <a href="{{ route('admin.fees.index') }}" class="submenu-item">
+                Fee Structure
+            </a>
+
+            <a href="{{ route('admin.fees.index') }}" class="submenu-item">
+                Student Fee
+            </a>
+
+            <a href="{{ route('admin.fees.index') }}" class="submenu-item">
+                Payment History
+            </a>
+        @endif
+
+    </div>
+@endif
+            {{-- EXAM --}}
+            @if($canAny(['exams.view','exams.manage']))
+    <a href="{{ route('admin.exams.index') }}"
+       class="sidebar-item {{ request()->routeIs('admin.exams.*') ? 'active' : '' }}"
+       data-search="exam examination">
+
+        <span class="sidebar-icon">
+            <i class="fas fa-file-alt"></i>
+        </span>
+
+        <span class="sidebar-label">Exam</span>
+    </a>
+@endif
+
+{{-- RESULT --}}
+@if($isSuperAdmin)
+
+    <button
+        class="sidebar-item has-submenu {{ request()->routeIs('admin.results.*') ? 'active open' : '' }}"
+        data-submenu="result-menu"
+        data-search="result results marks grade topper toppers"
+    >
+        <span class="sidebar-icon">
+            <i class="fas fa-chart-bar"></i>
+        </span>
+
+        <span class="sidebar-label">Result</span>
+
+        <span class="sidebar-arrow">›</span>
+    </button>
+
+    <div
+        class="submenu {{ request()->routeIs('admin.results.*') ? 'open' : '' }}"
+        id="result-menu"
+    >
+
+        {{-- Result Dashboard --}}
+        <a 
+    href="{{ route('admin.results.index') }}" 
+    class="submenu-item {{ request()->routeIs('admin.results.index') ? 'active' : '' }}"
+>
+    <i class="fas fa-home me-2"></i>
+    Result Dashboard
+</a>
+
+        {{-- Enter Marks --}}
+        <a
+            href="{{ route('admin.results.marks') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.marks') ? 'active' : '' }}"
+        >
+            <i class="fas fa-edit me-2"></i>
+            Enter Marks
+        </a>
+
+        {{-- Student Results --}}
+        <a
+            href="{{ route('admin.results.generate') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.generate') ? 'active' : '' }}"
+        >
+            <i class="fas fa-user-graduate me-2"></i>
+            Student Results
+        </a>
+
+        {{-- Top 3 Toppers --}}
+        <a
+            href="{{ route('admin.results.class-wise-toppers') }}"
+            class="submenu-item {{ request()->routeIs('admin.results.class-wise-toppers') ? 'active' : '' }}"
+        >
+            <i class="fas fa-trophy me-2"></i>
+            Top 3 Toppers
+        </a>
+
+    </div>
+
+@endif
+
+
             
-            ['l'=>'Attendance','i'=>'fa-check','a'=>['admin.attendance.*','admin.teachers.attendance.*'],
-                'c'=>[
-                    ['Student Attendance', 'admin.attendance.student.sheet'],
-                    ['Faculty Attendance', 'admin.teachers.attendance.index']
-                ]
-            ],
+
+            {{-- LIBRARY --}}
+            @if($canAny(['library.view','library.books','library.issue','library.return','library.fines','library.reports']))
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.library.*') ? 'active open' : '' }}" data-submenu="library-menu" data-search="library books issue return fine">
+                    <span class="sidebar-icon"><i class="fas fa-book"></i></span><span class="sidebar-label">Library</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.library.*') ? 'open' : '' }}" id="library-menu">
+                    @if($canAny(['library.view','library.books']))
+                        <a href="{{ route('admin.library.books.index') }}" class="submenu-item {{ request()->routeIs('admin.library.books.*') ? 'active' : '' }}">Total Books</a>
+                    @endif
+                    @if($canAny(['library.issue','library.return','library.fines']))
+                        <a href="{{ route('admin.library.issues.index') }}" class="submenu-item {{ request()->routeIs('admin.library.issues.*') || request()->routeIs('admin.library.returns.*') || request()->routeIs('admin.library.fines.*') ? 'active' : '' }}">Issues / Returns / Fine</a>
+                    @endif
+                    @if($can('library.view'))
+                        <a href="{{ route('admin.library.librarian.index') }}" class="submenu-item {{ request()->routeIs('admin.library.librarian.index') ? 'active' : '' }}">Librarian</a>
+                    @endif
+                    @if($can('library.reports'))
+                        <a href="{{ route('admin.library.reports.index') }}" class="submenu-item {{ request()->routeIs('admin.library.reports.*') ? 'active' : '' }}">Reports</a>
+                    @endif
+                </div>
+            @endif
+
+            {{-- OTHER: these modules have no dedicated permissions yet --}}
+            @if($isSuperAdmin)
+                <div class="sidebar-section-title other-title">OTHER</div>
+
+            <!-- Transport -->
+
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.meals.*') ? 'active open' : '' }}" data-submenu="meal-menu" data-search="meal meals food stock">
+                    <span class="sidebar-icon"><i class="fas fa-utensils"></i></span><span class="sidebar-label">Meal Management</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.meals.*') ? 'open' : '' }}" id="meal-menu">
+                   <a href="{{ route('admin.meal.items.stock.index') }}"
+   class="submenu-item">
+    
+    Stock In / Stock Out
+</a>
+                    <a href="{{ route('admin.meal.logs.index') }}"
+   class="submenu-item">
+   
+    Logs
+</a>
+                </div>
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.transport.*') ? 'active open' : '' }}"
+                    data-submenu="transport-menu"
+                    data-search="transport bus vehicle">
+
+                <span class="sidebar-icon">▣</span>
+
+                <span class="sidebar-label">
+                    Transport
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="sidebar-item"
+     data-search="transport bus vehicle">
+    <span class="sidebar-icon">
+        <i class="fas fa-bus"></i>
+    </span>
+    <span class="sidebar-label">Transport</span>
+</div>
 
 
-            
+            <!-- Meal Management -->
 
-[
-    'l' => 'Fees',
-    'i' => 'fa-indian-rupee-sign',
-    'a' => [
-        'admin.fees.fee-structures.*',
-        'admin.fees.student-fees.*',
-        'admin.fees.payment-history.*',
-    ],
-    'c' => [
-        ['Fee Structure', 'admin.fees.fee-structures.index'],
-        ['Student Fee', 'admin.fees.student-fees.index'],
-        ['Payment History', 'admin.fees.payment-history.index'],
-    ],
-],
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.meals.*') ? 'active open' : '' }}"
+                    data-submenu="meal-menu"
+                    data-search="meal meals food stock">
+
+                <span class="sidebar-icon">♨</span>
+
+                <span class="sidebar-label">
+                    Meal Management
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+          <div class="submenu {{ request()->routeIs('admin.meal.items.*', 'admin.meal.stock.*', 'admin.meal.logs.*') ? 'open' : '' }}"
+     id="meal-menu">
+
+    <a href="{{ route('admin.meal.items.index') }}"
+       class="submenu-item {{ request()->routeIs('admin.meal.stock.*') ? 'active' : '' }}">
+        Stock In / Stock Out
+    </a>
+
+     <a href="{{ route('admin.meal.logs.index') }}"
+   class="submenu-item {{ request()->routeIs('admin.meal.logs.*') ? 'active' : '' }}">
+    Logs
+</a>
 
 
+</div>
 
-          ['l'=>'Exam','i'=>'fa-file-lines','a'=>['admin.exams.*'],'r'=>'admin.exams.index'],
-            ['l'=>'Result','i'=>'fa-chart-column','a'=>['admin.results.*'],
-                'c'=>[['Student Result','admin.results.index'],['Grade Management','admin.results.index'],['Publish Result','admin.results.index'],['Result History','admin.results.index'],['Result Report','admin.results.index']]],
-            ['l'=>'Notice','i'=>'fa-flag','a'=>['admin.notices.*'],
-                'c'=>[['All Notices','admin.notices.index'],['Add Notice','admin.notices.create']]],
-            ['l'=>'Library','i'=>'fa-book','a'=>['admin.library.*'],
-                'c'=>[['Total Books','admin.library.books.index'],['Issues / Returns / Fine','admin.library.issues.index'],['Librarian','admin.library.librarian.index'],['Reports','admin.library.reports.index']]],
-        ],
-       
-'Other' => [
-    [
-        'l' => 'Transport',
-        'i' => 'fa-bus',
-        'a' => [
-            'admin.transport.records.*',
-            'admin.transport.routes.*',
-            'admin.transport.vehicles.*',
-        ],
-        'c' => [
-            ['Transport Records', 'admin.transport.records.index'],
-            ['Routes', 'admin.transport.routes.index'],
-            ['Vehicles', 'admin.transport.vehicles.index'],
-        ],
-    ],
 
-          
-[
-    'l' => 'Meal Management',
-    'i' => 'fa-utensils',
-    'a' => [
-        'admin.admin.meal.*',
-        'admin.admin.meals.*',
-    ],
-    'c' => [
-        ['Stock In / Stock Out', 'admin.admin.meal.items.stock.index'],
-        ['Logs', 'admin.admin.meal.items.index'],
-    ],
-],
-
-           
-['l'=>'Payroll','i'=>'fa-money-check-dollar','a'=>['admin.teachers.salary.*'],'r'=>'admin.teachers.salary.index'],
-
-['l'=>'Sports','i'=>'fa-futbol','a'=>['admin.sports.*'],
-    'c'=>[
-        ['Games / Events','admin.sports.games.index'],
-        ['Achievements','admin.sports.achievements.index'],
-        ['Sports Equipments','admin.sports.equipment.index']
-    ]
-],
-
-['l'=>'Scholarship','i'=>'fa-graduation-cap',
-    'a'=>['admin.scholarship.*'],
-    'r'=>'admin.scholarship.index'
-],
+                <a href="{{ route('admin.salary.index') }}"
+                   class="submenu-item">
+                    Salary
+                </a>
 
 ['l'=>'Class','i'=>'fa-chalkboard','a'=>['admin.classes.*','admin.subjects.*'],
     'c'=>[
@@ -301,22 +655,7 @@
 
 ['l'=>'Reports','i'=>'fa-chart-pie','a'=>['admin.reports.*'],'r'=>'admin.reports.index'],
 
-          
-[
-    'l' => 'Settings',
-    'i' => 'fa-gear',
-    'a' => [
-        'admin.settings.*',
-        'admin.backup.*',
-        'admin.2fa.*',
-    ],
-    'c' => [
-        ['School Profile', 'admin.settings.index'],
-['User Roles & Permission', 'admin.settings.roles.index'],
-        ['Security', 'admin.2fa.security'],
-        ['Backup & Recovery', 'admin.backup.index'],
-    ],
-],
+                <span class="sidebar-icon">▤</span>
 
         ],
     ];
@@ -325,8 +664,76 @@
 
 <div class="app-wrapper">
 
-    {{-- ================= SIDEBAR ================= --}}
-    <aside class="sidebar" id="sidebar">
+            <!-- Sports -->
+
+            <a href="{{ route('admin.sports.index') }}"
+               class="sidebar-item {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}"
+               data-search="sports">
+
+                <span class="sidebar-icon">♜</span>
+
+                <span class="sidebar-label">
+                    Sports
+                </span>
+
+            </a>
+
+
+            <!-- Scholarship -->
+
+            @if (Route::has('admin.scholarship.index'))
+    <a href="{{ route('admin.scholarship.index') }}"
+       class="sidebar-item {{ request()->routeIs('admin.scholarship.*') ? 'active' : '' }}">
+        <i class="bi bi-cash-coin"></i>
+        <span class="sidebar-label">Scholarship</span>
+    </a>
+@endif
+                <span class="sidebar-icon">♢</span>
+
+                <span class="sidebar-label">
+                    Scholarship
+                </span>
+
+            </a>
+
+
+            <!-- Class -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.classes.*') ? 'active open' : '' }}"
+                    data-submenu="class-menu"
+                    data-search="class classes division subjects">
+
+                <span class="sidebar-icon">▦</span>
+
+                <span class="sidebar-label">
+                    Class
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+            <div class="submenu
+                        {{ request()->routeIs('admin.classes.*') ? 'open' : '' }}"
+                 id="class-menu">
+
+                <a href="{{ route('admin.classes.index') }}"
+                   class="submenu-item">
+                    Classes
+                </a>
+
+                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'active open' : '' }}" data-submenu="class-menu" data-search="class classes division subjects">
+                    <span class="sidebar-icon"><i class="fas fa-chalkboard"></i></span><span class="sidebar-label">Class</span><span class="sidebar-arrow">›</span>
+                </button>
+                <div class="submenu {{ request()->routeIs('admin.classes.*') || request()->routeIs('admin.subjects.*') ? 'open' : '' }}" id="class-menu">
+                    <a href="{{ route('admin.classes.index') }}" class="submenu-item">Classes</a>
+                    <a href="{{ route('admin.subjects.index') }}" class="submenu-item">Subjects</a>
+                </div>
+            @endif
+               <a href="{{ route('admin.subjects.index') }}" class="submenu-item">
+    Subjects
+</a>
 
         <div class="sidebar-brand">
             <div class="brand-icon">
@@ -334,80 +741,161 @@
                      alt="{{ $schoolName ?? 'School' }} logo"
                      onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';">
             </div>
-            <div>
-                <div class="brand-title">{{ $schoolName ?? 'Gurukul Vidyalaya' }}</div>
-                <div class="brand-subtitle">School management</div>
+
+
+            <!-- Settings -->
+
+            <button class="sidebar-item has-submenu
+                    {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}"
+                    data-submenu="settings-menu"
+                    data-search="settings role permission users backup">
+
+                <span class="sidebar-icon">⚙</span>
+
+                <span class="sidebar-label">
+                    Settings
+                </span>
+
+                <span class="sidebar-arrow">›</span>
+
+            </button>
+
+                        <div class="submenu
+                        {{ request()->routeIs('admin.settings.*') ? 'open' : '' }}"
+                 id="settings-menu">
+
+                <a href="{{ route('admin.settings.index') }}"
+                   class="submenu-item">
+                    School Profile
+                </a>
+
+                <a href="{{ route('admin.settings.roles.index') }}"
+                   class="submenu-item">
+                    User Roles & Permission
+                </a>
+
+                <a href="{{ route('admin.settings.index') }}"
+                   class="submenu-item">
+                    Backup & Recovery
+                </a>
+
             </div>
         </div>
 
-        <nav class="sidebar-content" aria-label="Main navigation">
-            @foreach ($menu as $group => $items)
-                <div class="nav-group">{{ $group }}</div>
-
-                @foreach ($items as $n => $item)
-                    @php
-                        $isActive = request()->routeIs(...$item['a']);
-                        $id = \Illuminate\Support\Str::slug($group . '-' . $item['l']);
-                    @endphp
-
-                    @if (isset($item['c']))
-                        <button type="button" class="nav-item has-submenu {{ $isActive ? 'active open' : '' }}" data-submenu="{{ $id }}">
-                            <span class="nav-icon"><i class="fas {{ $item['i'] }}"></i></span>
-                            <span class="nav-label">{{ $item['l'] }}</span>
-                            <i class="fas fa-chevron-right nav-arrow"></i>
-                        </button>
-                        <div class="submenu {{ $isActive ? 'open' : '' }}" id="{{ $id }}">
-                            @php $matched = false; @endphp
-                            @foreach ($item['c'] as $child)
-                                @php
-                                    // Several children can share one route; highlight only the first match.
-                                    $childActive = !$matched && request()->routeIs($child[1]);
-                                    if ($childActive) { $matched = true; }
-                                @endphp
-                                <a href="{{ $route($child[1]) }}"
-                                   class="submenu-item {{ $childActive ? 'active' : '' }}">{{ $child[0] }}</a>
-                            @endforeach
-                        </div>
-                    @elseif (\Illuminate\Support\Facades\Route::has($item['r']))
-                        <a href="{{ route($item['r']) }}" class="nav-item {{ $isActive ? 'active' : '' }}">
-                            <span class="nav-icon"><i class="fas {{ $item['i'] }}"></i></span>
-                            <span class="nav-label">{{ $item['l'] }}</span>
-                        </a>
-                    @endif
-                @endforeach
-            @endforeach
-        </nav>
+        <!-- =========================================================
+             LOGOUT
+        ========================================================== -->
 
         <div class="logout-area">
             <form method="POST" action="{{ $route('admin.logout') }}">
                 @csrf
-                <button type="submit" class="logout-button">
-                    <span class="nav-icon"><i class="fas fa-arrow-right-from-bracket"></i></span>
-                    <span>Log out</span>
+
+                <button
+                    type="submit"
+                    class="logout-button"
+                >
+
+                    <span class="sidebar-icon">
+    <i class="fas fa-sign-out-alt"></i>
+</span>
+
+<span class="sidebar-label">
+    Logout
+</span>
+
                 </button>
             </form>
         </div>
     </aside>
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- =========================================================
+         MOBILE OVERLAY
+    ========================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
 
     {{-- ================= MAIN ================= --}}
     <div class="main-area">
 
         <header class="top-header">
-            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
-                <i class="fas fa-bars"></i>
+
+            <button
+                type="button"
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Toggle sidebar"
+            >
+                ☰
             </button>
 
-            <div class="page-title">@yield('page-title', 'Dashboard')</div>
+
+            <div class="page-title">
+                @yield('page-title', 'Dashboard')
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <div class="header-search">
+
+                <div class="search-box">
+
+                    <span class="search-icon">
+                        ⌕
+                    </span>
+
+                    <input
+                        type="text"
+                        id="globalSearch"
+                        class="search-input"
+                        placeholder="Search..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        class="search-button"
+                        id="searchButton"
+                        title="Search"
+                    >
+                        ↵
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="search-results"
+                    id="searchResults"
+                ></div>
+
+            </div>
+
+
+            <!-- HEADER ACTIONS -->
 
             <div class="header-actions">
                 <div class="header-date"><b id="liveClock">{{ now()->format('h:i A') }}</b>{{ now()->format('l, d F Y') }}</div>
                 <div class="admin-profile">
                     <div class="avatar-wrap"><div class="admin-avatar">A</div><span class="status-dot" title="Online"></span></div>
                     <div class="admin-info">
-                        <div class="admin-name">Admin <span class="online-pill"><i></i>Online</span></div>
-                        <div class="admin-role">Administrator</div>
+
+        <div class="admin-name">
+            Admin
+        </div>
+
+                        <div class="admin-status">
+
+                            <span class="online-dot"></span>
+
+                            Online
+
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -418,8 +906,16 @@
         </main>
 
         <footer class="app-footer">
-            <div>© {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.</div>
-            <div>School Management System v1.0.0</div>
+
+            <div>
+                © {{ date('Y') }} {{ $schoolName }}.
+                All rights reserved.
+            </div>
+
+            <div class="footer-right">
+                School Management System • v1.0.0
+            </div>
+
         </footer>
     </div>
 </div>
@@ -428,136 +924,491 @@
 document.addEventListener('DOMContentLoaded', function () {
     const buttons = document.querySelectorAll('.has-submenu');
 
-    buttons.forEach(function (button) {
+    /* ==========================================================
+       SIDEBAR MAIN SUBMENUS
+    ========================================================== */
+
+    const submenuButtons =
+        document.querySelectorAll('.has-submenu');
+
+    submenuButtons.forEach(function (button) {
+
         button.addEventListener('click', function () {
             const menu = document.getElementById(this.dataset.submenu);
             if (!menu) return;
             const open = !menu.classList.contains('open');
 
-            buttons.forEach(function (other) {
-                if (other !== button) {
-                    other.classList.remove('open');
-                    const m = document.getElementById(other.dataset.submenu);
-                    if (m) m.classList.remove('open');
+            const submenuId =
+                this.getAttribute('data-submenu');
+
+            const submenu =
+                document.getElementById(submenuId);
+
+            if (!submenu) {
+                return;
+            }
+
+
+            /*
+             * Close all other main submenus
+             */
+
+            submenuButtons.forEach(function (otherButton) {
+
+                if (otherButton !== button) {
+
+                    otherButton.classList.remove('open');
+
+                    const otherId =
+                        otherButton.getAttribute('data-submenu');
+
+                    const otherMenu =
+                        document.getElementById(otherId);
+
+                    if (otherMenu) {
+                        otherMenu.classList.remove('open');
+                    }
+
                 }
+
             });
 
-            button.classList.toggle('open', open);
-            menu.classList.toggle('open', open);
+
+            /*
+             * Toggle selected submenu
+             */
+
+            button.classList.toggle('open');
+
+            submenu.classList.toggle('open');
+
         });
     });
 
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
 
-    document.getElementById('menuToggle').addEventListener('click', function () {
-        sidebar.classList.toggle('mobile-open');
-        overlay.classList.toggle('active');
+    /* ==========================================================
+       SCHOOL SUPPLIES NESTED MENU
+    ========================================================== */
+
+    const nestedMenuButtons =
+        document.querySelectorAll('.nested-menu-toggle');
+
+    nestedMenuButtons.forEach(function (button) {
+
+        button.addEventListener('click', function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const menuId =
+                this.getAttribute('data-nested-menu');
+
+            const menu =
+                document.getElementById(menuId);
+
+            if (!menu) {
+                return;
+            }
+
+            this.classList.toggle('open');
+
+            menu.classList.toggle('open');
+
+        });
+
     });
 
-    overlay.addEventListener('click', function () {
-        sidebar.classList.remove('mobile-open');
-        overlay.classList.remove('active');
-    });
+
+    /* ==========================================================
+       MOBILE SIDEBAR
+    ========================================================== */
+
+    const menuToggle =
+        document.getElementById('menuToggle');
+
+    const sidebar =
+        document.getElementById('sidebar');
+
+    const sidebarOverlay =
+        document.getElementById('sidebarOverlay');
+
+
+    if (menuToggle) {
+
+        menuToggle.addEventListener('click', function () {
+
+            sidebar.classList.toggle('mobile-open');
+
+            sidebarOverlay.classList.toggle('active');
+
+        });
+
+    }
+
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.addEventListener('click', function () {
+
+            sidebar.classList.remove('mobile-open');
+
+            sidebarOverlay.classList.remove('active');
+
+        });
+
+    }
+
+
+    /* ==========================================================
+       GLOBAL SEARCH
+    ========================================================== */
+
+    const searchInput =
+        document.getElementById('globalSearch');
+
+    const searchButton =
+        document.getElementById('searchButton');
+
+    const searchResults =
+        document.getElementById('searchResults');
+
+
+    const searchableItems = [];
+
+
+    /*
+     * Main sidebar items
+     */
+
+    document
+        .querySelectorAll('.sidebar-item[data-search]')
+        .forEach(function (item) {
+
+            searchableItems.push({
+
+                text:
+                    item.innerText.trim(),
+
+                keywords:
+                    item.getAttribute('data-search'),
+
+                element:
+                    item
+
+            });
+
+        });
+
+
+    /*
+     * Normal submenu links
+     */
+
+    document
+        .querySelectorAll('.submenu-item')
+        .forEach(function (item) {
+
+            searchableItems.push({
+
+                text:
+                    item.innerText.trim(),
+
+                keywords:
+                    item.innerText.trim(),
+
+                element:
+                    item
+
+            });
+
+        });
+
+
+    /*
+     * Nested School Supply menu
+     */
+
+    document
+        .querySelectorAll('.nested-menu-toggle')
+        .forEach(function (item) {
+
+            searchableItems.push({
+
+                text:
+                    item.innerText.trim(),
+
+                keywords:
+                    'school supplies kit supply items government kit templates student kit distribution',
+
+                element:
+                    item
+
+            });
+
+        });
+
+
+    /* ==========================================================
+       SEARCH FUNCTION
+    ========================================================== */
+
+    function performSearch() {
+
+        const query =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+
+        searchResults.innerHTML = '';
+
+
+        if (!query) {
+
+            searchResults.classList.remove('show');
+
+            return;
+
+        }
+
+
+        const matches =
+            searchableItems.filter(function (item) {
+
+                return (
+
+                    item.text
+                        .toLowerCase()
+                        .includes(query)
+
+                    ||
+
+                    item.keywords
+                        .toLowerCase()
+                        .includes(query)
+
+                );
+
+            });
+
+
+        if (matches.length === 0) {
+
+            searchResults.innerHTML = `
+
+                <div class="search-empty">
+
+                    No results found for
+
+                    "<strong>${query}</strong>"
+
+                </div>
+
+            `;
+
+            searchResults.classList.add('show');
+
+            return;
+
+        }
+
+
+        matches
+            .slice(0, 8)
+            .forEach(function (item) {
+
+                const result =
+                    document.createElement('div');
+
+                result.className =
+                    'search-result-item';
+
+
+                result.innerHTML = `
+
+                    <span class="search-result-icon">
+                        🔎
+                    </span>
+
+                    <span>
+                        ${item.text}
+                    </span>
+
+                `;
+
+
+                result.addEventListener('click', function () {
+
+
+                    /*
+                     * Normal link
+                     */
+
+                    if (
+
+                        item.element.tagName === 'A'
+
+                        &&
+
+                        item.element.href
+
+                    ) {
+
+                        window.location.href =
+                            item.element.href;
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Main parent menu
+                     */
+
+                    if (
+
+                        item.element.classList
+                            .contains('has-submenu')
+
+                    ) {
+
+                        item.element.click();
+
+                    }
+
+
+                    /*
+                     * Nested menu
+                     */
+
+                    if (
+
+                        item.element.classList
+                            .contains('nested-menu-toggle')
+
+                    ) {
+
+                        item.element.click();
+
+                    }
+
+
+                    searchResults.classList.remove('show');
+
+                    searchInput.value =
+                        item.text;
+
+                });
+
+
+                searchResults.appendChild(result);
+
+            });
+
+
+        searchResults.classList.add('show');
+
+    }
+
+
+    /* ==========================================================
+       SEARCH WHILE TYPING
+    ========================================================== */
+
+    searchInput.addEventListener(
+        'input',
+        performSearch
+    );
+
+
+    /* ==========================================================
+       SEARCH BUTTON
+    ========================================================== */
+
+    searchButton.addEventListener(
+        'click',
+        performSearch
+    );
+
+
+    /* ==========================================================
+       ENTER TO SEARCH
+    ========================================================== */
+
+    searchInput.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (event.key === 'Enter') {
+
+                event.preventDefault();
+
+                performSearch();
+
+            }
+
+        }
+    );
+
+
+    /* ==========================================================
+       CLOSE SEARCH RESULTS
+    ========================================================== */
+
+    document.addEventListener(
+        'click',
+        function (event) {
+
+            if (
+                !event.target.closest('.header-search')
+            ) {
+
+                searchResults.classList.remove('show');
+
+            }
+
+        }
+    );
+
+
+    /* ==========================================================
+       CTRL + K SEARCH SHORTCUT
+    ========================================================== */
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (
+
+                (event.ctrlKey || event.metaKey)
+
+                &&
+
+                event.key.toLowerCase() === 'k'
+
+            ) {
+
+                event.preventDefault();
+
+                searchInput.focus();
+
+                searchInput.select();
+
+            }
+
+        }
+    );
+
 });
 </script>
 
-<script>
-(function(){
-    const el=document.getElementById('liveClock');
-    if(!el) return;
-    function tick(){el.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
-    tick(); setInterval(tick,15000);
-})();
-</script>
-
-<script>
-(function () {
-    const root = document.documentElement;
-    const bar = document.getElementById('topbar');
-    const loader = document.getElementById('pageLoader');
-    const loaderText = document.getElementById('loaderText');
-    const started = performance.now();
-    let creep = null;
-
-    /* ----- top progress bar ----- */
-    function barStart() {
-        clearInterval(creep);
-        bar.style.transition = 'none';
-        bar.style.opacity = 1;
-        bar.style.width = '0';
-        bar.offsetWidth;
-        bar.style.transition = 'width .4s ease, opacity .35s ease';
-        let w = 12;
-        bar.style.width = w + '%';
-        creep = setInterval(function () {
-            w += (90 - w) * 0.08;
-            bar.style.width = w + '%';
-        }, 250);
-    }
-    function barDone() {
-        clearInterval(creep);
-        bar.style.width = '100%';
-        setTimeout(function () { bar.style.opacity = 0; }, 350);
-    }
-
-    /* ----- skeleton: remove once page is ready (min 600 ms so it never flickers) ----- */
-    function ready() {
-        const wait = Math.max(0, 600 - (performance.now() - started));
-        setTimeout(function () { root.classList.remove('is-loading'); barDone(); }, wait);
-    }
-    barStart();
-    if (document.readyState === 'complete') { ready(); } else { window.addEventListener('load', ready); }
-    setTimeout(function () { root.classList.remove('is-loading'); }, 5000);
-
-    /* ----- navigation: links ----- */
-    document.addEventListener('click', function (e) {
-        const a = e.target.closest('a[href]');
-        if (!a || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
-        if (a.target === '_blank' || a.hasAttribute('download')) return;
-        const href = a.getAttribute('href');
-        if (!href || href.charAt(0) === '#' || href.indexOf('javascript:') === 0) return;
-        if (a.origin !== location.origin) return;
-        barStart();
-    });
-
-    /* ----- forms: button spinner + optional full-screen loader ----- */
-    document.addEventListener('submit', function (e) {
-        const form = e.target;
-        if (e.defaultPrevented) return;          // e.g. user pressed Cancel on a confirm()
-        barStart();
-
-        const btn = form.querySelector('button[type="submit"], button:not([type])');
-        if (btn && !btn.classList.contains('is-busy')) {
-            btn.classList.add('is-busy');
-            btn.setAttribute('aria-busy', 'true');
-            btn.insertAdjacentHTML('afterbegin', '<span class="btn-spin"></span>');
-        }
-
-        const msg = form.getAttribute('data-loader');
-        if (msg) {
-            loaderText.textContent = msg;
-            loader.classList.add('show');
-        }
-    });
-
-    /* ----- coming back with the browser Back button ----- */
-    window.addEventListener('pageshow', function (e) {
-        if (!e.persisted) return;
-        loader.classList.remove('show');
-        document.querySelectorAll('.is-busy').forEach(function (b) {
-            b.classList.remove('is-busy');
-            b.removeAttribute('aria-busy');
-            const sp = b.querySelector('.btn-spin');
-            if (sp) sp.remove();
-        });
-        root.classList.remove('is-loading');
-        barDone();
-    });
-})();
-</script>
 
 @stack('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

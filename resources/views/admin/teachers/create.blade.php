@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.app')
 
 @section('title', 'Add Teacher')
@@ -6,7 +5,6 @@
 @section('content')
 
 <style>
-
 /* =========================================================
    MAIN CONTAINER
 ========================================================= */
@@ -211,8 +209,15 @@
     resize: vertical;
 }
 
-.is-invalid {
+.is-invalid,
+.validation-error {
     border-color: #dc3545 !important;
+    background: #fff8f8 !important;
+}
+
+.validation-success {
+    border-color: #22c55e !important;
+    background: #f8fff9 !important;
 }
 
 .invalid-feedback {
@@ -220,6 +225,27 @@
     margin-top: 5px;
     color: #dc3545;
     font-size: 11px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   VALIDATION WARNING
+========================================================= */
+
+.validation-warning {
+    display: none;
+    margin-top: 6px;
+    padding: 7px 10px;
+    background: #fff1f2;
+    border-left: 3px solid #dc3545;
+    border-radius: 6px;
+    color: #dc3545;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.validation-warning.show {
+    display: block;
 }
 
 /* =========================================================
@@ -485,730 +511,628 @@
         width: 100%;
     }
 }
-
 </style>
-
 
 <div class="teacher-container">
 
-    {{-- PAGE HEADER --}}
 
-    <div class="teacher-page-header">
-
-        <div>
-
-            <h2>Add Teacher</h2>
-
-            <p>Add a new teacher to the school</p>
-
-        </div>
-
-        <a
-            href="{{ route('admin.teachers.index') }}"
-            class="back-button"
-        >
-
-            <i class="bi bi-arrow-left"></i>
-
-            Back to Teachers
-
-        </a>
-
+{{-- PAGE HEADER --}}
+<div class="teacher-page-header">
+    <div>
+        <h2>Add Teacher</h2>
+        <p>Add a new teacher to the school</p>
     </div>
 
-
-    {{-- VALIDATION ERRORS --}}
-
-    @if ($errors->any())
-
-        <div class="alert alert-danger teacher-alert">
-
-            <strong>Please fix the following errors:</strong>
-
-            <ul class="mb-0 mt-2">
-
-                @foreach ($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    {{-- =====================================================
-         SINGLE FORM
-    ====================================================== --}}
-
-    <form
-        action="{{ route('admin.teachers.store') }}"
-        method="POST"
-        enctype="multipart/form-data"
-        id="teacherCreateForm"
-        class="teacher-form"
+    <a
+        href="{{ route('admin.teachers.index') }}"
+        class="back-button"
     >
+        <i class="bi bi-arrow-left"></i>
+        Back to Teachers
+    </a>
+</div>
 
-        @csrf
+
+{{-- VALIDATION ERRORS --}}
+@if ($errors->any())
+    <div class="alert alert-danger teacher-alert">
+        <strong>Please fix the following errors:</strong>
+
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 
-        {{-- =================================================
-             PERSONAL INFORMATION
-        ================================================== --}}
+{{-- FORM --}}
+<form
+    action="{{ route('admin.teachers.store') }}"
+    method="POST"
+    enctype="multipart/form-data"
+    id="teacherCreateForm"
+    class="teacher-form"
+>
 
-        <div class="form-section">
+    @csrf
 
-            <div class="form-section-header">
 
-                <div class="form-section-icon">
+    {{-- =================================================
+         PERSONAL INFORMATION
+    ================================================== --}}
 
-                    <i class="bi bi-person-fill"></i>
+    <div class="form-section">
 
-                </div>
+        <div class="form-section-header">
 
-                <div>
-
-                    <h3>Personal Information</h3>
-
-                    <p>Basic information about the teacher</p>
-
-                </div>
-
+            <div class="form-section-icon">
+                <i class="bi bi-person-fill"></i>
             </div>
 
-
-            <div class="form-grid">
-
-
-                {{-- FIRST NAME --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-
-                        First Name
-
-                        <span class="required">*</span>
-
-                    </label>
-
-                    <input
-                        type="text"
-                        name="first_name"
-                        class="teacher-input @error('first_name') is-invalid @enderror"
-                        value="{{ old('first_name') }}"
-                        placeholder="Enter first name"
-                        required
-                    >
-
-                    @error('first_name')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- LAST NAME --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-
-                        Last Name
-
-                        <span class="required">*</span>
-
-                    </label>
-
-                    <input
-                        type="text"
-                        name="last_name"
-                        class="teacher-input @error('last_name') is-invalid @enderror"
-                        value="{{ old('last_name') }}"
-                        placeholder="Enter last name"
-                        required
-                    >
-
-                    @error('last_name')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- DATE OF BIRTH --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-                        Date of Birth
-                    </label>
-
-                    <input
-                        type="date"
-                        name="date_of_birth"
-                        class="teacher-input @error('date_of_birth') is-invalid @enderror"
-                        value="{{ old('date_of_birth') }}"
-                    >
-
-                    @error('date_of_birth')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- GENDER --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-                        Gender
-                    </label>
-
-                    <select
-                        name="gender"
-                        class="teacher-select @error('gender') is-invalid @enderror"
-                    >
-
-                        <option value="">
-                            Select Gender
-                        </option>
-
-                        <option
-                            value="Male"
-                            {{ old('gender') == 'Male' ? 'selected' : '' }}
-                        >
-                            Male
-                        </option>
-
-                        <option
-                            value="Female"
-                            {{ old('gender') == 'Female' ? 'selected' : '' }}
-                        >
-                            Female
-                        </option>
-
-                        <option
-                            value="Other"
-                            {{ old('gender') == 'Other' ? 'selected' : '' }}
-                        >
-                            Other
-                        </option>
-
-                    </select>
-
-                    @error('gender')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
+            <div>
+                <h3>Personal Information</h3>
+                <p>Basic information about the teacher</p>
             </div>
 
         </div>
 
 
-        {{-- =================================================
-             CONTACT INFORMATION
-        ================================================== --}}
+        <div class="form-grid">
 
-        <div class="form-section">
-
-            <div class="form-section-header">
-
-                <div class="form-section-icon">
-
-                    <i class="bi bi-person-lines-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h3>Contact Information</h3>
-
-                    <p>Teacher contact details</p>
-
-                </div>
-
-            </div>
-
-
-            <div class="form-grid">
-
-
-                {{-- EMAIL --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-
-                        Email
-
-                        <span class="required">*</span>
-
-                    </label>
-
-                    <input
-                        type="email"
-                        name="email"
-                        class="teacher-input @error('email') is-invalid @enderror"
-                        value="{{ old('email') }}"
-                        placeholder="example@gmail.com"
-                        required
-                    >
-
-                    @error('email')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- PHONE --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-                        Phone
-                    </label>
-
-                    <input
-                        type="text"
-                        name="phone"
-                        id="teacherPhone"
-                        class="teacher-input @error('phone') is-invalid @enderror"
-                        value="{{ old('phone') }}"
-                        placeholder="Enter phone number"
-                        maxlength="10"
-                    >
-
-                    @error('phone')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- ADDRESS --}}
-
-                <div class="form-field full">
-
-                    <label class="teacher-label">
-                        Address
-                    </label>
-
-                    <textarea
-                        name="address"
-                        id="teacherAddress"
-                        rows="4"
-                        maxlength="1000"
-                        class="teacher-textarea @error('address') is-invalid @enderror"
-                        placeholder="Enter complete address"
-                    >{{ old('address') }}</textarea>
-
-                    <div class="teacher-help">
-
-                        <span>
-                            Enter the complete residential address.
-                        </span>
-
-                        <span id="addressCounter">
-                            0 / 1000
-                        </span>
-
-                    </div>
-
-                    @error('address')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             PROFESSIONAL INFORMATION
-        ================================================== --}}
-
-        <div class="form-section">
-
-            <div class="form-section-header">
-
-                <div class="form-section-icon">
-
-                    <i class="bi bi-briefcase-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h3>Professional Information</h3>
-
-                    <p>Teacher qualification and work details</p>
-
-                </div>
-
-            </div>
-
-
-            <div class="form-grid">
-
-
-                {{-- TEACHER ID --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-                        Teacher ID
-                    </label>
-
-                    <input
-                        type="text"
-                        class="teacher-input"
-                        value="Automatically Generated"
-                        readonly
-                        style="background:#eef5ff; color:#1769d1; font-weight:700; cursor:not-allowed;"
-                    >
-
-                    <div class="teacher-help">
-
-                        <span>
-                            Teacher ID will be generated automatically.
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                {{-- STATUS --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-
-                        Status
-
-                        <span class="required">*</span>
-
-                    </label>
-
-                    <select
-                        name="status"
-                        class="teacher-select @error('status') is-invalid @enderror"
-                        required
-                    >
-
-                        <option
-                            value="Active"
-                            {{ old('status', 'Active') == 'Active' ? 'selected' : '' }}
-                        >
-                            Active
-                        </option>
-
-                        <option
-                            value="Inactive"
-                            {{ old('status') == 'Inactive' ? 'selected' : '' }}
-                        >
-                            Inactive
-                        </option>
-
-                    </select>
-
-                    @error('status')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- QUALIFICATION --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-                        Qualification
-                    </label>
-
-                    <input
-                        type="text"
-                        name="qualification"
-                        class="teacher-input @error('qualification') is-invalid @enderror"
-                        value="{{ old('qualification') }}"
-                        placeholder="e.g. M.Sc, B.Ed"
-                    >
-
-                    @error('qualification')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- SUBJECT --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-                        Subject
-                    </label>
-
-                    <div class="subject-wrapper">
-
-                        <input
-                            type="text"
-                            name="subject"
-                            class="teacher-input subject-input @error('subject') is-invalid @enderror"
-                            value="{{ old('subject') }}"
-                            placeholder="Enter subject taught"
-                        >
-
-                    </div>
-
-                    <div class="subject-help">
-                        Enter the main subject taught by the teacher.
-                    </div>
-
-                    @error('subject')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-
-                {{-- JOINING DATE --}}
-
-                <div class="form-field">
-
-                    <label class="teacher-label">
-                        Joining Date
-                    </label>
-
-                    <input
-                        type="date"
-                        name="joining_date"
-                        class="teacher-input @error('joining_date') is-invalid @enderror"
-                        value="{{ old('joining_date') }}"
-                    >
-
-                    @error('joining_date')
-
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             PROFILE IMAGE
-        ================================================== --}}
-
-        <div class="form-section">
-
-            <div class="form-section-header">
-
-                <div class="form-section-icon">
-
-                    <i class="bi bi-image-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h3>Profile Image</h3>
-
-                    <p>Upload the teacher profile photo</p>
-
-                </div>
-
-            </div>
-
-
-            <div class="profile-area">
-
-                <div class="profile-preview-wrapper">
-
-                    <div
-                        class="profile-placeholder"
-                        id="profilePlaceholder"
-                    >
-
-                        <i class="bi bi-person-fill"></i>
-
-                    </div>
-
-                    <img
-                        src=""
-                        alt="Profile Preview"
-                        id="profilePreview"
-                        class="profile-preview"
-                        style="display:none;"
-                    >
-
-                    <span class="preview-badge">
-
-                        <i class="bi bi-camera-fill"></i>
-
-                    </span>
-
-                </div>
-
-
-                <div class="profile-info">
-
-                    <h4>
-                        Teacher Profile Photo
-                    </h4>
-
-                    <p>
-                        Upload a clear profile image of the teacher.
-                    </p>
-
-                    <div
-                        class="selected-image-name"
-                        id="selectedImageName"
-                    ></div>
-
-                </div>
-
-            </div>
-
-
-            {{-- IMAGE INPUT --}}
-
+            {{-- FIRST NAME --}}
             <div class="form-field">
 
                 <label class="teacher-label">
-                    Profile Image
+                    First Name
+                    <span class="required">*</span>
                 </label>
 
                 <input
-                    type="file"
-                    name="profile_image"
-                    id="profileImageInput"
-                    class="teacher-input @error('profile_image') is-invalid @enderror"
-                    accept="image/jpeg,image/png,image/webp"
+                    type="text"
+                    name="first_name"
+                    class="teacher-input @error('first_name') is-invalid @enderror"
+                    value="{{ old('first_name') }}"
+                    placeholder="Enter first name"
+                    required
                 >
 
-                <div class="teacher-help">
-
-                    <span>
-                        JPG, JPEG, PNG or WEBP
-                    </span>
-
-                    <span>
-                        Maximum size: 2 MB
-                    </span>
-
-                </div>
-
-                @error('profile_image')
-
+                @error('first_name')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
+                @enderror
 
+            </div>
+
+
+            {{-- LAST NAME --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Last Name
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    name="last_name"
+                    class="teacher-input @error('last_name') is-invalid @enderror"
+                    value="{{ old('last_name') }}"
+                    placeholder="Enter last name"
+                    required
+                >
+
+                @error('last_name')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- DATE OF BIRTH --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Date of Birth
+                </label>
+
+                <input
+                    type="date"
+                    name="date_of_birth"
+                    class="teacher-input @error('date_of_birth') is-invalid @enderror"
+                    value="{{ old('date_of_birth') }}"
+                >
+
+                @error('date_of_birth')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- GENDER --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Gender
+                </label>
+
+                <select
+                    name="gender"
+                    class="teacher-select @error('gender') is-invalid @enderror"
+                >
+                    <option value="">Select Gender</option>
+
+                    <option
+                        value="Male"
+                        {{ old('gender') == 'Male' ? 'selected' : '' }}
+                    >
+                        Male
+                    </option>
+
+                    <option
+                        value="Female"
+                        {{ old('gender') == 'Female' ? 'selected' : '' }}
+                    >
+                        Female
+                    </option>
+
+                    <option
+                        value="Other"
+                        {{ old('gender') == 'Other' ? 'selected' : '' }}
+                    >
+                        Other
+                    </option>
+                </select>
+
+                @error('gender')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
                 @enderror
 
             </div>
 
         </div>
+    </div>
 
 
-        {{-- =================================================
-             ACTION BUTTONS
-        ================================================== --}}
+    {{-- =================================================
+         CONTACT INFORMATION
+    ================================================== --}}
 
-        <div class="teacher-actions">
+    <div class="form-section">
 
-            <a
-                href="{{ route('admin.teachers.index') }}"
-                class="btn-teacher btn-secondary"
-            >
+        <div class="form-section-header">
 
-                <i class="bi bi-x-lg"></i>
+            <div class="form-section-icon">
+                <i class="bi bi-person-lines-fill"></i>
+            </div>
 
-                Cancel
-
-            </a>
-
-            <button
-                type="submit"
-                class="btn-teacher btn-primary"
-                id="saveTeacherBtn"
-            >
-
-                <i class="bi bi-check-lg"></i>
-
-                <span id="saveTeacherText">
-                    Save Teacher
-                </span>
-
-            </button>
+            <div>
+                <h3>Contact Information</h3>
+                <p>Teacher contact details</p>
+            </div>
 
         </div>
 
-    </form>
+
+        <div class="form-grid">
+
+            {{-- EMAIL --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Email
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    id="teacherEmail"
+                    class="teacher-input @error('email') is-invalid @enderror"
+                    value="{{ old('email') }}"
+                    placeholder="example@gmail.com"
+                    required
+                >
+
+                <div
+                    id="emailWarning"
+                    class="validation-warning"
+                ></div>
+
+                @error('email')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- PHONE --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Phone
+                </label>
+
+                <input
+                    type="text"
+                    name="phone"
+                    id="teacherPhone"
+                    class="teacher-input @error('phone') is-invalid @enderror"
+                    value="{{ old('phone') }}"
+                    placeholder="Enter 10 digit phone number"
+                    maxlength="10"
+                    inputmode="numeric"
+                >
+
+                <div
+                    id="phoneWarning"
+                    class="validation-warning"
+                ></div>
+
+                @error('phone')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- ADDRESS --}}
+            <div class="form-field full">
+
+                <label class="teacher-label">
+                    Address
+                </label>
+
+                <textarea
+                    name="address"
+                    id="teacherAddress"
+                    rows="4"
+                    maxlength="1000"
+                    class="teacher-textarea @error('address') is-invalid @enderror"
+                    placeholder="Enter complete address"
+                >{{ old('address') }}</textarea>
+
+                <div class="teacher-help">
+
+                    <span>
+                        Enter the complete residential address.
+                    </span>
+
+                    <span id="addressCounter">
+                        0 / 1000
+                    </span>
+
+                </div>
+
+                @error('address')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+        </div>
+    </div>
+
+
+    {{-- =================================================
+         PROFESSIONAL INFORMATION
+    ================================================== --}}
+
+    <div class="form-section">
+
+        <div class="form-section-header">
+
+            <div class="form-section-icon">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+
+            <div>
+                <h3>Professional Information</h3>
+                <p>Teacher qualification and work details</p>
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            {{-- TEACHER ID --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Teacher ID
+                </label>
+
+                <input
+                    type="text"
+                    class="teacher-input"
+                    value="Automatically Generated"
+                    readonly
+                    style="background:#eef5ff; color:#1769d1; font-weight:700; cursor:not-allowed;"
+                >
+
+                <div class="teacher-help">
+                    <span>
+                        Teacher ID will be generated automatically.
+                    </span>
+                </div>
+
+            </div>
+
+
+            {{-- STATUS --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Status
+                    <span class="required">*</span>
+                </label>
+
+                <select
+                    name="status"
+                    class="teacher-select @error('status') is-invalid @enderror"
+                    required
+                >
+
+                    <option
+                        value="Active"
+                        {{ old('status', 'Active') == 'Active' ? 'selected' : '' }}
+                    >
+                        Active
+                    </option>
+
+                    <option
+                        value="Inactive"
+                        {{ old('status') == 'Inactive' ? 'selected' : '' }}
+                    >
+                        Inactive
+                    </option>
+
+                </select>
+
+                @error('status')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- QUALIFICATION --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Qualification
+                </label>
+
+                <input
+                    type="text"
+                    name="qualification"
+                    class="teacher-input @error('qualification') is-invalid @enderror"
+                    value="{{ old('qualification') }}"
+                    placeholder="e.g. M.Sc, B.Ed"
+                >
+
+                @error('qualification')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- SUBJECT --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Subject
+                </label>
+
+                <div class="subject-wrapper">
+
+                    <input
+                        type="text"
+                        name="subject"
+                        class="teacher-input subject-input @error('subject') is-invalid @enderror"
+                        value="{{ old('subject') }}"
+                        placeholder="Enter subject taught"
+                    >
+
+                </div>
+
+                <div class="subject-help">
+                    Enter the main subject taught by the teacher.
+                </div>
+
+                @error('subject')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- JOINING DATE --}}
+            <div class="form-field">
+
+                <label class="teacher-label">
+                    Joining Date
+                </label>
+
+                <input
+                    type="date"
+                    name="joining_date"
+                    class="teacher-input @error('joining_date') is-invalid @enderror"
+                    value="{{ old('joining_date') }}"
+                >
+
+                @error('joining_date')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+        </div>
+    </div>
+
+
+    {{-- =================================================
+         PROFILE IMAGE
+    ================================================== --}}
+
+    <div class="form-section">
+
+        <div class="form-section-header">
+
+            <div class="form-section-icon">
+                <i class="bi bi-image-fill"></i>
+            </div>
+
+            <div>
+                <h3>Profile Image</h3>
+                <p>Upload the teacher profile photo</p>
+            </div>
+
+        </div>
+
+
+        <div class="profile-area">
+
+            <div class="profile-preview-wrapper">
+
+                <div
+                    class="profile-placeholder"
+                    id="profilePlaceholder"
+                >
+                    <i class="bi bi-person-fill"></i>
+                </div>
+
+                <img
+                    src=""
+                    alt="Profile Preview"
+                    id="profilePreview"
+                    class="profile-preview"
+                    style="display:none;"
+                >
+
+                <span class="preview-badge">
+                    <i class="bi bi-camera-fill"></i>
+                </span>
+
+            </div>
+
+
+            <div class="profile-info">
+
+                <h4>
+                    Teacher Profile Photo
+                </h4>
+
+                <p>
+                    Upload a clear profile image of the teacher.
+                </p>
+
+                <div
+                    class="selected-image-name"
+                    id="selectedImageName"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        {{-- IMAGE INPUT --}}
+        <div class="form-field">
+
+            <label class="teacher-label">
+                Profile Image
+            </label>
+
+            <input
+                type="file"
+                name="profile_image"
+                id="profileImageInput"
+                class="teacher-input @error('profile_image') is-invalid @enderror"
+                accept="image/jpeg,image/png,image/webp"
+            >
+
+            <div class="teacher-help">
+
+                <span>
+                    JPG, JPEG, PNG or WEBP
+                </span>
+
+                <span>
+                    Maximum size: 2 MB
+                </span>
+
+            </div>
+
+            @error('profile_image')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+
+        </div>
+
+    </div>
+
+
+    {{-- =================================================
+         ACTION BUTTONS
+    ================================================== --}}
+
+    <div class="teacher-actions">
+
+        <a
+            href="{{ route('admin.teachers.index') }}"
+            class="btn-teacher btn-secondary"
+        >
+            <i class="bi bi-x-lg"></i>
+            Cancel
+        </a>
+
+        <button
+            type="submit"
+            class="btn-teacher btn-primary"
+            id="saveTeacherBtn"
+        >
+            <i class="bi bi-check-lg"></i>
+
+            <span id="saveTeacherText">
+                Save Teacher
+            </span>
+        </button>
+
+    </div>
+
+</form>
 
 </div>
 
-
 <script>
-
 /* =========================================================
    ADDRESS COUNTER
 ========================================================= */
@@ -1241,11 +1165,102 @@ if (teacherAddress) {
 
 
 /* =========================================================
-   PHONE NUMBER
+   EMAIL & PHONE ELEMENTS
 ========================================================= */
+
+const teacherEmail =
+    document.getElementById('teacherEmail');
 
 const teacherPhone =
     document.getElementById('teacherPhone');
+
+const emailWarning =
+    document.getElementById('emailWarning');
+
+const phoneWarning =
+    document.getElementById('phoneWarning');
+
+
+/* =========================================================
+   EMAIL VALIDATION
+========================================================= */
+
+function validateTeacherEmail(showWarning = true) {
+
+    if (!teacherEmail) {
+        return true;
+    }
+
+    const email =
+        teacherEmail.value.trim();
+
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+    if (email === '') {
+
+        teacherEmail.classList.remove(
+            'validation-success'
+        );
+
+        teacherEmail.classList.add(
+            'validation-error'
+        );
+
+        if (emailWarning) {
+
+            emailWarning.textContent =
+                'Email address is required.';
+
+            emailWarning.classList.add('show');
+        }
+
+        return false;
+    }
+
+
+    if (!emailPattern.test(email)) {
+
+        teacherEmail.classList.remove(
+            'validation-success'
+        );
+
+        teacherEmail.classList.add(
+            'validation-error'
+        );
+
+        if (emailWarning) {
+
+            emailWarning.textContent =
+                'Please enter a valid email address, e.g. example@gmail.com.';
+
+            emailWarning.classList.add('show');
+        }
+
+        return false;
+    }
+
+
+    teacherEmail.classList.remove(
+        'validation-error'
+    );
+
+    teacherEmail.classList.add(
+        'validation-success'
+    );
+
+    if (emailWarning) {
+        emailWarning.classList.remove('show');
+    }
+
+    return true;
+}
+
+
+/* =========================================================
+   PHONE INPUT
+========================================================= */
 
 if (teacherPhone) {
 
@@ -1258,6 +1273,127 @@ if (teacherPhone) {
                     .replace(/\D/g, '')
                     .slice(0, 10);
 
+            if (this.value.length === 10) {
+
+                validateTeacherPhone(false);
+
+            } else {
+
+                this.classList.remove(
+                    'validation-success'
+                );
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   PHONE VALIDATION
+========================================================= */
+
+function validateTeacherPhone(showWarning = true) {
+
+    if (!teacherPhone) {
+        return true;
+    }
+
+    const phone =
+        teacherPhone.value.trim();
+
+
+    /* Phone is optional */
+    if (phone === '') {
+
+        teacherPhone.classList.remove(
+            'validation-error',
+            'validation-success'
+        );
+
+        if (phoneWarning) {
+            phoneWarning.classList.remove('show');
+        }
+
+        return true;
+    }
+
+
+    if (phone.length !== 10) {
+
+        teacherPhone.classList.remove(
+            'validation-success'
+        );
+
+        teacherPhone.classList.add(
+            'validation-error'
+        );
+
+        if (phoneWarning) {
+
+            phoneWarning.textContent =
+                'Phone number must contain exactly 10 digits.';
+
+            phoneWarning.classList.add('show');
+        }
+
+        return false;
+    }
+
+
+    teacherPhone.classList.remove(
+        'validation-error'
+    );
+
+    teacherPhone.classList.add(
+        'validation-success'
+    );
+
+    if (phoneWarning) {
+        phoneWarning.classList.remove('show');
+    }
+
+    return true;
+}
+
+
+/* =========================================================
+   EMAIL LIVE VALIDATION
+========================================================= */
+
+if (teacherEmail) {
+
+    teacherEmail.addEventListener(
+        'input',
+        function () {
+
+            if (this.value.trim() !== '') {
+
+                validateTeacherEmail(false);
+            }
+        }
+    );
+
+    teacherEmail.addEventListener(
+        'blur',
+        function () {
+
+            validateTeacherEmail(true);
+        }
+    );
+}
+
+
+/* =========================================================
+   PHONE BLUR VALIDATION
+========================================================= */
+
+if (teacherPhone) {
+
+    teacherPhone.addEventListener(
+        'blur',
+        function () {
+
+            validateTeacherPhone(true);
         }
     );
 }
@@ -1286,7 +1422,8 @@ if (profileImageInput) {
         'change',
         function () {
 
-            const file = this.files[0];
+            const file =
+                this.files[0];
 
             if (!file) {
                 return;
@@ -1294,7 +1431,6 @@ if (profileImageInput) {
 
 
             /* Maximum 2 MB */
-
             const maxSize =
                 2 * 1024 * 1024;
 
@@ -1316,17 +1452,14 @@ if (profileImageInput) {
 
 
             /* File name */
-
             if (selectedImageName) {
 
                 selectedImageName.textContent =
                     'Selected: ' + file.name;
-
             }
 
 
             /* Preview */
-
             const reader =
                 new FileReader();
 
@@ -1341,7 +1474,6 @@ if (profileImageInput) {
 
                         profilePreview.style.display =
                             'block';
-
                     }
 
 
@@ -1349,22 +1481,18 @@ if (profileImageInput) {
 
                         profilePlaceholder.style.display =
                             'none';
-
                     }
-
                 };
 
 
             reader.readAsDataURL(file);
-
         }
     );
-
 }
 
 
 /* =========================================================
-   FORM SUBMIT LOADING
+   FORM SUBMIT VALIDATION + LOADING
 ========================================================= */
 
 const teacherCreateForm =
@@ -1381,7 +1509,30 @@ if (teacherCreateForm) {
 
     teacherCreateForm.addEventListener(
         'submit',
-        function () {
+        function (event) {
+
+            const emailValid =
+                validateTeacherEmail(true);
+
+            const phoneValid =
+                validateTeacherPhone(true);
+
+
+            /* Stop submission if invalid */
+
+            if (!emailValid || !phoneValid) {
+
+                event.preventDefault();
+
+                alert(
+                    'Please correct the Email and Phone validation errors before saving the teacher.'
+                );
+
+                return;
+            }
+
+
+            /* Valid → show loading */
 
             if (
                 saveTeacherBtn &&
@@ -1392,8 +1543,7 @@ if (teacherCreateForm) {
                     'loading'
                 );
 
-                saveTeacherBtn.disabled =
-                    true;
+                saveTeacherBtn.disabled = true;
 
                 saveTeacherText.textContent =
                     'Saving...';
@@ -1402,21 +1552,15 @@ if (teacherCreateForm) {
                 const icon =
                     saveTeacherBtn.querySelector('i');
 
-
                 if (icon) {
 
                     icon.className =
                         'spinner';
-
                 }
-
             }
-
         }
     );
-
 }
-
 </script>
 
 @endsection
