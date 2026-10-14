@@ -1,13 +1,19 @@
 @extends('layouts.app')
 
 @section('title', 'Sports Event Notice | Admin')
+@section('page-title', 'Sports Event Notice')
+
+@section('content')
 
 @php
     use Illuminate\Support\Str;
+    use Illuminate\Support\Facades\DB;
+    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Carbon;
 
     /*
     |--------------------------------------------------------------------------
-    | SCHOOL SETTINGS — PRINT ONLY
+    | SCHOOL INFORMATION
     |--------------------------------------------------------------------------
     */
 
@@ -17,2552 +23,1758 @@
 
     $schoolLogo = null;
 
-    if ($school?->logo) {
-        $logo = ltrim(trim($school->logo), '/');
+    if (!empty($school?->school_logo)) {
+        $logoPath = $school->school_logo;
 
-        if (filter_var($logo, FILTER_VALIDATE_URL)) {
-            $schoolLogo = $logo;
-        } elseif (Str::startsWith($logo, ['storage/', 'images/', 'uploads/'])) {
-            $schoolLogo = asset($logo);
+        if (Str::startsWith($logoPath, ['http://', 'https://'])) {
+            $schoolLogo = $logoPath;
         } else {
-            $schoolLogo = asset('storage/' . $logo);
+            $cleanPath = ltrim($logoPath, '/');
+
+            if (Str::startsWith($cleanPath, 'storage/')) {
+                $schoolLogo = asset($cleanPath);
+            } elseif (file_exists(public_path($cleanPath))) {
+                $schoolLogo = asset($cleanPath);
+            } elseif (Storage::disk('public')->exists($cleanPath)) {
+                $schoolLogo = Storage::disk('public')->url($cleanPath);
+            } else {
+                $schoolLogo = asset('images/gurukullogo.png');
+            }
         }
+    } else {
+        $schoolLogo = asset('images/gurukullogo.png');
     }
-
-    $schoolLogo = $schoolLogo ?: asset('images/gurukullogo.png');
-
 
     /*
     |--------------------------------------------------------------------------
-    | EVENT DATA
+    | EVENT INFORMATION
     |--------------------------------------------------------------------------
     */
 
     $noticeNumber = 'SP-' . str_pad($game->id, 4, '0', STR_PAD_LEFT);
 
-    $eventDate = $game->event_date
-        ? \Carbon\Carbon::parse($game->event_date)->format('d M Y')
-        : '—';
-
-    $noticeDate = $game->created_at
-        ? \Carbon\Carbon::parse($game->created_at)->format('d M Y')
-        : now()->format('d M Y');
-
-    $eventTime = '—';
-
-    if (!empty($game->start_time)) {
-        try {
-            $eventTime = \Carbon\Carbon::parse($game->start_time)->format('h:i A');
-
-            if (!empty($game->end_time)) {
-                $eventTime .= ' - ' . \Carbon\Carbon::parse($game->end_time)->format('h:i A');
-            }
-        } catch (\Throwable $e) {
-            $eventTime = $game->start_time;
-
-            if (!empty($game->end_time)) {
-                $eventTime .= ' - ' . $game->end_time;
-            }
-        }
+    try {
+        $eventDate = !empty($game->event_date)
+            ? Carbon::parse($game->event_date)->format('d M Y')
+            : 'To be announced';
+    } catch (\Throwable $e) {
+        $eventDate = $game->event_date ?? 'To be announced';
     }
 
+    try {
+        $noticeDate = !empty($game->created_at)
+            ? Carbon::parse($game->created_at)->format('d M Y')
+            : now()->format('d M Y');
+    } catch (\Throwable $e) {
+        $noticeDate = now()->format('d M Y');
+    }
+
+    try {
+        $startTime = !empty($game->start_time)
+            ? Carbon::parse($game->start_time)->format('h:i A')
+            : null;
+
+        $endTime = !empty($game->end_time)
+            ? Carbon::parse($game->end_time)->format('h:i A')
+            : null;
+
+        if ($startTime && $endTime) {
+            $eventTime = $startTime . ' - ' . $endTime;
+        } elseif ($startTime) {
+            $eventTime = $startTime;
+        } elseif ($endTime) {
+            $eventTime = $endTime;
+        } else {
+            $eventTime = 'To be announced';
+        }
+    } catch (\Throwable $e) {
+        $eventTime = 'To be announced';
+    }
 
     $eventType = $game->event_type
         ?? $game->type
         ?? 'Sports Event';
-
 
     $sportName = $game->sport_name
         ?? $game->sport
         ?? $game->game_name
         ?? 'Sports';
 
-
     $venue = $game->venue
         ?? $game->location
         ?? 'School Ground';
 
+    $className = trim((string) ($game->class ?? ''));
+    $sectionName = trim((string) ($game->section ?? ''));
 
-    /*
-    |--------------------------------------------------------------------------
-    | PARTICIPANTS
-    |--------------------------------------------------------------------------
-    |
-    | Participants are based on the existing class and section fields
-    | from the sports_games table.
-    |
-    | Examples:
-    |   Class 5 - Section A
-    |   Class 8
-    |   Section B
-    |   All Students
-    |
-    */
-
-    $participantClass = trim((string) ($game->class ?? ''));
-    $participantSection = trim((string) ($game->section ?? ''));
-
-    if ($participantClass && $participantSection) {
-
-        $participants = 'Class ' . $participantClass
-            . ' - Section ' . $participantSection;
-
-    } elseif ($participantClass) {
-
-        $participants = 'Class ' . $participantClass;
-
-    } elseif ($participantSection) {
-
-        $participants = 'Section ' . $participantSection;
-
+    if ($className !== '' && $sectionName !== '') {
+        $participants = 'Class ' . $className . ' - Section ' . $sectionName;
+    } elseif ($className !== '') {
+        $participants = 'Class ' . $className;
+    } elseif ($sectionName !== '') {
+        $participants = 'Section ' . $sectionName;
     } else {
-
         $participants = 'All Students';
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | OTHER EVENT DATA
-    |--------------------------------------------------------------------------
-    */
 
     $academicYear = $game->academic_year
         ?? $game->year
         ?? '—';
-
 
     $organizer = $game->organizer
         ?? $game->organized_by
         ?? $game->conducted_by
         ?? 'Sports Department';
 
+    $eventTitle = $game->title
+        ?? $game->event_name
+        ?? 'Sports Event';
+
+    $description = $game->description ?? null;
 
     /*
     |--------------------------------------------------------------------------
-    | SPORT RULES
+    | SPORT-SPECIFIC RULES
     |--------------------------------------------------------------------------
     */
 
     $sportRules = [
-
-        'Cricket' => [
-            'Players must report to the venue at least 15 minutes before the scheduled time.',
-            'All players must follow the instructions given by the Sports Department and officials.',
-            'Players must wear proper sports uniform and appropriate footwear.',
-            'Any form of indiscipline or misconduct will result in disqualification.',
-            'The decision of the appointed officials shall be final.',
+        'cricket' => [
+            'All participants must report to the ground before the scheduled match time.',
+            'Players must wear appropriate sports attire and proper footwear.',
+            'The match shall be conducted according to the rules announced by the referee or umpire.',
+            'Players must respect the umpire, teammates, opponents, and decisions made during the match.',
+            'Unsafe behaviour, arguments, or deliberate damage to equipment will not be tolerated.',
         ],
 
-        'Football' => [
-            'Players must report to the venue at least 15 minutes before the scheduled time.',
-            'All players must wear proper sports uniform and suitable football footwear.',
-            'Players must follow all safety instructions given by the Sports Department.',
-            'Rough play, misconduct or violation of rules may lead to disqualification.',
-            'The decision of the appointed officials shall be final.',
+        'football' => [
+            'Players must wear appropriate sports attire and suitable footwear.',
+            'The match shall follow the rules explained by the referee before the event.',
+            'Dangerous tackles, pushing, and intentional misconduct are prohibited.',
+            'Players must respect the referee and maintain sportsmanship throughout the match.',
+            'Participants must report on time and follow all safety instructions.',
         ],
 
-        'Basketball' => [
-            'Participants must report to the venue before the scheduled reporting time.',
-            'Proper sports uniform and footwear are compulsory.',
-            'Players must maintain discipline throughout the event.',
-            'Unsafe or inappropriate conduct will not be tolerated.',
-            'The decision of the appointed officials shall be final.',
+        'basketball' => [
+            'Participants must wear suitable sports attire and non-marking sports shoes.',
+            'Teams must report to the court before the scheduled match time.',
+            'The referee’s decisions must be respected by all players.',
+            'Fouls, aggressive conduct, and unsportsmanlike behaviour will be addressed according to the rules.',
+            'Players must use school equipment responsibly and follow court safety instructions.',
         ],
 
-        'Volleyball' => [
-            'Participants must report to the venue at least 15 minutes before the event.',
-            'Proper sports uniform and footwear are compulsory.',
-            'Players must follow the instructions of the officials and Sports Department.',
-            'Any misconduct may result in removal from the event.',
-            'The decision of the appointed officials shall be final.',
+        'volleyball' => [
+            'Players must report to the volleyball court before the scheduled match.',
+            'Teams must follow the rotation and scoring rules explained by the referee.',
+            'Players must avoid unsafe contact and follow all instructions from the event officials.',
+            'Respect for teammates, opponents, and referees is compulsory.',
+            'Appropriate sports attire and safe footwear must be worn.',
         ],
 
-        'Badminton' => [
-            'Participants must report before the scheduled match time.',
-            'Players must carry and use appropriate sports equipment.',
-            'Proper sports attire and footwear are compulsory.',
-            'Participants must maintain discipline and sportsmanship.',
-            'The decision of the appointed officials shall be final.',
+        'badminton' => [
+            'Participants must wear suitable sports attire and court shoes.',
+            'Players must follow the scoring and service rules explained by the officials.',
+            'Participants must maintain discipline and respect the opponent and referee.',
+            'Rackets, shuttlecocks, and other equipment must be handled carefully.',
+            'Players must be present at their scheduled match time.',
         ],
 
-        'Athletics' => [
-            'Participants must report to the venue before the scheduled reporting time.',
-            'Proper sports uniform and suitable footwear are compulsory.',
-            'Participants must follow all safety instructions.',
-            'Any unfair practice or misconduct may lead to disqualification.',
-            'The decision of the appointed officials shall be final.',
+        'athletics' => [
+            'Participants must report to the designated track or field area on time.',
+            'All athletes must follow the instructions given by the event officials.',
+            'The starting signal and designated lanes or event areas must be respected.',
+            'Unsafe conduct or interference with another participant is prohibited.',
+            'Students must warm up appropriately and follow all safety precautions.',
         ],
 
-        'Table Tennis' => [
-            'Participants must report before the scheduled match time.',
-            'Proper sports attire is compulsory.',
-            'Participants must maintain discipline and sportsmanship.',
-            'All equipment must be handled carefully.',
-            'The decision of the appointed officials shall be final.',
+        'table tennis' => [
+            'Players must follow the match format and scoring rules announced by the officials.',
+            'Participants must report to the playing area before their scheduled match.',
+            'Players must handle tables, bats, and balls carefully.',
+            'Respectful conduct towards opponents and officials is compulsory.',
+            'Players must maintain discipline and accept the officials’ decisions.',
         ],
 
-        'Chess' => [
-            'Participants must report to the venue before the scheduled start time.',
-            'Participants must maintain complete silence during the game.',
-            'Any form of unfair assistance is strictly prohibited.',
-            'Players must maintain discipline throughout the event.',
-            'The decision of the appointed officials shall be final.',
+        'chess' => [
+            'Participants must report to the designated playing area on time.',
+            'Players must follow the tournament format and rules explained by the organizer.',
+            'Silence must be maintained in the playing area.',
+            'Mobile phones, outside assistance, and unfair practices are prohibited during play.',
+            'Players must respect their opponents and the decisions of the tournament officials.',
         ],
-
     ];
 
+    $normalizedSport = strtolower(trim((string) $sportName));
+    $currentRules = null;
 
-    $currentRules = $sportRules[$sportName] ?? [
+    foreach ($sportRules as $sportKey => $rules) {
+        if (Str::contains($normalizedSport, $sportKey)) {
+            $currentRules = $rules;
+            break;
+        }
+    }
 
-        'Participants must report to the venue before the scheduled event time.',
-        'All participants must wear proper sports uniform and appropriate footwear.',
-        'Participants must follow the instructions given by the Sports Department and event officials.',
-        'Participants must maintain discipline and sportsmanship throughout the event.',
-        'The decision of the appointed officials shall be final.',
-
-    ];
+    if (!$currentRules) {
+        $currentRules = [
+            'All participants must report to the designated venue before the scheduled event time.',
+            'Students must wear appropriate sports attire and follow the instructions of the event organizers.',
+            'Discipline, teamwork, fair play, and respect for fellow participants are compulsory.',
+            'School sports equipment must be handled responsibly.',
+            'Participants must follow all safety instructions issued by teachers and event officials.',
+        ];
+    }
 @endphp
 
-
-@section('content')
-
 <style>
-
 /* =========================================================
-   SPORTS EVENT NOTICE PAGE
+   SPORTS EVENT NOTICE
+   SCHOOL DIARY DESIGN SYSTEM
+   Matching the Scholarship Examination Details page
 ========================================================= */
 
-.sports-event-notice-page {
-    min-height: calc(100vh - 70px);
-    padding: 30px;
+.sports-notice-page {
+    --sn-ink: #263b35;
+    --sn-ink-2: #1d302b;
+    --sn-muted: #778078;
+    --sn-text: #37443d;
+    --sn-line: #e5dfd0;
+    --sn-paper: #ffffff;
+    --sn-cream: #f8f6ef;
+    --sn-green: #3a9d6b;
+    --sn-green-dark: #28764e;
+    --sn-green-soft: #eaf5ed;
+    --sn-amber: #d58a0b;
+    --sn-amber-soft: #fff5df;
+    --sn-orange: #e4572e;
+    --sn-orange-soft: #fff0e9;
+    --sn-blue: #2b5d8a;
+    --sn-blue-soft: #edf4fa;
+    --sn-cyan: #268da0;
+    --sn-violet: #7a4fb5;
+    --sn-radius: 10px;
 
+    position: relative;
+    padding: 26px;
+    color: var(--sn-text);
+    font-family: "Public Sans", "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
     background:
         radial-gradient(
-            circle at 5% 0%,
-            rgba(23,105,209,.08),
+            circle at 4% 0%,
+            rgba(58, 157, 107, 0.08),
             transparent 28%
         ),
         radial-gradient(
-            circle at 100% 10%,
-            rgba(21,156,199,.08),
-            transparent 30%
+            circle at 100% 12%,
+            rgba(213, 138, 11, 0.07),
+            transparent 25%
         ),
-        #f4f7fb;
-
-    color: #172033;
+        var(--sn-cream);
+    border-radius: 12px;
 }
 
+.sports-notice-page *,
+.sports-notice-page *::before,
+.sports-notice-page *::after {
+    box-sizing: border-box;
+}
+
+.sports-notice-page button,
+.sports-notice-page a {
+    font-family: inherit;
+}
+
+.sports-notice-page a {
+    text-decoration: none;
+}
+
+.sports-notice-page .sn-container {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
+}
 
 /* =========================================================
    PAGE HEADER
 ========================================================= */
 
-.event-page-header {
-    max-width: 1180px;
-    margin: 0 auto 20px;
-
+.sports-notice-page .sn-page-header {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 20px;
+    padding: 24px 26px;
+    margin-bottom: 22px;
+    background: var(--sn-paper);
+    border: 1px solid var(--sn-line);
+    border-radius: var(--sn-radius);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, 0.035);
+    overflow: hidden;
 }
 
-.event-page-heading {
+.sports-notice-page .sn-page-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--sn-orange);
+}
+
+.sports-notice-page .sn-header-left {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 16px;
+    min-width: 0;
 }
 
-.event-page-icon {
-    width: 46px;
-    height: 46px;
-
+.sports-notice-page .sn-header-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 13px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #1769d1,
-            #159cc7
-        );
-
-    color: #fff;
-
-    font-size: 17px;
-
-    box-shadow:
-        0 8px 20px
-        rgba(23,105,209,.20);
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    color: var(--sn-green-dark);
+    background: var(--sn-green-soft);
+    border: 1px solid #d8ebdd;
+    border-radius: 10px;
+    font-size: 22px;
 }
 
-.event-page-eyebrow {
-    margin-bottom: 3px;
-
-    color: #1769d1;
-
-    font-size: 9px;
+.sports-notice-page .sn-eyebrow {
+    margin: 0 0 3px;
+    color: var(--sn-green-dark);
+    font-size: 10px;
     font-weight: 800;
-
-    letter-spacing: .15em;
-
+    letter-spacing: 1.7px;
     text-transform: uppercase;
 }
 
-.event-page-heading h1 {
+.sports-notice-page .sn-page-title {
     margin: 0;
-
-    color: #172033;
-
-    font-size: 21px;
-    font-weight: 800;
-
-    letter-spacing: -.025em;
+    color: var(--sn-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(23px, 3vw, 30px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.45px;
 }
 
-.event-page-actions {
+.sports-notice-page .sn-page-subtitle {
+    margin: 6px 0 0;
+    color: var(--sn-muted);
+    font-size: 12px;
+}
+
+.sports-notice-page .sn-header-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    justify-content: flex-end;
+    gap: 9px;
 }
 
-.dashboard-secondary-btn,
-.dashboard-primary-btn {
-
-    height: 40px;
-
-    padding: 0 15px;
-
+.sports-notice-page .sn-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    gap: 7px;
-
-    border-radius: 9px;
-
-    text-decoration: none;
-
-    font-size: 11.5px;
+    gap: 8px;
+    min-height: 39px;
+    padding: 9px 15px;
+    border: 1px solid var(--sn-line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--sn-ink);
+    font-size: 12px;
     font-weight: 700;
-
     cursor: pointer;
-
-    transition: .2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.dashboard-secondary-btn {
-
-    color: #475569;
-
-    background: #fff;
-
-    border: 1px solid #dce4ed;
-}
-
-.dashboard-secondary-btn:hover {
-
-    color: #1769d1;
-
-    background: #f8fbff;
-
-    border-color: #b9d2ef;
-}
-
-.dashboard-primary-btn {
-
-    color: #fff;
-
-    border: 0;
-
-    background:
-        linear-gradient(
-            135deg,
-            #1769d1,
-            #159cc7
-        );
-
-    box-shadow:
-        0 6px 16px
-        rgba(23,105,209,.20);
-}
-
-.dashboard-primary-btn:hover {
-
-    color: #fff;
-
+.sports-notice-page .sn-btn:hover {
     transform: translateY(-1px);
-
-    box-shadow:
-        0 9px 21px
-        rgba(23,105,209,.26);
+    background: var(--sn-cream);
 }
 
+.sports-notice-page .sn-btn-primary {
+    color: #fff;
+    background: var(--sn-green-dark);
+    border-color: var(--sn-green-dark);
+}
+
+.sports-notice-page .sn-btn-primary:hover {
+    color: #fff;
+    background: var(--sn-ink-2);
+}
+
+.sports-notice-page .sn-btn-orange {
+    color: #fff;
+    background: var(--sn-orange);
+    border-color: var(--sn-orange);
+}
+
+.sports-notice-page .sn-btn-orange:hover {
+    color: #fff;
+    background: #ca4524;
+}
 
 /* =========================================================
-   MAIN NOTICE CARD
+   PAPER NOTICE BANNER
 ========================================================= */
 
-.notice-card {
-
+.sports-notice-page .sn-notice-banner {
     position: relative;
-
-    max-width: 1180px;
-
-    margin: 0 auto;
-
+    padding: 28px;
+    margin-bottom: 22px;
+    background:
+        linear-gradient(
+            120deg,
+            rgba(58, 157, 107, 0.045),
+            transparent 55%
+        ),
+        var(--sn-paper);
+    border: 1px solid var(--sn-line);
+    border-radius: var(--sn-radius);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, 0.035);
     overflow: hidden;
-
-    background: #fff;
-
-    border: 1px solid #dfe6ee;
-
-    border-radius: 18px;
-
-    box-shadow:
-        0 18px 45px
-        rgba(15,23,42,.08);
 }
 
-.notice-card::before {
-
+.sports-notice-page .sn-notice-banner::after {
     content: "";
-
     position: absolute;
-
     top: 0;
-    left: 0;
     right: 0;
-
-    height: 4px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #1769d1,
-            #159cc7,
-            #20b8a6
-        );
-}
-
-
-/* =========================================================
-   PROFESSIONAL NOTICE HEADER
-========================================================= */
-
-.notice-top {
-
-    min-height: 86px;
-
-    padding: 20px 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 20px;
-
-    border-bottom: 1px solid #e8edf3;
-
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff 0%,
-            #fafdff 100%
-        );
-}
-
-.notice-top-left {
-
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-}
-
-.notice-document-icon {
-
-    width: 42px;
-    height: 42px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 11px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #edf5ff,
-            #e8f8fb
-        );
-
-    color: #1769d1;
-
-    font-size: 15px;
-
-    border: 1px solid #dcecff;
-}
-
-.notice-top-title {
-
-    margin: 0;
-
-    color: #172033;
-
-    font-size: 14px;
-
-    font-weight: 800;
-
-    letter-spacing: -.01em;
-}
-
-.notice-top-subtitle {
-
-    margin-top: 4px;
-
-    color: #94a3b8;
-
-    font-size: 10px;
-
-    font-weight: 500;
-}
-
-.notice-reference {
-
-    min-width: 135px;
-
-    padding-left: 18px;
-
-    text-align: right;
-
-    border-left: 1px solid #e2e8f0;
-}
-
-.notice-reference-label {
-
-    color: #94a3b8;
-
-    font-size: 8px;
-
-    font-weight: 800;
-
-    letter-spacing: .13em;
-
-    text-transform: uppercase;
-}
-
-.notice-reference-number {
-
-    margin-top: 4px;
-
-    color: #1769d1;
-
-    font-size: 13px;
-
-    font-weight: 850;
-}
-
-
-/* =========================================================
-   EVENT HERO
-========================================================= */
-
-.event-hero {
-
-    position: relative;
-
-    padding: 30px;
-
-    display: grid;
-
-    grid-template-columns: 76px 1fr;
-
-    gap: 19px;
-
-    align-items: center;
-
-    border-bottom: 1px solid #edf1f5;
-
-    background:
-        linear-gradient(
-            135deg,
-            #f6faff 0%,
-            #ffffff 58%,
-            #fbfeff 100%
-        );
-}
-
-.event-hero::after {
-
-    content: "";
-
-    position: absolute;
-
-    width: 150px;
-    height: 150px;
-
-    right: -55px;
-    top: -75px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(23,105,209,.035);
-
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(
+        circle,
+        rgba(213, 138, 11, 0.11),
+        transparent 72%
+    );
     pointer-events: none;
 }
 
-.sport-icon {
+.sports-notice-page .sn-notice-topline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 17px;
+    border-bottom: 1px dashed var(--sn-line);
+}
 
-    width: 76px;
-    height: 76px;
+.sports-notice-page .sn-notice-reference {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--sn-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
 
+.sports-notice-page .sn-reference-value {
+    padding: 5px 10px;
+    color: var(--sn-green-dark);
+    background: var(--sn-green-soft);
+    border: 1px solid #d7eadc;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.sports-notice-page .sn-notice-date {
+    color: var(--sn-muted);
+    font-size: 12px;
+}
+
+.sports-notice-page .sn-notice-heading {
+    position: relative;
+    z-index: 1;
+    margin: 22px 0 13px;
+    color: var(--sn-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(27px, 4vw, 38px);
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.sports-notice-page .sn-notice-description {
+    max-width: 850px;
+    margin: 0;
+    color: var(--sn-muted);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.sports-notice-page .sn-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.sports-notice-page .sn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 11px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.sports-notice-page .sn-badge-green {
+    color: var(--sn-green-dark);
+    background: var(--sn-green-soft);
+    border-color: #d6e9dc;
+}
+
+.sports-notice-page .sn-badge-orange {
+    color: #bd4929;
+    background: var(--sn-orange-soft);
+    border-color: #f6d7ca;
+}
+
+.sports-notice-page .sn-badge-blue {
+    color: var(--sn-blue);
+    background: var(--sn-blue-soft);
+    border-color: #dce8f3;
+}
+
+/* =========================================================
+   GENERAL PAPER CARDS
+========================================================= */
+
+.sports-notice-page .sn-card {
+    margin-bottom: 22px;
+    background: var(--sn-paper);
+    border: 1px solid var(--sn-line);
+    border-radius: var(--sn-radius);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, 0.03);
+    overflow: hidden;
+}
+
+.sports-notice-page .sn-card-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 19px 23px;
+    border-bottom: 1px dashed var(--sn-line);
+}
+
+.sports-notice-page .sn-card-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 18px;
-
-    color: #fff;
-
-    font-size: 27px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #1769d1,
-            #159cc7
-        );
-
-    box-shadow:
-        0 11px 25px
-        rgba(23,105,209,.22);
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--sn-green-dark);
+    background: var(--sn-green-soft);
+    border: 1px solid #d8ebdd;
+    border-radius: 8px;
+    font-size: 16px;
 }
 
-.event-hero-label {
+.sports-notice-page .sn-card-icon.orange {
+    color: #bd4929;
+    background: var(--sn-orange-soft);
+    border-color: #f6d7ca;
+}
 
-    margin-bottom: 6px;
+.sports-notice-page .sn-card-icon.amber {
+    color: #9a6507;
+    background: var(--sn-amber-soft);
+    border-color: #f1e2bd;
+}
 
-    color: #1769d1;
+.sports-notice-page .sn-card-icon.blue {
+    color: var(--sn-blue);
+    background: var(--sn-blue-soft);
+    border-color: #dce8f3;
+}
 
-    font-size: 9px;
+.sports-notice-page .sn-card-heading {
+    margin: 0;
+    color: var(--sn-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+}
 
-    font-weight: 850;
+.sports-notice-page .sn-card-subtitle {
+    margin: 4px 0 0;
+    color: var(--sn-muted);
+    font-size: 11px;
+}
 
-    letter-spacing: .15em;
+.sports-notice-page .sn-card-body {
+    padding: 23px;
+}
 
+/* =========================================================
+   EVENT INFORMATION GRID
+========================================================= */
+
+.sports-notice-page .sn-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.sports-notice-page .sn-detail-item {
+    min-width: 0;
+    padding: 17px;
+    background: #fcfbf7;
+    border: 1px dashed #e3dece;
+    border-radius: 8px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.sports-notice-page .sn-detail-item:hover {
+    background: #f5f8f1;
+    border-color: #c9ddcb;
+}
+
+.sports-notice-page .sn-detail-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--sn-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.85px;
     text-transform: uppercase;
 }
 
-.event-hero h2 {
-
-    margin: 0;
-
-    color: #111827;
-
-    font-size: 27px;
-
-    line-height: 1.2;
-
-    font-weight: 850;
-
-    letter-spacing: -.035em;
-}
-
-.event-hero-meta {
-
-    margin-top: 10px;
-
-    display: flex;
-
-    flex-wrap: wrap;
-
-    align-items: center;
-
-    gap: 7px;
-}
-
-.event-pill {
-
-    padding: 6px 10px;
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 5px;
-
-    border-radius: 7px;
-
-    background: #f1f5f9;
-
-    color: #475569;
-
-    font-size: 9px;
-
-    font-weight: 750;
-
-    border: 1px solid #e4eaf0;
-}
-
-.event-pill.primary {
-
-    background: #edf5ff;
-
-    color: #1769d1;
-
-    border-color: #d8eaff;
-}
-
-
-/* =========================================================
-   NOTICE CONTENT
-========================================================= */
-
-.notice-content {
-
-    padding: 28px 30px 32px;
-}
-
-.section-title {
-
-    margin-bottom: 12px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-
-    color: #172033;
-
+.sports-notice-page .sn-detail-label i {
+    color: var(--sn-green);
     font-size: 12px;
-
-    font-weight: 850;
-
-    letter-spacing: -.01em;
 }
 
-.section-title i {
+.sports-notice-page .sn-detail-value {
+    margin: 0;
+    color: var(--sn-ink);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
 
-    width: 25px;
-    height: 25px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 7px;
-
-    background: #edf5ff;
-
-    color: #1769d1;
-
+.sports-notice-page .sn-detail-hint {
+    margin: 5px 0 0;
+    color: var(--sn-muted);
     font-size: 10px;
 }
-
-
-/* =========================================================
-   EVENT INFORMATION
-========================================================= */
-
-.event-information {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(6, 1fr);
-
-    border: 1px solid #dfe7ef;
-
-    border-radius: 12px;
-
-    overflow: hidden;
-
-    background: #fff;
-}
-
-.info-item {
-
-    min-height: 82px;
-
-    padding: 14px 13px;
-
-    background: #fff;
-
-    border-right: 1px solid #e1e8f0;
-
-    transition: .18s ease;
-}
-
-.info-item:last-child {
-
-    border-right: 0;
-}
-
-.info-item:hover {
-
-    background: #fafdff;
-}
-
-
-/* =========================================================
-   PARTICIPANT INFO
-========================================================= */
-
-.info-item.participant-info {
-
-    background:
-        linear-gradient(
-            145deg,
-            #f4fbff,
-            #f8fdff
-        );
-}
-
-.info-item.participant-info:hover {
-
-    background:
-        linear-gradient(
-            145deg,
-            #eef9ff,
-            #f6fdff
-        );
-}
-
-.info-label {
-
-    margin-bottom: 7px;
-
-    color: #94a3b8;
-
-    font-size: 7.5px;
-
-    font-weight: 850;
-
-    letter-spacing: .08em;
-
-    text-transform: uppercase;
-}
-
-.info-value {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    color: #172033;
-
-    font-size: 11px;
-
-    font-weight: 750;
-
-    line-height: 1.4;
-}
-
-.info-value i {
-
-    color: #1769d1;
-
-    font-size: 11px;
-}
-
-.participant-info .info-value {
-
-    color: #1769d1;
-
-    font-size: 11.5px;
-
-    font-weight: 850;
-
-    line-height: 1.5;
-}
-
-.participant-info .info-value i {
-
-    color: #159cc7;
-
-    flex-shrink: 0;
-}
-
 
 /* =========================================================
    SECONDARY INFORMATION
 ========================================================= */
 
-.secondary-information {
-
-    margin-top: 11px;
-
+.sports-notice-page .sn-secondary-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 11px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
 }
 
-.secondary-item {
-
-    min-height: 68px;
-
-    padding: 13px 15px;
-
-    border: 1px solid #e1e8ef;
-
-    border-radius: 10px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #fbfcfe,
-            #f8fafc
-        );
+.sports-notice-page .sn-secondary-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    padding: 16px;
+    background: var(--sn-green-soft);
+    border: 1px dashed #d2e5d5;
+    border-radius: 8px;
 }
 
-.secondary-item-label {
+.sports-notice-page .sn-secondary-item:nth-child(2) {
+    background: var(--sn-amber-soft);
+    border-color: #efdfb8;
+}
 
-    margin-bottom: 6px;
+.sports-notice-page .sn-secondary-item:nth-child(3) {
+    background: var(--sn-blue-soft);
+    border-color: #d9e5f0;
+}
 
-    color: #94a3b8;
+.sports-notice-page .sn-secondary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    color: var(--sn-green-dark);
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: 7px;
+}
 
-    font-size: 8px;
+.sports-notice-page .sn-secondary-item:nth-child(2) .sn-secondary-icon {
+    color: #9a6507;
+}
 
-    font-weight: 850;
+.sports-notice-page .sn-secondary-item:nth-child(3) .sn-secondary-icon {
+    color: var(--sn-blue);
+}
 
-    letter-spacing: .08em;
+.sports-notice-page .sn-secondary-content {
+    min-width: 0;
+}
 
+.sports-notice-page .sn-secondary-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--sn-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.65px;
     text-transform: uppercase;
 }
 
-.secondary-item-value {
-
-    color: #334155;
-
-    font-size: 11px;
-
+.sports-notice-page .sn-secondary-value {
+    display: block;
+    color: var(--sn-ink);
+    font-size: 13px;
     font-weight: 750;
+    overflow-wrap: anywhere;
 }
-
 
 /* =========================================================
-   DESCRIPTION
+   DESCRIPTION PANEL
 ========================================================= */
 
-.description-section {
-
-    margin-top: 26px;
+.sports-notice-page .sn-description-box {
+    padding: 19px 21px;
+    background: #fcfbf7;
+    border-left: 4px solid var(--sn-green);
+    border-radius: 0 8px 8px 0;
+    color: var(--sn-text);
+    font-size: 13px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
 }
 
-.description-box {
-
-    padding: 16px 17px;
-
-    border: 1px solid #dfe7ef;
-
-    border-left:
-        3px solid #1769d1;
-
-    border-radius: 0 10px 10px 0;
-
-    background:
-        linear-gradient(
-            90deg,
-            #f7fbff,
-            #fbfdff
-        );
-
-    color: #475569;
-
-    font-size: 11.5px;
-
-    line-height: 1.75;
+.sports-notice-page .sn-description-box p:last-child {
+    margin-bottom: 0;
 }
-
 
 /* =========================================================
-   RULES
+   RULES LIST
 ========================================================= */
 
-.rules-section {
-
-    margin-top: 26px;
-}
-
-.rules-list {
-
+.sports-notice-page .sn-rules-list {
     display: grid;
-
-    gap: 8px;
-}
-
-.rule-item {
-
-    display: flex;
-
-    align-items: flex-start;
-
     gap: 11px;
-
-    padding: 10px 12px;
-
-    border: 1px solid #e3e9f0;
-
-    border-radius: 9px;
-
-    background: #fff;
-
-    transition: .18s ease;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    counter-reset: sn-rule;
 }
 
-.rule-item:hover {
-
-    border-color: #c9dced;
-
-    background: #fbfdff;
-
-    transform: translateX(2px);
-}
-
-.rule-number {
-
-    width: 25px;
-    height: 25px;
-
-    flex: 0 0 25px;
-
+.sports-notice-page .sn-rules-list li {
+    position: relative;
     display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 14px 16px;
+    background: #fcfbf7;
+    border: 1px solid #eee8db;
+    border-radius: 8px;
+    color: var(--sn-text);
+    font-size: 12px;
+    line-height: 1.8;
+    counter-increment: sn-rule;
+}
 
+.sports-notice-page .sn-rules-list li::before {
+    content: counter(sn-rule, decimal-leading-zero);
+    display: flex;
     align-items: center;
-
     justify-content: center;
-
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--sn-green-dark);
+    background: var(--sn-green-soft);
+    border: 1px solid #d7e9db;
     border-radius: 7px;
-
-    background: #edf5ff;
-
-    color: #1769d1;
-
-    font-size: 9px;
-
-    font-weight: 850;
+    font-size: 10px;
+    font-weight: 900;
 }
 
-.rule-text {
-
-    padding-top: 2px;
-
-    color: #475569;
-
-    font-size: 11px;
-
-    line-height: 1.6;
+.sports-notice-page .sn-rules-list li span {
+    padding-top: 4px;
 }
-
 
 /* =========================================================
    IMPORTANT NOTICE
 ========================================================= */
 
-.important-notice {
-
-    margin-top: 25px;
-
-    padding: 15px 16px;
-
+.sports-notice-page .sn-important-notice {
     display: flex;
-
     align-items: flex-start;
-
-    gap: 11px;
-
-    border: 1px solid #efd9aa;
-
-    border-radius: 10px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #fffaf1,
-            #fffdf8
-        );
+    gap: 15px;
+    padding: 21px;
+    margin-bottom: 22px;
+    background: var(--sn-amber-soft);
+    border: 1px solid #f0dfb8;
+    border-left: 5px solid var(--sn-amber);
+    border-radius: 9px;
 }
 
-.important-icon {
-
-    width: 29px;
-    height: 29px;
-
-    flex: 0 0 29px;
-
+.sports-notice-page .sn-important-icon {
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
+    flex: 0 0 39px;
+    width: 39px;
+    height: 39px;
+    color: #95620b;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #eeddb5;
     border-radius: 8px;
-
-    background: #fff0d0;
-
-    color: #b87300;
-
-    font-size: 11px;
+    font-size: 17px;
 }
 
-.important-title {
-
-    margin-bottom: 4px;
-
-    color: #936000;
-
-    font-size: 9px;
-
-    font-weight: 850;
-
-    letter-spacing: .08em;
-
-    text-transform: uppercase;
+.sports-notice-page .sn-important-content {
+    min-width: 0;
 }
 
-.important-text {
-
-    color: #795b22;
-
-    font-size: 11px;
-
-    line-height: 1.6;
+.sports-notice-page .sn-important-title {
+    margin: 0 0 6px;
+    color: #85570a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 18px;
+    font-weight: 700;
 }
 
+.sports-notice-page .sn-important-text {
+    margin: 0;
+    color: #705b35;
+    font-size: 12px;
+    line-height: 1.8;
+}
 
 /* =========================================================
-   NOTICE FOOTER
+   SCREEN FOOTER
 ========================================================= */
 
-.notice-bottom {
-
-    padding: 17px 30px;
-
+.sports-notice-page .sn-screen-footer {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
-    gap: 20px;
-
-    border-top: 1px solid #e3e9f0;
-
-    background:
-        linear-gradient(
-            180deg,
-            #fbfcfe,
-            #f7f9fb
-        );
+    gap: 16px;
+    padding: 17px 20px;
+    background: var(--sn-ink-2);
+    border-radius: 9px;
+    color: #fff;
 }
 
-.notice-bottom-left {
-
-    color: #64748b;
-
-    font-size: 9.5px;
-
-    line-height: 1.6;
+.sports-notice-page .sn-footer-school {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    font-weight: 700;
 }
 
-.notice-bottom-left strong {
-
-    color: #334155;
-
-    font-weight: 800;
+.sports-notice-page .sn-footer-caption {
+    margin-top: 3px;
+    color: #c6d3c9;
+    font-size: 10px;
 }
 
-.notice-bottom-right {
-
+.sports-notice-page .sn-footer-reference {
+    color: #d9e5d9;
+    font-size: 11px;
+    font-weight: 700;
     text-align: right;
-
-    color: #94a3b8;
-
-    font-size: 8.5px;
-
-    line-height: 1.7;
 }
-
 
 /* =========================================================
-   PRINT NOTICE
+   PRINT NOTICE - HIDDEN ON SCREEN
 ========================================================= */
 
-.print-notice {
-
+.sports-notice-page .print-notice {
     display: none;
 }
 
-
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE DESIGN
 ========================================================= */
 
-@media (max-width: 1100px) {
-
-    .event-information {
-
-        grid-template-columns:
-            repeat(3, 1fr);
+@media (max-width: 992px) {
+    .sports-notice-page {
+        padding: 18px;
     }
 
-    .info-item:nth-child(3) {
-
-        border-right: 0;
+    .sports-notice-page .sn-details-grid,
+    .sports-notice-page .sn-secondary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .info-item:nth-child(-n+3) {
-
-        border-bottom:
-            1px solid #e1e8f0;
-    }
-
-    .info-item:nth-child(4) {
-
-        border-bottom:
-            0;
-    }
-
-    .info-item:nth-child(5) {
-
-        border-bottom:
-            0;
-    }
-}
-
-@media (max-width: 900px) {
-
-    .event-information {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .info-item {
-
-        border-right:
-            1px solid #e1e8f0;
-    }
-
-    .info-item:nth-child(2n) {
-
-        border-right: 0;
-    }
-
-    .info-item:nth-child(-n+4) {
-
-        border-bottom:
-            1px solid #e1e8f0;
-    }
-
-    .secondary-information {
-
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 700px) {
-
-    .sports-event-notice-page {
-
-        padding: 15px;
-    }
-
-    .event-page-header {
-
+    .sports-notice-page .sn-page-header {
         align-items: flex-start;
+    }
+}
 
-        flex-direction: column;
+@media (max-width: 640px) {
+    .sports-notice-page {
+        padding: 10px;
     }
 
-    .event-page-actions {
+    .sports-notice-page .sn-page-header {
+        flex-direction: column;
+        padding: 19px;
+    }
 
+    .sports-notice-page .sn-header-left {
+        align-items: flex-start;
+    }
+
+    .sports-notice-page .sn-header-actions {
+        justify-content: flex-start;
         width: 100%;
     }
 
-    .event-page-actions a,
-    .event-page-actions button {
-
-        flex: 1;
+    .sports-notice-page .sn-btn {
+        flex: 1 1 auto;
     }
 
-    .notice-top {
-
-        align-items: flex-start;
-
-        flex-direction: column;
-
+    .sports-notice-page .sn-notice-banner {
         padding: 20px;
     }
 
-    .notice-reference {
-
-        width: 100%;
-
-        padding-left: 0;
-
-        padding-top: 10px;
-
-        text-align: left;
-
-        border-left: 0;
-
-        border-top: 1px solid #e2e8f0;
-    }
-
-    .event-hero {
-
-        grid-template-columns: 1fr;
-
-        padding: 24px 20px;
-    }
-
-    .sport-icon {
-
-        width: 58px;
-        height: 58px;
-
-        border-radius: 13px;
-
-        font-size: 21px;
-    }
-
-    .event-hero h2 {
-
-        font-size: 22px;
-    }
-
-    .notice-content {
-
-        padding: 22px 20px 25px;
-    }
-
-    .event-information {
-
-        grid-template-columns: 1fr;
-    }
-
-    .info-item {
-
-        border-right: 0 !important;
-
-        border-bottom:
-            1px solid #e1e8f0;
-    }
-
-    .info-item:last-child {
-
-        border-bottom: 0;
-    }
-
-    .notice-bottom {
-
-        padding: 17px 20px;
-
+    .sports-notice-page .sn-notice-topline {
         align-items: flex-start;
-
         flex-direction: column;
     }
 
-    .notice-bottom-right {
+    .sports-notice-page .sn-card-header {
+        padding: 16px;
+    }
 
+    .sports-notice-page .sn-card-body {
+        padding: 16px;
+    }
+
+    .sports-notice-page .sn-details-grid,
+    .sports-notice-page .sn-secondary-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sports-notice-page .sn-screen-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sports-notice-page .sn-footer-reference {
         text-align: left;
     }
 }
 
-
 /* =========================================================
-   PRINT
+   PRINT STYLES
 ========================================================= */
 
 @media print {
-
     @page {
-
         size: A4 portrait;
-
-        margin: 10mm;
+        margin: 12mm;
     }
 
     html,
     body {
-
-        width: 210mm;
-
-        min-height: 297mm;
-
         margin: 0 !important;
-
         padding: 0 !important;
-
         background: #fff !important;
+        color: #222 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     body * {
-
         visibility: hidden !important;
     }
 
-    .print-notice,
-    .print-notice * {
-
+    .sports-notice-page,
+    .sports-notice-page .print-notice,
+    .sports-notice-page .print-notice * {
         visibility: visible !important;
     }
 
-    .print-notice {
-
-        display: block !important;
-
+    .sports-notice-page {
         position: absolute !important;
-
         top: 0 !important;
-
         left: 0 !important;
-
-        width: 190mm !important;
-
-        min-height: 277mm !important;
-
-        margin: 0 !important;
-
+        width: 100% !important;
         padding: 0 !important;
-
+        margin: 0 !important;
         background: #fff !important;
-
-        color: #111827 !important;
-
-        font-family:
-            Arial,
-            Helvetica,
-            sans-serif !important;
+        border: none !important;
+        border-radius: 0 !important;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 10pt !important;
+        line-height: 1.5 !important;
     }
 
-    .print-header {
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: center;
-
-        gap: 15px;
-
-        padding-bottom: 12px;
-
-        border-bottom: 2px solid #172033;
+    .sports-notice-page .sn-container,
+    .sports-notice-page .sn-page-header,
+    .sports-notice-page .sn-notice-banner,
+    .sports-notice-page .sn-card,
+    .sports-notice-page .sn-important-notice,
+    .sports-notice-page .sn-screen-footer {
+        display: none !important;
     }
 
-    .print-school-logo {
-
-        width: 62px;
-        height: 62px;
-
-        display: flex;
-
-        align-items: center;
-        justify-content: center;
+    .sports-notice-page .print-notice {
+        display: block !important;
+        position: relative !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        color: #222 !important;
+        background: #fff !important;
+        font-family: Arial, Helvetica, sans-serif !important;
     }
 
-    .print-school-logo img {
-
-        width: 62px;
-        height: 62px;
-
-        object-fit: contain;
+    .sports-notice-page .print-school-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 15px !important;
+        padding: 0 0 14px !important;
+        border-bottom: 2px solid #263b35 !important;
+        text-align: center !important;
     }
 
-    .print-school-details {
-
-        text-align: center;
+    .sports-notice-page .print-school-logo {
+        display: block !important;
+        width: 66px !important;
+        height: 66px !important;
+        object-fit: contain !important;
     }
 
-    .print-school-name {
-
-        color: #111827;
-
-        font-size: 18px;
-
-        font-weight: 800;
-
-        text-transform: uppercase;
-
-        line-height: 1.25;
+    .sports-notice-page .print-school-name {
+        margin: 0 !important;
+        color: #263b35 !important;
+        font-family: Georgia, "Times New Roman", serif !important;
+        font-size: 21pt !important;
+        font-weight: 700 !important;
+        line-height: 1.3 !important;
     }
 
-    .print-department {
-
-        margin-top: 3px;
-
-        color: #475569;
-
-        font-size: 10px;
-
-        font-weight: 700;
-
-        letter-spacing: .12em;
-
-        text-transform: uppercase;
+    .sports-notice-page .print-school-caption {
+        margin: 4px 0 0 !important;
+        color: #555 !important;
+        font-size: 9pt !important;
     }
 
-    .print-official {
-
-        margin-top: 4px;
-
-        color: #1769d1;
-
-        font-size: 9px;
-
-        font-weight: 800;
-
-        letter-spacing: .15em;
-
-        text-transform: uppercase;
+    .sports-notice-page .print-notice-meta {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        padding: 12px 0 !important;
+        border-bottom: 1px solid #d9d9d9 !important;
+        font-size: 9pt !important;
     }
 
-    .print-notice-meta {
-
-        display: flex;
-
-        justify-content: space-between;
-
-        padding: 10px 0;
-
-        border-bottom: 1px solid #cbd5e1;
-
-        color: #475569;
-
-        font-size: 9px;
+    .sports-notice-page .print-notice-title {
+        margin: 18px 0 7px !important;
+        color: #263b35 !important;
+        font-family: Georgia, "Times New Roman", serif !important;
+        font-size: 20pt !important;
+        font-weight: 700 !important;
+        line-height: 1.3 !important;
+        text-align: center !important;
+        overflow-wrap: anywhere !important;
     }
 
-    .print-notice-meta strong {
-
-        color: #172033;
+    .sports-notice-page .print-notice-subtitle {
+        margin: 0 0 18px !important;
+        color: #555 !important;
+        font-size: 10pt !important;
+        text-align: center !important;
     }
 
-    .print-event-heading {
-
-        padding: 17px 0 14px;
-
-        text-align: center;
+    .sports-notice-page .print-section-title {
+        margin: 17px 0 9px !important;
+        padding-bottom: 6px !important;
+        color: #263b35 !important;
+        border-bottom: 1px solid #d6d6d6 !important;
+        font-family: Georgia, "Times New Roman", serif !important;
+        font-size: 12pt !important;
+        font-weight: 700 !important;
     }
 
-    .print-event-heading h1 {
-
-        margin: 0;
-
-        color: #111827;
-
-        font-size: 21px;
-
-        font-weight: 800;
-
-        text-transform: uppercase;
-
-        letter-spacing: .02em;
+    .sports-notice-page .print-details-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        font-size: 9.5pt !important;
     }
 
-    .print-event-heading p {
-
-        margin: 5px 0 0;
-
-        color: #64748b;
-
-        font-size: 10px;
+    .sports-notice-page .print-details-table th,
+    .sports-notice-page .print-details-table td {
+        padding: 8px 9px !important;
+        border: 1px solid #d8d8d8 !important;
+        text-align: left !important;
+        vertical-align: top !important;
+        overflow-wrap: anywhere !important;
     }
 
-    .print-details-table {
-
-        width: 100%;
-
-        border-collapse: collapse;
-
-        margin-bottom: 15px;
+    .sports-notice-page .print-details-table th {
+        width: 28% !important;
+        color: #263b35 !important;
+        background: #f2f5f0 !important;
+        font-weight: 700 !important;
     }
 
-    .print-details-table td {
-
-        width: 50%;
-
-        padding: 8px 9px;
-
-        border: 1px solid #cbd5e1;
-
-        vertical-align: top;
+    .sports-notice-page .print-description {
+        margin: 0 !important;
+        color: #333 !important;
+        font-size: 9.5pt !important;
+        line-height: 1.75 !important;
+        overflow-wrap: anywhere !important;
     }
 
-    .print-label {
-
-        display: block;
-
-        margin-bottom: 3px;
-
-        color: #64748b;
-
-        font-size: 8px;
-
-        font-weight: 800;
-
-        text-transform: uppercase;
-
-        letter-spacing: .06em;
+    .sports-notice-page .print-rules {
+        margin: 0 !important;
+        padding-left: 23px !important;
+        font-size: 9.5pt !important;
     }
 
-    .print-value {
-
-        color: #172033;
-
-        font-size: 10px;
-
-        font-weight: 700;
+    .sports-notice-page .print-rules li {
+        padding: 0 0 6px 3px !important;
+        line-height: 1.65 !important;
+        break-inside: avoid !important;
     }
 
-    .print-section-title {
-
-        margin: 15px 0 7px;
-
-        padding-bottom: 5px;
-
-        border-bottom: 1px solid #172033;
-
-        color: #172033;
-
-        font-size: 11px;
-
-        font-weight: 800;
-
-        text-transform: uppercase;
-
-        letter-spacing: .06em;
+    .sports-notice-page .print-important {
+        margin-top: 17px !important;
+        padding: 12px 14px !important;
+        border: 1px solid #d7c99e !important;
+        border-left: 4px solid #d58a0b !important;
+        background: #fff9e9 !important;
+        color: #4e432e !important;
+        font-size: 9.5pt !important;
+        line-height: 1.65 !important;
     }
 
-    .print-description {
-
-        color: #334155;
-
-        font-size: 10px;
-
-        line-height: 1.65;
+    .sports-notice-page .print-important strong {
+        display: block !important;
+        margin-bottom: 4px !important;
+        color: #85570a !important;
     }
 
-    .print-rules {
-
-        margin: 0;
-
-        padding-left: 20px;
+    .sports-notice-page .print-signature-area {
+        display: flex !important;
+        justify-content: space-between !important;
+        gap: 30px !important;
+        margin-top: 42px !important;
+        page-break-inside: avoid !important;
     }
 
-    .print-rules li {
-
-        margin-bottom: 5px;
-
-        padding-left: 3px;
-
-        color: #334155;
-
-        font-size: 9.5px;
-
-        line-height: 1.55;
+    .sports-notice-page .print-signature {
+        width: 45% !important;
+        padding-top: 8px !important;
+        border-top: 1px solid #777 !important;
+        color: #333 !important;
+        font-size: 9pt !important;
+        text-align: center !important;
     }
 
-    .print-important {
-
-        margin-top: 15px;
-
-        padding: 9px 11px;
-
-        border: 1px solid #d6b36a;
-
-        background: #fffaf0;
+    .sports-notice-page .print-footer {
+        margin-top: 23px !important;
+        padding-top: 9px !important;
+        border-top: 1px solid #d8d8d8 !important;
+        color: #666 !important;
+        font-size: 8pt !important;
+        text-align: center !important;
     }
 
-    .print-important strong {
-
-        display: block;
-
-        margin-bottom: 3px;
-
-        color: #8a5a00;
-
-        font-size: 9px;
-
-        text-transform: uppercase;
+    .sports-notice-page .print-notice p,
+    .sports-notice-page .print-notice li,
+    .sports-notice-page .print-notice table {
+        color: #222 !important;
     }
 
-    .print-important span {
-
-        color: #5f4a25;
-
-        font-size: 9.5px;
-
-        line-height: 1.5;
-    }
-
-    .print-signature-area {
-
-        margin-top: 32px;
-
-        display: flex;
-
-        justify-content: flex-end;
-    }
-
-    .print-signature {
-
-        width: 55mm;
-
-        text-align: center;
-    }
-
-    .print-signature-line {
-
-        margin-bottom: 5px;
-
-        border-top: 1px solid #172033;
-    }
-
-    .print-signature strong {
-
-        display: block;
-
-        color: #172033;
-
-        font-size: 9px;
-    }
-
-    .print-signature span {
-
-        display: block;
-
-        margin-top: 2px;
-
-        color: #64748b;
-
-        font-size: 8px;
-    }
-
-    .print-footer {
-
-        position: fixed;
-
-        bottom: 0;
-
-        left: 0;
-
-        right: 0;
-
-        padding-top: 7px;
-
-        border-top: 1px solid #cbd5e1;
-
-        text-align: center;
-
-        color: #64748b;
-
-        font-size: 7.5px;
-    }
-
-    .print-rules,
-    .print-important,
-    .print-details-table {
-
-        break-inside: avoid;
+    .sports-notice-page .print-section,
+    .sports-notice-page .print-details-table tr {
+        break-inside: avoid !important;
     }
 }
-
 </style>
 
+<div class="sports-notice-page">
+    <div class="sn-container">
 
-<div class="sports-event-notice-page">
+        {{-- =====================================================
+             PAGE HEADER
+        ====================================================== --}}
 
-
-    {{-- =====================================================
-         PAGE HEADER
-    ====================================================== --}}
-
-    <div class="event-page-header">
-
-        <div class="event-page-heading">
-
-            <div class="event-page-icon">
-
-                <i class="fas fa-bullhorn"></i>
-
-            </div>
-
-            <div>
-
-                <div class="event-page-eyebrow">
-                    Sports Management
-                </div>
-
-                <h1>
-                    Sports Event Notice
-                </h1>
-
-            </div>
-
-        </div>
-
-
-        <div class="event-page-actions">
-
-            <a href="{{ url()->previous() }}"
-               class="dashboard-secondary-btn">
-
-                <i class="fas fa-arrow-left"></i>
-
-                Back to Games
-
-            </a>
-
-
-            <button type="button"
-                    onclick="window.print()"
-                    class="dashboard-primary-btn">
-
-                <i class="fas fa-print"></i>
-
-                Print Notice
-
-            </button>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         PROFESSIONAL SCREEN NOTICE
-         SCHOOL NAME / LOGO REMOVED FROM SCREEN
-    ====================================================== --}}
-
-    <div class="notice-card">
-
-
-        {{-- NOTICE TOP --}}
-
-        <div class="notice-top">
-
-            <div class="notice-top-left">
-
-                <div class="notice-document-icon">
-
-                    <i class="fas fa-file-lines"></i>
-
+        <div class="sn-page-header">
+            <div class="sn-header-left">
+                <div class="sn-header-icon">
+                    <i class="fas fa-futbol"></i>
                 </div>
 
                 <div>
+                    <p class="sn-eyebrow">School Diary · Sports Department</p>
 
-                    <div class="notice-top-title">
+                    <h1 class="sn-page-title">
                         Sports Event Notice
-                    </div>
+                    </h1>
 
-                    <div class="notice-top-subtitle">
-                        Official Event Information &amp; Guidelines
-                    </div>
-
+                    <p class="sn-page-subtitle">
+                        Official event details, participant information and rules.
+                    </p>
                 </div>
-
             </div>
 
+            <div class="sn-header-actions">
+                <a href="{{ url()->previous() }}" class="sn-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </a>
 
-            <div class="notice-reference">
-
-                <div class="notice-reference-label">
-                    Notice Reference
-                </div>
-
-                <div class="notice-reference-number">
-                    {{ $noticeNumber }}
-                </div>
-
+                <button
+                    type="button"
+                    class="sn-btn sn-btn-primary"
+                    onclick="window.print()"
+                >
+                    <i class="fas fa-print"></i>
+                    Print Notice
+                </button>
             </div>
-
         </div>
 
+        {{-- =====================================================
+             EVENT NOTICE BANNER
+        ====================================================== --}}
 
-        {{-- EVENT HERO --}}
+        <div class="sn-notice-banner">
+            <div class="sn-notice-topline">
+                <div class="sn-notice-reference">
+                    <i class="fas fa-file-alt"></i>
+                    NOTICE REFERENCE
 
-        <div class="event-hero">
-
-
-            <div class="sport-icon">
-
-                <i class="fas fa-trophy"></i>
-
-            </div>
-
-
-            <div>
-
-                <div class="event-hero-label">
-                    Sports Event Announcement
+                    <span class="sn-reference-value">
+                        {{ $noticeNumber }}
+                    </span>
                 </div>
 
-                <h2>
-                    {{ $game->title ?? $game->event_name ?? 'Sports Event' }}
-                </h2>
-
-
-                <div class="event-hero-meta">
-
-                    <div class="event-pill primary">
-
-                        <i class="fas fa-medal"></i>
-
-                        {{ $sportName }}
-
-                    </div>
-
-
-                    <div class="event-pill">
-
-                        <i class="fas fa-tag"></i>
-
-                        {{ $eventType }}
-
-                    </div>
-
-
-                    <div class="event-pill">
-
-                        <i class="fas fa-hashtag"></i>
-
-                        Event #{{ $game->id }}
-
-                    </div>
-
+                <div class="sn-notice-date">
+                    <i class="far fa-calendar-alt"></i>
+                    Notice Date: {{ $noticeDate }}
                 </div>
-
             </div>
 
+            <h2 class="sn-notice-heading">
+                {{ $eventTitle }}
+            </h2>
+
+            <p class="sn-notice-description">
+                Official sports event notice issued by the Sports Department.
+                Students are requested to review the event details and follow
+                the instructions provided below.
+            </p>
+
+            <div class="sn-badges">
+                <span class="sn-badge sn-badge-green">
+                    <i class="fas fa-running"></i>
+                    {{ $sportName }}
+                </span>
+
+                <span class="sn-badge sn-badge-orange">
+                    <i class="fas fa-trophy"></i>
+                    {{ $eventType }}
+                </span>
+
+                <span class="sn-badge sn-badge-blue">
+                    <i class="fas fa-calendar-check"></i>
+                    {{ $eventDate }}
+                </span>
+            </div>
         </div>
 
+        {{-- =====================================================
+             EVENT DETAILS
+        ====================================================== --}}
 
-        {{-- NOTICE CONTENT --}}
+        <div class="sn-card">
+            <div class="sn-card-header">
+                <div class="sn-card-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
 
-        <div class="notice-content">
+                <div>
+                    <h3 class="sn-card-heading">
+                        Event Information
+                    </h3>
 
-
-            {{-- EVENT INFORMATION --}}
-
-            <div class="section-title">
-
-                <i class="fas fa-calendar-days"></i>
-
-                Event Information
-
+                    <p class="sn-card-subtitle">
+                        Important information about the scheduled sports event.
+                    </p>
+                </div>
             </div>
 
-
-            <div class="event-information">
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Sport
-                    </div>
-
-                    <div class="info-value">
-
-                        <i class="fas fa-medal"></i>
-
-                        {{ $sportName }}
-
-                    </div>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Event Type
-                    </div>
-
-                    <div class="info-value">
-
-                        <i class="fas fa-tag"></i>
-
-                        {{ $eventType }}
-
-                    </div>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Event Date
-                    </div>
-
-                    <div class="info-value">
-
-                        <i class="far fa-calendar"></i>
-
-                        {{ $eventDate }}
-
-                    </div>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Time
-                    </div>
-
-                    <div class="info-value">
-
-                        <i class="far fa-clock"></i>
-
-                        {{ $eventTime }}
-
-                    </div>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <div class="info-label">
-                        Venue
-                    </div>
-
-                    <div class="info-value">
-
-                        <i class="fas fa-location-dot"></i>
-
-                        {{ $venue }}
-
-                    </div>
-
-                </div>
-
-
-                {{-- PARTICIPANTS --}}
-
-                <div class="info-item participant-info">
-
-                    <div class="info-label">
-                        Participants
-                    </div>
-
-                    <div class="info-value">
-
-                        <i class="fas fa-users"></i>
-
-                        {{ $participants }}
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-            {{-- SECONDARY INFORMATION --}}
-
-            <div class="secondary-information">
-
-
-                <div class="secondary-item">
-
-                    <div class="secondary-item-label">
-                        Academic Year
-                    </div>
-
-                    <div class="secondary-item-value">
-                        {{ $academicYear }}
-                    </div>
-
-                </div>
-
-
-                <div class="secondary-item">
-
-                    <div class="secondary-item-label">
-                        Organizer
-                    </div>
-
-                    <div class="secondary-item-value">
-                        {{ $organizer }}
-                    </div>
-
-                </div>
-
-
-                <div class="secondary-item">
-
-                    <div class="secondary-item-label">
-                        Notice Date
-                    </div>
-
-                    <div class="secondary-item-value">
-                        {{ $noticeDate }}
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-            {{-- DESCRIPTION --}}
-
-            @if(!empty($game->description))
-
-                <div class="description-section">
-
-                    <div class="section-title">
-
-                        <i class="fas fa-align-left"></i>
-
-                        Event Description
-
-                    </div>
-
-
-                    <div class="description-box">
-
-                        {{ $game->description }}
-
-                    </div>
-
-                </div>
-
-            @endif
-
-
-            {{-- RULES --}}
-
-            <div class="rules-section">
-
-                <div class="section-title">
-
-                    <i class="fas fa-list-check"></i>
-
-                    Participation Guidelines &amp; Rules
-
-                </div>
-
-
-                <div class="rules-list">
-
-                    @foreach($currentRules as $index => $rule)
-
-                        <div class="rule-item">
-
-                            <div class="rule-number">
-                                {{ $index + 1 }}
-                            </div>
-
-                            <div class="rule-text">
-                                {{ $rule }}
-                            </div>
-
+            <div class="sn-card-body">
+                <div class="sn-details-grid">
+
+                    <div class="sn-detail-item">
+                        <div class="sn-detail-label">
+                            <i class="fas fa-futbol"></i>
+                            Sport / Game
                         </div>
 
-                    @endforeach
+                        <p class="sn-detail-value">
+                            {{ $sportName }}
+                        </p>
+
+                        <p class="sn-detail-hint">
+                            Sport associated with this event
+                        </p>
+                    </div>
+
+                    <div class="sn-detail-item">
+                        <div class="sn-detail-label">
+                            <i class="fas fa-trophy"></i>
+                            Event Type
+                        </div>
+
+                        <p class="sn-detail-value">
+                            {{ $eventType }}
+                        </p>
+
+                        <p class="sn-detail-hint">
+                            Category of the event
+                        </p>
+                    </div>
+
+                    <div class="sn-detail-item">
+                        <div class="sn-detail-label">
+                            <i class="far fa-calendar-alt"></i>
+                            Event Date
+                        </div>
+
+                        <p class="sn-detail-value">
+                            {{ $eventDate }}
+                        </p>
+
+                        <p class="sn-detail-hint">
+                            Scheduled event date
+                        </p>
+                    </div>
+
+                    <div class="sn-detail-item">
+                        <div class="sn-detail-label">
+                            <i class="far fa-clock"></i>
+                            Event Time
+                        </div>
+
+                        <p class="sn-detail-value">
+                            {{ $eventTime }}
+                        </p>
+
+                        <p class="sn-detail-hint">
+                            Start and end time, if available
+                        </p>
+                    </div>
+
+                    <div class="sn-detail-item">
+                        <div class="sn-detail-label">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Venue
+                        </div>
+
+                        <p class="sn-detail-value">
+                            {{ $venue }}
+                        </p>
+
+                        <p class="sn-detail-hint">
+                            Event location
+                        </p>
+                    </div>
+
+                    <div class="sn-detail-item">
+                        <div class="sn-detail-label">
+                            <i class="fas fa-users"></i>
+                            Participants
+                        </div>
+
+                        <p class="sn-detail-value">
+                            {{ $participants }}
+                        </p>
+
+                        <p class="sn-detail-hint">
+                            Eligible students
+                        </p>
+                    </div>
 
                 </div>
-
             </div>
+        </div>
 
+        {{-- =====================================================
+             ADDITIONAL INFORMATION
+        ====================================================== --}}
 
-            {{-- IMPORTANT NOTICE --}}
-
-            <div class="important-notice">
-
-                <div class="important-icon">
-
-                    <i class="fas fa-triangle-exclamation"></i>
-
+        <div class="sn-card">
+            <div class="sn-card-header">
+                <div class="sn-card-icon orange">
+                    <i class="fas fa-info-circle"></i>
                 </div>
 
                 <div>
+                    <h3 class="sn-card-heading">
+                        Additional Information
+                    </h3>
 
-                    <div class="important-title">
-                        Important Notice
+                    <p class="sn-card-subtitle">
+                        Academic year, event organizer and notice details.
+                    </p>
+                </div>
+            </div>
+
+            <div class="sn-card-body">
+                <div class="sn-secondary-grid">
+
+                    <div class="sn-secondary-item">
+                        <div class="sn-secondary-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+
+                        <div class="sn-secondary-content">
+                            <span class="sn-secondary-label">
+                                Academic Year
+                            </span>
+
+                            <span class="sn-secondary-value">
+                                {{ $academicYear }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="important-text">
+                    <div class="sn-secondary-item">
+                        <div class="sn-secondary-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
 
-                        All participants are requested to report to
-                        the venue before the scheduled event time and
-                        follow the instructions of the Sports Department
-                        and appointed officials.
+                        <div class="sn-secondary-content">
+                            <span class="sn-secondary-label">
+                                Event Organizer
+                            </span>
 
+                            <span class="sn-secondary-value">
+                                {{ $organizer }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="sn-secondary-item">
+                        <div class="sn-secondary-icon">
+                            <i class="far fa-calendar-check"></i>
+                        </div>
+
+                        <div class="sn-secondary-content">
+                            <span class="sn-secondary-label">
+                                Notice Issued On
+                            </span>
+
+                            <span class="sn-secondary-value">
+                                {{ $noticeDate }}
+                            </span>
+                        </div>
                     </div>
 
                 </div>
-
             </div>
-
-
         </div>
 
+        {{-- =====================================================
+             EVENT DESCRIPTION
+        ====================================================== --}}
 
-        {{-- NOTICE FOOTER --}}
+        @if(!empty($description))
+            <div class="sn-card">
+                <div class="sn-card-header">
+                    <div class="sn-card-icon blue">
+                        <i class="fas fa-align-left"></i>
+                    </div>
 
-        <div class="notice-bottom">
+                    <div>
+                        <h3 class="sn-card-heading">
+                            About the Event
+                        </h3>
 
-            <div class="notice-bottom-left">
+                        <p class="sn-card-subtitle">
+                            Description and additional event instructions.
+                        </p>
+                    </div>
+                </div>
 
-                <strong>
-                    Official Sports Event Notice
-                </strong>
+                <div class="sn-card-body">
+                    <div class="sn-description-box">
+                        {!! nl2br(e($description)) !!}
+                    </div>
+                </div>
+            </div>
+        @endif
 
-                <br>
+        {{-- =====================================================
+             SPORT-SPECIFIC RULES
+        ====================================================== --}}
 
-                Please follow all event instructions and maintain
-                proper discipline throughout the event.
+        <div class="sn-card">
+            <div class="sn-card-header">
+                <div class="sn-card-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
 
+                <div>
+                    <h3 class="sn-card-heading">
+                        Rules & Regulations
+                    </h3>
+
+                    <p class="sn-card-subtitle">
+                        Instructions for {{ $sportName }} participants.
+                    </p>
+                </div>
             </div>
 
+            <div class="sn-card-body">
+                <ol class="sn-rules-list">
+                    @foreach($currentRules as $rule)
+                        <li>
+                            <span>{{ $rule }}</span>
+                        </li>
+                    @endforeach
+                </ol>
+            </div>
+        </div>
 
-            <div class="notice-bottom-right">
+        {{-- =====================================================
+             IMPORTANT NOTICE
+        ====================================================== --}}
 
+        <div class="sn-important-notice">
+            <div class="sn-important-icon">
+                <i class="fas fa-exclamation"></i>
+            </div>
+
+            <div class="sn-important-content">
+                <h3 class="sn-important-title">
+                    Important Notice for Students
+                </h3>
+
+                <p class="sn-important-text">
+                    All participants must report to the designated venue on time,
+                    maintain discipline, follow the instructions of teachers and
+                    event officials, and demonstrate fair play. Students should
+                    bring the necessary sports equipment and wear suitable sports
+                    attire. Any changes to the event schedule will be communicated
+                    by the Sports Department.
+                </p>
+            </div>
+        </div>
+
+        {{-- =====================================================
+             SCREEN FOOTER
+        ====================================================== --}}
+
+        <div class="sn-screen-footer">
+            <div>
+                <div class="sn-footer-school">
+                    {{ $schoolName }}
+                </div>
+
+                <div class="sn-footer-caption">
+                    Sports Department · Promoting discipline, teamwork and fair play
+                </div>
+            </div>
+
+            <div class="sn-footer-reference">
                 Notice No. {{ $noticeNumber }}
-
-                <br>
-
-                Event ID #{{ $game->id }}
-
             </div>
-
         </div>
-
 
     </div>
 
-
     {{-- =====================================================
-         PRINT-ONLY NOTICE
-         SCHOOL NAME + LOGO REMAIN HERE
+         PRINT-ONLY SPORTS NOTICE
     ====================================================== --}}
 
     <div class="print-notice">
 
+        {{-- School Header --}}
 
-        {{-- PRINT HEADER --}}
+        <div class="print-school-header">
+            @if(!empty($schoolLogo))
+                <img
+                    src="{{ $schoolLogo }}"
+                    alt="School Logo"
+                    class="print-school-logo"
+                >
+            @endif
 
-        <div class="print-header">
-
-            <div class="print-school-logo">
-
-                <img src="{{ $schoolLogo }}"
-                     alt="{{ $schoolName }} Logo">
-
-            </div>
-
-            <div class="print-school-details">
-
-                <div class="print-school-name">
+            <div>
+                <h1 class="print-school-name">
                     {{ $schoolName }}
-                </div>
+                </h1>
 
-                <div class="print-department">
-                    Sports Department
-                </div>
-
-                <div class="print-official">
-                    Official School Notice
-                </div>
-
+                <p class="print-school-caption">
+                    Official Sports Department Notice
+                </p>
             </div>
-
         </div>
 
-
-        {{-- PRINT META --}}
+        {{-- Notice Reference --}}
 
         <div class="print-notice-meta">
-
             <div>
-
-                <strong>
-                    Notice No:
-                </strong>
-
+                <strong>Notice No.:</strong>
                 {{ $noticeNumber }}
-
             </div>
-
 
             <div>
-
-                <strong>
-                    Date:
-                </strong>
-
+                <strong>Notice Date:</strong>
                 {{ $noticeDate }}
-
             </div>
-
         </div>
 
+        {{-- Event Title --}}
 
-        {{-- PRINT TITLE --}}
+        <h2 class="print-notice-title">
+            {{ $eventTitle }}
+        </h2>
 
-        <div class="print-event-heading">
+        <p class="print-notice-subtitle">
+            {{ $sportName }} · {{ $eventType }}
+        </p>
 
-            <h1>
-                {{ $game->title ?? $game->event_name ?? 'Sports Event' }}
-            </h1>
+        {{-- Event Details Table --}}
 
-            <p>
-                Official Sports Event Notice
-            </p>
+        <div class="print-section">
+            <h3 class="print-section-title">
+                Event Information
+            </h3>
 
+            <table class="print-details-table">
+                <tbody>
+                    <tr>
+                        <th>Sport / Game</th>
+                        <td>{{ $sportName }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Event Type</th>
+                        <td>{{ $eventType }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Event Date</th>
+                        <td>{{ $eventDate }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Event Time</th>
+                        <td>{{ $eventTime }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Venue</th>
+                        <td>{{ $venue }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Participants</th>
+                        <td>{{ $participants }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Academic Year</th>
+                        <td>{{ $academicYear }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Organizer</th>
+                        <td>{{ $organizer }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
+        {{-- Optional Description --}}
 
-        {{-- PRINT EVENT DETAILS --}}
+        @if(!empty($description))
+            <div class="print-section">
+                <h3 class="print-section-title">
+                    About the Event
+                </h3>
 
-        <table class="print-details-table">
-
-            <tr>
-
-                <td>
-
-                    <span class="print-label">
-                        Sport
-                    </span>
-
-                    <span class="print-value">
-                        {{ $sportName }}
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    <span class="print-label">
-                        Event Type
-                    </span>
-
-                    <span class="print-value">
-                        {{ $eventType }}
-                    </span>
-
-                </td>
-
-            </tr>
-
-
-            <tr>
-
-                <td>
-
-                    <span class="print-label">
-                        Event Date
-                    </span>
-
-                    <span class="print-value">
-                        {{ $eventDate }}
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    <span class="print-label">
-                        Time
-                    </span>
-
-                    <span class="print-value">
-                        {{ $eventTime }}
-                    </span>
-
-                </td>
-
-            </tr>
-
-
-            <tr>
-
-                <td>
-
-                    <span class="print-label">
-                        Venue
-                    </span>
-
-                    <span class="print-value">
-                        {{ $venue }}
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    <span class="print-label">
-                        Participants
-                    </span>
-
-                    <span class="print-value">
-                        {{ $participants }}
-                    </span>
-
-                </td>
-
-            </tr>
-
-
-            <tr>
-
-                <td>
-
-                    <span class="print-label">
-                        Academic Year
-                    </span>
-
-                    <span class="print-value">
-                        {{ $academicYear }}
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    <span class="print-label">
-                        Organizer
-                    </span>
-
-                    <span class="print-value">
-                        {{ $organizer }}
-                    </span>
-
-                </td>
-
-            </tr>
-
-        </table>
-
-
-        {{-- DESCRIPTION --}}
-
-        @if(!empty($game->description))
-
-            <div class="print-section-title">
-                Event Description
+                <p class="print-description">
+                    {!! nl2br(e($description)) !!}
+                </p>
             </div>
-
-            <div class="print-description">
-                {{ $game->description }}
-            </div>
-
         @endif
 
+        {{-- Rules --}}
 
-        {{-- RULES --}}
+        <div class="print-section">
+            <h3 class="print-section-title">
+                Rules & Regulations
+            </h3>
 
-        <div class="print-section-title">
-            Participation Guidelines &amp; Rules
+            <ol class="print-rules">
+                @foreach($currentRules as $rule)
+                    <li>{{ $rule }}</li>
+                @endforeach
+            </ol>
         </div>
 
-
-        <ol class="print-rules">
-
-            @foreach($currentRules as $rule)
-
-                <li>
-                    {{ $rule }}
-                </li>
-
-            @endforeach
-
-        </ol>
-
-
-        {{-- IMPORTANT NOTICE --}}
+        {{-- Important Notice --}}
 
         <div class="print-important">
+            <strong>Important Notice for Students</strong>
 
-            <strong>
-                Important Notice
-            </strong>
-
-            <span>
-
-                All participants are requested to report to the venue
-                before the scheduled event time and follow the instructions
-                of the Sports Department and appointed officials.
-
-            </span>
-
+            All participants must report to the designated venue on time,
+            maintain discipline, follow the instructions of teachers and event
+            officials, and demonstrate fair play. Students should bring the
+            necessary sports equipment and wear suitable sports attire.
+            Any changes to the event schedule will be communicated by the
+            Sports Department.
         </div>
 
-
-        {{-- SIGNATURE --}}
+        {{-- Signatures --}}
 
         <div class="print-signature-area">
-
             <div class="print-signature">
-
-                <div class="print-signature-line"></div>
-
-                <strong>
-                    Sports Department
-                </strong>
-
-                <span>
-                    {{ $schoolName }}
-                </span>
-
+                Sports Teacher / Coordinator
             </div>
 
+            <div class="print-signature">
+                Principal
+            </div>
         </div>
 
-
-        {{-- PRINT FOOTER --}}
+        {{-- Print Footer --}}
 
         <div class="print-footer">
-
-            {{ $schoolName }}
-
-            &nbsp; | &nbsp;
-
-            Sports Department
-
-            &nbsp; | &nbsp;
-
-            Notice No. {{ $noticeNumber }}
-
-            &nbsp; | &nbsp;
-
-            Event ID #{{ $game->id }}
-
+            {{ $schoolName }} · Sports Department · Notice No. {{ $noticeNumber }}
         </div>
 
-
     </div>
-
-
 </div>
 
 @endsection
