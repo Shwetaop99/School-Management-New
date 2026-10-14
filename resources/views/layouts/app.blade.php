@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -162,12 +162,14 @@
 @php
     /* Safe route helper: returns '#' if a route doesn't exist. */
     $route = function ($name, $fallback = '#') {
-        try {
-            return \Illuminate\Support\Facades\Route::has($name) ? route($name) : $fallback;
-        } catch (\Throwable $e) {
-            return $fallback;
-        }
-    };
+    try {
+        return \Illuminate\Support\Facades\Route::has($name)
+            ? route($name)
+            : $fallback;
+    } catch (\Throwable $e) {
+        return $fallback;
+    }
+};
 
     /*
      * Sidebar definition.
@@ -207,15 +209,30 @@
                 'c'=>[['All Faculty','admin.faculty.index'],['Teacher Allocation','admin.faculty.index']]],
             ['l'=>'Other Staff','i'=>'fa-users','a'=>['admin.other-staff.*'],
                 'c'=>[['All Staff','admin.other-staff.index'],['Add Staff','admin.other-staff.create']]],
-            ['l'=>'Time Table','i'=>'fa-table-cells','a'=>['admin.timetable.*'],
-                'c'=>[['Class Timetable','admin.timetable.index'],['Teacher Timetable','admin.timetable.index'],['Create Timetable','admin.timetable.index']]],
-            
-            ['l'=>'Attendance','i'=>'fa-check','a'=>['admin.attendance.*','admin.teachers.attendance.*'],
-                'c'=>[
-                    ['Student Attendance', 'admin.attendance.student.sheet'],
-                    ['Faculty Attendance', 'admin.teachers.attendance.index']
-                ]
-            ],
+           
+[
+    'l' => 'Time Table',
+    'i' => 'fa-table-cells',
+    'a' => ['admin.timetable.*'],
+    'c' => [
+        ['Class Timetable', 'admin.timetable.class'],
+        ['Teacher Timetable', 'admin.timetable.teacher'],
+        ['Create Timetable', 'admin.timetable.create'],
+    ],
+],
+
+            [
+    'l' => 'Attendance',
+    'i' => 'fa-check',
+    'a' => [
+        'admin.attendance.*',
+        'admin.teachers.attendance.*',
+    ],
+    'c' => [
+        ['Student Attendance', 'admin.attendance.student'],
+        ['Faculty Attendance', 'admin.teachers.attendance.index'],
+    ],
+],
 
 
             
@@ -238,8 +255,19 @@
 
 
           ['l'=>'Exam','i'=>'fa-file-lines','a'=>['admin.exams.*'],'r'=>'admin.exams.index'],
-            ['l'=>'Result','i'=>'fa-chart-column','a'=>['admin.results.*'],
-                'c'=>[['Student Result','admin.results.index'],['Grade Management','admin.results.index'],['Publish Result','admin.results.index'],['Result History','admin.results.index'],['Result Report','admin.results.index']]],
+           
+    [
+    'l' => 'Result',
+    'i' => 'fa-chart-column',
+    'a' => ['admin.results.*'],
+    'c' => [
+        ['Student Result', 'admin.results.index'],
+        ['Grade Management', 'admin.results.generate'],
+        ['Publish Result', 'admin.results.class-results'],
+        ['Result History', 'admin.results.index'],
+        ['Result Report', 'admin.results.class-wise-toppers'],
+    ],
+],
             ['l'=>'Notice','i'=>'fa-flag','a'=>['admin.notices.*'],
                 'c'=>[['All Notices','admin.notices.index'],['Add Notice','admin.notices.create']]],
             ['l'=>'Library','i'=>'fa-book','a'=>['admin.library.*'],
@@ -271,9 +299,9 @@
         'admin.admin.meals.*',
     ],
     'c' => [
-        ['Stock In / Stock Out', 'admin.admin.meal.items.stock.index'],
-        ['Logs', 'admin.admin.meal.items.index'],
-    ],
+    ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
+    ['Logs', 'admin.meal.logs.index'],
+],
 ],
 
            
@@ -292,11 +320,14 @@
     'r'=>'admin.scholarship.index'
 ],
 
-['l'=>'Class','i'=>'fa-chalkboard','a'=>['admin.classes.*','admin.subjects.*'],
-    'c'=>[
-        ['Classes','admin.classes.index'],
-        ['Subjects','admin.admin.subjects.index']
-    ]
+[
+    'l' => 'Class',
+    'i' => 'fa-chalkboard',
+    'a' => ['admin.classes.*', 'admin.subjects.*'],
+    'c' => [
+        ['Classes', 'admin.classes.index'],
+        ['Subjects', 'admin.subjects.index'],
+    ],
 ],
 
 ['l'=>'Reports','i'=>'fa-chart-pie','a'=>['admin.reports.*'],'r'=>'admin.reports.index'],
@@ -314,11 +345,12 @@
         ['School Profile', 'admin.settings.index'],
 ['User Roles & Permission', 'admin.settings.roles.index'],
         ['Security', 'admin.2fa.security'],
-        ['Backup & Recovery', 'admin.backup.index'],
+        ['Backup & Recovery', 'backup.index'],
     ],
 ],
 
         ],
+    
     ];
 
 @endphp
@@ -365,7 +397,9 @@
                                     if ($childActive) { $matched = true; }
                                 @endphp
                                 <a href="{{ $route($child[1]) }}"
-                                   class="submenu-item {{ $childActive ? 'active' : '' }}">{{ $child[0] }}</a>
+   class="submenu-item {{ $childActive ? 'active' : '' }}">
+    {{ $child[0] }}
+</a>
                             @endforeach
                         </div>
                     @elseif (\Illuminate\Support\Facades\Route::has($item['r']))

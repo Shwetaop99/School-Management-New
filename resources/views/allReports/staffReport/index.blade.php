@@ -431,7 +431,9 @@
     <div class="report-actions">
 
         <a
-            href="{{ route('admin.reports.staff.pdf', request()->query()) }}"
+            
+href="{{ route('reports.staff.pdf', request()->query()) }}"
+
             class="report-action pdf-btn"
         >
             <i class="bi bi-file-earmark-pdf"></i>
@@ -439,7 +441,9 @@
         </a>
 
         <a
-            href="{{ route('admin.reports.staff.excel', request()->query()) }}"
+            
+href="{{ route('reports.staff.excel', request()->query()) }}"
+
             class="report-action excel-btn"
         >
             <i class="bi bi-file-earmark-excel"></i>
@@ -468,7 +472,9 @@
             <h5>Filter Staff Reports</h5>
         </div>
 
-        <form method="GET" action="{{ route('admin.reports.staff') }}">
+        
+<form method="GET" action="{{ route('reports.staff.index') }}">
+
 
             <div class="row g-3">
 
@@ -537,7 +543,9 @@
                             Apply Filters
                         </button>
 
-                        <a href="{{ route('admin.reports.staff') }}" class="btn-reset">
+                        
+<a href="{{ route('reports.staff.index') }}" class="btn-reset">
+
                             <i class="bi bi-arrow-counterclockwise me-1"></i>
                             Reset
                         </a>
@@ -588,7 +596,7 @@
                     @forelse($staff as $member)
 
                         <tr
-                            onclick="window.location='{{ route('admin.reports.staff.show', $member->id) }}'"
+                            onclick="window.location='{{ route('reports.staff.show', $member->id) }}'"
                             style="cursor: pointer;"
                         >
 
@@ -667,7 +675,7 @@
 
                             <td>
     <a
-        href="{{ route('admin.reports.staff.show', $member->id) }}"
+        href="{{ route('reports.staff.show', $member->id) }}"
         class="btn btn-sm btn-primary"
         title="View Staff Report"
     >

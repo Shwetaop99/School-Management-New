@@ -10,7 +10,7 @@
             <p class="text-muted mb-0">Manage your school database backups.</p>
         </div>
 
-        <form action="{{ route('admin.backup.create') }}" method="POST"
+        <form action="{{ route('backup.create') }}" method="POST"
               onsubmit="return confirm('Create a new backup?');">
             @csrf
             <button class="btn btn-success" type="submit">
@@ -63,12 +63,12 @@
                                     <td>{{ number_format($backup['size'] / 1024, 2) }} KB</td>
                                     <td>{{ $backup['date'] }}</td>
                                     <td class="text-end">
-                                        <a href="{{ route('admin.backup.download', ['backup' => $backup['name']]) }}"
+                                        <a href="{{ route('backup.download', ['backup' => $backup['name']]) }}"
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fa-solid fa-download"></i> Download
                                         </a>
 
-                                        <form action="{{ route('admin.backup.destroy', ['backup' => $backup['name']]) }}"
+                                        <form action="{{ route('backup.destroy', ['backup' => $backup['name']]) }}"
                                               method="POST" class="d-inline"
                                               onsubmit="return confirm('Permanently delete this backup?');">
                                             @csrf

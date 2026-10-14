@@ -11,9 +11,14 @@ use Illuminate\Http\Request;
 
 class TeacherReportController extends Controller
 {
-    public function index(Request $request)
+    
+public function index(Request $request)
 {
+
     $query = Teacher::query();
+
+    // Keep all your existing code below unchanged.
+
 
     // Faculty Search
     if ($request->filled('search')) {

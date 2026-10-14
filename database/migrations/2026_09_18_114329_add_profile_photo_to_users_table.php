@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -6,30 +7,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-<<<<<<< HEAD
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'profile_photo')) {
-                $table->string('profile_photo')->nullable()->after('email');
-            }
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'profile_photo')) {
-                $table->dropColumn('profile_photo');
-            }
-        });
-=======
     public function up(): void
     {
         if (!Schema::hasColumn('users', 'profile_photo')) {
@@ -39,6 +19,9 @@ return new class extends Migration
         }
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         if (Schema::hasColumn('users', 'profile_photo')) {
@@ -46,6 +29,5 @@ return new class extends Migration
                 $table->dropColumn('profile_photo');
             });
         }
->>>>>>> origin/Fees
     }
 };

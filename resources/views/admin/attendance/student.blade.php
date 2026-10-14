@@ -196,7 +196,7 @@
        ROUTES
     ========================================================= */
 
-   $attendanceIndexUrl = route('admin.attendance.student.sheet');
+   $attendanceIndexUrl = route('admin.attendance.student');
 
 
     $attendanceStoreUrl = \Illuminate\Support\Facades\Route::has(

@@ -7,29 +7,57 @@
 
 <div class="container-fluid py-4">
 
-    {{-- =========================================================
-        PAGE HEADER
-    ========================================================== --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+   {{-- =========================================================
+PAGE HEADER
+========================================================= --}}
 
-        <div>
-            <h3 class="fw-bold mb-1">
-                <i class="bi bi-box-seam text-primary me-2"></i>
-                Government Kit Templates
-            </h3>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 
-            <p class="text-muted mb-0">
-                Manage government-provided student supply kits and their standard items.
-            </p>
-        </div>
 
-        <a href="{{ route('admin.kit-templates.create') }}"
-           class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>
-            Create Government Kit
-        </a>
+<div>
 
-    </div>
+    <h3 class="fw-bold mb-1">
+
+        <i class="bi bi-box-seam text-primary me-2"></i>
+
+        Government Kit Templates
+
+    </h3>
+
+    <p class="text-muted mb-0">
+
+        Manage government-provided student supply kits and their standard items.
+
+    </p>
+
+</div>
+
+
+<div class="d-flex flex-wrap gap-2">
+
+    {{-- Back --}}
+    <a href="{{ route('admin.student-supply-kits.index') }}"
+       class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-left me-1"></i>
+        Back
+
+    </a>
+
+
+    {{-- Create Government Kit --}}
+    <a href="{{ route('admin.kit-templates.create') }}"
+       class="btn btn-primary">
+
+        <i class="bi bi-plus-circle me-1"></i>
+        Create Government Kit
+
+    </a>
+
+</div>
+
+</div>
+
 
 
     {{-- =========================================================
@@ -198,31 +226,28 @@
 
 
                     {{-- Class --}}
-                    <div class="col-lg-2 col-md-3">
+                    {{-- Class --}}
+<div class="col-lg-2 col-md-3">
+    <label class="form-label fw-semibold">
+        Class
+    </label>
 
-                        <label class="form-label fw-semibold">
-                            Class
-                        </label>
+    <select name="class_id" class="form-select">
+        <option value="">
+            All Classes
+        </option>
 
-                        <select name="class"
-                                class="form-select">
-
-                            <option value="">
-                                All Classes
-                            </option>
-
-                            @foreach($classes as $class)
-
-                                <option value="{{ $class }}"
-                                    {{ request('class') == $class ? 'selected' : '' }}>
-                                    {{ $class }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                    </div>
+        @foreach($classes as $class)
+            <option value="{{ $class->id }}"
+                @selected(request('class_id') == $class->id)>
+                {{ $class->class_name }}
+                @if($class->section)
+                    - {{ $class->section }}
+                @endif
+            </option>
+        @endforeach
+    </select>
+</div>
 
 
                     {{-- Academic Year --}}
@@ -430,12 +455,18 @@
 
                                     {{-- Class --}}
                                     <td>
+    @if($kitTemplate->schoolClass)
+        <span class="badge bg-light text-dark border">
+            {{ $kitTemplate->schoolClass->class_name }}
 
-                                        <span class="badge bg-light text-dark border">
-                                            Class {{ $kitTemplate->class }}
-                                        </span>
-
-                                    </td>
+            @if($kitTemplate->schoolClass->section)
+                - {{ $kitTemplate->schoolClass->section }}
+            @endif
+        </span>
+    @else
+        <span class="text-muted">—</span>
+    @endif
+</td>
 
 
                                     {{-- Academic Year --}}

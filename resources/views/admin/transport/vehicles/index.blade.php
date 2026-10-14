@@ -977,7 +977,11 @@
 </style>
 
 <div class="transport-vehicles-page">
+
     
+
+
+
 {{-- =====================================================
      HERO HEADER
 ====================================================== --}}
@@ -1567,7 +1571,7 @@
                                         
 href="{{ route(
     'admin.transport.vehicles.show',
-    ['transport_vehicle' => $vehicle->id]
+    ['transportVehicle' => $vehicle->id]
 ) }}"
 
                                         class="vehicle-action view"
@@ -1584,7 +1588,7 @@ href="{{ route(
                                         
 href="{{ route(
     'admin.transport.vehicles.edit',
-    ['transport_vehicle' => $vehicle->id]
+    ['transportVehicle' => $vehicle->id]
 ) }}"
 
                                         class="vehicle-action edit"
@@ -1599,7 +1603,10 @@ href="{{ route(
                                     {{-- DELETE --}}
                                     <form
                                         
-action="{{ route('admin.transport.vehicles.destroy', ['transport_vehicle' => $vehicle->id]) }}"
+action="{{ route(
+    'admin.transport.vehicles.destroy',
+    ['transportVehicle' => $vehicle->id]
+) }}"
 
                                         method="POST"
                                         class="d-inline"

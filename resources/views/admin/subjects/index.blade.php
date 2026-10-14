@@ -1369,7 +1369,7 @@
         <div class="subject-hero-actions">
 
             <a
-                href="{{ route('admin.admin.subjects.create') }}"
+                href="{{ route('admin.subjects.create') }}"
                 class="hero-add-btn"
             >
                 <i class="bi bi-plus-lg"></i>
@@ -1582,7 +1582,7 @@
         <div class="filter-content">
 
             <form
-                href="{{ route('admin.admin.subjects.create') }}"
+                href="{{ route('admin.subjects.create') }}"
                 method="GET"
                 class="subject-filter-form"
             >
@@ -1832,7 +1832,7 @@
 
                                     <a
                                         href="{{ route(
-    'admin.admin.subjects.index',
+    'admin.subjects.index',
     ['class_id' => $schoolClass->id]
 ) }}"
                                         class="class-view-btn"
@@ -1891,7 +1891,7 @@
 
 
                     <a
-                        href="{{ route('admin.admin.subjects.create') }}"
+                        href="{{ route('admin.subjects.create') }}"
                         class="empty-add-btn"
                     >
 
@@ -2322,7 +2322,7 @@
 
 
                     <a
-                        href="{{ route('admin.admin.subjects.create') }}"
+                        href="{{ route('admin.subjects.create') }}"
                         class="empty-add-btn"
                     >
 

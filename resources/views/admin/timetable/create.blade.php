@@ -408,7 +408,7 @@ select.timetable-form-select {
     <div class="timetable-form-card">
 
         <form
-            action="{{ route('admin.timetable.save') }}"
+            action="{{ route('admin.timetable.store') }}"
             method="POST"
             id="timetableForm"
         >

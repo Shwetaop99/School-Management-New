@@ -4,48 +4,65 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StudentSupplyKit extends Model
 {
     use HasFactory;
 
+    protected $table = 'student_supply_kits';
+
     protected $fillable = [
         'student_id',
         'kit_template_id',
         'academic_year',
-        'issue_date',
+        'distribution_date',
         'status',
         'remarks',
-        'issued_by',
     ];
 
     protected $casts = [
-        'issue_date' => 'date',
+        'distribution_date' => 'date',
     ];
 
-    /**
-     * Student who received the kit.
-     */
-    public function student(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Student
+    |--------------------------------------------------------------------------
+    */
+
+    public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(
+            Student::class,
+            'student_id'
+        );
     }
 
-    /**
-     * Kit template used.
-     */
-    public function kitTemplate(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Kit Template
+    |--------------------------------------------------------------------------
+    */
+
+    public function kitTemplate()
     {
-        return $this->belongsTo(KitTemplate::class);
+        return $this->belongsTo(
+            KitTemplate::class,
+            'kit_template_id'
+        );
     }
 
-    /**
-     * Items issued to the student.
-     */
-    public function items(): HasMany
+    /*
+    |--------------------------------------------------------------------------
+    | Kit Items
+    |--------------------------------------------------------------------------
+    */
+
+    public function items()
     {
-        return $this->hasMany(StudentSupplyKitItem::class);
+        return $this->hasMany(
+            StudentSupplyKitItem::class,
+            'student_supply_kit_id'
+        );
     }
 }

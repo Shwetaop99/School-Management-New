@@ -4,22 +4,65 @@
 
 @section('content')
 
+@php
+    $school = $schoolSetting ?? \App\Models\SchoolSetting::first();
+
+    $schoolLogo = $school->logo ?? null;
+
+    if ($schoolLogo && !preg_match('~^(https?://|/)~i', $schoolLogo)) {
+        $schoolLogo = asset('storage/' . ltrim($schoolLogo, '/'));
+    }
+
+    if (!$schoolLogo) {
+        $schoolLogo = asset('images/gurukullogo.png');
+    }
+
+    $schoolAddress = collect([
+        $school->address ?? null,
+        $school->city ?? null,
+        $school->district ?? null,
+        $school->state ?? null,
+        $school->pincode ?? null,
+    ])->filter()->implode(', ');
+
+    $classNames = collect($classes)
+        ->map(function ($item) {
+            return trim((string) (
+                is_object($item) ? ($item->class_name ?? '') : $item
+            ));
+        })
+        ->filter()
+        ->unique(fn ($name) => strtolower($name))
+        ->values();
+
+    $reportRows = collect($report);
+
+    $groupedReport = $reportRows->groupBy(function ($row) {
+        return trim((string) ($row->caste ?? 'Not Specified'))
+            ?: 'Not Specified';
+    });
+
+    $grandClassTotals = [];
+
+    foreach ($classNames as $className) {
+        $grandClassTotals[$className] = [
+            'boys' => 0,
+            'girls' => 0,
+            'total' => 0,
+        ];
+    }
+
+    $calculatedGrandBoys = 0;
+    $calculatedGrandGirls = 0;
+    $calculatedGrandTotal = 0;
+@endphp
+
 <style>
-
-    /* =========================================================
-       PAGE
-    ========================================================= */
-
     .caste-report-page {
         background: #f5f7fb;
         min-height: calc(100vh - 70px);
         padding: 24px;
     }
-
-
-    /* =========================================================
-       PAGE HEADER
-    ========================================================= */
 
     .report-header {
         display: flex;
@@ -60,11 +103,6 @@
         font-size: 14px;
     }
 
-
-    /* =========================================================
-       HEADER ACTIONS
-    ========================================================= */
-
     .report-actions {
         display: flex;
         gap: 9px;
@@ -77,30 +115,28 @@
         padding: 9px 15px;
     }
 
-
-    /* =========================================================
-       FILTER CARD
-    ========================================================= */
-
-    .filter-card {
-        background: #ffffff;
+    .filter-card,
+    .report-card {
+        background: #fff;
         border: 1px solid #e8ebf2;
         border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(26, 39, 65, 0.05);
+        box-shadow: 0 5px 20px rgba(26, 39, 65, .05);
         margin-bottom: 20px;
         overflow: hidden;
     }
 
-    .filter-card-header {
+    .filter-card-header,
+    .report-card-header {
         padding: 16px 20px;
         border-bottom: 1px solid #edf0f5;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
+        gap: 15px;
     }
 
-    .filter-title {
+    .filter-title,
+    .report-card-header h5 {
         margin: 0;
         color: #202a3c;
         font-size: 16px;
@@ -152,11 +188,6 @@
         padding: 0 17px;
     }
 
-
-    /* =========================================================
-       ACTIVE FILTERS
-    ========================================================= */
-
     .active-filters {
         display: flex;
         align-items: center;
@@ -182,45 +213,14 @@
         font-weight: 600;
     }
 
-
-    /* =========================================================
-       REPORT CARD
-    ========================================================= */
-
-    .report-card {
-        background: #ffffff;
-        border: 1px solid #e8ebf2;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(26, 39, 65, 0.05);
-        overflow: hidden;
-    }
-
     .report-card-header {
         padding: 17px 20px;
-        border-bottom: 1px solid #edf0f5;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .report-card-header h5 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-        color: #202a3c;
     }
 
     .report-count {
         font-size: 13px;
         color: #697386;
     }
-
-
-    /* =========================================================
-       TABLE
-       IMPORTANT: STRUCTURE KEPT SAME
-    ========================================================= */
 
     .report-table-wrapper {
         overflow-x: auto;
@@ -235,7 +235,7 @@
 
     .report-table thead th {
         background: #172033;
-        color: #ffffff;
+        color: #fff;
         font-size: 12px;
         font-weight: 700;
         text-align: center;
@@ -282,17 +282,17 @@
     }
 
     .gender-boys {
-        color: #1769d1;
+        color: #1769d1 !important;
         font-weight: 600;
     }
 
     .gender-girls {
-        color: #b13c78;
+        color: #b13c78 !important;
         font-weight: 600;
     }
 
     .gender-total {
-        color: #202a3c;
+        color: #202a3c !important;
         font-weight: 700;
     }
 
@@ -313,15 +313,10 @@
 
     .grand-total-row td {
         background: #172033 !important;
-        color: #ffffff !important;
+        color: #fff !important;
         font-weight: 700;
         font-size: 13px;
     }
-
-
-    /* =========================================================
-       EMPTY STATE
-    ========================================================= */
 
     .empty-report {
         padding: 55px 20px;
@@ -353,13 +348,12 @@
         font-size: 13px;
     }
 
-
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
+    /* School profile is only displayed on the printed report. */
+    .print-school-profile {
+        display: none;
+    }
 
     @media (max-width: 991px) {
-
         .caste-report-page {
             padding: 16px;
         }
@@ -378,348 +372,327 @@
         }
     }
 
-
-    @media (max-width: 575px) {
-
-        .caste-report-page {
-            padding: 12px;
-        }
-
-        .report-title {
-            font-size: 21px;
-        }
-
-        .report-icon {
-            width: 45px;
-            height: 45px;
-        }
-
-        .report-card-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .report-actions .btn {
-            flex: 1;
-        }
+    ```css
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
     }
 
-
-    /* =========================================================
-       PRINT
-    ========================================================= */
-
-    @media print {
-
-        @page {
-            size: A4 landscape;
-            margin: 7mm;
-        }
-
-        body {
-            background: #ffffff !important;
-        }
-
-        .caste-report-page {
-            padding: 0 !important;
-            background: #ffffff !important;
-            min-height: auto !important;
-        }
-
-        .report-header {
-            margin-bottom: 10px !important;
-        }
-
-        .report-icon {
-            display: none !important;
-        }
-
-        .report-actions,
-        .filter-card,
-        .no-print {
-            display: none !important;
-        }
-
-        .report-title {
-            font-size: 18px !important;
-        }
-
-        .report-subtitle {
-            font-size: 10px !important;
-        }
-
-        .report-card {
-            border: 0 !important;
-            box-shadow: none !important;
-        }
-
-        .report-card-header {
-            padding: 5px 0 !important;
-            border-bottom: 1px solid #222 !important;
-        }
-
-        .report-table-wrapper {
-            overflow: visible !important;
-        }
-
-        .report-table {
-            min-width: 0 !important;
-            width: 100% !important;
-            table-layout: fixed;
-        }
-
-        .report-table thead th {
-            font-size: 8px !important;
-            padding: 5px 3px !important;
-        }
-
-        .report-table tbody td {
-            font-size: 8px !important;
-            padding: 4px 3px !important;
-        }
-
-        .category-badge {
-            background: transparent !important;
-            color: #000000 !important;
-            padding: 0 !important;
-        }
-
-        .grand-total-row td {
-            background: #eeeeee !important;
-            color: #000000 !important;
-        }
-
-        .report-table {
-            page-break-inside: auto;
-        }
-
-        .report-table tr {
-            page-break-inside: avoid;
-        }
+    html,
+    body {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
     }
+
+    .caste-report-page {
+        width: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    /* Hide navigation and filter controls */
+    .sidebar,
+    #sidebar,
+    .main-header,
+    .app-header,
+    .topbar,
+    .navbar,
+    nav,
+    .filter-card,
+    .report-actions,
+    .report-icon,
+    .no-print {
+        display: none !important;
+    }
+
+    /* School profile */
+    .print-school-profile {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100% !important;
+        margin-bottom: 8px !important;
+        padding-bottom: 8px !important;
+        border-bottom: 1px solid #333;
+        color: #000 !important;
+    }
+
+    .print-school-profile img {
+        width: 65px !important;
+        height: 65px !important;
+        object-fit: contain;
+    }
+
+    .print-school-details h2 {
+        margin: 0 0 3px !important;
+        font-size: 17px !important;
+        color: #000 !important;
+    }
+
+    .print-school-details p {
+        margin: 2px 0 !important;
+        font-size: 9px !important;
+        color: #000 !important;
+    }
+
+    .print-school-details h3 {
+        margin: 5px 0 0 !important;
+        font-size: 12px !important;
+        color: #000 !important;
+    }
+
+    /* Report table */
+    .report-card {
+        width: 100% !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    .report-card-header {
+        padding: 5px 0 !important;
+        border-bottom: 1px solid #333 !important;
+    }
+
+    .report-card-header h5,
+    .report-count {
+        font-size: 9px !important;
+        color: #000 !important;
+    }
+
+    .report-table-wrapper {
+        width: 100% !important;
+        overflow: visible !important;
+    }
+
+    .report-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: auto !important;
+        border-collapse: collapse !important;
+    }
+
+    .report-table thead {
+        display: table-header-group;
+    }
+
+    .report-table thead th {
+        padding: 4px 2px !important;
+        font-size: 7px !important;
+        background: #e5e5e5 !important;
+        color: #000 !important;
+        border: 1px solid #555 !important;
+        white-space: normal !important;
+    }
+
+    .report-table tbody td {
+        padding: 3px 2px !important;
+        font-size: 7px !important;
+        color: #000 !important;
+        border: 1px solid #777 !important;
+        overflow-wrap: anywhere;
+    }
+
+    .category-badge {
+        min-width: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        color: #000 !important;
+    }
+
+    .grand-total-row td,
+    .category-total-row td,
+    .total-cell {
+        background: #eee !important;
+        color: #000 !important;
+    }
+
+    tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+}
 
 </style>
 
-
 <div class="caste-report-page">
 
-    {{-- =====================================================
-        PAGE HEADER
-    ====================================================== --}}
+    {{-- SCHOOL PROFILE: PRINT / PDF ONLY --}}
+    <div class="print-school-profile">
+        <img
+            src="{{ $schoolLogo }}"
+            alt="School Logo"
+            onerror="this.style.display='none'"
+        >
 
+        <div class="print-school-details">
+            <h2>{{ $school->school_name ?? 'School Name' }}</h2>
+
+            @if($schoolAddress)
+                <p>{{ $schoolAddress }}</p>
+            @endif
+
+            <p>
+                @if(!empty($school->phone))
+                    Phone: {{ $school->phone }}
+                @endif
+
+                @if(!empty($school->phone) && !empty($school->email))
+                    &nbsp; | &nbsp;
+                @endif
+
+                @if(!empty($school->email))
+                    Email: {{ $school->email }}
+                @endif
+            </p>
+
+            @if(!empty($school->udise_code))
+                <p>UDISE Code: {{ $school->udise_code }}</p>
+            @endif
+
+            <h3>CASTE / CATEGORY STUDENT REPORT</h3>
+        </div>
+    </div>
+
+    {{-- PAGE HEADER --}}
     <div class="report-header">
-
         <div class="report-title-wrap">
-
             <div class="report-icon">
                 <i class="bi bi-bar-chart-fill"></i>
             </div>
 
             <div>
-
-                <h3 class="report-title">
-                    Caste Report
-                </h3>
-
+                <h3 class="report-title">Caste Report</h3>
                 <p class="report-subtitle">
                     Class-wise boys and girls summary
                 </p>
-
             </div>
-
         </div>
+<div class="report-actions no-print">
+    <a href="{{ route('admin.caste-report.print', request()->query()) }}"
+       class="btn btn-primary">
+        <i class="bi bi-printer me-1"></i>
+        Print Report
+    </a>
 
-
-        <div class="report-actions">
-
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="window.print()"
-            >
-                <i class="bi bi-printer me-1"></i>
-                Print Report
-            </button>
-
-        </div>
-
+    <a href="{{ route('admin.caste-report.pdf-download', request()->query()) }}"
+       class="btn btn-danger">
+        <i class="bi bi-file-earmark-pdf me-1"></i>
+        Download PDF
+    </a>
+</div>
     </div>
 
-
-    {{-- =====================================================
-        FILTER CARD
-    ====================================================== --}}
-
-    <div class="filter-card">
-
+    {{-- FILTER CARD --}}
+    <div class="filter-card no-print">
         <div class="filter-card-header">
-
             <h5 class="filter-title">
                 <i class="bi bi-funnel-fill"></i>
                 Report Filters
             </h5>
 
             @if($hasFilters)
-
-                <span class="badge bg-primary">
-                    Filters Applied
-                </span>
-
+                <span class="badge bg-primary">Filters Applied</span>
             @endif
-
         </div>
 
-
         <div class="filter-content">
-
-            <form
-                method="GET"
-                action="{{ url()->current() }}"
-            >
-
+            <form method="GET" action="{{ url()->current() }}">
                 <div class="row g-3">
 
-                    {{-- Academic Year --}}
                     <div class="col-xl-3 col-lg-3 col-md-6">
-
-                        <label class="filter-label">
-                            Academic Year
-                        </label>
+                        <label class="filter-label">Academic Year</label>
 
                         <select
                             name="academic_year"
                             class="form-select filter-select"
                         >
-
-                            <option value="">
-                                All Academic Years
-                            </option>
+                            <option value="">All Academic Years</option>
 
                             @foreach($academicYears as $year)
-
                                 <option
                                     value="{{ $year }}"
-                                    {{ request('academic_year') == $year ? 'selected' : '' }}
+                                    @selected(request('academic_year') == $year)
                                 >
                                     {{ $year }}
                                 </option>
-
                             @endforeach
-
                         </select>
-
                     </div>
 
-
-                    {{-- Class --}}
                     <div class="col-xl-2 col-lg-2 col-md-6">
+                        <label class="filter-label">Class</label>
 
-                        <label class="filter-label">
-                            Class
-                        </label>
-
-                        <select
-                            name="class"
-                            class="form-select filter-select"
-                        >
-
-                            <option value="">
-                                All Classes
-                            </option>
+                        <select name="class" class="form-select filter-select">
+                            <option value="">All Classes</option>
 
                             @foreach($classes as $class)
+                                @php
+                                    $classValue = is_object($class)
+                                        ? ($class->class_name ?? '')
+                                        : $class;
+                                @endphp
 
                                 <option
-                                    value="{{ $class }}"
-                                    {{ request('class') == $class ? 'selected' : '' }}
+                                    value="{{ $classValue }}"
+                                    @selected(request('class') == $classValue)
                                 >
-                                    {{ $class }}
+                                    {{ $classValue }}
                                 </option>
-
                             @endforeach
-
                         </select>
-
                     </div>
 
-
-                    {{-- Section --}}
                     <div class="col-xl-2 col-lg-2 col-md-6">
-
-                        <label class="filter-label">
-                            Section
-                        </label>
+                        <label class="filter-label">Section</label>
 
                         <select
                             name="section"
                             class="form-select filter-select"
                         >
-
-                            <option value="">
-                                All Sections
-                            </option>
+                            <option value="">All Sections</option>
 
                             @foreach($sections as $section)
-
                                 <option
                                     value="{{ $section }}"
-                                    {{ request('section') == $section ? 'selected' : '' }}
+                                    @selected(request('section') == $section)
                                 >
                                     {{ $section }}
                                 </option>
-
                             @endforeach
-
                         </select>
-
                     </div>
 
-
-                    {{-- Caste --}}
                     <div class="col-xl-3 col-lg-3 col-md-6">
+                        <label class="filter-label">Caste</label>
 
-                        <label class="filter-label">
-                            Caste 
-                        </label>
+                        <select name="caste" class="form-select filter-select">
+                            <option value="">All Castes</option>
 
-                        <select
-                            name="caste"
-                            class="form-select filter-select"
-                        >
-
-                            <option value="">
-                                All Castes 
-                            </option>
-
-                            @foreach($castes as $caste)
-
+                            @foreach($castes as $casteOption)
                                 <option
-                                    value="{{ $caste }}"
-                                    {{ request('caste') == $caste ? 'selected' : '' }}
+                                    value="{{ $casteOption }}"
+                                    @selected(request('caste') == $casteOption)
                                 >
-                                    {{ $caste }}
+                                    {{ $casteOption }}
                                 </option>
-
                             @endforeach
-
                         </select>
-
                     </div>
 
-
-                    {{-- Buttons --}}
                     <div class="col-xl-2 col-lg-2 col-md-6">
-
-                        <label class="filter-label">
-                            &nbsp;
-                        </label>
+                        <label class="filter-label">&nbsp;</label>
 
                         <div class="filter-buttons">
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary"
-                            >
+                            <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-search me-1"></i>
                                 Apply
                             </button>
@@ -727,413 +700,198 @@
                             <a
                                 href="{{ url()->current() }}"
                                 class="btn btn-outline-secondary"
+                                title="Reset filters"
                             >
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </a>
-
                         </div>
-
                     </div>
-
                 </div>
 
-
-                {{-- =================================================
-                    ACTIVE FILTER BADGES
-                ================================================== --}}
-
                 @if($hasFilters)
-
                     <div class="active-filters">
-
-                        <span class="active-filter-label">
-                            Active:
-                        </span>
-
+                        <span class="active-filter-label">Active:</span>
 
                         @if(request('academic_year'))
-
                             <span class="filter-badge">
-                                Academic Year:
-                                {{ request('academic_year') }}
+                                Academic Year: {{ request('academic_year') }}
                             </span>
-
                         @endif
-
 
                         @if(request('class'))
-
                             <span class="filter-badge">
-                                Class:
-                                {{ request('class') }}
+                                Class: {{ request('class') }}
                             </span>
-
                         @endif
-
 
                         @if(request('section'))
-
                             <span class="filter-badge">
-                                Section:
-                                {{ request('section') }}
+                                Section: {{ request('section') }}
                             </span>
-
                         @endif
-
 
                         @if(request('caste'))
-
                             <span class="filter-badge">
-                                Caste:
-                                {{ request('caste') }}
+                                Caste: {{ request('caste') }}
                             </span>
-
                         @endif
-
                     </div>
-
                 @endif
-
             </form>
-
         </div>
-
     </div>
 
-
-    {{-- =====================================================
-        REPORT CARD
-    ====================================================== --}}
-
+    {{-- REPORT CARD --}}
     <div class="report-card">
-
         <div class="report-card-header">
-
             <h5>
                 <i class="bi bi-table me-2 text-primary"></i>
                 Caste / Category Summary
             </h5>
 
             <span class="report-count">
-
-                {{ $report->count() }}
-
-                report rows
-
-                @if($grandTotal > 0)
-                    · {{ $grandTotal }} students
-                @endif
-
+                {{ (int) $grandTotal }} students
             </span>
-
         </div>
 
-
-        {{-- =================================================
-            REPORT TABLE
-            STRUCTURE KEPT SAME
-        ================================================== --}}
-
-        @if($report->count())
-
-            @php
-
-                $classes = [
-                    'Nursery',
-                    'LKG',
-                    'UKG',
-                    '1',
-                    '2',
-                    '3',
-                    '4',
-                    '5',
-                    '6',
-                    '7',
-                    '8',
-                    '9',
-                    '10',
-                    '11',
-                    '12'
-                ];
-
-                /*
-                |--------------------------------------------------------------------------
-                | Group Data By Caste
-                |--------------------------------------------------------------------------
-                */
-
-                $groupedReport = $report->groupBy(function ($row) {
-                    return trim($row->caste);
-                });
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Grand Class Totals
-                |--------------------------------------------------------------------------
-                */
-
-                $grandClassTotals = [];
-
-                foreach ($classes as $class) {
-                    $grandClassTotals[$class] = [
-                        'boys' => 0,
-                        'girls' => 0,
-                        'total' => 0,
-                    ];
-                }
-
-            @endphp
-
-
+        @if($reportRows->isNotEmpty() && $classNames->isNotEmpty())
             <div class="report-table-wrapper">
-
                 <table class="report-table">
-
                     <thead>
-
                         <tr>
-
                             <th>Caste</th>
-
                             <th>Gender</th>
 
-                            @foreach($classes as $class)
-
-                                <th>
-                                    {{ $class }}
-                                </th>
-
+                            @foreach($classNames as $className)
+                                <th>{{ $className }}</th>
                             @endforeach
 
-                            <th>
-                                Total
-                            </th>
-
+                            <th>Total</th>
                         </tr>
-
                     </thead>
 
-
                     <tbody>
-
-                        @foreach($groupedReport as $caste => $casteRows)
-
+                        @foreach($groupedReport as $casteName => $casteRows)
                             @php
-
                                 $classData = [];
-
-                                foreach ($classes as $class) {
-
-                                    $row = $casteRows->first(function ($item) use ($class) {
-                                        return trim($item->class) === $class;
-                                    });
-
-                                    $classData[$class] = [
-                                        'boys' => $row ? (int) $row->boys : 0,
-                                        'girls' => $row ? (int) $row->girls : 0,
-                                        'total' => $row ? (int) $row->total : 0,
-                                    ];
-                                }
-
-
                                 $casteBoys = 0;
                                 $casteGirls = 0;
                                 $casteTotal = 0;
 
+                                foreach ($classNames as $className) {
+                                    $matchingRows = $casteRows->filter(
+                                        function ($item) use ($className) {
+                                            return strcasecmp(
+                                                trim((string) ($item->class ?? '')),
+                                                trim((string) $className)
+                                            ) === 0;
+                                        }
+                                    );
 
-                                foreach ($classes as $class) {
+                                    $boys = (int) $matchingRows->sum('boys');
+                                    $girls = (int) $matchingRows->sum('girls');
+                                    $total = $boys + $girls;
 
-                                    $casteBoys += $classData[$class]['boys'];
+                                    $classData[$className] = [
+                                        'boys' => $boys,
+                                        'girls' => $girls,
+                                        'total' => $total,
+                                    ];
 
-                                    $casteGirls += $classData[$class]['girls'];
+                                    $casteBoys += $boys;
+                                    $casteGirls += $girls;
+                                    $casteTotal += $total;
 
-                                    $casteTotal += $classData[$class]['total'];
-
-
-                                    $grandClassTotals[$class]['boys']
-                                        += $classData[$class]['boys'];
-
-                                    $grandClassTotals[$class]['girls']
-                                        += $classData[$class]['girls'];
-
-                                    $grandClassTotals[$class]['total']
-                                        += $classData[$class]['total'];
+                                    $grandClassTotals[$className]['boys'] += $boys;
+                                    $grandClassTotals[$className]['girls'] += $girls;
+                                    $grandClassTotals[$className]['total'] += $total;
                                 }
 
+                                $calculatedGrandBoys += $casteBoys;
+                                $calculatedGrandGirls += $casteGirls;
+                                $calculatedGrandTotal += $casteTotal;
                             @endphp
 
-
-                            {{-- =================================================
-                                BOYS
-                            ================================================== --}}
-
+                            {{-- BOYS --}}
                             <tr>
-
                                 <td rowspan="3">
-
                                     <span class="category-badge">
-                                        {{ $caste }}
+                                        {{ $casteName }}
                                     </span>
-
                                 </td>
 
+                                <td class="gender-boys">Boys</td>
 
-                                <td class="gender-boys">
-                                    Boys
-                                </td>
-
-
-                                @foreach($classes as $class)
-
+                                @foreach($classNames as $className)
                                     <td class="number-cell">
-
-                                        {{ $classData[$class]['boys'] }}
-
+                                        {{ $classData[$className]['boys'] }}
                                     </td>
-
                                 @endforeach
 
-
-                                <td class="total-cell">
-
-                                    {{ $casteBoys }}
-
-                                </td>
-
+                                <td class="total-cell">{{ $casteBoys }}</td>
                             </tr>
 
-
-                            {{-- =================================================
-                                GIRLS
-                            ================================================== --}}
-
+                            {{-- GIRLS --}}
                             <tr>
+                                <td class="gender-girls">Girls</td>
 
-                                <td class="gender-girls">
-                                    Girls
-                                </td>
-
-
-                                @foreach($classes as $class)
-
+                                @foreach($classNames as $className)
                                     <td class="number-cell">
-
-                                        {{ $classData[$class]['girls'] }}
-
+                                        {{ $classData[$className]['girls'] }}
                                     </td>
-
                                 @endforeach
 
-
-                                <td class="total-cell">
-
-                                    {{ $casteGirls }}
-
-                                </td>
-
+                                <td class="total-cell">{{ $casteGirls }}</td>
                             </tr>
 
-
-                            {{-- =================================================
-                                TOTAL
-                            ================================================== --}}
-
+                            {{-- CASTE TOTAL --}}
                             <tr class="category-total-row">
+                                <td class="gender-total">Total</td>
 
-                                <td class="gender-total">
-                                    Total
-                                </td>
-
-
-                                @foreach($classes as $class)
-
+                                @foreach($classNames as $className)
                                     <td class="number-cell">
-
-                                        {{ $classData[$class]['total'] }}
-
+                                        {{ $classData[$className]['total'] }}
                                     </td>
-
                                 @endforeach
 
-
-                                <td class="total-cell">
-
-                                    {{ $casteTotal }}
-
-                                </td>
-
+                                <td class="total-cell">{{ $casteTotal }}</td>
                             </tr>
-
                         @endforeach
 
-
-                        {{-- =====================================================
-                            GRAND TOTAL
-                        ====================================================== --}}
-
+                        {{-- GRAND TOTAL --}}
                         <tr class="grand-total-row">
+                            <td>Grand Total</td>
+                            <td>Boys + Girls</td>
 
-                            <td>
-                                Grand Total
-                            </td>
-
-                            <td>
-                                Boys + Girls
-                            </td>
-
-
-                            @foreach($classes as $class)
-
+                            @foreach($classNames as $className)
                                 <td>
-
-                                    {{ $grandClassTotals[$class]['total'] }}
-
+                                    {{ $grandClassTotals[$className]['total'] }}
                                 </td>
-
                             @endforeach
 
-
-                            <td>
-
-                                {{ $grandTotal }}
-
-                            </td>
-
+                            <td>{{ $calculatedGrandTotal }}</td>
                         </tr>
-
                     </tbody>
-
                 </table>
-
             </div>
-
         @else
-
-            {{-- =================================================
-                EMPTY REPORT
-            ================================================== --}}
-
             <div class="empty-report">
-
                 <div class="empty-report-icon">
                     <i class="bi bi-bar-chart"></i>
                 </div>
 
-                <h6>
-                    No Report Data Found
-                </h6>
+                <h6>No Report Data Found</h6>
 
                 <p>
-                    No active students match the selected filters.
+                    @if($classNames->isEmpty())
+                        No classes were found in Class Management. Please add classes first.
+                    @else
+                        No active students match the selected filters.
+                    @endif
                 </p>
-
             </div>
-
         @endif
-
     </div>
-
 </div>
 
 @endsection

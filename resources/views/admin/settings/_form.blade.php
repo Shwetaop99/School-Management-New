@@ -459,7 +459,186 @@
     </div>
 
 </div>
+{{-- =========================================================
+     STUDENT ID SETTINGS
+========================================================== --}}
 
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+
+    <div class="card-header bg-white border-0 pt-4 px-4">
+
+        <h5 class="fw-bold mb-1">
+            <i class="bi bi-person-vcard text-primary me-2"></i>
+            Student ID Settings
+        </h5>
+
+        <p class="text-muted small mb-0">
+            Configure the format used when generating new Student IDs.
+        </p>
+
+    </div>
+
+    <div class="card-body p-4">
+
+        <div class="row g-3">
+
+            {{-- STUDENT ID FORMAT --}}
+            <div class="col-md-6">
+
+                <label class="form-label fw-semibold">
+                    Student ID Format
+                    <span class="text-danger">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    name="student_id_format"
+                    id="studentIdFormat"
+                    class="form-control"
+                    value="{{ old('student_id_format', $school?->student_id_format ?? 'STU-{YEAR}-{NUMBER}') }}"
+                    placeholder="STU-{YEAR}-{NUMBER}"
+                    maxlength="100"
+                    required
+                >
+
+                <small class="text-muted d-block mt-2">
+                    Available placeholders:
+                    <strong>{YEAR}</strong>,
+                    <strong>{YY}</strong>,
+                    <strong>{CLASS}</strong>,
+                    <strong>{SECTION}</strong>,
+                    <strong>{NUMBER}</strong>
+                </small>
+
+                @error('student_id_format')
+                    <div class="text-danger small mt-1">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- STARTING NUMBER --}}
+            <div class="col-md-3">
+
+                <label class="form-label fw-semibold">
+                    Starting Number
+                    <span class="text-danger">*</span>
+                </label>
+
+                <input
+                    type="number"
+                    name="student_id_start"
+                    id="studentIdStart"
+                    class="form-control"
+                    value="{{ old('student_id_start', $school?->student_id_start ?? 1) }}"
+                    min="1"
+                    max="999999999"
+                    required
+                >
+
+                @error('student_id_start')
+                    <div class="text-danger small mt-1">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- NUMBER LENGTH --}}
+            <div class="col-md-3">
+
+                <label class="form-label fw-semibold">
+                    Number Length
+                    <span class="text-danger">*</span>
+                </label>
+
+                <input
+                    type="number"
+                    name="student_id_length"
+                    id="studentIdLength"
+                    class="form-control"
+                    value="{{ old('student_id_length', $school?->student_id_length ?? 4) }}"
+                    min="1"
+                    max="10"
+                    required
+                >
+
+                <small class="text-muted">
+                    Example: 4 → 0001
+                </small>
+
+                @error('student_id_length')
+                    <div class="text-danger small mt-1">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+        </div>
+
+
+        {{-- FORMAT EXAMPLES --}}
+        <div class="mt-4 p-3 bg-light rounded-3">
+
+            <div class="fw-semibold mb-2">
+                <i class="bi bi-info-circle text-primary me-1"></i>
+                Format Examples
+            </div>
+
+            <div class="row g-2 small">
+
+                <div class="col-md-6">
+                    <code>STU-{YEAR}-{NUMBER}</code>
+                    →
+                    <span>STU-2026-0001</span>
+                </div>
+
+                <div class="col-md-6">
+                    <code>{YEAR}/{CLASS}/{NUMBER}</code>
+                    →
+                    <span>2026/10/0001</span>
+                </div>
+
+                <div class="col-md-6">
+                    <code>SCH-{YY}-{CLASS}{SECTION}-{NUMBER}</code>
+                    →
+                    <span>SCH-26-10A-0001</span>
+                </div>
+
+                <div class="col-md-6">
+                    <code>STUDENT-{NUMBER}</code>
+                    →
+                    <span>STUDENT-0001</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- LIVE PREVIEW --}}
+        <div class="mt-3">
+
+            <label class="form-label fw-semibold">
+                Preview
+            </label>
+
+            <div
+                id="studentIdPreview"
+                class="border rounded-3 bg-white px-3 py-2 fw-bold text-primary"
+            >
+                STU-2026-0001
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 {{-- =========================================================
      BUTTONS
@@ -620,6 +799,88 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Student ID Format Preview
+    |--------------------------------------------------------------------------
+    */
+
+    const studentIdFormat = document.getElementById('studentIdFormat');
+    const studentIdStart = document.getElementById('studentIdStart');
+    const studentIdLength = document.getElementById('studentIdLength');
+    const studentIdPreview = document.getElementById('studentIdPreview');
+
+
+    function updateStudentIdPreview() {
+
+        if (
+            !studentIdFormat ||
+            !studentIdStart ||
+            !studentIdLength ||
+            !studentIdPreview
+        ) {
+            return;
+        }
+
+
+        let format = studentIdFormat.value || 'STU-{YEAR}-{NUMBER}';
+
+        let number = parseInt(studentIdStart.value || 1);
+
+        let length = parseInt(studentIdLength.value || 4);
+
+
+        if (length < 1) {
+            length = 1;
+        }
+
+
+        const paddedNumber = String(number).padStart(length, '0');
+
+        const year = new Date().getFullYear();
+
+        const shortYear = String(year).slice(-2);
+
+
+        format = format
+            .replaceAll('{YEAR}', year)
+            .replaceAll('{YY}', shortYear)
+            .replaceAll('{CLASS}', '10')
+            .replaceAll('{SECTION}', 'A')
+            .replaceAll('{NUMBER}', paddedNumber);
+
+
+        studentIdPreview.textContent = format;
+
+    }
+
+
+    if (studentIdFormat) {
+        studentIdFormat.addEventListener(
+            'input',
+            updateStudentIdPreview
+        );
+    }
+
+
+    if (studentIdStart) {
+        studentIdStart.addEventListener(
+            'input',
+            updateStudentIdPreview
+        );
+    }
+
+
+    if (studentIdLength) {
+        studentIdLength.addEventListener(
+            'input',
+            updateStudentIdPreview
+        );
+    }
+
+
+    updateStudentIdPreview();
 
 });
 
