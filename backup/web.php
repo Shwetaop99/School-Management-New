@@ -897,10 +897,14 @@ Route::prefix('admin')
             |
             */
 
-            Route::get('/attendance', [
-                AttendanceController::class,
-                'index'
-            ])->name('attendance.index');
+            
+
+Route::get('/attendance', [
+    AttendanceController::class,
+    'classes'
+])->name('attendance.index');
+
+
 
 
             Route::get('/attendance/student', [
