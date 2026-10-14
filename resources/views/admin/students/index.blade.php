@@ -545,6 +545,21 @@
                 <i class="bi bi-upload me-2"></i>
                 Import Students
             </button>
+
+            
+{{-- EXPORT ALL STUDENTS TO EXCEL --}}
+<a href="{{ route('admin.students.export', request()->only([
+        'search',
+        'class',
+        'section',
+        'academic_year',
+        'status',
+    ])) }}"
+   class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold">
+    <i class="bi bi-download me-2"></i>
+    Export Excel
+</a>
+
         </form>
 
         {{-- EXISTING ADD STUDENT BUTTON --}}

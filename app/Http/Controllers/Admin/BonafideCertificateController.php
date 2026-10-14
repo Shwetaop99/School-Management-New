@@ -265,19 +265,34 @@ public function students($class)
         }
     }
 
-    /**
-     * Display a certificate.
-     */
-    public function show($id)
-    {
-        $certificate = BonafideCertificate::with('student')
-            ->findOrFail($id);
+    
+/**
+ * Display a certificate.
+ */
+public function show($id)
+{
+    $certificate = BonafideCertificate::with('student')
+        ->findOrFail($id);
 
-        return view(
-            'admin.bonafide-certificate.show',
-            compact('certificate')
-        );
-    }
+    return view(
+        'admin.bonafide-certificate.show',
+        compact('certificate')
+    );
+}
+
+/**
+ * Display the print-ready certificate.
+ */
+public function print($id)
+{
+    $certificate = BonafideCertificate::with('student')
+        ->findOrFail($id);
+
+    return view(
+        'admin.bonafide-certificate.print',
+        compact('certificate')
+    );
+}
 
     /**
      * Show edit form.
@@ -417,16 +432,6 @@ public function students($class)
         }
     }
 
-    public function print(BonafideCertificate $bonafideCertificate)
-{
-    $bonafideCertificate->load([
-        'student'
-    ]);
-
-    return view(
-        'admin.bonafide-certificate.print',
-        compact('bonafideCertificate')
-    );
-}
+    
 
 }

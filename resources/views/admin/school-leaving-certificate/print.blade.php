@@ -1,13 +1,8 @@
-@php
 
+@php
     $student = $certificate->student;
 
-    /*
-    |--------------------------------------------------------------------------
-    | SCHOOL PROFILE
-    |--------------------------------------------------------------------------
-    */
-
+    // School profile
     $schoolName = $school->school_name ?? '';
     $schoolAddress = $school->address ?? '';
     $schoolCity = $school->city ?? '';
@@ -19,1278 +14,808 @@
     $udiseCode = $school->udise_code ?? '';
     $schoolCode = $school->school_code ?? '';
 
-    /*
-    |--------------------------------------------------------------------------
-    | SCHOOL LOGO
-    |--------------------------------------------------------------------------
-    */
-
-    $schoolLogo = $school->logo ?? null;
+    // School logo
+    $schoolLogo = trim((string) ($school->logo ?? ''));
     $schoolLogoUrl = null;
 
-    if (!empty($schoolLogo)) {
-
-        $schoolLogo = trim($schoolLogo);
-
-        /*
-        | Cloudinary / external URL
-        */
-        if (
-            str_starts_with($schoolLogo, 'http://') ||
-            str_starts_with($schoolLogo, 'https://')
-        ) {
-
+    if ($schoolLogo !== '') {
+        if (preg_match('/^https?:\/\//i', $schoolLogo)) {
             $schoolLogoUrl = $schoolLogo;
-
-        /*
-        | Already starts with /
-        */
         } elseif (str_starts_with($schoolLogo, '/')) {
-
             $schoolLogoUrl = $schoolLogo;
-
-        /*
-        | Laravel storage path
-        */
-        } elseif (str_starts_with($schoolLogo, 'storage/')) {
-
+        } elseif (
+            str_starts_with($schoolLogo, 'storage/') ||
+            str_starts_with($schoolLogo, 'images/')
+        ) {
             $schoolLogoUrl = asset($schoolLogo);
-
-        /*
-        | Public images path
-        */
-        } elseif (str_starts_with($schoolLogo, 'images/')) {
-
-            $schoolLogoUrl = asset($schoolLogo);
-
-        /*
-        | Normal uploaded file
-        */
         } else {
-
-            $schoolLogoUrl = asset(
-                'storage/' . ltrim($schoolLogo, '/')
-            );
-
+            $schoolLogoUrl = asset('storage/' . ltrim($schoolLogo, '/'));
         }
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT NAME
-    |--------------------------------------------------------------------------
-    */
-
-    $fullName = trim(
-        ($student->first_name ?? '') . ' ' .
-        ($student->middle_name ?? '') . ' ' .
-        ($student->last_name ?? '')
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DATE OF BIRTH
-    |--------------------------------------------------------------------------
-    */
-
-    $dob = '';
-
-    if (!empty($student->date_of_birth)) {
+    // Date formatter
+    $formatDate = function ($value) {
+        if (empty($value)) {
+            return '';
+        }
 
         try {
-
-            $dob = \Illuminate\Support\Carbon::parse(
-                $student->date_of_birth
-            )->format('d-m-Y');
-
+            return \Illuminate\Support\Carbon::parse($value)->format('d-m-Y');
         } catch (\Throwable $e) {
-
-            $dob = '';
-
+            return (string) $value;
         }
+    };
 
-    }
+    // Student details
+    $fullName = trim(implode(' ', array_filter([
+        $student->first_name ?? '',
+        $student->middle_name ?? '',
+        $student->last_name ?? '',
+    ], fn ($value) => trim((string) $value) !== '')));
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CERTIFICATE DATE
-    |--------------------------------------------------------------------------
-    |
-    | Supports certificate_date first because this is the field in the
-    | current school leaving certificate table.
-    |
-    */
-
-    $issueDate = '';
-
-    $certificateDate =
+    $dob = $formatDate($student->date_of_birth ?? null);
+    $issueDate = $formatDate(
         $certificate->certificate_date
         ?? $certificate->issue_date
-        ?? null;
+        ?? null
+    );
+    $leavingDate = $formatDate($certificate->leaving_date ?? null);
+    $admissionDate = $formatDate($student->admission_date ?? null);
 
-    if ($certificateDate) {
-
-        try {
-
-            $issueDate = \Illuminate\Support\Carbon::parse(
-                $certificateDate
-            )->format('d-m-Y');
-
-        } catch (\Throwable $e) {
-
-            $issueDate = '';
-
-        }
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LEAVING DATE
-    |--------------------------------------------------------------------------
-    |
-    | IMPORTANT:
-    | This comes ONLY from the certificate record.
-    |
-    | It does NOT use:
-    | students.school_leaving_date
-    |
-    */
-
-    $leavingDate = '';
-
-    if (!empty($certificate->leaving_date)) {
-
-        try {
-
-            $leavingDate = \Illuminate\Support\Carbon::parse(
-                $certificate->leaving_date
-            )->format('d-m-Y');
-
-        } catch (\Throwable $e) {
-
-            $leavingDate = '';
-
-        }
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ADMISSION DATE
-    |--------------------------------------------------------------------------
-    */
-
-    $admissionDate = $student->admission_date ?? '';
-
-    if ($admissionDate) {
-
-        try {
-
-            $admissionDate = \Illuminate\Support\Carbon::parse(
-                $admissionDate
-            )->format('d-m-Y');
-
-        } catch (\Throwable $e) {
-
-            // Keep original value.
-        }
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DOB WORDS
-    |--------------------------------------------------------------------------
-    */
-
-    $dobWords =
-        $student->date_of_birth_words
+    $dobWords = $student->date_of_birth_words
         ?? $student->dob_in_words
         ?? '';
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CASTE / SUB CASTE
-    |--------------------------------------------------------------------------
-    */
-
-    $caste = $student->caste ?? '';
-    $subCaste = $student->sub_caste ?? '';
-
     $casteSubCaste = trim(
-        $caste .
-        ($subCaste ? ' - ' . $subCaste : '')
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PREVIOUS SCHOOL
-    |--------------------------------------------------------------------------
-    */
-
-    $previousSchool =
-        $student->previous_school_name ?? '';
-
-    $previousSchoolClass =
-        $student->previous_school_class ?? '';
-
-    $previousSchoolDisplay = trim(
-        $previousSchool .
-        ($previousSchoolClass
-            ? ' - ' . $previousSchoolClass
+        ($student->caste ?? '') .
+        (!empty($student->sub_caste)
+            ? ' - ' . $student->sub_caste
             : '')
     );
 
+    $previousSchoolDisplay = trim(
+        ($student->previous_school_name ?? '') .
+        (!empty($student->previous_school_class)
+            ? ' - ' . $student->previous_school_class
+            : '')
+    );
 
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT VALUES
-    |--------------------------------------------------------------------------
-    */
-
-    $registerNo =
-        $student->register_no ?? '';
-
-    $studentId =
-        $student->student_id ?? '';
-
-    $admissionClass =
-        $student->admission_class ?? '';
-
-    $academicYear =
-        $certificate->academic_year
+    $registerNo = $student->register_no ?? '';
+    $studentId = $student->student_id ?? '';
+    $admissionClass = $student->admission_class ?? '';
+    $academicYear = $certificate->academic_year
         ?? $student->academic_year
         ?? '';
 
-    $aadhar =
-        $student->aadhar_card_no ?? '';
+    $aadhar = $student->aadhar_card_no ?? '';
+    $apparId = $student->appar_id ?? '';
+    $penNo = $student->pen_no ?? '';
+    $motherTongue = $student->mother_tongue ?? '';
+    $motherName = $student->mother_name ?? '';
+    $religion = $student->religion ?? '';
+    $nationality = $student->nationality ?? 'Indian';
+    $birthPlace = $student->birth_place ?? '';
+    $medium = $student->medium ?? '';
 
-    $apparId =
-        $student->appar_id ?? '';
+    $progress = $certificate->progress ?? '';
+    $conduct = $certificate->conduct ?? '';
+    $classSince = $student->class_studying_since ?? '';
 
-    $penNo =
-        $student->pen_no ?? '';
-
-    $motherTongue =
-        $student->mother_tongue ?? '';
-
-    $motherName =
-        $student->mother_name ?? '';
-
-    $religion =
-        $student->religion ?? '';
-
-    $nationality =
-        $student->nationality ?? 'Indian';
-
-    $birthPlace =
-        $student->birth_place ?? '';
-
-    $medium =
-        $student->medium ?? '';
-
-    $bookNo =
-        $student->book_no ?? '';
-
-    $progress =
-        $certificate->progress ?? '';
-
-    $conduct =
-        $certificate->conduct ?? '';
-
-    $classSince =
-        $student->class_studying_since ?? '';
-
-    /*
-    |--------------------------------------------------------------------------
-    | REASON FOR LEAVING
-    |--------------------------------------------------------------------------
-    |
-    | Current DB field:
-    | reason_for_leaving
-    |
-    | leaving_reason is kept as fallback.
-    |
-    */
-
-    $reason =
-        $certificate->reason_for_leaving
+    $reason = $certificate->reason_for_leaving
         ?? $certificate->leaving_reason
         ?? '';
 
-    /*
-    |--------------------------------------------------------------------------
-    | REMARKS
-    |--------------------------------------------------------------------------
-    */
+    $remarks = $certificate->remarks ?? '';
 
-    $remarks =
-        $certificate->remarks ?? '';
+    $schoolAddressLine = implode(', ', array_filter([
+        $schoolAddress,
+        $schoolCity,
+        $schoolDistrict,
+        $schoolState,
+    ], fn ($value) => trim((string) $value) !== ''));
 
+    if ($schoolPincode !== '') {
+        $schoolAddressLine .= ($schoolAddressLine !== '' ? ' - ' : '')
+            . $schoolPincode;
+    }
 @endphp
-
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <title>
-        School Leaving Certificate
-    </title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>School Leaving Certificate - {{ $fullName }}</title>
 
     <style>
-
-        /*
-        ============================================================
-        A4 PAGE
-        ============================================================
-        */
-
         @page {
             size: A4 portrait;
-            margin: 0;
+            margin: 8mm;
         }
-
 
         * {
             box-sizing: border-box;
         }
 
-
         html,
         body {
             margin: 0;
             padding: 0;
-            background: #ffffff;
+            background: #fff;
+            color: #111;
             font-family: Arial, Helvetica, sans-serif;
-            color: #000000;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
-
 
         body {
-            font-size: 9px;
+            font-size: 10px;
+            line-height: 1.4;
         }
-
-
-        /*
-        ============================================================
-        PRINT BUTTON
-        ============================================================
-        */
 
         .print-toolbar {
-            width: 210mm;
-            margin: 10px auto;
-            text-align: right;
+            width: 194mm;
+            margin: 12px auto;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
         }
-
 
         .print-toolbar button {
-            border: none;
-            background: #0d6efd;
-            color: #ffffff;
-            padding: 8px 16px;
+            padding: 9px 18px;
+            border: 0;
             border-radius: 4px;
-            cursor: pointer;
+            background: #1677f0;
+            color: #fff;
             font-size: 13px;
+            cursor: pointer;
         }
-
-
-        /*
-        ============================================================
-        CERTIFICATE PAGE
-        ============================================================
-        */
 
         .certificate-page {
-            width: 210mm;
-            height: 297mm;
-            padding: 2mm;
+            width: 194mm;
+            min-height: 281mm;
             margin: 0 auto;
-            background: #ffffff;
+            padding: 4mm;
+            border: 3px double #222;
+            background: #fff;
+            position: relative;
         }
 
-
-        /*
-        ============================================================
-        MAIN BORDER
-        ============================================================
-        */
-
-        .certificate {
-            width: 100%;
-            height: 293mm;
-            border: 1px solid #000;
-            overflow: hidden;
+        .inner-border {
+            border: 1px solid #777;
+            min-height: 271mm;
+            padding: 3mm;
+            display: flex;
+            flex-direction: column;
         }
 
-
-        /*
-        ============================================================
-        HEADER
-        ============================================================
-        */
+        /* School header */
 
         .school-header {
+            display: grid;
+            grid-template-columns: 25mm minmax(0, 1fr) 25mm;
+            align-items: center;
+            gap: 3mm;
+            padding: 2mm 1mm 3mm;
             text-align: center;
-            padding-top: 6px;
-            padding-bottom: 3px;
         }
 
+        .logo-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 0;
+        }
 
         .school-logo {
-            width: 55px;
-            height: 55px;
-            max-width: 55px;
-            max-height: 55px;
-            object-fit: contain;
             display: block;
-            margin: 0 auto 2px auto;
+            width: 23mm;
+            height: 23mm;
+            object-fit: contain;
         }
 
+        .school-heading {
+            min-width: 0;
+        }
 
         .school-name {
-            font-size: 13px;
-            font-weight: bold;
-            margin: 0 0 7px 0;
+            margin: 0 0 2mm;
+            font-size: 18px;
+            line-height: 1.2;
+            font-weight: 800;
+            text-transform: uppercase;
+            overflow-wrap: anywhere;
         }
 
-
         .school-line {
-            font-size: 8px;
+            margin: 1px 0;
+            font-size: 9px;
             line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .school-contact {
+            font-size: 8px;
+        }
+
+        .school-spacer {
+            min-width: 0;
+        }
+
+        .header-divider {
+            border: 0;
+            border-top: 1.5px solid #222;
             margin: 0;
         }
 
+        /* Certificate heading */
 
-        /*
-        ============================================================
-        HEADER TITLE
-        ============================================================
-        */
+        .certificate-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 4mm;
+            padding: 3mm 1mm 2mm;
+            font-size: 9px;
+        }
 
-        .title-row {
-            height: 22px;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            position: relative;
+        .certificate-number {
+            max-width: 35%;
+            overflow-wrap: anywhere;
+        }
+
+        .certificate-title {
+            margin: 0;
+            text-align: center;
+            font-size: 17px;
+            line-height: 1.25;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .certificate-subtitle {
+            margin-top: 2px;
+            font-size: 9px;
+            font-weight: 600;
             text-align: center;
         }
 
-
-        .title {
-            font-size: 10px;
-            font-weight: bold;
-            padding-top: 4px;
+        .book-info {
+            text-align: right;
+            max-width: 35%;
         }
-
-
-        .not-generated {
-            position: absolute;
-            left: 7px;
-            top: 5px;
-            font-size: 8px;
-        }
-
-
-        .book-medium {
-            position: absolute;
-            right: 7px;
-            top: 3px;
-            font-size: 8px;
-            line-height: 1.3;
-            text-align: left;
-        }
-
-
-        /*
-        ============================================================
-        NOTICE
-        ============================================================
-        */
 
         .notice {
-            border-bottom: 1px solid #000;
+            margin: 2mm 0;
+            padding: 2mm;
+            border-top: 1px solid #777;
+            border-bottom: 1px solid #777;
             text-align: center;
-            padding: 4px 10px;
-            font-size: 7px;
-            line-height: 1.4;
+            font-size: 9px;
+            font-style: italic;
         }
 
+        /* Student reference information */
 
-        /*
-        ============================================================
-        TOP STUDENT INFORMATION
-        ============================================================
-        */
-
-        .top-info {
+        .reference-table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
+            margin: 1mm 0 3mm;
         }
 
-
-        .top-info td {
-            padding: 3px 7px;
-            font-size: 8px;
-            vertical-align: middle;
+        .reference-table td {
+            width: 33.333%;
+            padding: 2mm 1.5mm;
+            border: 1px solid #777;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+            font-size: 9px;
         }
 
-
-        .top-info .col-1 {
-            width: 33.33%;
+        .field-label {
+            font-weight: 700;
         }
 
+        /* Main certificate details */
 
-        .top-info .col-2 {
-            width: 33.33%;
-        }
-
-
-        .top-info .col-3 {
-            width: 33.33%;
-        }
-
-
-        /*
-        ============================================================
-        MAIN DETAILS
-        ============================================================
-        */
-
-        .details {
+        .details-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
 
+        .details-table tr {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
 
-        .details td {
-            border: 1px solid #000;
-            padding: 3px 7px;
-            font-size: 9px;
-            height: 20px;
+        .details-table td {
+            border: 1px solid #555;
+            padding: 2.1mm 2mm;
             vertical-align: middle;
+            overflow-wrap: anywhere;
+            word-break: normal;
+            font-size: 10px;
         }
 
-
-        .details .label {
-            width: 47%;
-            font-weight: bold;
+        .details-table .label {
+            width: 43%;
+            font-weight: 700;
         }
 
-
-        .details .value {
-            width: 53%;
-            font-weight: normal;
+        .details-table .value {
+            width: 57%;
+            min-height: 8mm;
         }
 
-
-        /*
-        ============================================================
-        DOB
-        ============================================================
-        */
-
-        .dob-row td {
-            height: 38px;
+        .details-table .dob-row td {
+            padding-top: 3mm;
+            padding-bottom: 3mm;
         }
 
+        .muted {
+            font-size: 9px;
+            font-weight: 400;
+            font-style: italic;
+        }
 
-        /*
-        ============================================================
-        DECLARATION
-        ============================================================
-        */
+        /* Declaration and signatures */
 
         .declaration {
-            border-bottom: 1px solid #000;
-            padding: 6px 10px;
+            margin-top: 4mm;
+            padding: 2mm 1mm;
             text-align: center;
-            font-size: 8px;
-            height: 30px;
-            line-height: 1.5;
+            font-size: 9px;
+            line-height: 1.6;
         }
 
-
-        /*
-        ============================================================
-        BOTTOM SIGNATURES
-        ============================================================
-        */
-
-        .bottom {
+        .signature-table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: auto;
         }
 
-
-        .bottom td {
-            font-size: 8px;
-            padding: 0;
+        .signature-table td {
+            width: 33.333%;
+            padding: 0 2mm;
+            text-align: center;
             vertical-align: bottom;
+            font-size: 9px;
         }
-
-
-        .date-cell {
-            width: 33.33%;
-            padding-left: 18px !important;
-        }
-
-
-        .teacher-cell {
-            width: 33.33%;
-            text-align: center;
-        }
-
-
-        .principal-cell {
-            width: 33.33%;
-            text-align: center;
-        }
-
 
         .signature-space {
-            height: 38px;
+            height: 22mm;
         }
 
+        .signature-line {
+            border-top: 1px solid #222;
+            padding-top: 2mm;
+            font-weight: 700;
+        }
 
-        /*
-        ============================================================
-        PRINT
-        ============================================================
-        */
+        .date-value {
+            margin-bottom: 2mm;
+            text-align: left;
+            font-size: 9px;
+        }
+
+        .seal-space {
+            height: 13mm;
+            margin-bottom: 2mm;
+            font-size: 8px;
+            font-weight: 400;
+        }
+
+        .signature-note {
+            margin-top: 1mm;
+            font-size: 8px;
+            font-weight: 400;
+        }
 
         @media print {
+            html,
+            body {
+                width: auto;
+                min-height: 0;
+                margin: 0;
+                padding: 0;
+                background: #fff;
+            }
 
             .print-toolbar {
                 display: none !important;
             }
 
-
-            html,
-            body {
-                width: 210mm;
-                height: 297mm;
+            .certificate-page {
+                width: 100%;
+                min-height: 0;
                 margin: 0;
                 padding: 0;
+                border: 3px double #222;
             }
 
-
-            .certificate-page {
-                width: 210mm;
-                height: 297mm;
-                padding: 2mm;
-                margin: 0;
+            .inner-border {
+                min-height: 278mm;
             }
 
-
-            .certificate {
-                width: 100%;
-                height: 293mm;
+            .certificate-page,
+            .inner-border {
+                break-inside: avoid;
+                page-break-inside: avoid;
             }
 
+            .details-table tr,
+            .school-header,
+            .certificate-meta,
+            .notice,
+            .reference-table,
+            .declaration,
+            .signature-table {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
         }
 
-    </style>
+        @media screen and (max-width: 700px) {
+            .print-toolbar,
+            .certificate-page {
+                width: 100%;
+            }
 
+            .certificate-page {
+                padding: 8px;
+            }
+
+            .inner-border {
+                padding: 8px;
+            }
+
+            .school-header {
+                grid-template-columns: 50px minmax(0, 1fr);
+            }
+
+            .school-logo {
+                width: 45px;
+                height: 45px;
+            }
+
+            .school-spacer {
+                display: none;
+            }
+
+            .school-name {
+                font-size: 14px;
+            }
+
+            .details-table td {
+                padding: 6px 5px;
+                font-size: 9px;
+            }
+        }
+
+        /* Light green certificate styling */
+
+.certificate-page {
+    background: #f4fbf2;
+    border-color: #38734a;
+}
+
+.inner-border {
+    background: #fafff8;
+    border-color: #8ab795;
+}
+
+.school-name {
+    color: #245c35;
+}
+
+.certificate-title {
+    color: #245c35;
+}
+
+.header-divider {
+    border-top-color: #38734a;
+}
+
+.notice {
+    background: #e8f5e9;
+    border-color: #8ab795;
+}
+
+.reference-table td {
+    background: #f0f8ef;
+}
+
+.details-table td {
+    border-color: #8ab795;
+}
+
+.details-table .label {
+    background: #e8f5e9;
+}
+
+.signature-line {
+    border-top-color: #38734a;
+}
+
+@media print {
+    .certificate-page,
+    .inner-border,
+    .reference-table td,
+    .details-table td,
+    .notice {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+    </style>
 </head>
 
-
 <body>
-
-
-    {{-- =========================================================
-         PRINT BUTTON
-    ========================================================== --}}
-
     <div class="print-toolbar">
-
-        <button onclick="window.print()">
+        <button type="button" onclick="window.print()">
             Print Certificate
         </button>
-
     </div>
 
+    <main class="certificate-page">
+        <div class="inner-border">
 
-
-    {{-- =========================================================
-         CERTIFICATE
-    ========================================================== --}}
-
-    <div class="certificate-page">
-
-        <div class="certificate">
-
-
-            {{-- =================================================
-                 SCHOOL PROFILE HEADER
-            ================================================== --}}
-
-            <div class="school-header">
-
-
-                {{-- SCHOOL LOGO --}}
-
-                @if($schoolLogoUrl)
-
-                    <img
-                        src="{{ $schoolLogoUrl }}"
-                        class="school-logo"
-                        alt="School Logo"
-                        onerror="this.style.display='none';"
-                    >
-
-                @endif
-
-
-                {{-- SCHOOL NAME --}}
-
-                <div class="school-name">
-
-                    {{ $schoolName }}
-
+            {{-- SCHOOL HEADER --}}
+            <header class="school-header">
+                <div class="logo-area">
+                    @if($schoolLogoUrl)
+                        <img
+                            src="{{ $schoolLogoUrl }}"
+                            class="school-logo"
+                            alt="School Logo"
+                            onerror="this.style.display='none';"
+                        >
+                    @endif
                 </div>
 
+                <div class="school-heading">
+                    <h1 class="school-name">
+                        {{ $schoolName ?: 'School Name' }}
+                    </h1>
 
-                {{-- SCHOOL ADDRESS --}}
-
-                <div class="school-line">
-
-                    @if($schoolAddress)
-
-                        {{ $schoolAddress }}
-
-                        @if($schoolCity)
-                            , {{ $schoolCity }}
-                        @endif
-
-                        @if($schoolDistrict)
-                            , {{ $schoolDistrict }}
-                        @endif
-
-                        @if($schoolState)
-                            , {{ $schoolState }}
-                        @endif
-
-                        @if($schoolPincode)
-                            - {{ $schoolPincode }}
-                        @endif
-
-                    @else
-
-                        @if($schoolCity)
-                            {{ $schoolCity }}
-                        @endif
-
-                        @if($schoolDistrict)
-                            , {{ $schoolDistrict }}
-                        @endif
-
-                        @if($schoolState)
-                            , {{ $schoolState }}
-                        @endif
-
-                        @if($schoolPincode)
-                            - {{ $schoolPincode }}
-                        @endif
-
+                    @if($schoolAddressLine !== '')
+                        <p class="school-line">
+                            {{ $schoolAddressLine }}
+                        </p>
                     @endif
 
-                </div>
+                    @if($udiseCode || $schoolCode)
+                        <p class="school-line">
+                            @if($udiseCode)
+                                UDISE Code: {{ $udiseCode }}
+                            @endif
 
+                            @if($udiseCode && $schoolCode)
+                                &nbsp; | &nbsp;
+                            @endif
 
-                {{-- UDISE / SCHOOL CODE --}}
-
-                <div class="school-line">
-
-                    @if($udiseCode)
-
-                        UDISE No : {{ $udiseCode }}
-
+                            @if($schoolCode)
+                                School Code: {{ $schoolCode }}
+                            @endif
+                        </p>
                     @endif
 
+                    @if($schoolPhone || $schoolEmail)
+                        <p class="school-line school-contact">
+                            @if($schoolPhone)
+                                Phone: {{ $schoolPhone }}
+                            @endif
 
-                    @if($schoolCode)
+                            @if($schoolPhone && $schoolEmail)
+                                &nbsp; | &nbsp;
+                            @endif
 
-                        &nbsp; | &nbsp;
-
-                        School Code : {{ $schoolCode }}
-
+                            @if($schoolEmail)
+                                Email: {{ $schoolEmail }}
+                            @endif
+                        </p>
                     @endif
-
                 </div>
 
+                <div class="school-spacer"></div>
+            </header>
 
-                {{-- PHONE / EMAIL --}}
+            <hr class="header-divider">
 
-                <div class="school-line">
+            {{-- CERTIFICATE TITLE AND NUMBER --}}
+<section class="certificate-meta">
+    <div class="certificate-number">
+        <strong>Certificate No.:</strong>
+        {{ $certificate->certificate_no ?: 'Not Generated' }}
+    </div>
 
-                    @if($schoolPhone)
+    <div>
+        <h2 class="certificate-title">
+            School Leaving Certificate
+        </h2>
+        <div class="certificate-subtitle">
+            Transfer / Leaving Certificate
+        </div>
+    </div>
 
-                        Phone No : {{ $schoolPhone }}
-
-                    @endif
-
-
-                    @if($schoolEmail)
-
-                        &nbsp; | &nbsp;
-
-                        Email : {{ $schoolEmail }}
-
-                    @endif
-
-                </div>
-
-            </div>
-
-
-
-            {{-- =================================================
-                 CERTIFICATE TITLE
-            ================================================== --}}
-
-            <div class="title-row">
-
-                <div class="not-generated">
-
-                    {{ $certificate->certificate_no ?: 'Not Generated' }}
-
-                </div>
-
-
-                <div class="title">
-
-                    School Leaving Certificate
-
-                </div>
-
-
-                <div class="book-medium">
-
-                    Book No :-
-
-                    {{ $bookNo }}
-
-                    <br>
-
-                    Medium :-
-
-                    {{ $medium }}
-
-                </div>
-
-            </div>
-
-
-
-            {{-- =================================================
-                 NOTICE
-            ================================================== --}}
+    <div class="book-info">
+        <div>
+            <strong>Medium:</strong>
+            {{ $medium ?: '-' }}
+        </div>
+    </div>
+</section>
 
             <div class="notice">
-
-                No changes are to be made in any entries,
-                unless in writing by the authorized officer.
-
-                <br>
-
-                Teaching certificate with education will be taken.
-
+                No changes shall be made in any entry except by the
+                competent authority.
             </div>
 
-
-
-            {{-- =================================================
-                 TOP INFORMATION
-            ================================================== --}}
-
-            <table class="top-info">
-
-                <tr>
-
-                    <td class="col-1">
-
-                        Register No :
-                        {{ $registerNo }}
-
-                    </td>
-
-
-                    <td class="col-2">
-
-                        Admission date :
-                        {{ $admissionDate }}
-
-                    </td>
-
-
-                    <td class="col-3">
-
-                        Educational Year :
-                        {{ $academicYear }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="col-1">
-
-                        Student ID :
-                        {{ $studentId }}
-
-                    </td>
-
-
-                    <td class="col-2">
-
-                        Admission Class :
-                        {{ $admissionClass }}
-
-                    </td>
-
-
-                    <td class="col-3">
-
-                        Aadhar Card No :
-                        {{ $aadhar }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="col-1">
-
-                        Appar ID :
-                        {{ $apparId }}
-
-                    </td>
-
-
-                    <td class="col-2">
-
-                        Mother Tongue :
-                        {{ $motherTongue }}
-
-                    </td>
-
-
-                    <td class="col-3">
-
-                        PEN No :
-                        {{ $penNo }}
-
-                    </td>
-
-                </tr>
-
+            {{-- STUDENT REFERENCE DETAILS --}}
+            <table class="reference-table">
+                <tbody>
+                    <tr>
+                        <td>
+                            <span class="field-label">Register No.:</span>
+                            {{ $registerNo ?: '-' }}
+                        </td>
+                        <td>
+                            <span class="field-label">Admission Date:</span>
+                            {{ $admissionDate ?: '-' }}
+                        </td>
+                        <td>
+                            <span class="field-label">Academic Year:</span>
+                            {{ $academicYear ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="field-label">Student ID:</span>
+                            {{ $studentId ?: '-' }}
+                        </td>
+                        <td>
+                            <span class="field-label">Admission Class:</span>
+                            {{ $admissionClass ?: '-' }}
+                        </td>
+                        <td>
+                            <span class="field-label">Aadhaar No.:</span>
+                            {{ $aadhar ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="field-label">APAAR ID:</span>
+                            {{ $apparId ?: '-' }}
+                        </td>
+                        <td>
+                            <span class="field-label">Mother Tongue:</span>
+                            {{ $motherTongue ?: '-' }}
+                        </td>
+                        <td>
+                            <span class="field-label">PEN No.:</span>
+                            {{ $penNo ?: '-' }}
+                        </td>
+                    </tr>
+                </tbody>
             </table>
 
-
-
-            {{-- =================================================
-                 MAIN CERTIFICATE DATA
-            ================================================== --}}
-
-            <table class="details">
-
-                <tr>
-
-                    <td class="label">
-                        Full Name of Student
-                    </td>
-
-                    <td class="value">
-                        {{ $fullName }}
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Mother's Name
-                    </td>
-
-                    <td class="value">
-                        {{ $motherName }}
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Religion
-                    </td>
-
-                    <td class="value">
-                        {{ $religion }}
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Caste- Sub Caste
-                    </td>
-
-                    <td class="value">
-                        {{ $casteSubCaste ?: '-' }}
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Nationality
-                    </td>
-
-                    <td class="value">
-                        {{ $nationality }}
-                    </td>
-
-                </tr>
-
-
-                <tr class="dob-row">
-
-                    <td class="label">
-
-                        Date of Birth
-
-                        <br>
-
-                        (Numerical and in words)
-
-                    </td>
-
-                    <td class="value">
-
-                        {{ $dob }}
-
-                        @if($dobWords)
-
+            {{-- CERTIFICATE DETAILS --}}
+            <table class="details-table">
+                <tbody>
+                    <tr>
+                        <td class="label">1. Full Name of Student</td>
+                        <td class="value">{{ $fullName ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">2. Mother's Name</td>
+                        <td class="value">{{ $motherName ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">3. Religion</td>
+                        <td class="value">{{ $religion ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">4. Caste / Sub-caste</td>
+                        <td class="value">{{ $casteSubCaste ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">5. Nationality</td>
+                        <td class="value">{{ $nationality ?: '-' }}</td>
+                    </tr>
+                    <tr class="dob-row">
+                        <td class="label">
+                            6. Date of Birth
                             <br>
-
-                            {{ $dobWords }}
-
-                        @endif
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Place of Birth
-                    </td>
-
-                    <td class="value">
-                        {{ $birthPlace }}
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-
-                        Previous School Name
-                        <br>
-                        and Class
-
-                    </td>
-
-                    <td class="value">
-
-                        {{ $previousSchoolDisplay }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        School leaving date
-                    </td>
-
-                    <td class="value">
-
-                        {{ $leavingDate }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Student's Progress
-                    </td>
-
-                    <td class="value">
-
-                        {{ $progress }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Student's Conduct
-                    </td>
-
-                    <td class="value">
-
-                        {{ $conduct }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Class in which studying, since when
-                    </td>
-
-                    <td class="value">
-
-                        {{ $classSince }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Reason for Leaving
-                    </td>
-
-                    <td class="value">
-
-                        {{ $reason }}
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td class="label">
-                        Remarks
-                    </td>
-
-                    <td class="value">
-
-                        {{ $remarks }}
-
-                    </td>
-
-                </tr>
-
+                            <span class="muted">(In figures and words)</span>
+                        </td>
+                        <td class="value">
+                            {{ $dob ?: '-' }}
+                            @if($dobWords)
+                                <br>
+                                <span class="muted">{{ $dobWords }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">7. Place of Birth</td>
+                        <td class="value">{{ $birthPlace ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">8. Previous School and Class</td>
+                        <td class="value">{{ $previousSchoolDisplay ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">9. Date of Leaving School</td>
+                        <td class="value">{{ $leavingDate ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">10. Student's Progress</td>
+                        <td class="value">{{ $progress ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">11. Student's Conduct</td>
+                        <td class="value">{{ $conduct ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">12. Class Studied and Since When</td>
+                        <td class="value">{{ $classSince ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">13. Reason for Leaving</td>
+                        <td class="value">{{ $reason ?: '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">14. Remarks</td>
+                        <td class="value">{{ $remarks ?: '-' }}</td>
+                    </tr>
+                </tbody>
             </table>
 
-
-
-            {{-- =================================================
-                 DECLARATION
-            ================================================== --}}
-
+            {{-- DECLARATION --}}
             <div class="declaration">
-
-                This is to certify that the above information
-                is as per the records of the institution.
-
+                Certified that the particulars recorded above are true
+                and correct according to the records of the institution.
             </div>
 
+            {{-- SIGNATURES AND SEAL --}}
+            <table class="signature-table">
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="signature-space"></div>
+                            <div class="date-value">
+                                <strong>Date:</strong>
+                                {{ $issueDate ?: $leavingDate ?: '-' }}
+                            </div>
+                            <div class="signature-line">Date of Issue</div>
+                        </td>
 
+                        <td>
+                            <div class="signature-space"></div>
+                            <div class="signature-line">
+                                Class Teacher
+                                <div class="signature-note">Signature</div>
+                            </div>
+                        </td>
 
-            {{-- =================================================
-                 SIGNATURES
-            ================================================== --}}
-
-            <table class="bottom">
-
-                <tr>
-
-                    <td class="date-cell">
-
-                        <div class="signature-space"></div>
-
-                        Date :
-                        {{ $leavingDate ?: $issueDate }}
-
-                    </td>
-
-
-                    <td class="teacher-cell">
-
-                        <div class="signature-space"></div>
-
-                        Class Teacher Signature
-
-                    </td>
-
-
-                    <td class="principal-cell">
-
-                        <div class="signature-space"></div>
-
-                        Principal's Signature
-
-                    </td>
-
-                </tr>
-
+                        <td>
+                            <div class="seal-space">School Seal</div>
+                            <div class="signature-space"></div>
+                            <div class="signature-line">
+                                Principal / Headmaster
+                                <div class="signature-note">Signature</div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
-
 
         </div>
-
-    </div>
-
-
+    </main>
 </body>
-
 </html>

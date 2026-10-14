@@ -879,9 +879,7 @@
                     @if($can('students.create'))
                         <a href="{{ route('admin.students.bulk-create') }}" class="submenu-item">Add Student</a>
                     @endif
-                    @if($can('attendance.view'))
-                        <a href="{{ route('admin.attendance.index') }}" class="submenu-item">Attendance</a>
-                    @endif
+    
                 </div>
             @endif
 

@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('content')
@@ -24,9 +25,7 @@
         position: relative;
     }
 
-    /* =========================================================
-       SCHOOL HEADER
-    ========================================================== */
+    /* SCHOOL HEADER */
 
     .school-header {
         text-align: center;
@@ -62,9 +61,7 @@
         margin-top: 2px;
     }
 
-    /* =========================================================
-       REPORT TITLE
-    ========================================================== */
+    /* REPORT TITLE */
 
     .report-title-section {
         text-align: center;
@@ -85,13 +82,11 @@
         color: #4b5563;
     }
 
-    /* =========================================================
-       REPORT INFORMATION
-    ========================================================== */
+    /* REPORT INFORMATION */
 
     .report-info {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         border: 1px solid #6b7280;
         margin-bottom: 8px;
         font-size: 9px;
@@ -100,6 +95,7 @@
     .report-info-item {
         padding: 5px 7px;
         border-right: 1px solid #9ca3af;
+        overflow-wrap: anywhere;
     }
 
     .report-info-item:last-child {
@@ -110,9 +106,7 @@
         font-weight: 700;
     }
 
-    /* =========================================================
-       AGE REPORT TABLE
-    ========================================================== */
+    /* AGE REPORT TABLE */
 
     .age-report-table {
         width: 100%;
@@ -123,9 +117,10 @@
     .age-report-table th,
     .age-report-table td {
         border: 1px solid #374151;
-        padding: 4px 3px;
+        padding: 4px 2px;
         font-size: 8px;
         vertical-align: middle;
+        overflow-wrap: anywhere;
     }
 
     .age-report-table thead th {
@@ -140,9 +135,7 @@
         height: 22px;
     }
 
-    /* =========================================================
-       COLUMN WIDTHS
-    ========================================================== */
+    /* COLUMN WIDTHS */
 
     .col-age-group {
         width: 9%;
@@ -153,16 +146,14 @@
     }
 
     .col-class {
-        width: 4.8%;
+        width: auto;
     }
 
     .col-total {
         width: 6%;
     }
 
-    /* =========================================================
-       AGE GROUP
-    ========================================================== */
+    /* AGE GROUP */
 
     .age-group-cell {
         font-weight: 800;
@@ -207,9 +198,7 @@
         font-weight: 800;
     }
 
-    /* =========================================================
-       SUMMARY
-    ========================================================== */
+    /* SUMMARY */
 
     .summary-table {
         width: 100%;
@@ -235,9 +224,7 @@
         font-weight: 800;
     }
 
-    /* =========================================================
-       SIGNATURES
-    ========================================================== */
+    /* SIGNATURES */
 
     .signature-section {
         display: flex;
@@ -262,9 +249,7 @@
         margin-bottom: 4px;
     }
 
-    /* =========================================================
-       FOOTER
-    ========================================================== */
+    /* FOOTER */
 
     .print-footer {
         position: absolute;
@@ -279,9 +264,7 @@
         color: #6b7280;
     }
 
-    /* =========================================================
-       TOOLBAR
-    ========================================================== */
+    /* TOOLBAR */
 
     .print-toolbar {
         width: 297mm;
@@ -291,20 +274,15 @@
         gap: 8px;
     }
 
-    /* =========================================================
-       SCREEN
-    ========================================================== */
+    /* SCREEN */
 
     @media screen {
-
         .a4-sheet {
             box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
         }
     }
 
-    /* =========================================================
-       PRINT
-    ========================================================== */
+    /* PRINT */
 
     @page {
         size: A4 landscape;
@@ -312,7 +290,6 @@
     }
 
     @media print {
-
         html,
         body {
             margin: 0 !important;
@@ -372,15 +349,67 @@
     }
 </style>
 
+@php
+    /*
+    |--------------------------------------------------------------------------
+    | Dynamic Classes
+    |--------------------------------------------------------------------------
+    | Prefer the classes supplied by AgeReportController.
+    | Supports SchoolClass model objects or plain class-name strings.
+    | If no classes are passed, derive class names from report rows.
+    */
+
+    $reportClasses = collect($classes ?? [])
+        ->map(function ($class) {
+            return trim((string) (
+                is_object($class)
+                    ? ($class->class_name ?? '')
+                    : $class
+            ));
+        })
+        ->filter(fn ($class) => $class !== '')
+        ->unique()
+        ->values();
+
+    if ($reportClasses->isEmpty()) {
+        $reportClasses = collect($report ?? [])
+            ->pluck('class')
+            ->filter()
+            ->map(fn ($class) => trim((string) $class))
+            ->filter(fn ($class) => $class !== '')
+            ->unique()
+            ->values();
+    }
+
+    $reportClasses = $reportClasses->all();
+
+    $reportAgeGroups = [
+        'Below 5',
+        '5–6',
+        '7–8',
+        '9–10',
+        '11–12',
+        '13–14',
+        '15–16',
+        '17+',
+    ];
+
+    $groupedReport = collect($report ?? [])->groupBy(function ($row) {
+        return trim((string) ($row->age_group ?? ''));
+    });
+
+    $grandClassTotals = [];
+
+    foreach ($reportClasses as $class) {
+        $grandClassTotals[$class] = 0;
+    }
+@endphp
 
 <div class="age-print-page">
 
-    {{-- =========================================================
-         PRINT TOOLBAR
-    ========================================================== --}}
+    {{-- PRINT TOOLBAR --}}
 
     <div class="print-toolbar no-print">
-
         <button
             type="button"
             onclick="window.print()"
@@ -398,91 +427,66 @@
             <i class="bi bi-x-lg me-1"></i>
             Close
         </button>
-
     </div>
 
-
-    {{-- =========================================================
-         A4 LANDSCAPE SHEET
-    ========================================================== --}}
+    {{-- A4 LANDSCAPE SHEET --}}
 
     <div class="a4-sheet">
 
-
-        {{-- =====================================================
-             SCHOOL HEADER
-        ====================================================== --}}
+        {{-- SCHOOL HEADER --}}
 
         <div class="school-header">
 
             @if(!empty($schoolSetting?->logo_url))
-
                 <img
                     src="{{ $schoolSetting->logo_url }}"
                     class="school-logo"
                     alt="School Logo"
                 >
-
             @elseif(!empty($schoolSetting?->logo))
-
                 <img
-                    src="{{ asset($schoolSetting->logo) }}"
+                    src="{{ preg_match('~^https?://~i', $schoolSetting->logo)
+                        ? $schoolSetting->logo
+                        : asset($schoolSetting->logo) }}"
                     class="school-logo"
                     alt="School Logo"
                 >
-
             @elseif(file_exists(public_path('images/gurukullogo.png')))
-
                 <img
                     src="{{ asset('images/gurukullogo.png') }}"
                     class="school-logo"
                     alt="School Logo"
                 >
-
             @endif
-
 
             <h1 class="school-name">
                 {{ $schoolSetting?->school_name ?? 'School Management System' }}
             </h1>
 
-
             @if(!empty($schoolSetting?->address))
-
                 <div class="school-address">
                     {{ $schoolSetting->address }}
                 </div>
-
             @endif
 
-
             <div class="school-contact">
-
                 @if(!empty($schoolSetting?->phone))
                     Phone: {{ $schoolSetting->phone }}
                 @endif
 
                 @if(!empty($schoolSetting?->email))
-
                     @if(!empty($schoolSetting?->phone))
                         &nbsp; | &nbsp;
                     @endif
-
                     Email: {{ $schoolSetting->email }}
-
                 @endif
-
             </div>
 
         </div>
 
-
-        {{-- =====================================================
-             REPORT TITLE
-        ====================================================== --}}
+        {{-- REPORT TITLE --}}
 
         <div class="report-title-section">
-
             <h2 class="report-title">
                 Student Age Report
             </h2>
@@ -490,158 +494,63 @@
             <div class="report-subtitle">
                 Age-wise class and gender distribution of active students
             </div>
-
         </div>
 
-
-        {{-- =====================================================
-             REPORT INFORMATION
-        ====================================================== --}}
+        {{-- REPORT INFORMATION --}}
 
         <div class="report-info">
 
             <div class="report-info-item">
-
-                <span class="report-info-label">
-                    Academic Year:
-                </span>
-
+                <span class="report-info-label">Academic Year:</span>
                 {{ request('academic_year') ?: 'All Academic Years' }}
-
             </div>
 
-
             <div class="report-info-item">
-
-                <span class="report-info-label">
-                    Class:
-                </span>
-
+                <span class="report-info-label">Class:</span>
                 {{ request('class') ?: 'All Classes' }}
-
             </div>
 
-
             <div class="report-info-item">
-
-                <span class="report-info-label">
-                    Section:
-                </span>
-
+                <span class="report-info-label">Section:</span>
                 {{ request('section') ?: 'All Sections' }}
-
             </div>
 
-
             <div class="report-info-item">
-
-                <span class="report-info-label">
-                    Gender:
-                </span>
-
+                <span class="report-info-label">Gender:</span>
                 {{ request('gender') ?: 'All' }}
-
             </div>
 
-
             <div class="report-info-item">
-
-                <span class="report-info-label">
-                    Age As On:
-                </span>
-
-                {{ $ageAsOn->format('d-m-Y') }}
-
+                <span class="report-info-label">Age As On:</span>
+                {{ \Carbon\Carbon::parse($ageAsOn)->format('d-m-Y') }}
             </div>
 
         </div>
 
-
-        {{-- =====================================================
-             FORMAT 1 AGE REPORT TABLE
-        ====================================================== --}}
-
-        @php
-
-            $reportClasses = [
-                'Nursery',
-                'LKG',
-                'UKG',
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-                '6',
-                '7',
-                '8',
-                '9',
-                '10',
-                '11',
-                '12',
-            ];
-
-            $reportAgeGroups = [
-                'Below 5',
-                '5–6',
-                '7–8',
-                '9–10',
-                '11–12',
-                '13–14',
-                '15–16',
-                '17+',
-            ];
-
-            $groupedReport = $report->groupBy(function ($row) {
-                return trim($row->age_group);
-            });
-
-            $grandClassTotals = [];
-
-            foreach ($reportClasses as $class) {
-                $grandClassTotals[$class] = 0;
-            }
-
-        @endphp
-
+        {{-- AGE REPORT TABLE --}}
 
         <table class="age-report-table">
 
             <thead>
-
                 <tr>
-
-                    <th class="col-age-group">
-                        Age Group
-                    </th>
-
-                    <th class="col-gender">
-                        Gender
-                    </th>
+                    <th class="col-age-group">Age Group</th>
+                    <th class="col-gender">Gender</th>
 
                     @foreach($reportClasses as $class)
-
                         <th class="col-class">
                             {{ $class }}
                         </th>
-
                     @endforeach
 
-                    <th class="col-total">
-                        Total
-                    </th>
-
+                    <th class="col-total">Total</th>
                 </tr>
-
             </thead>
-
 
             <tbody>
 
                 @foreach($reportAgeGroups as $ageGroup)
 
                     @php
-
                         $groupRows = $groupedReport->get(
                             $ageGroup,
                             collect()
@@ -650,301 +559,197 @@
                         $classData = [];
 
                         foreach ($reportClasses as $class) {
-
                             $classRow = $groupRows->first(
                                 function ($row) use ($class) {
-                                    return trim($row->class) === $class;
+                                    return trim((string) ($row->class ?? '')) === $class;
                                 }
                             );
 
                             $classData[$class] = [
                                 'boys' => $classRow
-                                    ? (int) $classRow->boys
+                                    ? (int) ($classRow->boys ?? 0)
                                     : 0,
 
                                 'girls' => $classRow
-                                    ? (int) $classRow->girls
+                                    ? (int) ($classRow->girls ?? 0)
                                     : 0,
 
                                 'total' => $classRow
-                                    ? (int) $classRow->total
+                                    ? (int) ($classRow->total ?? (
+                                        (int) ($classRow->boys ?? 0)
+                                        + (int) ($classRow->girls ?? 0)
+                                    ))
                                     : 0,
                             ];
                         }
-
                     @endphp
 
-
-                    {{-- =================================================
-                         BOYS
-                    ================================================== --}}
+                    {{-- BOYS --}}
 
                     <tr class="boys-row">
-
-                        <td
-                            rowspan="3"
-                            class="age-group-cell"
-                        >
+                        <td rowspan="3" class="age-group-cell">
                             {{ $ageGroup }}
                         </td>
 
-                        <td class="gender-cell">
-                            Boys
-                        </td>
+                        <td class="gender-cell">Boys</td>
 
-                        @php
-                            $boysGrandTotal = 0;
-                        @endphp
+                        @php $boysGrandTotal = 0; @endphp
 
                         @foreach($reportClasses as $class)
-
                             @php
-                                $boysCount =
-                                    $classData[$class]['boys'];
-
+                                $boysCount = $classData[$class]['boys'];
                                 $boysGrandTotal += $boysCount;
                             @endphp
 
                             <td class="number-cell">
                                 {{ $boysCount }}
                             </td>
-
                         @endforeach
 
                         <td class="total-cell">
                             {{ $boysGrandTotal }}
                         </td>
-
                     </tr>
 
-
-                    {{-- =================================================
-                         GIRLS
-                    ================================================== --}}
+                    {{-- GIRLS --}}
 
                     <tr class="girls-row">
+                        <td class="gender-cell">Girls</td>
 
-                        <td class="gender-cell">
-                            Girls
-                        </td>
-
-                        @php
-                            $girlsGrandTotal = 0;
-                        @endphp
+                        @php $girlsGrandTotal = 0; @endphp
 
                         @foreach($reportClasses as $class)
-
                             @php
-                                $girlsCount =
-                                    $classData[$class]['girls'];
-
+                                $girlsCount = $classData[$class]['girls'];
                                 $girlsGrandTotal += $girlsCount;
                             @endphp
 
                             <td class="number-cell">
                                 {{ $girlsCount }}
                             </td>
-
                         @endforeach
 
                         <td class="total-cell">
                             {{ $girlsGrandTotal }}
                         </td>
-
                     </tr>
 
-
-                    {{-- =================================================
-                         TOTAL
-                    ================================================== --}}
+                    {{-- AGE GROUP TOTAL --}}
 
                     <tr class="total-row">
+                        <td class="gender-cell">Total</td>
 
-                        <td class="gender-cell">
-                            Total
-                        </td>
-
-                        @php
-                            $ageGroupGrandTotal = 0;
-                        @endphp
+                        @php $ageGroupGrandTotal = 0; @endphp
 
                         @foreach($reportClasses as $class)
-
                             @php
+                                $classTotal = $classData[$class]['total'];
 
-                                $classTotal =
-                                    $classData[$class]['total'];
-
-                                $grandClassTotals[$class] +=
-                                    $classTotal;
-
-                                $ageGroupGrandTotal +=
-                                    $classTotal;
-
+                                $grandClassTotals[$class] += $classTotal;
+                                $ageGroupGrandTotal += $classTotal;
                             @endphp
 
                             <td class="number-cell">
                                 {{ $classTotal }}
                             </td>
-
                         @endforeach
 
                         <td class="total-cell">
                             {{ $ageGroupGrandTotal }}
                         </td>
-
                     </tr>
 
                 @endforeach
 
+                {{-- GRAND TOTAL --}}
 
-                {{-- =====================================================
-                     GRAND TOTAL
-                ====================================================== --}}
-
-                @php
-                    $grandTotal = 0;
-                @endphp
+                @php $grandTotal = 0; @endphp
 
                 <tr class="grand-total-row">
-
-                    <td
-                        colspan="2"
-                        class="text-center"
-                    >
+                    <td colspan="2" class="text-center">
                         GRAND TOTAL
                     </td>
 
                     @foreach($reportClasses as $class)
-
                         @php
-                            $grandTotal +=
-                                $grandClassTotals[$class];
+                            $grandTotal += $grandClassTotals[$class];
                         @endphp
 
                         <td class="number-cell">
                             {{ $grandClassTotals[$class] }}
                         </td>
-
                     @endforeach
 
                     <td class="total-cell">
                         {{ $grandTotal }}
                     </td>
-
                 </tr>
+
+                @if(empty($reportClasses))
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            No classes found for this report.
+                        </td>
+                    </tr>
+                @endif
 
             </tbody>
-
         </table>
 
-
-        {{-- =====================================================
-             SUMMARY
-        ====================================================== --}}
+        {{-- SUMMARY --}}
 
         <table class="summary-table">
-
             <thead>
-
                 <tr>
-
-                    <th>
-                        Total Students
-                    </th>
-
-                    <th>
-                        Boys
-                    </th>
-
-                    <th>
-                        Girls
-                    </th>
-
-                    <th>
-                        Age As On
-                    </th>
-
+                    <th>Total Students</th>
+                    <th>Boys</th>
+                    <th>Girls</th>
+                    <th>Age As On</th>
                 </tr>
-
             </thead>
 
             <tbody>
-
                 <tr>
-
+                    <td>{{ $totalStudents }}</td>
+                    <td>{{ $maleStudents }}</td>
+                    <td>{{ $femaleStudents }}</td>
                     <td>
-                        {{ $totalStudents }}
+                        {{ \Carbon\Carbon::parse($ageAsOn)->format('d-m-Y') }}
                     </td>
-
-                    <td>
-                        {{ $maleStudents }}
-                    </td>
-
-                    <td>
-                        {{ $femaleStudents }}
-                    </td>
-
-                    <td>
-                        {{ $ageAsOn->format('d-m-Y') }}
-                    </td>
-
                 </tr>
-
             </tbody>
-
         </table>
 
-
-        {{-- =====================================================
-             SIGNATURES
-        ====================================================== --}}
+        {{-- SIGNATURES --}}
 
         <div class="signature-section">
 
             <div class="signature-box">
-
                 <div class="signature-space"></div>
-
                 <div class="signature-line"></div>
-
                 Class Teacher
-
             </div>
 
-
             <div class="signature-box">
-
                 <div class="signature-space"></div>
-
                 <div class="signature-line"></div>
-
                 Principal / Headmaster
-
             </div>
 
         </div>
 
-
-        {{-- =====================================================
-             FOOTER
-        ====================================================== --}}
+        {{-- FOOTER --}}
 
         <div class="print-footer">
-
-            <span>
-                Student Age Report
-            </span>
+            <span>Student Age Report</span>
 
             <span>
                 Generated on
                 {{ $reportDate ?? now()->format('d-m-Y') }}
             </span>
-
         </div>
 
     </div>
-
 </div>
 
 @endsection
