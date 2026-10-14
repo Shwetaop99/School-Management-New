@@ -12,36 +12,61 @@ class SupplyItemController extends Controller
     /**
      * Display a listing of supply items.
      */
-    public function index(Request $request)
-    {
-        $query = SupplyItem::query();
+   
 
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
+public function index(Request $request)
+{
+    // Dashboard counts: all supply items.
+    $totalItems = SupplyItem::count();
 
-            $query->where(function ($q) use ($search) {
-                $q->where('item_name', 'like', "%{$search}%")
-                    ->orWhere('item_code', 'like', "%{$search}%")
-                    ->orWhere('unit', 'like', "%{$search}%");
-            });
-        }
+    $activeItems = SupplyItem::where('status', 'active')->count();
 
-        // Status filter
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+    $inactiveItems = SupplyItem::where('status', 'inactive')->count();
 
-        $supplyItems = $query
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+    $lowStockItems = SupplyItem::where('status', 'active')
+    ->whereColumn('quantity_in_stock', '<=', 'minimum_stock')
+    ->count();
 
-        return view(
-            'admin.supply-items.index',
-            compact('supplyItems')
-        );
+    $totalStock = SupplyItem::sum('quantity_in_stock');
+
+    $categories = collect();
+
+    // Listing query with search and status filters.
+    $query = SupplyItem::query();
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('item_name', 'like', "%{$search}%")
+                ->orWhere('item_code', 'like', "%{$search}%")
+                ->orWhere('unit', 'like', "%{$search}%");
+        });
     }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    $supplyItems = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    
+return view('admin.supply-items.index', compact(
+    'supplyItems',
+    'totalItems',
+    'activeItems',
+    'inactiveItems',
+    'lowStockItems',
+    'totalStock',
+    'categories'
+));
+
+}
+
+
 
     /**
      * Show the form for creating a new supply item.

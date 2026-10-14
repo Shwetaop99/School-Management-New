@@ -3784,117 +3784,84 @@ public function generateResult(Request $request)
  * Only published, passed results are included.
  * Tied students share the same competition rank.
  */
+
 public function classWiseToppers(Request $request)
 {
     $validated = $request->validate([
-        'exam_id' => [
-            'nullable',
-            'integer',
-            'exists:exams,id',
-        ],
+        'exam_id' => ['nullable', 'integer', 'exists:exams,id'],
     ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Academic Years
-    |--------------------------------------------------------------------------
-    */
-
-    $academicYears = Result::query()
-        ->whereNotNull('academic_year')
-        ->where('academic_year', '!=', '')
+    // Academic years from exams that have results.
+    $academicYears = DB::table('results')
+        ->join('exams', 'results.exam_id', '=', 'exams.id')
+        ->whereNotNull('exams.academic_year')
+        ->where('exams.academic_year', '!=', '')
         ->distinct()
-        ->orderByDesc('academic_year')
-        ->pluck('academic_year');
+        ->orderByDesc('exams.academic_year')
+        ->pluck('exams.academic_year');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Examinations
-    |--------------------------------------------------------------------------
-    */
-
-    $exams = Exam::query()
-        ->orderByDesc('id')
-        ->get();
+    $exams = Exam::query()->orderByDesc('id')->get();
 
     $classWiseToppers = collect();
     $selectedExam = null;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Load Results for Selected Examination
-    |--------------------------------------------------------------------------
-    */
-
     if ($request->filled('exam_id')) {
-        $selectedExam = Exam::findOrFail(
-            $validated['exam_id']
-        );
+        $selectedExam = Exam::findOrFail($validated['exam_id']);
 
         $results = Result::query()
-            ->with([
-                'student',
-                'exam',
-            ])
-            ->where('exam_id', $selectedExam->id)
-            ->where('result_status', 'pass')
-            ->where('publication_status', 'published')
+            ->with(['student', 'exam'])
+            ->where('results.exam_id', $selectedExam->id)
             ->whereHas('student')
-            ->orderByDesc('percentage')
-            ->orderBy('student_id')
-            ->get();
+            ->join(
+                'exam_subjects',
+                'results.exam_subject_id',
+                '=',
+                'exam_subjects.id'
+            )
+            ->select('results.*')
+            ->selectRaw(
+                'SUM(results.marks_obtained) OVER (PARTITION BY results.student_id) AS total_obtained'
+            )
+            ->selectRaw(
+                'SUM(exam_subjects.maximum_marks) OVER (PARTITION BY results.student_id) AS total_maximum'
+            )
+            ->orderBy('results.student_id')
+            ->get()
+            ->unique('student_id')
+            ->map(function ($result) {
+                $result->percentage = (float) $result->total_maximum > 0
+                    ? round(
+                        ((float) $result->total_obtained
+                            / (float) $result->total_maximum) * 100,
+                        2
+                    )
+                    : 0;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Group Results by Class and Section
-        |--------------------------------------------------------------------------
-        |
-        | Results are grouped by their stored class and section.
-        | Including the section prevents students from different sections
-        | from being mixed into the same topper list.
-        */
+                return $result;
+            });
 
         $groupedResults = $results->groupBy(function ($result) {
             $className = trim(
-                (string) (
-                    $result->class_name
-                    ?: $result->student?->class
-                    ?: 'Unassigned Class'
-                )
+                (string) ($result->student?->class ?? 'Unassigned Class')
             );
 
             $section = trim(
-                (string) (
-                    $result->section
-                    ?: $result->student?->section
-                    ?: ''
-                )
+                (string) ($result->student?->section ?? '')
             );
 
             return $className . '||' . $section;
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate Competition Ranks
-        |--------------------------------------------------------------------------
-        */
-
-        foreach ($groupedResults as $groupKey => $classResults) {
+        foreach ($groupedResults as $classResults) {
             $sortedResults = $classResults
-                ->sortByDesc(function ($result) {
-                    return (float) ($result->percentage ?? 0);
-                })
+                ->sortByDesc('percentage')
                 ->values();
 
             $rank = 0;
             $previousPercentage = null;
 
             foreach ($sortedResults as $index => $result) {
-                $percentage = round(
-                    (float) ($result->percentage ?? 0),
-                    2
-                );
+                $percentage = (float) $result->percentage;
 
                 if (
                     $previousPercentage === null
@@ -3904,72 +3871,36 @@ public function classWiseToppers(Request $request)
                 }
 
                 $result->topper_rank = $rank;
-
                 $previousPercentage = $percentage;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Keep Top Three Ranks
-            |--------------------------------------------------------------------------
-            */
-
             $topThree = $sortedResults
-                ->filter(function ($result) {
-                    return $result->topper_rank <= 3;
-                })
+                ->filter(fn ($result) => $result->topper_rank <= 3)
                 ->values();
 
             if ($topThree->isEmpty()) {
                 continue;
             }
 
-            $firstResult = $topThree->first();
-
-            $className = trim(
-                (string) (
-                    $firstResult->class_name
-                    ?: $firstResult->student?->class
-                    ?: 'Unassigned Class'
-                )
-            );
-
-            $section = trim(
-                (string) (
-                    $firstResult->section
-                    ?: $firstResult->student?->section
-                    ?: ''
-                )
-            );
+            $firstStudent = $topThree->first()->student;
 
             $classWiseToppers->push([
-                'class_name' => $className,
-                'section' => $section,
+                'class_name' => $firstStudent?->class ?? 'Unassigned Class',
+                'section' => $firstStudent?->section ?? '',
                 'toppers' => $topThree,
             ]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Sort Classes and Sections
-        |--------------------------------------------------------------------------
-        */
-
         $classWiseToppers = $classWiseToppers
             ->sort(function ($a, $b) {
-                $classComparison = strnatcasecmp(
+                $comparison = strnatcasecmp(
                     $a['class_name'],
                     $b['class_name']
                 );
 
-                if ($classComparison !== 0) {
-                    return $classComparison;
-                }
-
-                return strnatcasecmp(
-                    $a['section'],
-                    $b['section']
-                );
+                return $comparison !== 0
+                    ? $comparison
+                    : strnatcasecmp($a['section'], $b['section']);
             })
             ->values();
     }
@@ -3986,3 +3917,5 @@ public function classWiseToppers(Request $request)
 }
 
 }
+
+

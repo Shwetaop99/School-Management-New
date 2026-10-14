@@ -205,8 +205,26 @@
 ],
 
 
-            ['l'=>'Faculty (Teacher)','i'=>'fa-chalkboard-user','a'=>['admin.faculty.*'],
-                'c'=>[['All Faculty','admin.faculty.index'],['Teacher Allocation','admin.faculty.index']]],
+            
+
+
+[
+    'l' => 'Faculty (Teacher)',
+    'i' => 'fa-chalkboard-user',
+    'a' => [
+        'admin.faculty.*',
+        'admin.teachers.assign-class.*',
+        'admin.leave-applications.*'
+    ],
+    'c' => [
+        ['All Faculty', 'admin.faculty.index'],
+        ['Teacher Allocation', 'admin.teachers.assign-class.index'],
+        ['Leave Applications', 'admin.leave-applications.index']
+    ]
+],
+
+
+
             ['l'=>'Other Staff','i'=>'fa-users','a'=>['admin.other-staff.*'],
                 'c'=>[['All Staff','admin.other-staff.index'],['Add Staff','admin.other-staff.create']]],
            
@@ -229,7 +247,7 @@
         'admin.teachers.attendance.*',
     ],
     'c' => [
-        ['Student Attendance', 'admin.attendance.student'],
+        ['Student Attendance', 'admin.attendance.index'],
         ['Faculty Attendance', 'admin.teachers.attendance.index'],
     ],
 ],

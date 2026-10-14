@@ -1264,20 +1264,39 @@ Route::prefix('bonafide')
 
             */
 
-            Route::get('/attendance', [
-                AttendanceController::class,
-                'index'
-            ])->name('attendance.index');
+           
 
-            Route::get('/attendance/students', [
-                AttendanceController::class,
-                'students'
-            ])->name('attendance.students');
+Route::get('/attendance', [
+    AttendanceController::class,
+    'classes'
+])->name('attendance.index');
+
+Route::get('/attendance/student/sheet', [
+    AttendanceController::class,
+    'index'
+])->name('attendance.student.sheet');
+
+
 
             Route::post('/attendance', [
                 AttendanceController::class,
                 'store'
             ])->name('attendance.store');
+
+            Route::get('/attendance/classes', [
+                AttendanceController::class,
+                'classes'
+            ])->name('attendance.classes');
+
+            Route::get('/attendance/sections', [
+                AttendanceController::class,
+                'sections'
+            ])->name('attendance.sections');
+
+            Route::get('/attendance/students', [
+                AttendanceController::class,
+                'students'
+            ])->name('attendance.students');
 
             Route::get('/attendance/report', [
                 AttendanceController::class,
@@ -1289,13 +1308,46 @@ Route::prefix('bonafide')
                 'printReport'
             ])->name('attendance.report.print');
 
+            Route::get('/attendance/student/{student}', [
+                AttendanceController::class,
+                'studentReport'
+            ])->name('attendance.student-report');
 
+            Route::get('/attendance/monthly', [
+                AttendanceController::class,
+                'monthlyReport'
+            ])->name('attendance.monthly');
 
             Route::put('/attendance/{attendance}', [
                 AttendanceController::class,
                 'update'
             ])->name('attendance.update');
 
+            Route::get('/attendance/pdf', [
+                AttendanceController::class,
+                'pdf'
+            ])->name('attendance.pdf');
+
+            Route::get('/attendance/excel', [
+                AttendanceController::class,
+                'excel'
+            ])->name('attendance.excel');
+
+
+            Route::get('/teachers/attendance', [
+            TeacherAttendanceController::class,
+            'index'
+        ])->name('teachers.attendance.index');
+
+        Route::post('/teachers/attendance', [
+            TeacherAttendanceController::class,
+            'store'
+        ])->name('teachers.attendance.store');
+
+        Route::get('/teachers/attendance/excel', [
+            TeacherAttendanceController::class,
+            'excel'
+        ])->name('teachers.attendance.excel');
 
 
 
