@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Create Exam')
@@ -23,9 +22,7 @@
         margin: 0 auto;
     }
 
-    /* =========================================================
-       PAGE HEADER
-    ========================================================= */
+    /* PAGE HEADER */
     .page-header {
         background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
         border: 1px solid var(--border-color);
@@ -83,9 +80,7 @@
         background: var(--soft-blue);
     }
 
-    /* =========================================================
-       ERROR ALERT
-    ========================================================= */
+    /* ERROR ALERT */
     .error-card {
         border: 0;
         border-left: 4px solid var(--danger);
@@ -95,9 +90,7 @@
         box-shadow: 0 3px 12px rgba(220, 53, 69, .06);
     }
 
-    /* =========================================================
-       MAIN CARD
-    ========================================================= */
+    /* MAIN CARD */
     .exam-card {
         background: #fff;
         border: 1px solid var(--border-color);
@@ -143,9 +136,7 @@
         padding: 28px 24px;
     }
 
-    /* =========================================================
-       FORM
-    ========================================================= */
+    /* FORM */
     .form-section {
         margin-bottom: 28px;
     }
@@ -155,6 +146,7 @@
     }
 
     .field-label {
+        display: block;
         color: #374151;
         font-size: 13px;
         font-weight: 650;
@@ -213,9 +205,7 @@
         font-size: 11.5px;
     }
 
-    /* =========================================================
-       DATE PREVIEW
-    ========================================================= */
+    /* DATE PREVIEW */
     .date-preview {
         display: none;
         margin-top: 20px;
@@ -256,9 +246,7 @@
         font-weight: 600;
     }
 
-    /* =========================================================
-       INFORMATION CARD
-    ========================================================= */
+    /* INFORMATION CARD */
     .next-steps-card {
         margin-top: 28px;
         border: 1px solid #d9eaff;
@@ -325,9 +313,7 @@
         padding-top: 2px;
     }
 
-    /* =========================================================
-       ACTION BAR
-    ========================================================= */
+    /* ACTION BAR */
     .action-bar {
         display: flex;
         justify-content: flex-end;
@@ -380,9 +366,7 @@
         transform: none;
     }
 
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
+    /* RESPONSIVE */
     @media (max-width: 767.98px) {
         .page-header {
             padding: 18px;
@@ -425,9 +409,7 @@
 <div class="container-fluid py-4">
     <div class="create-exam-page">
 
-        {{-- =====================================================
-             PAGE HEADER
-        ====================================================== --}}
+        {{-- PAGE HEADER --}}
         <div class="page-header">
             <div class="page-header-inner d-flex justify-content-between align-items-center">
 
@@ -437,9 +419,7 @@
                     </div>
 
                     <div>
-                        <h4 class="page-title">
-                            Create Exam
-                        </h4>
+                        <h4 class="page-title">Create Exam</h4>
 
                         <p class="page-subtitle">
                             Create the basic examination information to get started.
@@ -456,9 +436,7 @@
             </div>
         </div>
 
-        {{-- =====================================================
-             VALIDATION ERRORS
-        ====================================================== --}}
+        {{-- VALIDATION ERRORS --}}
         @if ($errors->any())
             <div class="alert error-card mb-4">
                 <div class="d-flex align-items-start">
@@ -479,29 +457,22 @@
             </div>
         @endif
 
-        {{-- =====================================================
-             MAIN FORM CARD
-        ====================================================== --}}
+        {{-- MAIN FORM CARD --}}
         <div class="exam-card">
 
-            {{-- Card Header --}}
             <div class="exam-card-header">
-
                 <h5 class="section-title">
                     <span class="section-title-icon">
                         <i class="bi bi-info-circle"></i>
                     </span>
-
                     Exam Information
                 </h5>
 
                 <p class="section-description">
                     Enter the basic details of the examination.
                 </p>
-
             </div>
 
-            {{-- Card Body --}}
             <div class="exam-card-body">
 
                 <form method="POST"
@@ -510,145 +481,97 @@
 
                     @csrf
 
-                    {{-- =================================================
-                         BASIC INFORMATION
-                    ================================================== --}}
+                    {{-- BASIC INFORMATION --}}
                     <div class="form-section">
-
                         <div class="row g-4">
 
-                            {{-- Academic Year --}}
+                            {{-- ACADEMIC YEAR --}}
                             <div class="col-lg-6">
-
-                                <label class="field-label">
+                                <label for="academic_year" class="field-label">
                                     Academic Year
                                     <span class="required-star">*</span>
                                 </label>
 
                                 <div class="input-wrap">
-
                                     <i class="bi bi-calendar3 input-icon"></i>
 
                                     <input type="text"
+                                           id="academic_year"
                                            name="academic_year"
                                            class="form-control input-with-icon"
                                            value="{{ old('academic_year', '2026-2027') }}"
                                            placeholder="2026-2027"
+                                           maxlength="20"
                                            required>
-
                                 </div>
 
                                 <small class="field-help">
                                     Example: 2026-2027
                                 </small>
-
                             </div>
 
-                            {{-- Exam Name --}}
+                            {{-- EXAM NAME --}}
                             <div class="col-lg-6">
-
-                                <label class="field-label">
+                                <label for="exam_name" class="field-label">
                                     Exam Name
                                     <span class="required-star">*</span>
                                 </label>
 
                                 <div class="input-wrap">
-
                                     <i class="bi bi-pencil-square input-icon"></i>
 
                                     <input type="text"
+                                           id="exam_name"
                                            name="exam_name"
                                            class="form-control input-with-icon"
                                            value="{{ old('exam_name') }}"
                                            placeholder="Mid Term Examination"
+                                           maxlength="150"
                                            required>
-
                                 </div>
 
                                 <small class="field-help">
-                                    Enter a clear name for this examination.
+                                    Enter the full name of the examination.
                                 </small>
-
                             </div>
 
-                            {{-- Exam Type --}}
+                            {{-- EXAM TYPE: TEXT INPUT INSTEAD OF DROPDOWN --}}
                             <div class="col-lg-6">
-
-                                <label class="field-label">
+                                <label for="exam_type" class="field-label">
                                     Exam Type
                                     <span class="required-star">*</span>
                                 </label>
 
                                 <div class="input-wrap">
-
                                     <i class="bi bi-bookmark-star input-icon"></i>
 
-                                    <select name="exam_type"
-                                            class="form-select input-with-icon"
-                                            required>
-
-                                        <option value="">
-                                            Select Exam Type
-                                        </option>
-
-                                        <option value="Unit Test"
-                                            {{ old('exam_type') == 'Unit Test' ? 'selected' : '' }}>
-                                            Unit Test
-                                        </option>
-
-                                        <option value="Terminal"
-                                            {{ old('exam_type') == 'Terminal' ? 'selected' : '' }}>
-                                            Terminal
-                                        </option>
-
-                                        <option value="Mid Term"
-                                            {{ old('exam_type') == 'Mid Term' ? 'selected' : '' }}>
-                                            Mid Term
-                                        </option>
-
-                                        <option value="Preliminary"
-                                            {{ old('exam_type') == 'Preliminary' ? 'selected' : '' }}>
-                                            Preliminary
-                                        </option>
-
-                                        <option value="Annual"
-                                            {{ old('exam_type') == 'Annual' ? 'selected' : '' }}>
-                                            Annual
-                                        </option>
-
-                                        <option value="Final"
-                                            {{ old('exam_type') == 'Final' ? 'selected' : '' }}>
-                                            Final
-                                        </option>
-
-                                        <option value="Other"
-                                            {{ old('exam_type') == 'Other' ? 'selected' : '' }}>
-                                            Other
-                                        </option>
-
-                                    </select>
-
+                                    <input type="text"
+                                           id="exam_type"
+                                           name="exam_type"
+                                           class="form-control input-with-icon"
+                                           value="{{ old('exam_type') }}"
+                                           placeholder="e.g. Unit Test 1, Mid Term, Annual"
+                                           maxlength="100"
+                                           required>
                                 </div>
 
                                 <small class="field-help">
-                                    Select the category of the examination.
+                                    Type any examination category you want. No dropdown selection is required.
                                 </small>
-
                             </div>
 
-                            {{-- Status --}}
+                            {{-- STATUS --}}
                             <div class="col-lg-6">
-
-                                <label class="field-label">
+                                <label for="status" class="field-label">
                                     Status
                                     <span class="required-star">*</span>
                                 </label>
 
                                 <div class="input-wrap">
-
                                     <i class="bi bi-flag input-icon"></i>
 
-                                    <select name="status"
+                                    <select id="status"
+                                            name="status"
                                             class="form-select input-with-icon"
                                             required>
 
@@ -673,36 +596,28 @@
                                         </option>
 
                                     </select>
-
                                 </div>
 
                                 <small class="field-help">
                                     You can update the examination status later.
                                 </small>
-
                             </div>
 
                         </div>
-
                     </div>
 
-                    {{-- =================================================
-                         EXAM PERIOD
-                    ================================================== --}}
+                    {{-- EXAM PERIOD --}}
                     <div class="form-section">
-
                         <div class="row g-4">
 
-                            {{-- Start Date --}}
+                            {{-- START DATE --}}
                             <div class="col-lg-6">
-
-                                <label class="field-label">
+                                <label for="start_date" class="field-label">
                                     Start Date
                                     <span class="required-star">*</span>
                                 </label>
 
                                 <div class="input-wrap">
-
                                     <i class="bi bi-calendar-event input-icon"></i>
 
                                     <input type="date"
@@ -711,24 +626,20 @@
                                            class="form-control input-with-icon"
                                            value="{{ old('start_date') }}"
                                            required>
-
                                 </div>
 
                                 <small class="field-help">
                                     Initial date on which the examination begins.
                                 </small>
-
                             </div>
 
-                            {{-- End Date --}}
+                            {{-- END DATE --}}
                             <div class="col-lg-6">
-
-                                <label class="field-label">
+                                <label for="end_date" class="field-label">
                                     End Date
                                 </label>
 
                                 <div class="input-wrap">
-
                                     <i class="bi bi-calendar-check input-icon"></i>
 
                                     <input type="date"
@@ -736,20 +647,17 @@
                                            id="end_date"
                                            class="form-control input-with-icon"
                                            value="{{ old('end_date') }}">
-
                                 </div>
 
                                 <small class="field-help">
                                     The timetable generator can extend this period when required.
                                 </small>
-
                             </div>
 
                         </div>
 
-                        {{-- Date Preview --}}
+                        {{-- DATE PREVIEW --}}
                         <div class="date-preview" id="datePreview">
-
                             <div class="date-preview-icon">
                                 <i class="bi bi-calendar-range"></i>
                             </div>
@@ -760,19 +668,12 @@
                                 </div>
 
                                 <div class="date-preview-value"
-                                     id="datePreviewText">
-                                </div>
+                                     id="datePreviewText"></div>
                             </div>
-
                         </div>
-
                     </div>
 
-                   
-
-                    {{-- =================================================
-                         ACTION BAR
-                    ================================================== --}}
+                    {{-- ACTION BAR --}}
                     <div class="action-bar">
 
                         <a href="{{ route('admin.exams.index') }}"
@@ -784,19 +685,15 @@
                         <button type="submit"
                                 class="btn btn-create"
                                 id="createExamBtn">
-
                             <i class="bi bi-check-circle me-1"></i>
                             Create Exam
-
                         </button>
 
                     </div>
 
                 </form>
-
             </div>
         </div>
-
     </div>
 </div>
 
@@ -813,7 +710,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Date Preview
+    | Format date for display
+    |--------------------------------------------------------------------------
+    */
+    function formatDate(date) {
+        return date.toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update examination date preview
     |--------------------------------------------------------------------------
     */
     function updateDatePreview() {
@@ -843,7 +753,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     ' • ' +
                     difference +
                     (difference === 1 ? ' day' : ' days');
-
             }
         }
 
@@ -851,32 +760,33 @@ document.addEventListener('DOMContentLoaded', function () {
         datePreview.classList.add('show');
     }
 
-    function formatDate(date) {
-
-        return date.toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-
-    }
-
+    /*
+    |--------------------------------------------------------------------------
+    | Start date change
+    |--------------------------------------------------------------------------
+    */
     startDate.addEventListener('change', function () {
 
-        /*
-         * Prevent an end date earlier than the start date.
-         */
         if (startDate.value) {
+
             endDate.min = startDate.value;
 
             if (endDate.value && endDate.value < startDate.value) {
                 endDate.value = '';
             }
+
+        } else {
+            endDate.removeAttribute('min');
         }
 
         updateDatePreview();
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | End date change
+    |--------------------------------------------------------------------------
+    */
     endDate.addEventListener('change', function () {
 
         if (
@@ -892,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Initial Preview
+    | Initial date preview
     |--------------------------------------------------------------------------
     */
     if (startDate.value) {
@@ -902,10 +812,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Prevent Double Submit
+    | Prevent duplicate form submissions
     |--------------------------------------------------------------------------
     */
-    form.addEventListener('submit', function () {
+    form.addEventListener('submit', function (event) {
+
+        if (!form.checkValidity()) {
+            return;
+        }
 
         submitButton.disabled = true;
 
@@ -920,4 +834,3 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 @endsection
-
