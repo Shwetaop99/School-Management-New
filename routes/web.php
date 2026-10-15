@@ -690,6 +690,15 @@ Route::post('/students/import', [
 ])->name('students.import');
 
 
+Route::get('students/export', [
+    StudentController::class,
+    'export',
+])->name('students.export');
+
+Route::resource(
+    'students',
+    StudentController::class
+);
 /*
 |--------------------------------------------------------------------------
 | STUDENT CRUD

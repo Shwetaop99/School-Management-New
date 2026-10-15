@@ -44,6 +44,7 @@ class ExamController extends Controller
                 'max:150',
             ],
 
+            // Accept a custom exam type entered by the user.
             'exam_type' => [
                 'required',
                 'string',
@@ -87,10 +88,7 @@ class ExamController extends Controller
             'examTimetables',
         ]);
 
-        return view(
-            'admin.exams.show',
-            compact('exam')
-        );
+        return view('admin.exams.show', compact('exam'));
     }
 
     /**
@@ -98,19 +96,14 @@ class ExamController extends Controller
      */
     public function edit(Exam $exam)
     {
-        return view(
-            'admin.exams.edit',
-            compact('exam')
-        );
+        return view('admin.exams.edit', compact('exam'));
     }
 
     /**
      * Update exam.
      */
-    public function update(
-        Request $request,
-        Exam $exam
-    ) {
+    public function update(Request $request, Exam $exam)
+    {
         $validated = $request->validate([
             'academic_year' => [
                 'required',
@@ -124,6 +117,7 @@ class ExamController extends Controller
                 'max:150',
             ],
 
+            // Accept a custom exam type when editing an exam.
             'exam_type' => [
                 'required',
                 'string',

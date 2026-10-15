@@ -1,31 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Bonafide Certificate - {{ $certificate->certificate_no ?? 'Certificate' }}</title>
 
-    <title>
-        Bonafide Certificate -
-        {{ $bonafideCertificate->certificate_number ?? 'Certificate' }}
-    </title>
+    @php
+        $school = $schoolSetting ?? \App\Models\SchoolSetting::first();
+        $student = $certificate->student;
+
+        $fullName = trim(implode(' ', array_filter([
+            $student?->first_name,
+            $student?->middle_name,
+            $student?->last_name,
+        ])));
+
+        $fullName = $fullName ?: ($student?->name ?? '');
+
+        $dob = $student?->date_of_birth ?? $student?->dob;
+
+        try {
+            $formattedDob = $dob
+                ? \Carbon\Carbon::parse($dob)->format('d/m/Y')
+                : '-';
+        } catch (\Throwable $e) {
+            $formattedDob = '-';
+        }
+
+        $issueDate = $certificate->issue_date;
+
+        try {
+            $formattedIssueDate = $issueDate
+                ? \Carbon\Carbon::parse($issueDate)->format('d/m/Y')
+                : '-';
+        } catch (\Throwable $e) {
+            $formattedIssueDate = '-';
+        }
+
+        $registrationNo = $student?->register_no
+            ?? $student?->registration_no
+            ?? '';
+
+        $aadharNo = $student?->aadhar_card_no
+            ?? $student?->aadhar_no
+            ?? '';
+
+        $academicYear = $student?->educational_year
+            ?? $student?->academic_year
+            ?? $certificate->academic_year
+            ?? '';
+
+        $className = $student?->class
+            ?? $student?->class_name
+            ?? $student?->admission_class
+            ?? '';
+
+        $division = $student?->section
+            ?? $student?->division
+            ?? '';
+
+        $motherName = $student?->mother_name ?? '';
+        $caste = $student?->caste ?? '';
+        $religion = $student?->religion ?? '';
+
+        $casteReligion = trim(
+            $caste . ($caste && $religion ? ' / ' : '') . $religion
+        );
+
+        $reason = $certificate->reason ?: 'To avail of travel benefits';
+
+        $logo = $school?->logo;
+
+        $logoUrl = $logo
+            ? (
+                \Illuminate\Support\Str::startsWith($logo, ['http://', 'https://'])
+                    ? $logo
+                    : asset('storage/' . ltrim($logo, '/'))
+            )
+            : asset('images/gurukullogo.png');
+
+        $schoolAddress = implode(', ', array_filter([
+            $school?->address,
+            $school?->city,
+            $school?->district,
+            $school?->state,
+        ]));
+
+        if ($school?->pincode) {
+            $schoolAddress .= ($schoolAddress ? ' - ' : '') . $school->pincode;
+        }
+    @endphp
 
     <style>
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAGE SETUP
-        |--------------------------------------------------------------------------
-        */
-
         @page {
             size: A4 landscape;
-            margin: 0;
+            margin: 8mm;
         }
 
         * {
@@ -36,910 +106,560 @@
         body {
             margin: 0;
             padding: 0;
-            width: 100%;
-            min-height: 100%;
+            font-family: "Times New Roman", Georgia, serif;
+            color: #26372d;
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f3f3f3;
-            color: #111;
+            background: #edf1ed;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 18px;
+            font-family: Arial, sans-serif;
+        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PRINT PAGE
-        |--------------------------------------------------------------------------
-        */
+        .toolbar a,
+        .toolbar button {
+            padding: 10px 18px;
+            border-radius: 5px;
+            border: 1px solid #286749;
+            background: #286749;
+            color: white;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
-        .print-page {
-            width: 297mm;
-            height: 210mm;
-            min-height: 210mm;
+        .toolbar a {
+            background: white;
+            color: #286749;
+        }
 
-            margin: 20px auto;
-            padding: 15mm;
-
-            background: #fff;
-
+        .paper {
             position: relative;
-
-            border: 2px solid #222;
-
+            width: 281mm;
+            min-height: 194mm;
+            margin: 0 auto 25px;
+            padding: 8mm 11mm 7mm;
+            background: #fff;
+            border: 2px solid #286749;
+            outline: 1px solid #b7cfbb;
+            outline-offset: -6px;
             overflow: hidden;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SCHOOL HEADER
-        |--------------------------------------------------------------------------
-        */
-
-        .school-header {
-            text-align: center;
-
-            padding-bottom: 10px;
-
-            border-bottom: 2px solid #222;
+        .watermark {
+            position: absolute;
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-28deg);
+            color: rgba(40, 103, 73, .045);
+            font-size: 48px;
+            font-weight: bold;
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .school-logo {
-            width: 80px;
-            height: 80px;
+        .paper-content {
+            position: relative;
+            z-index: 1;
+        }
 
+        .school-header {
+            display: grid;
+            grid-template-columns: 78px 1fr 78px;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #286749;
+            text-align: center;
+        }
+
+        .logo {
+            width: 72px;
+            height: 72px;
             object-fit: contain;
-
-            margin-bottom: 5px;
+            justify-self: center;
         }
 
         .school-name {
-            font-size: 25px;
-            font-weight: 700;
-
+            margin: 0 0 5px;
+            color: #194d35;
+            font-family: Arial, sans-serif;
+            font-size: 22px;
+            line-height: 1.2;
+            font-weight: 800;
             text-transform: uppercase;
-
-            margin: 0 0 5px 0;
+            letter-spacing: .5px;
         }
 
-        .school-address {
-            font-size: 13px;
+        .school-address,
+        .school-contact,
+        .school-codes {
+            margin: 3px 0 0;
+            font-family: Arial, sans-serif;
+            font-size: 9px;
             line-height: 1.5;
-
-            margin: 0;
+            color: #45584b;
         }
 
-        .school-contact {
-            font-size: 12px;
-            line-height: 1.5;
-
-            margin-top: 3px;
+        .school-codes span,
+        .school-contact span {
+            margin: 0 6px;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CERTIFICATE HEADER
-        |--------------------------------------------------------------------------
-        */
-
-        .certificate-heading {
+        .heading {
             text-align: center;
-
-            margin-top: 18px;
-            margin-bottom: 15px;
+            margin: 13px 0 10px;
         }
 
-        .certificate-heading h1 {
-            font-size: 24px;
+        .heading .kicker {
+            color: #69806e;
+            font-family: Arial, sans-serif;
+            font-size: 8px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
 
-            margin: 0;
-
-            font-weight: 700;
-
+        .heading h1 {
+            margin: 4px 0;
+            color: #194d35;
+            font-size: 23px;
+            letter-spacing: 2px;
             text-transform: uppercase;
-
-            text-decoration: underline;
         }
 
-        .certificate-subtitle {
-            font-size: 13px;
-
-            margin-top: 5px;
+        .heading .subtitle {
+            color: #617366;
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            font-style: italic;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CERTIFICATE META
-        |--------------------------------------------------------------------------
-        */
+        .heading-rule {
+            width: 75px;
+            margin: 7px auto 0;
+            border-top: 3px solid #77a783;
+        }
 
         .certificate-meta {
-            width: 100%;
-
             display: flex;
-
             justify-content: space-between;
+            gap: 15px;
+            padding: 8px 12px;
+            border: 1px solid #cbdccb;
+            background: #f1f7f1;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
 
+        .meta-label {
+            color: #5c7162;
+            font-weight: bold;
+        }
+
+        .meta-value {
+            margin-left: 5px;
+            color: #263e2e;
+            font-weight: bold;
+        }
+
+        .section-heading {
+            display: flex;
             align-items: center;
-
-            margin-bottom: 18px;
-
-            font-size: 13px;
-        }
-
-        .certificate-number {
-            font-weight: 600;
-        }
-
-        .certificate-date {
-            font-weight: 600;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CERTIFICATE CONTENT
-        |--------------------------------------------------------------------------
-        */
-
-        .certificate-content {
-            margin-top: 10px;
-
-            font-size: 17px;
-
-            line-height: 2;
-
-            text-align: justify;
-
-            padding: 0 10px;
-        }
-
-        .certificate-content p {
-            margin: 0 0 12px 0;
-        }
-
-        .student-name {
-            font-weight: 700;
-
+            gap: 8px;
+            margin: 13px 0 7px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #cfdfd0;
+            color: #194d35;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: .4px;
         }
 
-        .school-name-inline {
-            font-weight: 700;
+        .section-number {
+            display: inline-flex;
+            width: 20px;
+            height: 20px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            background: #e6f1e7;
+            color: #286749;
+            font-size: 9px;
         }
 
-        .class-value {
-            font-weight: 700;
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 24px;
         }
 
-        .academic-year {
-            font-weight: 700;
+        .detail-row {
+            display: grid;
+            grid-template-columns: 135px 1fr;
+            gap: 7px;
+            align-items: baseline;
+            padding: 6px 0;
+            border-bottom: 1px dotted #d9e2da;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.35;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | STUDENT DETAILS
-        |--------------------------------------------------------------------------
-        */
-
-        .student-details {
-            width: 100%;
-
-            border-collapse: collapse;
-
-            margin-top: 15px;
-
-            font-size: 14px;
+        .detail-label {
+            color: #65766a;
         }
 
-        .student-details th,
-        .student-details td {
-            border: 1px solid #777;
-
-            padding: 9px 10px;
-
-            text-align: center;
+        .detail-value {
+            color: #26372d;
+            font-weight: bold;
+            overflow-wrap: anywhere;
         }
 
-        .student-details th {
-            background: #f1f1f1;
-
-            font-weight: 700;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PURPOSE
-        |--------------------------------------------------------------------------
-        */
-
-        .purpose {
-            margin-top: 18px;
-
-            font-size: 15px;
-
+        .certification {
+            font-size: 12px;
             line-height: 1.7;
+            text-align: justify;
+            margin: 8px 0;
+        }
 
-            padding: 0 10px;
+        .purpose-box {
+            padding: 8px 11px;
+            background: #f4f8f4;
+            border-left: 3px solid #6c9f76;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.5;
         }
 
         .purpose-label {
-            font-weight: 700;
+            display: block;
+            margin-bottom: 3px;
+            color: #52715a;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .8px;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SIGNATURE SECTION
-        |--------------------------------------------------------------------------
-        */
-
-        .signature-section {
-            position: absolute;
-
-            left: 15mm;
-            right: 15mm;
-            bottom: 18mm;
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: flex-end;
-
-            font-size: 14px;
+        .signature-area {
+            display: grid;
+            grid-template-columns: 1fr 100px 1fr;
+            gap: 18px;
+            align-items: end;
+            margin-top: 20px;
         }
 
-        .signature-box {
-            width: 220px;
-
+        .signature {
             text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 9px;
         }
 
         .signature-space {
-            height: 45px;
+            height: 28px;
         }
 
         .signature-line {
-            border-top: 1px solid #222;
-
-            margin-bottom: 6px;
+            width: 75%;
+            margin: 0 auto 5px;
+            border-top: 1px solid #66776a;
         }
 
-        .signature-title {
-            font-weight: 700;
+        .signature strong,
+        .signature span {
+            display: block;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PRINT BUTTON
-        |--------------------------------------------------------------------------
-        */
-
-        .print-button-wrapper {
-            position: fixed;
-
-            top: 20px;
-            right: 20px;
-
-            z-index: 9999;
+        .signature strong {
+            color: #263e2e;
+            font-size: 9px;
         }
 
-        .print-button {
-            border: none;
-
-            background: #1677f0;
-
-            color: #fff;
-
-            padding: 10px 18px;
-
-            border-radius: 5px;
-
-            font-size: 14px;
-
-            cursor: pointer;
-
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        .signature span {
+            margin-top: 3px;
+            color: #6a7a6d;
+            font-size: 8px;
         }
 
-        .print-button:hover {
-            background: #0d5fc7;
+        .seal {
+            width: 66px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            border: 1.5px dashed #7da486;
+            border-radius: 50%;
+            color: #477454;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 8px;
+            font-weight: bold;
+            line-height: 1.5;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SCREEN
-        |--------------------------------------------------------------------------
-        */
-
-        @media screen {
-
-            body {
-                background: #f3f3f3;
-            }
-
-            .print-page {
-                margin: 20px auto;
-            }
+        .footer-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 6px;
+            border-top: 1px solid #d8e4d9;
+            color: #7b897e;
+            font-family: Arial, sans-serif;
+            font-size: 7px;
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PRINT
-        |--------------------------------------------------------------------------
-        */
 
         @media print {
-
-            @page {
-                size: A4 landscape;
-                margin: 0;
-            }
-
             html,
             body {
-                width: 297mm;
-                height: 210mm;
-
-                margin: 0 !important;
-                padding: 0 !important;
-
-                background: #fff !important;
+                width: 100%;
+                height: auto;
+                background: white !important;
             }
 
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .print-page {
-                width: 297mm !important;
-                height: 210mm !important;
-                min-height: 210mm !important;
-
-                margin: 0 !important;
-
-                padding: 15mm !important;
-
-                border: 2px solid #222;
-
-                page-break-after: always;
-                break-after: page;
-
-                overflow: hidden;
-            }
-
-            .no-print {
+            .toolbar {
                 display: none !important;
+            }
+
+            .paper {
+                width: 100%;
+                min-height: 0;
+                height: 194mm;
+                margin: 0;
+                padding: 8mm 11mm 7mm;
+                border: 2px solid #286749;
+                outline: 1px solid #b7cfbb;
+                outline-offset: -6px;
+                box-shadow: none;
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+
+            .watermark {
+                color: rgba(40, 103, 73, .045) !important;
+            }
+
+            .certificate-meta,
+            .purpose-box,
+            .section-number {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
             }
         }
 
+        @media screen and (max-width: 1000px) {
+            .paper {
+                transform-origin: top left;
+                margin-left: 10px;
+            }
+        }
     </style>
-
 </head>
-
 
 <body>
 
+    <div class="toolbar">
+        <a href="{{ route('admin.bonafide.show', $certificate->id) }}">
+            Back to Certificate
+        </a>
 
-    {{-- 
-    |--------------------------------------------------------------------------
-    | SCHOOL PROFILE
-    |--------------------------------------------------------------------------
-    --}}
-
-    @php
-
-        $school = $schoolSetting
-            ?? \App\Models\SchoolSetting::first();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STUDENT
-        |--------------------------------------------------------------------------
-        */
-
-        $student = $bonafideCertificate->student;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SCHOOL LOGO
-        |--------------------------------------------------------------------------
-        */
-
-        $logo = $school->logo ?? null;
-
-        if ($logo) {
-
-            if (
-                str_starts_with($logo, 'http://')
-                ||
-                str_starts_with($logo, 'https://')
-            ) {
-
-                $logoUrl = $logo;
-
-            } else {
-
-                $logoUrl = asset(
-                    'storage/' . ltrim($logo, '/')
-                );
-            }
-
-        } else {
-
-            $logoUrl = asset(
-                'images/gurukullogo.png'
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STUDENT NAME
-        |--------------------------------------------------------------------------
-        */
-
-        $studentName = trim(
-            implode(
-                ' ',
-                array_filter([
-                    $student->first_name ?? null,
-                    $student->middle_name ?? null,
-                    $student->last_name ?? null,
-                ])
-            )
-        );
-
-        if (!$studentName) {
-
-            $studentName =
-                $student->name
-                ?? '-';
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CLASS
-        |--------------------------------------------------------------------------
-        */
-
-        $className =
-            $student->admission_class
-            ?? $student->class
-            ?? '-';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECTION
-        |--------------------------------------------------------------------------
-        */
-
-        $section =
-            $student->section
-            ?? '-';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ACADEMIC YEAR
-        |--------------------------------------------------------------------------
-        */
-
-        $academicYear =
-            $student->academic_year
-            ?? $bonafideCertificate->academic_year
-            ?? '2026-2027';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ISSUE DATE
-        |--------------------------------------------------------------------------
-        */
-
-        $issueDate =
-            $bonafideCertificate->issue_date
-            ?? $bonafideCertificate->created_at
-            ?? null;
-
-        if ($issueDate) {
-
-            try {
-
-                $formattedIssueDate =
-                    \Carbon\Carbon::parse($issueDate)
-                        ->format('d/m/Y');
-
-            } catch (\Throwable $e) {
-
-                $formattedIssueDate =
-                    $issueDate;
-            }
-
-        } else {
-
-            $formattedIssueDate =
-                now()->format('d/m/Y');
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CERTIFICATE NUMBER
-        |--------------------------------------------------------------------------
-        */
-
-        $certificateNumber =
-            $bonafideCertificate->certificate_number
-            ?? '-';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PURPOSE / REASON
-        |--------------------------------------------------------------------------
-        */
-
-        $purpose =
-            $bonafideCertificate->purpose
-            ?? $bonafideCertificate->reason
-            ?? null;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SCHOOL ADDRESS
-        |--------------------------------------------------------------------------
-        */
-
-        $schoolAddress =
-            $school->address
-            ?? null;
-
-        $schoolCity =
-            $school->city
-            ?? null;
-
-        $schoolDistrict =
-            $school->district
-            ?? null;
-
-        $schoolState =
-            $school->state
-            ?? null;
-
-        $schoolPincode =
-            $school->pincode
-            ?? null;
-
-        $schoolPhone =
-            $school->phone
-            ?? null;
-
-        $schoolEmail =
-            $school->email
-            ?? null;
-
-    @endphp
-
-
-    {{-- 
-    |--------------------------------------------------------------------------
-    | PRINT BUTTON
-    |--------------------------------------------------------------------------
-    --}}
-
-    <div class="print-button-wrapper no-print">
-
-        <button
-            type="button"
-            class="print-button"
-            onclick="window.print()"
-        >
+        <button type="button" onclick="window.print()">
             Print Certificate
         </button>
-
     </div>
 
+    <main class="paper">
+        <div class="watermark">
+            {{ $school?->school_name ?? 'School' }}
+        </div>
 
-    {{-- 
-    |--------------------------------------------------------------------------
-    | CERTIFICATE
-    |--------------------------------------------------------------------------
-    --}}
+        <div class="paper-content">
 
-    <div class="print-page">
+            {{-- School details --}}
+            <header class="school-header">
+                <img
+                    src="{{ $logoUrl }}"
+                    alt="School Logo"
+                    class="logo"
+                    onerror="this.style.visibility='hidden'"
+                >
 
+                <div>
+                    <h2 class="school-name">
+                        {{ $school?->school_name ?? 'School Name' }}
+                    </h2>
 
-        {{-- SCHOOL HEADER --}}
-
-        <div class="school-header">
-
-            <img
-                src="{{ $logoUrl }}"
-                alt="School Logo"
-                class="school-logo"
-            >
-
-            <h2 class="school-name">
-                {{ $school->school_name ?? 'School Name' }}
-            </h2>
-
-
-            <p class="school-address">
-
-                @if($schoolAddress)
-                    {{ $schoolAddress }}
-                @endif
-
-                @if($schoolCity)
-                    , {{ $schoolCity }}
-                @endif
-
-                @if($schoolDistrict)
-                    , {{ $schoolDistrict }}
-                @endif
-
-                @if($schoolState)
-                    , {{ $schoolState }}
-                @endif
-
-                @if($schoolPincode)
-                    - {{ $schoolPincode }}
-                @endif
-
-            </p>
-
-
-            @if($schoolPhone || $schoolEmail)
-
-                <div class="school-contact">
-
-                    @if($schoolPhone)
-
-                        <span>
-                            Phone:
-                            {{ $schoolPhone }}
-                        </span>
-
+                    @if($schoolAddress)
+                        <p class="school-address">{{ $schoolAddress }}</p>
                     @endif
 
+                    <div class="school-codes">
+                        @if($school?->school_code)
+                            <span><strong>School Code:</strong> {{ $school->school_code }}</span>
+                        @endif
 
-                    @if($schoolPhone && $schoolEmail)
+                        @if($school?->udise_code)
+                            <span><strong>UDISE:</strong> {{ $school->udise_code }}</span>
+                        @endif
+                    </div>
 
-                        <span>
-                            &nbsp; | &nbsp;
-                        </span>
+                    <div class="school-contact">
+                        @if($school?->phone)
+                            <span><strong>Phone:</strong> {{ $school->phone }}</span>
+                        @endif
 
-                    @endif
-
-
-                    @if($schoolEmail)
-
-                        <span>
-                            Email:
-                            {{ $schoolEmail }}
-                        </span>
-
-                    @endif
-
+                        @if($school?->email)
+                            <span><strong>Email:</strong> {{ $school->email }}</span>
+                        @endif
+                    </div>
                 </div>
 
-            @endif
-
-        </div>
-
-
-        {{-- CERTIFICATE HEADING --}}
-
-        <div class="certificate-heading">
-
-            <h1>
-                Bonafide Certificate
-            </h1>
-
-            <div class="certificate-subtitle">
-                This certificate is issued by the school
-            </div>
-
-        </div>
-
-
-        {{-- CERTIFICATE META --}}
-
-        <div class="certificate-meta">
-
-            <div class="certificate-number">
-
-                Certificate No:
-                {{ $certificateNumber }}
-
-            </div>
-
-
-            <div class="certificate-date">
-
-                Date:
-                {{ $formattedIssueDate }}
-
-            </div>
-
-        </div>
-
-
-        {{-- MAIN CONTENT --}}
-
-        <div class="certificate-content">
-
-            <p>
-
-                This is to certify that
-
-                <span class="student-name">
-                    {{ $studentName }}
-                </span>
-
-                is a bonafide student of
-
-                <span class="school-name-inline">
-                    {{ $school->school_name ?? 'the school' }}
-                </span>.
-
-            </p>
-
-
-            <p>
-
-                He/She is studying in
-
-                <span class="class-value">
-                    Class {{ $className }}
-                </span>
-
-                @if($section && $section !== '-')
-
-                    -
-                    <span class="class-value">
-                        Section {{ $section }}
-                    </span>
-
-                @endif
-
-                during the academic year
-
-                <span class="academic-year">
-                    {{ $academicYear }}
-                </span>.
-
-            </p>
-
-
-            <p>
-
-                As per the school records, the above information
-                is true and correct to the best of our knowledge.
-
-            </p>
-
-        </div>
-
-
-        {{-- STUDENT DETAILS --}}
-
-        <table class="student-details">
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Class
-                    </th>
-
-                    <th>
-                        Section
-                    </th>
-
-                    <th>
-                        Academic Year
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                <tr>
-
-                    <td>
-                        {{ $className }}
-                    </td>
-
-                    <td>
-                        {{ $section }}
-                    </td>
-
-                    <td>
-                        {{ $academicYear }}
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-
-        {{-- PURPOSE --}}
-
-        @if($purpose)
-
-            <div class="purpose">
-
-                <span class="purpose-label">
-                    Purpose:
-                </span>
-
-                {{ $purpose }}
-
-            </div>
-
-        @endif
-
-
-        {{-- SIGNATURES --}}
-
-        <div class="signature-section">
-
-
-            <div class="signature-box">
-
-                <div class="signature-space"></div>
-
-                <div class="signature-line"></div>
-
-                <div class="signature-title">
-                    Class Teacher
+                <div></div>
+            </header>
+
+            {{-- Certificate heading --}}
+            <section class="heading">
+                <div class="kicker">OFFICIAL SCHOOL DOCUMENT</div>
+                <h1>Bonafide Certificate</h1>
+                <div class="subtitle">Certificate of student status</div>
+                <div class="heading-rule"></div>
+            </section>
+
+            {{-- Certificate number and issue date --}}
+            <div class="certificate-meta">
+                <div>
+                    <span class="meta-label">Certificate No.:</span>
+                    <span class="meta-value">{{ $certificate->certificate_no ?: '-' }}</span>
                 </div>
 
+                <div>
+                    <span class="meta-label">Date of Issue:</span>
+                    <span class="meta-value">{{ $formattedIssueDate }}</span>
+                </div>
             </div>
 
-
-            <div class="signature-box">
-
-                <div class="signature-space"></div>
-
-                <div class="signature-line"></div>
-
-                <div class="signature-title">
-                    Principal
+            {{-- Student particulars --}}
+            <section>
+                <div class="section-heading">
+                    <span class="section-number">01</span>
+                    Student Particulars
                 </div>
 
+                <div class="details-grid">
+                    <div>
+                        <div class="detail-row">
+                            <span class="detail-label">Full Name of Student</span>
+                            <span class="detail-value">{{ $fullName ?: '-' }}</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Mother's Name</span>
+                            <span class="detail-value">{{ $motherName ?: '-' }}</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Registration Number</span>
+                            <span class="detail-value">{{ $registrationNo ?: '-' }}</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Academic Year</span>
+                            <span class="detail-value">{{ $academicYear ?: '-' }}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-row">
+                            <span class="detail-label">Date of Birth</span>
+                            <span class="detail-value">{{ $formattedDob }}</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Class / Division</span>
+                            <span class="detail-value">
+                                {{ $className ?: '-' }}
+                                @if($division)
+                                    / {{ $division }}
+                                @endif
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Aadhaar Number</span>
+                            <span class="detail-value">{{ $aadharNo ?: '-' }}</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Caste / Religion</span>
+                            <span class="detail-value">{{ $casteReligion ?: '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {{-- Certification --}}
+            <section>
+                <div class="section-heading">
+                    <span class="section-number">02</span>
+                    Certification
+                </div>
+
+                <p class="certification">
+                    This is to certify that
+                    <strong>{{ $fullName ?: 'the above-named student' }}</strong>
+                    is a bonafide student of
+                    <strong>{{ $school?->school_name ?? 'our school' }}</strong>.
+                    The student's particulars stated above are recorded in the
+                    official school records and are true to the best of our knowledge.
+                </p>
+
+                <div class="purpose-box">
+                    <span class="purpose-label">Purpose of Certificate</span>
+                    {{ $reason }}
+                </div>
+            </section>
+
+            {{-- Signatures and seal --}}
+            <footer class="signature-area">
+                <div class="signature">
+                    <div class="signature-space"></div>
+                    <div class="signature-line"></div>
+                    <strong>{{ $school?->principal_name ?? 'Principal' }}</strong>
+                    <span>Principal / Head of School</span>
+                </div>
+
+                <div class="seal">
+                    OFFICIAL<br> SCHOOL SEAL
+                </div>
+
+                <div class="signature">
+                    <div class="signature-space"></div>
+                    <div class="signature-line"></div>
+                    <strong>Class Teacher / Authorized Signatory</strong>
+                    <span>{{ $school?->school_name ?? 'School' }}</span>
+                </div>
+            </footer>
+
+            <div class="footer-line">
+                <span>Issued by the school administration</span>
+                <span>Certificate No.: {{ $certificate->certificate_no ?: '-' }}</span>
             </div>
 
-
         </div>
-
-
-    </div>
-
+    </main>
 
 </body>
-
 </html>

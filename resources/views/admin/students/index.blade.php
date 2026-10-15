@@ -1,4 +1,4 @@
-```blade
+﻿```blade
 @extends('layouts.app')
 
 @section('title', 'Students')
@@ -504,7 +504,7 @@
         </div>
     </div>
 
-    
+
 {{-- PAGE HEADER --}}
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
     <div>
@@ -545,6 +545,21 @@
                 <i class="bi bi-upload me-2"></i>
                 Import Students
             </button>
+
+
+{{-- EXPORT ALL STUDENTS TO EXCEL --}}
+<a href="{{ route('admin.students.export', request()->only([
+        'search',
+        'class',
+        'section',
+        'academic_year',
+        'status',
+    ])) }}"
+   class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold">
+    <i class="bi bi-download me-2"></i>
+    Export Excel
+</a>
+
         </form>
 
         {{-- EXISTING ADD STUDENT BUTTON --}}
@@ -579,7 +594,7 @@
         </div>
     @endif
 
-    
+
 @if(session('import_errors'))
     <div class="alert alert-warning border-0 shadow-sm rounded-3">
         <h6 class="fw-bold">
