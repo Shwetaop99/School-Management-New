@@ -1,3392 +1,1001 @@
 @extends('layouts.app')
 
+@section('title', 'Edit Scholarship Examination | Admin')
+@section('page-title', 'Edit Scholarship Examination')
+
 @section('content')
 
 <style>
-/* =========================================================
-   SCHOLARSHIP EXAM EDIT — PROFESSIONAL SCHOOL UI
-========================================================= */
-
 .scholarship-edit-page {
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --muted: #778078;
+    --text: #37443d;
+    --line: #e5dfd0;
+    --paper: #ffffff;
+    --cream: #f8f6ef;
+    --green: #3a9d6b;
+    --amber: #d58a0b;
+    --red: #c94a36;
+    --blue: #2b5d8a;
+    --serif: Georgia, "Times New Roman", serif;
+
     min-height: calc(100vh - 70px);
-    padding: 22px;
-    background: #f5f7fb;
-    color: #273449;
+    padding: 26px;
+    color: var(--text);
+    background:
+        radial-gradient(circle at 8% 4%, rgba(58,157,107,.045), transparent 25%),
+        radial-gradient(circle at 95% 16%, rgba(212,138,11,.045), transparent 25%),
+        var(--cream);
+    font-family: "Public Sans", "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
-/* =========================================================
-   HEADER
-========================================================= */
+.scholarship-edit-page *,
+.scholarship-edit-page *::before,
+.scholarship-edit-page *::after {
+    box-sizing: border-box;
+}
+
+.scholarship-edit-page a {
+    text-decoration: none;
+}
 
 .scholarship-edit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 25px 28px 25px 42px;
+    margin-bottom: 24px;
     position: relative;
     overflow: hidden;
-    margin-bottom: 20px;
-    padding: 22px 24px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #1769d1 0%, #159cc7 100%);
-    box-shadow: 0 8px 24px rgba(23,105,209,.14);
-    color: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background:
+        radial-gradient(circle at 95% 15%, rgba(58,157,107,.07), transparent 35%),
+        #fff;
+    box-shadow: 0 4px 16px rgba(38,59,53,.035);
 }
 
-.scholarship-edit-header::after {
+.scholarship-edit-header::before {
     content: "";
     position: absolute;
-    width: 190px;
-    height: 190px;
-    right: -70px;
-    top: -100px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.08);
+    top: 0;
+    bottom: 0;
+    left: 22px;
+    width: 2px;
+    background: rgba(228,87,46,.4);
 }
 
-.scholarship-edit-header-content {
-    position: relative;
-    z-index: 2;
+.scholarship-edit-heading {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.scholarship-edit-title {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.scholarship-edit-icon {
-    width: 50px;
-    height: 50px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 13px;
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.22);
-    font-size: 21px;
-}
-
-.scholarship-edit-title h1 {
-    margin: 0;
-    font-size: 21px;
-    font-weight: 800;
-    letter-spacing: -.2px;
-}
-
-.scholarship-edit-title p {
-    margin: 4px 0 0;
-    color: rgba(255,255,255,.80);
-    font-size: 12px;
-}
-
-.btn-back-exams {
-    position: relative;
-    z-index: 3;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 13px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,.24);
-    background: rgba(255,255,255,.12);
-    color: #fff;
-    text-decoration: none;
-    font-size: 11px;
-    font-weight: 750;
-    transition: .2s ease;
-}
-
-.btn-back-exams:hover {
-    color: #fff;
-    background: rgba(255,255,255,.20);
-}
-
-/* =========================================================
-   ALERT
-========================================================= */
-
-.scholarship-alert {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    margin-bottom: 18px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 11px;
-}
-
-.scholarship-alert-danger {
-    background: #fff5f4;
-    border: 1px solid #f3d3d0;
-    color: #c33e38;
-}
-
-.scholarship-alert i {
-    margin-top: 2px;
-}
-
-/* =========================================================
-   MAIN GRID
-========================================================= */
-
-.scholarship-form-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 18px;
-    align-items: start;
-}
-
-/* =========================================================
-   CARD
-========================================================= */
-
-.scholarship-form-card {
-    overflow: hidden;
-    margin-bottom: 18px;
-    border: 1px solid #e4e9f1;
-    border-radius: 14px;
-    background: #fff;
-    box-shadow: 0 4px 16px rgba(31,55,85,.045);
-}
-
-.form-card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 17px;
-    border-bottom: 1px solid #edf0f5;
-}
-
-.form-card-icon {
-    width: 35px;
-    height: 35px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    background: #edf4ff;
-    color: #1769d1;
-    font-size: 14px;
-}
-
-.form-card-icon.orange {
-    background: #fff5e6;
-    color: #e58a08;
-}
-
-.form-card-icon.cyan {
-    background: #eafafd;
-    color: #078da9;
-}
-
-.form-card-icon.green {
-    background: #eaf9f1;
-    color: #17955c;
-}
-
-.form-card-header h2 {
-    margin: 0;
-    color: #253247;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.form-card-header p {
-    margin: 2px 0 0;
-    color: #8a95a5;
-    font-size: 10px;
-}
-
-.form-card-body {
-    padding: 18px;
-}
-
-/* =========================================================
-   FORM
-========================================================= */
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 15px;
-}
-
-.form-group.full {
-    grid-column: 1 / -1;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 6px;
-    color: #566477;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .35px;
-}
-
-.required {
-    color: #e04d47;
-}
-
-.form-control-scholarship {
-    width: 100%;
-    min-height: 42px;
-    box-sizing: border-box;
-    padding: 9px 11px;
-    border: 1px solid #dce3ec;
-    border-radius: 8px;
-    outline: none;
-    background: #fbfcfe;
-    color: #29364a;
-    font-size: 12px;
-    transition: .18s ease;
-}
-
-.form-control-scholarship:hover {
-    border-color: #c9d5e4;
-}
-
-.form-control-scholarship:focus {
-    border-color: #1769d1;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(23,105,209,.07);
-}
-
-textarea.form-control-scholarship {
-    min-height: 95px;
-    resize: vertical;
-}
-
-.form-help {
-    margin-top: 5px;
-    color: #929cab;
-    font-size: 9px;
-}
-
-.invalid-feedback-custom {
-    margin-top: 5px;
-    color: #d94b44;
-    font-size: 10px;
-    font-weight: 650;
-}
-
-.input-error {
-    border-color: #e04d47 !important;
-    background: #fffafa !important;
-}
-
-/* =========================================================
-   CLASS SELECTION
-========================================================= */
-
-.class-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 11px;
-}
-
-.class-toolbar-title {
-    color: #667386;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.class-toolbar-actions {
-    display: flex;
-    gap: 7px;
-}
-
-.btn-select-all {
-    padding: 6px 10px;
-    border: 1px solid #dce4ee;
-    border-radius: 7px;
-    background: #fff;
-    color: #1769d1;
-    font-size: 10px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: .18s ease;
-}
-
-.btn-select-all:hover {
-    background: #f3f7fd;
-}
-
-.class-selection {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-}
-
-.class-option {
-    position: relative;
-}
-
-.class-option input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.class-option label {
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 7px 9px;
-    border: 1px solid #e0e6ee;
-    border-radius: 9px;
-    background: #fbfcfe;
-    cursor: pointer;
-    transition: .18s ease;
-}
-
-.class-option label:hover {
-    border-color: #b8cfee;
-    background: #f7faff;
-}
-
-.class-option input:checked + label {
-    border-color: #1769d1;
-    background: #f2f6fd;
-}
-
-.class-check {
-    width: 19px;
-    height: 19px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #d3dce7;
-    border-radius: 5px;
-    background: #fff;
-    color: transparent;
-    font-size: 9px;
-}
-
-.class-option input:checked + label .class-check {
-    border-color: #1769d1;
-    background: #1769d1;
-    color: #fff;
-}
-
-.class-info {
+    gap: 16px;
     min-width: 0;
 }
 
-.class-name {
-    display: block;
-    color: #2d394c;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.class-section {
-    display: block;
-    margin-top: 2px;
-    color: #8994a4;
-    font-size: 9px;
-}
-
-/* =========================================================
-   STUDENTS
-========================================================= */
-
-.students-card {
-    display: none;
-}
-
-.students-card.visible {
-    display: block;
-}
-
-.student-toolbar {
+.scholarship-edit-icon {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    border: 1px solid #dce7d5;
+    border-radius: 12px;
+    color: var(--green);
+    background: #edf5e9;
+    font-size: 22px;
 }
 
-.student-search {
-    position: relative;
-    flex: 1;
-    min-width: 220px;
-}
-
-.student-search i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9aa5b5;
-    font-size: 11px;
-}
-
-.student-search input {
-    width: 100%;
-    height: 38px;
-    box-sizing: border-box;
-    padding: 8px 11px 8px 33px;
-    border: 1px solid #dce3ec;
-    border-radius: 8px;
-    outline: none;
-    background: #fbfcfe;
-    font-size: 11px;
-}
-
-.student-search input:focus {
-    border-color: #1769d1;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(23,105,209,.06);
-}
-
-.student-count {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #758196;
-    font-size: 10px;
+.scholarship-edit-title {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 27px;
     font-weight: 700;
+    letter-spacing: -.4px;
+    line-height: 1.3;
 }
 
-.student-count strong {
-    color: #1769d1;
+.scholarship-edit-subtitle {
+    margin: 7px 0 0;
+    color: var(--muted);
     font-size: 13px;
 }
 
-.student-loading {
-    display: none;
-    padding: 30px 15px;
-    text-align: center;
-}
-
-.student-loading.active {
-    display: block;
-}
-
-.loading-spinner {
-    width: 28px;
-    height: 28px;
-    margin: 0 auto 9px;
-    border: 3px solid #e3ebf5;
-    border-top-color: #1769d1;
-    border-radius: 50%;
-    animation: scholarshipSpin .75s linear infinite;
-}
-
-@keyframes scholarshipSpin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loading-text {
-    color: #7e8999;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.student-empty {
-    display: none;
-    padding: 30px 15px;
-    text-align: center;
-    border: 1px dashed #dce4ed;
-    border-radius: 10px;
-    background: #fafbfd;
-}
-
-.student-empty.active {
-    display: block;
-}
-
-.student-empty-icon {
-    width: 44px;
-    height: 44px;
-    margin: 0 auto 9px;
+.scholarship-edit-actions {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: #eef4fc;
-    color: #1769d1;
-    font-size: 18px;
-}
-
-.student-empty strong {
-    display: block;
-    color: #3d4a5d;
-    font-size: 11px;
-}
-
-.student-empty span {
-    display: block;
-    margin-top: 4px;
-    color: #8c97a7;
-    font-size: 9px;
-}
-
-.student-table-wrap {
-    display: none;
-    overflow-x: auto;
-    border: 1px solid #e3e8ef;
-    border-radius: 10px;
-}
-
-.student-table-wrap.active {
-    display: block;
-}
-
-.student-table {
-    width: 100%;
-    min-width: 760px;
-    border-collapse: collapse;
-}
-
-.student-table th {
-    padding: 10px 11px;
-    text-align: left;
-    background: #f7f9fc;
-    border-bottom: 1px solid #e4e9f0;
-    color: #687589;
-    font-size: 8px;
-    font-weight: 850;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-}
-
-.student-table td {
-    padding: 10px 11px;
-    border-bottom: 1px solid #edf0f4;
-    color: #435066;
-    font-size: 10px;
-    vertical-align: middle;
-}
-
-.student-table tr:last-child td {
-    border-bottom: 0;
-}
-
-.student-table tr.student-hidden {
-    display: none;
-}
-
-.student-roll {
-    color: #1769d1;
-    font-weight: 850;
-}
-
-.student-name {
-    color: #29364a;
-    font-weight: 800;
-}
-
-.student-id {
-    display: block;
-    margin-top: 2px;
-    color: #9aa4b3;
-    font-size: 8px;
-}
-
-.student-class {
-    color: #647186;
-    font-weight: 700;
-}
-
-.student-status {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-}
-
-.status-option {
+    gap: 10px;
+    flex-shrink: 0;
     position: relative;
+    z-index: 1;
 }
 
-.status-option input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.status-option label {
+.scholarship-edit-page .btn-edit-header {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 70px;
-    min-height: 27px;
-    padding: 4px 8px;
-    border: 1px solid #dce3ec;
-    border-radius: 6px;
-    background: #fff;
-    color: #758196;
-    cursor: pointer;
-    font-size: 8px;
-    font-weight: 850;
-    transition: .15s ease;
-}
-
-.status-option label:hover {
-    border-color: #b9cbe5;
-}
-
-.status-option input[value="applied"]:checked + label {
-    background: #eef5ff;
-    border-color: #8eb5ed;
-    color: #1769d1;
-}
-
-.status-option input[value="appeared"]:checked + label {
-    background: #edfbfe;
-    border-color: #82d1df;
-    color: #0787a4;
-}
-
-.status-option input[value="passed"]:checked + label {
-    background: #f1fbf6;
-    border-color: #91d7b0;
-    color: #168452;
-}
-
-.status-option input[value="not_applied"]:checked + label {
-    background: #f7f8fa;
-    border-color: #cbd3dd;
-    color: #697587;
-}
-
-.student-status-help {
-    margin-top: 11px;
-    padding: 9px 11px;
-    border: 1px solid #e1ebf7;
+    gap: 8px;
+    min-height: 41px;
+    padding: 0 15px;
+    border: 1px solid transparent;
     border-radius: 8px;
-    background: #f8fbff;
-    color: #718096;
-    font-size: 9px;
-    line-height: 1.5;
+    font-size: 13px;
+    font-weight: 700;
+    transition: transform .2s ease, background .2s ease;
 }
 
-.student-status-help strong {
-    color: #40536c;
+.scholarship-edit-page .btn-edit-header:hover {
+    transform: translateY(-2px);
 }
 
-/* =========================================================
-   STATISTICS
-========================================================= */
+.scholarship-edit-page .btn-edit-back {
+    color: var(--ink);
+    background: #fff;
+    border-color: #d8d2c4;
+}
 
-.statistics-grid {
+.scholarship-edit-page .btn-edit-back:hover {
+    background: #f8f6ef;
+}
+
+.scholarship-edit-page .btn-edit-save {
+    color: #fff;
+    background: var(--ink);
+    border-color: var(--ink);
+    cursor: pointer;
+}
+
+.scholarship-edit-page .btn-edit-save:hover {
+    background: var(--ink-dark);
+}
+
+.scholarship-edit-layout {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 9px;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 20px;
+    align-items: start;
 }
 
-.stat-box {
-    position: relative;
+.scholarship-edit-main,
+.scholarship-edit-sidebar {
+    min-width: 0;
+}
+
+.scholarship-edit-card {
     overflow: hidden;
-    padding: 13px;
-    border: 1px solid #e3e9f1;
+    margin-bottom: 20px;
+    border: 1px solid var(--line);
     border-radius: 10px;
-    background: #fbfcfe;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(38,59,53,.035);
 }
 
-.stat-box.eligible {
-    border-left: 3px solid #1769d1;
-}
-
-.stat-box.applied {
-    border-left: 3px solid #ed9208;
-}
-
-.stat-box.appeared {
-    border-left: 3px solid #079dbd;
-}
-
-.stat-box.passed {
-    border-left: 3px solid #20a667;
-}
-
-.stat-label {
-    display: block;
-    color: #7e8999;
-    font-size: 8px;
-    font-weight: 850;
-    text-transform: uppercase;
-    letter-spacing: .3px;
-}
-
-.stat-value {
-    display: block;
-    margin-top: 5px;
-    color: #273449;
-    font-size: 22px;
-    line-height: 1;
-    font-weight: 900;
-}
-
-.stat-description {
-    display: block;
-    margin-top: 5px;
-    color: #9aa4b3;
-    font-size: 8px;
-}
-
-/* =========================================================
-   SIDE INFORMATION
-========================================================= */
-
-.side-info-card {
+.scholarship-edit-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 21px;
+    border-bottom: 1px dashed #d8d1bf;
     background: #fff;
 }
 
-.info-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.info-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-}
-
-.info-item-icon {
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
+.scholarship-edit-card-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 7px;
-    background: #eef4fc;
-    color: #1769d1;
-    font-size: 10px;
-}
-
-.info-item strong {
-    display: block;
-    color: #354257;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.info-item span {
-    display: block;
-    margin-top: 2px;
-    color: #8994a4;
-    font-size: 9px;
-    line-height: 1.45;
-}
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.status-box {
-    padding: 13px;
-    border: 1px solid #e4e9f1;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border: 1px solid #dce7d5;
     border-radius: 10px;
-    background: #fafbfd;
+    color: var(--green);
+    background: #edf5e9;
 }
 
-.status-row {
+.scholarship-edit-card-icon.orange {
+    color: var(--amber);
+    background: #fff5df;
+    border-color: #f0e1c2;
+}
+
+.scholarship-edit-card-icon.blue {
+    color: var(--blue);
+    background: #eff4fa;
+    border-color: #dbe3ed;
+}
+
+.scholarship-edit-card-title {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.scholarship-edit-card-subtitle {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 11.5px;
+}
+
+.scholarship-edit-card-body {
+    padding: 22px;
+}
+
+.edit-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 19px;
+}
+
+.edit-field {
+    min-width: 0;
+}
+
+.edit-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.edit-label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.required-mark {
+    color: var(--red);
+}
+
+.edit-control {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #deded3;
+    border-radius: 7px;
+    outline: none;
+    color: var(--text);
+    background: #fff;
+    font: inherit;
+    font-size: 13px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.edit-control:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(58,157,107,.10);
+}
+
+textarea.edit-control {
+    min-height: 115px;
+    resize: vertical;
+}
+
+.edit-help {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.edit-error {
+    display: block;
+    margin-top: 5px;
+    color: #bd302b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.edit-control.is-invalid {
+    border-color: #c94a36;
+}
+
+.edit-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border: 1px solid #f1c9c5;
+    border-radius: 8px;
+    color: #9f3028;
+    background: #fff4f2;
+    font-size: 12px;
+}
+
+.edit-alert ul {
+    margin: 5px 0 0;
+    padding-left: 18px;
+}
+
+.edit-section-note {
+    padding: 13px 15px;
+    margin-bottom: 18px;
+    border: 1px solid #dce7d5;
+    border-radius: 7px;
+    color: #45634a;
+    background: #f5f9f1;
+    font-size: 12px;
+}
+
+.edit-class-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.edit-class-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px;
+    border: 1px solid #e5dfd0;
+    border-radius: 8px;
+    background: #fcfbf7;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+.edit-class-option:hover {
+    border-color: #b9d6b5;
+    background: #f5f9f1;
+}
+
+.edit-class-option input {
+    margin-top: 4px;
+    accent-color: var(--green);
+}
+
+.edit-class-name {
+    display: block;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.edit-class-meta {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.edit-status-panel {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 16px;
+    padding: 15px;
+    border: 1px solid #dce7d5;
+    border-radius: 8px;
+    background: #f7fbf6;
 }
 
-.status-text strong {
-    display: block;
-    color: #334055;
-    font-size: 11px;
-    font-weight: 850;
+.edit-status-title {
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 750;
 }
 
-.status-text span {
-    display: block;
+.edit-status-description {
     margin-top: 3px;
-    color: #8c97a7;
-    font-size: 9px;
+    color: var(--muted);
+    font-size: 11px;
 }
 
-/* =========================================================
-   SWITCH
-========================================================= */
-
-.switch {
-    position: relative;
-    width: 40px;
-    height: 22px;
-    flex-shrink: 0;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    inset: 0;
-    cursor: pointer;
-    border-radius: 30px;
-    background: #cbd4df;
-    transition: .2s ease;
-}
-
-.slider::before {
-    content: "";
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    left: 3px;
-    top: 3px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,.15);
-    transition: .2s ease;
-}
-
-.switch input:checked + .slider {
-    background: #20a667;
-}
-
-.switch input:checked + .slider::before {
-    transform: translateX(18px);
-}
-
-/* =========================================================
-   ACTIONS
-========================================================= */
-
-.form-actions {
+.edit-status-toggle {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 8px;
-    padding: 14px 17px;
-    border-top: 1px solid #edf0f4;
-    background: #fcfdff;
+    flex-shrink: 0;
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 750;
 }
 
-.btn-cancel {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 39px;
-    padding: 8px 14px;
-    border: 1px solid #dce3ec;
-    border-radius: 8px;
-    background: #fff;
-    color: #667386;
-    text-decoration: none;
-    font-size: 11px;
-    font-weight: 800;
+.edit-status-toggle input {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--green);
 }
 
-.btn-cancel:hover {
-    background: #f7f9fc;
-    color: #4e5d72;
-}
-
-.btn-save {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-height: 39px;
-    padding: 8px 15px;
-    border: 0;
-    border-radius: 8px;
-    background: #1769d1;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 850;
-    cursor: pointer;
-    box-shadow: 0 5px 13px rgba(23,105,209,.16);
-    transition: .2s ease;
-}
-
-.btn-save:hover {
-    background: #125bb9;
-    transform: translateY(-1px);
-}
-
-.btn-save:disabled {
-    opacity: .65;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* =========================================================
-   NO CLASSES
-========================================================= */
-
-.no-classes {
-    padding: 23px;
-    text-align: center;
-    border: 1px dashed #dce4ed;
+.edit-sidebar-card {
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid var(--line);
     border-radius: 10px;
-    background: #fafbfd;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(38,59,53,.035);
 }
 
-.no-classes-icon {
-    margin-bottom: 7px;
-    color: #1769d1;
-    font-size: 22px;
+.edit-sidebar-top {
+    padding: 22px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 95% 5%, rgba(255,255,255,.10), transparent 40%),
+        var(--ink);
 }
 
-.no-classes strong {
+.edit-sidebar-top small {
     display: block;
-    color: #39465a;
+    margin-bottom: 7px;
+    color: #c5d0bd;
+    font-size: 11px;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+}
+
+.edit-sidebar-top strong {
+    display: block;
+    font-family: var(--serif);
+    font-size: 21px;
+    overflow-wrap: anywhere;
+}
+
+.edit-sidebar-body {
+    padding: 18px;
+}
+
+.edit-sidebar-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed #e5dfd0;
     font-size: 11px;
 }
 
-.no-classes span {
-    display: block;
-    margin-top: 4px;
-    color: #8c97a7;
-    font-size: 9px;
+.edit-sidebar-row:first-child {
+    padding-top: 0;
 }
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+.edit-sidebar-row:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
 
-@media (max-width: 1100px) {
+.edit-sidebar-row span {
+    color: var(--muted);
+}
 
-    .scholarship-form-grid {
-        grid-template-columns: 1fr;
-    }
+.edit-sidebar-row strong {
+    color: var(--ink);
+    text-align: right;
+    overflow-wrap: anywhere;
+}
 
-    .class-selection {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+.edit-sidebar-note {
+    padding: 16px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.edit-bottom-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 18px 22px;
+    border-top: 1px dashed #d8d1bf;
+    background: #fcfbf7;
+}
+
+.scholarship-edit-page a:focus-visible,
+.scholarship-edit-page button:focus-visible,
+.scholarship-edit-page input:focus-visible,
+.scholarship-edit-page select:focus-visible,
+.scholarship-edit-page textarea:focus-visible {
+    outline: 3px solid rgba(58,157,107,.35);
+    outline-offset: 2px;
+}
+
+@media (max-width: 1050px) {
+    .scholarship-edit-layout {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
-@media (max-width: 850px) {
-
-    .statistics-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-
+@media (max-width: 700px) {
     .scholarship-edit-page {
-        padding: 14px;
+        padding: 15px;
     }
 
-    .scholarship-edit-header-content {
+    .scholarship-edit-header {
         align-items: flex-start;
         flex-direction: column;
+        padding: 21px 20px 21px 34px;
     }
 
-    .btn-back-exams {
+    .scholarship-edit-header::before {
+        left: 18px;
+    }
+
+    .scholarship-edit-actions {
         width: 100%;
-        justify-content: center;
     }
 
-    .form-grid {
-        grid-template-columns: 1fr;
+    .scholarship-edit-page .btn-edit-header {
+        flex: 1;
     }
 
-    .class-selection {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .edit-form-grid,
+    .edit-class-grid {
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    .form-actions {
+    .scholarship-edit-card-body {
+        padding: 16px;
+    }
+
+    .scholarship-edit-title {
+        font-size: 23px;
+    }
+
+    .edit-bottom-actions {
         flex-direction: column-reverse;
+        padding: 16px;
     }
 
-    .form-actions a,
-    .form-actions button {
+    .edit-bottom-actions .btn-edit-header {
         width: 100%;
     }
 }
 
-@media (max-width: 480px) {
-
-    .class-selection {
-        grid-template-columns: 1fr;
-    }
-
-    .statistics-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .scholarship-edit-title h1 {
-        font-size: 18px;
-    }
-
-    .scholarship-edit-title p {
-        font-size: 10px;
+@media (prefers-reduced-motion: reduce) {
+    .scholarship-edit-page *,
+    .scholarship-edit-page *::before,
+    .scholarship-edit-page *::after {
+        transition: none !important;
+        animation: none !important;
     }
 }
 </style>
 
+@php
+    $selectedClasses = old(
+        'classes',
+        isset($exam) ? $exam->classes->pluck('id')->toArray() : []
+    );
+
+    $selectedClasses = array_map('strval', (array) $selectedClasses);
+@endphp
+
 <div class="scholarship-edit-page">
 
-```
-{{-- =====================================================
-     HEADER
-====================================================== --}}
-
-<div class="scholarship-edit-header">
-
-    <div class="scholarship-edit-header-content">
-
-        <div class="scholarship-edit-title">
-
+    <div class="scholarship-edit-header">
+        <div class="scholarship-edit-heading">
             <div class="scholarship-edit-icon">
-                <i class="fas fa-pen-to-square"></i>
+                <i class="fas fa-edit"></i>
             </div>
 
             <div>
-
-                <h1>
-                    Edit Scholarship Exam Record
-                </h1>
-
-                <p>
-                    Update examination details and student participation records.
+                <h1 class="scholarship-edit-title">Edit Scholarship Examination</h1>
+                <p class="scholarship-edit-subtitle">
+                    Update examination information, participation totals and status
                 </p>
-
             </div>
-
         </div>
 
-        <a
-            href="{{ route('admin.scholarship.exams.index') }}"
-            class="btn-back-exams">
+        <div class="scholarship-edit-actions">
+            <a href="{{ route('admin.scholarship.exams.index') }}"
+               class="btn-edit-header btn-edit-back">
+                <i class="fas fa-arrow-left"></i>
+                Back
+            </a>
 
-            <i class="fas fa-arrow-left"></i>
-
-            Back to Exam Records
-
-        </a>
-
-    </div>
-
-</div>
-
-
-{{-- =====================================================
-     VALIDATION ERRORS
-====================================================== --}}
-
-@if($errors->any())
-
-    <div class="scholarship-alert scholarship-alert-danger">
-
-        <i class="fas fa-exclamation-circle"></i>
-
-        <div>
-
-            <strong>
-                Please correct the following errors:
-            </strong>
-
-            <ul style="margin:6px 0 0 17px;padding:0;">
-
-                @foreach($errors->all() as $error)
-
-                    <li>
-                        {{ $error }}
-                    </li>
-
-                @endforeach
-
-            </ul>
-
+            <a href="{{ route('admin.scholarship.exams.show', $exam) }}"
+               class="btn-edit-header btn-edit-back">
+                <i class="fas fa-eye"></i>
+                View Exam
+            </a>
         </div>
-
     </div>
 
-@endif
+    @if ($errors->any())
+        <div class="edit-alert" role="alert">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>
+                <strong>Please correct the following errors:</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
 
+    <form action="{{ route('admin.scholarship.exams.update', $exam) }}"
+          method="POST">
+        @csrf
+        @method('PUT')
 
-{{-- =====================================================
-     FORM
-====================================================== --}}
+        <div class="scholarship-edit-layout">
 
-<form
-    method="POST"
-    action="{{ route('admin.scholarship.exams.update', $exam) }}"
-    id="scholarshipExamForm">
+            <div class="scholarship-edit-main">
 
-    @csrf
-
-    @method('PUT')
-
-
-    <div class="scholarship-form-grid">
-
-
-        {{-- =================================================
-             LEFT SIDE
-        ================================================== --}}
-
-        <div>
-
-
-            {{-- =================================================
-                 EXAM INFORMATION
-            ================================================== --}}
-
-            <div class="scholarship-form-card">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon">
-                        <i class="fas fa-file-signature"></i>
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Examination Information
-                        </h2>
-
-                        <p>
-                            Update the basic details of this scholarship examination
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-card-body">
-
-                    <div class="form-grid">
-
-
-                        {{-- EXAM NAME --}}
-
-                        <div class="form-group full">
-
-                            <label class="form-label">
-
-                                Exam Name
-
-                                <span class="required">
-                                    *
-                                </span>
-
-                            </label>
-
-                            <input
-                                type="text"
-                                name="exam_name"
-                                value="{{ old('exam_name', $exam->exam_name) }}"
-                                class="form-control-scholarship {{ $errors->has('exam_name') ? 'input-error' : '' }}"
-                                placeholder="e.g. Maharashtra Scholarship Examination">
-
-                            @if($errors->has('exam_name'))
-
-                                <div class="invalid-feedback-custom">
-                                    {{ $errors->first('exam_name') }}
-                                </div>
-
-                            @endif
-
+                {{-- EXAMINATION DETAILS --}}
+                <div class="scholarship-edit-card">
+                    <div class="scholarship-edit-card-header">
+                        <div class="scholarship-edit-card-icon">
+                            <i class="fas fa-file-alt"></i>
                         </div>
+                        <div>
+                            <h2 class="scholarship-edit-card-title">Examination Details</h2>
+                            <p class="scholarship-edit-card-subtitle">
+                                Basic information about the scholarship examination
+                            </p>
+                        </div>
+                    </div>
 
+                    <div class="scholarship-edit-card-body">
+                        <div class="edit-form-grid">
 
-                        {{-- ACADEMIC YEAR --}}
-
-                        <div class="form-group">
-
-                            <label class="form-label">
-
-                                Academic Year
-
-                                <span class="required">
-                                    *
-                                </span>
-
-                            </label>
-
-                            <input
-                                type="text"
-                                name="academic_year"
-                                id="academicYear"
-                                value="{{ old('academic_year', $exam->academic_year) }}"
-                                class="form-control-scholarship {{ $errors->has('academic_year') ? 'input-error' : '' }}"
-                                placeholder="e.g. 2026-2027">
-
-                            <div class="form-help">
-                                Match the Academic Year used in Student Management.
+                            <div class="edit-field full-width">
+                                <label for="exam_name" class="edit-label">
+                                    Examination Name <span class="required-mark">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="exam_name"
+                                    name="exam_name"
+                                    class="edit-control @error('exam_name') is-invalid @enderror"
+                                    value="{{ old('exam_name', $exam->exam_name) }}"
+                                    placeholder="Enter scholarship examination name"
+                                    required
+                                    maxlength="255">
+                                @error('exam_name')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
                             </div>
 
-                            @if($errors->has('academic_year'))
+                            <div class="edit-field">
+                                <label for="exam_type" class="edit-label">Examination Type</label>
+                                <input
+                                    type="text"
+                                    id="exam_type"
+                                    name="exam_type"
+                                    class="edit-control @error('exam_type') is-invalid @enderror"
+                                    value="{{ old('exam_type', $exam->exam_type) }}"
+                                    placeholder="e.g. State, National, School">
+                                @error('exam_type')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                                <div class="invalid-feedback-custom">
-                                    {{ $errors->first('academic_year') }}
-                                </div>
+                            <div class="edit-field">
+                                <label for="academic_year" class="edit-label">
+                                    Academic Year <span class="required-mark">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="academic_year"
+                                    name="academic_year"
+                                    class="edit-control @error('academic_year') is-invalid @enderror"
+                                    value="{{ old('academic_year', $exam->academic_year) }}"
+                                    placeholder="e.g. 2026-2027"
+                                    required>
+                                @error('academic_year')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                            @endif
+                            <div class="edit-field">
+                                <label for="exam_date" class="edit-label">Examination Date</label>
+                                <input
+                                    type="date"
+                                    id="exam_date"
+                                    name="exam_date"
+                                    class="edit-control @error('exam_date') is-invalid @enderror"
+                                    value="{{ old('exam_date', $exam->exam_date ? \Illuminate\Support\Carbon::parse($exam->exam_date)->format('Y-m-d') : '') }}">
+                                @error('exam_date')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                        </div>
-
-
-                        {{-- EXAM DATE --}}
-
-                        <div class="form-group">
-
-                            <label class="form-label">
-
-                                Exam Date
-
-                                <span class="required">
-                                    *
-                                </span>
-
-                            </label>
-
-                            <input
-                                type="date"
-                                name="exam_date"
-                                value="{{ old('exam_date', optional($exam->exam_date)->format('Y-m-d')) }}"
-                                class="form-control-scholarship {{ $errors->has('exam_date') ? 'input-error' : '' }}">
-
-                            @if($errors->has('exam_date'))
-
-                                <div class="invalid-feedback-custom">
-                                    {{ $errors->first('exam_date') }}
-                                </div>
-
-                            @endif
-
-                        </div>
-
-
-                        {{-- EXAM TYPE --}}
-
-                        <div class="form-group">
-
-                            <label class="form-label">
-
-                                Exam Type
-
-                                <span class="required">
-                                    *
-                                </span>
-
-                            </label>
-
-                            <select
-                                name="exam_type"
-                                class="form-control-scholarship {{ $errors->has('exam_type') ? 'input-error' : '' }}">
-
-                                <option value="">
-                                    Select Exam Type
-                                </option>
-
-                                @foreach([
-                                    'Government Scholarship',
-                                    'School Scholarship',
-                                    'State Scholarship',
-                                    'National Scholarship',
-                                    'Other'
-                                ] as $type)
-
-                                    <option
-                                        value="{{ $type }}"
-                                        {{ old('exam_type', $exam->exam_type) == $type ? 'selected' : '' }}>
-
-                                        {{ $type }}
-
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                            @if($errors->has('exam_type'))
-
-                                <div class="invalid-feedback-custom">
-                                    {{ $errors->first('exam_type') }}
-                                </div>
-
-                            @endif
+                            <div class="edit-field">
+                                <label for="conducted_by" class="edit-label">Conducted By</label>
+                                <input
+                                    type="text"
+                                    id="conducted_by"
+                                    name="conducted_by"
+                                    class="edit-control @error('conducted_by') is-invalid @enderror"
+                                    value="{{ old('conducted_by', $exam->conducted_by) }}"
+                                    placeholder="Enter organization or authority">
+                                @error('conducted_by')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
 
                         </div>
-
-
-                        {{-- CONDUCTED BY --}}
-
-                        <div class="form-group">
-
-                            <label class="form-label">
-                                Conducted By
-                            </label>
-
-                            <input
-                                type="text"
-                                name="conducted_by"
-                                value="{{ old('conducted_by', $exam->conducted_by) }}"
-                                class="form-control-scholarship"
-                                placeholder="e.g. School / Education Department">
-
-                        </div>
-
                     </div>
-
                 </div>
 
-            </div>
-
-
-            {{-- =================================================
-                 PARTICIPATING CLASSES
-            ================================================== --}}
-
-            <div class="scholarship-form-card">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon orange">
-                        <i class="fas fa-school"></i>
+                {{-- PARTICIPATION TOTALS --}}
+                <div class="scholarship-edit-card">
+                    <div class="scholarship-edit-card-header">
+                        <div class="scholarship-edit-card-icon blue">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <h2 class="scholarship-edit-card-title">Participation Statistics</h2>
+                            <p class="scholarship-edit-card-subtitle">
+                                Update the recorded student totals for this examination
+                            </p>
+                        </div>
                     </div>
 
-                    <div>
-
-                        <h2>
-                            Participating Classes
-                        </h2>
-
-                        <p>
-                            Update classes and sections participating in this examination
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-card-body">
-
-                    <div class="class-toolbar">
-
-                        <span class="class-toolbar-title">
-                            Select one or more classes / sections
-                        </span>
-
-                        <div class="class-toolbar-actions">
-
-                            <button
-                                type="button"
-                                class="btn-select-all"
-                                id="selectAllClasses">
-
-                                Select All
-
-                            </button>
-
+                    <div class="scholarship-edit-card-body">
+                        <div class="edit-section-note">
+                            These totals are used as fallback values when detailed student
+                            application records are not available.
                         </div>
 
+                        <div class="edit-form-grid">
+                            <div class="edit-field">
+                                <label for="total_eligible" class="edit-label">Eligible Students</label>
+                                <input
+                                    type="number"
+                                    id="total_eligible"
+                                    name="total_eligible"
+                                    min="0"
+                                    step="1"
+                                    class="edit-control @error('total_eligible') is-invalid @enderror"
+                                    value="{{ old('total_eligible', $exam->total_eligible ?? 0) }}">
+                                @error('total_eligible')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="edit-field">
+                                <label for="total_applied" class="edit-label">Applied Students</label>
+                                <input
+                                    type="number"
+                                    id="total_applied"
+                                    name="total_applied"
+                                    min="0"
+                                    step="1"
+                                    class="edit-control @error('total_applied') is-invalid @enderror"
+                                    value="{{ old('total_applied', $exam->total_applied ?? 0) }}">
+                                @error('total_applied')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="edit-field">
+                                <label for="total_appeared" class="edit-label">Appeared Students</label>
+                                <input
+                                    type="number"
+                                    id="total_appeared"
+                                    name="total_appeared"
+                                    min="0"
+                                    step="1"
+                                    class="edit-control @error('total_appeared') is-invalid @enderror"
+                                    value="{{ old('total_appeared', $exam->total_appeared ?? 0) }}">
+                                @error('total_appeared')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="edit-field">
+                                <label for="total_passed" class="edit-label">Passed Students</label>
+                                <input
+                                    type="number"
+                                    id="total_passed"
+                                    name="total_passed"
+                                    min="0"
+                                    step="1"
+                                    class="edit-control @error('total_passed') is-invalid @enderror"
+                                    value="{{ old('total_passed', $exam->total_passed ?? 0) }}">
+                                @error('total_passed')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- PARTICIPATING CLASSES --}}
+                <div class="scholarship-edit-card">
+                    <div class="scholarship-edit-card-header">
+                        <div class="scholarship-edit-card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h2 class="scholarship-edit-card-title">Participating Classes</h2>
+                            <p class="scholarship-edit-card-subtitle">
+                                Select the classes included in this examination
+                            </p>
+                        </div>
                     </div>
 
+                    <div class="scholarship-edit-card-body">
+                        <div class="edit-section-note">
+                            Previously linked classes are selected automatically.
+                            Update this selection if the participating classes have changed.
+                        </div>
 
-                    @if($classes->count())
+                        @if(isset($classes) && $classes->count())
+                            <div class="edit-class-grid">
+                                @foreach($classes as $class)
+                                    <label class="edit-class-option">
+                                        <input
+                                            type="checkbox"
+                                            name="classes[]"
+                                            value="{{ $class->id }}"
+                                            @checked(in_array((string) $class->id, $selectedClasses, true))>
 
-                        <div class="class-selection">
-
-                            @foreach($classes as $class)
-
-                                <div class="class-option">
-
-                                    <input
-                                        type="checkbox"
-                                        name="class_ids[]"
-                                        value="{{ $class->id }}"
-                                        id="class_{{ $class->id }}"
-                                        {{ in_array(
-                                            $class->id,
-                                            old('class_ids', $selectedClassIds ?? [])
-                                        ) ? 'checked' : '' }}>
-
-                                    <label for="class_{{ $class->id }}">
-
-                                        <span class="class-check">
-
-                                            <i class="fas fa-check"></i>
-
-                                        </span>
-
-                                        <span class="class-info">
-
-                                            <span class="class-name">
-
-                                                {{ $class->class_name }}
-
+                                        <span>
+                                            <span class="edit-class-name">
+                                                {{ $class->class_name ?? $class->name ?? 'Class' }}
+                                                @if(!empty($class->section))
+                                                    - {{ $class->section }}
+                                                @endif
                                             </span>
-
-                                            <span class="class-section">
-
-                                                Section
-                                                {{ $class->section ?: '—' }}
-
+                                            <span class="edit-class-meta">
+                                                {{ $class->academic_year ?? 'Academic year not specified' }}
                                             </span>
-
                                         </span>
-
                                     </label>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="edit-section-note">
+                                No class list was provided by the controller. The examination
+                                details can still be edited, but class selection is unavailable.
+                            </div>
+                        @endif
 
+                        @error('classes')
+                            <span class="edit-error">{{ $message }}</span>
+                        @enderror
+                        @error('classes.*')
+                            <span class="edit-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- STATUS AND REMARKS --}}
+                <div class="scholarship-edit-card">
+                    <div class="scholarship-edit-card-header">
+                        <div class="scholarship-edit-card-icon orange">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div>
+                            <h2 class="scholarship-edit-card-title">Status &amp; Remarks</h2>
+                            <p class="scholarship-edit-card-subtitle">
+                                Control availability and add additional notes
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="scholarship-edit-card-body">
+                        <div class="edit-form-grid">
+
+                            <div class="edit-field full-width">
+                                <div class="edit-status-panel">
+                                    <div>
+                                        <div class="edit-status-title">Examination Status</div>
+                                        <div class="edit-status-description">
+                                            Enable or disable this examination record.
+                                        </div>
+                                    </div>
+
+                                    <label class="edit-status-toggle">
+                                        <input
+                                            type="checkbox"
+                                            name="status"
+                                            value="1"
+                                            @checked((bool) old('status', $exam->status))>
+                                        Active
+                                    </label>
                                 </div>
-
-                            @endforeach
-
-                        </div>
-
-                    @else
-
-                        <div class="no-classes">
-
-                            <div class="no-classes-icon">
-                                <i class="fas fa-school"></i>
+                                @error('status')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
                             </div>
 
+                            <div class="edit-field full-width">
+                                <label for="remarks" class="edit-label">Examination Remarks</label>
+                                <textarea
+                                    id="remarks"
+                                    name="remarks"
+                                    class="edit-control @error('remarks') is-invalid @enderror"
+                                    placeholder="Enter additional examination information...">{{ old('remarks', $exam->remarks) }}</textarea>
+                                @error('remarks')
+                                    <span class="edit-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="edit-bottom-actions">
+                        <a href="{{ route('admin.scholarship.exams.show', $exam) }}"
+                           class="btn-edit-header btn-edit-back">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn-edit-header btn-edit-save">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- SIDEBAR --}}
+            <aside class="scholarship-edit-sidebar">
+
+                <div class="edit-sidebar-card">
+                    <div class="edit-sidebar-top">
+                        <small>Editing Examination</small>
+                        <strong>{{ $exam->exam_name }}</strong>
+                    </div>
+
+                    <div class="edit-sidebar-body">
+                        <div class="edit-sidebar-row">
+                            <span>Academic Year</span>
+                            <strong>{{ $exam->academic_year ?: '—' }}</strong>
+                        </div>
+
+                        <div class="edit-sidebar-row">
+                            <span>Exam Date</span>
                             <strong>
-                                No Active Classes Found
+                                {{ $exam->exam_date
+                                    ? \Illuminate\Support\Carbon::parse($exam->exam_date)->format('d M Y')
+                                    : '—' }}
                             </strong>
-
-                            <span>
-                                Please add active classes in Class Management first.
-                            </span>
-
                         </div>
 
-                    @endif
-
-
-                    @if($errors->has('class_ids'))
-
-                        <div class="invalid-feedback-custom">
-                            {{ $errors->first('class_ids') }}
+                        <div class="edit-sidebar-row">
+                            <span>Linked Classes</span>
+                            <strong>{{ isset($exam->classes) ? $exam->classes->count() : 0 }}</strong>
                         </div>
 
-                    @endif
+                        <div class="edit-sidebar-row">
+                            <span>Applications</span>
+                            <strong>{{ isset($exam->applications) ? $exam->applications->count() : 0 }}</strong>
+                        </div>
 
+                        <div class="edit-sidebar-row">
+                            <span>Status</span>
+                            <strong>{{ $exam->status ? 'Active' : 'Inactive' }}</strong>
+                        </div>
+                    </div>
                 </div>
 
-            </div>
-
-
-            {{-- =================================================
-                 STUDENT PARTICIPATION
-            ================================================== --}}
-
-            <div
-                class="scholarship-form-card students-card"
-                id="studentsCard">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon green">
-                        <i class="fas fa-user-graduate"></i>
+                <div class="edit-sidebar-card">
+                    <div class="scholarship-edit-card-header">
+                        <div class="scholarship-edit-card-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h2 class="scholarship-edit-card-title">Before Saving</h2>
+                        </div>
                     </div>
 
-                    <div>
-
-                        <h2>
-                            Student Participation
-                        </h2>
-
-                        <p>
-                            Update the participation status of each student
-                        </p>
-
+                    <div class="edit-sidebar-note">
+                        <p>Review the examination name and academic year.</p>
+                        <p>Verify participation totals before updating them.</p>
+                        <p>Changes are saved only after selecting <strong>Save Changes</strong>.</p>
                     </div>
-
                 </div>
 
-
-                <div class="form-card-body">
-
-                    <div class="student-toolbar">
-
-                        <div class="student-search">
-
-                            <i class="fas fa-search"></i>
-
-                            <input
-                                type="text"
-                                id="studentSearch"
-                                placeholder="Search student name, roll number or class...">
-
-                        </div>
-
-                        <div class="student-count">
-
-                            <span>
-                                Students Loaded
-                            </span>
-
-                            <strong id="studentCount">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="student-loading"
-                        id="studentLoading">
-
-                        <div class="loading-spinner"></div>
-
-                        <div class="loading-text">
-                            Loading students from Student Management...
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="student-empty"
-                        id="studentEmpty">
-
-                        <div class="student-empty-icon">
-                            <i class="fas fa-user-slash"></i>
-                        </div>
-
-                        <strong id="studentEmptyTitle">
-                            No Students Found
-                        </strong>
-
-                        <span id="studentEmptyMessage">
-                            No active students were found for the selected classes and academic year.
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        class="student-table-wrap"
-                        id="studentTableWrap">
-
-                        <table class="student-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th style="width:65px;">
-                                        Roll No.
-                                    </th>
-
-                                    <th>
-                                        Student
-                                    </th>
-
-                                    <th style="width:120px;">
-                                        Class
-                                    </th>
-
-                                    <th>
-                                        Participation Status
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody id="studentTableBody"></tbody>
-
-                        </table>
-
-                    </div>
-
-
-                    <div class="student-status-help">
-
-                        <strong>
-                            Status:
-                        </strong>
-
-                        Applied = registered for the exam.
-
-                        Appeared = attended the exam.
-
-                        Passed = successfully passed the exam.
-
-                        Not Applied students are not stored as applications.
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 STATISTICS
-            ================================================== --}}
-
-            <div class="scholarship-form-card">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon cyan">
-                        <i class="fas fa-chart-column"></i>
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Examination Statistics
-                        </h2>
-
-                        <p>
-                            Automatically calculated from student participation
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-card-body">
-
-                    <div class="statistics-grid">
-
-                        <div class="stat-box eligible">
-
-                            <span class="stat-label">
-                                Eligible
-                            </span>
-
-                            <span
-                                class="stat-value"
-                                id="eligibleCount">
-                                0
-                            </span>
-
-                            <span class="stat-description">
-                                Selected classes
-                            </span>
-
-                        </div>
-
-
-                        <div class="stat-box applied">
-
-                            <span class="stat-label">
-                                Applied
-                            </span>
-
-                            <span
-                                class="stat-value"
-                                id="appliedCount">
-                                0
-                            </span>
-
-                            <span class="stat-description">
-                                Registered
-                            </span>
-
-                        </div>
-
-
-                        <div class="stat-box appeared">
-
-                            <span class="stat-label">
-                                Appeared
-                            </span>
-
-                            <span
-                                class="stat-value"
-                                id="appearedCount">
-                                0
-                            </span>
-
-                            <span class="stat-description">
-                                Attended exam
-                            </span>
-
-                        </div>
-
-
-                        <div class="stat-box passed">
-
-                            <span class="stat-label">
-                                Passed
-                            </span>
-
-                            <span
-                                class="stat-value"
-                                id="passedCount">
-                                0
-                            </span>
-
-                            <span class="stat-description">
-                                Successful
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 REMARKS
-            ================================================== --}}
-
-            <div class="scholarship-form-card">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon">
-                        <i class="fas fa-note-sticky"></i>
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Additional Information
-                        </h2>
-
-                        <p>
-                            Optional notes for future reference
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-card-body">
-
-                    <div class="form-group">
-
-                        <label class="form-label">
-                            Remarks
-                        </label>
-
-                        <textarea
-                            name="remarks"
-                            class="form-control-scholarship"
-                            placeholder="Enter additional information about this scholarship examination...">{{ old('remarks', $exam->remarks) }}</textarea>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 ACTIONS
-            ================================================== --}}
-
-            <div class="scholarship-form-card">
-
-                <div class="form-actions">
-
-                    <a
-                        href="{{ route('admin.scholarship.exams.index') }}"
-                        class="btn-cancel">
-
-                        Cancel
-
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="btn-save"
-                        id="saveExamButton">
-
-                        <i class="fas fa-save"></i>
-
-                        Update Exam Record
-
-                    </button>
-
-                </div>
-
-            </div>
+            </aside>
 
         </div>
-
-
-        {{-- =================================================
-             RIGHT SIDE
-        ================================================== --}}
-
-        <div>
-
-
-            {{-- RECORD INFORMATION --}}
-
-            <div class="scholarship-form-card side-info-card">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon">
-                        <i class="fas fa-circle-info"></i>
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Record Information
-                        </h2>
-
-                        <p>
-                            Information stored in this module
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-card-body">
-
-                    <div class="info-list">
-
-
-                        <div class="info-item">
-
-                            <div class="info-item-icon">
-                                <i class="fas fa-calendar"></i>
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    Year-wise History
-                                </strong>
-
-                                <span>
-                                    Maintain examination records
-                                    for every academic year.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <div class="info-item-icon">
-                                <i class="fas fa-school"></i>
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    Existing Classes
-                                </strong>
-
-                                <span>
-                                    Classes and sections are taken
-                                    directly from Class Management.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <div class="info-item-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    Student Records
-                                </strong>
-
-                                <span>
-                                    Students are loaded from
-                                    Student Management.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <div class="info-item-icon">
-                                <i class="fas fa-chart-simple"></i>
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    Automatic Statistics
-                                </strong>
-
-                                <span>
-                                    Eligible, Applied, Appeared and
-                                    Passed totals update automatically.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <div class="info-item-icon">
-                                <i class="fas fa-pen-to-square"></i>
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    Editable Record
-                                </strong>
-
-                                <span>
-                                    Existing examination details and
-                                    participation statuses can be updated.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- STATUS --}}
-
-            <div class="scholarship-form-card">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon">
-                        <i class="fas fa-toggle-on"></i>
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Record Status
-                        </h2>
-
-                        <p>
-                            Control historical record visibility
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-card-body">
-
-                    <div class="status-box">
-
-                        <div class="status-row">
-
-                            <div class="status-text">
-
-                                <strong>
-                                    Active Record
-                                </strong>
-
-                                <span>
-                                    Keep this examination
-                                    available in records.
-                                </span>
-
-                            </div>
-
-                            <label class="switch">
-
-                                <input
-                                    type="checkbox"
-                                    name="status"
-                                    value="1"
-                                    {{ old('status', $exam->status) ? 'checked' : '' }}>
-
-                                <span class="slider"></span>
-
-                            </label>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- DATA RULES --}}
-
-            <div class="scholarship-form-card">
-
-                <div class="form-card-header">
-
-                    <div class="form-card-icon orange">
-                        <i class="fas fa-shield-halved"></i>
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Data Rules
-                        </h2>
-
-                        <p>
-                            Participation validation
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-card-body">
-
-                    <div style="
-                        padding:11px;
-                        border-radius:9px;
-                        background:#fffaf1;
-                        border:1px solid #f5e2bc;
-                    ">
-
-                        <div style="
-                            display:flex;
-                            gap:8px;
-                            align-items:flex-start;
-                        ">
-
-                            <i
-                                class="fas fa-check-circle"
-                                style="color:#ed9208;margin-top:2px;">
-                            </i>
-
-                            <span style="
-                                color:#77623c;
-                                font-size:9px;
-                                line-height:1.6;
-                            ">
-
-                                Appeared automatically counts as
-                                Applied. Passed automatically counts
-                                as both Appeared and Applied.
-                                Not Applied students are not stored.
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</form>
-```
+    </form>
 
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    /* =====================================================
-       ELEMENTS
-    ====================================================== */
-
-    const form =
-        document.getElementById('scholarshipExamForm');
-
-    const academicYear =
-        document.getElementById('academicYear');
-
-    const selectAllButton =
-        document.getElementById('selectAllClasses');
-
-    const classCheckboxes =
-        document.querySelectorAll(
-            'input[name="class_ids[]"]'
-        );
-
-    const studentsCard =
-        document.getElementById('studentsCard');
-
-    const studentLoading =
-        document.getElementById('studentLoading');
-
-    const studentEmpty =
-        document.getElementById('studentEmpty');
-
-    const studentEmptyTitle =
-        document.getElementById('studentEmptyTitle');
-
-    const studentEmptyMessage =
-        document.getElementById('studentEmptyMessage');
-
-    const studentTableWrap =
-        document.getElementById('studentTableWrap');
-
-    const studentTableBody =
-        document.getElementById('studentTableBody');
-
-    const studentSearch =
-        document.getElementById('studentSearch');
-
-    const studentCount =
-        document.getElementById('studentCount');
-
-    const eligibleCount =
-        document.getElementById('eligibleCount');
-
-    const appliedCount =
-        document.getElementById('appliedCount');
-
-    const appearedCount =
-        document.getElementById('appearedCount');
-
-    const passedCount =
-        document.getElementById('passedCount');
-
-    const saveExamButton =
-        document.getElementById('saveExamButton');
-
-
-    /* =====================================================
-       EXISTING STATUS DATA
-    ====================================================== */
-
-    const existingStatuses =
-        @json($studentStatuses ?? []);
-
-    const oldStudentRecords =
-        @json(old('student_records', []));
-
-
-    /*
-     * Create ONE normalized status map.
-     *
-     * This avoids problems caused by integer/string
-     * student IDs.
-     */
-
-    const studentStatusMap = {};
-
-    Object.keys(existingStatuses || {}).forEach(function (id) {
-
-        studentStatusMap[String(id)] =
-            existingStatuses[id];
-
-    });
-
-    Object.keys(oldStudentRecords || {}).forEach(function (id) {
-
-        studentStatusMap[String(id)] =
-            oldStudentRecords[id];
-
-    });
-
-
-    /* =====================================================
-       STUDENT DATA
-    ====================================================== */
-
-    let allStudents = [];
-
-    let loadedStudentIds = new Set();
-
-
-    /* =====================================================
-       SELECT ALL
-    ====================================================== */
-
-    if (selectAllButton) {
-
-        selectAllButton.addEventListener(
-            'click',
-            function () {
-
-                const allChecked =
-                    classCheckboxes.length > 0 &&
-                    Array.from(classCheckboxes).every(
-                        function (checkbox) {
-                            return checkbox.checked;
-                        }
-                    );
-
-                classCheckboxes.forEach(
-                    function (checkbox) {
-
-                        checkbox.checked =
-                            !allChecked;
-
-                    }
-                );
-
-                updateSelectAllButton();
-
-                loadSelectedClasses();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       CLASS CHECKBOX CHANGE
-    ====================================================== */
-
-    classCheckboxes.forEach(
-        function (checkbox) {
-
-            checkbox.addEventListener(
-                'change',
-                function () {
-
-                    updateSelectAllButton();
-
-                    loadSelectedClasses();
-
-                }
-            );
-
-        }
-    );
-
-
-    /* =====================================================
-       UPDATE SELECT ALL BUTTON
-    ====================================================== */
-
-    function updateSelectAllButton() {
-
-        if (!selectAllButton) {
-            return;
-        }
-
-        const total =
-            classCheckboxes.length;
-
-        const checked =
-            Array.from(classCheckboxes)
-                .filter(
-                    function (checkbox) {
-                        return checkbox.checked;
-                    }
-                )
-                .length;
-
-        if (
-            total > 0 &&
-            checked === total
-        ) {
-
-            selectAllButton.textContent =
-                'Clear All';
-
-        } else {
-
-            selectAllButton.textContent =
-                'Select All';
-
-        }
-
-    }
-
-
-    /* =====================================================
-       ACADEMIC YEAR CHANGE
-    ====================================================== */
-
-    if (academicYear) {
-
-        academicYear.addEventListener(
-            'change',
-            function () {
-
-                loadSelectedClasses();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       GET STUDENT STATUS
-    ====================================================== */
-
-    function getStudentStatus(studentId) {
-
-        const id =
-            String(studentId);
-
-        if (
-            Object.prototype.hasOwnProperty.call(
-                studentStatusMap,
-                id
-            )
-        ) {
-
-            return studentStatusMap[id];
-
-        }
-
-        return 'not_applied';
-
-    }
-
-
-    /* =====================================================
-       LOAD SELECTED CLASSES
-    ====================================================== */
-
-    async function loadSelectedClasses() {
-
-        const selectedClasses =
-            Array.from(
-                document.querySelectorAll(
-                    'input[name="class_ids[]"]:checked'
-                )
-            );
-
-        const year =
-            academicYear
-                ? academicYear.value.trim()
-                : '';
-
-
-        /* -------------------------------------------------
-           RESET WHEN NOTHING IS SELECTED
-        -------------------------------------------------- */
-
-        if (
-            selectedClasses.length === 0 ||
-            year === ''
-        ) {
-
-            allStudents = [];
-
-            loadedStudentIds =
-                new Set();
-
-            studentTableBody.innerHTML = '';
-
-            studentsCard.classList.remove(
-                'visible'
-            );
-
-            studentLoading.classList.remove(
-                'active'
-            );
-
-            studentEmpty.classList.remove(
-                'active'
-            );
-
-            studentTableWrap.classList.remove(
-                'active'
-            );
-
-            studentCount.textContent =
-                '0';
-
-            updateStatistics();
-
-            return;
-
-        }
-
-
-        /* -------------------------------------------------
-           SHOW LOADING
-        -------------------------------------------------- */
-
-        studentsCard.classList.add(
-            'visible'
-        );
-
-        studentLoading.classList.add(
-            'active'
-        );
-
-        studentEmpty.classList.remove(
-            'active'
-        );
-
-        studentTableWrap.classList.remove(
-            'active'
-        );
-
-        studentTableBody.innerHTML = '';
-
-        allStudents = [];
-
-        loadedStudentIds =
-            new Set();
-
-
-        try {
-
-            /* ---------------------------------------------
-               CREATE REQUESTS
-            ---------------------------------------------- */
-
-            const requests =
-                selectedClasses.map(
-                    async function (checkbox) {
-
-                        const url =
-                            "{{ route('admin.scholarship.exams.students') }}"
-                            +
-                            "?academic_year="
-                            +
-                            encodeURIComponent(year)
-                            +
-                            "&class_id="
-                            +
-                            encodeURIComponent(
-                                checkbox.value
-                            );
-
-
-                        console.log(
-                            'Loading scholarship students:',
-                            url
-                        );
-
-
-                        const response =
-                            await fetch(
-                                url,
-                                {
-                                    method: 'GET',
-
-                                    credentials:
-                                        'same-origin',
-
-                                    headers: {
-                                        'Accept':
-                                            'application/json',
-
-                                        'X-Requested-With':
-                                            'XMLHttpRequest'
-                                    }
-                                }
-                            );
-
-
-                        /*
-                         * Read as text first.
-                         *
-                         * Laravel may return HTML if there
-                         * is an exception/redirect.
-                         */
-
-                        const responseText =
-                            await response.text();
-
-
-                        let data;
-
-                        try {
-
-                            data =
-                                JSON.parse(
-                                    responseText
-                                );
-
-                        } catch (jsonError) {
-
-                            console.error(
-                                'Invalid JSON from student endpoint:',
-                                responseText
-                            );
-
-                            throw new Error(
-                                'Student endpoint did not return JSON.'
-                            );
-
-                        }
-
-
-                        if (!response.ok) {
-
-                            console.error(
-                                'Student endpoint error:',
-                                data
-                            );
-
-                            throw new Error(
-                                data.message ||
-                                'Unable to load students.'
-                            );
-
-                        }
-
-
-                        return data;
-
-                    }
-                );
-
-
-            /* ---------------------------------------------
-               WAIT FOR ALL CLASS REQUESTS
-            ---------------------------------------------- */
-
-            const responses =
-                await Promise.all(
-                    requests
-                );
-
-
-            /* ---------------------------------------------
-               MERGE ALL STUDENTS
-            ---------------------------------------------- */
-
-            responses.forEach(
-                function (response) {
-
-                    console.log(
-                        'Scholarship student response:',
-                        response
-                    );
-
-
-                    if (
-                        response &&
-                        response.success === true &&
-                        Array.isArray(
-                            response.students
-                        )
-                    ) {
-
-                        response.students.forEach(
-                            function (student) {
-
-                                /*
-                                 * ALWAYS use string IDs.
-                                 */
-
-                                const studentId =
-                                    String(
-                                        student.id
-                                    );
-
-
-                                if (
-                                    !loadedStudentIds.has(
-                                        studentId
-                                    )
-                                ) {
-
-                                    loadedStudentIds.add(
-                                        studentId
-                                    );
-
-                                    allStudents.push(
-                                        student
-                                    );
-
-                                }
-
-                            }
-                        );
-
-                    }
-
-                }
-            );
-
-
-            /* ---------------------------------------------
-               SORT
-            ---------------------------------------------- */
-
-            allStudents.sort(
-                function (a, b) {
-
-                    const rollA =
-                        parseInt(
-                            a.roll_number || 0,
-                            10
-                        );
-
-                    const rollB =
-                        parseInt(
-                            b.roll_number || 0,
-                            10
-                        );
-
-
-                    if (
-                        rollA !== rollB
-                    ) {
-
-                        return rollA - rollB;
-
-                    }
-
-
-                    const nameA =
-                        [
-                            a.first_name,
-                            a.middle_name,
-                            a.last_name
-                        ]
-                            .filter(Boolean)
-                            .join(' ');
-
-
-                    const nameB =
-                        [
-                            b.first_name,
-                            b.middle_name,
-                            b.last_name
-                        ]
-                            .filter(Boolean)
-                            .join(' ');
-
-
-                    return nameA.localeCompare(
-                        nameB
-                    );
-
-                }
-            );
-
-
-            /* ---------------------------------------------
-               RENDER
-            ---------------------------------------------- */
-
-            renderStudents();
-
-
-        } catch (error) {
-
-            console.error(
-                'Scholarship student loading failed:',
-                error
-            );
-
-
-            studentLoading.classList.remove(
-                'active'
-            );
-
-            studentTableWrap.classList.remove(
-                'active'
-            );
-
-            studentEmpty.classList.add(
-                'active'
-            );
-
-            studentEmptyTitle.textContent =
-                'Unable to Load Students';
-
-            studentEmptyMessage.textContent =
-                error.message ||
-                'Unable to load students. Please check the Academic Year, Class records and Student records.';
-
-            allStudents = [];
-
-            loadedStudentIds =
-                new Set();
-
-            studentCount.textContent =
-                '0';
-
-            updateStatistics();
-
-        }
-
-    }
-
-
-    /* =====================================================
-       RENDER STUDENTS
-    ====================================================== */
-
-    function renderStudents() {
-
-        studentLoading.classList.remove(
-            'active'
-        );
-
-        studentTableBody.innerHTML = '';
-
-        studentCount.textContent =
-            allStudents.length;
-
-
-        /* -------------------------------------------------
-           NO STUDENTS
-        -------------------------------------------------- */
-
-        if (
-            allStudents.length === 0
-        ) {
-
-            studentTableWrap.classList.remove(
-                'active'
-            );
-
-            studentEmpty.classList.add(
-                'active'
-            );
-
-            studentEmptyTitle.textContent =
-                'No Students Found';
-
-            studentEmptyMessage.textContent =
-                'No active students were found for the selected classes and academic year.';
-
-            updateStatistics();
-
-            return;
-
-        }
-
-
-        /* -------------------------------------------------
-           STUDENTS FOUND
-        -------------------------------------------------- */
-
-        studentEmpty.classList.remove(
-            'active'
-        );
-
-        studentTableWrap.classList.add(
-            'active'
-        );
-
-
-        allStudents.forEach(
-            function (student) {
-
-                const studentId =
-                    String(
-                        student.id
-                    );
-
-
-                const currentStatus =
-                    getStudentStatus(
-                        studentId
-                    );
-
-
-                const fullName =
-                    [
-                        student.first_name,
-                        student.middle_name,
-                        student.last_name
-                    ]
-                        .filter(Boolean)
-                        .join(' ');
-
-
-                const row =
-                    document.createElement(
-                        'tr'
-                    );
-
-
-                row.dataset.studentId =
-                    studentId;
-
-
-                row.innerHTML = `
-
-                    <td>
-
-                        <span class="student-roll">
-
-                            ${escapeHtml(
-                                student.roll_number || '—'
-                            )}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-
-                        <span class="student-name">
-
-                            ${escapeHtml(
-                                fullName ||
-                                'Unnamed Student'
-                            )}
-
-                        </span>
-
-
-                        ${
-                            student.student_id
-                                ? `
-                                    <span class="student-id">
-
-                                        ID:
-                                        ${escapeHtml(
-                                            student.student_id
-                                        )}
-
-                                    </span>
-                                  `
-                                : ''
-                        }
-
-                    </td>
-
-
-                    <td>
-
-                        <span class="student-class">
-
-                            ${escapeHtml(
-                                student.class || '—'
-                            )}
-
-                            ${
-                                student.section
-                                    ? ' / ' +
-                                      escapeHtml(
-                                          student.section
-                                      )
-                                    : ''
-                            }
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-
-                        <div class="student-status">
-
-
-                            <!-- NOT APPLIED -->
-
-                            <div class="status-option">
-
-                                <input
-                                    type="radio"
-                                    name="student_records[${studentId}]"
-                                    value="not_applied"
-                                    id="student_${studentId}_not_applied"
-                                    ${
-                                        currentStatus ===
-                                        'not_applied'
-                                            ? 'checked'
-                                            : ''
-                                    }>
-
-                                <label
-                                    for="student_${studentId}_not_applied">
-
-                                    Not Applied
-
-                                </label>
-
-                            </div>
-
-
-                            <!-- APPLIED -->
-
-                            <div class="status-option">
-
-                                <input
-                                    type="radio"
-                                    name="student_records[${studentId}]"
-                                    value="applied"
-                                    id="student_${studentId}_applied"
-                                    ${
-                                        currentStatus ===
-                                        'applied'
-                                            ? 'checked'
-                                            : ''
-                                    }>
-
-                                <label
-                                    for="student_${studentId}_applied">
-
-                                    Applied
-
-                                </label>
-
-                            </div>
-
-
-                            <!-- APPEARED -->
-
-                            <div class="status-option">
-
-                                <input
-                                    type="radio"
-                                    name="student_records[${studentId}]"
-                                    value="appeared"
-                                    id="student_${studentId}_appeared"
-                                    ${
-                                        currentStatus ===
-                                        'appeared'
-                                            ? 'checked'
-                                            : ''
-                                    }>
-
-                                <label
-                                    for="student_${studentId}_appeared">
-
-                                    Appeared
-
-                                </label>
-
-                            </div>
-
-
-                            <!-- PASSED -->
-
-                            <div class="status-option">
-
-                                <input
-                                    type="radio"
-                                    name="student_records[${studentId}]"
-                                    value="passed"
-                                    id="student_${studentId}_passed"
-                                    ${
-                                        currentStatus ===
-                                        'passed'
-                                            ? 'checked'
-                                            : ''
-                                    }>
-
-                                <label
-                                    for="student_${studentId}_passed">
-
-                                    Passed
-
-                                </label>
-
-                            </div>
-
-
-                        </div>
-
-                    </td>
-
-                `;
-
-
-                studentTableBody.appendChild(
-                    row
-                );
-
-            }
-        );
-
-
-        attachStatusListeners();
-
-        updateStatistics();
-
-    }
-
-
-    /* =====================================================
-       STATUS LISTENERS
-    ====================================================== */
-
-    function attachStatusListeners() {
-
-        const radios =
-            studentTableBody.querySelectorAll(
-                'input[type="radio"]'
-            );
-
-
-        radios.forEach(
-            function (radio) {
-
-                radio.addEventListener(
-                    'change',
-                    function () {
-
-                        const match =
-                            this.name.match(
-                                /student_records\[(.+?)\]/
-                            );
-
-
-                        if (match) {
-
-                            studentStatusMap[
-                                String(
-                                    match[1]
-                                )
-                            ] =
-                                this.value;
-
-                        }
-
-
-                        updateStatistics();
-
-                    }
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       STATISTICS
-    ====================================================== */
-
-    function updateStatistics() {
-
-        const eligible =
-            allStudents.length;
-
-        let applied = 0;
-
-        let appeared = 0;
-
-        let passed = 0;
-
-
-        allStudents.forEach(
-            function (student) {
-
-                const studentId =
-                    String(
-                        student.id
-                    );
-
-
-                const selected =
-                    document.querySelector(
-                        `input[name="student_records[${studentId}]"]:checked`
-                    );
-
-
-                const status =
-                    selected
-                        ? selected.value
-                        : getStudentStatus(
-                            studentId
-                        );
-
-
-                if (
-                    status === 'applied' ||
-                    status === 'appeared' ||
-                    status === 'passed'
-                ) {
-
-                    applied++;
-
-                }
-
-
-                if (
-                    status === 'appeared' ||
-                    status === 'passed'
-                ) {
-
-                    appeared++;
-
-                }
-
-
-                if (
-                    status === 'passed'
-                ) {
-
-                    passed++;
-
-                }
-
-            }
-        );
-
-
-        eligibleCount.textContent =
-            eligible;
-
-        appliedCount.textContent =
-            applied;
-
-        appearedCount.textContent =
-            appeared;
-
-        passedCount.textContent =
-            passed;
-
-    }
-
-
-    /* =====================================================
-       SEARCH
-    ====================================================== */
-
-    if (studentSearch) {
-
-        studentSearch.addEventListener(
-            'input',
-            function () {
-
-                const search =
-                    this.value
-                        .trim()
-                        .toLowerCase();
-
-
-                const rows =
-                    studentTableBody.querySelectorAll(
-                        'tr'
-                    );
-
-
-                rows.forEach(
-                    function (row) {
-
-                        const text =
-                            row.textContent
-                                .toLowerCase();
-
-
-                        if (
-                            search === '' ||
-                            text.includes(search)
-                        ) {
-
-                            row.classList.remove(
-                                'student-hidden'
-                            );
-
-                        } else {
-
-                            row.classList.add(
-                                'student-hidden'
-                            );
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       FORM SUBMIT
-    ====================================================== */
-
-    if (form) {
-
-        form.addEventListener(
-            'submit',
-            function (event) {
-
-                const selectedClasses =
-                    document.querySelectorAll(
-                        'input[name="class_ids[]"]:checked'
-                    );
-
-
-                if (
-                    selectedClasses.length === 0
-                ) {
-
-                    event.preventDefault();
-
-                    alert(
-                        'Please select at least one participating class.'
-                    );
-
-                    return;
-
-                }
-
-
-                if (
-                    !academicYear ||
-                    academicYear.value.trim() === ''
-                ) {
-
-                    event.preventDefault();
-
-                    alert(
-                        'Please enter the Academic Year.'
-                    );
-
-                    academicYear?.focus();
-
-                    return;
-
-                }
-
-
-                updateStatistics();
-
-
-                if (saveExamButton) {
-
-                    saveExamButton.disabled =
-                        true;
-
-                    saveExamButton.innerHTML = `
-
-                        <i class="fas fa-spinner fa-spin"></i>
-
-                        Updating Exam Record...
-
-                    `;
-
-                }
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       HTML ESCAPE
-    ====================================================== */
-
-    function escapeHtml(value) {
-
-        return String(
-            value ?? ''
-        )
-            .replace(
-                /&/g,
-                '&amp;'
-            )
-            .replace(
-                /</g,
-                '&lt;'
-            )
-            .replace(
-                />/g,
-                '&gt;'
-            )
-            .replace(
-                /"/g,
-                '&quot;'
-            )
-            .replace(
-                /'/g,
-                '&#039;'
-            );
-
-    }
-
-
-    /* =====================================================
-       INITIAL PAGE LOAD
-    ====================================================== */
-
-    updateSelectAllButton();
-
-
-    /*
-     * IMPORTANT:
-     *
-     * When Edit page opens, Blade has already checked
-     * the classes stored against this exam.
-     *
-     * We now immediately load the students for those
-     * selected classes.
-     */
-
-    const initiallySelectedClasses =
-        document.querySelectorAll(
-            'input[name="class_ids[]"]:checked'
-        );
-
-
-    console.log(
-        'Academic Year:',
-        academicYear
-            ? academicYear.value
-            : null
-    );
-
-
-    console.log(
-        'Selected Classes:',
-        Array.from(
-            initiallySelectedClasses
-        ).map(
-            function (checkbox) {
-                return checkbox.value;
-            }
-        )
-    );
-
-
-    if (
-        initiallySelectedClasses.length > 0 &&
-        academicYear &&
-        academicYear.value.trim() !== ''
-    ) {
-
-        loadSelectedClasses();
-
-    } else {
-
-        console.warn(
-            'Scholarship Edit: No selected class or academic year found.'
-        );
-
-    }
-
-});
-</script>
 
 @endsection

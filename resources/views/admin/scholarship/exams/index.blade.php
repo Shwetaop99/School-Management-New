@@ -1,580 +1,726 @@
 @extends('layouts.app')
 
 @section('title', 'Scholarship Exam Records | Admin')
-
 @section('page-title', 'Scholarship Exam Records')
 
 @section('content')
-
 <style>
 /* =========================================================
-   SCHOLARSHIP EXAM RECORDS — PREMIUM MANAGEMENT UI
+   LOCKED SCHOOL DIARY DESIGN SYSTEM
+   Scholarship Examination Records
 ========================================================= */
 
-.scholarship-exams-page {
+.scholarship-page {
+    --ink: #263b35;
+    --ink-2: #20352c;
+    --ink-hover: #456854;
+    --text: #34423d;
+    --muted: #78827a;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --chalk: #f4f0df;
+    --wood: #a87543;
+    --red: #bd5148;
+    --blue: #2b5d8a;
+    --green: #34775a;
+    --teal: #527f79;
+
     min-height: calc(100vh - 70px);
     padding: 26px;
+    color: var(--text);
     background:
-        radial-gradient(circle at 0% 0%, rgba(23,105,209,.075), transparent 28%),
-        radial-gradient(circle at 100% 5%, rgba(21,156,199,.065), transparent 25%),
-        linear-gradient(180deg, #f5f8fc 0%, #f8fafc 100%);
+        radial-gradient(circle at 0% 0%, rgba(168,117,67,.045), transparent 28%),
+        radial-gradient(circle at 100% 0%, rgba(82,127,121,.055), transparent 26%),
+        linear-gradient(180deg, #f7f6f0 0%, #f5f3e9 100%);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
 }
 
-/* =========================================================
-   PREMIUM HEADER
-========================================================= */
+.scholarship-page *,
+.scholarship-page *::before,
+.scholarship-page *::after {
+    box-sizing: border-box;
+}
 
-.scholarship-header {
+.scholarship-page a,
+.scholarship-page button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.scholarship-page a {
+    transition:
+        color .18s ease,
+        background .18s ease,
+        border-color .18s ease,
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.scholarship-page button {
+    font-family: inherit;
+}
+
+.scholarship-page a:focus-visible,
+.scholarship-page button:focus-visible,
+.scholarship-page input:focus-visible,
+.scholarship-page select:focus-visible {
+    outline: 3px solid rgba(82,127,121,.35);
+    outline-offset: 3px;
+}
+
+/* ================= HERO HEADER ================= */
+
+.scholarship-hero {
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(270px, .72fr);
     overflow: hidden;
-    min-height: 150px;
-    margin-bottom: 22px;
-    padding: 27px 30px;
-    border-radius: 21px;
-    color: #fff;
-    background:
-        radial-gradient(circle at 88% 18%, rgba(255,255,255,.16), transparent 19%),
-        radial-gradient(circle at 73% 100%, rgba(255,255,255,.08), transparent 25%),
-        linear-gradient(135deg, #125bc2 0%, #1769d1 45%, #159cc7 100%);
-    box-shadow: 0 15px 35px rgba(23,105,209,.19);
+    margin-bottom: 25px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    box-shadow: 0 7px 22px rgba(39,55,45,.055);
 }
 
-.scholarship-header::before {
-    content: "";
+.scholarship-hero::before {
     position: absolute;
-    width: 250px;
-    height: 250px;
-    right: -72px;
-    top: -125px;
-    border-radius: 50%;
-    border: 34px solid rgba(255,255,255,.07);
-}
-
-.scholarship-header::after {
+    top: 0;
+    bottom: 0;
+    left: 29px;
+    width: 2px;
+    background: rgba(189,81,72,.30);
     content: "";
-    position: absolute;
-    width: 155px;
-    height: 155px;
-    right: 145px;
-    bottom: -108px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.06);
 }
 
-.scholarship-header-content {
+.scholarship-hero-content {
     position: relative;
-    z-index: 2;
-    min-height: 96px;
+    z-index: 1;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 25px;
+    gap: 18px;
+    min-width: 0;
+    padding: 30px 30px 30px 52px;
 }
 
-.scholarship-title-area {
-    display: flex;
-    align-items: center;
-    gap: 17px;
-}
-
-.scholarship-icon {
-    width: 64px;
-    height: 64px;
-    flex: 0 0 64px;
+.scholarship-hero-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255,255,255,.27);
-    border-radius: 18px;
-    color: #fff;
-    background: rgba(255,255,255,.14);
-    backdrop-filter: blur(9px);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.20),
-        0 10px 25px rgba(0,0,0,.10);
-    font-size: 26px;
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
+    color: var(--ink);
+    background: var(--chalk);
+    border: 1px solid #e6dfce;
+    border-radius: 13px;
+    font-size: 24px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
 }
 
-.scholarship-title-area h1 {
-    margin: 0;
-    color: #fff;
-    font-size: 27px;
-    line-height: 1.15;
-    font-weight: 850;
-    letter-spacing: -.45px;
+.scholarship-hero-text {
+    min-width: 0;
 }
 
-.scholarship-title-area p {
-    max-width: 690px;
-    margin: 7px 0 0;
-    color: rgba(255,255,255,.82);
-    font-size: 12px;
-    line-height: 1.55;
-}
-
-.header-meta {
+.scholarship-header-eyebrow {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 7px;
-    margin-top: 10px;
-    color: rgba(255,255,255,.90);
+    margin-bottom: 10px;
+    color: var(--wood);
     font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.25px;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+.scholarship-header-eyebrow i {
+    font-size: 12px;
+}
+
+.scholarship-hero-text h2 {
+    margin: 0;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(25px, 2.2vw, 32px);
+    font-weight: 700;
+    line-height: 1.16;
+    letter-spacing: -.65px;
+}
+
+.scholarship-hero-text p {
+    max-width: 610px;
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.hero-mini-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 13px;
+    color: var(--green);
+    font-size: 11px;
     font-weight: 750;
 }
 
-.header-meta i {
-    font-size: 10px;
+.hero-mini-info i {
+    font-size: 12px;
 }
 
-/* =========================================================
-   HEADER ACTION
-========================================================= */
+/* ================= RIGHT-SIDE HERO ================= */
 
-.scholarship-header-actions {
+.hero-actions {
     position: relative;
-    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 17px;
+    min-width: 0;
+    padding: 28px 24px;
+    color: #f6f2e5;
+    background:
+        radial-gradient(ellipse at 15% 0%, rgba(255,255,255,.09), transparent 58%),
+        linear-gradient(145deg, #344f43 0%, #263b35 52%, #20352c 100%);
+}
+
+.hero-actions::before {
+    position: absolute;
+    top: -54px;
+    left: -48px;
+    width: 135px;
+    height: 135px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+
+.hero-actions::after {
+    position: absolute;
+    right: -42px;
+    bottom: -68px;
+    width: 160px;
+    height: 160px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+
+.scholarship-header-note {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+}
+
+.scholarship-header-note > i {
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: #f1d8a9;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.19);
+    border-radius: 12px;
+    font-size: 18px;
 }
 
-.btn-scholarship-add {
-    min-height: 44px;
+/* PLAYFAIR DISPLAY: INSPIRATIONAL QUOTE ONLY */
+.scholarship-header-note strong {
+    color: #fffefa;
+    font-family:  var(--hand, cursive);
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: .2px;
+    line-height: 1.35;
+}
+
+.scholarship-header-note p {
+    max-width: 310px;
+    margin: 0;
+    color: #e0e6dc;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.scholarship-rules-btn {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
+    min-height: 43px;
+    max-width: 100%;
     padding: 0 17px;
-    border: 1px solid rgba(255,255,255,.28);
-    border-radius: 11px;
-    color: #1769d1;
-    background: #fff;
+    color: var(--ink);
+    background: #f1ead8;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 8px;
+    box-shadow: 0 5px 14px rgba(0,0,0,.12);
+    font-size: 11px;
+    font-weight: 800;
     text-decoration: none;
-    font-size: 12px;
-    font-weight: 850;
-    box-shadow: 0 9px 21px rgba(0,0,0,.13);
-    transition: all .22s ease;
+    white-space: nowrap;
 }
 
-.btn-scholarship-add:hover {
-    color: #125bc2;
+.scholarship-rules-btn:hover {
+    color: var(--ink);
+    background: #fffefa;
+    border-color: #fffefa;
+    box-shadow: 0 8px 18px rgba(0,0,0,.16);
     transform: translateY(-2px);
-    box-shadow: 0 13px 26px rgba(0,0,0,.17);
 }
 
-/* =========================================================
-   KPI SECTION
-========================================================= */
+.scholarship-rules-btn i:last-child {
+    margin-left: 2px;
+    transition: transform .18s ease;
+}
+
+.scholarship-rules-btn:hover i:last-child {
+    transform: translateX(3px);
+}
+
+/* ================= SUCCESS ALERT ================= */
+
+.success-alert {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 22px;
+    padding: 13px 16px;
+    color: #2d7048;
+    background: #f0f8ef;
+    border: 1px solid #cfe3ca;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(39,55,45,.025);
+}
+
+.success-alert > i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    flex: 0 0 27px;
+    background: #dcefd7;
+    border-radius: 50%;
+}
+
+/* ================= KPI CARDS ================= */
 
 .scholarship-kpis {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 22px;
+    gap: 18px;
+    margin-bottom: 25px;
 }
 
 .scholarship-kpi {
+    --kpi-color: var(--blue);
+
     position: relative;
-    overflow: hidden;
-    min-height: 138px;
-    padding: 20px;
-    border: 0;
-    border-radius: 17px;
-    color: #fff;
-    box-shadow: 0 10px 25px rgba(25,55,90,.10);
-    transition: transform .22s ease, box-shadow .22s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    margin-top: 10px;
+    padding: 23px 20px 18px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--kpi-color);
+    border-radius: 11px;
+    box-shadow: 0 5px 17px rgba(39,55,45,.045);
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .scholarship-kpi:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 31px rgba(25,55,90,.15);
+    box-shadow: 0 12px 25px rgba(39,55,45,.095);
+    transform: translateY(-4px);
 }
-
-/* =========================================================
-   KPI DECORATION
-========================================================= */
 
 .scholarship-kpi::before {
-    content: "";
     position: absolute;
-    width: 125px;
-    height: 125px;
-    top: -48px;
-    right: -38px;
-    border-radius: 50%;
-    border: 22px solid rgba(255,255,255,.08);
-}
-
-.scholarship-kpi::after {
+    top: -24px;
+    left: 15px;
+    padding: 4px 11px;
+    color: #fff;
+    background: var(--kpi-color);
+    border-radius: 6px 6px 0 0;
     content: "";
-    position: absolute;
-    width: 78px;
-    height: 78px;
-    right: 70px;
-    bottom: -48px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.075);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .25px;
 }
 
-/* =========================================================
-   EXACT MERIT CONCESSION COLOURS
-========================================================= */
+.scholarship-kpi.blue { --kpi-color: var(--blue); }
+.scholarship-kpi.green { --kpi-color: var(--green); }
+.scholarship-kpi.orange { --kpi-color: var(--wood); }
+.scholarship-kpi.red { --kpi-color: var(--red); }
 
-/* BLUE — TOTAL EXAMS */
-.scholarship-kpi-blue {
-    background: linear-gradient(135deg, #1769d1, #3489e9);
-}
-
-/* GREEN — TOTAL APPLIED */
-.scholarship-kpi-green {
-    background: linear-gradient(135deg, #078b70, #18b995);
-}
-
-/* ORANGE — TOTAL APPEARED */
-.scholarship-kpi-orange {
-    background: linear-gradient(135deg, #e88800, #f5ac32);
-}
-
-/* RED — TOTAL PASSED */
-.scholarship-kpi-red {
-    background: linear-gradient(135deg, #e94d47, #f36f67);
-}
-
-/* =========================================================
-   KPI CONTENT
-========================================================= */
+.scholarship-kpi.blue::before { content: "Records"; }
+.scholarship-kpi.green::before { content: "Applied"; }
+.scholarship-kpi.orange::before { content: "Passed"; }
+.scholarship-kpi.red::before { content: "Appeared"; }
 
 .kpi-top {
-    position: relative;
-    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
 }
 
 .kpi-label {
-    color: rgba(255,255,255,.89);
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .65px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .1px;
+    line-height: 1.5;
 }
 
 .kpi-icon {
-    width: 40px;
-    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255,255,255,.18);
+    width: 41px;
+    height: 41px;
+    flex: 0 0 41px;
+    color: var(--kpi-color);
+    background: #f0f3f0;
+    border: 1px solid rgba(38,59,53,.05);
     border-radius: 11px;
-    color: #fff;
-    background: rgba(255,255,255,.15);
-    backdrop-filter: blur(6px);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
-    font-size: 15px;
+    font-size: 16px;
 }
 
+.scholarship-kpi.blue .kpi-icon { background: #edf3f8; }
+.scholarship-kpi.green .kpi-icon { background: #edf6ee; }
+.scholarship-kpi.orange .kpi-icon { background: #f8f0e3; }
+.scholarship-kpi.red .kpi-icon { background: #fbefeb; }
+
 .kpi-value {
-    position: relative;
-    z-index: 2;
-    margin-top: 17px;
-    color: #fff;
-    font-size: 31px;
-    line-height: 1;
-    font-weight: 850;
-    letter-spacing: -.6px;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
 }
 
 .kpi-caption {
-    position: relative;
-    z-index: 2;
-    margin-top: 7px;
-    color: rgba(255,255,255,.72);
+    padding-top: 10px;
+    color: var(--muted);
+    border-top: 1px dashed #e4e1d6;
     font-size: 10px;
     font-weight: 600;
+    line-height: 1.6;
 }
 
-/* =========================================================
-   FILTER PANEL
-========================================================= */
+/* ================= FILTER PANEL ================= */
 
-.scholarship-filter-card {
-    margin-bottom: 22px;
-    padding: 19px;
-    border: 1px solid #e3eaf3;
-    border-radius: 17px;
-    background: rgba(255,255,255,.96);
-    box-shadow: 0 8px 24px rgba(25,55,90,.05);
+.filter-panel {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(39,55,45,.04);
 }
 
 .filter-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 16px;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #dfdccf;
 }
 
-.filter-heading-left {
+.filter-title-wrap {
     display: flex;
     align-items: center;
     gap: 11px;
+    min-width: 0;
 }
 
-.filter-heading-icon {
-    width: 36px;
-    height: 36px;
+.filter-title-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    color: var(--ink);
+    background: var(--chalk);
+    border: 1px solid #e6dfce;
     border-radius: 10px;
-    color: #1769d1;
-    background: #edf5ff;
-    font-size: 13px;
-}
-
-.filter-heading-title {
-    color: #263449;
     font-size: 14px;
-    font-weight: 850;
 }
 
-.filter-heading-subtitle {
-    margin-top: 2px;
-    color: #8a98aa;
+.filter-title {
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.filter-subtitle {
+    margin-top: 4px;
+    color: var(--muted);
     font-size: 10px;
+    line-height: 1.6;
 }
 
 .filter-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border: 1px solid #e1e8f1;
+    gap: 7px;
+    padding: 7px 11px;
+    color: #667269;
+    background: #faf9f4;
+    border: 1px solid var(--line);
     border-radius: 20px;
-    color: #68778b;
-    background: #f8fafc;
-    font-size: 9px;
-    font-weight: 800;
+    font-size: 10px;
+    font-weight: 750;
+    white-space: nowrap;
 }
 
 .filter-grid {
     display: grid;
-    grid-template-columns:
-        minmax(240px, 1.8fr)
-        minmax(175px, .85fr)
-        minmax(160px, .75fr)
-        auto;
-    gap: 12px;
+    grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1fr) minmax(150px, 1fr) auto;
     align-items: end;
+    gap: 13px;
 }
 
-.filter-field label {
+.filter-group {
+    min-width: 0;
+}
+
+.filter-group label {
     display: block;
-    margin-bottom: 6px;
-    color: #64748b;
+    margin-bottom: 7px;
+    color: #68766d;
     font-size: 10px;
     font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .5px;
 }
 
 .filter-control {
+    display: block;
     width: 100%;
-    height: 42px;
+    min-width: 0;
+    height: 43px;
     padding: 0 12px;
+    color: var(--text);
+    background: #fffefa;
+    border: 1px solid #dcded3;
+    border-radius: 8px;
     outline: none;
-    border: 1px solid #dce5ef;
-    border-radius: 10px;
-    color: #263449;
-    background: #fbfcfe;
+    font-family: inherit;
     font-size: 12px;
-    transition: all .2s ease;
+    transition: border-color .2s ease, box-shadow .2s ease;
 }
 
 .filter-control:hover {
-    border-color: #c9d7e7;
-    background: #fff;
+    border-color: #c8cfbf;
 }
 
 .filter-control:focus {
-    border-color: #4c91e8;
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(76,145,232,.08);
+    border-color: #6e9a86;
+    box-shadow: 0 0 0 3px rgba(58,119,90,.11);
 }
 
-.search-wrapper {
+.filter-control::placeholder {
+    color: #9aa095;
+}
+
+.filter-search {
     position: relative;
 }
 
-.search-wrapper i {
+.filter-search > i {
     position: absolute;
-    left: 13px;
-    top: 50%;
-    z-index: 2;
-    transform: translateY(-50%);
-    color: #91a0b3;
+    top: 16px;
+    left: 12px;
+    z-index: 1;
+    color: #929b8f;
     font-size: 11px;
+    pointer-events: none;
 }
 
-.search-wrapper .filter-control {
-    padding-left: 35px;
+.filter-search input {
+    padding-left: 34px;
 }
-
-/* =========================================================
-   FILTER ACTIONS
-========================================================= */
 
 .filter-actions {
     display: flex;
+    align-items: center;
     gap: 8px;
 }
 
-.btn-filter {
-    height: 42px;
-    padding: 0 16px;
+.apply-btn,
+.reset-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    border: 0;
-    border-radius: 10px;
-    color: #fff;
-    background: linear-gradient(135deg, #1769d1, #159cc7);
-    font-size: 11px;
-    font-weight: 850;
-    cursor: pointer;
-    box-shadow: 0 7px 15px rgba(23,105,209,.14);
-    transition: all .2s ease;
-}
-
-.btn-filter:hover {
-    color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(23,105,209,.20);
-}
-
-.btn-reset {
-    height: 42px;
-    padding: 0 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border: 1px solid #dce4ef;
-    border-radius: 10px;
-    color: #64748b;
-    background: #fff;
-    text-decoration: none;
+    gap: 8px;
+    min-height: 43px;
+    padding: 0 15px;
+    border-radius: 8px;
+    font-family: inherit;
     font-size: 11px;
     font-weight: 800;
-    transition: all .2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease,
+        color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
-.btn-reset:hover {
-    color: #1769d1;
-    border-color: #c2d5ed;
-    background: #f6faff;
+.apply-btn {
+    color: #fff;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    box-shadow: 0 4px 10px rgba(38,59,53,.11);
 }
 
-/* =========================================================
-   TABLE PANEL
-========================================================= */
+.apply-btn:hover {
+    color: #fff;
+    background: var(--ink-hover);
+    border-color: var(--ink-hover);
+    box-shadow: 0 6px 13px rgba(38,59,53,.15);
+    transform: translateY(-1px);
+}
 
-.scholarship-table-card {
+.reset-btn {
+    color: var(--ink);
+    background: #fffefa;
+    border: 1px solid #d7d6ca;
+}
+
+.reset-btn:hover {
+    color: var(--ink);
+    background: var(--chalk);
+    border-color: #c7c5b7;
+}
+
+/* ================= TABLE PANEL ================= */
+
+.table-panel {
     overflow: hidden;
-    border: 1px solid #e2e9f2;
-    border-radius: 18px;
-    background: #fff;
-    box-shadow: 0 9px 27px rgba(25,55,90,.055);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(39,55,45,.045);
 }
 
-.table-card-header {
+.table-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
-    padding: 18px 20px;
-    border-bottom: 1px solid #e9eef5;
-    background: linear-gradient(180deg, #fff, #fbfdff);
+    padding: 17px 20px;
+    background: #fffefa;
+    border-bottom: 1px dashed #d8d5c8;
 }
 
-.table-heading {
+.table-panel-title-wrap {
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 12px;
+    min-width: 0;
 }
 
-.table-heading-icon {
-    width: 39px;
-    height: 39px;
+.table-panel-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 11px;
-    color: #1769d1;
-    background: #edf5ff;
-    font-size: 14px;
-}
-
-.table-heading h2 {
-    margin: 0;
-    color: #1c2738;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    color: var(--ink);
+    background: var(--chalk);
+    border: 1px solid #e6dfce;
+    border-radius: 10px;
     font-size: 15px;
-    font-weight: 850;
 }
 
-.table-heading span {
-    display: block;
+.table-panel-title {
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.6;
+}
+
+.table-panel-subtitle {
     margin-top: 3px;
-    color: #8994a4;
+    color: var(--muted);
     font-size: 10px;
+    line-height: 1.6;
 }
 
-.record-count {
+.table-count {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 7px 11px;
-    border: 1px solid #e2e9f2;
+    justify-content: center;
+    min-width: 27px;
+    height: 23px;
+    margin-left: 5px;
+    padding: 0 8px;
+    color: var(--ink);
+    background: var(--chalk);
+    border: 1px solid #e6dfce;
     border-radius: 20px;
-    color: #64748b;
-    background: #f7f9fc;
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 850;
+    vertical-align: 1px;
 }
 
-/* =========================================================
-   TABLE
-========================================================= */
-
 .table-responsive {
+    width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .scholarship-table {
     width: 100%;
-    min-width: 1080px;
-    border-collapse: collapse;
+    min-width: 1150px;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.scholarship-table thead th {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e8edf4;
-    background: #f8fafc;
-    color: #718096;
+.scholarship-table th {
+    padding: 13px;
+    color: #68736a;
+    background: #f5f3e9;
+    border-bottom: 1px solid #e5e1d5;
     font-size: 9px;
     font-weight: 850;
+    letter-spacing: .55px;
     text-align: left;
     text-transform: uppercase;
-    letter-spacing: .55px;
     white-space: nowrap;
 }
 
-.scholarship-table tbody td {
-    padding: 14px 15px;
-    border-bottom: 1px solid #eef2f7;
-    color: #344155;
+.scholarship-table td {
+    padding: 14px 13px;
+    color: var(--text);
+    border-bottom: 1px solid #eeece3;
     font-size: 12px;
     vertical-align: middle;
 }
@@ -584,185 +730,188 @@
 }
 
 .scholarship-table tbody tr:hover {
-    background: #f9fbff;
+    background: #faf9f3;
 }
 
 .scholarship-table tbody tr:last-child td {
     border-bottom: 0;
 }
 
-/* =========================================================
-   EXAM INFORMATION
-========================================================= */
-
-.exam-name {
-    color: #1b293c;
-    font-size: 12px;
-    font-weight: 850;
-}
-
-.exam-meta {
-    margin-top: 4px;
-    color: #8a95a5;
-    font-size: 9px;
-}
-
-/* =========================================================
-   YEAR
-========================================================= */
-
-.year-badge {
+.serial-number {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 6px 9px;
-    border: 1px solid #dce9fa;
-    border-radius: 8px;
-    color: #1769d1;
-    background: #edf5ff;
-    font-size: 9px;
-    font-weight: 850;
-    white-space: nowrap;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    color: #657168;
+    background: #f4f2e9;
+    border: 1px solid #e8e4d8;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
 }
 
-/* =========================================================
-   DATE
-========================================================= */
+.exam-name {
+    display: block;
+    max-width: 220px;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
 
-.date-value {
-    color: #344155;
-    font-size: 11px;
+.exam-type {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.exam-organizer {
+    display: block;
+    margin-top: 5px;
+    color: #858e82;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.exam-organizer i {
+    margin-right: 3px;
+}
+
+.year-text {
+    color: #5d6a60;
     font-weight: 750;
     white-space: nowrap;
 }
-
-.date-icon {
-    margin-right: 5px;
-    color: #8a98aa;
-}
-
-/* =========================================================
-   CLASS CHIPS
-========================================================= */
 
 .class-list {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    max-width: 190px;
+    max-width: 165px;
 }
 
-.class-chip {
+.class-badge {
     display: inline-flex;
     align-items: center;
-    padding: 4px 7px;
-    border: 1px solid #dbe9fb;
-    border-radius: 6px;
-    color: #1769d1;
-    background: #f1f6ff;
-    font-size: 9px;
+    gap: 5px;
+    padding: 5px 8px;
+    color: var(--blue);
+    background: #f0f5f8;
+    border: 1px solid #d7e2e9;
+    border-radius: 7px;
+    font-size: 10px;
     font-weight: 800;
+    white-space: nowrap;
 }
 
 .class-more {
     display: inline-flex;
     align-items: center;
-    padding: 4px 7px;
-    border-radius: 6px;
-    color: #778397;
-    background: #f3f5f8;
-    font-size: 9px;
+    padding: 5px 7px;
+    color: #667269;
+    background: #f0f0e8;
+    border: 1px solid #e3e2d7;
+    border-radius: 7px;
+    font-size: 10px;
     font-weight: 800;
 }
 
-/* =========================================================
-   NUMBER CELLS
-========================================================= */
+.date-text {
+    color: #5d6a60;
+    font-size: 11px;
+    white-space: nowrap;
+}
 
 .number-cell {
-    color: #273448;
-    font-size: 12px;
+    color: var(--ink);
+    font-size: 13px;
     font-weight: 850;
+    font-variant-numeric: tabular-nums;
 }
 
-.number-icon {
-    margin-right: 5px;
-    color: #94a1b1;
-    font-size: 9px;
+.pass-cell {
+    min-width: 95px;
 }
 
-.passed-number {
-    color: #e04b45;
-}
-
-/* =========================================================
-   PASS RATE
-========================================================= */
-
-.pass-rate {
+.percentage-wrapper {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    gap: 7px;
 }
 
-.pass-rate-bar {
-    width: 55px;
-    height: 5px;
-    overflow: hidden;
-    border-radius: 20px;
-    background: #e8edf3;
-}
-
-.pass-rate-fill {
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #e88800, #f5ac32);
-}
-
-.pass-rate-text {
-    color: #4f6074;
-    font-size: 10px;
+.percentage-value {
+    color: var(--ink);
+    font-size: 12px;
     font-weight: 850;
     white-space: nowrap;
 }
 
-/* =========================================================
-   STATUS
-========================================================= */
+.percentage-bar {
+    width: 65px;
+    height: 5px;
+    overflow: hidden;
+    background: #e7e9df;
+    border-radius: 10px;
+}
 
-.status-badge {
+.percentage-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), #86a99b);
+    border-radius: inherit;
+}
+
+.scholarship-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 6px 9px;
+    border: 1px solid transparent;
     border-radius: 20px;
     font-size: 9px;
     font-weight: 850;
     white-space: nowrap;
 }
 
-.status-active {
-    border: 1px solid #c9efdf;
-    color: #11815d;
-    background: #eafaf3;
+.scholarship-badge > i {
+    font-size: 6px;
 }
 
-.status-inactive {
-    border: 1px solid #f4d0ce;
-    color: #d33f39;
-    background: #fff1f0;
+.scholarship-badge.completed {
+    color: #347849;
+    background: #edf7ed;
+    border-color: #cfe5d3;
 }
 
-.status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
+.scholarship-badge.active {
+    color: #8b641d;
+    background: #faf5e7;
+    border-color: #e6dfc9;
 }
 
-/* =========================================================
-   ACTIONS
-========================================================= */
+.scholarship-badge.upcoming {
+    color: var(--blue);
+    background: #f0f5f8;
+    border-color: #d7e2e9;
+}
+
+.scholarship-badge.inactive {
+    color: #77766e;
+    background: #f0efe9;
+    border-color: #e1dfd5;
+}
+
+.scholarship-badge.default {
+    color: #63523f;
+    background: #f5eee1;
+    border-color: #e9ddc8;
+}
+
+/* ================= ACTION BUTTONS ================= */
 
 .action-buttons {
     display: flex;
@@ -771,946 +920,1018 @@
 }
 
 .action-btn {
-    width: 32px;
-    height: 32px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e0e7f0;
-    border-radius: 9px;
-    color: #68778b;
-    background: #fff;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    padding: 0;
+    color: #68746a;
+    background: #fffefa;
+    border: 1px solid #dedfd4;
+    border-radius: 8px;
+    font-size: 11px;
+    line-height: 1;
     text-decoration: none;
-    font-size: 10px;
     cursor: pointer;
-    transition: all .18s ease;
+    transition: color .18s ease, background .18s ease,
+        border-color .18s ease, transform .18s ease;
 }
 
 .action-btn:hover {
-    color: #1769d1;
-    border-color: #bcd3ef;
-    background: #f3f8ff;
+    color: var(--ink);
+    background: #f2f1e8;
+    border-color: #c9cdbf;
     transform: translateY(-1px);
 }
 
 .action-btn.edit:hover {
-    color: #ed9208;
-    border-color: rgba(237,146,8,.28);
-    background: #fffaf1;
+    color: #986a23;
+    background: #fcf7e9;
+    border-color: #e6d0a8;
+}
+
+.action-btn.delete {
+    color: var(--red);
 }
 
 .action-btn.delete:hover {
-    color: #e94d47;
-    border-color: rgba(233,77,71,.28);
-    background: #fff6f5;
+    color: #fff;
+    background: var(--red);
+    border-color: var(--red);
 }
 
-/* =========================================================
-   EMPTY STATE
-========================================================= */
+.delete-form {
+    display: inline-flex;
+    margin: 0;
+}
 
-.scholarship-empty {
-    padding: 68px 25px;
+.muted-text {
+    color: #929a8e;
+    font-size: 11px;
+}
+
+/* ================= EMPTY STATE ================= */
+
+.empty-state {
+    padding: 62px 20px;
     text-align: center;
 }
 
 .empty-icon {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #dce9fa;
-    border-radius: 20px;
-    color: #1769d1;
-    background: linear-gradient(135deg, #edf5ff, #f5faff);
-    box-shadow: 0 8px 20px rgba(23,105,209,.07);
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 17px;
+    color: var(--ink);
+    background: var(--chalk);
+    border: 1px solid #e5dfcc;
+    border-radius: 16px;
     font-size: 26px;
 }
 
-.scholarship-empty h3 {
-    margin: 0 0 7px;
-    color: #263348;
-    font-size: 17px;
-    font-weight: 850;
+.empty-state h4 {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20px;
+    font-weight: 700;
 }
 
-.scholarship-empty p {
-    max-width: 440px;
-    margin: 0 auto 19px;
-    color: #8792a2;
+.empty-state p {
+    max-width: 450px;
+    margin: 0 auto 20px;
+    color: var(--muted);
     font-size: 11px;
-    line-height: 1.6;
+    line-height: 1.8;
 }
 
-/* =========================================================
-   PAGINATION
-========================================================= */
+.empty-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 41px;
+    padding: 0 16px;
+    color: #fff;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(38,59,53,.1);
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background .18s ease, transform .18s ease;
+}
+
+.empty-add-btn:hover {
+    color: #fff;
+    background: var(--ink-hover);
+    border-color: var(--ink-hover);
+    transform: translateY(-1px);
+}
+
+/* ================= PAGINATION ================= */
 
 .pagination-wrapper {
     display: flex;
-    justify-content: flex-end;
-    padding: 15px 20px;
-    border-top: 1px solid #edf1f6;
-    background: #fcfdff;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px 19px;
+    background: #fffefa;
+    border-top: 1px dashed #d8d5c8;
 }
 
-.pagination-wrapper nav {
+.pagination-info {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.pagination-info strong {
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.scholarship-page .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
     margin: 0;
 }
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+.scholarship-page .page-link {
+    color: var(--ink);
+    background: #fffefa;
+    border-color: var(--line);
+    border-radius: 6px;
+    font-size: 11px;
+    box-shadow: none;
+}
 
-@media (max-width: 1200px) {
+.scholarship-page .page-link:hover {
+    color: var(--ink);
+    background: var(--chalk);
+    border-color: #d7d1bd;
+}
+
+.scholarship-page .page-item.active .page-link {
+    color: #fff;
+    background: var(--ink);
+    border-color: var(--ink);
+}
+
+.scholarship-page .page-item.disabled .page-link {
+    color: #a3a69d;
+    background: #f5f3ec;
+    border-color: #e5e1d5;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1250px) {
     .scholarship-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .filter-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .filter-grid {
-        grid-template-columns: 1fr 1fr;
+    .filter-actions {
+        grid-column: span 2;
     }
 
-    .filter-actions {
-        grid-column: 1 / -1;
+    .filter-actions .apply-btn,
+    .filter-actions .reset-btn {
+        min-width: 100px;
     }
 }
 
-@media (max-width: 800px) {
-    .scholarship-exams-page {
-        padding: 16px;
+@media (max-width: 900px) {
+    .scholarship-page {
+        padding: 18px;
     }
 
-    .scholarship-header-content {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .scholarship-header-actions {
-        width: 100%;
-    }
-
-    .btn-scholarship-add {
-        width: 100%;
-    }
-
-    .filter-grid {
+    .scholarship-hero {
         grid-template-columns: 1fr;
     }
 
-    .filter-actions {
-        grid-column: auto;
+    .hero-actions {
+        min-height: 235px;
+        padding: 25px 22px;
     }
 
-    .filter-actions .btn-filter,
-    .filter-actions .btn-reset {
-        flex: 1;
+    .scholarship-header-note {
+        gap: 9px;
+    }
+
+    .scholarship-header-note strong {
+        font-size: 21px;
+    }
+
+    .scholarship-header-note p {
+        max-width: 420px;
+    }
+
+    .scholarship-rules-btn {
+        min-height: 42px;
+    }
+}
+
+@media (max-width: 650px) {
+    .scholarship-page {
+        padding: 12px;
+    }
+
+    .scholarship-hero {
+        margin-bottom: 20px;
+        border-radius: 11px;
+    }
+
+    .scholarship-hero::before {
+        left: 19px;
+    }
+
+    .scholarship-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 23px 15px 23px 34px;
+    }
+
+    .scholarship-hero-icon {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+        border-radius: 10px;
+        font-size: 18px;
+    }
+
+    .scholarship-header-eyebrow {
+        gap: 5px;
+        margin-bottom: 8px;
+        font-size: 9px;
+        letter-spacing: .65px;
+    }
+
+    .scholarship-hero-text h2 {
+        font-size: 23px;
+        line-height: 1.22;
+    }
+
+    .scholarship-hero-text p {
+        margin-top: 8px;
+        font-size: 11px;
+        line-height: 1.75;
+    }
+
+    .hero-mini-info {
+        align-items: flex-start;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .hero-actions {
+        min-height: auto;
+        gap: 15px;
+        padding: 23px 16px;
+    }
+
+    .scholarship-header-note {
+        gap: 9px;
+    }
+
+    .scholarship-header-note > i {
+        width: 40px;
+        height: 40px;
+    }
+
+    .scholarship-header-note strong {
+        font-size: 20px;
+    }
+
+    .scholarship-header-note p {
+        font-size: 11px;
+    }
+
+    .scholarship-rules-btn {
+        width: 100%;
+        white-space: normal;
+    }
+
+    .scholarship-kpis {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .scholarship-kpi {
+        gap: 11px;
+        padding: 22px 17px 16px;
+    }
+
+    .kpi-value {
+        font-size: 31px;
+    }
+
+    .filter-panel {
+        margin-bottom: 19px;
+        padding: 14px;
+        border-radius: 10px;
     }
 
     .filter-heading {
         align-items: flex-start;
+        margin-bottom: 15px;
+        padding-bottom: 13px;
+    }
+
+    .filter-title-wrap {
+        gap: 9px;
+    }
+
+    .filter-title-icon {
+        width: 33px;
+        height: 33px;
+        flex-basis: 33px;
+    }
+
+    .filter-title {
+        font-size: 12px;
+    }
+
+    .filter-subtitle {
+        font-size: 10px;
+    }
+
+    .filter-badge {
+        display: none;
+    }
+
+    .filter-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 13px;
+    }
+
+    .filter-actions {
+        grid-column: auto;
+        width: 100%;
+    }
+
+    .filter-actions .apply-btn,
+    .filter-actions .reset-btn {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .table-panel {
+        border-radius: 10px;
+    }
+
+    .table-panel-header {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .table-panel-title-wrap {
+        gap: 9px;
+    }
+
+    .table-panel-icon {
+        width: 35px;
+        height: 35px;
+        flex-basis: 35px;
+        font-size: 13px;
+    }
+
+    .table-panel-title {
+        font-size: 12px;
+    }
+
+    .table-panel-subtitle {
+        font-size: 10px;
+    }
+
+    .table-count {
+        height: 21px;
+        padding: 0 6px;
+    }
+
+    .scholarship-table {
+        min-width: 1100px;
+    }
+
+    .scholarship-table th {
+        padding: 11px;
+    }
+
+    .scholarship-table td {
+        padding: 12px 11px;
+    }
+
+    .pagination-wrapper {
+        align-items: flex-start;
         flex-direction: column;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .pagination-wrapper > div:last-child {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .empty-state {
+        padding: 43px 16px;
+    }
+
+    .empty-icon {
+        width: 62px;
+        height: 62px;
+        font-size: 23px;
+    }
+
+    .empty-state h4 {
+        font-size: 18px;
     }
 }
 
-@media (max-width: 600px) {
-    .scholarship-kpis {
-        grid-template-columns: 1fr;
-    }
-
-    .scholarship-header {
-        padding: 23px;
-    }
-
-    .scholarship-title-area {
-        align-items: flex-start;
-    }
-
-    .scholarship-title-area h1 {
-        font-size: 23px;
-    }
-
-    .scholarship-icon {
-        width: 56px;
-        height: 56px;
-        flex-basis: 56px;
-        border-radius: 15px;
-        font-size: 23px;
-    }
-
-    .table-card-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .record-count {
-        align-self: flex-start;
+@media (prefers-reduced-motion: reduce) {
+    .scholarship-page *,
+    .scholarship-page *::before,
+    .scholarship-page *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important;
     }
 }
 </style>
 
-<div class="scholarship-exams-page">
+{{-- Load Playfair Display for the inspirational hero quote only --}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap"
+      rel="stylesheet">
 
-    {{-- =====================================================
-         PREMIUM HEADER
-    ====================================================== --}}
+<div class="scholarship-page">
 
-    <div class="scholarship-header">
+    {{-- SUCCESS MESSAGE --}}
+    @if(session('success'))
+        <div class="success-alert" role="status">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
 
-        <div class="scholarship-header-content">
+    {{-- ================= HERO HEADER ================= --}}
+    <section class="scholarship-hero">
 
-            <div class="scholarship-title-area">
-
-                <div class="scholarship-icon">
-                    <i class="fas fa-award"></i>
-                </div>
-
-                <div>
-
-                    <h1>
-                        Scholarship Exam Records
-                    </h1>
-
-                    <p>
-                        Maintain complete scholarship examination history,
-                        application statistics, student participation and
-                        year-wise examination outcomes.
-                    </p>
-
-                    <div class="header-meta">
-                        <i class="fas fa-chart-line"></i>
-
-                        <span>
-                            Examination History
-                            •
-                            Student Participation
-                            •
-                            Results
-                        </span>
-                    </div>
-
-                </div>
-
+        <div class="scholarship-hero-content">
+            <div class="scholarship-hero-icon">
+                <i class="fas fa-award" aria-hidden="true"></i>
             </div>
 
-            <div class="scholarship-header-actions">
+            <div class="scholarship-hero-text">
+                <div class="scholarship-header-eyebrow">
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    STUDENT SERVICES / SCHOLARSHIP
+                </div>
 
-                <a
-                    href="{{ route('admin.scholarship.exams.create') }}"
-                    class="btn-scholarship-add"
-                >
-                    <i class="fas fa-plus"></i>
-                    Add Exam Record
-                </a>
+                <h2>Scholarship Exam Records</h2>
 
+                <p>
+                    Maintain scholarship examination history, monitor student
+                    participation, and review results across academic years.
+                </p>
+
+                <div class="hero-mini-info">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                    <span>Examinations &bull; Participation &bull; Results</span>
+                </div>
             </div>
-
         </div>
 
-    </div>
+        {{-- Right-side hero content --}}
+        <div class="hero-actions">
+            <div class="scholarship-header-note">
+                <i class="fas fa-book-open" aria-hidden="true"></i>
 
+                <strong>Learn. Achieve. Excel.</strong>
 
-    {{-- =====================================================
-         KPI STATISTICS
-    ====================================================== --}}
+                <p>
+                    Track every scholarship examination and celebrate the
+                    dedication behind each student's academic achievement.
+                </p>
+            </div>
 
-    <div class="scholarship-kpis">
+            <a href="{{ route('admin.scholarship.exams.create') }}"
+               class="scholarship-rules-btn">
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                Add Exam Record
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </a>
+        </div>
 
-        {{-- TOTAL EXAMS --}}
-        <div class="scholarship-kpi scholarship-kpi-blue">
+    </section>
 
+    {{-- ================= KPI CARDS ================= --}}
+    <section class="scholarship-kpis" aria-label="Examination statistics">
+
+        <article class="scholarship-kpi blue">
             <div class="kpi-top">
-
-                <span class="kpi-label">
-                    Total Exams
+                <span class="kpi-label">Total Examinations</span>
+                <span class="kpi-icon">
+                    <i class="fas fa-file-alt" aria-hidden="true"></i>
                 </span>
-
-                <div class="kpi-icon">
-                    <i class="fas fa-file-lines"></i>
-                </div>
-
             </div>
 
             <div class="kpi-value">
-                {{ number_format($statistics['total_exams'] ?? 0) }}
+                {{ $statistics['total_exams'] ?? 0 }}
             </div>
 
             <div class="kpi-caption">
-                Scholarship examinations recorded
+                Total examination records maintained
             </div>
+        </article>
 
-        </div>
-
-
-        {{-- TOTAL APPLIED --}}
-        <div class="scholarship-kpi scholarship-kpi-green">
-
+        <article class="scholarship-kpi green">
             <div class="kpi-top">
-
-                <span class="kpi-label">
-                    Total Applied
+                <span class="kpi-label">Students Applied</span>
+                <span class="kpi-icon">
+                    <i class="fas fa-file-signature" aria-hidden="true"></i>
                 </span>
-
-                <div class="kpi-icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-
             </div>
 
             <div class="kpi-value">
-                {{ number_format($statistics['total_applied'] ?? 0) }}
+                {{ $statistics['total_applied'] ?? 0 }}
             </div>
 
             <div class="kpi-caption">
-                Students registered for exams
+                Total student applications recorded
             </div>
+        </article>
 
-        </div>
-
-
-        {{-- TOTAL APPEARED --}}
-        <div class="scholarship-kpi scholarship-kpi-orange">
-
+        <article class="scholarship-kpi orange">
             <div class="kpi-top">
-
-                <span class="kpi-label">
-                    Total Appeared
+                <span class="kpi-label">Students Passed</span>
+                <span class="kpi-icon">
+                    <i class="fas fa-award" aria-hidden="true"></i>
                 </span>
-
-                <div class="kpi-icon">
-                    <i class="fas fa-user-check"></i>
-                </div>
-
             </div>
 
             <div class="kpi-value">
-                {{ number_format($statistics['total_appeared'] ?? 0) }}
+                {{ $statistics['total_passed'] ?? 0 }}
             </div>
 
             <div class="kpi-caption">
-                Students appeared for exams
+                Successful examination candidates
             </div>
+        </article>
 
-        </div>
-
-
-        {{-- TOTAL PASSED --}}
-        <div class="scholarship-kpi scholarship-kpi-red">
-
+        <article class="scholarship-kpi red">
             <div class="kpi-top">
-
-                <span class="kpi-label">
-                    Total Passed
+                <span class="kpi-label">Students Appeared</span>
+                <span class="kpi-icon">
+                    <i class="fas fa-user-check" aria-hidden="true"></i>
                 </span>
-
-                <div class="kpi-icon">
-                    <i class="fas fa-medal"></i>
-                </div>
-
             </div>
 
             <div class="kpi-value">
-                {{ number_format($statistics['total_passed'] ?? 0) }}
+                {{ $statistics['total_appeared'] ?? 0 }}
             </div>
 
             <div class="kpi-caption">
-                Students successfully passed
+                Total examination participation
             </div>
+        </article>
 
-        </div>
+    </section>
 
-    </div>
-
-
-    {{-- =====================================================
-         SEARCH & FILTER
-    ====================================================== --}}
-
-    <div class="scholarship-filter-card">
+    {{-- ================= SEARCH AND FILTERS ================= --}}
+    <section class="filter-panel">
 
         <div class="filter-heading">
-
-            <div class="filter-heading-left">
-
-                <div class="filter-heading-icon">
-                    <i class="fas fa-filter"></i>
+            <div class="filter-title-wrap">
+                <div class="filter-title-icon">
+                    <i class="fas fa-filter" aria-hidden="true"></i>
                 </div>
 
                 <div>
-
-                    <div class="filter-heading-title">
-                        Search & Filter Exams
+                    <div class="filter-title">
+                        Search &amp; Filter Examination Records
                     </div>
 
-                    <div class="filter-heading-subtitle">
-                        Find examination records by name, academic year or status
+                    <div class="filter-subtitle">
+                        Find examinations by name, academic year, or status.
                     </div>
-
                 </div>
-
             </div>
 
             <div class="filter-badge">
-                <i class="fas fa-sliders"></i>
-                Exam Filters
+                <i class="fas fa-sliders-h" aria-hidden="true"></i>
+                Examination Filters
             </div>
-
         </div>
 
-
-        <form
-            method="GET"
-            action="{{ route('admin.scholarship.exams.index') }}"
-        >
+        <form method="GET"
+              action="{{ route('admin.scholarship.exams.index') }}">
 
             <div class="filter-grid">
 
-                {{-- SEARCH --}}
-                <div class="filter-field">
+                <div class="filter-group">
+                    <label for="exam-search">Search Examination</label>
 
-                    <label>
-                        Search Examination
-                    </label>
-
-                    <div class="search-wrapper">
-
-                        <i class="fas fa-search"></i>
+                    <div class="filter-search">
+                        <i class="fas fa-search" aria-hidden="true"></i>
 
                         <input
+                            id="exam-search"
                             type="text"
                             name="search"
-                            value="{{ request('search') }}"
                             class="filter-control"
-                            placeholder="Exam name, type, conducted by..."
+                            placeholder="Enter examination name..."
+                            value="{{ request('search') }}"
                         >
-
                     </div>
-
                 </div>
 
-
-                {{-- ACADEMIC YEAR --}}
-                <div class="filter-field">
-
-                    <label>
-                        Academic Year
-                    </label>
+                <div class="filter-group">
+                    <label for="academic-year">Academic Year</label>
 
                     <select
+                        id="academic-year"
                         name="academic_year"
                         class="filter-control"
                     >
-
-                        <option value="">
-                            All Academic Years
-                        </option>
+                        <option value="">All Academic Years</option>
 
                         @foreach($academicYears as $year)
-
                             <option
                                 value="{{ $year }}"
-                                {{ request('academic_year') == $year ? 'selected' : '' }}
+                                @selected(request('academic_year') == $year)
                             >
                                 {{ $year }}
                             </option>
-
                         @endforeach
-
                     </select>
-
                 </div>
 
-
-                {{-- STATUS --}}
-                <div class="filter-field">
-
-                    <label>
-                        Status
-                    </label>
+                <div class="filter-group">
+                    <label for="exam-status">Examination Status</label>
 
                     <select
+                        id="exam-status"
                         name="status"
                         class="filter-control"
                     >
+                        <option value="">All Statuses</option>
 
-                        <option value="">
-                            All Status
+                        <option value="upcoming"
+                            @selected(request('status') == 'upcoming')>
+                            Upcoming
                         </option>
 
-                        <option
-                            value="1"
-                            {{ request('status') === '1' ? 'selected' : '' }}
-                        >
+                        <option value="active"
+                            @selected(request('status') == 'active')>
                             Active
                         </option>
 
-                        <option
-                            value="0"
-                            {{ request('status') === '0' ? 'selected' : '' }}
-                        >
-                            Inactive
+                        <option value="completed"
+                            @selected(request('status') == 'completed')>
+                            Completed
                         </option>
 
+                        <option value="inactive"
+                            @selected(request('status') == 'inactive')>
+                            Inactive
+                        </option>
                     </select>
-
                 </div>
 
-
-                {{-- ACTIONS --}}
                 <div class="filter-actions">
-
-                    <button
-                        type="submit"
-                        class="btn-filter"
-                    >
-                        <i class="fas fa-filter"></i>
-                        Filter
+                    <button type="submit" class="apply-btn">
+                        <i class="fas fa-filter" aria-hidden="true"></i>
+                        Apply
                     </button>
 
-                    <a
-                        href="{{ route('admin.scholarship.exams.index') }}"
-                        class="btn-reset"
-                    >
-                        <i class="fas fa-rotate-left"></i>
+                    <a href="{{ route('admin.scholarship.exams.index') }}"
+                       class="reset-btn">
+                        <i class="fas fa-rotate-left" aria-hidden="true"></i>
                         Reset
                     </a>
-
                 </div>
 
             </div>
-
         </form>
 
-    </div>
+    </section>
 
+    {{-- ================= EXAMINATION TABLE ================= --}}
+    <section class="table-panel">
 
-    {{-- =====================================================
-         EXAMINATION HISTORY TABLE
-    ====================================================== --}}
-
-    <div class="scholarship-table-card">
-
-        <div class="table-card-header">
-
-            <div class="table-heading">
-
-                <div class="table-heading-icon">
-                    <i class="fas fa-clock-rotate-left"></i>
+        <div class="table-panel-header">
+            <div class="table-panel-title-wrap">
+                <div class="table-panel-icon">
+                    <i class="fas fa-award" aria-hidden="true"></i>
                 </div>
 
                 <div>
+                    <div class="table-panel-title">
+                        Scholarship Examination Register
 
-                    <h2>
-                        Examination History
-                    </h2>
+                        <span class="table-count">
+                            {{ $exams->total() }}
+                        </span>
+                    </div>
 
-                    <span>
-                        Complete year-wise scholarship examination records
-                    </span>
-
+                    <div class="table-panel-subtitle">
+                        Examination details, student participation, and results.
+                    </div>
                 </div>
-
             </div>
-
-
-            <div class="record-count">
-
-                <i class="fas fa-database"></i>
-
-                {{ $exams->total() }}
-
-                {{ $exams->total() == 1 ? 'Record' : 'Records' }}
-
-            </div>
-
         </div>
-
 
         @if($exams->count())
 
             <div class="table-responsive">
-
                 <table class="scholarship-table">
 
                     <thead>
-
                         <tr>
-
-                            <th>
-                                Examination
-                            </th>
-
-                            <th>
-                                Academic Year
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Classes
-                            </th>
-
-                            <th>
-                                Applied
-                            </th>
-
-                            <th>
-                                Appeared
-                            </th>
-
-                            <th>
-                                Passed
-                            </th>
-
-                            <th>
-                                Pass Rate
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Actions
-                            </th>
-
+                            <th>#</th>
+                            <th>Examination</th>
+                            <th>Academic Year</th>
+                            <th>Exam Date</th>
+                            <th>Classes</th>
+                            <th>Applied</th>
+                            <th>Appeared</th>
+                            <th>Passed</th>
+                            <th>Pass Rate</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-
                     </thead>
 
-
                     <tbody>
-
                         @foreach($exams as $exam)
 
+                            @php
+                                $examStatus = strtolower(
+                                    (string) ($exam->status ?? '')
+                                );
+
+                                $statusClass = match ($examStatus) {
+                                    'completed' => 'completed',
+                                    'active' => 'active',
+                                    'upcoming' => 'upcoming',
+                                    'inactive' => 'inactive',
+                                    default => 'default',
+                                };
+
+                                $passPercentage = max(
+                                    0,
+                                    min(
+                                        100,
+                                        (float) ($exam->pass_percentage ?? 0)
+                                    )
+                                );
+                            @endphp
+
                             <tr>
-
-                                {{-- EXAM --}}
                                 <td>
+                                    <span class="serial-number">
+                                        {{ $exams->firstItem() + $loop->index }}
+                                    </span>
+                                </td>
 
-                                    <div class="exam-name">
+                                <td>
+                                    <span class="exam-name">
                                         {{ $exam->exam_name }}
-                                    </div>
+                                    </span>
 
-                                    <div class="exam-meta">
+                                    @if($exam->exam_type)
+                                        <span class="exam-type">
+                                            {{ $exam->exam_type }}
+                                        </span>
+                                    @endif
 
-                                        {{ $exam->exam_type ?: 'Scholarship Exam' }}
+                                    @if($exam->conducted_by)
+                                        <span class="exam-organizer">
+                                            <i class="fas fa-building"
+                                               aria-hidden="true"></i>
+                                            {{ $exam->conducted_by }}
+                                        </span>
+                                    @endif
+                                </td>
 
-                                        @if($exam->conducted_by)
-                                            · {{ $exam->conducted_by }}
+                                <td>
+                                    <span class="year-text">
+                                        {{ $exam->academic_year ?: '—' }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="date-text">
+                                        @if($exam->exam_date)
+                                            {{ \Illuminate\Support\Carbon::parse($exam->exam_date)->format('d M Y') }}
+                                        @else
+                                            —
                                         @endif
+                                    </span>
+                                </td>
 
+                                <td>
+                                    <div class="class-list">
+                                        @forelse($exam->classes->take(3) as $class)
+                                            <span class="class-badge">
+                                                <i class="fas fa-users"
+                                                   aria-hidden="true"></i>
+
+                                                {{ $class->class_name }}{{ $class->section ? '-'.$class->section : '' }}
+                                            </span>
+                                        @empty
+                                            <span class="muted-text">
+                                                Not assigned
+                                            </span>
+                                        @endforelse
+
+                                        @if($exam->classes->count() > 3)
+                                            <span class="class-more">
+                                                +{{ $exam->classes->count() - 3 }}
+                                            </span>
+                                        @endif
                                     </div>
-
                                 </td>
 
-
-                                {{-- YEAR --}}
                                 <td>
-
-                                    <span class="year-badge">
-
-                                        <i class="fas fa-calendar"></i>
-
-                                        {{ $exam->academic_year }}
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- DATE --}}
-                                <td>
-
-                                    @if($exam->exam_date)
-
-                                        <span class="date-value">
-
-                                            <i class="fas fa-calendar-day date-icon"></i>
-
-                                            {{ $exam->exam_date->format('d M Y') }}
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="date-value">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- CLASSES --}}
-                                <td>
-
-                                    @if($exam->classes->count())
-
-                                        <div class="class-list">
-
-                                            @foreach($exam->classes->take(3) as $class)
-
-                                                <span class="class-chip">
-
-                                                    {{ $class->class_name }}
-
-                                                    @if($class->section)
-                                                        - {{ $class->section }}
-                                                    @endif
-
-                                                </span>
-
-                                            @endforeach
-
-
-                                            @if($exam->classes->count() > 3)
-
-                                                <span class="class-more">
-
-                                                    +{{ $exam->classes->count() - 3 }}
-
-                                                </span>
-
-                                            @endif
-
-                                        </div>
-
-                                    @else
-
-                                        <span class="date-value">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- APPLIED --}}
-                                <td>
-
                                     <span class="number-cell">
-
-                                        <i class="fas fa-user-plus number-icon"></i>
-
-                                        {{ number_format($exam->total_applied ?? 0) }}
-
+                                        {{ $exam->total_applied ?? 0 }}
                                     </span>
-
                                 </td>
 
-
-                                {{-- APPEARED --}}
                                 <td>
-
                                     <span class="number-cell">
-
-                                        <i class="fas fa-user-check number-icon"></i>
-
-                                        {{ number_format($exam->total_appeared ?? 0) }}
-
+                                        {{ $exam->total_appeared ?? 0 }}
                                     </span>
-
                                 </td>
 
-
-                                {{-- PASSED --}}
                                 <td>
-
-                                    <span class="number-cell passed-number">
-
-                                        <i class="fas fa-medal"></i>
-
-                                        {{ number_format($exam->total_passed ?? 0) }}
-
+                                    <span class="number-cell">
+                                        {{ $exam->total_passed ?? 0 }}
                                     </span>
-
                                 </td>
 
-
-                                {{-- PASS RATE --}}
                                 <td>
+                                    <div class="pass-cell">
+                                        <div class="percentage-wrapper">
+                                            <span class="percentage-value">
+                                                {{ number_format($passPercentage, 1) }}%
+                                            </span>
 
-                                    @php
-
-                                        $passPercentage = (float) (
-                                            $exam->pass_percentage ?? 0
-                                        );
-
-                                        $passPercentage = min(
-                                            100,
-                                            max(0, $passPercentage)
-                                        );
-
-                                    @endphp
-
-
-                                    <div class="pass-rate">
-
-                                        <div class="pass-rate-bar">
-
-                                            <div
-                                                class="pass-rate-fill"
-                                                style="width: {{ $passPercentage }}%;"
-                                            ></div>
-
+                                            <div class="percentage-bar">
+                                                <div
+                                                    class="percentage-fill"
+                                                    style="width: {{ $passPercentage }}%;"
+                                                ></div>
+                                            </div>
                                         </div>
-
-                                        <span class="pass-rate-text">
-
-                                            {{ number_format($passPercentage, 2) }}%
-
-                                        </span>
-
                                     </div>
-
                                 </td>
 
-
-                                {{-- STATUS --}}
                                 <td>
+                                    <span class="scholarship-badge {{ $statusClass }}">
+                                        <i class="fas fa-circle"
+                                           aria-hidden="true"></i>
 
-                                    @if($exam->status)
-
-                                        <span class="status-badge status-active">
-
-                                            <span class="status-dot"></span>
-
-                                            Active
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="status-badge status-inactive">
-
-                                            <span class="status-dot"></span>
-
-                                            Inactive
-
-                                        </span>
-
-                                    @endif
-
+                                        {{ ucfirst($examStatus ?: 'Unknown') }}
+                                    </span>
                                 </td>
 
-
-                                {{-- ACTIONS --}}
                                 <td>
-
                                     <div class="action-buttons">
 
-                                        {{-- VIEW --}}
                                         <a
-                                            href="{{ route('admin.scholarship.exams.show', $exam) }}"
+                                            href="{{ route('admin.scholarship.exams.show', $exam->id) }}"
                                             class="action-btn"
                                             title="View Examination"
+                                            aria-label="View Examination"
                                         >
-                                            <i class="fas fa-eye"></i>
+                                            <i class="fas fa-eye"
+                                               aria-hidden="true"></i>
                                         </a>
 
-
-                                        {{-- EDIT --}}
                                         <a
-                                            href="{{ route('admin.scholarship.exams.edit', $exam) }}"
+                                            href="{{ route('admin.scholarship.exams.edit', $exam->id) }}"
                                             class="action-btn edit"
                                             title="Edit Examination"
+                                            aria-label="Edit Examination"
                                         >
-                                            <i class="fas fa-pen"></i>
+                                            <i class="fas fa-pen"
+                                               aria-hidden="true"></i>
                                         </a>
 
-
-                                        {{-- DELETE --}}
                                         <form
-                                            action="{{ route('admin.scholarship.exams.destroy', $exam) }}"
+                                            action="{{ route('admin.scholarship.exams.destroy', $exam->id) }}"
                                             method="POST"
-                                            style="display:inline;"
-                                            onsubmit="return confirm('Are you sure you want to delete this scholarship examination record?');"
+                                            class="delete-form"
+                                            onsubmit="return confirm('Are you sure you want to delete this examination record?');"
                                         >
-
                                             @csrf
-
                                             @method('DELETE')
 
                                             <button
                                                 type="submit"
                                                 class="action-btn delete"
                                                 title="Delete Examination"
+                                                aria-label="Delete Examination"
                                             >
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fas fa-trash-alt"
+                                                   aria-hidden="true"></i>
                                             </button>
-
                                         </form>
 
                                     </div>
-
                                 </td>
-
                             </tr>
 
                         @endforeach
-
                     </tbody>
 
                 </table>
-
             </div>
-
 
             {{-- PAGINATION --}}
             @if($exams->hasPages())
-
                 <div class="pagination-wrapper">
 
-                    {{ $exams
-                        ->withQueryString()
-                        ->links()
-                    }}
+                    <div class="pagination-info">
+                        Showing
+                        <strong>{{ $exams->firstItem() }}</strong>
+                        to
+                        <strong>{{ $exams->lastItem() }}</strong>
+                        of
+                        <strong>{{ $exams->total() }}</strong>
+                        records
+                    </div>
+
+                    <div>
+                        {{ $exams->withQueryString()->links() }}
+                    </div>
 
                 </div>
-
             @endif
-
 
         @else
 
             {{-- EMPTY STATE --}}
-            <div class="scholarship-empty">
+            <div class="empty-state">
 
                 <div class="empty-icon">
-                    <i class="fas fa-award"></i>
+                    <i class="fas fa-award" aria-hidden="true"></i>
                 </div>
 
-                <h3>
-                    No Examination Records Found
-                </h3>
+                <h4>No Examination Records Found</h4>
 
                 <p>
-                    There are currently no scholarship examination records
-                    matching your selected filters. Create your first
-                    examination record to begin maintaining the history.
+                    No scholarship examination records match your current
+                    filters. Change your search criteria or add a new
+                    examination record to get started.
                 </p>
 
-                <a
-                    href="{{ route('admin.scholarship.exams.create') }}"
-                    class="btn-scholarship-add"
-                >
-                    <i class="fas fa-plus"></i>
-                    Add First Exam Record
-                </a>
+                @if(request()->filled('search') ||
+                    request()->filled('academic_year') ||
+                    request()->filled('status'))
+
+                    <a
+                        href="{{ route('admin.scholarship.exams.index') }}"
+                        class="empty-add-btn"
+                    >
+                        <i class="fas fa-rotate-left" aria-hidden="true"></i>
+                        Reset Filters
+                    </a>
+
+                @else
+
+                    <a
+                        href="{{ route('admin.scholarship.exams.create') }}"
+                        class="empty-add-btn"
+                    >
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                        Add First Exam Record
+                    </a>
+
+                @endif
 
             </div>
 
         @endif
 
-    </div>
+    </section>
 
 </div>
-
 @endsection
