@@ -1,626 +1,745 @@
 @extends('layouts.app')
 
 @section('title', 'Subjects | Admin')
-
 @section('page-title', 'Subjects')
 
 @section('content')
 
 <style>
-
-/* =========================================================
-   SUBJECT PAGE — TRANSPORT RECORDS STYLE
-========================================================= */
+/* ==========================================================
+   SUBJECTS — LOCKED SCHOOL DIARY DESIGN SYSTEM
+   Reference: Transport Records
+   Warm paper · Forest green · Cream cards · Earthy accents
+========================================================== */
 
 .subject-page {
-    width: 100%;
-    min-height: calc(100vh - 60px);
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --ink-soft: #40574a;
+    --text: #39483e;
+    --muted: #7b857b;
+    --line: #e5e1d5;
+    --line-dark: #d8d2c3;
+    --paper: #fffefa;
+    --chalk: #f5f3e9;
+    --sage: #527f70;
+    --blue: #426b8a;
+    --amber: #a87543;
+    --green: #43835d;
+    --red: #b95b50;
+
+    min-height: calc(100vh - 70px);
     padding: 26px 28px 40px;
-    background: #f4f7fb;
-    color: #172033;
+    color: var(--text);
+    background: #f7f6f0;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 13px;
 }
 
-/* =========================================================
-   HERO
-========================================================= */
+.subject-page *,
+.subject-page *::before,
+.subject-page *::after {
+    box-sizing: border-box;
+}
+
+.subject-page a,
+.subject-page button,
+.subject-page select {
+    -webkit-tap-highlight-color: transparent;
+    transition: color .2s ease, background .2s ease,
+        border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.subject-page a {
+    text-decoration: none;
+}
+
+.subject-page button,
+.subject-page input,
+.subject-page select {
+    font: inherit;
+}
+
+.subject-page button {
+    cursor: pointer;
+}
+
+.subject-page .diary-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    padding: 11px 17px;
+    border: 1px solid var(--ink);
+    border-radius: 9px;
+    color: #fff;
+    background: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.subject-page .diary-primary-btn:hover {
+    transform: translateY(-2px);
+    border-color: #456854;
+    color: #fff;
+    background: #456854;
+    box-shadow: 0 6px 15px rgba(29, 48, 43, .13);
+}
+
+/* ==========================================================
+   HERO — MATCH TRANSPORT RECORDS
+========================================================== */
 
 .subject-hero {
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(290px, .85fr);
     overflow: hidden;
-    min-height: 165px;
-    margin-bottom: 22px;
-    padding: 28px 32px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #1769d1 0%, #159cc7 100%);
-    color: #fff;
-    box-shadow: 0 10px 28px rgba(23, 105, 209, .18);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    margin-bottom: 36px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: var(--paper);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
 }
 
 .subject-hero::before {
-    content: "";
     position: absolute;
-    width: 230px;
-    height: 230px;
-    right: -65px;
-    top: -130px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .10);
-}
-
-.subject-hero::after {
+    top: 0;
+    bottom: 0;
+    left: 28px;
+    width: 2px;
+    background: #dfb4a5;
     content: "";
-    position: absolute;
-    width: 145px;
-    height: 145px;
-    right: 120px;
-    bottom: -100px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .10);
 }
 
 .subject-hero-content {
-    position: relative;
-    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 21px;
+    min-width: 0;
+    padding: 35px 30px 35px 51px;
+}
+
+.subject-hero-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border: 1px solid #e2ddcf;
+    border-radius: 16px;
+    color: var(--ink);
+    background: var(--chalk);
+    box-shadow: 0 3px 10px rgba(38, 59, 53, .04);
+    font-size: 25px;
+}
+
+.subject-hero-copy {
+    min-width: 0;
 }
 
 .subject-hero-breadcrumb {
     display: flex;
     align-items: center;
-    gap: 7px;
-    margin-bottom: 9px;
-    color: rgba(255, 255, 255, .78);
-    font-size: 11px;
-    font-weight: 600;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 11px;
+    color: #858d80;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .8px;
+    text-transform: uppercase;
 }
 
 .subject-hero-breadcrumb i {
+    color: #b1a895;
     font-size: 9px;
 }
 
 .subject-hero-content h1 {
-    margin: 0 0 7px;
-    font-size: 29px;
+    margin: 0 0 11px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: clamp(26px, 2.2vw, 34px);
+    font-weight: 700;
     line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: -.3px;
+    letter-spacing: -.7px;
 }
 
 .subject-hero-content p {
+    max-width: 540px;
     margin: 0;
-    max-width: 650px;
-    color: rgba(255, 255, 255, .91);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.subject-hero-note {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    color: #477858;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .15px;
+}
+
+.subject-hero-note i {
     font-size: 13px;
-    line-height: 1.6;
 }
 
 .subject-hero-actions {
     position: relative;
-    z-index: 4;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 12px;
-    margin-right: 18px;
+    min-height: 245px;
+    padding: 30px 25px;
+    overflow: hidden;
+    color: #e8eee4;
+    background: linear-gradient(145deg, #344f43 0%, #20352c 100%);
+    text-align: center;
 }
 
-.hero-add-btn {
+.subject-hero-actions::before,
+.subject-hero-actions::after {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+
+.subject-hero-actions::before {
+    top: -115px;
+    right: -60px;
+}
+
+.subject-hero-actions::after {
+    bottom: -140px;
+    left: -70px;
+}
+
+.subject-hero-decoration {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 12px;
+    color: #ead7aa;
+    background: rgba(255, 255, 255, .07);
+    font-size: 16px;
+}
+
+.subject-hero-handwritten {
+    position: relative;
+    z-index: 1;
+    color: #f0e5c9;
+    font-family: var(--hand, cursive);
+    font-size: 23px;
+    line-height: 1.4;
+}
+
+.subject-hero-description {
+    position: relative;
+    z-index: 1;
+    max-width: 300px;
+    margin: 0;
+    color: #cbd5cb;
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+.subject-page .hero-add-btn {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 9px;
     min-height: 42px;
-    padding: 0 17px;
-    border: 1px solid rgba(255, 255, 255, .22);
-    border-radius: 11px;
-    background: rgba(255, 255, 255, .14);
-    backdrop-filter: blur(6px);
-    color: #fff;
+    padding: 11px 17px;
+    border: 1px solid #e8e0c9;
+    border-radius: 9px;
+    color: var(--ink);
+    background: #f1ead8;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
     text-decoration: none;
-    font-size: 12px;
-    font-weight: 700;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
-    transition: .2s ease;
     white-space: nowrap;
 }
 
-.hero-add-btn:hover {
-    background: rgba(255, 255, 255, .22);
-    color: #fff;
-    transform: translateY(-1px);
+.subject-page .hero-add-btn:hover {
+    transform: translateY(-2px);
+    border-color: #fff5dc;
+    color: var(--ink);
+    background: #fff5dc;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, .12);
 }
 
-.subject-hero-icon-wrap {
-    position: relative;
-    z-index: 3;
-    width: 105px;
-    height: 105px;
-    margin-right: 30px;
-    border: 1px solid rgba(255, 255, 255, .18);
-    border-radius: 28px;
-    background: rgba(255, 255, 255, .10);
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.subject-hero-icon-wrap i {
-    font-size: 53px;
-    color: rgba(255, 255, 255, .88);
-}
-
-/* =========================================================
-   SUCCESS ALERT
-========================================================= */
+/* ==========================================================
+   SUCCESS MESSAGE
+========================================================== */
 
 .subject-alert {
-    margin-bottom: 18px;
-    padding: 12px 15px;
-    border: 1px solid #bbf7d0;
-    border-radius: 10px;
-    background: #f0fdf4;
-    color: #15803d;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 11px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border: 1px solid #d2e5d1;
+    border-radius: 11px;
+    color: #347849;
+    background: #f1f8ef;
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 700;
+    line-height: 1.7;
 }
 
-.subject-alert i {
-    font-size: 14px;
+.subject-alert-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 31px;
+    width: 31px;
+    height: 31px;
+    border-radius: 9px;
+    color: #347849;
+    background: #deeedb;
 }
 
-/* =========================================================
-   SUMMARY CARDS
-========================================================= */
+/* ==========================================================
+   SUMMARY CARDS — TRANSPORT KPI STYLE
+========================================================== */
 
 .subject-summary-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
-    margin-bottom: 22px;
+    margin: 36px 0 29px;
 }
 
 .summary-card {
+    --kpi-color: #426b8a;
+
     position: relative;
-    overflow: hidden;
-    min-height: 125px;
-    padding: 19px 20px;
-    border-radius: 15px;
-    color: #fff;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, .11);
-    transition: .25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
+    padding: 22px 21px 18px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--kpi-color);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
-.summary-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 28px rgba(15, 23, 42, .16);
-}
+.summary-card.blue { --kpi-color: #426b8a; }
+.summary-card.green { --kpi-color: #43835d; }
+.summary-card.orange { --kpi-color: #a87543; }
+.summary-card.cyan { --kpi-color: #527f70; }
 
 .summary-card::before {
-    content: "";
     position: absolute;
-    width: 120px;
-    height: 120px;
-    right: -38px;
-    top: -50px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .10);
+    top: -24px;
+    left: 17px;
+    padding: 5px 10px;
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+    background: var(--kpi-color);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .6px;
 }
 
-.summary-card.blue {
-    background: linear-gradient(135deg, #1769d1, #237de0);
-}
+.summary-card.blue::before { content: "CURRICULUM"; }
+.summary-card.green::before { content: "ACTIVE"; }
+.summary-card.orange::before { content: "INACTIVE"; }
+.summary-card.cyan::before { content: "CLASS COVERAGE"; }
 
-.summary-card.green {
-    background: linear-gradient(135deg, #16a34a, #22c55e);
-}
-
-.summary-card.orange {
-    background: linear-gradient(135deg, #ed9208, #f7aa25);
-}
-
-.summary-card.cyan {
-    background: linear-gradient(135deg, #079dbd, #16b5d0);
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(38, 59, 53, .07);
 }
 
 .summary-top {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-}
-
-.summary-label {
-    margin-bottom: 7px;
-    color: rgba(255, 255, 255, .88);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-}
-
-.summary-number {
-    margin: 0;
-    font-size: 28px;
-    line-height: 1;
-    font-weight: 800;
-}
-
-.summary-icon {
-    position: relative;
-    z-index: 2;
-    width: 39px;
-    height: 39px;
-    border-radius: 11px;
-    background: rgba(255, 255, 255, .15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-}
-
-.summary-footer {
-    position: relative;
-    z-index: 2;
-    margin-top: 14px;
-    color: rgba(255, 255, 255, .82);
-    font-size: 11px;
-}
-
-/* =========================================================
-   FILTER / MAIN CONTROL SECTION
-========================================================= */
-
-.subject-filter-section {
-    margin-bottom: 22px;
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid #e5ebf3;
-    border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
-}
-
-.subject-filter-header {
-    padding: 20px 22px 18px;
-    border-bottom: 1px solid #edf1f6;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-}
-
-.filter-heading {
-    display: flex;
-    align-items: center;
     gap: 12px;
 }
 
-.filter-heading-icon {
-    width: 43px;
-    height: 43px;
-    flex-shrink: 0;
-    border-radius: 12px;
-    background: #dbeafe;
-    color: #1769d1;
+.summary-label {
+    color: #758176;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.summary-number {
+    margin-top: 12px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 35px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -.5px;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.summary-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 19px;
-}
-
-.filter-heading h2 {
-    margin: 0 0 3px;
-    color: #172033;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #e8e5da;
+    border-radius: 12px;
+    color: var(--kpi-color);
+    background: #f7f6ef;
     font-size: 17px;
-    font-weight: 800;
 }
 
-.filter-heading p {
-    margin: 0;
-    color: #94a3b8;
-    font-size: 11px;
+.summary-footer {
+    padding-top: 13px;
+    border-top: 1px dashed #e1dccf;
+    color: #818a7e;
+    font-size: 10px;
+    line-height: 1.7;
 }
 
-.filter-content {
-    padding: 16px 22px;
-    background: #fbfcfe;
-}
+/* ==========================================================
+   SHARED SECTION HEADINGS AND COUNTS
+========================================================== */
 
-.subject-filter-form {
+.subject-section-heading,
+.directory-title,
+.filter-heading {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.filter-group {
-    position: relative;
-    flex: 1;
+    gap: 13px;
     min-width: 0;
 }
 
-.filter-label {
-    position: absolute;
-    left: 14px;
-    top: -7px;
-    z-index: 2;
-    padding: 0 5px;
-    background: #fbfcfe;
-    color: #64748b;
-    font-size: 9px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .35px;
+.subject-section-heading-icon,
+.directory-title-icon,
+.filter-heading-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #e0e3d7;
+    border-radius: 12px;
+    color: var(--ink);
+    background: #f1f2e8;
+    font-size: 16px;
 }
 
-.class-select {
-    width: 100%;
-    height: 42px;
-    padding: 0 13px;
-    border: 1px solid #e2e8f0;
-    border-radius: 11px;
-    outline: none;
-    background: #fff;
-    color: #475569;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s ease;
+.directory-title-icon {
+    color: var(--amber);
 }
 
-.class-select:hover {
-    border-color: #cbd5e1;
+.subject-section-heading h2,
+.directory-title h3,
+.filter-heading h2 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: -.25px;
 }
 
-.class-select:focus {
-    border-color: #8bb8ef;
-    box-shadow: 0 0 0 3px rgba(23, 105, 209, .08);
+.subject-section-heading p,
+.directory-title p,
+.filter-heading p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
 }
 
-.filter-btn {
+.subject-count,
+.directory-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    height: 42px;
-    padding: 0 16px;
-    border: 0;
-    border-radius: 11px;
-    background: #1769d1;
-    color: #fff;
-    font-size: 12px;
+    min-height: 35px;
+    padding: 8px 12px;
+    border: 1px solid #e4e0d4;
+    border-radius: 9px;
+    color: #6d786d;
+    background: #f8f7f0;
+    font-size: 10px;
     font-weight: 700;
-    box-shadow: 0 5px 13px rgba(23, 105, 209, .20);
-    transition: .2s ease;
     white-space: nowrap;
+}
+
+.subject-count i,
+.directory-count i {
+    color: var(--ink);
+}
+
+/* ==========================================================
+   FILTER PANEL
+========================================================== */
+
+.subject-filter-section {
+    overflow: hidden;
+    margin-bottom: 29px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
+}
+
+.subject-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e9e5d9;
+    background: var(--paper);
+}
+
+.subject-filter-header .filter-heading-icon {
+    color: var(--sage);
+    background: #edf2e9;
+}
+
+.filter-content {
+    padding: 23px 24px;
+    border-bottom: 1px solid var(--line);
+    background: #faf9f3;
+}
+
+.subject-filter-form {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto auto;
+    align-items: end;
+    gap: 12px;
+}
+
+.filter-group {
+    min-width: 0;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #526358;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.class-select {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid #dedfd3;
+    border-radius: 9px;
+    outline: none;
+    color: var(--text);
+    background: #fffefa;
+    font-family: inherit;
+    font-size: 12px;
     cursor: pointer;
 }
 
-.filter-btn:hover {
-    background: #1268ca;
-    transform: translateY(-1px);
+.class-select:hover {
+    border-color: #bdcabb;
 }
 
+.class-select:focus {
+    border-color: #739780;
+    box-shadow: 0 0 0 3px rgba(67, 131, 93, .1);
+}
+
+.filter-btn,
 .clear-filter-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    height: 42px;
-    padding: 0 13px;
-    border: 1px solid #e2e8f0;
-    border-radius: 11px;
-    background: #fff;
-    color: #64748b;
-    text-decoration: none;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 15px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-family: inherit;
     font-size: 11px;
-    font-weight: 700;
-    transition: .2s ease;
+    font-weight: 800;
+    text-decoration: none;
     white-space: nowrap;
+    cursor: pointer;
+}
+
+.filter-btn {
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
+}
+
+.filter-btn:hover {
+    transform: translateY(-1px);
+    border-color: #426652;
+    color: #fff;
+    background: #426652;
+    box-shadow: 0 4px 10px rgba(38, 59, 53, .12);
+}
+
+.clear-filter-btn {
+    border-color: #deded2;
+    color: #5d6b60;
+    background: #fffefa;
 }
 
 .clear-filter-btn:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    color: #1769d1;
+    border-color: #b5c4b0;
+    color: var(--ink);
+    background: #f0f3e9;
 }
 
-/* =========================================================
+/* ==========================================================
    CLASS DIRECTORY
-========================================================= */
+========================================================== */
 
 .directory-section {
-    margin-bottom: 22px;
+    overflow: hidden;
+    margin-bottom: 29px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
 }
 
 .directory-header {
-    padding: 20px 22px 18px;
-    margin-bottom: 0;
-    background: #fff;
-    border: 1px solid #e5ebf3;
-    border-bottom: 0;
-    border-radius: 16px 16px 0 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-}
-
-.directory-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.directory-title-icon {
-    width: 43px;
-    height: 43px;
-    border-radius: 12px;
-    background: #dbeafe;
-    color: #1769d1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
-}
-
-.directory-title h3 {
-    margin: 0 0 3px;
-    color: #172033;
-    font-size: 17px;
-    font-weight: 800;
-}
-
-.directory-title p {
-    margin: 0;
-    color: #94a3b8;
-    font-size: 11px;
-}
-
-.directory-count {
-    padding: 7px 12px;
-    border-radius: 20px;
-    background: #edf5ff;
-    color: #1769d1;
-    font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e9e5d9;
+    background: var(--paper);
 }
 
 .class-groups {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-    padding: 18px;
-    background: #fff;
-    border: 1px solid #e5ebf3;
-    border-radius: 0 0 16px 16px;
+    gap: 17px;
+    padding: 22px;
+    background: #faf9f3;
 }
 
-/* =========================================================
-   CLASS CARDS
-========================================================= */
+/* ==========================================================
+   CLASS CARDS — PAPER CARD STYLE
+========================================================== */
 
 .class-group-card {
-    position: relative;
-    background: #fff;
-    border: 1px solid #e3eaf3;
-    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
     overflow: hidden;
-    box-shadow: 0 3px 12px rgba(25, 55, 95, .045);
-    transition: all .22s ease;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
+    transition: transform .2s ease, border-color .2s ease,
+        box-shadow .2s ease;
 }
 
 .class-group-card:hover {
     transform: translateY(-3px);
-    border-color: #c9ddf5;
-    box-shadow: 0 12px 27px rgba(25, 55, 95, .10);
+    border-color: #c9d0c3;
+    box-shadow: 0 9px 22px rgba(38, 59, 53, .07);
 }
 
 .class-card-accent {
     height: 4px;
-    width: 100%;
-    background: linear-gradient(
-        90deg,
-        #147cf5 0%,
-        #2188f7 45%,
-        #2bcfe8 100%
-    );
+    background: linear-gradient(90deg, #344f43, #527f70);
 }
 
 .class-group-body {
-    padding: 18px 18px 16px;
+    flex: 1;
+    padding: 19px;
 }
 
 .class-group-main {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
+    min-width: 0;
 }
 
 .class-number-box {
-    position: relative;
-    width: 62px;
-    height: 62px;
-    flex-shrink: 0;
-    border-radius: 16px;
-    background: linear-gradient(
-        145deg,
-        #147cf5 0%,
-        #1268ca 65%,
-        #0e58b0 100%
-    );
-    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow:
-        0 9px 20px rgba(20, 124, 245, .23),
-        inset 0 1px 0 rgba(255, 255, 255, .20);
-    overflow: hidden;
-    transition: all .25s ease;
-}
-
-.class-group-card:hover .class-number-box {
-    transform: scale(1.04);
-    box-shadow:
-        0 11px 24px rgba(20, 124, 245, .28),
-        inset 0 1px 0 rgba(255, 255, 255, .25);
-}
-
-.class-number-box::before {
-    content: "";
-    position: absolute;
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    top: -42px;
-    right: -25px;
-    background: rgba(255, 255, 255, .13);
-}
-
-.class-number-box::after {
-    content: "";
-    position: absolute;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    bottom: -28px;
-    left: -18px;
-    background: rgba(255, 255, 255, .08);
+    flex: 0 0 53px;
+    width: 53px;
+    height: 53px;
+    border: 1px solid #e3e1d6;
+    border-radius: 12px;
+    color: var(--ink);
+    background: var(--chalk);
 }
 
 .class-icon {
-    position: relative;
-    z-index: 3;
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-    background: rgba(255, 255, 255, .16);
-    border: 1px solid rgba(255, 255, 255, .20);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    color: #fff;
-    box-shadow: 0 3px 9px rgba(0, 0, 0, .08);
+    width: 34px;
+    height: 34px;
+    border: 1px solid #e2ddcf;
+    border-radius: 9px;
+    color: var(--ink);
+    background: var(--paper);
+    font-size: 15px;
 }
 
 .class-group-info {
-    min-width: 0;
     flex: 1;
+    min-width: 0;
 }
 
 .class-group-info h3 {
     margin: 0 0 8px;
-    color: #172033;
-    font-size: 15px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 16px;
     font-weight: 700;
-    line-height: 1.3;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.class-group-info h3 .class-divider {
+    color: var(--amber);
+    font-weight: 500;
 }
 
 .class-meta {
@@ -635,95 +754,97 @@
     display: inline-flex;
     align-items: center;
     min-height: 24px;
-    padding: 0 9px;
-    border-radius: 6px;
-    font-size: 10px;
-    font-weight: 600;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    font-size: 9px;
+    font-weight: 750;
 }
 
 .class-section-tag {
-    background: #f3efff;
-    color: #6941b5;
-    border: 1px solid #e8ddff;
+    border-color: #d5e5d1;
+    color: #347849;
+    background: #edf6e9;
 }
 
 .class-year-tag {
-    background: #f4f7fb;
-    color: #64748b;
-    border: 1px solid #e8edf4;
+    color: #765e32;
+    border-color: #e7dfc9;
+    background: #faf5e8;
 }
 
 .class-subject-summary {
-    margin-top: 18px;
-    padding: 12px 13px;
-    background: linear-gradient(135deg, #f8fbff, #f6f9fc);
-    border: 1px solid #e8eef5;
-    border-radius: 9px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+    margin-top: 19px;
+    padding: 12px;
+    border: 1px solid #e4e0d4;
+    border-radius: 9px;
+    background: #f8f7f0;
 }
 
 .class-subject-summary-label {
-    color: #718096;
-    font-size: 11px;
-    font-weight: 600;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
 }
 
 .class-subject-summary-count {
-    color: #147cf5;
-    font-size: 13px;
-    font-weight: 700;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 800;
+    text-align: right;
 }
 
 .class-group-footer {
-    border-top: 1px solid #edf1f6;
-    padding: 11px 18px;
-    background: #fafcff;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+    padding: 13px 17px;
+    border-top: 1px solid #eae6da;
+    background: #f8f7f0;
 }
 
 .class-subject-label {
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 600;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.7;
 }
 
 .class-subject-label strong {
-    color: #172033;
+    color: var(--ink);
 }
 
 .class-view-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    min-height: 32px;
+    gap: 8px;
+    min-height: 35px;
     padding: 0 12px;
-    border-radius: 7px;
-    background: #edf5ff;
-    border: 1px solid #dbeaff;
-    color: #1769d1;
-    text-decoration: none;
+    border: 1px solid var(--ink);
+    border-radius: 9px;
+    color: #fff;
+    background: var(--ink);
     font-size: 10px;
-    font-weight: 700;
-    transition: all .18s ease;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .class-view-btn:hover {
-    background: #1769d1;
-    border-color: #1769d1;
+    transform: translateY(-1px);
+    border-color: #456854;
     color: #fff;
-    transform: translateX(1px);
+    background: #456854;
+    box-shadow: 0 4px 10px rgba(38, 59, 53, .1);
 }
 
 .class-view-arrow {
-    font-size: 13px;
-    line-height: 1;
+    font-size: 14px;
     transition: transform .18s ease;
 }
 
@@ -731,336 +852,284 @@
     transform: translateX(3px);
 }
 
-/* =========================================================
-   SUBJECT TABLE SECTION
-========================================================= */
-
-.subject-table-section {
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid #e5ebf3;
-    border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
-}
-
-.subject-table-header {
-    padding: 20px 22px 18px;
-    border-bottom: 1px solid #edf1f6;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.subject-section-heading {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.subject-section-heading-icon {
-    width: 43px;
-    height: 43px;
-    flex-shrink: 0;
-    border-radius: 12px;
-    background: #dbeafe;
-    color: #1769d1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
-}
-
-.subject-section-heading h2 {
-    margin: 0 0 3px;
-    color: #172033;
-    font-size: 17px;
-    font-weight: 800;
-}
-
-.subject-section-heading p {
-    margin: 0;
-    color: #94a3b8;
-    font-size: 11px;
-}
-
-.subject-count {
-    padding: 7px 12px;
-    border-radius: 20px;
-    background: #edf5ff;
-    color: #1769d1;
-    font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-/* =========================================================
+/* ==========================================================
    BACK TO CLASSES
-========================================================= */
+========================================================== */
 
 .subject-back-row {
-    margin-bottom: 14px;
+    margin-bottom: 15px;
 }
 
 .back-to-classes {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-height: 34px;
+    gap: 9px;
+    min-height: 38px;
     padding: 0 12px;
-    border-radius: 8px;
-    color: #64748b;
-    background: #fff;
-    border: 1px solid #e3eaf3;
-    font-size: 11px;
-    font-weight: 700;
-    text-decoration: none;
-    box-shadow: 0 2px 7px rgba(25, 55, 95, .035);
-    transition: all .18s ease;
+    border: 1px solid #deded2;
+    border-radius: 9px;
+    color: #5d6b60;
+    background: #fffefa;
+    font-size: 10px;
+    font-weight: 800;
 }
 
 .back-to-classes:hover {
-    color: #147cf5;
-    background: #f7fbff;
-    border-color: #cfe1f8;
-    transform: translateX(-2px);
+    border-color: #b5c4b0;
+    color: var(--ink);
+    background: #f0f3e9;
 }
 
 .back-arrow {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    background: #eef5ff;
-    color: #147cf5;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    line-height: 1;
+    width: 25px;
+    height: 25px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 12px;
 }
 
-/* =========================================================
-   TABLE
-========================================================= */
+/* ==========================================================
+   SUBJECT TABLE PANEL
+========================================================== */
+
+.subject-table-section {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
+}
+
+.subject-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e9e5d9;
+    background: var(--paper);
+}
+
+.subject-table-header .subject-section-heading-icon {
+    color: var(--ink);
+    background: #f1f2e8;
+}
 
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .subject-table {
     width: 100%;
-    min-width: 900px;
-    border-collapse: collapse;
+    min-width: 1000px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .subject-table thead th {
-    padding: 13px 17px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e5ebf3;
-    color: #64748b;
-    font-size: 10px;
+    padding: 15px 14px;
+    border-bottom: 1px solid #e2e0d5;
+    color: #637166;
+    background: #f1f2e9;
+    font-size: 9px;
     font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .45px;
-    white-space: nowrap;
     text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .65px;
+    white-space: nowrap;
 }
 
 .subject-table tbody td {
-    padding: 14px 17px;
-    border-bottom: 1px solid #edf1f6;
-    color: #475569;
-    font-size: 12px;
+    padding: 15px 14px;
+    border-bottom: 1px solid #efede5;
+    color: var(--text);
+    font-size: 11px;
     vertical-align: middle;
 }
 
 .subject-table tbody tr {
+    background: #fffefa;
     transition: background .18s ease;
 }
 
 .subject-table tbody tr:hover {
-    background: #f8fbff;
+    background: #f8f8f1;
 }
 
 .subject-table tbody tr:last-child td {
-    border-bottom: 0;
+    border-bottom: none;
 }
 
-/* =========================================================
-   TABLE NUMBER
-========================================================= */
+/* SUBJECT IDENTITY */
 
 .row-number {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: #f4f7fb;
-    color: #64748b;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e3e1d6;
+    border-radius: 9px;
+    color: #68776a;
+    background: #f5f4ec;
+    font-size: 10px;
+    font-weight: 800;
 }
-
-/* =========================================================
-   SUBJECT NAME
-========================================================= */
 
 .subject-name-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
-    min-width: 180px;
+    gap: 11px;
+    min-width: 190px;
 }
 
 .subject-icon {
-    width: 35px;
-    height: 35px;
-    flex-shrink: 0;
-    border-radius: 9px;
-    background: #eef5ff;
-    color: #1769d1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #dce3d8;
+    border-radius: 11px;
+    color: var(--ink);
+    background: #edf1e7;
+    font-size: 14px;
 }
 
 .subject-name {
-    color: #172033;
-    font-size: 12px;
-    font-weight: 750;
+    color: #293d32;
+    font-size: 11px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
 }
-
-/* =========================================================
-   SUBJECT CODE
-========================================================= */
 
 .subject-code {
-    display: inline-block;
-    padding: 5px 8px;
-    border-radius: 6px;
-    background: #f5f7fa;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 700;
-    border: 1px solid #edf1f5;
-}
-
-/* =========================================================
-   CLASS
-========================================================= */
-
-.class-badge {
     display: inline-flex;
     align-items: center;
-    padding: 6px 10px;
-    border-radius: 20px;
-    background: #edf5ff;
-    color: #1769d1;
+    padding: 7px 9px;
+    border: 1px solid #e7dfc9;
+    border-radius: 7px;
+    color: #765e32;
+    background: #faf5e8;
     font-size: 10px;
     font-weight: 800;
     white-space: nowrap;
 }
 
-/* =========================================================
-   SECTION
-========================================================= */
+.class-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 10px;
+    border: 1px solid #dce6da;
+    border-radius: 7px;
+    color: #405e4b;
+    background: #edf3e9;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
 
 .section-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 29px;
-    height: 27px;
+    min-width: 30px;
+    height: 29px;
     padding: 0 8px;
-    border-radius: 7px;
-    background: #f4efff;
-    color: #6f42c1;
+    border: 1px solid #ebdfcc;
+    border-radius: 8px;
+    color: #a87543;
+    background: #faf2e7;
     font-size: 10px;
     font-weight: 800;
 }
 
-/* =========================================================
-   ACADEMIC YEAR
-========================================================= */
-
 .academic-year {
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 700;
+    color: #68776a;
+    font-size: 10px;
+    font-weight: 750;
     white-space: nowrap;
 }
 
-/* =========================================================
-   STATUS
-========================================================= */
+/* STATUS */
 
 .status-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: 20px;
+    gap: 7px;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 7px;
     font-size: 10px;
     font-weight: 800;
     white-space: nowrap;
 }
 
 .status-dot {
-    width: 6px;
-    height: 6px;
+    flex: 0 0 7px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    display: inline-block;
 }
 
 .status-active {
-    background: #dcfce7;
-    color: #16a34a;
+    border-color: #d4e5d0;
+    color: #347849;
+    background: #edf6e9;
 }
 
 .status-active .status-dot {
-    background: #16a34a;
+    background: #43835d;
 }
 
 .status-inactive {
-    background: #fee2e2;
-    color: #dc2626;
+    border-color: #eed6cf;
+    color: #b95b50;
+    background: #fff1ed;
 }
 
 .status-inactive .status-dot {
-    background: #dc2626;
+    background: #b95b50;
 }
 
-/* =========================================================
-   ACTION BUTTONS
-========================================================= */
+/* ACTION BUTTONS */
 
 .action-buttons {
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: flex-end;
+    gap: 7px;
 }
 
 .action-buttons form {
+    display: inline-flex;
     margin: 0;
     padding: 0;
 }
 
 .action-btn {
-    width: 31px;
-    height: 31px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #fff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid #e2e1d7;
+    border-radius: 9px;
+    color: #657369;
+    background: #fffefa;
     font-size: 11px;
-    transition: .2s ease;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -1068,669 +1137,593 @@
     transform: translateY(-2px);
 }
 
-.action-view {
-    color: #1769d1;
-}
-
 .action-view:hover {
-    background: #edf5ff;
-    border-color: #bfdbfe;
-    color: #1769d1;
-}
-
-.action-edit {
-    color: #ea580c;
+    border-color: #cbdce5;
+    color: #426b8a;
+    background: #edf4f8;
 }
 
 .action-edit:hover {
-    background: #fff7ed;
-    border-color: #fed7aa;
-    color: #ea580c;
-}
-
-.action-delete {
-    color: #dc2626;
+    border-color: #ead7b9;
+    color: #a87543;
+    background: #faf3e6;
 }
 
 .action-delete:hover {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #dc2626;
+    border-color: #edcbc3;
+    color: #b95b50;
+    background: #fff0ec;
 }
 
-/* =========================================================
+/* ==========================================================
    EMPTY STATE
-========================================================= */
+========================================================== */
 
 .empty-state {
-    padding: 75px 25px 80px;
+    padding: 65px 20px;
     text-align: center;
 }
 
 .empty-icon-wrapper {
     position: relative;
-    width: 82px;
-    height: 82px;
+    width: 76px;
+    height: 76px;
     margin: 0 auto 19px;
 }
 
 .empty-icon-bg {
     position: absolute;
     inset: 0;
-    border-radius: 23px;
-    background: linear-gradient(135deg, #dbeafe, #e0f2fe);
-    transform: rotate(6deg);
+    border: 1px solid #e3decc;
+    border-radius: 19px;
+    background: var(--chalk);
+    transform: rotate(4deg);
 }
 
 .empty-state-icon {
     position: relative;
-    width: 82px;
-    height: 82px;
-    border-radius: 20px;
-    background: #fff;
-    border: 1px solid #dbeafe;
-    color: #1769d1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    box-shadow: 0 8px 20px rgba(23, 105, 209, .10);
+    width: 76px;
+    height: 76px;
+    border: 1px solid #e3decc;
+    border-radius: 16px;
+    color: var(--ink);
+    background: var(--paper);
+    box-shadow: 0 5px 13px rgba(38, 59, 53, .04);
+    font-size: 27px;
 }
 
 .empty-state h4 {
-    margin: 0 0 7px;
-    color: #172033;
-    font-size: 18px;
-    font-weight: 800;
+    margin: 0 0 10px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 22px;
+    font-weight: 700;
 }
 
 .empty-state p {
-    max-width: 470px;
+    max-width: 450px;
     margin: 0 auto 21px;
-    color: #64748b;
-    font-size: 12px;
-    line-height: 1.7;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.9;
 }
 
-.empty-add-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-height: 42px;
-    padding: 0 17px;
-    border: 0;
-    border-radius: 11px;
-    background: #1769d1;
-    color: #fff;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 700;
-    box-shadow: 0 5px 13px rgba(23, 105, 209, .20);
-    transition: .2s ease;
+/* ==========================================================
+   ACCESSIBILITY
+========================================================== */
+
+.subject-page a:focus-visible,
+.subject-page button:focus-visible,
+.subject-page select:focus-visible,
+.subject-page input:focus-visible {
+    outline: 2px solid #648b72;
+    outline-offset: 3px;
 }
 
-.empty-add-btn:hover {
-    background: #1268ca;
-    color: #fff;
-    transform: translateY(-1px);
+@media (prefers-reduced-motion: reduce) {
+    .subject-page *,
+    .subject-page *::before,
+    .subject-page *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+/* ==========================================================
+   TABLET
+========================================================== */
 
 @media (max-width: 1200px) {
-
     .subject-summary-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .class-groups {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .subject-hero-icon-wrap {
-        margin-right: 10px;
-    }
-}
-
-@media (max-width: 1000px) {
-
     .subject-filter-form {
-        align-items: stretch;
-        flex-direction: column;
+        grid-template-columns: minmax(0, 1fr) auto;
     }
 
     .filter-group {
-        width: 100%;
-    }
-
-    .filter-btn,
-    .clear-filter-btn {
-        width: 100%;
+        grid-column: 1 / -1;
     }
 }
 
-@media (max-width: 850px) {
-
+@media (max-width: 900px) {
     .subject-page {
-        padding: 18px;
+        padding: 20px;
     }
 
     .subject-hero {
-        padding: 24px;
+        grid-template-columns: 1fr;
+    }
+
+    .subject-hero-content {
+        padding-top: 29px;
+        padding-bottom: 29px;
     }
 
     .subject-hero-actions {
-        margin-right: 0;
+        min-height: 220px;
     }
 
-    .subject-hero-icon-wrap {
-        display: none;
-    }
-
-    .subject-table-header,
-    .directory-header,
-    .subject-filter-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .directory-header {
-        border-bottom: 1px solid #e5ebf3;
-        border-radius: 16px;
-    }
-
-    .class-groups {
-        border-top: 0;
-        border-radius: 0 0 16px 16px;
+    .subject-filter-form {
+        grid-template-columns: minmax(0, 1fr) auto;
     }
 }
 
+/* ==========================================================
+   MOBILE
+========================================================== */
+
 @media (max-width: 650px) {
-
-    .subject-summary-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .class-groups {
-        grid-template-columns: 1fr;
+    .subject-page {
+        padding: 18px 14px 28px;
     }
 
     .subject-hero {
-        min-height: 145px;
+        margin-bottom: 34px;
+        border-radius: 12px;
+    }
+
+    .subject-hero::before {
+        left: 18px;
+    }
+
+    .subject-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 23px 15px 23px 32px;
+    }
+
+    .subject-hero-icon-wrap {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        border-radius: 11px;
+        font-size: 18px;
+    }
+
+    .subject-hero-breadcrumb {
+        gap: 6px;
+        font-size: 8px;
+        letter-spacing: .55px;
     }
 
     .subject-hero-content h1 {
         font-size: 24px;
     }
 
+    .subject-hero-content p {
+        font-size: 11px;
+    }
+
+    .subject-hero-note {
+        align-items: flex-start;
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
     .subject-hero-actions {
-        position: absolute;
-        right: 24px;
-        bottom: 24px;
+        min-height: 205px;
+        padding: 24px 16px;
     }
 
-    .hero-add-btn {
-        padding: 0 13px;
+    .subject-hero-handwritten {
+        font-size: 21px;
     }
 
-    .filter-content {
+    .subject-page .hero-add-btn {
+        width: 100%;
+    }
+
+    .subject-summary-grid {
+        gap: 15px;
+        margin-top: 31px;
+    }
+
+    .summary-card {
+        gap: 12px;
+        padding: 19px 15px 15px;
+        border-radius: 11px;
+    }
+
+    .summary-icon {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 15px;
+    }
+
+    .summary-number {
+        font-size: 29px;
+    }
+
+    .summary-footer {
+        font-size: 9px;
+    }
+
+    .subject-filter-header,
+    .directory-header,
+    .subject-table-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 13px;
         padding: 16px;
     }
 
-    .subject-table-header {
-        padding: 18px;
+    .filter-content {
+        padding: 17px 15px;
     }
 
-    .directory-header {
-        padding: 18px;
+    .subject-filter-form {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .filter-group {
+        grid-column: auto;
+    }
+
+    .filter-btn,
+    .clear-filter-btn {
+        width: 100%;
     }
 
     .class-groups {
-        padding: 14px;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 15px;
+    }
+
+    .class-group-body {
+        padding: 16px;
     }
 
     .class-group-footer {
-        align-items: flex-start;
+        align-items: stretch;
         flex-direction: column;
+        padding: 13px 15px;
     }
 
     .class-view-btn {
         width: 100%;
+        min-height: 38px;
+    }
+
+    .subject-count,
+    .directory-count {
+        align-self: flex-start;
+    }
+
+    .subject-section-heading,
+    .directory-title,
+    .filter-heading {
+        align-items: flex-start;
+    }
+
+    .subject-section-heading-icon,
+    .directory-title-icon,
+    .filter-heading-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .subject-section-heading h2,
+    .directory-title h3,
+    .filter-heading h2 {
+        font-size: 16px;
+    }
+
+    .empty-state {
+        padding: 48px 17px;
+    }
+
+    .subject-table {
+        min-width: 1000px;
     }
 }
 
-@media (max-width: 480px) {
-
-    .subject-hero-actions {
-        position: static;
-        margin-top: 18px;
+@media (max-width: 400px) {
+    .subject-page {
+        padding: 18px 12px 25px;
     }
 
-    .subject-hero {
-        align-items: flex-start;
-        flex-direction: column;
+    .subject-summary-grid {
+        grid-template-columns: 1fr;
     }
 
-    .hero-add-btn {
-        width: 100%;
+    .subject-table-header {
+        gap: 12px;
+    }
+
+    .subject-count {
+        margin-left: 46px;
+    }
+
+    .class-group-body {
+        padding: 13px;
     }
 
     .class-number-box {
-        width: 56px;
-        height: 56px;
+        flex-basis: 46px;
+        width: 46px;
+        height: 46px;
     }
 
     .class-icon {
-        width: 31px;
-        height: 31px;
-        font-size: 17px;
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
     }
 
-    .subject-name-wrapper {
-        min-width: 160px;
+    .class-group-info h3 {
+        font-size: 14px;
+    }
+
+    .subject-alert {
+        align-items: flex-start;
     }
 }
-
 </style>
-
 
 <div class="subject-page">
 
-    {{-- =====================================================
-         HERO
-    ====================================================== --}}
-
-    <div class="subject-hero">
-
+    {{-- HERO — MATCH TRANSPORT RECORDS --}}
+    <section class="subject-hero">
         <div class="subject-hero-content">
 
-            <div class="subject-hero-breadcrumb">
-                <span>Academic Management</span>
-
-                <i class="bi bi-chevron-right"></i>
-
-                <span>Subjects</span>
+            <div class="subject-hero-icon-wrap">
+                <i class="fas fa-book-open"></i>
             </div>
 
-            <h1>
-                Subjects
-            </h1>
+            <div class="subject-hero-copy">
+                <div class="subject-hero-breadcrumb">
+                    <span>Academic Management</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Subjects</span>
+                </div>
 
-            <p>
-                Manage academic subjects class-wise and keep your
-                curriculum organized from one place.
-            </p>
+                <h1>Subjects</h1>
 
+                <p>
+                    Manage academic subjects class-wise and keep your
+                    curriculum organised from one place.
+                </p>
+
+                <div class="subject-hero-note">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Academic Planning &amp; Curriculum Management</span>
+                </div>
+            </div>
         </div>
 
         <div class="subject-hero-actions">
+            <div class="subject-hero-decoration">
+                <i class="fas fa-book-reader"></i>
+            </div>
 
-            <a
-                href="{{ route('admin.subjects.create') }}"
-                class="hero-add-btn"
-            >
-                <i class="bi bi-plus-lg"></i>
+            <div class="subject-hero-handwritten">
+                Learning Starts Here.
+            </div>
+
+            <p class="subject-hero-description">
+                Keep every class organised with clear subject assignments
+                and a well-managed academic curriculum.
+            </p>
+
+            <a href="{{ route('admin.subjects.create') }}"
+               class="hero-add-btn">
+                <i class="fas fa-plus"></i>
                 Add Subject
             </a>
-
         </div>
+    </section>
 
-        <div class="subject-hero-icon-wrap">
-
-            <i class="fa-solid fa-book-open"></i>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         SUCCESS MESSAGE
-    ====================================================== --}}
-
+    {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
-
-        <div class="subject-alert">
-
-            <i class="bi bi-check-circle-fill"></i>
-
-            <span>
-                {{ session('success') }}
+        <div class="subject-alert" role="status">
+            <span class="subject-alert-icon">
+                <i class="fas fa-check"></i>
             </span>
-
+            <span>{{ session('success') }}</span>
         </div>
-
     @endif
 
+    {{-- SUMMARY CARDS --}}
+    <section class="subject-summary-grid">
 
-    {{-- =====================================================
-         SUMMARY CARDS
-    ====================================================== --}}
-
-    <div class="subject-summary-grid">
-
-        {{-- TOTAL SUBJECTS --}}
-
-        <div class="summary-card blue">
-
+        <article class="summary-card blue">
             <div class="summary-top">
-
                 <div>
-
-                    <div class="summary-label">
-                        Total Subjects
-                    </div>
-
+                    <div class="summary-label">Total Subjects</div>
                     <div class="summary-number">
-                        {{ $subjects->count() }}
+                        {{ number_format($subjects->count()) }}
                     </div>
-
                 </div>
-
                 <div class="summary-icon">
-
-                    <i class="fa-solid fa-book-open"></i>
-
+                    <i class="fas fa-book-open"></i>
                 </div>
-
             </div>
+            <div class="summary-footer">All academic subjects</div>
+        </article>
 
-            <div class="summary-footer">
-                All academic subjects
-            </div>
-
-        </div>
-
-
-        {{-- ACTIVE SUBJECTS --}}
-
-        <div class="summary-card green">
-
+        <article class="summary-card green">
             <div class="summary-top">
-
                 <div>
-
-                    <div class="summary-label">
-                        Active
-                    </div>
-
+                    <div class="summary-label">Active Subjects</div>
                     <div class="summary-number">
-                        {{ $subjects->where('status', true)->count() }}
+                        {{ number_format($subjects->where('status', true)->count()) }}
                     </div>
-
                 </div>
-
                 <div class="summary-icon">
-
-                    <i class="bi bi-check-circle-fill"></i>
-
+                    <i class="fas fa-check-circle"></i>
                 </div>
-
             </div>
+            <div class="summary-footer">Currently active subjects</div>
+        </article>
 
-            <div class="summary-footer">
-                Currently active subjects
-            </div>
-
-        </div>
-
-
-        {{-- INACTIVE SUBJECTS --}}
-
-        <div class="summary-card orange">
-
+        <article class="summary-card orange">
             <div class="summary-top">
-
                 <div>
-
-                    <div class="summary-label">
-                        Inactive
-                    </div>
-
+                    <div class="summary-label">Inactive Subjects</div>
                     <div class="summary-number">
-                        {{ $subjects->where('status', false)->count() }}
+                        {{ number_format($subjects->where('status', false)->count()) }}
                     </div>
-
                 </div>
-
                 <div class="summary-icon">
-
-                    <i class="bi bi-pause-circle-fill"></i>
-
+                    <i class="fas fa-pause-circle"></i>
                 </div>
-
             </div>
+            <div class="summary-footer">Inactive academic subjects</div>
+        </article>
 
-            <div class="summary-footer">
-                Inactive academic subjects
-            </div>
-
-        </div>
-
-
-        {{-- ASSIGNED CLASSES --}}
-
-        <div class="summary-card cyan">
-
+        <article class="summary-card cyan">
             <div class="summary-top">
-
                 <div>
-
-                    <div class="summary-label">
-                        Assigned Classes
-                    </div>
-
+                    <div class="summary-label">Assigned Classes</div>
                     <div class="summary-number">
-                        {{ $subjects->pluck('class_id')->unique()->count() }}
+                        {{ number_format($subjects->pluck('class_id')->unique()->count()) }}
                     </div>
-
                 </div>
-
                 <div class="summary-icon">
-
-                    <i class="fa-solid fa-building-columns"></i>
-
+                    <i class="fas fa-school"></i>
                 </div>
-
             </div>
+            <div class="summary-footer">Classes with subjects assigned</div>
+        </article>
 
-            <div class="summary-footer">
-                Classes with subjects assigned
-            </div>
+    </section>
 
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         CLASS FILTER
-    ====================================================== --}}
-
-    <div class="subject-filter-section">
+    {{-- CLASS FILTER --}}
+    <section class="subject-filter-section">
 
         <div class="subject-filter-header">
-
             <div class="filter-heading">
-
                 <div class="filter-heading-icon">
-
-                    <i class="fa-solid fa-filter"></i>
-
+                    <i class="fas fa-sliders-h"></i>
                 </div>
-
                 <div>
-
-                    <h2>
-                        Subject Filter
-                    </h2>
-
-                    <p>
-                        Select a class to view its assigned subjects.
-                    </p>
-
+                    <h2>Find Subjects</h2>
+                    <p>Select a class to view its assigned subjects.</p>
                 </div>
-
             </div>
-
         </div>
 
-
         <div class="filter-content">
-
-            <form
-                action="{{ route('admin.subjects.index') }}"
-                method="GET"
-                class="subject-filter-form"
-            >
+            <form action="{{ route('admin.subjects.index') }}"
+                  method="GET"
+                  class="subject-filter-form">
 
                 <div class="filter-group">
-
-                    <label
-                        for="class_id"
-                        class="filter-label"
-                    >
+                    <label for="class_id" class="filter-label">
                         Select Class
                     </label>
 
-                    <select
-                        name="class_id"
-                        id="class_id"
-                        class="class-select"
-                    >
+                    <select name="class_id"
+                            id="class_id"
+                            class="class-select">
 
-                        <option value="">
-                            All Classes
-                        </option>
+                        <option value="">All Classes</option>
 
                         @foreach($classes as $class)
-
-                            <option
-                                value="{{ $class->id }}"
-                                {{ request('class_id') == $class->id ? 'selected' : '' }}
-                            >
+                            <option value="{{ $class->id }}"
+                                @selected(request('class_id') == $class->id)>
                                 Class {{ $class->class_name }}
                                 - Section {{ $class->section }}
                                 ({{ $class->academic_year }})
                             </option>
-
                         @endforeach
 
                     </select>
-
                 </div>
 
-
-                <button
-                    type="submit"
-                    class="filter-btn"
-                >
-
-                    <i class="bi bi-search"></i>
-
+                <button type="submit" class="filter-btn">
+                    <i class="fas fa-search"></i>
                     Show Subjects
-
                 </button>
 
-
                 @if(request()->filled('class_id'))
-
-                    <a
-                        href="{{ route('admin.subjects.index') }}"
-                        class="clear-filter-btn"
-                    >
-
-                        <i class="bi bi-arrow-counterclockwise"></i>
-
+                    <a href="{{ route('admin.subjects.index') }}"
+                       class="clear-filter-btn">
+                        <i class="fas fa-rotate-left"></i>
                         Clear Filter
-
                     </a>
-
                 @endif
 
             </form>
-
         </div>
+    </section>
 
-    </div>
-
-
-    {{-- =====================================================
-         NO CLASS SELECTED
-         SHOW CLASS DIRECTORY
-    ====================================================== --}}
-
+    {{-- ALL CLASSES: CLASS DIRECTORY --}}
     @if(!request()->filled('class_id'))
 
         @if($subjects->count())
 
             @php
-
                 $groupedSubjects = $subjects->groupBy('class_id');
-
             @endphp
 
-
-            <div class="directory-section">
-
-                {{-- DIRECTORY HEADER --}}
+            <section class="directory-section">
 
                 <div class="directory-header">
-
                     <div class="directory-title">
-
                         <div class="directory-title-icon">
-
-                            <i class="fa-solid fa-building-columns"></i>
-
+                            <i class="fas fa-school"></i>
                         </div>
-
                         <div>
-
-                            <h3>
-                                Class Directory
-                            </h3>
-
+                            <h3>Class Directory</h3>
                             <p>
                                 Select a class to view its assigned subjects.
                             </p>
-
                         </div>
-
                     </div>
 
                     <span class="directory-count">
-
-                        {{ $groupedSubjects->count() }}
-
+                        <i class="fas fa-folder-open"></i>
+                        <strong>{{ number_format($groupedSubjects->count()) }}</strong>
                         {{ $groupedSubjects->count() == 1 ? 'Class' : 'Classes' }}
-
                     </span>
-
                 </div>
-
-
-                {{-- CLASS CARDS --}}
 
                 <div class="class-groups">
 
                     @foreach($groupedSubjects as $classId => $classSubjects)
 
                         @php
-
-                            $schoolClass = $classes->firstWhere(
-                                'id',
-                                $classId
-                            );
-
+                            $schoolClass = $classes->firstWhere('id', $classId);
                         @endphp
 
                         @if($schoolClass)
 
-                            <div class="class-group-card">
+                            <article class="class-group-card">
 
                                 <div class="class-card-accent"></div>
 
@@ -1738,605 +1731,327 @@
 
                                     <div class="class-group-main">
 
-                                        {{-- CLASS ICON --}}
-
                                         <div class="class-number-box">
-
                                             <div class="class-icon">
-
-                                                <i class="fa-solid fa-building-columns"></i>
-
+                                                <i class="fas fa-school"></i>
                                             </div>
-
                                         </div>
 
-
-                                        {{-- CLASS INFORMATION --}}
-
                                         <div class="class-group-info">
-
                                             <h3>
-
                                                 Class {{ $schoolClass->class_name }}
-
-                                                <span
-                                                    style="color:#a0aabc; font-weight:500;"
-                                                >
-                                                    •
-                                                </span>
-
+                                                <span class="class-divider">·</span>
                                                 Section {{ $schoolClass->section }}
-
                                             </h3>
 
-
                                             <div class="class-meta">
-
                                                 <span class="class-section-tag">
-
                                                     Section {{ $schoolClass->section }}
-
                                                 </span>
 
                                                 <span class="class-year-tag">
-
                                                     {{ $schoolClass->academic_year }}
-
                                                 </span>
-
                                             </div>
-
                                         </div>
 
                                     </div>
 
-
-                                    {{-- SUBJECT COUNT --}}
-
                                     <div class="class-subject-summary">
-
                                         <span class="class-subject-summary-label">
+                                            <i class="fas fa-book-open"></i>
                                             Subjects assigned
                                         </span>
 
                                         <span class="class-subject-summary-count">
-
-                                            {{ $classSubjects->count() }}
-
+                                            {{ number_format($classSubjects->count()) }}
                                             {{ $classSubjects->count() == 1 ? 'Subject' : 'Subjects' }}
-
                                         </span>
-
                                     </div>
 
                                 </div>
 
-
-                                {{-- CARD FOOTER --}}
-
                                 <div class="class-group-footer">
-
                                     <span class="class-subject-label">
-
-                                        <strong>
-                                            {{ $classSubjects->count() }}
-                                        </strong>
-
-                                        {{ $classSubjects->count() == 1
-                                            ? 'subject assigned'
-                                            : 'subjects assigned'
-                                        }}
-
+                                        <strong>{{ $classSubjects->count() }}</strong>
+                                        {{ $classSubjects->count() == 1 ? 'subject assigned' : 'subjects assigned' }}
                                     </span>
 
-
-                                    <a
-                                        href="{{ route(
-                                            'admin.subjects.index',
-                                            ['class_id' => $schoolClass->id]
-                                        ) }}"
-                                        class="class-view-btn"
-                                    >
-
+                                    <a href="{{ route('admin.subjects.index', ['class_id' => $schoolClass->id]) }}"
+                                       class="class-view-btn">
                                         View Subjects
-
-                                        <span class="class-view-arrow">
-                                            →
-                                        </span>
-
+                                        <span class="class-view-arrow">→</span>
                                     </a>
-
                                 </div>
 
-                            </div>
+                            </article>
 
                         @endif
 
                     @endforeach
 
                 </div>
-
-            </div>
+            </section>
 
         @else
 
-            {{-- =================================================
-                 NO SUBJECTS
-            ================================================== --}}
-
-            <div class="subject-table-section">
-
+            {{-- NO SUBJECTS --}}
+            <section class="subject-table-section">
                 <div class="empty-state">
 
                     <div class="empty-icon-wrapper">
-
                         <div class="empty-icon-bg"></div>
-
                         <div class="empty-state-icon">
-
-                            <i class="fa-solid fa-book-open"></i>
-
+                            <i class="fas fa-book-open"></i>
                         </div>
-
                     </div>
 
-
-                    <h4>
-                        No Subjects Found
-                    </h4>
+                    <h4>No Subjects Found</h4>
 
                     <p>
-                        Start by adding your first subject to a school class.
+                        There are currently no academic subjects.
+                        Add your first subject to start organising the curriculum.
                     </p>
 
-
-                    <a
-                        href="{{ route('admin.subjects.create') }}"
-                        class="empty-add-btn"
-                    >
-
-                        <i class="bi bi-plus-lg"></i>
-
+                    <a href="{{ route('admin.subjects.create') }}"
+                       class="diary-primary-btn">
+                        <i class="fas fa-plus"></i>
                         Add Subject
-
                     </a>
 
                 </div>
-
-            </div>
+            </section>
 
         @endif
 
-
-    {{-- =====================================================
-         CLASS SELECTED
-         SHOW SUBJECT TABLE
-    ====================================================== --}}
-
+    {{-- SELECTED CLASS: SUBJECT TABLE --}}
     @else
 
         @php
-
-            $selectedClass = $classes->firstWhere(
-                'id',
-                request('class_id')
-            );
-
+            $selectedClass = $classes->firstWhere('id', request('class_id'));
         @endphp
 
-
-        {{-- BACK TO CLASS DIRECTORY --}}
-
         <div class="subject-back-row">
-
-            <a
-                href="{{ route('admin.subjects.index') }}"
-                class="back-to-classes"
-            >
-
+            <a href="{{ route('admin.subjects.index') }}"
+               class="back-to-classes">
                 <span class="back-arrow">
-
-                    <i class="bi bi-arrow-left"></i>
-
+                    <i class="fas fa-arrow-left"></i>
                 </span>
-
-                <span>
-                    Back to All Classes
-                </span>
-
+                <span>Back to All Classes</span>
             </a>
-
         </div>
 
-
-        {{-- SUBJECT TABLE SECTION --}}
-
-        <div class="subject-table-section">
-
-            {{-- TABLE HEADER --}}
+        <section class="subject-table-section">
 
             <div class="subject-table-header">
 
                 <div class="subject-section-heading">
-
                     <div class="subject-section-heading-icon">
-
-                        <i class="fa-solid fa-book-open"></i>
-
+                        <i class="fas fa-book-open"></i>
                     </div>
 
                     <div>
-
                         <h2>
-
                             @if($selectedClass)
-
                                 Class {{ $selectedClass->class_name }}
-                                • Section {{ $selectedClass->section }}
-
+                                · Section {{ $selectedClass->section }}
                             @else
-
                                 Subjects
-
                             @endif
-
                         </h2>
 
                         <p>
-                            View, manage and update subjects assigned to this class.
+                            View and manage subjects assigned to this class.
                         </p>
-
                     </div>
-
                 </div>
 
-
                 <div class="subject-count">
-
-                    {{ $subjects->count() }}
-
+                    <i class="fas fa-folder-open"></i>
+                    <strong>{{ number_format($subjects->count()) }}</strong>
                     {{ $subjects->count() == 1 ? 'Subject' : 'Subjects' }}
-
                 </div>
 
             </div>
 
-
             @if($subjects->count())
 
                 <div class="table-wrapper">
-
                     <table class="subject-table">
 
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    #
-                                </th>
-
-                                <th>
-                                    Subject
-                                </th>
-
-                                <th>
-                                    Subject Code
-                                </th>
-
-                                <th>
-                                    Class
-                                </th>
-
-                                <th>
-                                    Section
-                                </th>
-
-                                <th>
-                                    Academic Year
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Actions
-                                </th>
-
+                                <th>#</th>
+                                <th>Subject</th>
+                                <th>Subject Code</th>
+                                <th>Class</th>
+                                <th>Section</th>
+                                <th>Academic Year</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
                             </tr>
-
                         </thead>
 
-
                         <tbody>
-
                             @foreach($subjects as $subject)
 
                                 <tr>
-
-                                    {{-- NUMBER --}}
-
                                     <td>
-
                                         <span class="row-number">
-
                                             {{ $loop->iteration }}
-
                                         </span>
-
                                     </td>
 
-
-                                    {{-- SUBJECT --}}
-
                                     <td>
-
                                         <div class="subject-name-wrapper">
-
                                             <span class="subject-icon">
-
-                                                <i class="fa-solid fa-book-open"></i>
-
+                                                <i class="fas fa-book-open"></i>
                                             </span>
 
                                             <span class="subject-name">
-
                                                 {{ $subject->subject_name }}
-
                                             </span>
-
                                         </div>
-
                                     </td>
 
-
-                                    {{-- SUBJECT CODE --}}
-
                                     <td>
-
-                                        @if($subject->subject_code)
-
-                                            <span class="subject-code">
-
-                                                {{ $subject->subject_code }}
-
-                                            </span>
-
-                                        @else
-
-                                            <span class="subject-code">
-                                                —
-                                            </span>
-
-                                        @endif
-
+                                        <span class="subject-code">
+                                            {{ $subject->subject_code ?: '—' }}
+                                        </span>
                                     </td>
 
-
-                                    {{-- CLASS --}}
-
                                     <td>
-
                                         @if($subject->schoolClass)
-
                                             <span class="class-badge">
-
-                                                Class
-                                                {{ $subject->schoolClass->class_name }}
-
+                                                Class {{ $subject->schoolClass->class_name }}
                                             </span>
-
                                         @else
-
-                                            —
-
+                                            <span class="diary-muted">—</span>
                                         @endif
-
                                     </td>
 
-
-                                    {{-- SECTION --}}
-
                                     <td>
-
                                         @if($subject->schoolClass)
-
                                             <span class="section-badge">
-
                                                 {{ $subject->schoolClass->section }}
-
                                             </span>
-
                                         @else
-
-                                            —
-
+                                            <span class="diary-muted">—</span>
                                         @endif
-
                                     </td>
 
-
-                                    {{-- ACADEMIC YEAR --}}
-
                                     <td>
-
                                         @if($subject->schoolClass)
-
                                             <span class="academic-year">
-
                                                 {{ $subject->schoolClass->academic_year }}
-
                                             </span>
-
                                         @else
-
-                                            —
-
+                                            <span class="diary-muted">—</span>
                                         @endif
-
                                     </td>
 
-
-                                    {{-- STATUS --}}
-
                                     <td>
-
                                         @if($subject->status)
-
                                             <span class="status-badge status-active">
-
                                                 <span class="status-dot"></span>
-
                                                 Active
-
                                             </span>
-
                                         @else
-
                                             <span class="status-badge status-inactive">
-
                                                 <span class="status-dot"></span>
-
                                                 Inactive
-
                                             </span>
-
                                         @endif
-
                                     </td>
 
-
-                                    {{-- ACTIONS --}}
-
                                     <td>
-
                                         <div class="action-buttons">
 
-                                            {{-- VIEW --}}
-
-                                            <a
-                                                href="{{ route(
-                                                    'admin.subjects.show',
-                                                    $subject->id
-                                                ) }}"
-                                                class="action-btn action-view"
-                                                title="View Subject"
-                                                aria-label="View Subject"
-                                            >
-
-                                                <i class="bi bi-eye-fill"></i>
-
+                                            <a href="{{ route('admin.subjects.show', $subject->id) }}"
+                                               class="action-btn action-view"
+                                               title="View Subject"
+                                               aria-label="View Subject">
+                                                <i class="fas fa-eye"></i>
                                             </a>
 
-
-                                            {{-- EDIT --}}
-
-                                            <a
-                                                href="{{ route(
-                                                    'admin.subjects.edit',
-                                                    $subject->id
-                                                ) }}"
-                                                class="action-btn action-edit"
-                                                title="Edit Subject"
-                                                aria-label="Edit Subject"
-                                            >
-
-                                                <i class="bi bi-pencil-fill"></i>
-
+                                            <a href="{{ route('admin.subjects.edit', $subject->id) }}"
+                                               class="action-btn action-edit"
+                                               title="Edit Subject"
+                                               aria-label="Edit Subject">
+                                                <i class="fas fa-pen"></i>
                                             </a>
 
-
-                                            {{-- DELETE --}}
-
-                                            <form
-                                                action="{{ route(
-                                                    'admin.subjects.destroy',
-                                                    $subject->id
-                                                ) }}"
-                                                method="POST"
-                                                onsubmit="return confirm(
-                                                    'Are you sure you want to delete this subject?'
-                                                );"
-                                            >
+                                            <form action="{{ route('admin.subjects.destroy', $subject->id) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Are you sure you want to delete this subject?');">
 
                                                 @csrf
-
                                                 @method('DELETE')
 
-                                                <button
-                                                    type="submit"
-                                                    class="action-btn action-delete"
-                                                    title="Delete Subject"
-                                                    aria-label="Delete Subject"
-                                                >
-
-                                                    <i class="bi bi-trash-fill"></i>
-
+                                                <button type="submit"
+                                                        class="action-btn action-delete"
+                                                        title="Delete Subject"
+                                                        aria-label="Delete Subject">
+                                                    <i class="fas fa-trash-alt"></i>
                                                 </button>
 
                                             </form>
 
                                         </div>
-
                                     </td>
-
                                 </tr>
 
                             @endforeach
-
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="transport-card-footer"
+                     style="display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:55px;padding:13px 22px;border-top:1px dashed #ddd7c9;color:#788277;background:#f8f7f0;font-size:10px;">
+
+                    <div>
+                        Showing <strong style="color:#263b35;">{{ $subjects->count() }}</strong>
+                        subject(s) for this class
+                    </div>
+
+                    <div style="display:inline-flex;align-items:center;gap:7px;color:#68776a;font-weight:700;">
+                        <i class="fas fa-circle-check" style="color:#43835d;"></i>
+                        Data loaded successfully
+                    </div>
 
                 </div>
 
             @else
 
-                {{-- =================================================
-                     NO SUBJECTS FOR SELECTED CLASS
-                ================================================== --}}
-
+                {{-- NO SUBJECTS FOR SELECTED CLASS --}}
                 <div class="empty-state">
 
                     <div class="empty-icon-wrapper">
-
                         <div class="empty-icon-bg"></div>
-
                         <div class="empty-state-icon">
-
-                            <i class="fa-solid fa-book-open"></i>
-
+                            <i class="fas fa-book-open"></i>
                         </div>
-
                     </div>
 
-
-                    <h4>
-                        No Subjects Found
-                    </h4>
+                    <h4>No Subjects Found</h4>
 
                     <p>
                         No subjects have been assigned to this class yet.
+                        Add a subject to build this class's curriculum.
                     </p>
 
-
-                    <a
-                        href="{{ route('admin.subjects.create') }}"
-                        class="empty-add-btn"
-                    >
-
-                        <i class="bi bi-plus-lg"></i>
-
+                    <a href="{{ route('admin.subjects.create') }}"
+                       class="diary-primary-btn">
+                        <i class="fas fa-plus"></i>
                         Add Subject
-
                     </a>
 
                 </div>
 
             @endif
 
-        </div>
+        </section>
 
     @endif
 
