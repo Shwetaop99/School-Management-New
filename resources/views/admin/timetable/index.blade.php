@@ -5,2073 +5,623 @@
 
 @section('content')
 
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
->
-
 <style>
-/* =========================================================
-   TIMETABLE MANAGEMENT PAGE
-========================================================= */
-
-.timetable-page {
-    width: 100%;
-    max-width: 1700px;
-    margin: 0 auto;
-    padding: 28px;
-    background: #f4f7fb;
-    min-height: calc(100vh - 80px);
-}
-
-.timetable-header {
-    background: linear-gradient(135deg, #147cf5, #6c63ff);
-    color: #fff;
-    border-radius: 18px;
-    padding: 28px 30px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    box-shadow: 0 10px 30px rgba(20, 124, 245, .15);
-}
-
-.header-content h2 {
-    margin: 0 0 7px;
-    font-size: 27px;
-    font-weight: 800;
-}
-
-.header-content p {
-    margin: 0;
-    font-size: 14px;
-    opacity: .9;
-}
-
-.add-timetable-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: #fff;
-    color: #147cf5;
-    padding: 12px 19px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    transition: .2s ease;
-}
-
-.add-timetable-btn:hover {
-    color: #1268ca;
-    transform: translateY(-2px);
-}
-
-.success-message {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #15803d;
-    padding: 13px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    margin-bottom: 22px;
-}
-
-.error-message {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    background: #fff1f2;
-    border: 1px solid #fecdd3;
-    color: #be123c;
-    padding: 13px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    margin-bottom: 22px;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-    margin-bottom: 24px;
-}
-
-.stat-card {
-    position: relative;
-    overflow: hidden;
-    min-height: 125px;
-    padding: 20px;
-    border-radius: 15px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 7px 20px rgba(15, 23, 42, .12);
-    transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.stat-card::before,
-.stat-card::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .11);
-    pointer-events: none;
-}
-
-.stat-card::before {
-    width: 125px;
-    height: 125px;
-    right: -30px;
-    top: -55px;
-}
-
-.stat-card::after {
-    width: 85px;
-    height: 85px;
-    right: -20px;
-    bottom: -40px;
-}
-
-.stat-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 28px rgba(15, 23, 42, .18);
-}
-
-.stat-card.blue-card {
-    background: linear-gradient(135deg, #1769d1, #3186e6);
-}
-
-.stat-card.orange-card {
-    background: linear-gradient(135deg, #f59e0b, #fbb12d);
-}
-
-.stat-card.red-card {
-    background: linear-gradient(135deg, #ef4444, #fb6464);
-}
-
-.stat-card.purple-card {
-    background: linear-gradient(135deg, #7e22ce, #a13bc0);
-}
-
-.stat-icon {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-    color: #fff;
-    position: relative;
-    z-index: 2;
-    background: rgba(255, 255, 255, .14);
-    border: 1px solid rgba(255, 255, 255, .12);
-}
-
-.stat-info {
-    position: relative;
-    z-index: 2;
-}
-
-.stat-info small {
-    display: block;
-    color: rgba(255, 255, 255, .92);
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.stat-info strong {
-    display: block;
-    color: #fff;
-    font-size: 27px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.timetable-card {
-    background: #fff;
-    border: 1px solid #e5ebf3;
-    border-radius: 17px;
-    overflow: hidden;
-    box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
-}
-
-.card-header {
-    padding: 21px 23px;
-    border-bottom: 1px solid #edf1f6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-}
-
-.card-title h3 {
-    margin: 0;
-    color: #172033;
-    font-size: 17px;
-    font-weight: 800;
-}
-
-.card-title p {
-    margin: 5px 0 0;
-    color: #94a3b8;
-    font-size: 12px;
-}
-
-.result-count {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.filter-area {
-    padding: 20px 23px;
-    background: #fbfcfe;
-    border-bottom: 1px solid #edf1f6;
-}
-
-.filter-grid {
-    display: grid;
-    grid-template-columns: 2fr repeat(5, 1fr);
-    gap: 12px;
-}
-
-.filter-group label {
-    display: block;
-    color: #475569;
-    font-size: 11px;
-    font-weight: 700;
-    margin-bottom: 6px;
-}
-
-.filter-control {
-    width: 100%;
-    height: 42px;
-    border: 1px solid #dce4ee;
-    border-radius: 9px;
-    background: #fff;
-    color: #334155;
-    padding: 0 12px;
-    font-size: 12px;
-    outline: none;
-}
-
-.filter-control:focus {
-    border-color: #147cf5;
-    box-shadow: 0 0 0 3px rgba(20, 124, 245, .08);
-}
-
-.clear-filter {
-    margin-top: 17px;
-    border: none;
-    background: transparent;
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-}
-
-.clear-filter:hover {
-    color: #147cf5;
-}
-
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.timetable-table {
-    width: 100%;
-    min-width: 1500px;
-    border-collapse: collapse;
-}
-
-.timetable-table th {
-    padding: 14px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e8edf4;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.timetable-table td {
-    padding: 15px 14px;
-    border-bottom: 1px solid #edf1f6;
-    color: #334155;
-    font-size: 12px;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.timetable-table tbody tr {
-    transition: .15s ease;
-}
-
-.timetable-table tbody tr:hover {
-    background: #f8fbff;
-}
-
-.teacher-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.teacher-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: #e7f0ff;
-    color: #147cf5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 800;
-    flex-shrink: 0;
-}
-
-.teacher-name {
-    color: #172033;
-    font-weight: 700;
-}
-
-.teacher-id {
-    margin-top: 2px;
-    color: #94a3b8;
-    font-size: 10px;
-}
-
-.no-teacher {
-    color: #94a3b8;
-    font-weight: 600;
-}
-
-.date-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 9px;
-    border-radius: 7px;
-    background: #eef5ff;
-    color: #147cf5;
-    font-size: 10px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.day-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 9px;
-    border-radius: 7px;
-    background: #e7f0ff;
-    color: #147cf5;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.period-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 8px;
-    border-radius: 6px;
-    background: #f1edff;
-    color: #6c63ff;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.type-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 8px;
-    border-radius: 6px;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.type-regular {
-    background: #eafaf0;
-    color: #15803d;
-}
-
-.type-break {
-    background: #fff7e8;
-    color: #b45309;
-}
-
-.type-lunch {
-    background: #fff1f2;
-    color: #be123c;
-}
-
-.type-activity {
-    background: #f1edff;
-    color: #6c63ff;
-}
-
-.special-period-box {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.special-period-name {
-    font-weight: 800;
-}
-
-.special-period-type {
-    display: inline-flex;
-    width: fit-content;
-    padding: 3px 7px;
-    border-radius: 5px;
-    font-size: 9px;
-    font-weight: 800;
-}
-
-.activity-subject {
-    color: #6c63ff;
-    font-weight: 800;
-}
-
-.break-subject {
-    color: #b45309;
-    font-weight: 800;
-}
-
-.lunch-subject {
-    color: #be123c;
-    font-weight: 800;
-}
-
-.class-text {
-    color: #172033;
-    font-weight: 700;
-}
-
-.section-text {
-    color: #64748b;
-    font-weight: 600;
-}
-
-.subject-text {
-    color: #334155;
-    font-weight: 700;
-}
-
-.subject-type {
-    display: block;
-    margin-top: 3px;
-    color: #94a3b8;
-    font-size: 10px;
-}
-
-.time-text {
-    color: #475569;
-    font-weight: 600;
-}
-
-.duration-text {
-    display: block;
-    margin-top: 3px;
-    color: #94a3b8;
-    font-size: 10px;
-}
-
-.room-text {
-    color: #64748b;
-}
-
-.activity-row {
-    background: rgba(108, 99, 255, .025);
-}
-
-.activity-row:hover {
-    background: rgba(108, 99, 255, .06) !important;
-}
-
-.action-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.action-btn {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 1px solid transparent !important;
-    border-radius: 9px !important;
-    text-decoration: none !important;
-    cursor: pointer !important;
-    font-size: 15px !important;
-    line-height: 1 !important;
-    transition: transform .2s ease, background .2s ease, color .2s ease;
-}
-
-.timetable-view-action {
-    background: #eaf3ff !important;
-    color: #147cf5 !important;
-    border-color: #d7e8ff !important;
-}
-
-.timetable-view-action:hover {
-    background: #147cf5 !important;
-    color: #fff !important;
-    transform: translateY(-2px);
-}
-
-.timetable-edit-action {
-    background: #f0edff !important;
-    color: #6c63ff !important;
-    border-color: #e3defe !important;
-}
-
-.timetable-edit-action:hover {
-    background: #6c63ff !important;
-    color: #fff !important;
-    transform: translateY(-2px);
-}
-
-.timetable-delete-action {
-    background: #fff0f0 !important;
-    color: #ef2028 !important;
-    border-color: #ffe0e0 !important;
-}
-
-.timetable-delete-action:hover {
-    background: #ef2028 !important;
-    color: #fff !important;
-    transform: translateY(-2px);
-}
-
-.action-btn i {
-    display: block !important;
-    color: inherit !important;
-    font-size: 15px !important;
-    line-height: 1 !important;
-}
-
-.empty-state {
-    padding: 65px 20px;
-    text-align: center;
-}
-
-.empty-icon {
-    width: 65px;
-    height: 65px;
-    margin: 0 auto 15px;
-    border-radius: 50%;
-    background: #e7f0ff;
-    color: #147cf5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-}
-
-.empty-state h4 {
-    margin: 0 0 6px;
-    color: #172033;
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.empty-state p {
-    margin: 0 0 18px;
-    color: #94a3b8;
-    font-size: 12px;
-}
-
-@media (max-width: 1300px) {
-    .filter-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .tt-page{max-width:1500px;margin:0 auto}
+    .paper{background:#fff;border:1px solid var(--line);border-radius:10px}
+
+    /* Hero */
+    .tt-hero{
+        display:grid;
+        grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+        margin-bottom:22px;
+        overflow:hidden;
+        position:relative;
     }
-}
-
-@media (max-width: 1100px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .tt-hero::before{
+        content:"";
+        position:absolute;
+        left:34px;top:0;bottom:0;
+        width:2px;
+        background:rgba(228,87,46,.35);
     }
-
-    .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .tt-hero-left{padding:26px 28px 26px 56px}
+    .tt-hero-left h1{
+        font-family:var(--serif);
+        font-size:28px;font-weight:700;
+        color:var(--ink);margin:0 0 6px;
     }
-}
-
-@media (max-width: 700px) {
-    .timetable-page {
-        padding: 16px;
+    .tt-hero-left p{
+        color:var(--muted);margin:0 0 18px;
+        font-size:14px;line-height:1.5;
     }
-
-    .timetable-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+    .btn-solid,.btn-line{
+        display:inline-flex;align-items:center;gap:8px;
+        padding:9px 16px;border-radius:8px;
+        font-size:13.5px;font-weight:500;
+        text-decoration:none;border:1px solid transparent;
     }
+    .btn-solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+    .btn-solid:hover{background:var(--ink-2);color:#fff}
+    .btn-line{background:#fff;border-color:#cfc8b6;color:var(--text)}
+    .btn-line:hover{border-color:var(--ink);color:var(--ink)}
 
-    .stats-grid {
-        grid-template-columns: 1fr;
+    .tt-hero-right{
+        background:var(--ink);color:#e9efe2;
+        padding:26px 28px;
+        display:flex;flex-direction:column;justify-content:center;gap:8px;
+        background-image:radial-gradient(ellipse at 20% 0,rgba(255,255,255,.09),transparent 60%);
     }
+    .tt-hero-right .label{font-family:var(--hand);font-size:22px;color:var(--chalk);line-height:1}
+    .tt-hero-right .value{font-family:var(--serif);font-size:26px;font-weight:700;color:#fff;line-height:1.15}
+    .tt-hero-right .sub{font-size:13px;color:#c5d0bd}
 
-    .filter-grid {
-        grid-template-columns: 1fr;
+    /* KPI */
+    .kpi-grid{
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:18px;margin-bottom:22px;
     }
+    .kpi{
+        transition:transform .22s ease,box-shadow .22s ease;
+        position:relative;padding:22px 22px 16px;margin-top:10px;
+        border-top:4px solid var(--c);
+        display:flex;flex-direction:column;gap:14px;
+    }
+    .kpi:hover{transform:translateY(-8px);box-shadow:0 16px 28px rgba(29,58,51,.16)}
+    .kpi-tab{
+        position:absolute;top:-24px;left:16px;
+        padding:3px 12px;background:var(--c);color:#fff;
+        font-size:12px;font-weight:600;border-radius:7px 7px 0 0;
+    }
+    .kpi-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .kpi-value{font-family:var(--serif);font-size:34px;font-weight:700;line-height:1;color:var(--ink)}
+    .kpi-icon{
+        width:46px;height:46px;border-radius:12px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:20px;flex-shrink:0;
+        background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c);
+    }
+    .kpi-label{padding-top:12px;border-top:1px dashed #d8d1bf;font-size:13px;color:var(--muted)}
+    .c-blue{--c:#2b5d8a}
+    .c-amber{--c:#d58a0b}
+    .c-red{--c:#e4572e}
+    .c-violet{--c:#7a4fb5}
 
-    .card-header {
-        align-items: flex-start;
-        flex-direction: column;
+    /* Panel */
+    .panel{overflow:hidden;margin-bottom:22px}
+    .panel-head{
+        display:flex;justify-content:space-between;align-items:center;
+        gap:12px;padding:15px 22px;border-bottom:1px dashed #d8d1bf;flex-wrap:wrap;
     }
-}
+    .panel-head h3{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--ink);margin:0}
+    .panel-head span{font-size:12.5px;color:var(--muted)}
+
+    /* Filters */
+    .filter-area{padding:18px 22px;border-bottom:1px dashed #d8d1bf;background:#faf9f6}
+    .filter-grid{
+        display:grid;
+        grid-template-columns:2fr repeat(5,1fr);
+        gap:12px;
+    }
+    .filter-group label{
+        display:block;margin-bottom:5px;
+        font-size:11px;font-weight:700;color:var(--muted);
+        text-transform:uppercase;letter-spacing:.3px;
+    }
+    .filter-control{
+        width:100%;height:38px;
+        padding:0 12px;border:1px solid #cfc8b6;border-radius:8px;
+        background:#fff;color:var(--text);font-size:13px;outline:none;
+    }
+    .filter-control:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(29,58,51,.08)}
+    .clear-filter{
+        margin-top:14px;border:none;background:transparent;
+        color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;padding:0;
+    }
+    .clear-filter:hover{color:var(--ink)}
+
+    /* Table */
+    .table-wrap{width:100%;overflow-x:auto}
+    .tt-table{width:100%;min-width:1400px;border-collapse:collapse}
+    .tt-table thead th{
+        padding:13px 14px;background:#f8f6f0;
+        border-bottom:1px solid #e6e0d2;
+        color:var(--muted);font-size:10px;font-weight:700;
+        text-transform:uppercase;letter-spacing:.4px;
+        white-space:nowrap;text-align:left;
+    }
+    .tt-table tbody td{
+        padding:13px 14px;border-bottom:1px solid #f0ebe0;
+        color:var(--text);font-size:12.5px;vertical-align:middle;white-space:nowrap;
+    }
+    .tt-table tbody tr:hover td{background:#fffdf6}
+    .tt-table tbody tr:last-child td{border-bottom:none}
+
+    .teacher-cell{display:flex;align-items:center;gap:10px}
+    .teacher-avatar{
+        width:34px;height:34px;border-radius:8px;
+        display:flex;align-items:center;justify-content:center;
+        background:color-mix(in srgb,#2b5d8a 12%,#fff);
+        color:#2b5d8a;font-size:12px;font-weight:700;flex-shrink:0;
+    }
+    .teacher-name{font-weight:700;color:var(--ink);font-size:13px}
+    .teacher-id{font-size:10.5px;color:var(--muted);margin-top:1px}
+
+    .badge{
+        display:inline-flex;align-items:center;gap:4px;
+        padding:4px 8px;border-radius:6px;
+        font-size:10.5px;font-weight:700;
+    }
+    .badge-date{background:color-mix(in srgb,#2b5d8a 10%,#fff);color:#2b5d8a}
+    .badge-day{background:color-mix(in srgb,#2b5d8a 10%,#fff);color:#2b5d8a}
+    .badge-period{background:color-mix(in srgb,#7a4fb5 10%,#fff);color:#7a4fb5}
+    .badge-regular{background:color-mix(in srgb,#3a9d6b 12%,#fff);color:#3a9d6b}
+    .badge-break{background:color-mix(in srgb,#d58a0b 12%,#fff);color:#d58a0b}
+    .badge-lunch{background:color-mix(in srgb,#e4572e 12%,#fff);color:#e4572e}
+    .badge-activity{background:color-mix(in srgb,#7a4fb5 12%,#fff);color:#7a4fb5}
+
+    .actions-cell{display:flex;align-items:center;gap:6px}
+    .action-btn{
+        width:32px;height:32px;
+        display:inline-flex;align-items:center;justify-content:center;
+        border-radius:7px;border:1px solid transparent;
+        font-size:13px;text-decoration:none;cursor:pointer;transition:all .15s;
+    }
+    .action-view{background:color-mix(in srgb,#2b5d8a 12%,#fff);color:#2b5d8a}
+    .action-view:hover{background:#2b5d8a;color:#fff}
+    .action-edit{background:color-mix(in srgb,#7a4fb5 12%,#fff);color:#7a4fb5}
+    .action-edit:hover{background:#7a4fb5;color:#fff}
+    .action-delete{background:color-mix(in srgb,#e4572e 12%,#fff);color:#e4572e;border:none}
+    .action-delete:hover{background:#e4572e;color:#fff}
+
+    .empty{padding:50px 20px;text-align:center}
+    .empty i{font-size:28px;color:var(--muted);display:block;margin-bottom:10px}
+    .empty h4{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink);margin:0 0 6px}
+    .empty p{margin:0 0 16px;color:var(--muted);font-size:13px}
+
+    .success-msg,.error-msg{
+        margin-bottom:18px;padding:12px 16px;border-radius:8px;
+        font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;
+    }
+    .success-msg{background:#f0faf3;border:1px solid #c5e6d0;color:#2b7a52}
+    .error-msg{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
+
+    @media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.filter-grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:900px){
+        .tt-hero{grid-template-columns:1fr}
+        .tt-hero-left{padding:22px 20px 22px 44px}
+        .tt-hero::before{left:24px}
+        .filter-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:650px){
+        .kpi-grid{grid-template-columns:1fr}
+        .filter-grid{grid-template-columns:1fr}
+        .tt-hero-left h1{font-size:23px}
+    }
 </style>
 
-<div class="timetable-page">
+@php
+    $totalEntries = $timetables->count();
+    $regularEntries = $timetables->where('period_type', 'Regular')->count();
+    $breakEntries = $timetables->whereIn('period_type', ['Break', 'Lunch'])->count();
+    $activityEntries = $timetables->where('period_type', 'Activity')->count();
+@endphp
 
-    {{-- =====================================================
-         HEADER
-    ====================================================== --}}
-    <div class="timetable-header">
+<div class="tt-page">
 
-        <div class="header-content">
-
-            <h2>
-                <i class="bi bi-calendar-week me-2"></i>
-                Timetable Management
-            </h2>
-
-            <p>
-                Manage teacher schedules, classes, subjects, activities and periods.
-            </p>
-
-        </div>
-
-        <a
-            href="{{ route('admin.timetable.create') }}"
-            class="add-timetable-btn"
-        >
-            <i class="bi bi-plus-circle-fill"></i>
-            Add Timetable
-        </a>
-
-    </div>
-
-
-    {{-- =====================================================
-         SUCCESS MESSAGE
-    ====================================================== --}}
     @if(session('success'))
-
-        <div class="success-message">
-
+        <div class="success-msg">
             <i class="bi bi-check-circle-fill"></i>
-
-            <span>
-                {{ session('success') }}
-            </span>
-
+            {{ session('success') }}
         </div>
-
     @endif
 
-
-    {{-- =====================================================
-         ERROR MESSAGE
-    ====================================================== --}}
     @if(session('error'))
-
-        <div class="error-message">
-
+        <div class="error-msg">
             <i class="bi bi-exclamation-circle-fill"></i>
-
-            <span>
-                {{ session('error') }}
-            </span>
-
+            {{ session('error') }}
         </div>
-
     @endif
 
-
-    {{-- =====================================================
-         STATISTICS
-    ====================================================== --}}
-    @php
-
-        $totalEntries = $timetables->count();
-
-        $regularEntries = $timetables
-            ->where('period_type', 'Regular')
-            ->count();
-
-        $breakEntries = $timetables
-            ->whereIn('period_type', ['Break', 'Lunch'])
-            ->count();
-
-        $activityEntries = $timetables
-            ->where('period_type', 'Activity')
-            ->count();
-
-    @endphp
-
-
-    <div class="stats-grid">
-
-        {{-- TOTAL --}}
-        <div class="stat-card blue-card">
-
-            <div class="stat-icon">
-                <i class="bi bi-calendar3"></i>
+    {{-- Hero --}}
+    <section class="paper tt-hero">
+        <div class="tt-hero-left">
+            <h1>Timetable Management</h1>
+            <p>Manage teacher schedules, classes, subjects, activities and periods.</p>
+            <div class="hero-btns">
+                <a href="{{ route('admin.timetable.create') }}" class="btn-solid">
+                    <i class="bi bi-plus-circle-fill"></i> Add Timetable
+                </a>
             </div>
-
-            <div class="stat-info">
-
-                <small>Total Entries</small>
-
-                <strong>
-                    {{ $totalEntries }}
-                </strong>
-
-            </div>
-
         </div>
-
-
-        {{-- REGULAR --}}
-        <div class="stat-card orange-card">
-
-            <div class="stat-icon">
-                <i class="bi bi-book"></i>
-            </div>
-
-            <div class="stat-info">
-
-                <small>Regular Classes</small>
-
-                <strong>
-                    {{ $regularEntries }}
-                </strong>
-
-            </div>
-
+        <div class="tt-hero-right">
+            <div class="label">Schedule</div>
+            <div class="value">{{ $totalEntries }} Entries</div>
+            <div class="sub">Total timetable records</div>
         </div>
+    </section>
 
-
-        {{-- BREAK / LUNCH --}}
-        <div class="stat-card red-card">
-
-            <div class="stat-icon">
-                <i class="bi bi-cup-hot"></i>
+    {{-- KPI --}}
+    <div class="kpi-grid">
+        <div class="paper kpi c-blue">
+            <span class="kpi-tab">Total</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $totalEntries }}</div>
+                <div class="kpi-icon"><i class="bi bi-calendar3"></i></div>
             </div>
-
-            <div class="stat-info">
-
-                <small>Break / Lunch</small>
-
-                <strong>
-                    {{ $breakEntries }}
-                </strong>
-
-            </div>
-
+            <div class="kpi-label">Total entries</div>
         </div>
-
-
-        {{-- ACTIVITIES --}}
-        <div class="stat-card purple-card">
-
-            <div class="stat-icon">
-                <i class="bi bi-stars"></i>
+        <div class="paper kpi c-amber">
+            <span class="kpi-tab">Regular</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $regularEntries }}</div>
+                <div class="kpi-icon"><i class="bi bi-book"></i></div>
             </div>
-
-            <div class="stat-info">
-
-                <small>Activities</small>
-
-                <strong>
-                    {{ $activityEntries }}
-                </strong>
-
-            </div>
-
+            <div class="kpi-label">Regular classes</div>
         </div>
-
+        <div class="paper kpi c-red">
+            <span class="kpi-tab">Break</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $breakEntries }}</div>
+                <div class="kpi-icon"><i class="bi bi-cup-hot"></i></div>
+            </div>
+            <div class="kpi-label">Break / Lunch</div>
+        </div>
+        <div class="paper kpi c-violet">
+            <span class="kpi-tab">Activity</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $activityEntries }}</div>
+                <div class="kpi-icon"><i class="bi bi-stars"></i></div>
+            </div>
+            <div class="kpi-label">Activities</div>
+        </div>
     </div>
 
-
-    {{-- =====================================================
-         TABLE CARD
-    ====================================================== --}}
-    <div class="timetable-card">
-
-
-        {{-- CARD HEADER --}}
-        <div class="card-header">
-
-            <div class="card-title">
-
-                <h3>
-                    Timetable Entries
-                </h3>
-
-                <p>
-                    View and manage all scheduled periods and activities.
-                </p>
-
+    {{-- Table --}}
+    <section class="paper panel">
+        <div class="panel-head">
+            <div>
+                <h3>Timetable Entries</h3>
+                <span>View and manage all scheduled periods</span>
             </div>
-
-            <div class="result-count">
-
-                Showing
-                <span id="visibleCount">
-                    {{ $totalEntries }}
-                </span>
-                entries
-
-            </div>
-
+            <span>Showing <span id="visibleCount">{{ $totalEntries }}</span> entries</span>
         </div>
 
-
-        {{-- =================================================
-             FILTER AREA
-        ================================================== --}}
+        {{-- Filters --}}
         <div class="filter-area">
-
             <div class="filter-grid">
-
-
-                {{-- SEARCH --}}
                 <div class="filter-group">
-
-                    <label>
-                        Search
-                    </label>
-
-                    <input
-                        type="text"
-                        id="searchInput"
-                        class="filter-control"
-                        placeholder="Search teacher, class, subject, activity, room..."
-                    >
-
+                    <label>Search</label>
+                    <input type="text" id="searchInput" class="filter-control"
+                           placeholder="Teacher, class, subject, room...">
                 </div>
-
-
-                {{-- DATE --}}
                 <div class="filter-group">
-
-                    <label>
-                        Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="dateFilter"
-                        class="filter-control"
-                    >
-
+                    <label>Date</label>
+                    <input type="date" id="dateFilter" class="filter-control">
                 </div>
-
-
-                {{-- DAY --}}
                 <div class="filter-group">
-
-                    <label>
-                        Day
-                    </label>
-
-                    <select
-                        id="dayFilter"
-                        class="filter-control"
-                    >
-
-                        <option value="">
-                            All Days
-                        </option>
-
+                    <label>Day</label>
+                    <select id="dayFilter" class="filter-control">
+                        <option value="">All Days</option>
                         <option value="Monday">Monday</option>
                         <option value="Tuesday">Tuesday</option>
                         <option value="Wednesday">Wednesday</option>
                         <option value="Thursday">Thursday</option>
                         <option value="Friday">Friday</option>
                         <option value="Saturday">Saturday</option>
-
                     </select>
-
                 </div>
-
-
-                {{-- PERIOD TYPE --}}
                 <div class="filter-group">
-
-                    <label>
-                        Period Type
-                    </label>
-
-                    <select
-                        id="periodTypeFilter"
-                        class="filter-control"
-                    >
-
-                        <option value="">
-                            All Types
-                        </option>
-
-                        <option value="Regular">
-                            Regular
-                        </option>
-
-                        <option value="Break">
-                            Break
-                        </option>
-
-                        <option value="Lunch">
-                            Lunch
-                        </option>
-
-                        <option value="Activity">
-                            Activity
-                        </option>
-
+                    <label>Period Type</label>
+                    <select id="periodTypeFilter" class="filter-control">
+                        <option value="">All Types</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Break">Break</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Activity">Activity</option>
                     </select>
-
                 </div>
-
-
-                {{-- ACADEMIC YEAR --}}
                 <div class="filter-group">
-
-                    <label>
-                        Academic Year
-                    </label>
-
-                    <select
-                        id="academicYearFilter"
-                        class="filter-control"
-                    >
-
-                        <option value="">
-                            All Years
-                        </option>
-
-                        @foreach(
-                            $timetables->pluck('academic_year')
-                                ->filter()
-                                ->unique()
-                                ->sort()
-                            as $year
-                        )
-
-                            <option value="{{ $year }}">
-                                {{ $year }}
-                            </option>
-
+                    <label>Academic Year</label>
+                    <select id="academicYearFilter" class="filter-control">
+                        <option value="">All Years</option>
+                        @foreach($timetables->pluck('academic_year')->filter()->unique()->sort() as $year)
+                            <option value="{{ $year }}">{{ $year }}</option>
                         @endforeach
-
                     </select>
-
                 </div>
-
-
-                {{-- CLASS --}}
                 <div class="filter-group">
-
-                    <label>
-                        Class
-                    </label>
-
-                    <select
-                        id="classFilter"
-                        class="filter-control"
-                    >
-
-                        <option value="">
-                            All Classes
-                        </option>
-
-                        @foreach(
-                            $timetables->pluck('class')
-                                ->filter()
-                                ->unique()
-                                ->sort()
-                            as $class
-                        )
-
-                            <option value="{{ $class }}">
-                                {{ $class }}
-                            </option>
-
+                    <label>Class</label>
+                    <select id="classFilter" class="filter-control">
+                        <option value="">All Classes</option>
+                        @foreach($timetables->pluck('class')->filter()->unique()->sort() as $class)
+                            <option value="{{ $class }}">{{ $class }}</option>
                         @endforeach
-
                     </select>
-
                 </div>
-
             </div>
-
-
-            <button
-                type="button"
-                id="clearFilters"
-                class="clear-filter"
-            >
-
-                <i class="bi bi-arrow-counterclockwise me-1"></i>
-
-                Clear Filters
-
+            <button type="button" id="clearFilters" class="clear-filter">
+                <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
             </button>
-
         </div>
 
-
-        {{-- =================================================
-             TABLE
-        ================================================== --}}
-        <div class="table-wrapper">
-
-            <table
-                class="timetable-table"
-                id="timetableTable"
-            >
-
+        <div class="table-wrap">
+            <table class="tt-table" id="timetableTable">
                 <thead>
-
                     <tr>
-
                         <th>#</th>
-
-                        <th>
-                            Teacher
-                        </th>
-
-                        <th>
-                            Academic Year
-                        </th>
-
-                        <th>
-                            Date
-                        </th>
-
-                        <th>
-                            Day
-                        </th>
-
-                        <th>
-                            Period
-                        </th>
-
-                        <th>
-                            Type
-                        </th>
-
-                        <th>
-                            Class
-                        </th>
-
-                        <th>
-                            Section
-                        </th>
-
-                        <th>
-                            Subject / Activity
-                        </th>
-
-                        <th>
-                            Time
-                        </th>
-
-                        <th>
-                            Room
-                        </th>
-
-                        <th>
-                            Actions
-                        </th>
-
+                        <th>Teacher</th>
+                        <th>Academic Year</th>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Period</th>
+                        <th>Type</th>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Subject / Activity</th>
+                        <th>Time</th>
+                        <th>Room</th>
+                        <th>Actions</th>
                     </tr>
-
                 </thead>
-
-
                 <tbody>
-
                     @forelse($timetables as $timetable)
-
                         @php
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | TEACHER
-                            |--------------------------------------------------------------------------
-                            */
-
                             $teacher = $timetable->teacher;
-
-                            $teacherName = '';
-
-                            if ($teacher) {
-
-                                $teacherName = trim(
-                                    ($teacher->first_name ?? '') .
-                                    ' ' .
-                                    ($teacher->last_name ?? '')
-                                );
-
-                            }
-
+                            $teacherName = $teacher
+                                ? trim(($teacher->first_name ?? '') . ' ' . ($teacher->last_name ?? ''))
+                                : '';
                             $teacherName = $teacherName ?: 'Teacher';
 
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | INITIALS
-                            |--------------------------------------------------------------------------
-                            */
-
+                            $initials = 'T';
                             if ($teacher) {
-
-                                $firstInitial = strtoupper(
-                                    substr(
-                                        trim($teacher->first_name ?? ''),
-                                        0,
-                                        1
-                                    )
-                                );
-
-                                $lastInitial = strtoupper(
-                                    substr(
-                                        trim($teacher->last_name ?? ''),
-                                        0,
-                                        1
-                                    )
-                                );
-
-                                $initials =
-                                    $firstInitial .
-                                    $lastInitial;
-
-                            } else {
-
-                                $initials = 'T';
-
+                                $initials = strtoupper(substr(trim($teacher->first_name ?? ''), 0, 1)
+                                    . substr(trim($teacher->last_name ?? ''), 0, 1));
                             }
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | DATE
-                            |--------------------------------------------------------------------------
-                            */
 
                             $searchDate = '';
-
                             if ($timetable->timetable_date) {
-
                                 try {
-
-                                    $searchDate = \Carbon\Carbon::parse(
-                                        $timetable->timetable_date
-                                    )->format('Y-m-d');
-
-                                } catch (\Throwable $e) {
-
-                                    $searchDate = '';
-
-                                }
-
+                                    $searchDate = \Carbon\Carbon::parse($timetable->timetable_date)->format('Y-m-d');
+                                } catch (\Throwable $e) {}
                             }
 
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | PERIOD TYPE
-                            |--------------------------------------------------------------------------
-                            */
-
-                            $periodType = trim(
-                                (string)($timetable->period_type ?? '')
-                            );
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | ACTIVITY NAME
-                            |--------------------------------------------------------------------------
-                            */
-
-                            $activityName = trim(
-                                (string)($timetable->subject ?? '')
-                            );
-
-                            if (
-                                $periodType === 'Activity' &&
-                                $activityName === ''
-                            ) {
-                                $activityName = 'Activity';
-                            }
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | SUBJECT
-                            |--------------------------------------------------------------------------
-                            */
+                            $periodType = trim((string)($timetable->period_type ?? ''));
+                            $activityName = trim((string)($timetable->subject ?? ''));
+                            if ($periodType === 'Activity' && $activityName === '') $activityName = 'Activity';
 
                             if ($periodType === 'Activity') {
-
                                 $displaySubject = $activityName;
-
                             } elseif ($periodType === 'Break') {
-
-                                $displaySubject =
-                                    $timetable->subject ?: 'Break';
-
+                                $displaySubject = $timetable->subject ?: 'Break';
                             } elseif ($periodType === 'Lunch') {
-
-                                $displaySubject =
-                                    $timetable->subject ?: 'Lunch';
-
+                                $displaySubject = $timetable->subject ?: 'Lunch';
                             } else {
-
-                                $displaySubject =
-                                    $timetable->subject ?: '—';
-
+                                $displaySubject = $timetable->subject ?: '—';
                             }
 
+                            $className = trim((string)($timetable->class ?? ''));
+                            $sectionName = trim((string)($timetable->section ?? ''));
 
-                            /*
-                            |--------------------------------------------------------------------------
-                            | CLASS / SECTION
-                            |--------------------------------------------------------------------------
-                            */
+                            $searchText = strtolower(implode(' ', [
+                                $teacherName,
+                                $teacher->teacher_id ?? '',
+                                $timetable->teacher_id ?? '',
+                                $className,
+                                $sectionName,
+                                $displaySubject,
+                                $timetable->subject_type ?? '',
+                                $periodType,
+                                $timetable->room ?? '',
+                                $timetable->academic_year ?? '',
+                                $timetable->day ?? '',
+                                $searchDate,
+                            ]));
 
-                            $className =
-                                trim((string)($timetable->class ?? ''));
-
-                            $sectionName =
-                                trim((string)($timetable->section ?? ''));
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | SEARCH TEXT
-                            |--------------------------------------------------------------------------
-                            */
-
-                            $searchText = strtolower(
-                                implode(' ', [
-                                    $teacherName,
-                                    $teacher->teacher_id ?? '',
-                                    $timetable->teacher_id ?? '',
-                                    $className,
-                                    $sectionName,
-                                    $displaySubject,
-                                    $timetable->subject_type ?? '',
-                                    $periodType,
-                                    $timetable->lecture_type ?? '',
-                                    $timetable->room ?? '',
-                                    $timetable->academic_year ?? '',
-                                    $timetable->day ?? '',
-                                    $searchDate,
-                                ])
-                            );
-
+                            $typeClass = match($periodType) {
+                                'Regular' => 'badge-regular',
+                                'Break' => 'badge-break',
+                                'Lunch' => 'badge-lunch',
+                                'Activity' => 'badge-activity',
+                                default => 'badge-regular',
+                            };
                         @endphp
 
-
-                        <tr
-                            class="timetable-row {{ $periodType === 'Activity' ? 'activity-row' : '' }}"
+                        <tr class="timetable-row"
                             data-search="{{ $searchText }}"
                             data-date="{{ $searchDate }}"
                             data-day="{{ $timetable->day ?? '' }}"
                             data-period-type="{{ $periodType }}"
                             data-academic-year="{{ $timetable->academic_year ?? '' }}"
-                            data-class="{{ $className }}"
-                        >
+                            data-class="{{ $className }}">
 
+                            <td>{{ $loop->iteration }}</td>
 
-                            {{-- =================================================
-                                 NUMBER
-                            ================================================== --}}
                             <td>
-
-                                {{ $loop->iteration }}
-
+                                <div class="teacher-cell">
+                                    <div class="teacher-avatar">{{ $initials }}</div>
+                                    <div>
+                                        <div class="teacher-name">{{ $teacherName }}</div>
+                                        <div class="teacher-id">
+                                            {{ $teacher->teacher_id ?? ($timetable->teacher_id ?? '—') }}
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
 
+                            <td>{{ $timetable->academic_year ?: '—' }}</td>
 
-                            {{-- =================================================
-                                 TEACHER
-                            ================================================== --}}
                             <td>
-
-                                @if($teacher)
-
-                                    <div class="teacher-cell">
-
-                                        <div class="teacher-avatar">
-
-                                            {{ $initials }}
-
-                                        </div>
-
-                                        <div>
-
-                                            <div class="teacher-name">
-
-                                                {{ $teacherName }}
-
-                                            </div>
-
-                                            <div class="teacher-id">
-
-                                                {{ $teacher->teacher_id ?: 'No Teacher ID' }}
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                @elseif($timetable->teacher_id)
-
-                                    <div class="teacher-cell">
-
-                                        <div class="teacher-avatar">
-
-                                            <i class="bi bi-person"></i>
-
-                                        </div>
-
-                                        <div>
-
-                                            <div class="teacher-name no-teacher">
-
-                                                Teacher Not Found
-
-                                            </div>
-
-                                            <div class="teacher-id">
-
-                                                Teacher ID:
-                                                {{ $timetable->teacher_id }}
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                @else
-
-                                    <div class="teacher-cell">
-
-                                        <div class="teacher-avatar">
-
-                                            <i class="bi bi-person"></i>
-
-                                        </div>
-
-                                        <div>
-
-                                            <div class="teacher-name no-teacher">
-
-                                                No Teacher
-
-                                            </div>
-
-                                            <div class="teacher-id">
-
-                                                Not Required
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- =================================================
-                                 ACADEMIC YEAR
-                            ================================================== --}}
-                            <td>
-
-                                {{ $timetable->academic_year ?: '—' }}
-
-                            </td>
-
-
-                            {{-- =================================================
-                                 DATE
-                            ================================================== --}}
-                            <td>
-
                                 @if($searchDate)
-
-                                    <span class="date-badge">
-
+                                    <span class="badge badge-date">
                                         <i class="bi bi-calendar3"></i>
-
                                         {{ \Carbon\Carbon::parse($searchDate)->format('d M Y') }}
-
                                     </span>
-
                                 @else
-
-                                    <span class="date-badge">
-                                        —
-                                    </span>
-
+                                    —
                                 @endif
-
                             </td>
 
-
-                            {{-- =================================================
-                                 DAY
-                            ================================================== --}}
                             <td>
+                                <span class="badge badge-day">{{ $timetable->day ?: '—' }}</span>
+                            </td>
 
-                                <span class="day-badge">
-
-                                    {{ $timetable->day ?: '—' }}
-
+                            <td>
+                                <span class="badge badge-period">
+                                    Period {{ $timetable->period_number ?: '—' }}
                                 </span>
-
                             </td>
 
-
-                            {{-- =================================================
-                                 PERIOD
-                            ================================================== --}}
                             <td>
-
-                                <span class="period-badge">
-
-                                    Period
-                                    {{ $timetable->period_number ?: '—' }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- =================================================
-                                 TYPE
-                            ================================================== --}}
-                            <td>
-
-                                @php
-
-                                    $typeClass = match($periodType) {
-
-                                        'Regular' =>
-                                            'type-regular',
-
-                                        'Break' =>
-                                            'type-break',
-
-                                        'Lunch' =>
-                                            'type-lunch',
-
-                                        'Activity' =>
-                                            'type-activity',
-
-                                        default =>
-                                            'type-regular',
-
-                                    };
-
-                                @endphp
-
-
-                                <span class="type-badge {{ $typeClass }}">
-
-                                    @if($periodType === 'Activity')
-
-                                        <i class="bi bi-stars me-1"></i>
-
-                                    @elseif($periodType === 'Break')
-
-                                        <i class="bi bi-cup-hot me-1"></i>
-
-                                    @elseif($periodType === 'Lunch')
-
-                                        <i class="bi bi-egg-fried me-1"></i>
-
-                                    @else
-
-                                        <i class="bi bi-book me-1"></i>
-
-                                    @endif
-
-
+                                <span class="badge {{ $typeClass }}">
                                     {{ $periodType ?: '—' }}
-
                                 </span>
-
                             </td>
 
+                            <td>{{ $className ?: '—' }}</td>
+                            <td>{{ $sectionName ?: '—' }}</td>
 
-                            {{-- =================================================
-                                 CLASS
-                            ================================================== --}}
                             <td>
-
-                                <span class="class-text">
-
-                                    {{ $className ?: '—' }}
-
-                                </span>
-
+                                <strong>{{ $displaySubject }}</strong>
+                                @if($periodType === 'Regular' && $timetable->subject_type)
+                                    <div style="font-size:10.5px;color:var(--muted);margin-top:2px">
+                                        {{ $timetable->subject_type }}
+                                    </div>
+                                @endif
                             </td>
 
-
-                            {{-- =================================================
-                                 SECTION
-                            ================================================== --}}
                             <td>
-
-                                <span class="section-text">
-
-                                    {{ $sectionName ?: '—' }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- =================================================
-                                 SUBJECT / ACTIVITY
-                            ================================================== --}}
-                            <td>
-
-                                @if($periodType === 'Activity')
-
-                                    <div class="special-period-box">
-
-                                        <span class="activity-subject">
-
-                                            <i class="bi bi-stars me-1"></i>
-
-                                            {{ $activityName }}
-
-                                        </span>
-
-                                        <span
-                                            class="special-period-type"
-                                            style="background:#f1edff;color:#6c63ff;"
-                                        >
-
-                                            Activity
-
-                                        </span>
-
-                                    </div>
-
-
-                                @elseif($periodType === 'Break')
-
-                                    <div class="special-period-box">
-
-                                        <span class="break-subject">
-
-                                            <i class="bi bi-cup-hot me-1"></i>
-
-                                            {{ $displaySubject }}
-
-                                        </span>
-
-                                        <span
-                                            class="special-period-type"
-                                            style="background:#fff7e8;color:#b45309;"
-                                        >
-
-                                            Break
-
-                                        </span>
-
-                                    </div>
-
-
-                                @elseif($periodType === 'Lunch')
-
-                                    <div class="special-period-box">
-
-                                        <span class="lunch-subject">
-
-                                            <i class="bi bi-egg-fried me-1"></i>
-
-                                            {{ $displaySubject }}
-
-                                        </span>
-
-                                        <span
-                                            class="special-period-type"
-                                            style="background:#fff1f2;color:#be123c;"
-                                        >
-
-                                            Lunch
-
-                                        </span>
-
-                                    </div>
-
-
+                                @if($timetable->start_time)
+                                    {{ \Carbon\Carbon::parse($timetable->start_time)->format('h:i A') }}
                                 @else
-
-                                    <span class="subject-text">
-
-                                        {{ $displaySubject }}
-
-                                    </span>
-
-                                    <span class="subject-type">
-
-                                        {{ $timetable->subject_type ?: '—' }}
-
-                                    </span>
-
+                                    —
                                 @endif
-
-                            </td>
-
-
-                            {{-- =================================================
-                                 TIME
-                            ================================================== --}}
-                            <td>
-
-                                <span class="time-text">
-
-                                    @if($timetable->start_time)
-
-                                        {{ \Carbon\Carbon::parse($timetable->start_time)->format('h:i A') }}
-
-                                    @else
-
-                                        —
-
-                                    @endif
-
-
-                                    -
-
-                                    @if($timetable->end_time)
-
-                                        {{ \Carbon\Carbon::parse($timetable->end_time)->format('h:i A') }}
-
-                                    @else
-
-                                        —
-
-                                    @endif
-
-                                </span>
-
-
+                                –
+                                @if($timetable->end_time)
+                                    {{ \Carbon\Carbon::parse($timetable->end_time)->format('h:i A') }}
+                                @else
+                                    —
+                                @endif
                                 @if($timetable->duration_minutes)
-
-                                    <span class="duration-text">
-
-                                        {{ $timetable->duration_minutes }}
-                                        minutes
-
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- =================================================
-                                 ROOM
-                            ================================================== --}}
-                            <td>
-
-                                <span class="room-text">
-
-                                    {{ $timetable->room ?: '—' }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- =================================================
-                                 ACTIONS
-                            ================================================== --}}
-                            <td>
-
-                                <div class="action-group">
-
-                                    <a
-                                        href="{{ route('admin.timetable.show', $timetable->id) }}"
-                                        class="action-btn timetable-view-action"
-                                        title="View Timetable"
-                                    >
-
-                                        <i class="bi bi-eye"></i>
-
-                                    </a>
-
-
-                                    <a
-                                        href="{{ route('admin.timetable.edit', $timetable->id) }}"
-                                        class="action-btn timetable-edit-action"
-                                        title="Edit Timetable"
-                                    >
-
-                                        <i class="bi bi-pencil"></i>
-
-                                    </a>
-
-
-                                    <form
-                                        action="{{ route('admin.timetable.destroy', $timetable->id) }}"
-                                        method="POST"
-                                        style="display:inline-flex;margin:0;"
-                                        onsubmit="return confirm('Are you sure you want to delete this timetable entry?');"
-                                    >
-
-                                        @csrf
-
-                                        @method('DELETE')
-
-
-                                        <button
-                                            type="submit"
-                                            class="action-btn timetable-delete-action"
-                                            title="Delete Timetable"
-                                        >
-
-                                            <i class="bi bi-trash"></i>
-
-                                        </button>
-
-                                    </form>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-
-                            <td colspan="13">
-
-                                <div class="empty-state">
-
-                                    <div class="empty-icon">
-
-                                        <i class="bi bi-calendar-x"></i>
-
+                                    <div style="font-size:10.5px;color:var(--muted);margin-top:2px">
+                                        {{ $timetable->duration_minutes }} min
                                     </div>
-
-                                    <h4>
-                                        No Timetable Entries
-                                    </h4>
-
-                                    <p>
-                                        Create your first timetable entry to start managing the school schedule.
-                                    </p>
-
-                                    <a
-                                        href="{{ route('admin.timetable.create') }}"
-                                        class="add-timetable-btn"
-                                    >
-
-                                        <i class="bi bi-plus-circle-fill"></i>
-
-                                        Create Timetable
-
-                                    </a>
-
-                                </div>
-
+                                @endif
                             </td>
 
-                        </tr>
+                            <td>{{ $timetable->room ?: '—' }}</td>
 
+                            <td>
+                                <div class="actions-cell">
+                                    <a href="{{ route('admin.timetable.show', $timetable->id) }}"
+                                       class="action-btn action-view" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.timetable.edit', $timetable->id) }}"
+                                       class="action-btn action-edit" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form action="{{ route('admin.timetable.destroy', $timetable->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Delete this timetable entry?');"
+                                          style="display:inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="action-btn action-delete" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="13">
+                                <div class="empty">
+                                    <i class="bi bi-calendar-x"></i>
+                                    <h4>No Timetable Entries</h4>
+                                    <p>Create your first timetable entry to start managing the school schedule.</p>
+                                    <a href="{{ route('admin.timetable.create') }}" class="btn-solid">
+                                        <i class="bi bi-plus-circle-fill"></i> Create Timetable
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     @endforelse
 
-
-                    {{-- =================================================
-                         NO FILTER RESULTS
-                    ================================================== --}}
-                    <tr
-                        id="noResultsRow"
-                        style="display:none;"
-                    >
-
+                    <tr id="noResultsRow" style="display:none">
                         <td colspan="13">
-
-                            <div class="empty-state">
-
-                                <div class="empty-icon">
-
-                                    <i class="bi bi-search"></i>
-
-                                </div>
-
-                                <h4>
-                                    No Matching Timetable
-                                </h4>
-
-                                <p>
-                                    Try changing your search or filters.
-                                </p>
-
+                            <div class="empty">
+                                <i class="bi bi-search"></i>
+                                <h4>No Matching Timetable</h4>
+                                <p>Try changing your search or filters.</p>
                             </div>
-
                         </td>
-
                     </tr>
-
                 </tbody>
-
             </table>
-
         </div>
-
-    </div>
-
+    </section>
 </div>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    const searchInput =
-        document.getElementById('searchInput');
-
-    const dateFilter =
-        document.getElementById('dateFilter');
-
-    const dayFilter =
-        document.getElementById('dayFilter');
-
-    const periodTypeFilter =
-        document.getElementById('periodTypeFilter');
-
-    const academicYearFilter =
-        document.getElementById('academicYearFilter');
-
-    const classFilter =
-        document.getElementById('classFilter');
-
-    const clearFilters =
-        document.getElementById('clearFilters');
-
-    const rows =
-        document.querySelectorAll('.timetable-row');
-
-    const visibleCount =
-        document.getElementById('visibleCount');
-
-    const noResultsRow =
-        document.getElementById('noResultsRow');
-
+    const searchInput = document.getElementById('searchInput');
+    const dateFilter = document.getElementById('dateFilter');
+    const dayFilter = document.getElementById('dayFilter');
+    const periodTypeFilter = document.getElementById('periodTypeFilter');
+    const academicYearFilter = document.getElementById('academicYearFilter');
+    const classFilter = document.getElementById('classFilter');
+    const clearFilters = document.getElementById('clearFilters');
+    const rows = document.querySelectorAll('.timetable-row');
+    const visibleCount = document.getElementById('visibleCount');
+    const noResultsRow = document.getElementById('noResultsRow');
 
     function filterTimetable() {
-
-        const search =
-            searchInput.value.toLowerCase().trim();
-
-        const selectedDate =
-            dateFilter.value;
-
-        const selectedDay =
-            dayFilter.value;
-
-        const selectedPeriodType =
-            periodTypeFilter.value;
-
-        const selectedAcademicYear =
-            academicYearFilter.value;
-
-        const selectedClass =
-            classFilter.value;
-
-
+        const search = searchInput.value.toLowerCase().trim();
+        const selectedDate = dateFilter.value;
+        const selectedDay = dayFilter.value;
+        const selectedPeriodType = periodTypeFilter.value;
+        const selectedAcademicYear = academicYearFilter.value;
+        const selectedClass = classFilter.value;
         let visible = 0;
 
-
         rows.forEach(function (row) {
-
-            const rowSearch =
-                (row.dataset.search || '').toLowerCase();
-
-            const rowDate =
-                row.dataset.date || '';
-
-            const rowDay =
-                row.dataset.day || '';
-
-            const rowPeriodType =
-                row.dataset.periodType || '';
-
-            const rowAcademicYear =
-                row.dataset.academicYear || '';
-
-            const rowClass =
-                row.dataset.class || '';
-
-
-            const matchesSearch =
-                !search ||
-                rowSearch.includes(search);
-
-
-            const matchesDate =
-                !selectedDate ||
-                rowDate === selectedDate;
-
-
-            const matchesDay =
-                !selectedDay ||
-                rowDay === selectedDay;
-
-
-            const matchesPeriodType =
-                !selectedPeriodType ||
-                rowPeriodType === selectedPeriodType;
-
-
-            const matchesAcademicYear =
-                !selectedAcademicYear ||
-                rowAcademicYear === selectedAcademicYear;
-
-
-            const matchesClass =
-                !selectedClass ||
-                rowClass === selectedClass;
-
-
             const show =
-                matchesSearch &&
-                matchesDate &&
-                matchesDay &&
-                matchesPeriodType &&
-                matchesAcademicYear &&
-                matchesClass;
+                (!search || (row.dataset.search || '').includes(search)) &&
+                (!selectedDate || row.dataset.date === selectedDate) &&
+                (!selectedDay || row.dataset.day === selectedDay) &&
+                (!selectedPeriodType || row.dataset.periodType === selectedPeriodType) &&
+                (!selectedAcademicYear || row.dataset.academicYear === selectedAcademicYear) &&
+                (!selectedClass || row.dataset.class === selectedClass);
 
-
-            row.style.display =
-                show ? '' : 'none';
-
-
-            if (show) {
-                visible++;
-            }
-
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
         });
 
-
-        visibleCount.textContent =
-            visible;
-
-
+        if (visibleCount) visibleCount.textContent = visible;
         if (noResultsRow) {
-
-            noResultsRow.style.display =
-                visible === 0 && rows.length > 0
-                    ? ''
-                    : 'none';
-
+            noResultsRow.style.display = (visible === 0 && rows.length > 0) ? '' : 'none';
         }
-
     }
 
+    [searchInput, dateFilter, dayFilter, periodTypeFilter, academicYearFilter, classFilter]
+        .forEach(el => el && el.addEventListener(el.tagName === 'INPUT' && el.type !== 'date' ? 'input' : 'change', filterTimetable));
 
-    searchInput.addEventListener(
-        'input',
-        filterTimetable
-    );
-
-
-    dateFilter.addEventListener(
-        'change',
-        filterTimetable
-    );
-
-
-    dayFilter.addEventListener(
-        'change',
-        filterTimetable
-    );
-
-
-    periodTypeFilter.addEventListener(
-        'change',
-        filterTimetable
-    );
-
-
-    academicYearFilter.addEventListener(
-        'change',
-        filterTimetable
-    );
-
-
-    classFilter.addEventListener(
-        'change',
-        filterTimetable
-    );
-
-
-    clearFilters.addEventListener(
-        'click',
-        function () {
-
+    if (clearFilters) {
+        clearFilters.addEventListener('click', function () {
             searchInput.value = '';
-
             dateFilter.value = '';
-
             dayFilter.value = '';
-
             periodTypeFilter.value = '';
-
             academicYearFilter.value = '';
-
             classFilter.value = '';
-
             filterTimetable();
-
-        }
-    );
-
+        });
+    }
 
     filterTimetable();
-
 });
 </script>
 

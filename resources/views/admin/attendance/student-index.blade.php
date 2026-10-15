@@ -5,1198 +5,550 @@
 
 @section('content')
 
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
->
-
 <style>
-    /* =========================================================
-       GLOBAL
-    ========================================================= */
-
-    * {
-        box-sizing: border-box;
-    }
-
-    .attendance-page {
-        min-height: calc(100vh - 80px);
-        padding: 28px;
-        background: #f4f7fb;
-    }
-
-    /* =========================================================
-       HEADER
-    ========================================================= */
-
-    .attendance-header {
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 25px;
-        padding: 30px 32px;
-        border-radius: 20px;
-        background: linear-gradient(
-            135deg,
-            #1769d1 0%,
-            #159cc7 52%,
-            #6c63ff 100%
-        );
-        color: #ffffff;
-        box-shadow: 0 12px 30px rgba(23, 105, 209, 0.18);
-    }
-
-    .attendance-header::before {
-        content: "";
-        position: absolute;
-        width: 230px;
-        height: 230px;
-        right: -80px;
-        top: -120px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .attendance-header::after {
-        content: "";
-        position: absolute;
-        width: 160px;
-        height: 160px;
-        right: 180px;
-        bottom: -110px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    .attendance-header-content {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 25px;
-    }
-
-    .attendance-header-left {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-    }
-
-    .attendance-header-icon {
-        width: 62px;
-        height: 62px;
-        min-width: 62px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 17px;
-        background: rgba(255, 255, 255, 0.17);
-        border: 1px solid rgba(255, 255, 255, 0.20);
-        font-size: 29px;
-        backdrop-filter: blur(8px);
-    }
-
-    .attendance-header-text h2 {
-        margin: 0 0 7px;
-        font-size: 27px;
-        font-weight: 800;
-        letter-spacing: -0.4px;
-    }
-
-    .attendance-header-text p {
-        max-width: 720px;
-        margin: 0;
-        color: rgba(255, 255, 255, 0.88);
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .attendance-month {
-        position: relative;
-        z-index: 2;
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        padding: 11px 16px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 800;
-        white-space: nowrap;
-        backdrop-filter: blur(8px);
-    }
-
-    /* =========================================================
-       STATISTICS
-    ========================================================= */
-
-    .attendance-stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
-        margin-bottom: 26px;
-    }
-
-    .stat-card {
-        position: relative;
-        overflow: hidden;
-        min-height: 145px;
-        padding: 21px;
-        border: none;
-        border-radius: 17px;
-        color: #ffffff;
-        box-shadow: 0 8px 22px rgba(20, 50, 90, 0.10);
-        transition:
-            transform 0.25s ease,
-            box-shadow 0.25s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(20, 50, 90, 0.15);
-    }
-
-    .stat-card::before {
-        content: "";
-        position: absolute;
-        width: 65px;
-        height: 65px;
-        right: 42px;
-        top: -32px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    .stat-card::after {
-        content: "";
-        position: absolute;
-        width: 105px;
-        height: 105px;
-        right: -30px;
-        bottom: -45px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.10);
-    }
-
-    .stat-card.blue {
-        background: linear-gradient(
-            135deg,
-            #1769d1,
-            #237de0
-        );
-    }
-
-    .stat-card.orange {
-        background: linear-gradient(
-            135deg,
-            #ed9208,
-            #f7aa25
-        );
-    }
-
-    .stat-card.cyan {
-        background: linear-gradient(
-            135deg,
-            #079dbd,
-            #16b5d0
-        );
-    }
-
-    .stat-card.red {
-        background: linear-gradient(
-            135deg,
-            #e94d47,
-            #f75d56
-        );
-    }
-
-    .stat-content {
-        position: relative;
-        z-index: 2;
-    }
-
-    .stat-top {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.17);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #ffffff;
-        font-size: 21px;
-        backdrop-filter: blur(5px);
-    }
-
-    .stat-small {
-        padding: 5px 9px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.15);
-        color: rgba(255, 255, 255, 0.94);
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    .stat-number {
-        margin-top: 15px;
-        color: #ffffff;
-        font-size: 29px;
-        font-weight: 800;
-        line-height: 1;
-    }
-
-    .stat-label {
-        display: block;
-        margin-top: 8px;
-        color: rgba(255, 255, 255, 0.91);
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    /* =========================================================
-       MAIN CARD
-    ========================================================= */
-
-    .classes-card {
-        overflow: hidden;
-        background: #ffffff;
-        border: 1px solid #e4e9f1;
-        border-radius: 18px;
-        box-shadow: 0 7px 24px rgba(20, 50, 90, 0.07);
-    }
-
-    .classes-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        padding: 22px 25px;
-        border-bottom: 1px solid #edf1f6;
-    }
-
-    .classes-heading {
-        display: flex;
-        align-items: center;
-        gap: 13px;
-    }
-
-    .classes-heading-icon {
-        width: 46px;
-        height: 46px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 13px;
-        background: #eaf3ff;
-        color: #1769d1;
-        font-size: 20px;
-    }
-
-    .classes-heading-text h3 {
-        margin: 0 0 4px;
-        color: #172033;
-        font-size: 18px;
-        font-weight: 800;
-    }
-
-    .classes-heading-text p {
-        margin: 0;
-        color: #8994a5;
-        font-size: 12px;
-    }
-
-    .class-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 9px 14px;
-        border-radius: 10px;
-        background: #f0f7ff;
-        color: #1769d1;
-        font-size: 12px;
-        font-weight: 800;
-        white-space: nowrap;
-    }
-
-    /* =========================================================
-       TABLE
-    ========================================================= */
-
-    .table-container {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .classes-table {
-        width: 100%;
-        min-width: 1180px;
-        margin: 0;
-        border-collapse: collapse;
-    }
-
-    .classes-table thead th {
-        padding: 15px 18px;
-        background: #f8fafc;
-        border-bottom: 1px solid #e5ebf3;
-        color: #6c7789;
-        font-size: 10px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.55px;
-        white-space: nowrap;
-    }
-
-    .classes-table tbody td {
-        padding: 17px 18px;
-        border-bottom: 1px solid #edf1f6;
-        color: #273449;
-        font-size: 13px;
-        vertical-align: middle;
-    }
-
-    .classes-table tbody tr {
-        transition: background 0.2s ease;
-    }
-
-    .classes-table tbody tr:hover {
-        background: #f9fbff;
-    }
-
-    .classes-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* =========================================================
-       CLASS
-    ========================================================= */
-
-    .class-info {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-    }
-
-    .class-icon {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 11px;
-        background: linear-gradient(
-            135deg,
-            #e9f3ff,
-            #eef8ff
-        );
-        color: #1769d1;
-        font-size: 18px;
-    }
-
-    .class-name {
-        display: block;
-        color: #182337;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    /* =========================================================
-       ACADEMIC YEAR
-    ========================================================= */
-
-    .academic-year-cell {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 8px 11px;
-        border-radius: 9px;
-        background: #f5f7ff;
-        color: #5965c9;
-        font-size: 12px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .academic-year-cell i {
-        font-size: 13px;
-    }
-
-    /* =========================================================
-       SECTION
-    ========================================================= */
-
-    .section-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 38px;
-        padding: 7px 11px;
-        border-radius: 8px;
-        background: #f0efff;
-        color: #6258e8;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    /* =========================================================
-       STUDENTS
-    ========================================================= */
-
-    .student-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        color: #344054;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .student-count i {
-        color: #1769d1;
-        font-size: 16px;
-    }
-
-    /* =========================================================
-       ATTENDANCE
-    ========================================================= */
-
-    .attendance-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .attendance-count i {
-        font-size: 15px;
-    }
-
-    .present-count {
-        color: #16a34a;
-    }
-
-    .absent-count {
-        color: #e94d47;
-    }
-
-    .attendance-label {
-        display: block;
-        margin-top: 3px;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 600;
-    }
-
-    /* =========================================================
-       TEACHER
-    ========================================================= */
-
-    .teacher-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .teacher-avatar {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: linear-gradient(
-            135deg,
-            #1769d1,
-            #6c63ff
-        );
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .teacher-name {
-        max-width: 180px;
-        color: #344054;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .not-assigned {
-        color: #94a3b8;
-        font-style: italic;
-    }
-
-    /* =========================================================
-       ACTION BUTTON
-    ========================================================= */
-
-    .mark-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        padding: 9px 14px;
-        border: none;
-        border-radius: 9px;
-        background: linear-gradient(
-            135deg,
-            #1769d1,
-            #159cc7
-        );
-        color: #ffffff;
-        font-size: 11px;
-        font-weight: 800;
-        text-decoration: none;
-        white-space: nowrap;
-        box-shadow: 0 5px 13px rgba(23, 105, 209, 0.17);
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-    .mark-btn:hover {
-        color: #ffffff;
-        transform: translateY(-1px);
-        box-shadow: 0 7px 17px rgba(23, 105, 209, 0.25);
-    }
-
-    /* =========================================================
-       EMPTY STATE
-    ========================================================= */
-
-    .empty-state {
-        padding: 70px 25px;
-        text-align: center;
-    }
-
-    .empty-icon {
-        width: 76px;
-        height: 76px;
-        margin: 0 auto 17px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 20px;
-        background: #eef5ff;
-        color: #1769d1;
-        font-size: 31px;
-    }
-
-    .empty-state h4 {
-        margin: 0 0 7px;
-        color: #263247;
-        font-size: 17px;
-        font-weight: 800;
-    }
-
-    .empty-state p {
-        margin: 0;
-        color: #8b95a5;
-        font-size: 13px;
-    }
-
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
-
-    @media (max-width: 1200px) {
-        .attendance-stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 992px) {
-        .attendance-page {
-            padding: 20px;
-        }
-
-        .attendance-header-content {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .attendance-month {
-            align-self: flex-start;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .attendance-page {
-            padding: 14px;
-        }
-
-        .attendance-header {
-            padding: 22px 19px;
-            border-radius: 16px;
-        }
-
-        .attendance-header-left {
-            align-items: flex-start;
-            gap: 13px;
-        }
-
-        .attendance-header-icon {
-            width: 50px;
-            height: 50px;
-            min-width: 50px;
-            border-radius: 13px;
-            font-size: 23px;
-        }
-
-        .attendance-header-text h2 {
-            font-size: 21px;
-        }
-
-        .attendance-header-text p {
-            font-size: 12px;
-        }
-
-        .attendance-stats {
-            grid-template-columns: 1fr;
-            gap: 14px;
-        }
-
-        .stat-card {
-            min-height: 130px;
-        }
-
-        .classes-header {
-            align-items: flex-start;
-            flex-direction: column;
-            padding: 18px;
-        }
-
-        .classes-heading-text h3 {
-            font-size: 16px;
-        }
-
-        .classes-table {
-            min-width: 1180px;
-        }
+    .att-page{max-width:1500px;margin:0 auto}
+    .paper{background:#fff;border:1px solid var(--line);border-radius:10px}
+
+    /* ---------- Hero ---------- */
+    .att-hero{
+        display:grid;
+        grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+        margin-bottom:22px;
+        overflow:hidden;
+        position:relative;
+    }
+    .att-hero::before{
+        content:"";
+        position:absolute;
+        left:34px;top:0;bottom:0;
+        width:2px;
+        background:rgba(228,87,46,.35);
+    }
+    .att-hero-left{padding:26px 28px 26px 56px}
+    .att-hero-left h1{
+        font-family:var(--serif);
+        font-size:28px;
+        font-weight:700;
+        color:var(--ink);
+        margin:0 0 6px;
+    }
+    .att-hero-left p{
+        color:var(--muted);
+        margin:0 0 16px;
+        font-size:14px;
+        line-height:1.5;
+    }
+    .att-hero-meta{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-bottom:18px;
+    }
+    .meta-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:5px 11px;
+        border-radius:6px;
+        font-size:12px;
+        font-weight:600;
+        background:color-mix(in srgb,#2b5d8a 10%,#fff);
+        color:#2b5d8a;
+    }
+    .meta-chip.green{background:color-mix(in srgb,#3a9d6b 12%,#fff);color:#3a9d6b}
+    .meta-chip.red{background:color-mix(in srgb,#e4572e 12%,#fff);color:#e4572e}
+
+    .att-hero-right{
+        background:var(--ink);
+        color:#e9efe2;
+        padding:26px 28px;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        gap:10px;
+        background-image:radial-gradient(ellipse at 20% 0,rgba(255,255,255,.09),transparent 60%);
+    }
+    .att-hero-right .label{
+        font-family:var(--hand);
+        font-size:22px;
+        color:var(--chalk);
+        line-height:1;
+    }
+    .att-hero-right .month{
+        font-family:var(--serif);
+        font-size:26px;
+        font-weight:700;
+        color:#fff;
+        line-height:1.15;
+    }
+    .att-hero-right .sub{
+        font-size:13px;
+        color:#c5d0bd;
+    }
+
+    /* ---------- KPI folder tabs ---------- */
+    .kpi-grid{
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:18px;
+        margin-bottom:22px;
+    }
+    .kpi{
+        transition:transform .22s ease,box-shadow .22s ease;
+        position:relative;
+        padding:22px 22px 16px;
+        margin-top:10px;
+        border-top:4px solid var(--c);
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+    }
+    .kpi:hover{
+        transform:translateY(-8px);
+        box-shadow:0 16px 28px rgba(29,58,51,.16);
+    }
+    .kpi-tab{
+        position:absolute;
+        top:-24px;left:16px;
+        padding:3px 12px;
+        background:var(--c);
+        color:#fff;
+        font-size:12px;
+        font-weight:600;
+        border-radius:7px 7px 0 0;
+    }
+    .kpi-top{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+    }
+    .kpi-value{
+        font-family:var(--serif);
+        font-size:34px;
+        font-weight:700;
+        line-height:1;
+        color:var(--ink);
+    }
+    .kpi-icon{
+        width:46px;height:46px;
+        border-radius:12px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:20px;
+        flex-shrink:0;
+        background:color-mix(in srgb,var(--c) 14%,#fff);
+        color:var(--c);
+    }
+    .kpi-label{
+        padding-top:12px;
+        border-top:1px dashed #d8d1bf;
+        font-size:13px;
+        color:var(--muted);
+    }
+    .c-blue{--c:#2b5d8a}
+    .c-amber{--c:#d58a0b}
+    .c-green{--c:#3a9d6b}
+    .c-red{--c:#e4572e}
+
+    /* ---------- Register panel ---------- */
+    .panel{overflow:hidden;margin-bottom:22px}
+    .panel-head{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        padding:15px 22px;
+        border-bottom:1px dashed #d8d1bf;
+        flex-wrap:wrap;
+    }
+    .panel-head h3{
+        font-family:var(--serif);
+        font-size:17px;
+        font-weight:700;
+        color:var(--ink);
+        margin:0;
+    }
+    .panel-head span{
+        font-size:12.5px;
+        color:var(--muted);
+    }
+
+    /* ---------- Table ---------- */
+    .table-wrap{width:100%;overflow-x:auto}
+    .att-table{
+        width:100%;
+        min-width:1100px;
+        border-collapse:collapse;
+    }
+    .att-table thead th{
+        padding:13px 16px;
+        background:#f8f6f0;
+        border-bottom:1px solid #e6e0d2;
+        color:var(--muted);
+        font-size:11px;
+        font-weight:700;
+        text-transform:uppercase;
+        letter-spacing:.4px;
+        white-space:nowrap;
+        text-align:left;
+    }
+    .att-table tbody td{
+        padding:14px 16px;
+        border-bottom:1px solid #f0ebe0;
+        color:var(--text);
+        font-size:13px;
+        vertical-align:middle;
+    }
+    .att-table tbody tr:hover td{background:#fffdf6}
+    .att-table tbody tr:last-child td{border-bottom:none}
+
+    .class-cell{
+        display:flex;
+        align-items:center;
+        gap:11px;
+    }
+    .class-icon{
+        width:40px;height:40px;
+        min-width:40px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:10px;
+        background:color-mix(in srgb,#2b5d8a 12%,#fff);
+        color:#2b5d8a;
+        font-size:17px;
+    }
+    .class-name{
+        font-weight:700;
+        color:var(--ink);
+        font-size:14px;
+    }
+
+    .year-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:5px 10px;
+        border-radius:6px;
+        background:color-mix(in srgb,#7a4fb5 10%,#fff);
+        color:#7a4fb5;
+        font-size:12px;
+        font-weight:600;
+    }
+
+    .section-badge{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        min-width:36px;
+        padding:5px 10px;
+        border-radius:6px;
+        background:color-mix(in srgb,#2b5d8a 10%,#fff);
+        color:#2b5d8a;
+        font-size:12px;
+        font-weight:700;
+    }
+
+    .count-cell{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        font-weight:700;
+        font-size:13px;
+    }
+    .count-cell i{font-size:15px}
+    .count-students{color:var(--ink)}
+    .count-present{color:#3a9d6b}
+    .count-absent{color:#e4572e}
+
+    .teacher-cell{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+    .teacher-avatar{
+        width:34px;height:34px;
+        min-width:34px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:50%;
+        background:color-mix(in srgb,#7a4fb5 14%,#fff);
+        color:#7a4fb5;
+        font-size:11px;
+        font-weight:700;
+    }
+    .teacher-name{
+        font-size:12.5px;
+        font-weight:600;
+        color:var(--ink);
+        max-width:160px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .teacher-name.muted{
+        color:var(--muted);
+        font-style:italic;
+        font-weight:500;
+    }
+
+    .btn-mark{
+        display:inline-flex;
+        align-items:center;
+        gap:7px;
+        padding:8px 14px;
+        border-radius:8px;
+        background:var(--ink);
+        color:#fff;
+        font-size:12.5px;
+        font-weight:600;
+        text-decoration:none;
+        border:1px solid var(--ink);
+        transition:background .15s;
+        white-space:nowrap;
+    }
+    .btn-mark:hover{
+        background:var(--ink-2);
+        color:#fff;
+    }
+
+    /* ---------- Empty ---------- */
+    .empty{
+        padding:60px 20px;
+        text-align:center;
+    }
+    .empty i{
+        font-size:32px;
+        color:var(--muted);
+        display:block;
+        margin-bottom:10px;
+    }
+    .empty h4{
+        font-family:var(--serif);
+        font-size:17px;
+        font-weight:700;
+        color:var(--ink);
+        margin:0 0 6px;
+    }
+    .empty p{
+        margin:0;
+        color:var(--muted);
+        font-size:13px;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width:1200px){
+        .kpi-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:900px){
+        .att-hero{grid-template-columns:1fr}
+        .att-hero-left{padding:22px 20px 22px 44px}
+        .att-hero::before{left:24px}
+    }
+    @media (max-width:650px){
+        .kpi-grid{grid-template-columns:1fr}
+        .kpi{margin-top:18px}
+        .att-hero-left h1{font-size:23px}
     }
 </style>
 
+@php
+    $monthLabel = \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y');
+@endphp
 
-{{-- =========================================================
-     PAGE
-========================================================= --}}
-
-<div class="attendance-page">
+<div class="att-page">
 
     {{-- =====================================================
-         HEADER
+         HERO
     ====================================================== --}}
+    <section class="paper att-hero">
+        <div class="att-hero-left">
+            <h1>Student Attendance</h1>
+            <p>
+                Manage daily student attendance by class and section.
+                View present and absent counts and mark attendance for any class.
+            </p>
 
-    <section class="attendance-header">
-
-        <div class="attendance-header-content">
-
-            <div class="attendance-header-left">
-
-                <div class="attendance-header-icon">
-                    <i class="bi bi-calendar-check-fill"></i>
-                </div>
-
-                <div class="attendance-header-text">
-
-                    <h2>
-                        Student Attendance
-                    </h2>
-
-                    <p>
-                        Manage daily student attendance by class and section.
-                        View total present and absent students and mark attendance efficiently.
-                    </p>
-
-                </div>
-
+            <div class="att-hero-meta">
+                <span class="meta-chip">
+                    <i class="bi bi-layers"></i>
+                    {{ $classCards->count() }} Classes
+                </span>
+                <span class="meta-chip green">
+                    <i class="bi bi-check-circle"></i>
+                    {{ $totalPresent }} Present
+                </span>
+                <span class="meta-chip red">
+                    <i class="bi bi-x-circle"></i>
+                    {{ $totalAbsent }} Absent
+                </span>
             </div>
-
-            <div class="attendance-month">
-
-                <i class="bi bi-calendar3"></i>
-
-                {{ \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y') }}
-
-            </div>
-
         </div>
 
+        <div class="att-hero-right">
+            <div class="label">Attendance month</div>
+            <div class="month">{{ $monthLabel }}</div>
+            <div class="sub">Select a class below to mark attendance</div>
+        </div>
     </section>
 
+    {{-- =====================================================
+         KPI CARDS
+    ====================================================== --}}
+    <div class="kpi-grid">
+        <div class="paper kpi c-blue">
+            <span class="kpi-tab">Classes</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $classCards->count() }}</div>
+                <div class="kpi-icon"><i class="bi bi-mortarboard-fill"></i></div>
+            </div>
+            <div class="kpi-label">Total classes & sections</div>
+        </div>
+
+        <div class="paper kpi c-amber">
+            <span class="kpi-tab">Students</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ number_format($totalStudents) }}</div>
+                <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+            </div>
+            <div class="kpi-label">Total students</div>
+        </div>
+
+        <div class="paper kpi c-green">
+            <span class="kpi-tab">Present</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ number_format($totalPresent) }}</div>
+                <div class="kpi-icon"><i class="bi bi-person-check-fill"></i></div>
+            </div>
+            <div class="kpi-label">Students present today</div>
+        </div>
+
+        <div class="paper kpi c-red">
+            <span class="kpi-tab">Absent</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ number_format($totalAbsent) }}</div>
+                <div class="kpi-icon"><i class="bi bi-person-x-fill"></i></div>
+            </div>
+            <div class="kpi-label">Students absent today</div>
+        </div>
+    </div>
 
     {{-- =====================================================
-         DASHBOARD STATISTICS
+         CLASSES REGISTER
     ====================================================== --}}
-
-    <section class="attendance-stats">
-
-        {{-- TOTAL CLASSES --}}
-
-        <div class="stat-card blue">
-
-            <div class="stat-content">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-mortarboard-fill"></i>
-                    </div>
-
-                    <span class="stat-small">
-                        Academic
-                    </span>
-
-                </div>
-
-                <div class="stat-number">
-                    {{ $classCards->count() }}
-                </div>
-
-                <span class="stat-label">
-                    Total Classes & Sections
-                </span>
-
-            </div>
-
+    <section class="paper panel">
+        <div class="panel-head">
+            <h3>Classes & Sections</h3>
+            <span>Select a class to mark attendance</span>
         </div>
-
-
-        {{-- TOTAL STUDENTS --}}
-
-        <div class="stat-card orange">
-
-            <div class="stat-content">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-
-                    <span class="stat-small">
-                        All Students
-                    </span>
-
-                </div>
-
-                <div class="stat-number">
-                    {{ $totalStudents }}
-                </div>
-
-                <span class="stat-label">
-                    Total Students
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- ALL PRESENT STUDENTS --}}
-
-        <div class="stat-card cyan">
-
-            <div class="stat-content">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-person-check-fill"></i>
-                    </div>
-
-                    <span class="stat-small">
-                        Attendance
-                    </span>
-
-                </div>
-
-                <div class="stat-number">
-                    {{ $totalPresent }}
-                </div>
-
-                <span class="stat-label">
-                    Total Students Present
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- ALL ABSENT STUDENTS --}}
-
-        <div class="stat-card red">
-
-            <div class="stat-content">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-person-x-fill"></i>
-                    </div>
-
-                    <span class="stat-small">
-                        Attendance
-                    </span>
-
-                </div>
-
-                <div class="stat-number">
-                    {{ $totalAbsent }}
-                </div>
-
-                <span class="stat-label">
-                    Total Students Absent
-                </span>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    {{-- =====================================================
-         CLASSES & SECTIONS
-    ====================================================== --}}
-
-    <section class="classes-card">
-
-        {{-- CARD HEADER --}}
-
-        <div class="classes-header">
-
-            <div class="classes-heading">
-
-                <div class="classes-heading-icon">
-                    <i class="bi bi-grid-3x3-gap-fill"></i>
-                </div>
-
-                <div class="classes-heading-text">
-
-                    <h3>
-                        Classes & Sections
-                    </h3>
-
-                    <p>
-                        Select a class and section to manage student attendance
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="class-count">
-
-                <i class="bi bi-layers-fill"></i>
-
-                {{ $classCards->count() }} Classes
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             TABLE
-        ================================================== --}}
 
         @if($classCards->count())
-
-            <div class="table-container">
-
-                <table class="classes-table">
-
+            <div class="table-wrap">
+                <table class="att-table">
                     <thead>
-
                         <tr>
-
-                            <th>
-                                Class
-                            </th>
-
-                            <th>
-                                Academic Year
-                            </th>
-
-                            <th>
-                                Section
-                            </th>
-
-                            <th>
-                                Students
-                            </th>
-
-                            <th>
-                                Present
-                            </th>
-
-                            <th>
-                                Absent
-                            </th>
-
-                            <th>
-                                Class Teacher
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
+                            <th>Class</th>
+                            <th>Academic Year</th>
+                            <th>Section</th>
+                            <th>Students</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Class Teacher</th>
+                            <th>Action</th>
                         </tr>
-
                     </thead>
-
                     <tbody>
-
                         @foreach($classCards as $card)
-
                             @php
-
-                                $teacherName = trim(
-                                    $card->class_teacher ?? 'Not Assigned'
-                                );
-
-                                $teacherWords = preg_split(
-                                    '/\s+/',
-                                    $teacherName
-                                );
-
+                                $teacherName = trim($card->class_teacher ?? 'Not Assigned');
+                                $teacherWords = preg_split('/\s+/', $teacherName);
                                 $initials = '';
-
-                                foreach (
-                                    array_slice($teacherWords, 0, 2)
-                                    as $word
-                                ) {
-
+                                foreach (array_slice($teacherWords, 0, 2) as $word) {
                                     if (!empty($word)) {
-
-                                        $initials .= strtoupper(
-                                            substr($word, 0, 1)
-                                        );
-
+                                        $initials .= strtoupper(substr($word, 0, 1));
                                     }
-
                                 }
-
-                                if (!$initials) {
-                                    $initials = 'NA';
-                                }
-
+                                if (!$initials) $initials = 'NA';
                             @endphp
-
                             <tr>
-
-                                {{-- CLASS --}}
-
                                 <td>
-
-                                    <div class="class-info">
-
+                                    <div class="class-cell">
                                         <div class="class-icon">
                                             <i class="bi bi-mortarboard-fill"></i>
                                         </div>
-
-                                        <span class="class-name">
-                                            {{ $card->class ?? '-' }}
-                                        </span>
-
+                                        <span class="class-name">{{ $card->class ?? '-' }}</span>
                                     </div>
-
                                 </td>
 
-
-                                {{-- ACADEMIC YEAR --}}
-
                                 <td>
-
-                                    <span class="academic-year-cell">
-
+                                    <span class="year-badge">
                                         <i class="bi bi-calendar3"></i>
-
                                         {{ $card->academic_year ?? '-' }}
-
                                     </span>
-
                                 </td>
 
-
-                                {{-- SECTION --}}
-
                                 <td>
-
                                     <span class="section-badge">
                                         {{ $card->section ?? '-' }}
                                     </span>
-
                                 </td>
 
-
-                                {{-- STUDENTS --}}
-
                                 <td>
-
-                                    <span class="student-count">
-
+                                    <span class="count-cell count-students">
                                         <i class="bi bi-people-fill"></i>
-
                                         {{ $card->student_count ?? 0 }}
-
                                     </span>
-
                                 </td>
 
-
-                                {{-- PRESENT --}}
-
                                 <td>
-
-                                    <div class="attendance-count present-count">
-
+                                    <span class="count-cell count-present">
                                         <i class="bi bi-check-circle-fill"></i>
-
                                         {{ $card->present_count ?? 0 }}
-
-                                    </div>
-
-                                    <span class="attendance-label">
-                                        Present
                                     </span>
-
                                 </td>
 
-
-                                {{-- ABSENT --}}
-
                                 <td>
-
-                                    <div class="attendance-count absent-count">
-
+                                    <span class="count-cell count-absent">
                                         <i class="bi bi-x-circle-fill"></i>
-
                                         {{ $card->absent_count ?? 0 }}
-
-                                    </div>
-
-                                    <span class="attendance-label">
-                                        Absent
                                     </span>
-
                                 </td>
 
-
-                                {{-- CLASS TEACHER --}}
-
                                 <td>
-
-                                    @if(
-                                        !empty($card->class_teacher) &&
-                                        trim($card->class_teacher) !== ''
-                                    )
-
-                                        <div class="teacher-info">
-
-                                            <div class="teacher-avatar">
-                                                {{ $initials }}
-                                            </div>
-
-                                            <span class="teacher-name">
-                                                {{ $teacherName }}
-                                            </span>
-
-                                        </div>
-
-                                    @else
-
-                                        <div class="teacher-info">
-
-                                            <div class="teacher-avatar">
-                                                NA
-                                            </div>
-
-                                            <span class="teacher-name not-assigned">
-                                                Not Assigned
-                                            </span>
-
-                                        </div>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- ACTION --}}
-
-                                <td>
-
-                                    <a
-                                        href="{{ route('admin.attendance.student.sheet', [
-                                            'academic_year' => $card->academic_year,
-                                            'class' => $card->class,
-                                            'section' => $card->section,
-                                            'month' => $month
-                                        ]) }}"
-                                        class="mark-btn"
-                                    >
-
-                                        <i class="bi bi-pencil-square"></i>
-
-                                        <span>
-                                            Mark Attendance
+                                    <div class="teacher-cell">
+                                        <div class="teacher-avatar">{{ $initials }}</div>
+                                        <span class="teacher-name {{ empty($card->class_teacher) ? 'muted' : '' }}">
+                                            {{ $teacherName }}
                                         </span>
-
-                                    </a>
-
+                                    </div>
                                 </td>
 
+                                <td>
+                                    <a href="{{ route('admin.attendance.student.sheet', [
+                                        'academic_year' => $card->academic_year,
+                                        'class'         => $card->class,
+                                        'section'       => $card->section,
+                                        'month'         => $month
+                                    ]) }}" class="btn-mark">
+                                        <i class="bi bi-pencil-square"></i>
+                                        Mark Attendance
+                                    </a>
+                                </td>
                             </tr>
-
                         @endforeach
-
                     </tbody>
-
                 </table>
-
             </div>
-
         @else
-
-            {{-- =================================================
-                 EMPTY STATE
-            ================================================== --}}
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    <i class="bi bi-mortarboard"></i>
-                </div>
-
-                <h4>
-                    No Classes Found
-                </h4>
-
-                <p>
-                    No active students or class sections are currently
-                    available for attendance.
-                </p>
-
+            <div class="empty">
+                <i class="bi bi-mortarboard"></i>
+                <h4>No Classes Found</h4>
+                <p>No active students or class sections are currently available for attendance.</p>
             </div>
-
         @endif
-
     </section>
 
 </div>

@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'View Timetable')
@@ -11,580 +10,1151 @@
     rel="stylesheet"
 >
 
+@php
+    $teacher = $timetable->teacher ?? null;
+
+    $teacherName = trim(
+        ($teacher->first_name ?? '') . ' ' .
+        ($teacher->middle_name ?? '') . ' ' .
+        ($teacher->last_name ?? '')
+    );
+
+    $teacherName = $teacherName ?: 'Not Assigned';
+
+    $teacherInitials = strtoupper(
+        substr($teacher->first_name ?? 'T', 0, 1) .
+        substr($teacher->last_name ?? '', 0, 1)
+    );
+
+    $teacherInitials = $teacherInitials ?: 'T';
+
+    $periodType = strtolower(trim($timetable->period_type ?? 'regular'));
+
+    $periodStyles = [
+        'regular'  => [
+            'label' => 'Regular class',
+            'class' => 'type-blue',
+            'icon'  => 'bi-book-fill',
+        ],
+        'break'    => [
+            'label' => 'Break',
+            'class' => 'type-amber',
+            'icon'  => 'bi-pause-circle-fill',
+        ],
+        'lunch'    => [
+            'label' => 'Lunch',
+            'class' => 'type-green',
+            'icon'  => 'bi-cup-hot-fill',
+        ],
+        'activity' => [
+            'label' => 'Activity',
+            'class' => 'type-violet',
+            'icon'  => 'bi-stars',
+        ],
+    ];
+
+    $periodMeta = $periodStyles[$periodType] ?? $periodStyles['regular'];
+
+    $dateValue = !empty($timetable->timetable_date)
+        ? \Carbon\Carbon::parse($timetable->timetable_date)
+        : null;
+
+    $startTime = !empty($timetable->start_time)
+        ? \Carbon\Carbon::parse($timetable->start_time)
+        : null;
+
+    $endTime = !empty($timetable->end_time)
+        ? \Carbon\Carbon::parse($timetable->end_time)
+        : null;
+
+    $duration = null;
+
+    if ($startTime && $endTime) {
+        $minutes = $startTime->diffInMinutes($endTime);
+
+        if ($minutes >= 60) {
+            $hours = intdiv($minutes, 60);
+            $remainingMinutes = $minutes % 60;
+
+            $duration = $hours . ' hr' . ($hours > 1 ? 's' : '');
+
+            if ($remainingMinutes > 0) {
+                $duration .= ' ' . $remainingMinutes . ' min';
+            }
+        } else {
+            $duration = $minutes . ' min';
+        }
+    }
+
+    $classLabel = trim(
+        'Class ' . ($timetable->class ?: '—') .
+        ($timetable->section ? ' · Section ' . $timetable->section : '')
+    );
+@endphp
+
 <style>
-    .timetable-show-container {
-        padding: 10px 0 30px;
+    /* =========================================================
+       Page foundation
+       ========================================================= */
+
+    .timetable-page{
+        max-width:1500px;
+        margin:0 auto;
+        padding:2px 0 30px;
     }
 
-    .show-header {
-        background: linear-gradient(135deg, #147cf5, #6c63ff);
-        border-radius: 18px;
-        padding: 24px 28px;
-        color: #fff;
-        margin-bottom: 22px;
-        box-shadow: 0 8px 25px rgba(20, 124, 245, 0.15);
+    .paper{
+        background:#fff;
+        border:1px solid var(--line);
+        border-radius:10px;
     }
 
-    .show-header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        flex-wrap: wrap;
+    .btn-solid,
+    .btn-line{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        height:40px;
+        padding:0 16px;
+        border:1px solid transparent;
+        border-radius:8px;
+        cursor:pointer;
+        font-family:inherit;
+        font-size:13px;
+        font-weight:500;
+        line-height:1;
+        text-decoration:none;
+        white-space:nowrap;
+        transition:background .16s ease, border-color .16s ease, transform .16s ease;
     }
 
-    .show-title {
-        margin: 0;
-        font-size: 25px;
-        font-weight: 800;
+    .btn-solid{
+        color:#fff;
+        background:var(--ink);
+        border-color:var(--ink);
     }
 
-    .show-subtitle {
-        margin: 6px 0 0;
-        opacity: 0.9;
-        font-size: 14px;
+    .btn-solid:hover{
+        color:#fff;
+        background:var(--ink-2);
+        transform:translateY(-1px);
     }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        background: #fff;
-        color: #1769d1;
-        padding: 10px 16px;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 14px;
-        transition: 0.2s ease;
+    .btn-line{
+        color:var(--text);
+        background:#fff;
+        border-color:#cfc8b6;
     }
 
-    .back-btn:hover {
-        color: #1769d1;
-        transform: translateY(-1px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+    .btn-line:hover{
+        color:var(--ink);
+        background:#fffdf6;
+        border-color:var(--ink);
     }
 
-    .details-card {
-        background: #fff;
-        border: 1px solid #e8eef7;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(30, 70, 110, 0.06);
+    .c-blue{--c:#2b5d8a}
+    .c-green{--c:#3a9d6b}
+    .c-red{--c:#e4572e}
+    .c-amber{--c:#d58a0b}
+    .c-violet{--c:#7a4fb5}
+
+    /* =========================================================
+       Diary-style page header
+       ========================================================= */
+
+    .timetable-hero{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:20px;
+        flex-wrap:wrap;
+        position:relative;
+        overflow:hidden;
+        padding:23px 26px 23px 54px;
+        margin-bottom:21px;
     }
 
-    .details-card-header {
-        padding: 18px 22px;
-        border-bottom: 1px solid #edf1f7;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+    .timetable-hero::before{
+        content:"";
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:30px;
+        width:3px;
+        background:rgba(228,87,46,.58);
     }
 
-    .details-card-header i {
-        width: 38px;
-        height: 38px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        background: #eef5ff;
-        color: #147cf5;
-        font-size: 18px;
+    .timetable-hero h1{
+        margin:0 0 6px;
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:26px;
+        font-weight:700;
     }
 
-    .details-card-header h5 {
-        margin: 0;
-        font-size: 17px;
-        font-weight: 800;
-        color: #1d2b3c;
+    .timetable-hero p{
+        margin:0;
+        color:var(--muted);
+        font-size:13px;
     }
 
-    .details-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+    .hero-labels{
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        margin-top:13px;
     }
 
-    .detail-item {
-        padding: 18px 22px;
-        border-bottom: 1px solid #edf1f7;
+    .hero-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:5px 10px;
+        border-radius:6px;
+        font-size:11.5px;
+        font-weight:600;
+        white-space:nowrap;
     }
 
-    .detail-item:nth-child(odd) {
-        border-right: 1px solid #edf1f7;
+    .hero-chip.class-chip{
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 10%, #fff);
     }
 
-    .detail-label {
-        display: block;
-        color: #7a8798;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 6px;
+    .hero-chip.subject-chip{
+        color:#7a4fb5;
+        background:color-mix(in srgb, #7a4fb5 10%, #fff);
     }
 
-    .detail-value {
-        color: #243447;
-        font-size: 15px;
-        font-weight: 700;
+    .hero-chip.period-chip{
+        color:#2b7a52;
+        background:color-mix(in srgb, #3a9d6b 12%, #fff);
     }
 
-    .teacher-name {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+    .hero-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
     }
 
-    .teacher-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #147cf5, #6c63ff);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 13px;
+    /* =========================================================
+       Folder-style overview cards
+       ========================================================= */
+
+    .overview-grid{
+        display:grid;
+        grid-template-columns:repeat(4, minmax(0, 1fr));
+        gap:18px;
+        margin-bottom:21px;
     }
 
-    .badge-custom {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 11px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 800;
+    .overview-card{
+        position:relative;
+        display:flex;
+        flex-direction:column;
+        gap:13px;
+        min-height:126px;
+        padding:20px 20px 16px;
+        margin-top:10px;
+        border-top:4px solid var(--c);
+        transition:transform .18s ease, box-shadow .18s ease;
     }
 
-    .badge-regular {
-        background: #eaf4ff;
-        color: #147cf5;
+    .overview-card:hover{
+        transform:translateY(-4px);
+        box-shadow:0 13px 24px rgba(29,58,51,.12);
     }
 
-    .badge-break {
-        background: #fff4df;
-        color: #c77a00;
+    .overview-tab{
+        position:absolute;
+        top:-24px;
+        left:15px;
+        padding:3px 11px;
+        color:#fff;
+        background:var(--c);
+        border-radius:7px 7px 0 0;
+        font-size:11.5px;
+        font-weight:600;
     }
 
-    .badge-lunch {
-        background: #e9f8ef;
-        color: #198754;
+    .overview-top{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
     }
 
-    .badge-activity {
-        background: #f1edff;
-        color: #6c63ff;
+    .overview-value{
+        max-width:calc(100% - 54px);
+        overflow:hidden;
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:21px;
+        font-weight:700;
+        line-height:1.15;
+        text-overflow:ellipsis;
+        white-space:nowrap;
     }
 
-    .action-footer {
-        padding: 18px 22px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        background: #fafcff;
-        border-top: 1px solid #edf1f7;
+    .overview-icon{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:42px;
+        height:42px;
+        flex-shrink:0;
+        color:var(--c);
+        background:color-mix(in srgb, var(--c) 14%, #fff);
+        border-radius:12px;
+        font-size:18px;
     }
 
-    .btn-action {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 10px 16px;
-        border-radius: 10px;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 700;
-        transition: 0.2s ease;
-        border: 1px solid transparent;
+    .overview-note{
+        padding-top:11px;
+        color:var(--muted);
+        border-top:1px dashed #d8d1bf;
+        font-size:12px;
     }
 
-    .btn-edit {
-        background: #eef5ff;
-        color: #147cf5;
-        border-color: #d9e8ff;
+    /* =========================================================
+       Main information layout
+       ========================================================= */
+
+    .content-grid{
+        display:grid;
+        grid-template-columns:minmax(0, 1.65fr) minmax(300px, .85fr);
+        gap:20px;
+        align-items:start;
     }
 
-    .btn-edit:hover {
-        background: #147cf5;
-        color: #fff;
+    .panel{
+        overflow:hidden;
     }
 
-    .btn-back {
-        background: #f3f5f8;
-        color: #495566;
-        border-color: #e1e6ed;
+    .panel-head{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:14px;
+        padding:15px 20px;
+        border-bottom:1px dashed #d8d1bf;
     }
 
-    .btn-back:hover {
-        background: #e7ebf0;
-        color: #263342;
+    .panel-heading{
+        display:flex;
+        align-items:center;
+        gap:10px;
     }
 
-    @media (max-width: 768px) {
-        .details-grid {
-            grid-template-columns: 1fr;
+    .panel-heading-icon{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:36px;
+        height:36px;
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 12%, #fff);
+        border-radius:10px;
+        font-size:17px;
+    }
+
+    .panel-head h2{
+        margin:0;
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:17px;
+        font-weight:700;
+    }
+
+    .panel-head p{
+        margin:2px 0 0;
+        color:var(--muted);
+        font-size:11.5px;
+    }
+
+    /* =========================================================
+       Details table
+       ========================================================= */
+
+    .details-list{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-row{
+        display:flex;
+        align-items:flex-start;
+        gap:12px;
+        min-height:85px;
+        padding:17px 20px;
+        border-bottom:1px solid #f0ebe0;
+    }
+
+    .detail-row:nth-child(odd){
+        border-right:1px solid #f0ebe0;
+    }
+
+    .detail-icon{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:34px;
+        height:34px;
+        flex-shrink:0;
+        color:var(--c);
+        background:color-mix(in srgb, var(--c) 12%, #fff);
+        border-radius:10px;
+        font-size:15px;
+    }
+
+    .detail-content{
+        min-width:0;
+        padding-top:1px;
+    }
+
+    .detail-label{
+        display:block;
+        margin-bottom:5px;
+        color:var(--muted);
+        font-size:10.5px;
+        font-weight:700;
+        letter-spacing:.45px;
+        text-transform:uppercase;
+    }
+
+    .detail-value{
+        overflow:hidden;
+        color:var(--ink);
+        font-size:13.5px;
+        font-weight:600;
+        line-height:1.4;
+        text-overflow:ellipsis;
+    }
+
+    .detail-value.muted-value{
+        color:var(--muted);
+        font-weight:500;
+    }
+
+    .teacher-value{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    .teacher-avatar{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:32px;
+        height:32px;
+        flex-shrink:0;
+        color:#7a4fb5;
+        background:color-mix(in srgb, #7a4fb5 15%, #fff);
+        border-radius:50%;
+        font-size:11px;
+        font-weight:800;
+    }
+
+    .type-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:5px 9px;
+        border-radius:6px;
+        font-size:11.5px;
+        font-weight:700;
+        white-space:nowrap;
+    }
+
+    .type-blue{
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 12%, #fff);
+    }
+
+    .type-amber{
+        color:#8a5600;
+        background:color-mix(in srgb, #d58a0b 15%, #fff);
+    }
+
+    .type-green{
+        color:#2b7a52;
+        background:color-mix(in srgb, #3a9d6b 13%, #fff);
+    }
+
+    .type-violet{
+        color:#7a4fb5;
+        background:color-mix(in srgb, #7a4fb5 12%, #fff);
+    }
+
+    /* =========================================================
+       Schedule panel
+       ========================================================= */
+
+    .schedule-body{
+        padding:20px;
+    }
+
+    .time-card{
+        position:relative;
+        overflow:hidden;
+        padding:20px;
+        margin-bottom:16px;
+        color:#e9efe2;
+        background:var(--ink);
+        border-radius:10px;
+        background-image:radial-gradient(
+            ellipse at 20% 0,
+            rgba(255,255,255,.09),
+            transparent 62%
+        );
+    }
+
+    .time-card::after{
+        content:"";
+        position:absolute;
+        top:-28px;
+        right:-22px;
+        width:120px;
+        height:120px;
+        border:2px solid rgba(255,255,255,.08);
+        border-radius:50%;
+    }
+
+    .time-card-label{
+        position:relative;
+        z-index:1;
+        margin-bottom:7px;
+        color:var(--chalk);
+        font-family:var(--hand);
+        font-size:20px;
+        line-height:1;
+    }
+
+    .time-card-value{
+        position:relative;
+        z-index:1;
+        color:#fff;
+        font-family:var(--serif);
+        font-size:24px;
+        font-weight:700;
+        line-height:1.2;
+    }
+
+    .time-card-note{
+        position:relative;
+        z-index:1;
+        margin-top:7px;
+        color:#c5d0bd;
+        font-size:12px;
+    }
+
+    .timeline{
+        position:relative;
+        padding-left:18px;
+    }
+
+    .timeline::before{
+        content:"";
+        position:absolute;
+        top:8px;
+        bottom:8px;
+        left:5px;
+        width:2px;
+        background:#d8d1bf;
+    }
+
+    .timeline-item{
+        position:relative;
+        padding:0 0 17px 16px;
+    }
+
+    .timeline-item:last-child{
+        padding-bottom:0;
+    }
+
+    .timeline-dot{
+        position:absolute;
+        top:4px;
+        left:-18px;
+        width:12px;
+        height:12px;
+        background:var(--c);
+        border:3px solid #fff;
+        border-radius:50%;
+        box-shadow:0 0 0 1px color-mix(in srgb, var(--c) 35%, #fff);
+    }
+
+    .timeline-label{
+        display:block;
+        color:var(--muted);
+        font-size:10.5px;
+        font-weight:700;
+        letter-spacing:.35px;
+        text-transform:uppercase;
+    }
+
+    .timeline-value{
+        display:block;
+        margin-top:3px;
+        color:var(--ink);
+        font-size:13.5px;
+        font-weight:600;
+    }
+
+    .room-card{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:14px;
+        margin-top:18px;
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 7%, #fff);
+        border:1px dashed color-mix(in srgb, #2b5d8a 38%, #fff);
+        border-radius:9px;
+    }
+
+    .room-card i{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:34px;
+        height:34px;
+        flex-shrink:0;
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 14%, #fff);
+        border-radius:9px;
+        font-size:16px;
+    }
+
+    .room-card small{
+        display:block;
+        margin-bottom:2px;
+        color:var(--muted);
+        font-size:10.5px;
+        font-weight:700;
+        letter-spacing:.35px;
+        text-transform:uppercase;
+    }
+
+    .room-card strong{
+        color:var(--ink);
+        font-size:13.5px;
+    }
+
+    /* =========================================================
+       Footer actions
+       ========================================================= */
+
+    .panel-actions{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        flex-wrap:wrap;
+        padding:15px 20px;
+        background:#fdfcf8;
+        border-top:1px dashed #d8d1bf;
+    }
+
+    .panel-actions-note{
+        color:var(--muted);
+        font-size:12px;
+    }
+
+    .action-buttons{
+        display:flex;
+        align-items:center;
+        gap:9px;
+    }
+
+    /* =========================================================
+       Responsive styles
+       ========================================================= */
+
+    @media (max-width:1200px){
+        .overview-grid{
+            grid-template-columns:repeat(2, minmax(0, 1fr));
         }
 
-        .detail-item:nth-child(odd) {
-            border-right: none;
+        .content-grid{
+            grid-template-columns:1fr;
+        }
+    }
+
+    @media (max-width:720px){
+        .timetable-hero{
+            padding:20px 18px 20px 43px;
         }
 
-        .show-header {
-            padding: 20px;
+        .timetable-hero::before{
+            left:23px;
         }
 
-        .show-title {
-            font-size: 21px;
+        .timetable-hero h1{
+            font-size:22px;
+        }
+
+        .details-list{
+            grid-template-columns:1fr;
+        }
+
+        .detail-row:nth-child(odd){
+            border-right:none;
+        }
+
+        .panel-actions{
+            align-items:stretch;
+            flex-direction:column;
+        }
+
+        .action-buttons{
+            width:100%;
+        }
+
+        .action-buttons .btn-solid,
+        .action-buttons .btn-line{
+            flex:1;
+        }
+    }
+
+    @media (max-width:520px){
+        .overview-grid{
+            grid-template-columns:1fr;
+        }
+
+        .hero-actions{
+            width:100%;
+        }
+
+        .hero-actions > *{
+            flex:1;
+        }
+
+        .hero-actions .btn-line{
+            width:100%;
+        }
+
+        .month-display{
+            justify-content:center;
+        }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+        .overview-card,
+        .btn-solid,
+        .btn-line{
+            transition:none;
         }
     }
 </style>
 
-<div class="timetable-show-container">
+<div class="timetable-page">
 
-    {{-- HEADER --}}
-    <div class="show-header">
-        <div class="show-header-content">
+    {{-- =========================================================
+       Header
+       ========================================================= --}}
+    <section class="paper timetable-hero">
+        <div>
+            <h1>
+                <i class="bi bi-calendar3"></i>
+                Timetable Details
+            </h1>
 
-            <div>
-                <h1 class="show-title">
-                    <i class="bi bi-calendar3"></i>
-                    Timetable Details
-                </h1>
+            <p>
+                Review the complete schedule information for this timetable entry.
+            </p>
 
-                <p class="show-subtitle">
-                    View complete information about this timetable entry.
-                </p>
-            </div>
-
-            <a
-                href="{{ route('admin.timetable.index') }}"
-                class="back-btn"
-            >
-                <i class="bi bi-arrow-left"></i>
-                Back to Timetable
-            </a>
-
-        </div>
-    </div>
-
-
-    {{-- DETAILS CARD --}}
-    <div class="details-card">
-
-        <div class="details-card-header">
-            <i class="bi bi-info-circle"></i>
-
-            <h5>
-                Timetable Information
-            </h5>
-        </div>
-
-
-        <div class="details-grid">
-
-            {{-- Teacher --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Teacher
+            <div class="hero-labels">
+                <span class="hero-chip class-chip">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    {{ $classLabel }}
                 </span>
 
-                <div class="detail-value teacher-name">
-
-                    <div class="teacher-avatar">
-                        @php
-                            $teacher = $timetable->teacher;
-
-                            $firstInitial = strtoupper(
-                                substr($teacher->first_name ?? 'T', 0, 1)
-                            );
-
-                            $lastInitial = strtoupper(
-                                substr($teacher->last_name ?? '', 0, 1)
-                            );
-                        @endphp
-
-                        {{ $firstInitial }}{{ $lastInitial }}
-                    </div>
-
-                    <span>
-                        {{ trim(($teacher->first_name ?? '') . ' ' . ($teacher->last_name ?? '')) ?: 'Not Assigned' }}
+                @if(!empty($timetable->subject))
+                    <span class="hero-chip subject-chip">
+                        <i class="bi bi-book-fill"></i>
+                        {{ $timetable->subject }}
                     </span>
+                @endif
 
-                </div>
-
-            </div>
-
-
-            {{-- Academic Year --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Academic Year
-                </span>
-
-                <div class="detail-value">
-                    {{ $timetable->academic_year ?: '—' }}
-                </div>
-
-            </div>
-
-
-            {{-- Date --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Date
-                </span>
-
-                <div class="detail-value">
-
-                    @if(!empty($timetable->timetable_date))
-                        {{ \Carbon\Carbon::parse($timetable->timetable_date)->format('d M Y') }}
-                    @else
-                        —
-                    @endif
-
-                </div>
-
-            </div>
-
-
-            {{-- Day --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Day
-                </span>
-
-                <div class="detail-value">
-                    {{ $timetable->day ?: '—' }}
-                </div>
-
-            </div>
-
-
-            {{-- Period --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Period Number
-                </span>
-
-                <div class="detail-value">
-
-                    @if($timetable->period_number)
+                @if($timetable->period_number)
+                    <span class="hero-chip period-chip">
+                        <i class="bi bi-clock-fill"></i>
                         Period {{ $timetable->period_number }}
-                    @else
-                        —
-                    @endif
-
-                </div>
-
-            </div>
-
-
-            {{-- Period Type --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Period Type
-                </span>
-
-                <div class="detail-value">
-
-                    @php
-                        $periodType = strtolower($timetable->period_type ?? 'regular');
-                    @endphp
-
-                    @if($periodType === 'break')
-
-                        <span class="badge-custom badge-break">
-                            <i class="bi bi-pause-circle me-1"></i>
-                            Break
-                        </span>
-
-                    @elseif($periodType === 'lunch')
-
-                        <span class="badge-custom badge-lunch">
-                            <i class="bi bi-cup-hot me-1"></i>
-                            Lunch
-                        </span>
-
-                    @elseif($periodType === 'activity')
-
-                        <span class="badge-custom badge-activity">
-                            <i class="bi bi-stars me-1"></i>
-                            Activity
-                        </span>
-
-                    @else
-
-                        <span class="badge-custom badge-regular">
-                            <i class="bi bi-book me-1"></i>
-                            Regular
-                        </span>
-
-                    @endif
-
-                </div>
-
-            </div>
-
-
-            {{-- Class --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Class
-                </span>
-
-                <div class="detail-value">
-                    {{ $timetable->class ?: '—' }}
-                </div>
-
-            </div>
-
-
-            {{-- Section --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Section
-                </span>
-
-                <div class="detail-value">
-                    {{ $timetable->section ?: '—' }}
-                </div>
-
-            </div>
-
-
-            {{-- Subject --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Subject
-                </span>
-
-                <div class="detail-value">
-                    {{ $timetable->subject ?: '—' }}
-                </div>
-
-            </div>
-
-
-            {{-- Subject Type --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Subject Type
-                </span>
-
-                <div class="detail-value">
-                    {{ $timetable->subject_type ?: '—' }}
-                </div>
-
-            </div>
-
-
-            {{-- Lecture Type --}}
-            @if(isset($timetable->lecture_type))
-                <div class="detail-item">
-
-                    <span class="detail-label">
-                        Lecture Type
                     </span>
-
-                    <div class="detail-value">
-                        {{ ucfirst($timetable->lecture_type ?: '—') }}
-                    </div>
-
-                </div>
-            @endif
-
-
-            {{-- Start Time --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Start Time
-                </span>
-
-                <div class="detail-value">
-
-                    @if($timetable->start_time)
-                        {{ \Carbon\Carbon::parse($timetable->start_time)->format('h:i A') }}
-                    @else
-                        —
-                    @endif
-
-                </div>
-
+                @endif
             </div>
-
-
-            {{-- End Time --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    End Time
-                </span>
-
-                <div class="detail-value">
-
-                    @if($timetable->end_time)
-                        {{ \Carbon\Carbon::parse($timetable->end_time)->format('h:i A') }}
-                    @else
-                        —
-                    @endif
-
-                </div>
-
-            </div>
-
-
-            {{-- Room --}}
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Room
-                </span>
-
-                <div class="detail-value">
-                    {{ $timetable->room ?: 'Not Assigned' }}
-                </div>
-
-            </div>
-
         </div>
 
-
-        {{-- FOOTER ACTIONS --}}
-        <div class="action-footer">
-
+        <div class="hero-actions">
             <a
                 href="{{ route('admin.timetable.index') }}"
-                class="btn-action btn-back"
+                class="btn-line"
             >
                 <i class="bi bi-arrow-left"></i>
-                Back
+                Back to timetable
             </a>
 
             <a
                 href="{{ route('admin.timetable.edit', $timetable->id) }}"
-                class="btn-action btn-edit"
+                class="btn-solid"
             >
-                <i class="bi bi-pencil"></i>
-                Edit
+                <i class="bi bi-pencil-square"></i>
+                Edit entry
             </a>
-
         </div>
+    </section>
 
-    </div>
+    {{-- =========================================================
+       Quick overview cards
+       ========================================================= --}}
+    <section class="overview-grid">
+        <article class="paper overview-card c-blue">
+            <span class="overview-tab">Schedule date</span>
 
+            <div class="overview-top">
+                <div class="overview-value">
+                    {{ $dateValue ? $dateValue->format('d M Y') : 'Not set' }}
+                </div>
+
+                <div class="overview-icon">
+                    <i class="bi bi-calendar-event-fill"></i>
+                </div>
+            </div>
+
+            <div class="overview-note">
+                {{ $dateValue ? $dateValue->format('l') : 'No timetable date available' }}
+            </div>
+        </article>
+
+        <article class="paper overview-card c-green">
+            <span class="overview-tab">Class time</span>
+
+            <div class="overview-top">
+                <div class="overview-value">
+                    {{ $startTime ? $startTime->format('h:i A') : '—' }}
+                </div>
+
+                <div class="overview-icon">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+            </div>
+
+            <div class="overview-note">
+                {{ $endTime ? 'Ends at ' . $endTime->format('h:i A') : 'End time not set' }}
+            </div>
+        </article>
+
+        <article class="paper overview-card c-violet">
+            <span class="overview-tab">Subject</span>
+
+            <div class="overview-top">
+                <div class="overview-value" title="{{ $timetable->subject ?: 'Not assigned' }}">
+                    {{ $timetable->subject ?: 'Not assigned' }}
+                </div>
+
+                <div class="overview-icon">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                </div>
+            </div>
+
+            <div class="overview-note">
+                {{ $timetable->subject_type ?: 'Subject type not specified' }}
+            </div>
+        </article>
+
+        <article class="paper overview-card c-amber">
+            <span class="overview-tab">Teacher</span>
+
+            <div class="overview-top">
+                <div class="overview-value" title="{{ $teacherName }}">
+                    {{ $teacherName }}
+                </div>
+
+                <div class="overview-icon">
+                    <i class="bi bi-person-workspace"></i>
+                </div>
+            </div>
+
+            <div class="overview-note">
+                {{ $timetable->room ? 'Room ' . $timetable->room : 'Room not assigned' }}
+            </div>
+        </article>
+    </section>
+
+    {{-- =========================================================
+       Details and schedule
+       ========================================================= --}}
+    <section class="content-grid">
+
+        {{-- Main timetable information --}}
+        <article class="paper panel">
+            <div class="panel-head">
+                <div class="panel-heading">
+                    <span class="panel-heading-icon">
+                        <i class="bi bi-info-circle-fill"></i>
+                    </span>
+
+                    <div>
+                        <h2>Timetable information</h2>
+                        <p>Academic, class, subject, and teacher details</p>
+                    </div>
+                </div>
+
+                <span class="type-badge {{ $periodMeta['class'] }}">
+                    <i class="bi {{ $periodMeta['icon'] }}"></i>
+                    {{ $periodMeta['label'] }}
+                </span>
+            </div>
+
+            <div class="details-list">
+
+                {{-- Teacher --}}
+                <div class="detail-row c-violet">
+                    <span class="detail-icon">
+                        <i class="bi bi-person-workspace"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Teacher</span>
+
+                        <div class="detail-value teacher-value">
+                            <span class="teacher-avatar">{{ $teacherInitials }}</span>
+                            <span>{{ $teacherName }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Academic year --}}
+                <div class="detail-row c-blue">
+                    <span class="detail-icon">
+                        <i class="bi bi-calendar-range-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Academic year</span>
+                        <div class="detail-value">
+                            {{ $timetable->academic_year ?: '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Date --}}
+                <div class="detail-row c-green">
+                    <span class="detail-icon">
+                        <i class="bi bi-calendar-event-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Timetable date</span>
+                        <div class="detail-value">
+                            {{ $dateValue ? $dateValue->format('d F Y') : '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Day --}}
+                <div class="detail-row c-amber">
+                    <span class="detail-icon">
+                        <i class="bi bi-sun-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Day</span>
+                        <div class="detail-value">
+                            {{ $timetable->day ?: ($dateValue ? $dateValue->format('l') : '—') }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Class --}}
+                <div class="detail-row c-blue">
+                    <span class="detail-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Class</span>
+                        <div class="detail-value">
+                            {{ $timetable->class ?: '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Section --}}
+                <div class="detail-row c-green">
+                    <span class="detail-icon">
+                        <i class="bi bi-diagram-3-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Section</span>
+                        <div class="detail-value">
+                            {{ $timetable->section ?: '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Subject --}}
+                <div class="detail-row c-violet">
+                    <span class="detail-icon">
+                        <i class="bi bi-book-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Subject</span>
+                        <div class="detail-value">
+                            {{ $timetable->subject ?: '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Subject type --}}
+                <div class="detail-row c-amber">
+                    <span class="detail-icon">
+                        <i class="bi bi-tags-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Subject type</span>
+                        <div class="detail-value">
+                            {{ $timetable->subject_type ?: '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Lecture type --}}
+                <div class="detail-row c-red">
+                    <span class="detail-icon">
+                        <i class="bi bi-easel2-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Lecture type</span>
+                        <div class="detail-value">
+                            {{ !empty($timetable->lecture_type)
+                                ? ucfirst($timetable->lecture_type)
+                                : '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Period type --}}
+                <div class="detail-row c-blue">
+                    <span class="detail-icon">
+                        <i class="bi bi-bookmark-star-fill"></i>
+                    </span>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Period type</span>
+
+                        <div class="detail-value">
+                            <span class="type-badge {{ $periodMeta['class'] }}">
+                                <i class="bi {{ $periodMeta['icon'] }}"></i>
+                                {{ $periodMeta['label'] }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-actions">
+                <span class="panel-actions-note">
+                    Last review this timetable entry before making changes.
+                </span>
+
+                <div class="action-buttons">
+                    <a
+                        href="{{ route('admin.timetable.index') }}"
+                        class="btn-line"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <a
+                        href="{{ route('admin.timetable.edit', $timetable->id) }}"
+                        class="btn-solid"
+                    >
+                        <i class="bi bi-pencil-square"></i>
+                        Edit entry
+                    </a>
+                </div>
+            </div>
+        </article>
+
+        {{-- Schedule panel --}}
+        <aside class="paper panel">
+            <div class="panel-head">
+                <div class="panel-heading">
+                    <span class="panel-heading-icon" style="color:#3a9d6b;background:color-mix(in srgb,#3a9d6b 12%,#fff);">
+                        <i class="bi bi-clock-history"></i>
+                    </span>
+
+                    <div>
+                        <h2>Schedule</h2>
+                        <p>Period timing and location</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="schedule-body">
+                <div class="time-card">
+                    <div class="time-card-label">
+                        {{ $timetable->period_number ? 'Period ' . $timetable->period_number : 'Scheduled session' }}
+                    </div>
+
+                    <div class="time-card-value">
+                        {{ $startTime ? $startTime->format('h:i A') : '—' }}
+                        <span style="opacity:.55;font-weight:400">–</span>
+                        {{ $endTime ? $endTime->format('h:i A') : '—' }}
+                    </div>
+
+                    <div class="time-card-note">
+                        {{ $duration ? 'Duration: ' . $duration : 'Time duration is not available.' }}
+                    </div>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item c-blue">
+                        <span class="timeline-dot"></span>
+                        <span class="timeline-label">Starts</span>
+                        <span class="timeline-value">
+                            {{ $startTime ? $startTime->format('h:i A') : 'Not set' }}
+                        </span>
+                    </div>
+
+                    <div class="timeline-item c-green">
+                        <span class="timeline-dot"></span>
+                        <span class="timeline-label">Ends</span>
+                        <span class="timeline-value">
+                            {{ $endTime ? $endTime->format('h:i A') : 'Not set' }}
+                        </span>
+                    </div>
+
+                    <div class="timeline-item c-violet">
+                        <span class="timeline-dot"></span>
+                        <span class="timeline-label">Classroom activity</span>
+                        <span class="timeline-value">
+                            {{ $periodMeta['label'] }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="room-card">
+                    <i class="bi bi-door-open-fill"></i>
+
+                    <div>
+                        <small>Assigned room</small>
+                        <strong>{{ $timetable->room ?: 'Room not assigned' }}</strong>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
 </div>
 
 @endsection

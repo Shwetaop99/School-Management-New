@@ -5,1538 +5,588 @@
 
 @section('content')
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+@php
+    $today = now()->startOfDay();
+
+    $requestedDate  = request('date');
+    $requestedMonth = request('month', $month ?? now()->format('Y-m'));
+
+    $selectedDate = $today->copy();
+
+    try {
+        if (is_string($requestedDate) && $requestedDate !== '') {
+            $selectedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $requestedDate)->startOfDay();
+        } elseif (is_string($requestedMonth) && $requestedMonth !== '') {
+            $selectedDate = \Carbon\Carbon::createFromFormat('Y-m', $requestedMonth)->startOfMonth();
+        }
+    } catch (\Throwable $e) {
+        $selectedDate = $today->copy();
+    }
+
+    $rangeStart = $selectedDate->copy()->startOfWeek();
+    $rangeEnd   = $selectedDate->copy()->endOfWeek();
+    $rangeLabel = 'Week of ' . $rangeStart->format('d M') . ' – ' . $rangeEnd->format('d M Y');
+
+    $dateKey  = $selectedDate->format('Y-m-d');
+    $monthKey = $selectedDate->format('Y-m');
+
+    $isToday = $selectedDate->isSameDay($today);
+
+    $nationalHolidays = [
+        '01-26' => 'Republic Day',
+        '08-15' => 'Independence Day',
+        '10-02' => 'Gandhi Jayanti',
+    ];
+
+    $holidayOf = function (\Carbon\Carbon $date) use ($nationalHolidays) {
+        if ($date->isSunday()) return 'Sunday';
+        return $nationalHolidays[$date->format('m-d')] ?? null;
+    };
+
+    $days = [];
+    $dayIndex = 0;
+
+    for ($cursor = $rangeStart->copy(); $cursor->lte($rangeEnd); $cursor->addDay()) {
+        $date = $cursor->copy();
+        $dayIndex++;
+
+        $days[$dayIndex] = [
+            'number'  => (int) $date->format('j'),
+            'date'    => $date,
+            'key'     => $date->format('Y-m-d'),
+            'holiday' => $holidayOf($date),
+            'future'  => $date->gt($today),
+            'selected'=> $date->isSameDay($selectedDate),
+            'url'     => request()->url() . '?' . http_build_query([
+                'date'       => $date->format('Y-m-d'),
+                'month'      => $date->format('Y-m'),
+                'teacher_id' => request('teacher_id'),
+            ]),
+        ];
+    }
+
+    $totalFaculty = $teachers->count();
+    $totalPresent = 0;
+    $totalHalf    = 0;
+    $totalAbsent  = 0;
+
+    foreach ($teachers as $teacher) {
+        foreach ($days as $meta) {
+            if ($meta['holiday'] || $meta['future']) continue;
+
+            $recordKey = $teacher->id . '_' . $meta['key'];
+            $status    = $attendanceRecords[$recordKey]->status ?? '';
+
+            if ($status === 'Present')  $totalPresent++;
+            if ($status === 'Half Day') $totalHalf++;
+            if ($status === 'Absent')   $totalAbsent++;
+        }
+    }
+
+    $prevWeekUrl = request()->url() . '?' . http_build_query([
+        'date'       => $rangeStart->copy()->subWeek()->format('Y-m-d'),
+        'month'      => $rangeStart->copy()->subWeek()->format('Y-m'),
+        'teacher_id' => request('teacher_id'),
+    ]);
+
+    $nextWeekUrl = request()->url() . '?' . http_build_query([
+        'date'       => $rangeStart->copy()->addWeek()->format('Y-m-d'),
+        'month'      => $rangeStart->copy()->addWeek()->format('Y-m'),
+        'teacher_id' => request('teacher_id'),
+    ]);
+
+    $todayUrl = request()->url() . '?' . http_build_query([
+        'date'       => $today->format('Y-m-d'),
+        'month'      => $today->format('Y-m'),
+        'teacher_id' => request('teacher_id'),
+    ]);
+
+    // Store URL – adjust if your route name is different
+    $storeUrl = route('admin.teachers.attendance.store');
+@endphp
+
 <style>
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        background: #f4f7fb;
-    }
-
-    .attendance-page {
-        min-height: calc(100vh - 80px);
-        padding: 16px;
-    }
-
-    .attendance-container {
-        width: 100%;
-        max-width: 1550px;
-        margin: auto;
-    }
-
-    /* =====================================================
-       HEADER
-    ===================================================== */
-
-    .attendance-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 20px;
-        margin-bottom: 14px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #1769d1, #6c63ff);
-        color: white;
-        box-shadow: 0 5px 18px rgba(23, 105, 209, .12);
-    }
-
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-    }
-
-    .header-icon {
-        width: 38px;
-        height: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9px;
-        background: rgba(255,255,255,.16);
-        font-size: 17px;
-    }
-
-    .header-title {
-        margin: 0;
-        font-size: 17px;
-        font-weight: 800;
-    }
-
-    .header-subtitle {
-        margin: 2px 0 0;
-        font-size: 9px;
-        opacity: .8;
-    }
-
-    .header-month {
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    /* =====================================================
-       FILTER
-    ===================================================== */
-
-    .filter-card {
-        display: flex;
-        align-items: end;
-        gap: 10px;
-        padding: 13px;
-        margin-bottom: 13px;
-        background: white;
-        border: 1px solid #e4e9ef;
-        border-radius: 10px;
-    }
-
-    .filter-form {
-        width: 100%;
-        display: flex;
-        align-items: end;
-        gap: 10px;
-    }
-
-    .filter-item {
-        flex: 1;
-    }
-
-    .filter-item.month {
-        max-width: 170px;
-    }
-
-    .filter-item label {
-        display: block;
-        margin-bottom: 4px;
-        color: #64748b;
-        font-size: 8px;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .filter-control {
-        width: 100%;
-        height: 34px;
-        padding: 0 9px;
-        border: 1px solid #dce3eb;
-        border-radius: 7px;
-        background: white;
-        color: #334155;
-        font-size: 10px;
-        outline: none;
-    }
-
-    .filter-control:focus {
-        border-color: #1769d1;
-    }
-
-    .filter-button {
-        height: 34px;
-        padding: 0 14px;
-        border: none;
-        border-radius: 7px;
-        background: #1769d1;
-        color: white;
-        font-size: 9px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .filter-button:hover {
-        background: #125bb7;
-    }
-
-    /* =====================================================
-       MONTH BAR
-    ===================================================== */
-
-    .month-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-
-    .month-title {
-        color: #1e293b;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .month-buttons {
-        display: flex;
-        gap: 4px;
-    }
-
-    .month-button {
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #dce3eb;
-        border-radius: 6px;
-        background: white;
-        color: #64748b;
-        text-decoration: none;
-        font-size: 10px;
-    }
-
-    .month-button:hover {
-        color: #1769d1;
-        border-color: #1769d1;
-    }
-
-    /* =====================================================
-       FACULTY INFO
-    ===================================================== */
-
-    .faculty-info {
-        display: flex;
-        align-items: center;
-        gap: 28px;
-        padding: 11px 14px;
-        margin-bottom: 12px;
-        background: white;
-        border: 1px solid #e4e9ef;
-        border-radius: 9px;
-    }
-
-    .info-block {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .info-label {
-        color: #94a3b8;
-        font-size: 8px;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .info-value {
-        color: #334155;
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    /* =====================================================
-       TABLE CARD
-    ===================================================== */
-
-    .table-card {
-        overflow: hidden;
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        box-shadow: 0 3px 12px rgba(15, 23, 42, .04);
-    }
-
-    .table-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 13px;
-        border-bottom: 1px solid #e8edf3;
-    }
-
-    .table-title {
-        margin: 0;
-        color: #1e293b;
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-    .table-help {
-        margin: 2px 0 0;
-        color: #94a3b8;
-        font-size: 8px;
-    }
-
-    /* =====================================================
-       TABLE
-    ===================================================== */
-
-    .table-scroll {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .attendance-table {
-        width: 100%;
-        min-width: max-content;
-        border-collapse: separate;
-        border-spacing: 0;
-        table-layout: fixed;
-    }
-
-    .attendance-table th {
-        height: 42px;
-        padding: 2px;
-        background: #f8fafc;
-        border-right: 1px solid #edf1f5;
-        border-bottom: 1px solid #dfe5ec;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .attendance-table td {
-        height: 43px;
-        padding: 2px;
-        background: white;
-        border-right: 1px solid #edf1f5;
-        border-bottom: 1px solid #edf1f5;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .attendance-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* =====================================================
-       COLUMNS
-    ===================================================== */
-
-    .faculty-column {
-        width: 150px;
-        min-width: 150px;
-        max-width: 150px;
-        text-align: left !important;
-    }
-
-    .id-column {
-        width: 58px;
-        min-width: 58px;
-        max-width: 58px;
-    }
-
-    .date-column {
-        width: 36px;
-        min-width: 36px;
-        max-width: 36px;
-    }
-
-    .summary-column {
-        width: 125px;
-        min-width: 125px;
-        max-width: 125px;
-    }
-
-    /* =====================================================
-       STICKY
-    ===================================================== */
-
-    .sticky-faculty {
-        position: sticky;
-        left: 0;
-        z-index: 5;
-        background: white !important;
-    }
-
-    .sticky-id {
-        position: sticky;
-        left: 150px;
-        z-index: 5;
-        background: white !important;
-    }
-
-    .sticky-summary {
-        position: sticky;
-        right: 0;
-        z-index: 5;
-        background: white !important;
-        border-left: 1px solid #dfe5ec !important;
-    }
-
-    thead .sticky-faculty,
-    thead .sticky-id,
-    thead .sticky-summary {
-        z-index: 10;
-        background: #f8fafc !important;
-    }
-
-    /* =====================================================
-       DATE HEADER
-    ===================================================== */
-
-    .date-number {
-        display: block;
-        color: #334155;
-        font-size: 9px;
-        font-weight: 800;
-        line-height: 11px;
-    }
-
-    .day-name {
-        display: block;
-        color: #94a3b8;
-        font-size: 6px;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    /* =====================================================
-       HOLIDAY HEADER
-    ===================================================== */
-
-    .holiday-header {
-        background: #fff1f2 !important;
-        border-right-color: #fecdd3 !important;
-        border-bottom-color: #fecdd3 !important;
-    }
-
-    .holiday-header .date-number {
-        color: #be123c;
-    }
-
-    .holiday-header .day-name {
-        color: #e11d48;
-    }
-
-    .holiday-name {
-        display: block;
-        margin-top: 1px;
-        color: #be123c;
-        font-size: 5px;
-        font-weight: 900;
-        line-height: 6px;
-        text-transform: uppercase;
-    }
-
-    /* =====================================================
-       FACULTY
-    ===================================================== */
-
-    .faculty-name {
-        padding-left: 11px;
-        color: #1e293b;
-        font-size: 10px;
-        font-weight: 750;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .faculty-subject {
-        padding-left: 11px;
-        margin-top: 1px;
-        color: #94a3b8;
-        font-size: 7px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .faculty-id {
-        color: #64748b;
-        font-size: 8px;
-        font-weight: 700;
-    }
-
-    /* =====================================================
-       STATUS CELL
-    ===================================================== */
-
-    .attendance-cell {
-        width: 36px;
-        min-width: 36px;
-        height: 43px;
-        padding: 0 !important;
-    }
-
-    .attendance-status-button {
-        width: 28px;
-        height: 28px;
-        margin: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #e2e8f0;
-        border-radius: 7px;
-        background: #f8fafc;
-        color: #94a3b8;
-        font-size: 7px;
-        font-weight: 900;
-        cursor: pointer;
-        transition: all .15s ease;
-        user-select: none;
-    }
-
-    .attendance-status-button:hover {
-        transform: scale(1.05);
-        border-color: #cbd5e1;
-    }
-
-    /* =====================================================
-       BLANK
-    ===================================================== */
-
-    .status-blank {
-        background: #f8fafc;
-        border-color: #e2e8f0;
-        color: #cbd5e1;
-    }
-
-    /* =====================================================
-       PRESENT
-    ===================================================== */
-
-    .status-present {
-        background: #e9f8f0;
-        border-color: #49b981;
-        color: #16834d;
-    }
-
-    /* =====================================================
-       HALF DAY
-    ===================================================== */
-
-    .status-half {
-        background: #fff7df;
-        border-color: #e7b93c;
-        color: #a56b00;
-    }
-
-    /* =====================================================
-       ABSENT
-    ===================================================== */
-
-    .status-absent {
-        background: #fff0f1;
-        border-color: #e5737d;
-        color: #c92f3b;
-    }
-
-    /* =====================================================
-       HOLIDAY CELL
-    ===================================================== */
-
-    .holiday-cell {
-        background: #fff7f8 !important;
-        border-right-color: #fecdd3 !important;
-        border-bottom-color: #fecdd3 !important;
-    }
-
-    .holiday-button {
-        width: 28px;
-        height: 28px;
-        margin: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #fda4af;
-        border-radius: 7px;
-        background: #ffe4e6;
-        color: #be123c;
-        font-size: 6px;
-        font-weight: 900;
-        cursor: not-allowed;
-    }
-
-    /* =====================================================
-       SUMMARY
-    ===================================================== */
-
-    .summary-box {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 11px;
-    }
-
-    .summary-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 20px;
-    }
-
-    .summary-label {
-        color: #94a3b8;
-        font-size: 6px;
-        font-weight: 800;
-    }
-
-    .summary-value {
-        margin-top: 1px;
-        color: #334155;
-        font-size: 9px;
-        font-weight: 800;
-    }
-
-    .present-count {
-        color: #16834d;
-    }
-
-    .half-count {
-        color: #a56b00;
-    }
-
-    .absent-count {
-        color: #c92f3b;
-    }
-
-    .holiday-count {
-        color: #be123c;
-    }
-
-    .percentage-value {
-        color: #6c63ff;
-    }
-
-    /* =====================================================
-       FOOTER
-    ===================================================== */
-
-    .table-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 13px;
-        border-top: 1px solid #e8edf3;
-    }
-
-    .legend {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        color: #64748b;
-        font-size: 8px;
-    }
-
-    .legend-dot {
-        width: 18px;
-        height: 10px;
-        border-radius: 4px;
-        background: #f8fafc;
-        border: 1px solid #d7dee7;
-    }
-
-    .legend-dot.present {
-        background: #e9f8f0;
-        border-color: #49b981;
-    }
-
-    .legend-dot.half {
-        background: #fff7df;
-        border-color: #e7b93c;
-    }
-
-    .legend-dot.absent {
-        background: #fff0f1;
-        border-color: #e5737d;
-    }
-
-    .legend-dot.holiday {
-        background: #ffe4e6;
-        border-color: #fda4af;
-    }
-
-    .save-button {
-        height: 32px;
-        padding: 0 14px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border: none;
-        border-radius: 7px;
-        background: #1769d1;
-        color: white;
-        font-size: 8px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .save-button:hover {
-        background: #125bb7;
-    }
-
-    .save-button:disabled {
-        opacity: .7;
-        cursor: not-allowed;
-    }
-
-    /* =====================================================
-       EMPTY
-    ===================================================== */
-
-    .empty-state {
-        padding: 40px;
-        text-align: center;
-    }
-
-    .empty-state i {
-        display: block;
-        margin-bottom: 8px;
-        color: #94a3b8;
-        font-size: 25px;
-    }
-
-    .empty-state h4 {
-        margin: 0 0 3px;
-        color: #334155;
-        font-size: 13px;
-    }
-
-    .empty-state p {
-        margin: 0;
-        color: #94a3b8;
-        font-size: 9px;
-    }
-
-    /* =====================================================
-       MOBILE
-    ===================================================== */
-
-    @media (max-width: 800px) {
-
-        .attendance-page {
-            padding: 10px;
-        }
-
-        .attendance-header {
-            padding: 14px;
-        }
-
-        .header-month {
-            display: none;
-        }
-
-        .filter-form {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .filter-item.month {
-            max-width: none;
-        }
-
-        .faculty-info {
-            flex-wrap: wrap;
-            gap: 10px 18px;
-        }
-
-        .table-footer {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 9px;
-        }
-
-        .save-button {
-            justify-content: center;
-        }
-    }
+    .attendance-page{ max-width:1500px; margin:0 auto; }
+
+    .paper{
+        background:#fff;
+        border:1px solid var(--line);
+        border-radius:10px;
+    }
+
+    .btn-solid, .btn-line{
+        display:inline-flex; align-items:center; justify-content:center;
+        gap:8px; height:40px; padding:0 16px; border-radius:8px;
+        border:1px solid transparent; cursor:pointer; font-family:inherit;
+        font-size:13px; font-weight:500; line-height:1; text-decoration:none; white-space:nowrap;
+    }
+    .btn-solid{ color:#fff; background:var(--ink); border-color:var(--ink); }
+    .btn-solid:hover{ background:var(--ink-2); color:#fff; }
+    .btn-line{ color:var(--text); background:#fff; border-color:#cfc8b6; }
+    .btn-line:hover{ color:var(--ink); background:#fffdf6; border-color:var(--ink); }
+    .btn-line.is-disabled{ opacity:.46; pointer-events:none; }
+    .btn-icon{ width:40px; padding:0; }
+
+    .form-control{
+        width:100%; height:40px; padding:0 12px; color:var(--text);
+        background:#fff; border:1px solid #cfc8b6; border-radius:8px;
+        outline:none; font-family:inherit; font-size:13.5px;
+    }
+    .form-control:focus{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(29,58,51,.10); }
+
+    .c-blue{--c:#2b5d8a} .c-green{--c:#3a9d6b} .c-red{--c:#e4572e}
+    .c-amber{--c:#d58a0b} .c-violet{--c:#7a4fb5}
+
+    /* Header */
+    .attendance-hero{
+        display:flex; align-items:stretch; overflow:hidden; margin-bottom:21px;
+        border-radius:14px; border:1px solid #e8e2d4; background:#fff;
+        box-shadow:0 4px 18px rgba(29,58,51,.06);
+    }
+    .hero-left{
+        flex:1 1 auto; display:flex; align-items:flex-start; gap:18px;
+        padding:22px 26px 22px 22px; position:relative; background:#fffdf9;
+    }
+    .hero-left::before{
+        content:""; position:absolute; top:0; bottom:0; left:0; width:5px;
+        background:#2d6a4f; border-radius:14px 0 0 14px;
+    }
+    .hero-icon{
+        width:48px; height:48px; flex-shrink:0; display:flex; align-items:center;
+        justify-content:center; background:#f3ebe0; border-radius:12px;
+        color:#8a6a3d; font-size:22px;
+    }
+    .hero-kicker{ margin:0 0 6px; color:#a67c3d; font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; }
+    .attendance-title{ margin:0 0 6px; color:#1a2e28; font-family:var(--serif); font-size:26px; font-weight:700; line-height:1.2; }
+    .attendance-subtitle{ margin:0; color:#6b6560; font-size:13.5px; line-height:1.45; max-width:420px; }
+    .hero-meta{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .meta-chip{
+        display:inline-flex; align-items:center; gap:6px; padding:5px 11px;
+        color:#2b5d8a; background:color-mix(in srgb, #2b5d8a 10%, #fff);
+        border-radius:6px; font-size:11.5px; font-weight:600;
+    }
+    .hero-right{
+        flex:0 0 280px; display:flex; flex-direction:column; justify-content:space-between;
+        gap:16px; padding:20px 22px; background:#1e3a32; color:#e8f0ec;
+    }
+    .hero-right-kicker{ margin:0 0 4px; color:#9ec5b5; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+    .hero-right-text{ margin:0; color:#c5d9d0; font-size:13.5px; line-height:1.4; }
+    .hero-actions{ display:flex; flex-direction:column; gap:10px; }
+    .month-display{
+        display:inline-flex; align-items:center; gap:8px; padding:9px 13px;
+        color:#e8f0ec; background:rgba(255,255,255,.08); border:1px solid #4a6b62;
+        border-radius:8px; font-family:var(--serif); font-size:14px; font-weight:700; white-space:nowrap;
+    }
+
+    /* Summary */
+    .summary-grid{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; margin-bottom:21px; }
+    .summary-card{
+        position:relative; display:flex; flex-direction:column; gap:13px;
+        padding:20px 20px 16px; margin-top:10px; border-top:4px solid var(--c);
+        transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .summary-card:hover{ transform:translateY(-4px); box-shadow:0 13px 24px rgba(29,58,51,.12); }
+    .summary-tab{
+        position:absolute; top:-24px; left:15px; padding:3px 11px; color:#fff;
+        background:var(--c); border-radius:7px 7px 0 0; font-size:11.5px; font-weight:600;
+    }
+    .summary-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .summary-value{ color:var(--ink); font-family:var(--serif); font-size:30px; font-weight:700; line-height:1; }
+    .summary-icon{
+        display:flex; align-items:center; justify-content:center; width:42px; height:42px;
+        flex-shrink:0; color:var(--c); background:color-mix(in srgb, var(--c) 14%, #fff);
+        border-radius:12px; font-size:18px;
+    }
+    .summary-label{ padding-top:11px; color:var(--muted); border-top:1px dashed #d8d1bf; font-size:12px; }
+
+    /* Toolbar */
+    .attendance-toolbar{
+        display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+        padding:14px 18px; margin-bottom:16px;
+    }
+    .toolbar-left{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1 1 auto; }
+    .filter-group{ display:flex; flex-direction:column; gap:4px; min-width:180px; }
+    .filter-group label{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; }
+    .filter-group .form-control{ height:38px; font-size:13px; }
+    .week-nav{ display:flex; align-items:center; gap:6px; }
+    .selected-week-display{ font-family:var(--serif); font-size:14px; font-weight:700; color:var(--ink); white-space:nowrap; padding:0 8px; }
+
+    /* Register */
+    .register-panel{ overflow:hidden; }
+    .register-head{
+        display:flex; align-items:center; justify-content:space-between; gap:16px;
+        flex-wrap:wrap; padding:15px 20px; border-bottom:1px dashed #d8d1bf;
+    }
+    .register-head h3{ margin:0; color:var(--ink); font-family:var(--serif); font-size:17px; font-weight:700; }
+    .attendance-legend{ display:flex; gap:13px; flex-wrap:wrap; color:var(--muted); font-size:11.5px; }
+    .attendance-legend span{ display:inline-flex; align-items:center; gap:6px; }
+
+    .register-wrap{ max-height:72vh; overflow:auto; }
+
+    .attendance-table{ width:max-content; min-width:100%; border-collapse:separate; border-spacing:0; }
+    .attendance-table th, .attendance-table td{
+        padding:0; color:var(--text); background:#fff;
+        border-right:1px solid #f6f2e8; border-bottom:1px solid #f0ebe0;
+        text-align:center; font-size:12.5px;
+    }
+    .attendance-table thead th{
+        position:sticky; top:0; z-index:3; height:52px; color:var(--muted);
+        background:#f8f6f0; border-bottom:1px solid #e6e0d2;
+        font-size:10.5px; font-weight:700; letter-spacing:.3px; text-transform:uppercase;
+    }
+    .attendance-table tbody tr:hover td{ background:#fffdf6; }
+
+    .column-number{ position:sticky; left:0; z-index:2; width:46px; min-width:46px; color:var(--muted); font-weight:600; }
+    .column-faculty{
+        position:sticky; left:46px; z-index:2; width:230px; min-width:230px;
+        padding:10px 14px !important; box-shadow:2px 0 0 #e6e0d2; text-align:left !important;
+    }
+    .attendance-table thead .column-number, .attendance-table thead .column-faculty{ z-index:5; }
+    .attendance-table tbody tr:hover .column-number,
+    .attendance-table tbody tr:hover .column-faculty{ background:#fffdf6; }
+
+    .faculty-info{ display:flex; align-items:center; gap:10px; }
+    .faculty-avatar{
+        display:flex; align-items:center; justify-content:center; width:34px; height:34px;
+        flex-shrink:0; color:#7a4fb5; background:color-mix(in srgb, #7a4fb5 14%, #fff);
+        border-radius:50%; font-size:12px; font-weight:700;
+    }
+    .faculty-name{ max-width:145px; overflow:hidden; color:var(--ink); font-size:13px; font-weight:600; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }
+    .faculty-details{ margin-top:2px; color:var(--muted); font-size:10.5px; }
+
+    .column-day{ width:78px; min-width:78px; height:58px; }
+    .column-day-selected{ background:color-mix(in srgb, #2b5d8a 7%, #fff) !important; box-shadow:inset 2px 0 0 #2b5d8a, inset -2px 0 0 #2b5d8a; }
+    .attendance-table thead .column-day-selected{ color:#fff; background:#2b5d8a !important; }
+
+    .day-heading{
+        display:flex; align-items:center; justify-content:center; flex-direction:column;
+        gap:1px; width:100%; height:100%; color:inherit; line-height:1.1; text-decoration:none;
+    }
+    .day-heading b{ color:var(--ink); font-family:var(--serif); font-size:14px; }
+    .attendance-table thead .column-day-selected .day-heading b{ color:#fff; }
+    .day-heading em{ font-style:normal; font-size:9px; opacity:.82; }
+
+    .attendance-table thead .is-holiday{ background:#fff8e8; }
+    .attendance-table thead .is-holiday b{ color:#8a5600; }
+    .attendance-table thead .is-future{ opacity:.55; }
+    .attendance-table td.is-holiday{ background:#fffcf3; }
+    .attendance-table td.is-future{ background:#fafaf7; }
+
+    /* Status button + auto-save feedback */
+    .status-btn{
+        display:inline-flex; align-items:center; justify-content:center;
+        width:34px; height:34px; border-radius:8px; border:1px solid #e0d9c8;
+        background:#f8f6f0; color:#c9c2ae; font-size:12px; font-weight:800;
+        cursor:pointer; transition:all .15s ease; user-select:none;
+    }
+    .status-btn:hover{ transform:scale(1.08); box-shadow:0 2px 8px rgba(29,58,51,.12); }
+    .status-present{ color:#2b7a52; background:color-mix(in srgb,#3a9d6b 16%,#fff); border-color:#a7d7bb; }
+    .status-half{ color:#8a5600; background:color-mix(in srgb,#d58a0b 16%,#fff); border-color:#ecd3a3; }
+    .status-absent{ color:#c23d17; background:color-mix(in srgb,#e4572e 16%,#fff); border-color:#f0c5ba; }
+    .status-holiday{ color:#8a5600; background:color-mix(in srgb,#d58a0b 16%,#fff); border-color:#ecd3a3; cursor:not-allowed; }
+    .status-blank{ color:#c9c2ae; background:#f8f6f0; border-color:#e0d9c8; }
+
+    .cell-sync{
+        display:block; min-height:12px; margin-top:3px;
+        color:var(--muted); font-size:9px; line-height:1;
+    }
+    .cell-sync.is-saving{ color:#2b5d8a; }
+    .cell-sync.is-saved{ color:#2b7a52; }
+    .cell-sync.is-error{ color:#c23d17; }
+
+    .spin{
+        display:inline-block; width:10px; height:10px;
+        border:2px solid currentColor; border-right-color:transparent;
+        border-radius:50%; animation:spin .7s linear infinite;
+    }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+
+    .column-total{ width:54px; min-width:54px; font-weight:700; }
+    .total-present{ color:#2b7a52; }
+    .total-half{ color:#8a5600; }
+    .total-absent{ color:#c23d17; }
+    .total-percentage{ color:var(--ink); }
+
+    .table-footer{
+        display:flex; align-items:center; justify-content:space-between;
+        gap:16px; flex-wrap:wrap; padding:14px 20px; border-top:1px dashed #d8d1bf;
+    }
+
+    .toast{
+        position:fixed; right:22px; bottom:22px; z-index:2000; max-width:350px;
+        padding:12px 17px; color:#fff; background:var(--ink); border-radius:10px;
+        box-shadow:0 12px 28px rgba(29,58,51,.28); font-size:13px;
+        opacity:0; pointer-events:none; transform:translateY(10px);
+        transition:opacity .2s ease, transform .2s ease;
+    }
+    .toast.is-show{ opacity:1; transform:translateY(0); }
+    .toast.is-error{ background:#c23d17; }
+
+    .empty-state{ padding:60px 20px; text-align:center; }
+    .empty-icon{
+        display:flex; align-items:center; justify-content:center; width:60px; height:60px;
+        margin:0 auto 14px; color:#2b5d8a; background:color-mix(in srgb,#2b5d8a 12%,#fff);
+        border-radius:50%; font-size:25px;
+    }
+    .empty-state h5{ margin:0 0 5px; color:var(--ink); font-family:var(--serif); font-size:18px; font-weight:700; }
+    .empty-state p{ margin:0; color:var(--muted); font-size:13px; }
+
+    @media (max-width:1200px){ .summary-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width:900px){
+        .attendance-hero{ flex-direction:column; }
+        .hero-right{ flex:none; width:100%; }
+        .hero-actions{ flex-direction:row; flex-wrap:wrap; }
+    }
+    @media (max-width:760px){
+        .hero-left{ padding:18px 16px 18px 18px; gap:14px; }
+        .attendance-title{ font-size:22px; }
+        .hero-icon{ width:42px; height:42px; font-size:19px; }
+        .column-faculty{ width:180px; min-width:180px; }
+        .faculty-name{ max-width:110px; }
+    }
+    @media (max-width:520px){ .summary-grid{ grid-template-columns:1fr; } }
 </style>
 
 <div class="attendance-page">
 
-    <div class="attendance-container">
-
-        {{-- =====================================================
-             HEADER
-        ====================================================== --}}
-
-        <div class="attendance-header">
-
-            <div class="header-left">
-
-                <div class="header-icon">
-                    <i class="bi bi-calendar2-check"></i>
+    {{-- Header --}}
+    <section class="paper attendance-hero">
+        <div class="hero-left">
+            <div class="hero-icon"><i class="bi bi-person-badge"></i></div>
+            <div>
+                <div class="hero-kicker">ATTENDANCE / FACULTY</div>
+                <h1 class="attendance-title">Faculty Attendance</h1>
+                <p class="attendance-subtitle">Weekly attendance register for teaching staff. Changes save automatically.</p>
+                <div class="hero-meta">
+                    <span class="meta-chip"><i class="bi bi-people-fill"></i> {{ $totalFaculty }} Faculty</span>
+                    <span class="meta-chip"><i class="bi bi-calendar-week"></i> {{ $rangeLabel }}</span>
                 </div>
-
-                <div>
-
-                    <h1 class="header-title">
-                        Faculty Attendance
-                    </h1>
-
-                    <p class="header-subtitle">
-                        Monthly Attendance Register
-                    </p>
-
-                </div>
-
             </div>
-
-            <div class="header-month">
-                {{ \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y') }}
-            </div>
-
         </div>
+        <div class="hero-right">
+            <div>
+                <div class="hero-right-kicker">SCHOOL DIARY</div>
+                <p class="hero-right-text">Managing faculty attendance for the week</p>
+            </div>
+            <div class="hero-actions">
+                <div class="month-display">
+                    <i class="bi bi-calendar-week"></i>
+                    {{ $rangeStart->format('d M') }} – {{ $rangeEnd->format('d M Y') }}
+                </div>
+            </div>
+        </div>
+    </section>
 
+    {{-- Summary --}}
+    <section class="summary-grid">
+        <article class="paper summary-card c-blue">
+            <span class="summary-tab">Faculty</span>
+            <div class="summary-top">
+                <div class="summary-value" id="sumTotal">{{ $totalFaculty }}</div>
+                <div class="summary-icon"><i class="bi bi-person-badge-fill"></i></div>
+            </div>
+            <div class="summary-label">Total faculty members</div>
+        </article>
+        <article class="paper summary-card c-green">
+            <span class="summary-tab">Present</span>
+            <div class="summary-top">
+                <div class="summary-value" id="sumPresent">{{ $totalPresent }}</div>
+                <div class="summary-icon"><i class="bi bi-check-circle-fill"></i></div>
+            </div>
+            <div class="summary-label">Present this week</div>
+        </article>
+        <article class="paper summary-card c-amber">
+            <span class="summary-tab">Half Day</span>
+            <div class="summary-top">
+                <div class="summary-value" id="sumHalf">{{ $totalHalf }}</div>
+                <div class="summary-icon"><i class="bi bi-clock-history"></i></div>
+            </div>
+            <div class="summary-label">Half-day this week</div>
+        </article>
+        <article class="paper summary-card c-red">
+            <span class="summary-tab">Absent</span>
+            <div class="summary-top">
+                <div class="summary-value" id="sumAbsent">{{ $totalAbsent }}</div>
+                <div class="summary-icon"><i class="bi bi-x-circle-fill"></i></div>
+            </div>
+            <div class="summary-label">Absent this week</div>
+        </article>
+    </section>
 
-        {{-- =====================================================
-             FILTER
-        ====================================================== --}}
-
-        <div class="filter-card">
-
-            <form
-                method="GET"
-                action="{{ route('admin.teachers.attendance.index') }}"
-                class="filter-form"
-            >
-
-                <div class="filter-item">
-
-                    <label for="teacher_id">
-                        Faculty
-                    </label>
-
-                    <select
-                        name="teacher_id"
-                        id="teacher_id"
-                        class="filter-control"
-                    >
-
-                        <option value="">
-                            All Faculty
+    {{-- Toolbar --}}
+    <form method="GET" action="{{ route('admin.teachers.attendance.index') }}" class="paper attendance-toolbar" id="filterForm">
+        <div class="toolbar-left">
+            <div class="filter-group">
+                <label for="teacher_id">Faculty</label>
+                <select name="teacher_id" id="teacher_id" class="form-control">
+                    <option value="">All Faculty</option>
+                    @foreach($teachers as $teacher)
+                        <option value="{{ $teacher->id }}" {{ request('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                            {{ trim($teacher->first_name . ' ' . $teacher->last_name) }}
+                            @if($teacher->teacher_id) — {{ $teacher->teacher_id }} @endif
                         </option>
-
-                        @foreach($teachers as $teacher)
-
-                            <option
-                                value="{{ $teacher->id }}"
-                                {{ request('teacher_id') == $teacher->id ? 'selected' : '' }}
-                            >
-                                {{ trim($teacher->first_name . ' ' . $teacher->last_name) }}
-
-                                @if($teacher->teacher_id)
-                                    — {{ $teacher->teacher_id }}
-                                @endif
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-                </div>
-
-
-                <div class="filter-item month">
-
-                    <label for="month">
-                        Month
-                    </label>
-
-                    <input
-                        type="month"
-                        name="month"
-                        id="month"
-                        class="filter-control"
-                        value="{{ $month }}"
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="filter-button"
-                >
-                    <i class="bi bi-funnel-fill"></i>
-                    Apply
-                </button>
-
-            </form>
-
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-group" style="min-width:150px">
+                <label for="date">Week of</label>
+                <input type="date" name="date" id="date" class="form-control" value="{{ $dateKey }}" max="{{ $today->format('Y-m-d') }}">
+            </div>
+            <div style="align-self:flex-end">
+                <button type="submit" class="btn-solid"><i class="bi bi-funnel-fill"></i> Apply</button>
+            </div>
         </div>
-
-
-        {{-- =====================================================
-             MONTH NAVIGATION
-        ====================================================== --}}
-
-        @php
-
-            $currentMonth = \Carbon\Carbon::createFromFormat(
-                'Y-m',
-                $month
-            );
-
-            $previousMonth = $currentMonth
-                ->copy()
-                ->subMonth()
-                ->format('Y-m');
-
-            $nextMonth = $currentMonth
-                ->copy()
-                ->addMonth()
-                ->format('Y-m');
-
-            /*
-            |--------------------------------------------------------------------------
-            | National Holidays
-            |--------------------------------------------------------------------------
-            */
-
-            $nationalHolidays = [
-                '01-26' => 'Republic Day',
-                '08-15' => 'Independence Day',
-                '10-02' => 'Gandhi Jayanti',
-            ];
-
-        @endphp
-
-
-        <div class="month-bar">
-
-            <div class="month-title">
-                {{ $currentMonth->format('F Y') }}
-            </div>
-
-            <div class="month-buttons">
-
-                <a
-                    href="{{ route('admin.teachers.attendance.index', [
-                        'month' => $previousMonth,
-                        'teacher_id' => request('teacher_id')
-                    ]) }}"
-                    class="month-button"
-                    title="Previous Month"
-                >
-                    <i class="bi bi-chevron-left"></i>
-                </a>
-
-                <a
-                    href="{{ route('admin.teachers.attendance.index', [
-                        'month' => $nextMonth,
-                        'teacher_id' => request('teacher_id')
-                    ]) }}"
-                    class="month-button"
-                    title="Next Month"
-                >
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-
-            </div>
-
+        <div class="week-nav">
+            <a href="{{ $prevWeekUrl }}" class="btn-line btn-icon" title="Previous week"><i class="bi bi-chevron-left"></i></a>
+            <span class="selected-week-display">{{ $rangeLabel }}</span>
+            <a href="{{ $nextWeekUrl }}" class="btn-line btn-icon" title="Next week"><i class="bi bi-chevron-right"></i></a>
+            <a href="{{ $todayUrl }}" class="btn-line {{ $isToday ? 'is-disabled' : '' }}" style="margin-left:6px">This Week</a>
         </div>
+    </form>
 
-
-        {{-- =====================================================
-             SELECTED FACULTY
-        ====================================================== --}}
-
-        @if($selectedTeacher)
-
-            <div class="faculty-info">
-
-                <div class="info-block">
-
-                    <span class="info-label">
-                        Faculty
-                    </span>
-
-                    <span class="info-value">
-                        {{ trim(
-                            $selectedTeacher->first_name . ' ' .
-                            $selectedTeacher->last_name
-                        ) }}
-                    </span>
-
+    {{-- Register --}}
+    @if($teachers->count())
+        <section class="paper register-panel">
+            <div class="register-head">
+                <h3>Attendance Register · {{ $rangeLabel }}</h3>
+                <div class="attendance-legend">
+                    <span><span class="status-btn status-present" style="width:22px;height:22px;font-size:10px;pointer-events:none">P</span> Present</span>
+                    <span><span class="status-btn status-half" style="width:22px;height:22px;font-size:10px;pointer-events:none">H</span> Half Day</span>
+                    <span><span class="status-btn status-absent" style="width:22px;height:22px;font-size:10px;pointer-events:none">A</span> Absent</span>
+                    <span><span class="status-btn status-holiday" style="width:22px;height:22px;font-size:9px;pointer-events:none">HOL</span> Holiday</span>
                 </div>
-
-                <div class="info-block">
-
-                    <span class="info-label">
-                        ID
-                    </span>
-
-                    <span class="info-value">
-                        {{ $selectedTeacher->teacher_id ?? '-' }}
-                    </span>
-
-                </div>
-
-                <div class="info-block">
-
-                    <span class="info-label">
-                        Subject
-                    </span>
-
-                    <span class="info-value">
-                        {{ $selectedTeacher->subject ?? '-' }}
-                    </span>
-
-                </div>
-
             </div>
 
-        @endif
+            <div class="register-wrap">
+                <table class="attendance-table" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th class="column-number">#</th>
+                            <th class="column-faculty">Faculty</th>
+                            @foreach($days as $meta)
+                                <th class="column-day {{ $meta['selected'] ? 'column-day-selected' : '' }} {{ $meta['holiday'] ? 'is-holiday' : '' }} {{ $meta['future'] ? 'is-future' : '' }}">
+                                    @if($meta['future'])
+                                        <span class="day-heading"><b>{{ $meta['number'] }}</b><em>{{ $meta['date']->format('D') }}</em></span>
+                                    @else
+                                        <a href="{{ $meta['url'] }}" class="day-heading"><b>{{ $meta['number'] }}</b><em>{{ $meta['date']->format('D') }}</em></a>
+                                    @endif
+                                </th>
+                            @endforeach
+                            <th class="column-total">P</th>
+                            <th class="column-total">H</th>
+                            <th class="column-total">A</th>
+                            <th class="column-total">%</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceBody">
+                        @foreach($teachers as $index => $teacher)
+                            @php
+                                $rowPresent = 0; $rowHalf = 0; $rowAbsent = 0;
+                                $initials = strtoupper(substr($teacher->first_name ?? 'F', 0, 1) . substr($teacher->last_name ?? '', 0, 1));
+                            @endphp
+                            <tr data-teacher-id="{{ $teacher->id }}">
+                                <td class="column-number">{{ $index + 1 }}</td>
+                                <td class="column-faculty">
+                                    <div class="faculty-info">
+                                        <div class="faculty-avatar">{{ $initials ?: 'F' }}</div>
+                                        <div style="min-width:0">
+                                            <div class="faculty-name">{{ trim($teacher->first_name . ' ' . $teacher->last_name) }}</div>
+                                            <div class="faculty-details">
+                                                @if($teacher->teacher_id) ID {{ $teacher->teacher_id }} @endif
+                                                @if($teacher->subject) · {{ $teacher->subject }} @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
 
-
-        {{-- =====================================================
-             ATTENDANCE
-        ====================================================== --}}
-
-        @if($teachers->count())
-
-            <form
-                method="POST"
-                action="{{ route('admin.teachers.attendance.store') }}"
-                id="attendanceForm"
-            >
-
-                @csrf
-
-                <input
-                    type="hidden"
-                    name="attendance_month"
-                    value="{{ $month }}"
-                >
-
-                @if(request('teacher_id'))
-
-                    <input
-                        type="hidden"
-                        name="teacher_id"
-                        value="{{ request('teacher_id') }}"
-                    >
-
-                @endif
-
-
-                <div class="table-card">
-
-                    <div class="table-header">
-
-                        <div>
-
-                            <h3 class="table-title">
-                                Attendance Register
-                            </h3>
-
-                            <p class="table-help">
-                                Click a working day to cycle:
-                                Present → Half Day → Absent → Blank
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="table-scroll">
-
-                        <table class="attendance-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th class="faculty-column sticky-faculty">
-                                        Faculty
-                                    </th>
-
-                                    <th class="id-column sticky-id">
-                                        ID
-                                    </th>
-
-
-                                    {{-- =================================================
-                                         DATE HEADERS
-                                    ================================================== --}}
-
-                                    @foreach($dates as $date)
-
-                                        @php
-
-                                            $holidayName = null;
-
-                                            if ($date->isSunday()) {
-
-                                                $holidayName = 'Sunday';
-
-                                            } elseif (
-                                                isset(
-                                                    $nationalHolidays[
-                                                        $date->format('m-d')
-                                                    ]
-                                                )
-                                            ) {
-
-                                                $holidayName =
-                                                    $nationalHolidays[
-                                                        $date->format('m-d')
-                                                    ];
-
-                                            }
-
-                                            $isHoliday =
-                                                $holidayName !== null;
-
-                                        @endphp
-
-
-                                        <th
-                                            class="date-column {{ $isHoliday ? 'holiday-header' : '' }}"
-                                            title="{{ $isHoliday ? $holidayName : $date->format('l') }}"
-                                        >
-
-                                            <span class="date-number">
-                                                {{ $date->format('d') }}
-                                            </span>
-
-                                            <span class="day-name">
-                                                {{ $date->format('D') }}
-                                            </span>
-
-                                            @if($isHoliday)
-
-                                                <span class="holiday-name">
-                                                    HOL
-                                                </span>
-
-                                            @endif
-
-                                        </th>
-
-                                    @endforeach
-
-
-                                    <th class="summary-column sticky-summary">
-                                        Summary
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                @foreach($teachers as $teacher)
-
+                                @foreach($days as $meta)
                                     @php
-
-                                        $teacherPresent = 0;
-                                        $teacherHalf = 0;
-                                        $teacherAbsent = 0;
-                                        $teacherHoliday = 0;
-
+                                        $recordKey = $teacher->id . '_' . $meta['key'];
+                                        $status = $attendanceRecords[$recordKey]->status ?? '';
+                                        if (!$meta['holiday'] && !$meta['future']) {
+                                            if ($status === 'Present')  $rowPresent++;
+                                            if ($status === 'Half Day') $rowHalf++;
+                                            if ($status === 'Absent')   $rowAbsent++;
+                                        }
                                     @endphp
 
-
-                                    <tr>
-
-                                        {{-- FACULTY --}}
-
-                                        <td class="faculty-column sticky-faculty">
-
-                                            <div class="faculty-name">
-
-                                                {{ trim(
-                                                    $teacher->first_name . ' ' .
-                                                    $teacher->last_name
-                                                ) }}
-
-                                            </div>
-
-                                            <div class="faculty-subject">
-                                                {{ $teacher->subject ?? 'Faculty' }}
-                                            </div>
-
-                                        </td>
-
-
-                                        {{-- ID --}}
-
-                                        <td class="id-column sticky-id">
-
-                                            <span class="faculty-id">
-                                                {{ $teacher->teacher_id ?? '-' }}
-                                            </span>
-
-                                        </td>
-
-
-                                        {{-- =================================================
-                                             DATES
-                                        ================================================== --}}
-
-                                        @foreach($dates as $date)
-
-                                            @php
-
-                                                $dateKey =
-                                                    $date->format('Y-m-d');
-
-                                                $recordKey =
-                                                    $teacher->id . '_' .
-                                                    $dateKey;
-
-                                                $attendance =
-                                                    $attendanceRecords[$recordKey]
-                                                    ?? null;
-
-                                                $status =
-                                                    $attendance?->status ?? '';
-
-                                                /*
-                                                |--------------------------------------------------------------------------
-                                                | Holiday
-                                                |--------------------------------------------------------------------------
-                                                */
-
-                                                $holidayName = null;
-
-                                                if ($date->isSunday()) {
-
-                                                    $holidayName = 'Sunday';
-
-                                                } elseif (
-                                                    isset(
-                                                        $nationalHolidays[
-                                                            $date->format('m-d')
-                                                        ]
-                                                    )
-                                                ) {
-
-                                                    $holidayName =
-                                                        $nationalHolidays[
-                                                            $date->format('m-d')
-                                                        ];
-
-                                                }
-
-                                                $isHoliday =
-                                                    $holidayName !== null;
-
-                                                /*
-                                                |--------------------------------------------------------------------------
-                                                | Count only working-day attendance
-                                                |--------------------------------------------------------------------------
-                                                */
-
-                                                if (!$isHoliday) {
-
-                                                    if ($status === 'Present') {
-                                                        $teacherPresent++;
-                                                    }
-
-                                                    if ($status === 'Half Day') {
-                                                        $teacherHalf++;
-                                                    }
-
-                                                    if ($status === 'Absent') {
-                                                        $teacherAbsent++;
-                                                    }
-
-                                                }
-
-                                                if ($isHoliday) {
-                                                    $teacherHoliday++;
-                                                }
-
-                                            @endphp
-
-
-                                            {{-- =================================================
-                                                 HOLIDAY CELL
-                                            ================================================== --}}
-
-                                            @if($isHoliday)
-
-                                                <td
-                                                    class="attendance-cell holiday-cell"
-                                                    title="{{ $holidayName }}"
-                                                >
-
-                                                    <button
-                                                        type="button"
-                                                        class="holiday-button"
-                                                        disabled
-                                                        title="{{ $holidayName }}"
-                                                    >
-                                                        HOL
-                                                    </button>
-
-                                                </td>
-
-
-                                            {{-- =================================================
-                                                 WORKING DAY CELL
-                                            ================================================== --}}
-
-                                            @else
-
-                                                <td class="attendance-cell">
-
-                                                    <input
-                                                        type="hidden"
-                                                        class="attendance-input"
-                                                        name="attendance[{{ $teacher->id }}][{{ $dateKey }}]"
-                                                        value="{{ $status }}"
-                                                    >
-
-                                                    <button
-                                                        type="button"
-                                                        class="attendance-status-button status-{{ strtolower(str_replace(' ', '-', $status ?: 'blank')) }}"
-                                                        data-status="{{ $status }}"
-                                                        title="{{ $status ?: 'Not Marked' }}"
-                                                    >
-
-                                                        <span class="status-text">
-
-                                                            @switch($status)
-
-                                                                @case('Present')
-                                                                    P
-                                                                    @break
-
-                                                                @case('Half Day')
-                                                                    H
-                                                                    @break
-
-                                                                @case('Absent')
-                                                                    A
-                                                                    @break
-
-                                                                @default
-                                                                    •
-
-                                                            @endswitch
-
-                                                        </span>
-
-                                                    </button>
-
-                                                </td>
-
+                                    @if($meta['holiday'] || $meta['future'])
+                                        <td class="column-day {{ $meta['selected'] ? 'column-day-selected' : '' }} {{ $meta['holiday'] ? 'is-holiday' : '' }} {{ $meta['future'] ? 'is-future' : '' }}">
+                                            @if($meta['holiday'])
+                                                <button type="button" class="status-btn status-holiday" disabled>HOL</button>
                                             @endif
-
-                                        @endforeach
-
-
-                                        {{-- =================================================
-                                             SUMMARY
-                                        ================================================== --}}
-
-                                        @php
-
-                                            $marked =
-                                                $teacherPresent +
-                                                $teacherHalf +
-                                                $teacherAbsent;
-
-                                            $attendancePoints =
-                                                $teacherPresent +
-                                                ($teacherHalf * 0.5);
-
-                                            $percentage =
-                                                $marked > 0
-                                                    ? round(
-                                                        ($attendancePoints / $marked) * 100,
-                                                        1
-                                                    )
-                                                    : 0;
-
-                                        @endphp
-
-
-                                        <td class="summary-column sticky-summary">
-
-                                            <div class="summary-box">
-
-                                                <div class="summary-item">
-
-                                                    <span class="summary-label">
-                                                        P
-                                                    </span>
-
-                                                    <span class="summary-value present-count">
-                                                        {{ $teacherPresent }}
-                                                    </span>
-
-                                                </div>
-
-
-                                                <div class="summary-item">
-
-                                                    <span class="summary-label">
-                                                        H
-                                                    </span>
-
-                                                    <span class="summary-value half-count">
-                                                        {{ $teacherHalf }}
-                                                    </span>
-
-                                                </div>
-
-
-                                                <div class="summary-item">
-
-                                                    <span class="summary-label">
-                                                        A
-                                                    </span>
-
-                                                    <span class="summary-value absent-count">
-                                                        {{ $teacherAbsent }}
-                                                    </span>
-
-                                                </div>
-
-
-                                                <div class="summary-item">
-
-                                                    <span class="summary-label">
-                                                        %
-                                                    </span>
-
-                                                    <span class="summary-value percentage-value">
-                                                        {{ number_format($percentage, 1) }}%
-                                                    </span>
-
-                                                </div>
-
-                                            </div>
-
                                         </td>
-
-                                    </tr>
-
+                                    @else
+                                        <td class="column-day {{ $meta['selected'] ? 'column-day-selected' : '' }}"
+                                            data-date="{{ $meta['key'] }}"
+                                            data-status="{{ $status }}"
+                                            data-saved="{{ $status }}">
+                                            <button type="button"
+                                                    class="status-btn status-{{ $status === 'Present' ? 'present' : ($status === 'Half Day' ? 'half' : ($status === 'Absent' ? 'absent' : 'blank')) }}"
+                                                    data-status="{{ $status }}">
+                                                @switch($status)
+                                                    @case('Present') P @break
+                                                    @case('Half Day') H @break
+                                                    @case('Absent') A @break
+                                                    @default •
+                                                @endswitch
+                                            </button>
+                                            <span class="cell-sync" aria-live="polite"></span>
+                                        </td>
+                                    @endif
                                 @endforeach
 
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-
-                    {{-- =====================================================
-                         FOOTER
-                    ====================================================== --}}
-
-                    <div class="table-footer">
-
-                        <div class="legend">
-
-                            <div class="legend-item">
-
-                                <span class="legend-dot present"></span>
-
-                                Present
-
-                            </div>
-
-
-                            <div class="legend-item">
-
-                                <span class="legend-dot half"></span>
-
-                                Half Day
-
-                            </div>
-
-
-                            <div class="legend-item">
-
-                                <span class="legend-dot absent"></span>
-
-                                Absent
-
-                            </div>
-
-
-                            <div class="legend-item">
-
-                                <span class="legend-dot holiday"></span>
-
-                                Holiday
-
-                            </div>
-
-                        </div>
-
-
-                        <button
-                            type="submit"
-                            class="save-button"
-                        >
-
-                            <i class="bi bi-check2"></i>
-
-                            Save Attendance
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </form>
-
-        @else
-
-            <div class="table-card">
-
-                <div class="empty-state">
-
-                    <i class="bi bi-person-x"></i>
-
-                    <h4>
-                        No Faculty Found
-                    </h4>
-
-                    <p>
-                        No faculty members are available.
-                    </p>
-
-                </div>
-
+                                @php
+                                    $marked = $rowPresent + $rowHalf + $rowAbsent;
+                                    $points = $rowPresent + ($rowHalf * 0.5);
+                                    $pct = $marked > 0 ? round(($points / $marked) * 100, 1) : null;
+                                @endphp
+                                <td class="column-total total-present">{{ $rowPresent }}</td>
+                                <td class="column-total total-half">{{ $rowHalf }}</td>
+                                <td class="column-total total-absent">{{ $rowAbsent }}</td>
+                                <td class="column-total total-percentage">{{ $pct === null ? '–' : $pct . '%' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
 
-        @endif
-
-    </div>
-
+            <div class="table-footer">
+                <div class="attendance-legend">
+                    <span>Click any cell → Present → Half Day → Absent → Blank. Saves automatically.</span>
+                </div>
+            </div>
+        </section>
+    @else
+        <section class="paper">
+            <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-person-x"></i></div>
+                <h5>No Faculty Found</h5>
+                <p>No faculty members are available for the selected filters.</p>
+            </div>
+        </section>
+    @endif
 </div>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+(function () {
+    'use strict';
 
-    /*
-    =========================================================
-    STATUS ORDER
+    const STORE_URL = @json($storeUrl);
+    const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const MONTH = @json($monthKey);
 
-    Blank
-       ↓
-    Present
-       ↓
-    Half Day
-       ↓
-    Absent
-       ↓
-    Blank
-    =========================================================
-    */
-
-    const statuses = [
-        '',
-        'Present',
-        'Half Day',
-        'Absent'
-    ];
-
+    const statuses = ['', 'Present', 'Half Day', 'Absent'];
     const statusClasses = {
         '': 'status-blank',
         'Present': 'status-present',
         'Half Day': 'status-half',
         'Absent': 'status-absent'
     };
-
     const statusLetters = {
         '': '•',
         'Present': 'P',
@@ -1544,270 +594,163 @@ document.addEventListener('DOMContentLoaded', function () {
         'Absent': 'A'
     };
 
+    const toastEl = document.getElementById('toast');
+    let toastTimer = null;
 
-    /*
-    =========================================================
-    GET NEXT STATUS
-    =========================================================
-    */
-
-    function getNextStatus(currentStatus) {
-
-        const currentIndex =
-            statuses.indexOf(currentStatus);
-
-        if (currentIndex === -1) {
-            return 'Present';
-        }
-
-        return statuses[
-            (currentIndex + 1) % statuses.length
-        ];
+    function showToast(msg, isError = false) {
+        if (!toastEl) return;
+        toastEl.textContent = msg;
+        toastEl.classList.toggle('is-error', isError);
+        toastEl.classList.add('is-show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('is-show'), 3500);
     }
 
-
-    /*
-    =========================================================
-    UPDATE CELL
-    =========================================================
-    */
-
-    function updateAttendanceCell(button) {
-
-        const cell =
-            button.closest('.attendance-cell');
-
-        if (!cell) {
-            return;
+    function setSync(cell, state, text = '') {
+        const sync = cell.querySelector('.cell-sync');
+        if (!sync) return;
+        sync.className = 'cell-sync' + (state ? ' is-' + state : '');
+        if (state === 'saving') {
+            sync.innerHTML = '<span class="spin"></span>';
+        } else {
+            sync.textContent = text;
         }
-
-        /*
-        |------------------------------------------------------
-        | Holiday cells have no attendance input and cannot
-        | be changed.
-        |------------------------------------------------------
-        */
-
-        if (
-            cell.classList.contains('holiday-cell')
-        ) {
-            return;
+        if (state === 'saved') {
+            clearTimeout(cell._syncTimer);
+            cell._syncTimer = setTimeout(() => setSync(cell, ''), 1400);
         }
-
-        const input =
-            cell.querySelector('.attendance-input');
-
-        const text =
-            button.querySelector('.status-text');
-
-        if (!input || !text) {
-            return;
-        }
-
-        const currentStatus =
-            input.value || '';
-
-        const nextStatus =
-            getNextStatus(currentStatus);
-
-        input.value = nextStatus;
-
-
-        Object.values(statusClasses).forEach(function (className) {
-
-            button.classList.remove(className);
-
-        });
-
-
-        button.classList.add(
-            statusClasses[nextStatus]
-        );
-
-
-        text.textContent =
-            statusLetters[nextStatus];
-
-
-        button.title =
-            nextStatus || 'Not Marked';
-
-
-        updateRowSummary(
-            button.closest('tr')
-        );
-
     }
-
-
-    /*
-    =========================================================
-    CLICK HANDLER
-    =========================================================
-    */
-
-    document
-        .querySelectorAll('.attendance-status-button')
-        .forEach(function (button) {
-
-            button.addEventListener(
-                'click',
-                function () {
-
-                    updateAttendanceCell(this);
-
-                }
-            );
-
-        });
-
-
-    /*
-    =========================================================
-    UPDATE ROW SUMMARY
-    =========================================================
-    */
 
     function updateRowSummary(row) {
-
-        if (!row) {
-            return;
-        }
-
-        const inputs =
-            row.querySelectorAll('.attendance-input');
-
-        let present = 0;
-        let half = 0;
-        let absent = 0;
-
-
-        inputs.forEach(function (input) {
-
-            switch (input.value) {
-
-                case 'Present':
-
-                    present++;
-
-                    break;
-
-                case 'Half Day':
-
-                    half++;
-
-                    break;
-
-                case 'Absent':
-
-                    absent++;
-
-                    break;
-
-            }
-
+        let present = 0, half = 0, absent = 0;
+        row.querySelectorAll('[data-status]').forEach(cell => {
+            const s = cell.dataset.status || '';
+            if (s === 'Present') present++;
+            if (s === 'Half Day') half++;
+            if (s === 'Absent') absent++;
         });
+        const marked = present + half + absent;
+        const points = present + (half * 0.5);
+        const pct = marked > 0 ? ((points / marked) * 100).toFixed(1) : null;
 
-
-        const marked =
-            present +
-            half +
-            absent;
-
-
-        const attendancePoints =
-            present +
-            (half * 0.5);
-
-
-        const percentage =
-            marked > 0
-                ? ((attendancePoints / marked) * 100).toFixed(1)
-                : '0.0';
-
-
-        const presentCount =
-            row.querySelector('.present-count');
-
-        const halfCount =
-            row.querySelector('.half-count');
-
-        const absentCount =
-            row.querySelector('.absent-count');
-
-        const percentageValue =
-            row.querySelector('.percentage-value');
-
-
-        if (presentCount) {
-
-            presentCount.textContent =
-                present;
-
-        }
-
-
-        if (halfCount) {
-
-            halfCount.textContent =
-                half;
-
-        }
-
-
-        if (absentCount) {
-
-            absentCount.textContent =
-                absent;
-
-        }
-
-
-        if (percentageValue) {
-
-            percentageValue.textContent =
-                percentage + '%';
-
-        }
-
+        const totals = row.querySelectorAll('.column-total');
+        if (totals[0]) totals[0].textContent = present;
+        if (totals[1]) totals[1].textContent = half;
+        if (totals[2]) totals[2].textContent = absent;
+        if (totals[3]) totals[3].textContent = pct === null ? '–' : pct + '%';
     }
 
+    function refreshSummaryCards() {
+        let present = 0, half = 0, absent = 0;
+        document.querySelectorAll('#attendanceBody [data-status]').forEach(cell => {
+            const s = cell.dataset.status || '';
+            if (s === 'Present') present++;
+            if (s === 'Half Day') half++;
+            if (s === 'Absent') absent++;
+        });
+        document.getElementById('sumPresent').textContent = present;
+        document.getElementById('sumHalf').textContent = half;
+        document.getElementById('sumAbsent').textContent = absent;
+    }
 
-    /*
-    =========================================================
-    FORM SUBMIT
-    =========================================================
-    */
+    function getNextStatus(current) {
+        const idx = statuses.indexOf(current);
+        return statuses[(idx === -1 ? 0 : idx + 1) % statuses.length];
+    }
 
-    const attendanceForm =
-        document.getElementById('attendanceForm');
+    function renderButton(btn, status) {
+        btn.className = 'status-btn ' + (statusClasses[status] || 'status-blank');
+        btn.textContent = statusLetters[status] || '•';
+        btn.dataset.status = status;
+        btn.title = (status || 'Not Marked') + ' — click to cycle';
+    }
 
+    // Queue + auto-save
+    const pending = new Map(); // key = teacherId_date
 
-    if (attendanceForm) {
+    async function saveAttendance(teacherId, date, status) {
+        const key = teacherId + '_' + date;
+        pending.set(key, status);
 
-        attendanceForm.addEventListener(
-            'submit',
-            function () {
+        const formData = new FormData();
+        formData.append('_token', CSRF);
+        formData.append('attendance_month', MONTH);
+        formData.append(`attendance[${teacherId}][${date}]`, status);
 
-                const button =
-                    this.querySelector('.save-button');
-
-                if (button) {
-
-                    button.disabled = true;
-
-                    button.innerHTML =
-                        '<i class="bi bi-arrow-repeat"></i> Saving...';
-
+        try {
+            const res = await fetch(STORE_URL, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': CSRF,
+                    'Accept': 'application/json'
                 }
+            });
 
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || data.success === false) {
+                throw new Error(data.message || 'Could not save attendance');
             }
-        );
 
+            return true;
+        } catch (err) {
+            throw err;
+        } finally {
+            pending.delete(key);
+        }
     }
 
+    // Click handler
+    document.getElementById('attendanceBody')?.addEventListener('click', async function (e) {
+        const btn = e.target.closest('.status-btn:not(.status-holiday)');
+        if (!btn) return;
 
-});
+        const cell = btn.closest('[data-date]');
+        if (!cell) return;
+
+        const row = cell.closest('tr');
+        const teacherId = row.dataset.teacherId;
+        const date = cell.dataset.date;
+        const current = cell.dataset.status || '';
+        const next = getNextStatus(current);
+
+        // Optimistic UI
+        cell.dataset.status = next;
+        renderButton(btn, next);
+        updateRowSummary(row);
+        refreshSummaryCards();
+        setSync(cell, 'saving');
+
+        try {
+            await saveAttendance(teacherId, date, next);
+            cell.dataset.saved = next;
+            setSync(cell, 'saved', 'Saved');
+        } catch (err) {
+            // Rollback
+            cell.dataset.status = cell.dataset.saved || '';
+            renderButton(btn, cell.dataset.saved || '');
+            updateRowSummary(row);
+            refreshSummaryCards();
+            setSync(cell, 'error', 'Error');
+            showToast(err.message || 'Failed to save', true);
+        }
+    });
+
+    // Auto submit filter form on date change
+    document.getElementById('date')?.addEventListener('change', function () {
+        this.form.submit();
+    });
+
+    // Warn if leaving while saving
+    window.addEventListener('beforeunload', function (e) {
+        if (pending.size > 0) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+})();
 </script>
 
 @endsection

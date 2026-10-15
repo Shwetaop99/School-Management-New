@@ -1,13 +1,11 @@
 @extends('layouts.app')
 
 @section('title', 'View Teacher Salary')
-
 @section('page-title', 'Salary Details')
 
 @section('content')
 
 <style>
-
 /* =========================================================
    SALARY DETAILS PAGE
 ========================================================= */
@@ -21,13 +19,13 @@
     min-height: calc(100vh - 80px);
 }
 
-/* ================= HEADER ================= */
-
 .salary-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .salary-header-left h2 {
@@ -46,9 +44,8 @@
 .salary-header-actions {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
-
-/* ================= BUTTONS ================= */
 
 .salary-btn {
     display: inline-flex;
@@ -83,8 +80,6 @@
     background: #16a34a;
     color: #fff;
 }
-
-/* ================= MAIN CARD ================= */
 
 .salary-card {
     background: #fff;
@@ -125,8 +120,6 @@
     color: #147cf5;
 }
 
-/* ================= CONTENT ================= */
-
 .salary-content {
     padding: 18px 20px;
 }
@@ -155,8 +148,6 @@
     color: #147cf5;
 }
 
-/* ================= TEACHER ================= */
-
 .teacher-box {
     display: flex;
     align-items: center;
@@ -165,6 +156,7 @@
     background: #f8fbff;
     border: 1px solid #e7effa;
     border-radius: 9px;
+    flex-wrap: wrap;
 }
 
 .teacher-image,
@@ -206,6 +198,7 @@
     margin-left: auto;
     display: flex;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .contact-item {
@@ -217,8 +210,6 @@
     color: #147cf5;
     margin-right: 5px;
 }
-
-/* ================= SALARY ================= */
 
 .salary-grid {
     display: grid;
@@ -254,8 +245,6 @@
     color: #15803d;
     font-size: 17px;
 }
-
-/* ================= PAYMENT ================= */
 
 .payment-grid {
     display: grid;
@@ -303,8 +292,6 @@
     color: #b45309;
 }
 
-/* ================= REMARKS ================= */
-
 .remarks-box {
     padding: 12px 14px;
     border-radius: 8px;
@@ -315,8 +302,6 @@
     line-height: 1.5;
 }
 
-/* ================= FOOTER ================= */
-
 .salary-footer {
     padding: 12px 20px;
     background: #fafbfd;
@@ -324,13 +309,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .salary-footer small {
     color: #8a94a6;
     font-size: 11px;
 }
-
 
 /* =========================================================
    PROFESSIONAL RECEIPT
@@ -346,8 +332,6 @@
     overflow-y: auto;
 }
 
-/* ================= RECEIPT ACTION BAR ================= */
-
 .receipt-controls {
     width: 820px;
     max-width: 100%;
@@ -355,6 +339,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 7px;
+    flex-wrap: wrap;
 }
 
 .receipt-controls button {
@@ -384,8 +369,6 @@
     color: #475569;
 }
 
-/* ================= A4 RECEIPT ================= */
-
 .receipt-paper {
     width: 820px;
     max-width: 100%;
@@ -397,14 +380,14 @@
     box-shadow: 0 15px 50px rgba(0,0,0,.25);
 }
 
-/* ================= RECEIPT HEADER ================= */
-
 .receipt-main-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     padding-bottom: 18px;
     border-bottom: 2px solid #147cf5;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .school-brand {
@@ -451,8 +434,6 @@
     color: #64748b;
 }
 
-/* ================= RECEIPT META ================= */
-
 .receipt-meta-box {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -483,8 +464,6 @@
     color: #172033;
 }
 
-/* ================= RECEIPT SECTION ================= */
-
 .receipt-block {
     margin-top: 19px;
 }
@@ -500,8 +479,6 @@
     text-transform: uppercase;
     letter-spacing: .4px;
 }
-
-/* ================= EMPLOYEE TABLE ================= */
 
 .receipt-info-table {
     width: 100%;
@@ -528,8 +505,6 @@
     color: #172033;
     font-weight: 600;
 }
-
-/* ================= SALARY TABLE ================= */
 
 .receipt-salary-table {
     width: 100%;
@@ -568,8 +543,6 @@
     border-top: 2px solid #16a34a;
 }
 
-/* ================= NET PAY BOX ================= */
-
 .net-pay-box {
     display: flex;
     justify-content: space-between;
@@ -593,8 +566,6 @@
     color: #15803d;
 }
 
-/* ================= PAYMENT ================= */
-
 .payment-status {
     display: inline-flex;
     align-items: center;
@@ -614,8 +585,6 @@
     background: #fef3c7;
 }
 
-/* ================= DECLARATION ================= */
-
 .receipt-declaration {
     margin-top: 20px;
     padding: 10px 12px;
@@ -625,8 +594,6 @@
     line-height: 1.6;
     color: #64748b;
 }
-
-/* ================= SIGNATURES ================= */
 
 .receipt-signatures {
     display: grid;
@@ -650,8 +617,6 @@
     color: #475569;
 }
 
-/* ================= RECEIPT FOOTER ================= */
-
 .receipt-paper-footer {
     margin-top: 35px;
     padding-top: 10px;
@@ -661,98 +626,61 @@
     color: #8a94a6;
 }
 
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
 @media (max-width: 1100px) {
-
     .salary-grid {
         grid-template-columns: repeat(3, 1fr);
     }
-
     .teacher-contact {
         display: none;
     }
 }
 
 @media (max-width: 700px) {
-
     .salary-page {
         padding: 12px;
     }
-
     .salary-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
     }
-
     .salary-header-actions {
         width: 100%;
-        flex-wrap: wrap;
     }
-
     .salary-grid,
     .payment-grid {
         grid-template-columns: 1fr;
     }
-
     .salary-content {
         padding: 14px;
     }
-
     .receipt-overlay {
         padding: 8px;
     }
-
     .receipt-paper {
         padding: 20px;
     }
-
     .receipt-main-header {
         flex-direction: column;
-        gap: 15px;
     }
-
     .receipt-heading {
         text-align: left;
     }
-
     .receipt-meta-box {
         grid-template-columns: 1fr;
     }
-
-    .receipt-info-table {
-        font-size: 9px;
-    }
-
-    .receipt-info-table td {
-        padding: 6px;
-    }
-
     .receipt-signatures {
         gap: 30px;
     }
 }
 
-
-/* =========================================================
-   PRINT - RECEIPT ONLY
-========================================================= */
-
 @media print {
-
     body * {
         visibility: hidden !important;
     }
-
     #salaryReceipt,
     #salaryReceipt * {
         visibility: visible !important;
     }
-
     #salaryReceipt {
         display: block !important;
         position: absolute;
@@ -763,11 +691,9 @@
         padding: 0;
         margin: 0;
     }
-
     .receipt-controls {
         display: none !important;
     }
-
     .receipt-paper {
         width: 100%;
         min-height: auto;
@@ -776,996 +702,394 @@
         padding: 10mm;
         box-shadow: none;
     }
-
     @page {
         size: A4 portrait;
         margin: 0;
     }
 }
-
 </style>
-
 
 <div class="salary-page">
 
-    {{-- =====================================================
-         PAGE HEADER
-    ====================================================== --}}
-
+    {{-- HEADER --}}
     <div class="salary-header">
-
         <div class="salary-header-left">
-
-            <h2>
-                Salary Details
-            </h2>
-
-            <p>
-                View teacher salary and payment information
-            </p>
-
+            <h2>Salary Details</h2>
+            <p>View teacher salary and payment information</p>
         </div>
-
 
         <div class="salary-header-actions">
-
-            <a href="{{ route('admin.teachers.salary.index') }}"
-               class="salary-btn btn-back">
-
+            <a href="{{ route('admin.teachers.salary.index') }}" class="salary-btn btn-back">
                 <i class="fas fa-arrow-left"></i>
-
                 Back
-
             </a>
 
-
-            <a href="{{ route('admin.teachers.salary.edit', $teacherSalary->id) }}"
-               class="salary-btn btn-edit">
-
-                <i class="fas fa-edit"></i>
-
-                Edit
-
-            </a>
-
+            <a href="{{ route('admin.teachers.salary.edit', ['salary' => $teacherSalary->id]) }}"
+   class="salary-btn btn-edit">
+    <i class="fas fa-edit"></i>
+    Edit
+</a>
         </div>
-
     </div>
 
-
-    {{-- =====================================================
-         MAIN SALARY CARD
-    ====================================================== --}}
-
+    {{-- MAIN CARD --}}
     <div class="salary-card">
-
         <div class="salary-card-header">
-
             <div class="salary-card-title">
-
-                <span>
-                    <i class="fas fa-money-check-alt"></i>
-                </span>
-
-                <h3>
-                    Teacher Salary Information
-                </h3>
-
+                <span><i class="fas fa-money-check-alt"></i></span>
+                <h3>Teacher Salary Information</h3>
             </div>
-
         </div>
-
 
         <div class="salary-content">
 
-            {{-- ================= TEACHER ================= --}}
-
+            {{-- TEACHER --}}
             <div class="salary-section">
-
                 <div class="section-title">
-
                     <i class="fas fa-user"></i>
-
                     Teacher Information
-
                 </div>
-
 
                 <div class="teacher-box">
-
                     @if($teacherSalary->teacher && $teacherSalary->teacher->profile_image)
-
-                        <img src="{{ $teacherSalary->teacher->profile_image }}"
-                             class="teacher-image"
-                             alt="Teacher">
-
+                        <img src="{{ $teacherSalary->teacher->profile_image }}" class="teacher-image" alt="Teacher">
                     @else
-
                         <div class="teacher-placeholder">
-
                             {{ strtoupper(substr($teacherSalary->teacher->first_name ?? 'T', 0, 1)) }}
-
                         </div>
-
                     @endif
 
-
                     <div>
-
                         <div class="teacher-name">
-
                             {{ $teacherSalary->teacher->first_name ?? '' }}
                             {{ $teacherSalary->teacher->last_name ?? '' }}
-
                         </div>
-
-
                         <div class="teacher-id">
-
-                            Teacher ID:
-                            {{ $teacherSalary->teacher->teacher_id ?? 'N/A' }}
-
+                            Teacher ID: {{ $teacherSalary->teacher->teacher_id ?? 'N/A' }}
                         </div>
-
                     </div>
-
 
                     <div class="teacher-contact">
-
                         <div class="contact-item">
-
                             <i class="fas fa-envelope"></i>
-
                             {{ $teacherSalary->teacher->email ?? 'N/A' }}
-
                         </div>
-
-
                         <div class="contact-item">
-
                             <i class="fas fa-phone"></i>
-
                             {{ $teacherSalary->teacher->phone ?? 'N/A' }}
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- ================= SALARY ================= --}}
-
+            {{-- SALARY --}}
             <div class="salary-section">
-
                 <div class="section-title">
-
                     <i class="fas fa-wallet"></i>
-
                     Salary Information
-
                 </div>
-
 
                 <div class="salary-grid">
-
                     <div class="salary-item">
-
-                        <div class="salary-label">
-                            Salary Month
-                        </div>
-
+                        <div class="salary-label">Salary Month</div>
                         <div class="salary-value">
-
                             {{ \Carbon\Carbon::parse($teacherSalary->salary_month)->format('F Y') }}
-
                         </div>
-
                     </div>
 
-
                     <div class="salary-item">
-
-                        <div class="salary-label">
-                            Basic Salary
-                        </div>
-
+                        <div class="salary-label">Basic Salary</div>
                         <div class="salary-value">
-
                             ₹{{ number_format((float) $teacherSalary->basic_salary, 2) }}
-
                         </div>
-
                     </div>
 
-
                     <div class="salary-item">
-
-                        <div class="salary-label">
-                            Allowances
-                        </div>
-
+                        <div class="salary-label">Allowances</div>
                         <div class="salary-value">
-
                             ₹{{ number_format((float) $teacherSalary->allowances, 2) }}
-
                         </div>
-
                     </div>
-
 
                     <div class="salary-item">
-
-                        <div class="salary-label">
-                            Deductions
-                        </div>
-
+                        <div class="salary-label">Deductions</div>
                         <div class="salary-value">
-
                             ₹{{ number_format((float) $teacherSalary->deductions, 2) }}
-
                         </div>
-
                     </div>
-
 
                     <div class="salary-item net">
-
-                        <div class="salary-label">
-                            Net Salary
-                        </div>
-
+                        <div class="salary-label">Net Salary</div>
                         <div class="salary-value">
-
                             ₹{{ number_format((float) $teacherSalary->net_salary, 2) }}
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- ================= PAYMENT ================= --}}
-
+            {{-- PAYMENT --}}
             <div class="salary-section">
-
                 <div class="section-title">
-
                     <i class="fas fa-credit-card"></i>
-
                     Payment Information
-
                 </div>
-
 
                 <div class="payment-grid">
-
                     <div class="info-item">
-
-                        <span class="info-label">
-                            Payment Status
-                        </span>
-
-
-                        <span class="status-badge
-                            {{ $teacherSalary->payment_status === 'Paid'
-                                ? 'status-paid'
-                                : 'status-pending' }}">
-
-                            <i class="fas
-                                {{ $teacherSalary->payment_status === 'Paid'
-                                    ? 'fa-check-circle'
-                                    : 'fa-clock' }}"
-                               style="margin-right:5px;">
-                            </i>
-
+                        <span class="info-label">Payment Status</span>
+                        <span class="status-badge {{ $teacherSalary->payment_status === 'Paid' ? 'status-paid' : 'status-pending' }}">
+                            <i class="fas {{ $teacherSalary->payment_status === 'Paid' ? 'fa-check-circle' : 'fa-clock' }}"
+                               style="margin-right:5px;"></i>
                             {{ $teacherSalary->payment_status }}
-
                         </span>
-
                     </div>
 
-
                     <div class="info-item">
-
-                        <span class="info-label">
-                            Payment Date
-                        </span>
-
-
+                        <span class="info-label">Payment Date</span>
                         <span class="info-value">
-
                             @if($teacherSalary->payment_date)
-
                                 {{ \Carbon\Carbon::parse($teacherSalary->payment_date)->format('d M Y') }}
-
                             @else
-
                                 Not Paid
-
                             @endif
-
                         </span>
-
                     </div>
-
 
                     <div class="info-item">
-
-                        <span class="info-label">
-                            Salary ID
-                        </span>
-
-
+                        <span class="info-label">Salary ID</span>
                         <span class="info-value">
-
                             #SAL-{{ str_pad($teacherSalary->id, 5, '0', STR_PAD_LEFT) }}
-
                         </span>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- ================= REMARKS ================= --}}
-
+            {{-- REMARKS --}}
             @if($teacherSalary->remarks)
-
                 <div class="salary-section">
-
                     <div class="section-title">
-
                         <i class="fas fa-comment-alt"></i>
-
                         Remarks
-
                     </div>
-
-
                     <div class="remarks-box">
-
                         {{ $teacherSalary->remarks }}
-
                     </div>
-
                 </div>
-
             @endif
-
         </div>
-
-
-        {{-- =================================================
-             BOTTOM FOOTER
-        ================================================== --}}
 
         <div class="salary-footer">
-
             <small>
-
                 Salary record created:
-
-                {{ $teacherSalary->created_at
-                    ? $teacherSalary->created_at->format('d M Y, h:i A')
-                    : 'N/A' }}
-
+                {{ $teacherSalary->created_at ? $teacherSalary->created_at->format('d M Y, h:i A') : 'N/A' }}
             </small>
 
-
-            {{-- ONLY GENERATE RECEIPT BUTTON --}}
-
-            <button type="button"
-                    class="salary-btn btn-receipt"
-                    onclick="generateReceipt()">
-
+            <button type="button" class="salary-btn btn-receipt" onclick="generateReceipt()">
                 <i class="fas fa-receipt"></i>
-
                 Generate Receipt
-
             </button>
-
         </div>
-
     </div>
-
 </div>
 
-
-{{-- =========================================================
-     PROFESSIONAL SALARY RECEIPT
-========================================================= --}}
-
+{{-- RECEIPT OVERLAY --}}
 <div id="salaryReceipt" class="receipt-overlay">
-
-    {{-- ================= RECEIPT CONTROLS ================= --}}
-
     <div class="receipt-controls">
-
-        <button type="button"
-                class="receipt-print-btn"
-                onclick="printReceipt()">
-
-            <i class="fas fa-print"></i>
-
-            Print Receipt
-
+        <button type="button" class="receipt-print-btn" onclick="printReceipt()">
+            <i class="fas fa-print"></i> Print Receipt
         </button>
-
-
-        <button type="button"
-                class="receipt-share-btn"
-                onclick="shareReceipt()">
-
-            <i class="fas fa-share-alt"></i>
-
-            Share
-
+        <button type="button" class="receipt-share-btn" onclick="shareReceipt()">
+            <i class="fas fa-share-alt"></i> Share
         </button>
-
-
-        <button type="button"
-                class="receipt-close-btn"
-                onclick="closeReceipt()">
-
-            <i class="fas fa-times"></i>
-
-            Close
-
+        <button type="button" class="receipt-close-btn" onclick="closeReceipt()">
+            <i class="fas fa-times"></i> Close
         </button>
-
     </div>
-
-
-    {{-- ================= A4 RECEIPT ================= --}}
 
     <div class="receipt-paper">
-
-
-        {{-- ================= SCHOOL HEADER ================= --}}
-
         <div class="receipt-main-header">
-
             <div class="school-brand">
-
                 @if(file_exists(public_path('images/gurukullogo.png')))
-
-                    <img src="{{ asset('images/gurukullogo.png') }}"
-                         class="school-logo"
-                         alt="Gurukul Vidyalaya">
-
+                    <img src="{{ asset('images/gurukullogo.png') }}" class="school-logo" alt="Gurukul Vidyalaya">
                 @endif
-
-
                 <div class="school-name">
-
-                    <h1>
-                        GURUKUL VIDYALAYA
-                    </h1>
-
-                    <p>
-                        School Management System
-                    </p>
-
+                    <h1>GURUKUL VIDYALAYA</h1>
+                    <p>School Management System</p>
                 </div>
-
             </div>
-
-
             <div class="receipt-heading">
-
-                <h2>
-                    SALARY RECEIPT
-                </h2>
-
-                <span>
-                    Official Employee Payment Record
-                </span>
-
+                <h2>SALARY RECEIPT</h2>
+                <span>Official Employee Payment Record</span>
             </div>
-
         </div>
-
-
-        {{-- ================= RECEIPT META ================= --}}
 
         <div class="receipt-meta-box">
-
             <div class="receipt-meta-item">
-
-                <span class="receipt-meta-label">
-                    Receipt Number
-                </span>
-
-                <span class="receipt-meta-value">
-
-                    SAL-{{ str_pad($teacherSalary->id, 5, '0', STR_PAD_LEFT) }}
-
-                </span>
-
+                <span class="receipt-meta-label">Receipt Number</span>
+                <span class="receipt-meta-value">SAL-{{ str_pad($teacherSalary->id, 5, '0', STR_PAD_LEFT) }}</span>
             </div>
-
-
             <div class="receipt-meta-item">
-
-                <span class="receipt-meta-label">
-                    Salary Period
-                </span>
-
-                <span class="receipt-meta-value">
-
-                    {{ \Carbon\Carbon::parse($teacherSalary->salary_month)->format('F Y') }}
-
-                </span>
-
+                <span class="receipt-meta-label">Salary Period</span>
+                <span class="receipt-meta-value">{{ \Carbon\Carbon::parse($teacherSalary->salary_month)->format('F Y') }}</span>
             </div>
-
-
             <div class="receipt-meta-item">
-
-                <span class="receipt-meta-label">
-                    Issue Date
-                </span>
-
-                <span class="receipt-meta-value">
-
-                    {{ now()->format('d M Y') }}
-
-                </span>
-
+                <span class="receipt-meta-label">Issue Date</span>
+                <span class="receipt-meta-value">{{ now()->format('d M Y') }}</span>
             </div>
-
         </div>
 
-
-        {{-- ================= EMPLOYEE INFORMATION ================= --}}
-
         <div class="receipt-block">
-
-            <div class="receipt-block-title">
-
-                Employee Information
-
-            </div>
-
-
+            <div class="receipt-block-title">Employee Information</div>
             <table class="receipt-info-table">
-
                 <tr>
-
-                    <td>
-                        Employee Name
-                    </td>
-
-                    <td>
-
-                        {{ $teacherSalary->teacher->first_name ?? '' }}
-                        {{ $teacherSalary->teacher->last_name ?? '' }}
-
-                    </td>
-
-
-                    <td>
-                        Teacher ID
-                    </td>
-
-                    <td>
-
-                        {{ $teacherSalary->teacher->teacher_id ?? 'N/A' }}
-
-                    </td>
-
+                    <td>Employee Name</td>
+                    <td>{{ $teacherSalary->teacher->first_name ?? '' }} {{ $teacherSalary->teacher->last_name ?? '' }}</td>
+                    <td>Teacher ID</td>
+                    <td>{{ $teacherSalary->teacher->teacher_id ?? 'N/A' }}</td>
                 </tr>
-
-
                 <tr>
-
-                    <td>
-                        Email
-                    </td>
-
-                    <td>
-
-                        {{ $teacherSalary->teacher->email ?? 'N/A' }}
-
-                    </td>
-
-
-                    <td>
-                        Phone
-                    </td>
-
-                    <td>
-
-                        {{ $teacherSalary->teacher->phone ?? 'N/A' }}
-
-                    </td>
-
+                    <td>Email</td>
+                    <td>{{ $teacherSalary->teacher->email ?? 'N/A' }}</td>
+                    <td>Phone</td>
+                    <td>{{ $teacherSalary->teacher->phone ?? 'N/A' }}</td>
                 </tr>
-
             </table>
-
         </div>
 
-
-        {{-- ================= SALARY BREAKDOWN ================= --}}
-
         <div class="receipt-block">
-
-            <div class="receipt-block-title">
-
-                Salary Breakdown
-
-            </div>
-
-
+            <div class="receipt-block-title">Salary Breakdown</div>
             <table class="receipt-salary-table">
-
                 <thead>
-
                     <tr>
-
-                        <th>
-                            Salary Component
-                        </th>
-
-                        <th>
-                            Amount
-                        </th>
-
+                        <th>Salary Component</th>
+                        <th>Amount</th>
                     </tr>
-
                 </thead>
-
-
                 <tbody>
-
                     <tr>
-
-                        <td>
-                            Basic Salary
-                        </td>
-
-                        <td>
-
-                            ₹{{ number_format((float) $teacherSalary->basic_salary, 2) }}
-
-                        </td>
-
+                        <td>Basic Salary</td>
+                        <td>₹{{ number_format((float) $teacherSalary->basic_salary, 2) }}</td>
                     </tr>
-
-
                     <tr>
-
-                        <td>
-                            Allowances
-                        </td>
-
-                        <td>
-
-                            ₹{{ number_format((float) $teacherSalary->allowances, 2) }}
-
-                        </td>
-
+                        <td>Allowances</td>
+                        <td>₹{{ number_format((float) $teacherSalary->allowances, 2) }}</td>
                     </tr>
-
-
                     <tr class="deduction">
-
-                        <td>
-                            Deductions
-                        </td>
-
-                        <td>
-
-                            - ₹{{ number_format((float) $teacherSalary->deductions, 2) }}
-
-                        </td>
-
+                        <td>Deductions</td>
+                        <td>- ₹{{ number_format((float) $teacherSalary->deductions, 2) }}</td>
                     </tr>
-
-
                     <tr class="net-row">
-
-                        <td>
-                            NET SALARY PAYABLE
-                        </td>
-
-                        <td>
-
-                            ₹{{ number_format((float) $teacherSalary->net_salary, 2) }}
-
-                        </td>
-
+                        <td>NET SALARY PAYABLE</td>
+                        <td>₹{{ number_format((float) $teacherSalary->net_salary, 2) }}</td>
                     </tr>
-
                 </tbody>
-
             </table>
-
 
             <div class="net-pay-box">
-
-                <span class="net-pay-label">
-                    Net Amount Paid
-                </span>
-
-                <span class="net-pay-amount">
-
-                    ₹{{ number_format((float) $teacherSalary->net_salary, 2) }}
-
-                </span>
-
+                <span class="net-pay-label">Net Amount Paid</span>
+                <span class="net-pay-amount">₹{{ number_format((float) $teacherSalary->net_salary, 2) }}</span>
             </div>
-
         </div>
-
-
-        {{-- ================= PAYMENT INFORMATION ================= --}}
 
         <div class="receipt-block">
-
-            <div class="receipt-block-title">
-
-                Payment Information
-
-            </div>
-
-
+            <div class="receipt-block-title">Payment Information</div>
             <table class="receipt-info-table">
-
                 <tr>
-
+                    <td>Payment Status</td>
                     <td>
-                        Payment Status
-                    </td>
-
-                    <td>
-
                         @if($teacherSalary->payment_status === 'Paid')
-
                             <span class="payment-status payment-paid">
-                                <i class="fas fa-check-circle"></i>
-                                &nbsp; Paid
+                                <i class="fas fa-check-circle"></i>&nbsp; Paid
                             </span>
-
                         @else
-
                             <span class="payment-status payment-pending">
-                                <i class="fas fa-clock"></i>
-                                &nbsp; Pending
+                                <i class="fas fa-clock"></i>&nbsp; Pending
                             </span>
-
                         @endif
-
                     </td>
-
-
+                    <td>Payment Date</td>
                     <td>
-                        Payment Date
-                    </td>
-
-                    <td>
-
                         @if($teacherSalary->payment_date)
-
                             {{ \Carbon\Carbon::parse($teacherSalary->payment_date)->format('d M Y') }}
-
                         @else
-
                             Not Paid
-
                         @endif
-
                     </td>
-
                 </tr>
-
             </table>
-
         </div>
-
-
-        {{-- ================= REMARKS ================= --}}
 
         @if($teacherSalary->remarks)
-
             <div class="receipt-block">
-
-                <div class="receipt-block-title">
-                    Remarks
-                </div>
-
-
-                <div style="
-                    padding:10px 12px;
-                    border:1px solid #e1e6ec;
-                    font-size:10px;
-                    color:#475569;
-                    line-height:1.5;
-                ">
-
+                <div class="receipt-block-title">Remarks</div>
+                <div style="padding:10px 12px;border:1px solid #e1e6ec;font-size:10px;color:#475569;line-height:1.5;">
                     {{ $teacherSalary->remarks }}
-
                 </div>
-
             </div>
-
         @endif
 
-
-        {{-- ================= DECLARATION ================= --}}
-
         <div class="receipt-declaration">
-
             <strong>Declaration:</strong>
-
-            This salary receipt is issued as an official record of the
-            salary processed for the above-mentioned employee for the
-            specified salary period. Please retain this receipt for
-            future reference.
-
+            This salary receipt is issued as an official record of the salary processed
+            for the above-mentioned employee for the specified salary period.
+            Please retain this receipt for future reference.
         </div>
-
-
-        {{-- ================= SIGNATURES ================= --}}
 
         <div class="receipt-signatures">
-
             <div class="signature-box">
-
                 <div class="signature-line"></div>
-
-                <span>
-                    Employee Signature
-                </span>
-
+                <span>Employee Signature</span>
             </div>
-
-
             <div class="signature-box">
-
                 <div class="signature-line"></div>
-
-                <span>
-                    Authorized Signatory
-                </span>
-
+                <span>Authorized Signatory</span>
             </div>
-
         </div>
-
-
-        {{-- ================= FOOTER ================= --}}
 
         <div class="receipt-paper-footer">
-
-            This is a computer-generated salary receipt and does not require
-            a physical stamp unless required by the institution.
-
+            This is a computer-generated salary receipt and does not require a physical stamp
+            unless required by the institution.
             <br>
-
             Gurukul Vidyalaya • School Management System
-
         </div>
-
     </div>
-
 </div>
 
-
 <script>
-
-/* =========================================================
-   GENERATE RECEIPT
-========================================================= */
-
-function generateReceipt()
-{
-    const receipt = document.getElementById('salaryReceipt');
-
-    receipt.style.display = 'block';
-
+function generateReceipt() {
+    document.getElementById('salaryReceipt').style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
 
-
-/* =========================================================
-   PRINT RECEIPT ONLY
-========================================================= */
-
-function printReceipt()
-{
+function printReceipt() {
     window.print();
 }
 
-
-/* =========================================================
-   CLOSE RECEIPT
-========================================================= */
-
-function closeReceipt()
-{
-    const receipt = document.getElementById('salaryReceipt');
-
-    receipt.style.display = 'none';
-
+function closeReceipt() {
+    document.getElementById('salaryReceipt').style.display = 'none';
     document.body.style.overflow = '';
 }
 
-
-/* =========================================================
-   SHARE RECEIPT
-========================================================= */
-
-function shareReceipt()
-{
-    const receiptNumber =
-        'SAL-{{ str_pad($teacherSalary->id, 5, '0', STR_PAD_LEFT) }}';
-
-    const teacherName =
-        @json(
-            trim(
-                ($teacherSalary->teacher->first_name ?? '') .
-                ' ' .
-                ($teacherSalary->teacher->last_name ?? '')
-            )
-        );
-
-    const amount =
-        '₹{{ number_format((float) $teacherSalary->net_salary, 2) }}';
-
-    const text =
-        'Salary Receipt ' +
-        receiptNumber +
-        '\nTeacher: ' +
-        teacherName +
-        '\nNet Salary: ' +
-        amount;
-
+function shareReceipt() {
+    const receiptNumber = 'SAL-{{ str_pad($teacherSalary->id, 5, '0', STR_PAD_LEFT) }}';
+    const teacherName = @json(trim(($teacherSalary->teacher->first_name ?? '') . ' ' . ($teacherSalary->teacher->last_name ?? '')));
+    const amount = '₹{{ number_format((float) $teacherSalary->net_salary, 2) }}';
+    const text = 'Salary Receipt ' + receiptNumber + '\nTeacher: ' + teacherName + '\nNet Salary: ' + amount;
 
     if (navigator.share) {
-
-        navigator.share({
-            title: 'Salary Receipt',
-            text: text
-        });
-
+        navigator.share({ title: 'Salary Receipt', text: text });
     } else if (navigator.clipboard) {
-
         navigator.clipboard.writeText(text);
-
         alert('Salary receipt details copied to clipboard.');
-
     } else {
-
         alert(text);
-
     }
 }
 
-
-/* =========================================================
-   AFTER PRINT
-========================================================= */
-
 window.addEventListener('afterprint', function () {
-
-    const receipt = document.getElementById('salaryReceipt');
-
-    receipt.style.display = 'none';
-
+    document.getElementById('salaryReceipt').style.display = 'none';
     document.body.style.overflow = '';
-
 });
-
 </script>
 
 @endsection

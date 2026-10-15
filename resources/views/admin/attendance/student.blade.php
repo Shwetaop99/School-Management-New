@@ -1,114 +1,81 @@
 @extends('layouts.app')
 
-@section('title', 'Student Attendance')
+@section('title', 'Mark Attendance')
 @section('page-title', 'Student Attendance')
 
 @section('content')
 
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-    rel="stylesheet"
->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 @php
     /* =========================================================
-       MONTH
-    ========================================================= */
+       Date setup
+       ========================================================= */
 
-    $selectedMonth = request(
-        'month',
-        $month ?? now()->format('Y-m')
-    );
+    $today = now()->startOfDay();
+
+    $requestedDate  = request('date');
+    $requestedMonth = request('month', $month ?? null);
+
+    $selectedDate = $today->copy();
 
     try {
-        $currentMonth = \Carbon\Carbon::createFromFormat(
-            'Y-m',
-            $selectedMonth
-        )->startOfMonth();
+        if (is_string($requestedDate) && $requestedDate !== '') {
+            $selectedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $requestedDate)->startOfDay();
+        } elseif (is_string($requestedMonth) && $requestedMonth !== '') {
+            $selectedDate = \Carbon\Carbon::createFromFormat('Y-m', $requestedMonth)->startOfMonth();
+        }
     } catch (\Throwable $e) {
-        $currentMonth = now()->startOfMonth();
-        $selectedMonth = $currentMonth->format('Y-m');
+        $selectedDate = $today->copy();
     }
 
-    $previousMonth = $currentMonth
-        ->copy()
-        ->subMonth()
-        ->format('Y-m');
-
-    $nextMonth = $currentMonth
-        ->copy()
-        ->addMonth()
-        ->format('Y-m');
-
-    $daysInMonth = $currentMonth->daysInMonth;
-
-    $monthDates = [];
-
-    for ($day = 1; $day <= $daysInMonth; $day++) {
-        $monthDates[] = $currentMonth->copy()->day($day);
+    if ($selectedDate->gt($today)) {
+        $selectedDate = $today->copy();
     }
 
+    $dateKey    = $selectedDate->format('Y-m-d');
+    $monthKey   = $selectedDate->format('Y-m');
+    $monthStart = $selectedDate->copy()->startOfMonth();
+
+    $isToday  = $selectedDate->isSameDay($today);
+    $isFuture = $selectedDate->gt($today);
 
     /* =========================================================
-       FILTERS
-    ========================================================= */
+       View mode
+       ========================================================= */
 
-    $selectedClass = request(
-        'class',
-        $selectedClass ?? null
-    );
+    $viewMode = in_array(request('view'), ['day', 'week', 'month'], true)
+        ? request('view')
+        : 'day';
 
-    $selectedSection = request(
-        'section',
-        $selectedSection ?? null
-    );
-
-    $selectedAcademicYear = request(
-        'academic_year',
-        $selectedAcademicYear ?? null
-    );
-
-
-    /* =========================================================
-       STUDENTS
-    ========================================================= */
-
-    $studentCollection = collect(
-        $students ?? []
-    );
-
-    $classOptions = $studentCollection
-        ->pluck('class')
-        ->filter()
-        ->unique()
-        ->sort()
-        ->values();
-
-    $sectionOptions = $studentCollection
-        ->pluck('section')
-        ->filter()
-        ->unique()
-        ->sort()
-        ->values();
-
-    $academicYearOptions = $studentCollection
-        ->pluck('academic_year')
-        ->filter()
-        ->unique()
-        ->sort()
-        ->values();
-
+    if ($viewMode === 'day') {
+        $rangeStart = $selectedDate->copy();
+        $rangeEnd   = $selectedDate->copy();
+        $rangeLabel = $selectedDate->format('l, d F Y');
+    } elseif ($viewMode === 'week') {
+        $rangeStart = $selectedDate->copy()->startOfWeek();
+        $rangeEnd   = $selectedDate->copy()->endOfWeek();
+        $rangeLabel = 'Week of ' . $rangeStart->format('d M') . ' – ' . $rangeEnd->format('d M Y');
+    } else {
+        $rangeStart = $monthStart->copy();
+        $rangeEnd   = $selectedDate->copy()->endOfMonth();
+        $rangeLabel = $selectedDate->format('F Y');
+    }
 
     /* =========================================================
-       ATTENDANCE
-    ========================================================= */
+       Filters and incoming data
+       ========================================================= */
 
-    $attendanceMap = $attendanceMap ?? [];
+    $academicYearValue = (string) request('academic_year', $academicYear ?? '');
+    $classValue        = (string) request('class', $class ?? '');
+    $sectionValue      = (string) request('section', $section ?? '');
 
+    $studentCollection = collect($students ?? []);
+    $attendanceMap     = $attendanceMap ?? [];
 
     /* =========================================================
-       HOLIDAYS
-    ========================================================= */
+       Holidays
+       ========================================================= */
 
     $nationalHolidays = [
         '01-26' => 'Republic Day',
@@ -116,3336 +83,2366 @@
         '10-02' => 'Gandhi Jayanti',
     ];
 
-    $getHolidayName = function ($date) use ($nationalHolidays) {
-
+    $holidayOf = function (\Carbon\Carbon $date) use ($nationalHolidays) {
         if ($date->isSunday()) {
-            return 'Sunday Holiday';
+            return 'Sunday';
         }
 
-        $key = $date->format('m-d');
-
-        return $nationalHolidays[$key] ?? null;
+        return $nationalHolidays[$date->format('m-d')] ?? null;
     };
 
+    $holidayName = $holidayOf($selectedDate);
+    $isLocked    = (bool) $holidayName || $isFuture;
 
     /* =========================================================
-       DAILY ATTENDANCE
-    ========================================================= */
+       Route helpers
+       ========================================================= */
 
-    $dailyAttendance = [];
+    $sheetUrl = request()->url();
 
-    foreach ($monthDates as $date) {
+    $routeIf = fn (string $name, array $params = []) =>
+        \Illuminate\Support\Facades\Route::has($name)
+            ? route($name, $params)
+            : null;
 
-        $dateKey = $date->format('Y-m-d');
+    $storeUrl = $routeIf('admin.attendance.store')
+        ?? $routeIf('admin.attendance.student.store')
+        ?? $sheetUrl;
 
-        $holidayName = $getHolidayName($date);
+    $backUrl = $routeIf('admin.attendance.student', ['month' => $monthKey])
+        ?? $routeIf('admin.attendance.index', ['month' => $monthKey])
+        ?? url()->previous();
 
-        $present = 0;
-        $absent = 0;
+    $queryBase = array_filter([
+        'academic_year' => $academicYearValue,
+        'class'         => $classValue,
+        'section'       => $sectionValue,
+        'view'          => $viewMode,
+    ], fn ($value) => $value !== '');
 
-        if (!$holidayName) {
+    $urlFor = fn (\Carbon\Carbon $date) =>
+        $sheetUrl . '?' . http_build_query(
+            $queryBase + [
+                'date'  => $date->format('Y-m-d'),
+                'month' => $date->format('Y-m'),
+            ]
+        );
 
-            foreach ($studentCollection as $student) {
+    $prevUrl   = $urlFor($selectedDate->copy()->subDay());
+    $nextUrl   = $urlFor($selectedDate->copy()->addDay());
+    $todayUrl  = $urlFor($today);
+    $canGoNext = $selectedDate->lt($today);
 
-                $status = strtolower(
-                    trim(
-                        (string) (
-                            $attendanceMap[$student->id][$dateKey]
-                            ?? ''
-                        )
-                    )
-                );
+    $viewUrl = fn (string $mode) =>
+        $sheetUrl . '?' . http_build_query(
+            array_merge($queryBase, [
+                'view'  => $mode,
+                'date'  => $dateKey,
+                'month' => $monthKey,
+            ])
+        );
 
-                if ($status === 'present') {
-                    $present++;
-                }
+    /* =========================================================
+       Register day columns
+       ========================================================= */
 
-                if ($status === 'absent') {
-                    $absent++;
-                }
-            }
-        }
+    $days = [];
+    $dayIndex = 0;
 
-        $dailyAttendance[$dateKey] = [
-            'present' => $present,
-            'absent' => $absent,
-            'total' => $studentCollection->count(),
-            'holiday' => $holidayName,
+    for ($cursor = $rangeStart->copy(); $cursor->lte($rangeEnd); $cursor->addDay()) {
+        $date = $cursor->copy();
+        $dayIndex++;
+
+        $days[$dayIndex] = [
+            'number'  => (int) $date->format('j'),
+            'date'    => $date,
+            'key'     => $date->format('Y-m-d'),
+            'holiday' => $holidayOf($date),
+            'future'  => $date->gt($today),
+            'selected'=> $date->isSameDay($selectedDate),
+            'url'     => $urlFor($date),
         ];
     }
 
-
     /* =========================================================
-       WORKING / HOLIDAY DAYS
-    ========================================================= */
+       Student attendance rows and totals
+       ========================================================= */
 
-    $workingDays = collect($monthDates)
-        ->reject(function ($date) use ($getHolidayName) {
-            return $getHolidayName($date) !== null;
-        })
-        ->count();
+    $rows = [];
 
-    $holidayDays = collect($monthDates)
-        ->filter(function ($date) use ($getHolidayName) {
-            return $getHolidayName($date) !== null;
-        })
-        ->count();
+    $dayPresent = array_fill(1, count($days), 0);
+    $dayAbsent  = array_fill(1, count($days), 0);
 
+    $selectedPresent = 0;
+    $selectedAbsent  = 0;
 
-    /* =========================================================
-       ROUTES
-    ========================================================= */
+    foreach ($studentCollection as $student) {
+        $cells = [];
+        $basePresent = 0;
+        $baseAbsent  = 0;
 
-   $attendanceIndexUrl = route('admin.attendance.report');
+        foreach ($days as $index => $meta) {
+            $status = strtolower(trim($attendanceMap[$student->id][$meta['key']] ?? ''));
+            $status = in_array($status, ['present', 'absent'], true)
+                ? $status
+                : '';
 
+            $cells[$index] = $status;
 
-    $attendanceStoreUrl = \Illuminate\Support\Facades\Route::has(
-        'admin.attendance.store'
-    )
-        ? route('admin.attendance.store')
-        : $attendanceIndexUrl;
+            if ($status === 'present') {
+                $dayPresent[$index]++;
+            }
 
+            if ($status === 'absent') {
+                $dayAbsent[$index]++;
+            }
 
-    $hasPdfRoute = \Illuminate\Support\Facades\Route::has(
-        'admin.attendance.pdf'
-    );
+            if ($meta['selected']) {
+                if ($status === 'present') {
+                    $selectedPresent++;
+                }
 
+                if ($status === 'absent') {
+                    $selectedAbsent++;
+                }
+            } else {
+                if ($status === 'present') {
+                    $basePresent++;
+                }
 
-    $hasExcelRoute = \Illuminate\Support\Facades\Route::has(
-        'admin.attendance.excel'
-    );
+                if ($status === 'absent') {
+                    $baseAbsent++;
+                }
+            }
+        }
 
+        $fullName = trim(preg_replace(
+            '/\s+/',
+            ' ',
+            ($student->first_name ?? '') . ' ' .
+            ($student->middle_name ?? '') . ' ' .
+            ($student->last_name ?? '')
+        ));
 
-    $attendancePdfUrl = $hasPdfRoute
-        ? route('admin.attendance.pdf')
+        $initials = strtoupper(
+            substr($student->first_name ?? 'S', 0, 1) .
+            substr($student->last_name ?? '', 0, 1)
+        );
+
+        $rows[] = [
+            'student'     => $student,
+            'name'        => $fullName ?: 'Student',
+            'initials'    => $initials ?: 'S',
+            'code'        => $student->student_id ?? $student->id,
+            'cells'       => $cells,
+            'basePresent' => $basePresent,
+            'baseAbsent'  => $baseAbsent,
+        ];
+    }
+
+    $totalStudents = count($rows);
+    $selectedMarked = $selectedPresent + $selectedAbsent;
+
+    $selectedPercentage = $selectedMarked > 0
+        ? round(($selectedPresent / $selectedMarked) * 100)
         : null;
 
-
-    $attendanceExcelUrl = $hasExcelRoute
-        ? route('admin.attendance.excel')
-        : null;
+    $jsConfig = [
+        'storeUrl'     => $storeUrl,
+        'date'         => $dateKey,
+        'month'        => $monthKey,
+        'academicYear' => $academicYearValue,
+        'class'        => $classValue,
+        'section'      => $sectionValue,
+        'locked'       => $isLocked,
+    ];
 @endphp
 
-
 <style>
+    /* =========================================================
+       Shared page styles
+       ========================================================= */
 
-/* =========================================================
-   PAGE
-========================================================= */
-
-.attendance-page {
-    min-height: calc(100vh - 64px);
-    padding: 25px;
-    background: #f4f7fb;
-}
-
-.attendance-container {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-}
-
-
-/* =========================================================
-   ALERTS
-========================================================= */
-
-.attendance-alert {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 13px 17px;
-    margin-bottom: 18px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.attendance-alert-success {
-    color: #16834b;
-    background: #eafaf1;
-    border: 1px solid #bce8d0;
-}
-
-.attendance-alert-danger {
-    color: #c92d3d;
-    background: #fff0f0;
-    border: 1px solid #f1c2c7;
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.attendance-header {
-    margin-bottom: 20px;
-    padding: 24px 27px;
-    color: #ffffff;
-    border-radius: 18px;
-    background: linear-gradient(
-        135deg,
-        #1769d1,
-        #6c63ff
-    );
-    box-shadow: 0 12px 30px rgba(40, 80, 180, 0.16);
-}
-
-.attendance-header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.attendance-title-area {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.attendance-title-icon {
-    width: 57px;
-    height: 57px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border-radius: 15px;
-    background: rgba(255,255,255,.18);
-    font-size: 27px;
-}
-
-.attendance-header h2 {
-    margin: 0;
-    font-size: 25px;
-    font-weight: 750;
-}
-
-.attendance-header p {
-    margin: 5px 0 0;
-    font-size: 13px;
-    opacity: .9;
-}
-
-
-/* =========================================================
-   HEADER ACTIONS
-========================================================= */
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.header-btn,
-.back-attendance-btn {
-    min-height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 9px 15px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: .2s ease;
-}
-
-.header-btn:hover,
-.back-attendance-btn:hover {
-    transform: translateY(-1px);
-}
-
-.header-btn {
-    border: 0;
-}
-
-.header-btn-light,
-.back-attendance-btn {
-    color: #ffffff;
-    border: 1px solid rgba(255,255,255,.28);
-    background: rgba(255,255,255,.15);
-}
-
-.header-btn-light:hover,
-.back-attendance-btn:hover {
-    color: #1769d1;
-    background: #ffffff;
-}
-
-.header-btn-white {
-    color: #1769d1;
-    background: #ffffff;
-    border: 1px solid #ffffff;
-}
-
-.header-btn-white:hover {
-    color: #125bb8;
-    background: #f7f9ff;
-}
-
-
-/* =========================================================
-   EXPORT BUTTON
-========================================================= */
-
-.header-btn.export-loading {
-    opacity: .75;
-    pointer-events: none;
-}
-
-.header-btn.export-loading i {
-    animation: exportSpin .8s linear infinite;
-}
-
-@keyframes exportSpin {
-
-    from {
-        transform: rotate(0deg);
+    .attendance-page{
+        max-width:1500px;
+        margin:0 auto;
     }
 
-    to {
-        transform: rotate(360deg);
+    .paper{
+        background:#fff;
+        border:1px solid var(--line);
+        border-radius:10px;
     }
 
-}
-
-
-/* =========================================================
-   FILTER CARD
-========================================================= */
-
-.filter-card {
-    margin-bottom: 18px;
-    padding: 20px;
-    background: #ffffff;
-    border: 1px solid #e7edf5;
-    border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(30,60,100,.05);
-}
-
-.filter-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(150px, 1fr));
-    gap: 15px;
-    align-items: end;
-}
-
-.filter-group label {
-    display: block;
-    margin-bottom: 7px;
-    color: #536174;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.filter-control {
-    width: 100%;
-    height: 42px;
-    padding: 0 12px;
-    color: #25344a;
-    background: #ffffff;
-    border: 1px solid #dce3ed;
-    border-radius: 9px;
-    outline: none;
-    font-size: 13px;
-    box-sizing: border-box;
-}
-
-.filter-control:focus {
-    border-color: #6c63ff;
-    box-shadow: 0 0 0 3px rgba(108,99,255,.10);
-}
-
-.filter-buttons {
-    display: flex;
-    gap: 8px;
-}
-
-.filter-buttons .filter-control {
-    flex: 1;
-    min-width: 0;
-}
-
-.filter-btn {
-    height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 0 16px;
-    border: 0;
-    border-radius: 9px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.filter-primary {
-    color: #ffffff;
-    background: #1769d1;
-}
-
-.filter-primary:hover {
-    background: #125bb8;
-}
-
-
-/* =========================================================
-   MONTH NAVIGATION
-========================================================= */
-
-.month-card {
-    margin-bottom: 18px;
-    padding: 14px 18px;
-    background: #ffffff;
-    border: 1px solid #e7edf5;
-    border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(30,60,100,.05);
-}
-
-.month-navigation {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.month-nav-btn {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #1769d1;
-    background: #ffffff;
-    border: 1px solid #dfe6ef;
-    border-radius: 10px;
-    text-decoration: none;
-    transition: .2s ease;
-}
-
-.month-nav-btn:hover {
-    background: #f0f5ff;
-}
-
-.month-name {
-    text-align: center;
-}
-
-.month-name strong {
-    display: block;
-    color: #25344a;
-    font-size: 20px;
-    font-weight: 800;
-}
-
-.month-name span {
-    display: block;
-    margin-top: 3px;
-    color: #7b8798;
-    font-size: 12px;
-}
-
-
-/* =========================================================
-   INFORMATION CARDS
-========================================================= */
-
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-bottom: 18px;
-}
-
-.info-card {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    padding: 18px;
-    background: #ffffff;
-    border: 1px solid #e7edf5;
-    border-radius: 15px;
-}
-
-.info-icon {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border-radius: 12px;
-    font-size: 20px;
-}
-
-.info-blue {
-    color: #1769d1;
-    background: #eaf3ff;
-}
-
-.info-green {
-    color: #20a464;
-    background: #eafaf1;
-}
-
-.info-purple {
-    color: #6c63ff;
-    background: #f1edff;
-}
-
-.info-red {
-    color: #c92d3d;
-    background: #fff0f0;
-}
-
-.info-text small {
-    display: block;
-    margin-bottom: 3px;
-    color: #7b8798;
-    font-size: 11px;
-}
-
-.info-text strong {
-    color: #25344a;
-    font-size: 18px;
-}
-
-
-/* =========================================================
-   ATTENDANCE CARD
-========================================================= */
-
-.attendance-card {
-    overflow: hidden;
-    background: #ffffff;
-    border: 1px solid #e7edf5;
-    border-radius: 16px;
-    box-shadow: 0 7px 25px rgba(30,60,100,.06);
-}
-
-.attendance-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 20px;
-    border-bottom: 1px solid #edf1f6;
-}
-
-.attendance-card-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.attendance-card-title > i {
-    color: #1769d1;
-    font-size: 19px;
-}
-
-.attendance-card-title strong {
-    color: #25344a;
-    font-size: 16px;
-}
-
-.attendance-card-title span {
-    margin-left: 7px;
-    color: #8994a4;
-    font-size: 12px;
-}
-
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.attendance-table {
-    width: 100%;
-    min-width: 1400px;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.attendance-table th,
-.attendance-table td {
-    border-right: 1px solid #edf1f6;
-    border-bottom: 1px solid #edf1f6;
-    text-align: center;
-    vertical-align: middle;
-}
-
-.attendance-table thead th {
-    height: 80px;
-    padding: 7px 5px;
-    color: #526074;
-    background: #f7f9fc;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.attendance-table tbody td {
-    height: 59px;
-    padding: 5px 4px;
-    font-size: 12px;
-}
-
-
-/* =========================================================
-   STICKY COLUMNS
-========================================================= */
-
-.student-column {
-    min-width: 220px;
-    position: sticky;
-    left: 0;
-    z-index: 5;
-    text-align: left !important;
-    background: #ffffff;
-}
-
-.attendance-table thead .student-column {
-    z-index: 9;
-    background: #f7f9fc;
-}
-
-.roll-column {
-    min-width: 70px;
-    position: sticky;
-    left: 220px;
-    z-index: 5;
-    background: #ffffff;
-}
-
-.attendance-table thead .roll-column {
-    z-index: 9;
-    background: #f7f9fc;
-}
-
-.summary-column {
-    min-width: 105px;
-    position: sticky;
-    right: 0;
-    z-index: 5;
-    background: #ffffff;
-}
-
-.attendance-table thead .summary-column {
-    z-index: 9;
-    background: #f7f9fc;
-}
-
-
-/* =========================================================
-   STUDENT
-========================================================= */
-
-.student-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-left: 10px;
-}
-
-.student-avatar {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-    border-radius: 50%;
-    color: #1769d1;
-    background: #eaf3ff;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.student-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.student-name {
-    color: #25344a;
-    font-size: 12px;
-    font-weight: 750;
-}
-
-.student-id {
-    margin-top: 2px;
-    color: #8a95a5;
-    font-size: 10px;
-}
-
-
-/* =========================================================
-   DATE HEADER
-========================================================= */
-
-.date-number {
-    display: block;
-    color: #25344a;
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.date-day {
-    display: block;
-    margin-top: 2px;
-    color: #8a95a5;
-    font-size: 9px;
-    text-transform: uppercase;
-}
-
-.date-present-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    margin-top: 5px;
-    padding: 3px 6px;
-    color: #16834b;
-    background: #eafaf1;
-    border-radius: 6px;
-    font-size: 8px;
-    font-weight: 800;
-}
-
-.date-present-count i {
-    font-size: 8px;
-}
-
-.date-absent-count {
-    display: block;
-    margin-top: 2px;
-    color: #dc3545;
-    font-size: 8px;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   HOLIDAY
-========================================================= */
-
-.holiday-header {
-    color: #c92d3d !important;
-    background: #fff0f0 !important;
-    border-right-color: #f3c1c6 !important;
-    border-bottom-color: #f3c1c6 !important;
-}
-
-.holiday-header .date-number,
-.holiday-header .date-day {
-    color: #c92d3d !important;
-}
-
-.holiday-cell {
-    background: #fff8f8 !important;
-    border-right-color: #f3d0d0 !important;
-}
-
-.holiday-label {
-    display: block;
-    margin-top: 4px;
-    color: #c92d3d;
-    font-size: 8px;
-    font-weight: 800;
-    text-transform: uppercase;
-}
-
-
-/* =========================================================
-   ATTENDANCE BUTTON
-========================================================= */
-
-.attendance-cell {
-    position: relative;
-}
-
-.attendance-btn {
-    width: 34px;
-    height: 34px;
-    border: 1px solid #dce3ed;
-    border-radius: 9px;
-    color: #a3adba;
-    background: #ffffff;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: .15s ease;
-}
-
-.attendance-btn:hover {
-    border-color: #6c63ff;
-    transform: scale(1.04);
-}
-
-.attendance-btn.present {
-    color: #1d9b5b;
-    background: #eafaf1;
-    border-color: #bde8d0;
-}
-
-.attendance-btn.absent {
-    color: #dc3545;
-    background: #fff0f0;
-    border-color: #f3c1c6;
-}
-
-.attendance-btn.holiday-disabled {
-    opacity: .75;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-
-/* =========================================================
-   SUMMARY
-========================================================= */
-
-.summary-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-}
-
-.summary-percentage {
-    color: #1769d1;
-    font-size: 15px;
-    font-weight: 800;
-}
-
-.summary-counts {
-    display: flex;
-    gap: 8px;
-    font-size: 9px;
-    font-weight: 800;
-}
-
-.summary-present {
-    color: #1d9b5b;
-}
-
-.summary-absent {
-    color: #dc3545;
-}
-
-
-/* =========================================================
-   SAVE BAR
-========================================================= */
-
-.save-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 17px 20px;
-    background: #fbfcfe;
-    border-top: 1px solid #edf1f6;
-    flex-wrap: wrap;
-}
-
-.legend {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #697587;
-    font-size: 11px;
-}
-
-.legend-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 4px;
-}
-
-.legend-present {
-    background: #eafaf1;
-    border: 1px solid #bde8d0;
-}
-
-.legend-absent {
-    background: #fff0f0;
-    border: 1px solid #f3c1c6;
-}
-
-.legend-empty {
-    background: #ffffff;
-    border: 1px solid #dce3ed;
-}
-
-.legend-holiday {
-    background: #fff0f0;
-    border: 1px solid #f3c1c6;
-}
-
-.save-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 11px 20px;
-    color: #ffffff;
-    background: linear-gradient(
-        135deg,
-        #1769d1,
-        #6c63ff
-    );
-    border: 0;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 6px 15px rgba(23,105,209,.20);
-}
-
-.save-btn:disabled {
-    opacity: .7;
-    cursor: not-allowed;
-}
-
-
-/* =========================================================
-   EMPTY
-========================================================= */
-
-.empty-state {
-    padding: 70px 20px;
-    text-align: center;
-}
-
-.empty-icon {
-    width: 65px;
-    height: 65px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-    color: #7c8ba1;
-    background: #eef3fb;
-    border-radius: 18px;
-    font-size: 27px;
-}
-
-.empty-state h4 {
-    margin: 0 0 6px;
-    color: #334155;
-    font-size: 17px;
-}
-
-.empty-state p {
-    margin: 0;
-    color: #8a95a5;
-    font-size: 13px;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1200px) {
-
-    .info-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .btn-solid,
+    .btn-line{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        height:40px;
+        padding:0 16px;
+        border-radius:8px;
+        border:1px solid transparent;
+        cursor:pointer;
+        font-family:inherit;
+        font-size:13px;
+        font-weight:500;
+        line-height:1;
+        text-decoration:none;
+        white-space:nowrap;
     }
 
-}
-
-@media (max-width: 1100px) {
-
-    .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .btn-solid{
+        color:#fff;
+        background:var(--ink);
+        border-color:var(--ink);
     }
 
-}
-
-@media (max-width: 700px) {
-
-    .attendance-page {
-        padding: 12px;
+    .btn-solid:hover{
+        color:#fff;
+        background:var(--ink-2);
     }
 
-    .attendance-header {
-        padding: 20px;
+    .btn-line{
+        color:var(--text);
+        background:#fff;
+        border-color:#cfc8b6;
     }
 
-    .attendance-header h2 {
-        font-size: 20px;
+    .btn-line:hover{
+        color:var(--ink);
+        background:#fffdf6;
+        border-color:var(--ink);
     }
 
-    .attendance-title-area {
-        width: 100%;
+    .btn-line.is-disabled{
+        opacity:.46;
+        pointer-events:none;
     }
 
-    .header-actions {
-        width: 100%;
-        justify-content: stretch;
+    .btn-icon{
+        width:40px;
+        padding:0;
     }
 
-    .header-btn,
-    .back-attendance-btn {
-        flex: 1;
+    .form-control{
+        width:100%;
+        height:40px;
+        padding:0 12px;
+        color:var(--text);
+        background:#fff;
+        border:1px solid #cfc8b6;
+        border-radius:8px;
+        outline:none;
+        font-family:inherit;
+        font-size:13.5px;
     }
 
-    .filter-grid {
-        grid-template-columns: 1fr;
+    .form-control:focus{
+        border-color:var(--ink);
+        box-shadow:0 0 0 3px rgba(29,58,51,.10);
     }
 
-    .info-grid {
-        grid-template-columns: 1fr;
+    .c-blue{--c:#2b5d8a}
+    .c-green{--c:#3a9d6b}
+    .c-red{--c:#e4572e}
+    .c-amber{--c:#d58a0b}
+    .c-violet{--c:#7a4fb5}
+
+    /* =========================================================
+       Header (Meal Items style)
+       ========================================================= */
+
+    .attendance-hero{
+        display:flex;
+        align-items:stretch;
+        overflow:hidden;
+        margin-bottom:21px;
+        border-radius:14px;
+        border:1px solid #e8e2d4;
+        background:#fff;
+        box-shadow:0 4px 18px rgba(29,58,51,.06);
     }
 
-}
-
-
-/* =========================================================
-   PRINT SHEET
-========================================================= */
-
-.print-sheet {
-    display: none;
-}
-
-
-/* =========================================================
-   PROFESSIONAL PRINT
-========================================================= */
-
-@media print {
-
-    @page {
-        size: A4 landscape;
-        margin: 7mm;
+    .hero-left{
+        flex:1 1 auto;
+        display:flex;
+        align-items:flex-start;
+        gap:18px;
+        padding:22px 26px 22px 22px;
+        position:relative;
+        background:#fffdf9;
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | IMPORTANT
-    |--------------------------------------------------------------------------
-    | Hide the ENTIRE application layout while printing.
-    |
-    | This removes:
-    | ☰
-    | Student Attendance A
-    | Admin
-    | Online
-    | Sidebar
-    | Navbar
-    | Footer
-    | Dashboard layout
-    |
-    | Only .print-sheet becomes visible.
-    |--------------------------------------------------------------------------
-    */
-
-    html,
-    body {
-        width: 100% !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
+    .hero-left::before{
+        content:"";
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        width:5px;
+        background:#2d6a4f;
+        border-radius:14px 0 0 14px;
     }
 
-
-    body * {
-        visibility: hidden !important;
+    .hero-icon{
+        width:48px;
+        height:48px;
+        flex-shrink:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:#f3ebe0;
+        border-radius:12px;
+        color:#8a6a3d;
+        font-size:22px;
     }
 
-
-    .print-sheet,
-    .print-sheet * {
-        visibility: visible !important;
+    .hero-kicker{
+        margin:0 0 6px;
+        color:#a67c3d;
+        font-size:11px;
+        font-weight:700;
+        letter-spacing:.6px;
+        text-transform:uppercase;
     }
 
-
-    .print-sheet {
-        display: block !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        color: #111827 !important;
-        background: #ffffff !important;
-        font-family: Arial, Helvetica, sans-serif !important;
+    .attendance-title{
+        margin:0 0 6px;
+        color:#1a2e28;
+        font-family:var(--serif);
+        font-size:26px;
+        font-weight:700;
+        line-height:1.2;
     }
 
-
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        box-sizing: border-box !important;
+    .attendance-subtitle{
+        margin:0;
+        color:#6b6560;
+        font-size:13.5px;
+        line-height:1.45;
+        max-width:420px;
     }
 
-
-    /* ---------------------------------------------------------
-       SCHOOL HEADER
-    --------------------------------------------------------- */
-
-    .print-school-header {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 13px !important;
-        padding-bottom: 7px !important;
-        margin-bottom: 7px !important;
-        border-bottom: 2px solid #1769d1 !important;
+    .hero-meta{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:14px;
     }
 
-    .print-school-logo {
-        width: 52px !important;
-        height: 52px !important;
-        object-fit: contain !important;
+    .meta-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:5px 11px;
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 10%, #fff);
+        border-radius:6px;
+        font-size:11.5px;
+        font-weight:600;
     }
 
-    .print-school-info {
-        text-align: center !important;
+    .meta-chip.year{
+        color:#7a4fb5;
+        background:color-mix(in srgb, #7a4fb5 10%, #fff);
     }
 
-    .print-school-info h1 {
-        margin: 0 !important;
-        color: #1769d1 !important;
-        font-size: 20px !important;
-        font-weight: 800 !important;
+    /* Right dark panel */
+    .hero-right{
+        flex:0 0 280px;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
+        gap:16px;
+        padding:20px 22px;
+        background:#1e3a32;
+        color:#e8f0ec;
     }
 
-    .print-school-info p {
-        margin: 2px 0 0 !important;
-        color: #667085 !important;
-        font-size: 8px !important;
+    .hero-right-kicker{
+        margin:0 0 4px;
+        color:#9ec5b5;
+        font-size:11px;
+        font-weight:700;
+        letter-spacing:.5px;
+        text-transform:uppercase;
     }
 
-
-    /* ---------------------------------------------------------
-       REPORT TITLE
-    --------------------------------------------------------- */
-
-    .print-report-title {
-        margin-bottom: 7px !important;
-        text-align: center !important;
+    .hero-right-text{
+        margin:0;
+        color:#c5d9d0;
+        font-size:13.5px;
+        line-height:1.4;
     }
 
-    .print-report-title h2 {
-        margin: 0 !important;
-        color: #1f2937 !important;
-        font-size: 14px !important;
-        font-weight: 800 !important;
-        text-transform: uppercase !important;
+    .hero-actions{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
     }
 
-    .print-report-title p {
-        margin: 2px 0 0 !important;
-        color: #667085 !important;
-        font-size: 8px !important;
-        font-weight: 600 !important;
+    .btn-hero-outline{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        height:38px;
+        padding:0 14px;
+        color:#e8f0ec;
+        background:transparent;
+        border:1px solid #4a6b62;
+        border-radius:8px;
+        font-size:13px;
+        font-weight:500;
+        text-decoration:none;
+        transition:all .18s ease;
     }
 
-
-    /* ---------------------------------------------------------
-       REPORT INFORMATION
-    --------------------------------------------------------- */
-
-    .print-info-box {
-        display: grid !important;
-        grid-template-columns: repeat(6, 1fr) !important;
-        gap: 5px !important;
-        margin-bottom: 7px !important;
+    .btn-hero-outline:hover{
+        background:rgba(255,255,255,.08);
+        border-color:#7a9e92;
+        color:#fff;
     }
 
-    .print-info-item {
-        padding: 5px 6px !important;
-        background: #f8fafc !important;
-        border: 1px solid #d9e2ef !important;
-        border-radius: 3px !important;
+    .btn-hero-solid{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        height:38px;
+        padding:0 14px;
+        color:#1e3a32;
+        background:#e8d5a8;
+        border:1px solid #e8d5a8;
+        border-radius:8px;
+        font-size:13px;
+        font-weight:600;
+        text-decoration:none;
+        transition:all .18s ease;
     }
 
-    .print-info-label {
-        display: block !important;
-        margin-bottom: 2px !important;
-        color: #667085 !important;
-        font-size: 6px !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
+    .btn-hero-solid:hover{
+        background:#f0e0b8;
+        color:#1a2e28;
     }
 
-    .print-info-value {
-        display: block !important;
-        color: #111827 !important;
-        font-size: 8px !important;
-        font-weight: 700 !important;
+    .month-display{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding:9px 13px;
+        color:#e8f0ec;
+        background:rgba(255,255,255,.08);
+        border:1px solid #4a6b62;
+        border-radius:8px;
+        font-family:var(--serif);
+        font-size:14px;
+        font-weight:700;
+        white-space:nowrap;
     }
 
-
-    /* ---------------------------------------------------------
-       PRINT TABLE
-    --------------------------------------------------------- */
-
-    .print-table {
-        width: 100% !important;
-        table-layout: fixed !important;
-        border-collapse: collapse !important;
-        margin: 0 !important;
-        font-size: 6px !important;
+    .lock-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:7px;
+        padding:8px 12px;
+        color:#f0d090;
+        background:rgba(213,138,11,.18);
+        border:1px solid rgba(213,138,11,.35);
+        border-radius:8px;
+        font-size:12px;
+        font-weight:600;
+        white-space:nowrap;
     }
 
-    .print-table th,
-    .print-table td {
-        padding: 2px 1px !important;
-        border: 1px solid #aeb8c5 !important;
-        text-align: center !important;
-        vertical-align: middle !important;
-        line-height: 1.1 !important;
+    /* =========================================================
+       Summary cards
+       ========================================================= */
+
+    .summary-grid{
+        display:grid;
+        grid-template-columns:repeat(4, minmax(0, 1fr));
+        gap:18px;
+        margin-bottom:21px;
     }
 
-    .print-table thead th {
-        height: 25px !important;
-        color: #1f3b64 !important;
-        background: #eaf2ff !important;
-        font-weight: 800 !important;
+    .summary-card{
+        position:relative;
+        display:flex;
+        flex-direction:column;
+        gap:13px;
+        padding:20px 20px 16px;
+        margin-top:10px;
+        border-top:4px solid var(--c);
+        transition:transform .18s ease, box-shadow .18s ease;
     }
 
-    .print-table tbody td {
-        height: 17px !important;
+    .summary-card:hover{
+        transform:translateY(-4px);
+        box-shadow:0 13px 24px rgba(29,58,51,.12);
     }
 
-
-    /* ---------------------------------------------------------
-       STUDENT COLUMN
-    --------------------------------------------------------- */
-
-    .print-table th:first-child,
-    .print-table td:first-child {
-        width: 19% !important;
-        padding-left: 4px !important;
-        text-align: left !important;
+    .summary-tab{
+        position:absolute;
+        top:-24px;
+        left:15px;
+        padding:3px 11px;
+        color:#fff;
+        background:var(--c);
+        border-radius:7px 7px 0 0;
+        font-size:11.5px;
+        font-weight:600;
     }
 
-
-    /* ---------------------------------------------------------
-       ROLL COLUMN
-    --------------------------------------------------------- */
-
-    .print-table th:nth-child(2),
-    .print-table td:nth-child(2) {
-        width: 4.5% !important;
+    .summary-top{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
     }
 
-
-    /* ---------------------------------------------------------
-       SUMMARY COLUMNS
-    --------------------------------------------------------- */
-
-    .print-table th:nth-last-child(3),
-    .print-table td:nth-last-child(3),
-    .print-table th:nth-last-child(2),
-    .print-table td:nth-last-child(2),
-    .print-table th:last-child,
-    .print-table td:last-child {
-        width: 4.5% !important;
+    .summary-value{
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:30px;
+        font-weight:700;
+        line-height:1;
     }
 
-
-    /* ---------------------------------------------------------
-       ATTENDANCE COLORS
-    --------------------------------------------------------- */
-
-    .print-present {
-        color: #16834b !important;
-        font-weight: 800 !important;
+    .summary-icon{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:42px;
+        height:42px;
+        flex-shrink:0;
+        color:var(--c);
+        background:color-mix(in srgb, var(--c) 14%, #fff);
+        border-radius:12px;
+        font-size:18px;
     }
 
-    .print-absent {
-        color: #c92d3d !important;
-        font-weight: 800 !important;
+    .summary-label{
+        padding-top:11px;
+        color:var(--muted);
+        border-top:1px dashed #d8d1bf;
+        font-size:12px;
     }
 
-    .print-empty {
-        color: #98a2b3 !important;
-        font-weight: 700 !important;
+    /* =========================================================
+       One-line attendance toolbar
+       ========================================================= */
+
+    .attendance-toolbar{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex-wrap:nowrap;
+        width:100%;
+        min-height:72px;
+        padding:12px 14px;
+        margin-bottom:16px;
+        overflow-x:auto;
+        overflow-y:hidden;
+        scrollbar-width:thin;
     }
 
-    .print-holiday {
-        color: #c92d3d !important;
-        background: #fff0f0 !important;
-        font-weight: 800 !important;
+    .attendance-toolbar > *{
+        flex-shrink:0;
     }
 
-    .print-holiday-cell {
-        color: #c92d3d !important;
-        background: #fff8f8 !important;
+    .date-controls{
+        display:flex;
+        align-items:center;
+        gap:7px;
+        flex:0 0 auto;
+        white-space:nowrap;
     }
 
-
-    /* ---------------------------------------------------------
-       DAILY COUNT
-    --------------------------------------------------------- */
-
-    .print-daily-count {
-        display: block !important;
-        margin-top: 1px !important;
-        color: #16834b !important;
-        font-size: 5px !important;
-        font-weight: 800 !important;
+    .date-controls .btn-line{
+        height:38px;
     }
 
-    .print-holiday .print-daily-count {
-        color: #c92d3d !important;
+    .date-controls .btn-icon{
+        width:38px;
+        padding:0;
     }
 
-
-    /* ---------------------------------------------------------
-       LEGEND
-    --------------------------------------------------------- */
-
-    .print-legend {
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-        margin-top: 6px !important;
-        color: #475467 !important;
-        font-size: 6.5px !important;
+    .date-input{
+        width:145px;
+        height:38px;
+        padding:0 10px;
+        font-size:13px;
     }
 
-
-    /* ---------------------------------------------------------
-       FOOTER
-    --------------------------------------------------------- */
-
-    .print-footer {
-        display: flex !important;
-        align-items: flex-end !important;
-        justify-content: space-between !important;
-        margin-top: 8px !important;
-        padding-top: 6px !important;
-        border-top: 1px solid #d9e2ef !important;
-        color: #667085 !important;
-        font-size: 6.5px !important;
+    .today-button{
+        min-width:67px;
+        padding:0 12px !important;
     }
 
-    .print-signature {
-        min-width: 145px !important;
-        text-align: center !important;
+    .view-switch{
+        display:inline-flex;
+        flex:0 0 auto;
+        overflow:hidden;
+        border:1px solid #cfc8b6;
+        border-radius:8px;
     }
 
-    .print-signature-line {
-        margin-top: 17px !important;
-        padding-top: 3px !important;
-        color: #344054 !important;
-        border-top: 1px solid #344054 !important;
-        font-weight: 700 !important;
+    .view-switch a{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        min-width:58px;
+        height:38px;
+        padding:0 11px;
+        color:var(--text);
+        background:#fff;
+        text-decoration:none;
+        font-size:13px;
+        font-weight:500;
+        white-space:nowrap;
     }
 
-
-    /* ---------------------------------------------------------
-       PAGE BREAK
-    --------------------------------------------------------- */
-
-    .print-table thead {
-        display: table-header-group !important;
+    .view-switch a + a{
+        border-left:1px solid #cfc8b6;
     }
 
-    .print-table tr {
-        page-break-inside: avoid !important;
+    .view-switch a:hover{
+        background:#fffdf6;
     }
 
-    .print-table td,
-    .print-table th {
-        page-break-inside: avoid !important;
+    .view-switch a.is-active{
+        color:#fff;
+        background:var(--ink);
     }
 
-}
+    .selected-date-display{
+        display:inline-flex;
+        align-items:center;
+        gap:7px;
+        flex:0 0 auto;
+        padding:0 2px;
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:14px;
+        font-weight:700;
+        line-height:38px;
+        white-space:nowrap;
+    }
 
+    .date-tag{
+        display:inline-flex;
+        align-items:center;
+        padding:3px 8px;
+        border-radius:999px;
+        font-family:'Public Sans', sans-serif;
+        font-size:10.5px;
+        font-weight:600;
+        white-space:nowrap;
+    }
+
+    .date-tag.today{
+        color:#2b7a52;
+        background:color-mix(in srgb, #3a9d6b 14%, #fff);
+    }
+
+    .date-tag.past{
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 12%, #fff);
+    }
+
+    .date-tag.future{
+        color:#7a4fb5;
+        background:color-mix(in srgb, #7a4fb5 12%, #fff);
+    }
+
+    .date-tag.holiday{
+        color:#8a5600;
+        background:color-mix(in srgb, #d58a0b 15%, #fff);
+    }
+
+    .toolbar-actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex:1 1 auto;
+        min-width:0;
+        margin-left:auto;
+        white-space:nowrap;
+    }
+
+    .search-wrap{
+        position:relative;
+        flex:1 1 180px;
+        width:auto;
+        min-width:165px;
+        max-width:250px;
+    }
+
+    .search-wrap i{
+        position:absolute;
+        top:50%;
+        left:11px;
+        color:var(--muted);
+        pointer-events:none;
+        transform:translateY(-50%);
+    }
+
+    .search-wrap .form-control{
+        width:100%;
+        height:38px;
+        min-width:0;
+        padding-right:9px;
+        padding-left:34px;
+        font-size:13px;
+    }
+
+    #markRemaining{
+        height:38px;
+        padding:0 13px;
+        font-size:12.5px;
+    }
+
+    /* =========================================================
+       Locked date note
+       ========================================================= */
+
+    .lock-note{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:13px 16px;
+        margin-bottom:16px;
+        color:#8a5600;
+        background:#fff8e8;
+        border:1px dashed #d58a0b;
+        border-radius:10px;
+        font-size:13px;
+    }
+
+    /* =========================================================
+       Attendance register
+       ========================================================= */
+
+    .register-panel{
+        overflow:hidden;
+    }
+
+    .register-head{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:16px;
+        flex-wrap:wrap;
+        padding:15px 20px;
+        border-bottom:1px dashed #d8d1bf;
+    }
+
+    .register-head h3{
+        margin:0;
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:17px;
+        font-weight:700;
+    }
+
+    .attendance-legend{
+        display:flex;
+        gap:13px;
+        flex-wrap:wrap;
+        color:var(--muted);
+        font-size:11.5px;
+    }
+
+    .attendance-legend span{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+    }
+
+    .register-wrap{
+        max-height:72vh;
+        overflow:auto;
+    }
+
+    .attendance-table{
+        width:max-content;
+        min-width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+    }
+
+    .attendance-table th,
+    .attendance-table td{
+        padding:0;
+        color:var(--text);
+        background:#fff;
+        border-right:1px solid #f6f2e8;
+        border-bottom:1px solid #f0ebe0;
+        text-align:center;
+        font-size:12.5px;
+    }
+
+    .attendance-table thead th{
+        position:sticky;
+        top:0;
+        z-index:3;
+        height:52px;
+        color:var(--muted);
+        background:#f8f6f0;
+        border-bottom:1px solid #e6e0d2;
+        font-size:10.5px;
+        font-weight:700;
+        letter-spacing:.3px;
+        text-transform:uppercase;
+    }
+
+    .attendance-table tbody tr:hover td{
+        background:#fffdf6;
+    }
+
+    .column-number{
+        position:sticky;
+        left:0;
+        z-index:2;
+        width:46px;
+        min-width:46px;
+        color:var(--muted);
+        font-weight:600;
+    }
+
+    .column-student{
+        position:sticky;
+        left:46px;
+        z-index:2;
+        width:240px;
+        min-width:240px;
+        padding:10px 14px !important;
+        box-shadow:2px 0 0 #e6e0d2;
+        text-align:left !important;
+    }
+
+    .attendance-table thead .column-number,
+    .attendance-table thead .column-student{
+        z-index:5;
+    }
+
+    .attendance-table tbody tr:hover .column-number,
+    .attendance-table tbody tr:hover .column-student{
+        background:#fffdf6;
+    }
+
+    .student-info{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    .student-avatar{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:34px;
+        height:34px;
+        flex-shrink:0;
+        overflow:hidden;
+        color:#7a4fb5;
+        background:color-mix(in srgb, #7a4fb5 14%, #fff);
+        border-radius:50%;
+        font-size:12px;
+        font-weight:700;
+    }
+
+    .student-avatar img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+    }
+
+    .student-name{
+        max-width:155px;
+        overflow:hidden;
+        color:var(--ink);
+        font-size:13px;
+        font-weight:600;
+        line-height:1.25;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+
+    .student-details{
+        margin-top:2px;
+        color:var(--muted);
+        font-size:10.5px;
+    }
+
+    .column-day{
+        width:46px;
+        min-width:46px;
+        height:48px;
+    }
+
+    .column-day-selected{
+        width:90px;
+        min-width:90px;
+        background:color-mix(in srgb, #2b5d8a 7%, #fff) !important;
+        box-shadow:inset 2px 0 0 #2b5d8a, inset -2px 0 0 #2b5d8a;
+    }
+
+    .attendance-table thead .column-day-selected{
+        color:#fff;
+        background:#2b5d8a !important;
+    }
+
+    .day-heading{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
+        gap:1px;
+        width:100%;
+        height:100%;
+        color:inherit;
+        line-height:1.1;
+        text-decoration:none;
+    }
+
+    .day-heading b{
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:14px;
+    }
+
+    .attendance-table thead .column-day-selected .day-heading b{
+        color:#fff;
+    }
+
+    .day-heading em{
+        font-style:normal;
+        font-size:9px;
+        opacity:.82;
+    }
+
+    .day-heading:hover b{
+        text-decoration:underline;
+    }
+
+    .attendance-table thead .is-holiday{
+        background:#fff8e8;
+    }
+
+    .attendance-table thead .is-holiday b{
+        color:#8a5600;
+    }
+
+    .attendance-table thead .is-future{
+        opacity:.55;
+    }
+
+    .attendance-table td.is-holiday{
+        background:#fffcf3;
+    }
+
+    .attendance-table td.is-future{
+        background:#fafaf7;
+    }
+
+    .status-symbol{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width:25px;
+        height:25px;
+        border-radius:7px;
+        font-size:11px;
+        font-weight:700;
+    }
+
+    .status-present{
+        color:#2b7a52;
+        background:color-mix(in srgb, #3a9d6b 16%, #fff);
+    }
+
+    .status-absent{
+        color:#c23d17;
+        background:color-mix(in srgb, #e4572e 16%, #fff);
+    }
+
+    .status-holiday{
+        color:#8a5600;
+        background:color-mix(in srgb, #d58a0b 16%, #fff);
+    }
+
+    .status-empty{
+        color:#c9c2ae;
+    }
+
+    .column-total{
+        width:66px;
+        min-width:66px;
+        font-weight:700;
+    }
+
+    .total-present{
+        color:#2b7a52;
+    }
+
+    .total-absent{
+        color:#c23d17;
+    }
+
+    .total-percentage{
+        color:var(--ink);
+    }
+
+    .attendance-table tfoot td{
+        position:sticky;
+        bottom:0;
+        z-index:3;
+        height:38px;
+        background:#f8f6f0;
+        border-top:1px solid #e6e0d2;
+        font-size:11px;
+        font-weight:700;
+    }
+
+    .attendance-table tfoot tr:nth-child(1) td{
+        bottom:76px;
+    }
+
+    .attendance-table tfoot tr:nth-child(2) td{
+        bottom:38px;
+    }
+
+    .attendance-table tfoot tr:nth-child(3) td{
+        bottom:0;
+    }
+
+    .attendance-table tfoot .column-number,
+    .attendance-table tfoot .column-student{
+        z-index:5;
+    }
+
+    .footer-label{
+        color:var(--muted);
+        font-size:10.5px;
+        letter-spacing:.35px;
+        text-align:left !important;
+        text-transform:uppercase;
+    }
+
+    .footer-present{
+        color:#2b7a52;
+    }
+
+    .footer-absent{
+        color:#c23d17;
+    }
+
+    .footer-percentage{
+        color:var(--ink);
+    }
+
+    /* =========================================================
+       Compact Present / Absent toggle
+       ========================================================= */
+
+    .attendance-toggle{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:5px;
+        min-width:66px;
+        height:30px;
+        padding:3px 5px;
+        color:#c23d17;
+        background:#fff8f6;
+        border:1px solid #f0c5ba;
+        border-radius:999px;
+        cursor:pointer;
+        font-family:inherit;
+        transition:background .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .attendance-toggle:hover{
+        box-shadow:0 2px 8px rgba(29,58,51,.12);
+    }
+
+    .attendance-toggle:focus-visible{
+        outline:3px solid rgba(43,93,138,.22);
+        outline-offset:2px;
+    }
+
+    .attendance-toggle__label{
+        width:10px;
+        color:currentColor;
+        font-size:10px;
+        font-weight:800;
+        line-height:1;
+        opacity:.5;
+    }
+
+    .attendance-toggle__track{
+        position:relative;
+        width:28px;
+        height:16px;
+        background:#e9b5a8;
+        border-radius:999px;
+        transition:background .18s ease;
+    }
+
+    .attendance-toggle__thumb{
+        position:absolute;
+        top:2px;
+        left:2px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:12px;
+        height:12px;
+        color:#c23d17;
+        background:#fff;
+        border-radius:50%;
+        box-shadow:0 1px 3px rgba(0,0,0,.20);
+        font-size:7px;
+        transition:left .18s ease, color .18s ease;
+    }
+
+    .attendance-toggle.is-present{
+        color:#2b7a52;
+        background:#f5fcf7;
+        border-color:#a7d7bb;
+    }
+
+    .attendance-toggle.is-present .attendance-toggle__track{
+        background:#3a9d6b;
+    }
+
+    .attendance-toggle.is-present .attendance-toggle__thumb{
+        left:14px;
+        color:#2b7a52;
+    }
+
+    .attendance-toggle.is-present .attendance-toggle__label--present,
+    .attendance-toggle.is-absent .attendance-toggle__label--absent{
+        opacity:1;
+    }
+
+    .cell-sync{
+        display:block;
+        min-height:10px;
+        margin-top:2px;
+        color:var(--muted);
+        font-size:9px;
+        line-height:1;
+    }
+
+    .cell-sync.is-saving{
+        color:#2b5d8a;
+    }
+
+    .cell-sync.is-saved{
+        color:#2b7a52;
+    }
+
+    .cell-sync.is-error{
+        color:#c23d17;
+    }
+
+    .spin{
+        display:inline-block;
+        width:10px;
+        height:10px;
+        border:2px solid currentColor;
+        border-right-color:transparent;
+        border-radius:50%;
+        animation:attendance-spin .7s linear infinite;
+    }
+
+    @keyframes attendance-spin{
+        to{
+            transform:rotate(360deg);
+        }
+    }
+
+    .no-match{
+        display:none;
+        padding:42px 16px;
+        color:var(--muted);
+        text-align:center;
+    }
+
+    .empty-state{
+        padding:60px 20px;
+        text-align:center;
+    }
+
+    .empty-icon{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:60px;
+        height:60px;
+        margin:0 auto 14px;
+        color:#2b5d8a;
+        background:color-mix(in srgb, #2b5d8a 12%, #fff);
+        border-radius:50%;
+        font-size:25px;
+    }
+
+    .empty-state h5{
+        margin:0 0 5px;
+        color:var(--ink);
+        font-family:var(--serif);
+        font-size:18px;
+        font-weight:700;
+    }
+
+    .empty-state p{
+        margin:0 0 18px;
+        color:var(--muted);
+        font-size:13px;
+    }
+
+    .toast{
+        position:fixed;
+        right:22px;
+        bottom:22px;
+        z-index:2000;
+        max-width:350px;
+        padding:12px 17px;
+        color:#fff;
+        background:var(--ink);
+        border-radius:10px;
+        box-shadow:0 12px 28px rgba(29,58,51,.28);
+        font-size:13px;
+        opacity:0;
+        pointer-events:none;
+        transform:translateY(10px);
+        transition:opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.is-show{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+    .toast.is-error{
+        background:#c23d17;
+    }
+
+    /* =========================================================
+       Responsive layout
+       ========================================================= */
+
+    @media (max-width:1200px){
+        .summary-grid{
+            grid-template-columns:repeat(2, minmax(0, 1fr));
+        }
+
+        .selected-date-display{
+            font-size:13px;
+        }
+
+        .search-wrap{
+            min-width:150px;
+            max-width:200px;
+        }
+
+        #markRemaining{
+            padding:0 11px;
+            font-size:12px;
+        }
+    }
+
+    @media (max-width:900px){
+        .attendance-hero{
+            flex-direction:column;
+        }
+
+        .hero-right{
+            flex:none;
+            width:100%;
+        }
+
+        .hero-actions{
+            flex-direction:row;
+            flex-wrap:wrap;
+        }
+
+        .attendance-toolbar{
+            align-items:flex-start;
+            flex-wrap:wrap;
+            min-height:0;
+            overflow-x:visible;
+        }
+
+        .toolbar-actions{
+            width:100%;
+            flex:1 0 100%;
+            margin-left:0;
+        }
+
+        .search-wrap{
+            max-width:none;
+        }
+    }
+
+    @media (max-width:760px){
+        .hero-left{
+            padding:18px 16px 18px 18px;
+            gap:14px;
+        }
+
+        .attendance-title{
+            font-size:22px;
+        }
+
+        .hero-icon{
+            width:42px;
+            height:42px;
+            font-size:19px;
+        }
+
+        .column-student{
+            width:175px;
+            min-width:175px;
+        }
+
+        .student-name{
+            max-width:94px;
+        }
+    }
+
+    @media (max-width:520px){
+        .summary-grid{
+            grid-template-columns:1fr;
+        }
+
+        .date-controls{
+            width:100%;
+            overflow-x:auto;
+            padding-bottom:2px;
+        }
+
+        .selected-date-display{
+            width:100%;
+        }
+
+        .toolbar-actions{
+            flex-wrap:wrap;
+        }
+
+        .search-wrap,
+        #markRemaining{
+            width:100%;
+            max-width:none;
+            flex-basis:100%;
+        }
+
+        #markRemaining{
+            height:40px;
+        }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+        .summary-card,
+        .attendance-toggle,
+        .attendance-toggle__track,
+        .attendance-toggle__thumb{
+            transition:none;
+        }
+
+        .spin{
+            animation:none;
+        }
+    }
 </style>
-
 
 <div class="attendance-page">
 
-<div class="attendance-container">
-
-
-{{-- =========================================================
-     SUCCESS
-========================================================= --}}
-
-@if(session('success'))
-
-    <div class="attendance-alert attendance-alert-success">
-
-        <i class="bi bi-check-circle-fill"></i>
-
-        <span>
-            {{ session('success') }}
-        </span>
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     ERROR
-========================================================= --}}
-
-@if(session('error'))
-
-    <div class="attendance-alert attendance-alert-danger">
-
-        <i class="bi bi-exclamation-circle-fill"></i>
-
-        <span>
-            {{ session('error') }}
-        </span>
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     VALIDATION
-========================================================= --}}
-
-@if($errors->any())
-
-    <div class="attendance-alert attendance-alert-danger">
-
-        <i class="bi bi-exclamation-triangle-fill"></i>
-
-        <div>
-
-            @foreach($errors->all() as $error)
-
-                <div>
-                    {{ $error }}
-                </div>
-
-            @endforeach
-
-        </div>
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     HEADER
-========================================================= --}}
-
-<div class="attendance-header">
-
-    <div class="attendance-header-content">
-
-        <div class="attendance-title-area">
-
-            <div class="attendance-title-icon">
-                <i class="bi bi-calendar-check"></i>
+    {{-- =========================================================
+       Page header (Meal Items style)
+       ========================================================= --}}
+    <section class="paper attendance-hero">
+        <div class="hero-left">
+            <div class="hero-icon">
+                <i class="bi bi-calendar2-check"></i>
             </div>
 
             <div>
-
-                <h2>
-                    Student Attendance
-                </h2>
-
-                <p>
-                    Mark and manage daily student attendance
+                <div class="hero-kicker">ATTENDANCE / REGISTER</div>
+                <h1 class="attendance-title">Mark Attendance</h1>
+                <p class="attendance-subtitle">
+                    Review and update attendance for the selected class and date.
                 </p>
 
-            </div>
+                <div class="hero-meta">
+                    @if($classValue !== '')
+                        <span class="meta-chip">
+                            <i class="bi bi-mortarboard-fill"></i>
+                            Class {{ $classValue }}
+                        </span>
+                    @endif
 
+                    @if($sectionValue !== '')
+                        <span class="meta-chip">
+                            <i class="bi bi-diagram-3-fill"></i>
+                            Section {{ $sectionValue }}
+                        </span>
+                    @endif
+
+                    @if($academicYearValue !== '')
+                        <span class="meta-chip year">
+                            <i class="bi bi-calendar3"></i>
+                            {{ $academicYearValue }}
+                        </span>
+                    @endif
+                </div>
+            </div>
         </div>
 
+        <div class="hero-right">
+            <div>
+                <div class="hero-right-kicker">SCHOOL DIARY</div>
+                <p class="hero-right-text">
+                    Managing daily attendance for the class
+                </p>
+            </div>
 
-        <div class="header-actions">
+            <div class="hero-actions">
+                <a href="{{ $backUrl }}" class="btn-hero-outline">
+                    <i class="bi bi-arrow-left"></i>
+                    All classes
+                </a>
 
+                <div class="month-display">
+                    <i class="bi bi-calendar3"></i>
+                    {{ $selectedDate->format('F Y') }}
+                </div>
+
+                @if($isLocked)
+                    <span class="lock-badge">
+                        <i class="bi bi-lock-fill"></i>
+                        Attendance locked
+                    </span>
+                @endif
+            </div>
+        </div>
+    </section>
+
+    {{-- =========================================================
+       Attendance summary
+       ========================================================= --}}
+    <section class="summary-grid">
+        <article class="paper summary-card c-blue">
+            <span class="summary-tab">Students</span>
+
+            <div class="summary-top">
+                <div class="summary-value" id="sumTotal">{{ $totalStudents }}</div>
+
+                <div class="summary-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+
+            <div class="summary-label">Students in this class</div>
+        </article>
+
+        <article class="paper summary-card c-green">
+            <span class="summary-tab">Present</span>
+
+            <div class="summary-top">
+                <div class="summary-value" id="sumPresent">{{ $selectedPresent }}</div>
+
+                <div class="summary-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+            </div>
+
+            <div class="summary-label">
+                Present on {{ $selectedDate->format('d M') }}
+            </div>
+        </article>
+
+        <article class="paper summary-card c-red">
+            <span class="summary-tab">Absent</span>
+
+            <div class="summary-top">
+                <div class="summary-value" id="sumAbsent">{{ $selectedAbsent }}</div>
+
+                <div class="summary-icon">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+            </div>
+
+            <div class="summary-label">
+                Absent on {{ $selectedDate->format('d M') }}
+            </div>
+        </article>
+
+        <article class="paper summary-card c-amber">
+            <span class="summary-tab">Attendance</span>
+
+            <div class="summary-top">
+                <div class="summary-value" id="sumPercentage">
+                    {{ $selectedPercentage === null ? '–' : $selectedPercentage . '%' }}
+                </div>
+
+                <div class="summary-icon">
+                    <i class="bi bi-percent"></i>
+                </div>
+            </div>
+
+            <div class="summary-label">Attendance rate for this day</div>
+        </article>
+    </section>
+
+    {{-- =========================================================
+       Compact one-line attendance toolbar
+       ========================================================= --}}
+    <form method="GET" action="{{ $sheetUrl }}" id="dateForm" class="paper attendance-toolbar">
+        <input type="hidden" name="academic_year" value="{{ $academicYearValue }}">
+        <input type="hidden" name="class" value="{{ $classValue }}">
+        <input type="hidden" name="section" value="{{ $sectionValue }}">
+        <input type="hidden" name="view" value="{{ $viewMode }}">
+        <input type="hidden" name="month" id="monthInput" value="{{ $monthKey }}">
+
+        <div class="date-controls">
             <a
-                href="{{ route('admin.attendance.student') }}"
-                class="back-attendance-btn"
+                href="{{ $prevUrl }}"
+                class="btn-line btn-icon"
+                title="Previous day"
+                aria-label="Previous day"
             >
-                <i class="bi bi-arrow-left"></i>
-                Back
+                <i class="bi bi-chevron-left"></i>
             </a>
 
-
-            <button
-                type="button"
-                class="header-btn header-btn-light"
-                onclick="printAttendance()"
-                title="Print attendance report"
+            <input
+                type="date"
+                name="date"
+                id="dateInput"
+                class="form-control date-input"
+                value="{{ $dateKey }}"
+                max="{{ $today->format('Y-m-d') }}"
+                aria-label="Attendance date"
             >
-                <i class="bi bi-printer"></i>
-                Print
-            </button>
 
-
-            <button
-                type="button"
-                class="header-btn header-btn-light"
-                id="pdfExportBtn"
-                onclick="exportAttendance('pdf', this)"
-                title="Export attendance as PDF"
+            <a
+                href="{{ $canGoNext ? $nextUrl : '#' }}"
+                class="btn-line btn-icon {{ $canGoNext ? '' : 'is-disabled' }}"
+                title="Next day"
+                aria-label="Next day"
+                @if(!$canGoNext) aria-disabled="true" tabindex="-1" @endif
             >
-                <i class="bi bi-file-earmark-pdf"></i>
-                PDF
-            </button>
+                <i class="bi bi-chevron-right"></i>
+            </a>
 
-
-            <button
-                type="button"
-                class="header-btn header-btn-white"
-                id="excelExportBtn"
-                onclick="exportAttendance('excel', this)"
-                title="Export attendance as Excel"
+            <a
+                href="{{ $todayUrl }}"
+                class="btn-line today-button {{ $isToday ? 'is-disabled' : '' }}"
             >
-                <i class="bi bi-file-earmark-excel"></i>
-                Excel
-            </button>
-
+                Today
+            </a>
         </div>
 
-    </div>
+        <nav class="view-switch" aria-label="Attendance register view">
+            <a href="{{ $viewUrl('day') }}" class="{{ $viewMode === 'day' ? 'is-active' : '' }}">
+                Day
+            </a>
 
-</div>
+            <a href="{{ $viewUrl('week') }}" class="{{ $viewMode === 'week' ? 'is-active' : '' }}">
+                Week
+            </a>
 
+            <a href="{{ $viewUrl('month') }}" class="{{ $viewMode === 'month' ? 'is-active' : '' }}">
+                Month
+            </a>
+        </nav>
 
-{{-- =========================================================
-     FILTERS
-========================================================= --}}
+        <div class="selected-date-display" aria-label="Selected attendance date">
+            <span>{{ $selectedDate->format('D, d M Y') }}</span>
 
-<form
-    method="GET"
-    action="{{ $attendanceIndexUrl }}"
-    class="filter-card"
->
+            @if($isToday)
+                <span class="date-tag today">Today</span>
+            @elseif($isFuture)
+                <span class="date-tag future">Upcoming</span>
+            @else
+                <span class="date-tag past">Past</span>
+            @endif
 
-    <div class="filter-grid">
+            @if($holidayName)
+                <span class="date-tag holiday">{{ $holidayName }}</span>
+            @endif
+        </div>
 
+        @if($totalStudents > 0)
+            <div class="toolbar-actions">
+                <div class="search-wrap">
+                    <i class="bi bi-search"></i>
 
-        <div class="filter-group">
-
-            <label for="academic_year">
-                Academic Year
-            </label>
-
-            <select
-                name="academic_year"
-                id="academic_year"
-                class="filter-control"
-            >
-
-                <option value="">
-                    All Academic Years
-                </option>
-
-                @foreach($academicYearOptions as $year)
-
-                    <option
-                        value="{{ $year }}"
-                        @selected(
-                            (string) $selectedAcademicYear ===
-                            (string) $year
-                        )
+                    <input
+                        type="search"
+                        id="studentSearch"
+                        class="form-control"
+                        placeholder="Search name, ID or roll no."
+                        aria-label="Search students"
                     >
-                        {{ $year }}
-                    </option>
+                </div>
 
-                @endforeach
-
-            </select>
-
-        </div>
-
-
-        <div class="filter-group">
-
-            <label for="class">
-                Class
-            </label>
-
-            <select
-                name="class"
-                id="class"
-                class="filter-control"
-            >
-
-                <option value="">
-                    All Classes
-                </option>
-
-                @foreach($classOptions as $class)
-
-                    <option
-                        value="{{ $class }}"
-                        @selected(
-                            (string) $selectedClass ===
-                            (string) $class
-                        )
+                @unless($isLocked)
+                    <button
+                        type="button"
+                        class="btn-solid"
+                        id="markRemaining"
+                        title="Mark every visible student without attendance as present"
                     >
-                        {{ $class }}
-                    </option>
-
-                @endforeach
-
-            </select>
-
-        </div>
-
-
-        <div class="filter-group">
-
-            <label for="section">
-                Section
-            </label>
-
-            <select
-                name="section"
-                id="section"
-                class="filter-control"
-            >
-
-                <option value="">
-                    All Sections
-                </option>
-
-                @foreach($sectionOptions as $section)
-
-                    <option
-                        value="{{ $section }}"
-                        @selected(
-                            (string) $selectedSection ===
-                            (string) $section
-                        )
-                    >
-                        {{ $section }}
-                    </option>
-
-                @endforeach
-
-            </select>
-
-        </div>
-
-
-        <div class="filter-group">
-
-            <label for="month">
-                Attendance Month
-            </label>
-
-            <div class="filter-buttons">
-
-                <input
-                    type="month"
-                    name="month"
-                    id="month"
-                    value="{{ $selectedMonth }}"
-                    class="filter-control"
-                >
-
-                <button
-                    type="submit"
-                    class="filter-btn filter-primary"
-                >
-                    <i class="bi bi-funnel"></i>
-                    Apply
-                </button>
-
+                        <i class="bi bi-check2-all"></i>
+                        <span>Mark remaining present</span>
+                    </button>
+                @endunless
             </div>
+        @endif
+    </form>
 
+    {{-- =========================================================
+       Locked state note
+       ========================================================= --}}
+    @if($isLocked)
+        <div class="lock-note">
+            <i class="bi bi-info-circle-fill"></i>
+
+            @if($holidayName)
+                {{ $selectedDate->format('d M Y') }} is {{ $holidayName }}. Attendance cannot be marked for this date.
+            @else
+                Attendance cannot be marked for a future date.
+            @endif
         </div>
-
-    </div>
-
-</form>
-
-
-{{-- =========================================================
-     MONTH NAVIGATION
-========================================================= --}}
-
-<div class="month-card">
-
-    <div class="month-navigation">
-
-        <a
-            href="{{ $attendanceIndexUrl . '?' . http_build_query(
-                array_merge(
-                    request()->except('month'),
-                    ['month' => $previousMonth]
-                )
-            ) }}"
-            class="month-nav-btn"
-            title="Previous Month"
-        >
-            <i class="bi bi-chevron-left"></i>
-        </a>
-
-
-        <div class="month-name">
-
-            <strong>
-                {{ $currentMonth->format('F Y') }}
-            </strong>
-
-            <span>
-                {{ $daysInMonth }} days
-                •
-                {{ $workingDays }} working days
-                •
-                {{ $holidayDays }} holidays
-            </span>
-
-        </div>
-
-
-        <a
-            href="{{ $attendanceIndexUrl . '?' . http_build_query(
-                array_merge(
-                    request()->except('month'),
-                    ['month' => $nextMonth]
-                )
-            ) }}"
-            class="month-nav-btn"
-            title="Next Month"
-        >
-            <i class="bi bi-chevron-right"></i>
-        </a>
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     INFORMATION CARDS
-========================================================= --}}
-
-<div class="info-grid">
-
-    <div class="info-card">
-
-        <div class="info-icon info-blue">
-            <i class="bi bi-people"></i>
-        </div>
-
-        <div class="info-text">
-
-            <small>
-                Total Students
-            </small>
-
-            <strong>
-                {{ $studentCollection->count() }}
-            </strong>
-
-        </div>
-
-    </div>
-
-
-    <div class="info-card">
-
-        <div class="info-icon info-green">
-            <i class="bi bi-calendar3"></i>
-        </div>
-
-        <div class="info-text">
-
-            <small>
-                Attendance Month
-            </small>
-
-            <strong>
-                {{ $currentMonth->format('M Y') }}
-            </strong>
-
-        </div>
-
-    </div>
-
-
-    <div class="info-card">
-
-        <div class="info-icon info-purple">
-            <i class="bi bi-calendar-range"></i>
-        </div>
-
-        <div class="info-text">
-
-            <small>
-                Working Days
-            </small>
-
-            <strong>
-                {{ $workingDays }}
-            </strong>
-
-        </div>
-
-    </div>
-
-
-    <div class="info-card">
-
-        <div class="info-icon info-red">
-            <i class="bi bi-calendar-x"></i>
-        </div>
-
-        <div class="info-text">
-
-            <small>
-                Holidays
-            </small>
-
-            <strong>
-                {{ $holidayDays }}
-            </strong>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     ATTENDANCE FORM
-========================================================= --}}
-
-<form
-    method="POST"
-    action="{{ $attendanceStoreUrl }}"
-    id="attendanceForm"
->
-
-@csrf
-
-<input
-    type="hidden"
-    name="attendance_month"
-    value="{{ $selectedMonth }}"
->
-
-<input
-    type="hidden"
-    name="month"
-    value="{{ $selectedMonth }}"
->
-
-<input
-    type="hidden"
-    name="attendance_date"
-    value="{{ $selectedDate ?? request('date', now()->format('Y-m-d')) }}"
->
-
-<input
-    type="hidden"
-    name="academic_year"
-    value="{{ $selectedAcademicYear ?? '' }}"
->
-
-<input
-    type="hidden"
-    name="class"
-    value="{{ $selectedClass ?? '' }}"
->
-
-<input
-    type="hidden"
-    name="section"
-    value="{{ $selectedSection ?? '' }}"
->
-
-
-<div class="attendance-card">
-
-
-    <div class="attendance-card-header">
-
-        <div class="attendance-card-title">
-
-            <i class="bi bi-table"></i>
-
-            <div>
-
-                <strong>
-                    Daily Attendance
-                </strong>
-
-                <span>
-                    Click a cell to mark Present / Absent
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    @if($studentCollection->count() > 0)
-
-
-    <div class="table-wrapper">
-
-        <table
-            class="attendance-table"
-            id="attendanceTable"
-        >
-
-            <thead>
-
-                <tr>
-
-                    <th class="student-column">
-                        Student
-                    </th>
-
-                    <th class="roll-column">
-                        Roll No.
-                    </th>
-
-
-                    @foreach($monthDates as $date)
-
-                        @php
-
-                            $dateKey =
-                                $date->format('Y-m-d');
-
-                            $holidayName =
-                                $getHolidayName($date);
-
-                            $dailyPresent =
-                                $dailyAttendance[$dateKey]['present']
-                                ?? 0;
-
-                            $dailyAbsent =
-                                $dailyAttendance[$dateKey]['absent']
-                                ?? 0;
-
-                            $dailyTotal =
-                                $dailyAttendance[$dateKey]['total']
-                                ?? 0;
-
-                        @endphp
-
-
-                        <th
-                            data-date="{{ $dateKey }}"
-                            class="{{ $holidayName ? 'holiday-header' : '' }}"
-                            title="{{ $holidayName
-                                ? $holidayName
-                                : $dailyPresent . ' students present out of ' . $dailyTotal }}"
-                        >
-
-                            <span class="date-number">
-                                {{ $date->format('d') }}
-                            </span>
-
-                            <span class="date-day">
-                                {{ $date->format('D') }}
-                            </span>
-
-
-                            @if($holidayName)
-
-                                <span class="date-present-count">
-
-                                    <i class="bi bi-calendar-x"></i>
-
-                                    Holiday
-
-                                </span>
-
-                                <span class="date-absent-count">
-                                    {{ $holidayName }}
-                                </span>
-
-                            @else
-
-                                <span class="date-present-count">
-
-                                    <i class="bi bi-person-check-fill"></i>
-
-                                    <span class="js-daily-present">
-                                        {{ $dailyPresent }}/{{ $dailyTotal }}
-                                    </span>
-
-                                </span>
-
-                                <span class="date-absent-count js-daily-absent">
-                                    {{ $dailyAbsent }} Absent
-                                </span>
-
-                            @endif
-
-                        </th>
-
-                    @endforeach
-
-
-                    <th class="summary-column">
-                        Summary
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                @foreach($studentCollection as $student)
-
-                    @php
-
-                        $presentCount = 0;
-                        $absentCount = 0;
-
-                    @endphp
-
-
-                    <tr data-student-row>
-
-
-                        <td class="student-column">
-
-                            <div class="student-info">
-
-                                <div class="student-avatar">
-
-                                    @if(!empty($student->profile_image))
-
-                                        <img
-                                            src="{{ $student->profile_image }}"
-                                            alt="Student"
-                                        >
-
-                                    @else
-
-                                        {{ strtoupper(
-                                            substr(
-                                                $student->first_name ?? 'S',
-                                                0,
-                                                1
-                                            )
-                                        ) }}
-
-                                    @endif
-
-                                </div>
-
-
-                                <div>
-
-                                    <div class="student-name">
-
-                                        {{ trim(
-                                            ($student->first_name ?? '') . ' ' .
-                                            ($student->middle_name ?? '') . ' ' .
-                                            ($student->last_name ?? '')
-                                        ) }}
-
-                                    </div>
-
-                                    <div class="student-id">
-
-                                        ID:
-                                        {{ $student->student_id ?? $student->id }}
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </td>
-
-
-                        <td class="roll-column">
-                            {{ $student->roll_number ?? '-' }}
-                        </td>
-
-
-                        @foreach($monthDates as $date)
-
-                            @php
-
-                                $dateKey =
-                                    $date->format('Y-m-d');
-
-                                $holidayName =
-                                    $getHolidayName($date);
-
-                                $status = strtolower(
-                                    trim(
-                                        (string) (
-                                            $attendanceMap[$student->id][$dateKey]
-                                            ?? ''
-                                        )
-                                    )
-                                );
-
-                                if (
-                                    !$holidayName &&
-                                    $status === 'present'
-                                ) {
-                                    $presentCount++;
-                                }
-
-                                if (
-                                    !$holidayName &&
-                                    $status === 'absent'
-                                ) {
-                                    $absentCount++;
-                                }
-
-                            @endphp
-
-
-                            <td
-                                class="attendance-cell {{ $holidayName ? 'holiday-cell' : '' }}"
-                            >
-
-                                @if($holidayName)
-
-                                    <button
-                                        type="button"
-                                        class="attendance-btn holiday-disabled"
-                                        disabled
-                                        title="{{ $holidayName }}"
-                                    >
-                                        <i class="bi bi-calendar-x"></i>
-                                    </button>
-
-                                    <span class="holiday-label">
-                                        {{ $holidayName }}
-                                    </span>
-
-                                @else
-
-                                    <button
-                                        type="button"
-                                        class="attendance-btn
-                                            {{ $status === 'present' ? 'present' : '' }}
-                                            {{ $status === 'absent' ? 'absent' : '' }}"
-                                        onclick="toggleAttendance(this)"
-                                        title="{{ $status === 'present'
-                                            ? 'Present'
-                                            : ($status === 'absent'
-                                                ? 'Absent'
-                                                : 'Not Marked') }}"
-                                    >
-
-                                        @if($status === 'present')
-                                            P
-                                        @elseif($status === 'absent')
-                                            A
-                                        @else
-                                            —
-                                        @endif
-
-                                    </button>
-
-
-                                    <input
-                                        type="hidden"
-                                        class="attendance-input"
-                                        name="attendance[{{ $student->id }}][{{ $dateKey }}]"
-                                        value="{{ $status }}"
-                                        data-date="{{ $dateKey }}"
-                                    >
-
-                                @endif
-
-                            </td>
-
-                        @endforeach
-
-
-                        @php
-
-                            $markedCount =
-                                $presentCount +
-                                $absentCount;
-
-                            $percentage =
-                                $markedCount > 0
-                                    ? round(
-                                        ($presentCount / $markedCount) * 100
-                                    )
-                                    : 0;
-
-                        @endphp
-
-
-                        <td class="summary-column">
-
-                            <div class="summary-box">
-
-                                <div class="summary-percentage">
-
-                                    <span class="attendance-percentage">
-                                        {{ $percentage }}
-                                    </span>%
-
-                                </div>
-
-                                <div class="summary-counts">
-
-                                    <span class="summary-present">
-                                        P:
-                                        <span class="present-count">
-                                            {{ $presentCount }}
-                                        </span>
-                                    </span>
-
-                                    <span class="summary-absent">
-                                        A:
-                                        <span class="absent-count">
-                                            {{ $absentCount }}
-                                        </span>
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                @endforeach
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    {{-- SAVE BAR --}}
-
-    <div class="save-bar">
-
-        <div class="legend">
-
-            <div class="legend-item">
-                <span class="legend-dot legend-present"></span>
-                Present
-            </div>
-
-            <div class="legend-item">
-                <span class="legend-dot legend-absent"></span>
-                Absent
-            </div>
-
-            <div class="legend-item">
-                <span class="legend-dot legend-empty"></span>
-                Not Marked
-            </div>
-
-            <div class="legend-item">
-                <span class="legend-dot legend-holiday"></span>
-                Holiday
-            </div>
-
-        </div>
-
-
-        <button
-            type="submit"
-            class="save-btn"
-            id="saveAttendanceBtn"
-        >
-
-            <i class="bi bi-check2-circle"></i>
-
-            Save Attendance
-
-        </button>
-
-    </div>
-
-
-    @else
-
-
-    <div class="empty-state">
-
-        <div class="empty-icon">
-            <i class="bi bi-people"></i>
-        </div>
-
-        <h4>
-            No Students Found
-        </h4>
-
-        <p>
-            No students match the selected filters.
-        </p>
-
-    </div>
-
     @endif
 
-</div>
+    {{-- =========================================================
+       Attendance register
+       ========================================================= --}}
+    <section class="paper register-panel">
+        <div class="register-head">
+            <h3>Attendance Register · {{ $rangeLabel }}</h3>
 
-</form>
-
-
-{{-- =========================================================
-     PROFESSIONAL PRINT REPORT
-========================================================= --}}
-
-<div class="print-sheet">
-
-
-    {{-- SCHOOL HEADER --}}
-
-    <div class="print-school-header">
-
-        <img
-            src="{{ asset('images/gurukullogo.png') }}"
-            alt="Gurukul Vidyalaya"
-            class="print-school-logo"
-        >
-
-        <div class="print-school-info">
-
-            <h1>
-                Gurukul Vidyalaya
-            </h1>
-
-            <p>
-                Student Attendance Management System
-            </p>
-
+            <div class="attendance-legend">
+                <span><span class="status-symbol status-present">P</span> Present</span>
+                <span><span class="status-symbol status-absent">A</span> Absent</span>
+                <span><span class="status-symbol status-holiday">H</span> Holiday</span>
+                <span><span class="status-symbol status-empty">–</span> Not marked</span>
+            </div>
         </div>
 
-    </div>
-
-
-    {{-- REPORT TITLE --}}
-
-    <div class="print-report-title">
-
-        <h2>
-            Student Attendance Register
-        </h2>
-
-        <p>
-            Monthly Attendance Report —
-            {{ $currentMonth->format('F Y') }}
-        </p>
-
-    </div>
-
-
-    {{-- REPORT INFORMATION --}}
-
-    <div class="print-info-box">
-
-        <div class="print-info-item">
-
-            <span class="print-info-label">
-                Academic Year
-            </span>
-
-            <span class="print-info-value">
-                {{ $selectedAcademicYear ?: 'All' }}
-            </span>
-
-        </div>
-
-
-        <div class="print-info-item">
-
-            <span class="print-info-label">
-                Class
-            </span>
-
-            <span class="print-info-value">
-                {{ $selectedClass ?: 'All Classes' }}
-            </span>
-
-        </div>
-
-
-        <div class="print-info-item">
-
-            <span class="print-info-label">
-                Section
-            </span>
-
-            <span class="print-info-value">
-                {{ $selectedSection ?: 'All Sections' }}
-            </span>
-
-        </div>
-
-
-        <div class="print-info-item">
-
-            <span class="print-info-label">
-                Total Students
-            </span>
-
-            <span class="print-info-value">
-                {{ $studentCollection->count() }}
-            </span>
-
-        </div>
-
-
-        <div class="print-info-item">
-
-            <span class="print-info-label">
-                Working Days
-            </span>
-
-            <span class="print-info-value">
-                {{ $workingDays }}
-            </span>
-
-        </div>
-
-
-        <div class="print-info-item">
-
-            <span class="print-info-label">
-                Holidays
-            </span>
-
-            <span class="print-info-value">
-                {{ $holidayDays }}
-            </span>
-
-        </div>
-
-    </div>
-
-
-    {{-- PRINT TABLE --}}
-
-    <table class="print-table">
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    Student Name
-                </th>
-
-                <th>
-                    Roll
-                </th>
-
-
-                @foreach($monthDates as $date)
-
-                    @php
-
-                        $dateKey =
-                            $date->format('Y-m-d');
-
-                        $holidayName =
-                            $getHolidayName($date);
-
-                        $dailyPresent =
-                            $dailyAttendance[$dateKey]['present']
-                            ?? 0;
-
-                        $dailyTotal =
-                            $dailyAttendance[$dateKey]['total']
-                            ?? 0;
-
-                    @endphp
-
-
-                    <th
-                        class="{{ $holidayName ? 'print-holiday' : '' }}"
-                    >
-
-                        {{ $date->format('d') }}
-
-                        <span class="print-daily-count">
-
-                            @if($holidayName)
-
-                                {{ $date->isSunday()
-                                    ? 'SUN'
-                                    : 'HOL' }}
-
-                            @else
-
-                                {{ $dailyPresent }}/{{ $dailyTotal }}
-
-                            @endif
-
-                        </span>
-
-                    </th>
-
-                @endforeach
-
-
-                <th>
-                    P
-                </th>
-
-                <th>
-                    A
-                </th>
-
-                <th>
-                    %
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            @foreach($studentCollection as $student)
-
-                @php
-
-                    $printPresent = 0;
-                    $printAbsent = 0;
-
-                @endphp
-
-
-                <tr>
-
-                    <td>
-
-                        {{ trim(
-                            ($student->first_name ?? '') . ' ' .
-                            ($student->middle_name ?? '') . ' ' .
-                            ($student->last_name ?? '')
-                        ) }}
-
-                    </td>
-
-
-                    <td>
-                        {{ $student->roll_number ?? '-' }}
-                    </td>
-
-
-                    @foreach($monthDates as $date)
-
-                        @php
-
-                            $dateKey =
-                                $date->format('Y-m-d');
-
-                            $holidayName =
-                                $getHolidayName($date);
-
-                            $printStatus = strtolower(
-                                trim(
-                                    (string) (
-                                        $attendanceMap[$student->id][$dateKey]
-                                        ?? ''
-                                    )
-                                )
-                            );
-
-                            if (
-                                !$holidayName &&
-                                $printStatus === 'present'
-                            ) {
-                                $printPresent++;
-                            }
-
-                            if (
-                                !$holidayName &&
-                                $printStatus === 'absent'
-                            ) {
-                                $printAbsent++;
-                            }
-
-                        @endphp
-
-
-                        <td
-                            class="{{ $holidayName ? 'print-holiday-cell' : '' }}"
-                        >
-
-                            @if($holidayName)
-
-                                <span class="print-absent">
-
-                                    {{ $date->isSunday()
-                                        ? 'SUN'
-                                        : 'HOL' }}
-
-                                </span>
-
-                            @elseif($printStatus === 'present')
-
-                                <span class="print-present">
-                                    P
-                                </span>
-
-                            @elseif($printStatus === 'absent')
-
-                                <span class="print-absent">
-                                    A
-                                </span>
-
-                            @else
-
-                                <span class="print-empty">
-                                    —
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                    @endforeach
-
-
-                    @php
-
-                        $printMarked =
-                            $printPresent +
-                            $printAbsent;
-
-                        $printPercentage =
-                            $printMarked > 0
-                                ? round(
-                                    ($printPresent / $printMarked) * 100
-                                )
-                                : 0;
-
-                    @endphp
-
-
-                    <td class="print-present">
-                        {{ $printPresent }}
-                    </td>
-
-                    <td class="print-absent">
-                        {{ $printAbsent }}
-                    </td>
-
-                    <td>
-                        <strong>
-                            {{ $printPercentage }}%
-                        </strong>
-                    </td>
-
-                </tr>
-
-            @endforeach
-
-        </tbody>
-
-    </table>
-
-
-    {{-- LEGEND --}}
-
-    <div class="print-legend">
-
-        <strong>
-            Attendance Key:
-        </strong>
-
-        <span>
-            <strong class="print-present">P</strong>
-            = Present
-        </span>
-
-        <span>
-            <strong class="print-absent">A</strong>
-            = Absent
-        </span>
-
-        <span>
-            <strong class="print-empty">—</strong>
-            = Not Marked
-        </span>
-
-        <span>
-            <strong class="print-absent">SUN</strong>
-            = Sunday Holiday
-        </span>
-
-        <span>
-            <strong class="print-absent">HOL</strong>
-            = National Holiday
-        </span>
-
-    </div>
-
-
-    {{-- FOOTER --}}
-
-    <div class="print-footer">
-
-        <div>
-
-            <div>
-                Student Attendance Management System
+        @if($totalStudents > 0)
+            <div class="register-wrap" id="registerWrap">
+                <table class="attendance-table" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th class="column-number">#</th>
+                            <th class="column-student">Student</th>
+
+                            @foreach($days as $index => $meta)
+                                <th
+                                    class="column-day
+                                        {{ $meta['selected'] ? 'column-day-selected' : '' }}
+                                        {{ $meta['holiday'] ? 'is-holiday' : '' }}
+                                        {{ $meta['future'] ? 'is-future' : '' }}"
+                                    @if($meta['selected']) id="selectedDayHead" @endif
+                                >
+                                    @if($meta['future'])
+                                        <span class="day-heading">
+                                            <b>{{ $meta['number'] }}</b>
+                                            <em>{{ $meta['date']->format('D') }}</em>
+                                        </span>
+                                    @else
+                                        <a
+                                            href="{{ $meta['url'] }}"
+                                            class="day-heading"
+                                            title="Open attendance for {{ $meta['date']->format('d M Y') }}"
+                                        >
+                                            <b>{{ $meta['number'] }}</b>
+                                            <em>{{ $meta['date']->format('D') }}</em>
+                                        </a>
+                                    @endif
+                                </th>
+                            @endforeach
+
+                            <th class="column-total">Present</th>
+                            <th class="column-total">Absent</th>
+                            <th class="column-total">%</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="attendanceBody">
+                        @foreach($rows as $rowNumber => $row)
+                            @php
+                                $student = $row['student'];
+                                $selectedStatus = '';
+
+                                foreach ($days as $dayIndex => $meta) {
+                                    if ($meta['selected']) {
+                                        $selectedStatus = $row['cells'][$dayIndex] ?? '';
+                                        break;
+                                    }
+                                }
+
+                                $totalPresent = $row['basePresent'] + ($selectedStatus === 'present' ? 1 : 0);
+                                $totalAbsent  = $row['baseAbsent'] + ($selectedStatus === 'absent' ? 1 : 0);
+                                $studentMarked = $totalPresent + $totalAbsent;
+
+                                $studentPercentage = $studentMarked > 0
+                                    ? round(($totalPresent / $studentMarked) * 100)
+                                    : null;
+                            @endphp
+
+                            <tr
+                                data-student-id="{{ $student->id }}"
+                                data-base-present="{{ $row['basePresent'] }}"
+                                data-base-absent="{{ $row['baseAbsent'] }}"
+                                data-search="{{ strtolower($row['name'] . ' ' . $row['code'] . ' ' . ($student->roll_number ?? '')) }}"
+                            >
+                                <td class="column-number">{{ $rowNumber + 1 }}</td>
+
+                                <td class="column-student">
+                                    <div class="student-info">
+                                        <div class="student-avatar">
+                                            @if(!empty($student->profile_image))
+                                                <img src="{{ asset('storage/' . $student->profile_image) }}" alt="">
+                                            @else
+                                                {{ $row['initials'] }}
+                                            @endif
+                                        </div>
+
+                                        <div style="min-width:0">
+                                            <div class="student-name" title="{{ $row['name'] }}">
+                                                {{ $row['name'] }}
+                                            </div>
+
+                                            <div class="student-details">
+                                                @if(!empty($student->roll_number))
+                                                    Roll {{ $student->roll_number }} ·
+                                                @endif
+
+                                                ID {{ $row['code'] }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                @foreach($days as $dayIndex => $meta)
+                                    @php
+                                        $status = $row['cells'][$dayIndex] ?? '';
+                                    @endphp
+
+                                    @if($meta['selected'] && !$isLocked)
+                                        <td
+                                            class="column-day column-day-selected selected-attendance-cell"
+                                            data-status="{{ $status }}"
+                                            data-saved="{{ $status }}"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="attendance-toggle {{ $status === 'present' ? 'is-present' : 'is-absent' }}"
+                                                role="switch"
+                                                aria-checked="{{ $status === 'present' ? 'true' : 'false' }}"
+                                                aria-label="Attendance for {{ $row['name'] }} on {{ $selectedDate->format('d M Y') }}"
+                                                title="{{ $status === 'present' ? 'Present — click to mark absent' : 'Absent — click to mark present' }}"
+                                            >
+                                                <span class="attendance-toggle__label attendance-toggle__label--absent">A</span>
+
+                                                <span class="attendance-toggle__track">
+                                                    <span class="attendance-toggle__thumb">
+                                                        <i class="bi {{ $status === 'present' ? 'bi-check-lg' : 'bi-x-lg' }}"></i>
+                                                    </span>
+                                                </span>
+
+                                                <span class="attendance-toggle__label attendance-toggle__label--present">P</span>
+                                            </button>
+
+                                            <span class="cell-sync" aria-live="polite"></span>
+                                        </td>
+                                    @else
+                                        <td
+                                            class="column-day
+                                                {{ $meta['selected'] ? 'column-day-selected' : '' }}
+                                                {{ $meta['holiday'] ? 'is-holiday' : '' }}
+                                                {{ $meta['future'] ? 'is-future' : '' }}"
+                                        >
+                                            @if($status === 'present')
+                                                <span class="status-symbol status-present">P</span>
+                                            @elseif($status === 'absent')
+                                                <span class="status-symbol status-absent">A</span>
+                                            @elseif($meta['holiday'])
+                                                <span class="status-symbol status-holiday">H</span>
+                                            @elseif(!$meta['future'])
+                                                <span class="status-symbol status-empty">–</span>
+                                            @endif
+                                        </td>
+                                    @endif
+                                @endforeach
+
+                                <td class="column-total total-present">{{ $totalPresent }}</td>
+                                <td class="column-total total-absent">{{ $totalAbsent }}</td>
+                                <td class="column-total total-percentage">
+                                    {{ $studentPercentage === null ? '–' : $studentPercentage . '%' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <td class="column-number"></td>
+                            <td class="column-student footer-label">Present per day</td>
+
+                            @foreach($days as $index => $meta)
+                                <td
+                                    class="column-day {{ $meta['selected'] ? 'column-day-selected' : '' }} footer-present"
+                                    @if($meta['selected']) id="footerPresent" @endif
+                                >
+                                    {{ $meta['future'] || $meta['holiday'] ? '' : $dayPresent[$index] }}
+                                </td>
+                            @endforeach
+
+                            <td colspan="3"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="column-number"></td>
+                            <td class="column-student footer-label">Absent per day</td>
+
+                            @foreach($days as $index => $meta)
+                                <td
+                                    class="column-day {{ $meta['selected'] ? 'column-day-selected' : '' }} footer-absent"
+                                    @if($meta['selected']) id="footerAbsent" @endif
+                                >
+                                    {{ $meta['future'] || $meta['holiday'] ? '' : $dayAbsent[$index] }}
+                                </td>
+                            @endforeach
+
+                            <td colspan="3"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="column-number"></td>
+                            <td class="column-student footer-label">Attendance rate</td>
+
+                            @foreach($days as $index => $meta)
+                                @php
+                                    $dayMarked = $dayPresent[$index] + $dayAbsent[$index];
+                                @endphp
+
+                                <td
+                                    class="column-day {{ $meta['selected'] ? 'column-day-selected' : '' }} footer-percentage"
+                                    @if($meta['selected']) id="footerPercentage" @endif
+                                >
+                                    {{
+                                        ($meta['future'] || $meta['holiday'] || $dayMarked === 0)
+                                            ? ''
+                                            : round(($dayPresent[$index] / $dayMarked) * 100) . '%'
+                                    }}
+                                </td>
+                            @endforeach
+
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
 
-            <div>
-                Report Month:
-                {{ $currentMonth->format('F Y') }}
+            <div class="no-match" id="noMatch">
+                No students match your search.
             </div>
+        @else
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-people"></i>
+                </div>
 
-            <div>
-                Generated:
-                {{ now()->format('d M Y, h:i A') }}
+                <h5>No students found</h5>
+                <p>There are no active students in this class and section.</p>
+
+                <a href="{{ $backUrl }}" class="btn-solid">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to classes
+                </a>
             </div>
-
-        </div>
-
-
-        <div class="print-signature">
-
-            <div class="print-signature-line">
-                Class Teacher / Authorized Signatory
-            </div>
-
-        </div>
-
-    </div>
-
+        @endif
+    </section>
 </div>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-</div>
-
-</div>
-
-
+@push('scripts')
 <script>
+(function () {
+    'use strict';
 
-/* =========================================================
-   ATTENDANCE TOGGLE
-========================================================= */
+    var CFG = @json($jsConfig);
 
-function toggleAttendance(button) {
+    var dateForm = document.getElementById('dateForm');
+    var dateInput = document.getElementById('dateInput');
+    var monthInput = document.getElementById('monthInput');
 
-    if (
-        button.disabled ||
-        button.classList.contains('holiday-disabled')
-    ) {
-        return;
-    }
+    var attendanceBody = document.getElementById('attendanceBody');
+    var toastElement = document.getElementById('toast');
 
-    const cell = button.closest('td');
+    var csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+    var csrfToken = csrfTokenElement ? csrfTokenElement.content : '';
 
-    if (!cell) {
-        return;
-    }
-
-    const input = cell.querySelector(
-        '.attendance-input'
-    );
-
-    if (!input) {
-        return;
-    }
-
-    const current =
-        (input.value || '')
-            .toLowerCase()
-            .trim();
-
-    let next = '';
-
-    if (current === '') {
-
-        next = 'present';
-
-    } else if (current === 'present') {
-
-        next = 'absent';
-
-    } else {
-
-        next = '';
-
-    }
-
-    input.value = next;
-
-    button.classList.remove(
-        'present',
-        'absent'
-    );
-
-
-    if (next === 'present') {
-
-        button.classList.add('present');
-
-        button.textContent = 'P';
-
-        button.title = 'Present';
-
-    }
-
-    else if (next === 'absent') {
-
-        button.classList.add('absent');
-
-        button.textContent = 'A';
-
-        button.title = 'Absent';
-
-    }
-
-    else {
-
-        button.textContent = '—';
-
-        button.title = 'Not Marked';
-
-    }
-
-
-    updateStudentSummary(
-        button.closest('tr')
-    );
-
-    updateDailyDateCount(
-        input.dataset.date
-    );
-}
-
-
-/* =========================================================
-   STUDENT SUMMARY
-========================================================= */
-
-function updateStudentSummary(row) {
-
-    if (!row) {
-        return;
-    }
-
-    const inputs =
-        row.querySelectorAll(
-            '.attendance-input'
-        );
-
-    let present = 0;
-    let absent = 0;
-
-    inputs.forEach(function(input) {
-
-        const value =
-            (input.value || '')
-                .toLowerCase()
-                .trim();
-
-        if (value === 'present') {
-            present++;
-        }
-
-        if (value === 'absent') {
-            absent++;
-        }
-
-    });
-
-
-    const marked =
-        present + absent;
-
-    const percentage =
-        marked > 0
-            ? Math.round(
-                (present / marked) * 100
-            )
-            : 0;
-
-
-    const presentElement =
-        row.querySelector(
-            '.present-count'
-        );
-
-    const absentElement =
-        row.querySelector(
-            '.absent-count'
-        );
-
-    const percentageElement =
-        row.querySelector(
-            '.attendance-percentage'
-        );
-
-
-    if (presentElement) {
-        presentElement.textContent =
-            present;
-    }
-
-    if (absentElement) {
-        absentElement.textContent =
-            absent;
-    }
-
-    if (percentageElement) {
-        percentageElement.textContent =
-            percentage;
-    }
-}
-
-
-/* =========================================================
-   DAILY COUNT
-========================================================= */
-
-function updateDailyDateCount(dateKey) {
-
-    if (!dateKey) {
-        return;
-    }
-
-    let present = 0;
-    let absent = 0;
-    let total = 0;
-
-
-    const inputs =
-        document.querySelectorAll(
-            '.attendance-input[data-date="' +
-            dateKey +
-            '"]'
-        );
-
-
-    inputs.forEach(function(input) {
-
-        total++;
-
-        const value =
-            (input.value || '')
-                .toLowerCase()
-                .trim();
-
-        if (value === 'present') {
-            present++;
-        }
-
-        if (value === 'absent') {
-            absent++;
-        }
-
-    });
-
-
-    const header =
-        document.querySelector(
-            'th[data-date="' +
-            dateKey +
-            '"]'
-        );
-
-
-    if (!header) {
-        return;
-    }
-
-
-    const presentElement =
-        header.querySelector(
-            '.js-daily-present'
-        );
-
-    const absentElement =
-        header.querySelector(
-            '.js-daily-absent'
-        );
-
-
-    if (presentElement) {
-
-        presentElement.textContent =
-            present + '/' + total;
-
-    }
-
-
-    if (absentElement) {
-
-        absentElement.textContent =
-            absent + ' Absent';
-
-    }
-}
-
-
-/* =========================================================
-   PROFESSIONAL PRINT
-========================================================= */
-
-function printAttendance() {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Browser print dialog
-    |--------------------------------------------------------------------------
-    | The @media print CSS above hides the complete Laravel layout
-    | and displays only .print-sheet.
-    |--------------------------------------------------------------------------
-    */
-
-    window.print();
-
-}
-
-
-/* =========================================================
-   EXPORT PARAMETERS
-========================================================= */
-
-function getAttendanceExportParams() {
-
-    const params =
-        new URLSearchParams();
-
-
-    params.set(
-        'month',
-        @json($selectedMonth)
-    );
-
-
-    const academicYear =
-        @json($selectedAcademicYear);
-
-    const selectedClass =
-        @json($selectedClass);
-
-    const selectedSection =
-        @json($selectedSection);
-
-
-    if (academicYear) {
-
-        params.set(
-            'academic_year',
-            academicYear
-        );
-
-    }
-
-
-    if (selectedClass) {
-
-        params.set(
-            'class',
-            selectedClass
-        );
-
-    }
-
-
-    if (selectedSection) {
-
-        params.set(
-            'section',
-            selectedSection
-        );
-
-    }
-
-
-    return params;
-}
-
-
-/* =========================================================
-   PDF / EXCEL
-========================================================= */
-
-function exportAttendance(type, button) {
-
-    let baseUrl = null;
-
-
-    if (type === 'pdf') {
-
-        baseUrl =
-            @json($attendancePdfUrl);
-
-    }
-
-    else if (type === 'excel') {
-
-        baseUrl =
-            @json($attendanceExcelUrl);
-
-    }
-
-
-    if (!baseUrl) {
-
-        const format =
-            type === 'pdf'
-                ? 'PDF'
-                : 'Excel';
-
-        alert(
-            format +
-            ' export route is not configured yet.'
-        );
-
-        return;
-    }
-
-
-    if (button) {
-
-        button.classList.add(
-            'export-loading'
-        );
-
-        button.disabled = true;
-
-
-        const originalHtml =
-            button.innerHTML;
-
-
-        button.dataset.originalHtml =
-            originalHtml;
-
-
-        button.innerHTML =
-            '<i class="bi bi-arrow-repeat"></i> Preparing...';
-
-    }
-
-
-    const params =
-        getAttendanceExportParams();
-
-
-    const separator =
-        baseUrl.includes('?')
-            ? '&'
-            : '?';
-
-
-    const exportUrl =
-        baseUrl +
-        separator +
-        params.toString();
-
-
-    window.open(
-        exportUrl,
-        '_blank'
-    );
-
-
-    setTimeout(
-        function() {
-
-            if (!button) {
+    if (dateInput && dateForm && monthInput) {
+        dateInput.addEventListener('change', function () {
+            if (!dateInput.value) {
                 return;
             }
 
-            button.disabled = false;
+            monthInput.value = dateInput.value.slice(0, 7);
+            dateForm.submit();
+        });
+    }
 
-            button.classList.remove(
-                'export-loading'
-            );
+    if (!attendanceBody) {
+        return;
+    }
 
-            button.innerHTML =
-                button.dataset.originalHtml ||
-                (
-                    type === 'pdf'
-                        ? '<i class="bi bi-file-earmark-pdf"></i> PDF'
-                        : '<i class="bi bi-file-earmark-excel"></i> Excel'
-                );
-
-        },
-        1200
+    var rows = Array.prototype.slice.call(
+        attendanceBody.querySelectorAll('tr')
     );
-}
 
+    var pendingRequests = 0;
+    var activeRequests = 0;
+    var waitingRequests = [];
 
-/* =========================================================
-   PAGE LOAD
-========================================================= */
+    var MAX_PARALLEL_REQUESTS = 4;
 
-document.addEventListener(
-    'DOMContentLoaded',
-    function() {
+    function byId(id) {
+        return document.getElementById(id);
+    }
 
+    function showToast(message, isError) {
+        if (!toastElement) {
+            return;
+        }
 
-        /* -----------------------------------------------------
-           INITIAL STUDENT SUMMARY
-        ----------------------------------------------------- */
+        toastElement.textContent = message;
+        toastElement.classList.toggle('is-error', !!isError);
+        toastElement.classList.add('is-show');
 
-        const rows =
-            document.querySelectorAll(
-                '#attendanceTable tbody tr[data-student-row]'
-            );
+        clearTimeout(showToast.timeout);
 
+        showToast.timeout = setTimeout(function () {
+            toastElement.classList.remove('is-show');
+        }, 4200);
+    }
 
-        rows.forEach(function(row) {
+    function centreSelectedDay() {
+        var registerWrap = byId('registerWrap');
+        var selectedDayHead = byId('selectedDayHead');
 
-            updateStudentSummary(row);
+        if (!registerWrap || !selectedDayHead) {
+            return;
+        }
 
+        registerWrap.scrollLeft = Math.max(
+            0,
+            selectedDayHead.offsetLeft -
+            ((registerWrap.clientWidth - selectedDayHead.offsetWidth) / 2)
+        );
+    }
+
+    function setSyncMessage(cell, state, message) {
+        var syncElement = cell.querySelector('.cell-sync');
+
+        if (!syncElement) {
+            return;
+        }
+
+        syncElement.className = 'cell-sync' + (state ? ' is-' + state : '');
+
+        if (state === 'saving') {
+            syncElement.innerHTML = '<span class="spin"></span>';
+        } else if (state === 'saved') {
+            syncElement.textContent = 'Saved';
+        } else if (state === 'error') {
+            syncElement.textContent = message || 'Not saved';
+        } else {
+            syncElement.textContent = '';
+        }
+
+        clearTimeout(cell.syncTimer);
+
+        if (state === 'saved') {
+            cell.syncTimer = setTimeout(function () {
+                setSyncMessage(cell, '', '');
+            }, 1600);
+        }
+    }
+
+    function refreshStudentTotal(row) {
+        var cell = row.querySelector('.selected-attendance-cell');
+
+        if (!cell) {
+            return;
+        }
+
+        var status = cell.dataset.status || '';
+
+        var basePresent = parseInt(row.dataset.basePresent, 10) || 0;
+        var baseAbsent = parseInt(row.dataset.baseAbsent, 10) || 0;
+
+        var present = basePresent + (status === 'present' ? 1 : 0);
+        var absent = baseAbsent + (status === 'absent' ? 1 : 0);
+
+        var marked = present + absent;
+        var percentage = marked
+            ? Math.round((present / marked) * 100) + '%'
+            : '–';
+
+        row.querySelector('.total-present').textContent = present;
+        row.querySelector('.total-absent').textContent = absent;
+        row.querySelector('.total-percentage').textContent = percentage;
+    }
+
+    function refreshAttendanceSummary() {
+        var present = 0;
+        var absent = 0;
+
+        rows.forEach(function (row) {
+            var cell = row.querySelector('.selected-attendance-cell');
+
+            if (!cell) {
+                return;
+            }
+
+            if (cell.dataset.status === 'present') {
+                present++;
+            }
+
+            if (cell.dataset.status === 'absent') {
+                absent++;
+            }
         });
 
+        var marked = present + absent;
+        var percentage = marked
+            ? Math.round((present / marked) * 100) + '%'
+            : '–';
 
-        /* -----------------------------------------------------
-           INITIAL DAILY COUNTS
-        ----------------------------------------------------- */
+        byId('sumPresent').textContent = present;
+        byId('sumAbsent').textContent = absent;
+        byId('sumPercentage').textContent = percentage;
 
-        const dateSet =
-            new Set();
+        var footerPresent = byId('footerPresent');
+        var footerAbsent = byId('footerAbsent');
+        var footerPercentage = byId('footerPercentage');
 
+        if (footerPresent) {
+            footerPresent.textContent = present;
+        }
 
-        document
-            .querySelectorAll(
-                '.attendance-input[data-date]'
+        if (footerAbsent) {
+            footerAbsent.textContent = absent;
+        }
+
+        if (footerPercentage) {
+            footerPercentage.textContent = marked ? percentage : '';
+        }
+    }
+
+    function renderToggle(cell, status) {
+        var toggle = cell.querySelector('.attendance-toggle');
+
+        if (!toggle) {
+            return;
+        }
+
+        var isPresent = status === 'present';
+
+        toggle.classList.toggle('is-present', isPresent);
+        toggle.classList.toggle('is-absent', !isPresent);
+
+        toggle.setAttribute('aria-checked', isPresent ? 'true' : 'false');
+
+        toggle.setAttribute(
+            'title',
+            isPresent
+                ? 'Present — click to mark absent'
+                : 'Absent — click to mark present'
+        );
+
+        var icon = toggle.querySelector('.attendance-toggle__thumb i');
+
+        if (icon) {
+            icon.className = 'bi ' + (isPresent ? 'bi-check-lg' : 'bi-x-lg');
+        }
+    }
+
+    function setAttendanceStatus(cell, status) {
+        cell.dataset.status = status;
+
+        renderToggle(cell, status);
+        refreshStudentTotal(cell.closest('tr'));
+        refreshAttendanceSummary();
+    }
+
+    function acquireRequestSlot() {
+        return new Promise(function (resolve) {
+            if (activeRequests < MAX_PARALLEL_REQUESTS) {
+                activeRequests++;
+                resolve();
+                return;
+            }
+
+            waitingRequests.push(resolve);
+        });
+    }
+
+    function releaseRequestSlot() {
+        activeRequests--;
+
+        var next = waitingRequests.shift();
+
+        if (next) {
+            activeRequests++;
+            next();
+        }
+    }
+
+    function saveAttendance(studentId, status) {
+        var formData = new FormData();
+
+        formData.append('_token', csrfToken);
+
+        formData.append(
+            'attendance[' + studentId + '][' + CFG.date + ']',
+            status
+        );
+
+        formData.append('attendance_month', CFG.month);
+        formData.append('academic_year', CFG.academicYear);
+        formData.append('class', CFG.class);
+        formData.append('section', CFG.section);
+
+        return fetch(CFG.storeUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        }).then(function (response) {
+            return response.json().catch(function () {
+                return {};
+            }).then(function (data) {
+                if (response.ok && data.success !== false) {
+                    return;
+                }
+
+                var validationError = data.errors
+                    ? Object.keys(data.errors).map(function (key) {
+                        return data.errors[key][0];
+                    })[0]
+                    : null;
+
+                var message = validationError || data.message;
+
+                if (!message) {
+                    if (response.status === 419) {
+                        message = 'Your session has expired. Refresh the page and try again.';
+                    } else if (response.status === 404 || response.status === 405) {
+                        message = 'Attendance save route was not found.';
+                    } else {
+                        message = 'Attendance could not be saved. Please try again.';
+                    }
+                }
+
+                throw new Error(message);
+            });
+        });
+    }
+
+    function queueAttendanceSave(cell) {
+        var row = cell.closest('tr');
+
+        pendingRequests++;
+        setSyncMessage(cell, 'saving');
+
+        cell.saveChain = (cell.saveChain || Promise.resolve())
+            .then(function () {
+                var requestedStatus = cell.dataset.status;
+
+                if (requestedStatus === cell.dataset.saved) {
+                    return;
+                }
+
+                return acquireRequestSlot()
+                    .then(function () {
+                        return saveAttendance(
+                            row.dataset.studentId,
+                            requestedStatus
+                        )
+                        .then(function () {
+                            cell.dataset.saved = requestedStatus;
+                        })
+                        .catch(function (error) {
+                            var lastSavedStatus = cell.dataset.saved || '';
+
+                            setAttendanceStatus(cell, lastSavedStatus);
+                            setSyncMessage(cell, 'error', 'Not saved');
+
+                            showToast(
+                                error.message || 'Unable to save attendance.',
+                                true
+                            );
+
+                            throw error;
+                        })
+                        .then(
+                            function () {
+                                releaseRequestSlot();
+                            },
+                            function (error) {
+                                releaseRequestSlot();
+                                throw error;
+                            }
+                        );
+                    });
+            })
+            .then(
+                function () {
+                    if (
+                        cell.dataset.status === cell.dataset.saved &&
+                        cell.querySelector('.cell-sync').classList.contains('is-saving')
+                    ) {
+                        setSyncMessage(cell, 'saved');
+                    }
+                },
+                function () {
+                    /* Error notification has already been shown. */
+                }
             )
-            .forEach(function(input) {
+            .then(function () {
+                pendingRequests--;
+            });
+    }
 
-                dateSet.add(
-                    input.dataset.date
-                );
+    function setupSearch() {
+        var searchInput = byId('studentSearch');
+        var noMatch = byId('noMatch');
 
+        if (!searchInput) {
+            return;
+        }
+
+        searchInput.addEventListener('input', function () {
+            var query = this.value.trim().toLowerCase();
+            var visibleCount = 0;
+
+            rows.forEach(function (row) {
+                var searchableText = row.dataset.search || '';
+                var visible = !query || searchableText.indexOf(query) !== -1;
+
+                row.style.display = visible ? '' : 'none';
+
+                if (visible) {
+                    visibleCount++;
+                }
             });
 
-
-        dateSet.forEach(function(dateKey) {
-
-            updateDailyDateCount(
-                dateKey
-            );
-
+            if (noMatch) {
+                noMatch.style.display = visibleCount ? 'none' : 'block';
+            }
         });
-
-
-        /* -----------------------------------------------------
-           SAVE BUTTON
-        ----------------------------------------------------- */
-
-        const form =
-            document.getElementById(
-                'attendanceForm'
-            );
-
-
-        if (form) {
-
-            form.addEventListener(
-                'submit',
-                function() {
-
-                    const button =
-                        document.getElementById(
-                            'saveAttendanceBtn'
-                        );
-
-
-                    if (button) {
-
-                        button.disabled = true;
-
-                        button.innerHTML =
-                            '<i class="bi bi-hourglass-split"></i> Saving...';
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        /* -----------------------------------------------------
-           SUCCESS MESSAGE
-        ----------------------------------------------------- */
-
-        const successAlert =
-            document.querySelector(
-                '.attendance-alert-success'
-            );
-
-
-        if (successAlert) {
-
-            setTimeout(
-                function() {
-
-                    successAlert.style.transition =
-                        'opacity .4s ease';
-
-                    successAlert.style.opacity =
-                        '0';
-
-
-                    setTimeout(
-                        function() {
-
-                            successAlert.remove();
-
-                        },
-                        400
-                    );
-
-                },
-                3500
-            );
-
-        }
-
     }
-);
 
+    function setupAttendanceToggles() {
+        attendanceBody.addEventListener('click', function (event) {
+            if (CFG.locked) {
+                return;
+            }
+
+            var toggle = event.target.closest('.attendance-toggle');
+
+            if (!toggle) {
+                return;
+            }
+
+            var cell = toggle.closest('.selected-attendance-cell');
+
+            if (!cell) {
+                return;
+            }
+
+            var nextStatus = cell.dataset.status === 'present'
+                ? 'absent'
+                : 'present';
+
+            setAttendanceStatus(cell, nextStatus);
+            queueAttendanceSave(cell);
+        });
+    }
+
+    function setupMarkRemainingPresent() {
+        var markRemainingButton = byId('markRemaining');
+
+        if (!markRemainingButton) {
+            return;
+        }
+
+        markRemainingButton.addEventListener('click', function () {
+            var targetRows = rows.filter(function (row) {
+                var cell = row.querySelector('.selected-attendance-cell');
+
+                return cell &&
+                    !cell.dataset.status &&
+                    row.style.display !== 'none';
+            });
+
+            if (!targetRows.length) {
+                showToast('Every visible student already has an attendance status.');
+                return;
+            }
+
+            var studentLabel = targetRows.length +
+                ' student' +
+                (targetRows.length === 1 ? '' : 's');
+
+            if (!window.confirm('Mark ' + studentLabel + ' as present?')) {
+                return;
+            }
+
+            targetRows.forEach(function (row) {
+                var cell = row.querySelector('.selected-attendance-cell');
+
+                setAttendanceStatus(cell, 'present');
+                queueAttendanceSave(cell);
+            });
+
+            showToast(studentLabel + ' marked present.');
+        });
+    }
+
+    window.addEventListener('beforeunload', function (event) {
+        if (pendingRequests > 0) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    });
+
+    centreSelectedDay();
+    rows.forEach(refreshStudentTotal);
+    refreshAttendanceSummary();
+
+    setupSearch();
+    setupAttendanceToggles();
+    setupMarkRemainingPresent();
+})();
 </script>
+@endpush
 
 @endsection

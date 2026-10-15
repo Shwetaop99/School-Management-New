@@ -51,31 +51,36 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function create()
-    {
-        $teachers = Teacher::where('status', 'Active')
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
+    
+public function create()
+{
+    $teachers = Teacher::where('status', 'Active')
+        ->orderBy('first_name')
+        ->orderBy('last_name')
+        ->get();
 
-        $classes = DB::table('classes')
-            ->orderBy('id')
-            ->get();
+    $classes = DB::table('classes')
+        ->orderBy('id')
+        ->get();
 
-        $sections = DB::table('sections')
-            ->orderBy('class_id')
-            ->orderBy('id')
-            ->get();
+    $sections = DB::table('sections')
+        ->orderBy('class_id')
+        ->orderBy('id')
+        ->get();
 
-        return view(
-            'admin.timetable.create',
-            compact(
-                'teachers',
-                'classes',
-                'sections'
-            )
-        );
-    }
+    $subjects = DB::table('subjects')
+        ->where('status', 1)
+        ->orderBy('subject_name')
+        ->get();
+
+    return view('admin.timetable.create', compact(
+        'teachers',
+        'classes',
+        'sections',
+        'subjects'
+    ));
+}
+
 
     /*
     |--------------------------------------------------------------------------
@@ -83,428 +88,324 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
 
-            /*
-            | Teacher is required for Regular and Activity.
-            | Break and Lunch do not need a teacher.
-            */
-            'teacher_id' => [
-                'nullable',
-                'exists:teachers,id',
-                'required_unless:period_type,Break,Lunch',
-            ],
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'academic_year' => ['required', 'string', 'max:20'],
+        'class' => ['required', 'string', 'max:100'],
+        'section' => ['required', 'string', 'max:50'],
+        'week_start_date' => ['required', 'date'],
 
-            'timetable_date' => [
-                'required',
-                'date',
-            ],
+        'timetable' => ['required', 'array'],
+        'timetable.Monday' => ['required', 'array'],
+        'timetable.Tuesday' => ['required', 'array'],
+        'timetable.Wednesday' => ['required', 'array'],
+        'timetable.Thursday' => ['required', 'array'],
+        'timetable.Friday' => ['required', 'array'],
+        'timetable.Saturday' => ['required', 'array'],
 
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
+        'timetable.*.*.period_type' => [
+            'required',
+            Rule::in(['Regular', 'Break', 'Lunch', 'Activity']),
+        ],
+        'timetable.*.*.teacher_id' => [
+            'nullable',
+            'integer',
+            'exists:teachers,id',
+        ],
+        'timetable.*.*.subject' => ['nullable', 'string', 'max:100'],
+        'timetable.*.*.subject_type' => [
+            'nullable',
+            Rule::in(['Theory', 'Practical', 'Activity']),
+        ],
+        'timetable.*.*.lecture_type' => [
+            'nullable',
+            Rule::in(['regular', 'extra', 'practical', 'activity']),
+        ],
+        'timetable.*.*.start_time' => ['required', 'date_format:H:i'],
+        'timetable.*.*.end_time' => ['nullable', 'date_format:H:i'],
+        'timetable.*.*.room' => ['nullable', 'string', 'max:100'],
+    ]);
 
-            'day' => [
-                'required',
-                Rule::in([
-                    'Monday',
-                    'Tuesday',
-                    'Wednesday',
-                    'Thursday',
-                    'Friday',
-                    'Saturday',
-                ]),
-            ],
+    $weekStart = Carbon::parse($validated['week_start_date'])->startOfDay();
 
-            'period_number' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:15',
-            ],
+    if ($weekStart->format('l') !== 'Monday') {
+        return back()
+            ->withInput()
+            ->withErrors([
+                'week_start_date' => 'Please select a Monday as the week starting date.',
+            ]);
+    }
 
-            'period_type' => [
-                'required',
-                Rule::in([
-                    'Regular',
-                    'Break',
-                    'Lunch',
-                    'Activity',
-                ]),
-            ],
+    $days = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+    ];
 
-            'lecture_type' => [
-                'nullable',
-                Rule::in([
-                    'regular',
-                    'extra',
-                    'practical',
-                    'activity',
-                ]),
-            ],
+    $schedule = $validated['timetable'];
 
-            /*
-            | Class is required for Regular and Activity.
-            */
-            'class' => [
-                'nullable',
-                'string',
-                'max:100',
-                'required_unless:period_type,Break,Lunch',
-            ],
-
-            /*
-            | Section is required for Regular and Activity.
-            */
-            'section' => [
-                'nullable',
-                'string',
-                'max:50',
-                'required_unless:period_type,Break,Lunch',
-            ],
-
-            /*
-            | Subject is required for Regular and Activity.
-            */
-            'subject' => [
-                'nullable',
-                'string',
-                'max:100',
-                'required_unless:period_type,Break,Lunch',
-            ],
-
-            /*
-            | Subject type is required for Regular and Activity.
-            */
-            'subject_type' => [
-                'nullable',
-                Rule::in([
-                    'Theory',
-                    'Practical',
-                    'Activity',
-                ]),
-                'required_unless:period_type,Break,Lunch',
-            ],
-
-            'start_time' => [
-                'required',
-                'date_format:H:i',
-            ],
-
-            'end_time' => [
-                'nullable',
-                'date_format:H:i',
-            ],
-
-            'duration_minutes' => [
-                'nullable',
-                'integer',
-                'min:5',
-                'max:300',
-            ],
-
-            'room' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
+    if (count($schedule) !== 6) {
+        return back()->withInput()->withErrors([
+            'timetable' => 'Please submit the complete Monday-to-Saturday timetable.',
         ]);
+    }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULATE DAY FROM DATE
-        |--------------------------------------------------------------------------
-        */
+    $rows = [];
 
-        $calculatedDay = Carbon::parse(
-            $validated['timetable_date']
-        )->format('l');
+    /*
+    |--------------------------------------------------------------------------
+    | BUILD ALL 48 PERIODS
+    |--------------------------------------------------------------------------
+    */
 
-        /*
-        | Sunday is not allowed.
-        */
+    foreach ($days as $dayIndex => $day) {
+        if (!isset($schedule[$day]) || count($schedule[$day]) !== 8) {
+            return back()->withInput()->withErrors([
+                'timetable' => "$day must contain exactly 8 periods.",
+            ]);
+        }
 
-        if (
-            !in_array(
-                $calculatedDay,
-                [
-                    'Monday',
-                    'Tuesday',
-                    'Wednesday',
-                    'Thursday',
-                    'Friday',
-                    'Saturday',
-                ]
-            )
-        ) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'timetable_date' =>
-                        'Sunday timetable is not allowed.',
+        $date = $weekStart->copy()->addDays($dayIndex)->toDateString();
+
+        foreach (range(1, 8) as $periodNumber) {
+            if (!isset($schedule[$day][$periodNumber])) {
+                return back()->withInput()->withErrors([
+                    'timetable' => "$day is missing period $periodNumber.",
                 ]);
-        }
-
-        /*
-        | Always use the actual day calculated from date.
-        */
-
-        $validated['day'] = $calculatedDay;
-
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULATE LECTURE TIME
-        |--------------------------------------------------------------------------
-        */
-
-        $this->calculateLectureTime($validated);
-
-        /*
-        |--------------------------------------------------------------------------
-        | BREAK / LUNCH
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $validated['period_type'] === 'Break' ||
-            $validated['period_type'] === 'Lunch'
-        ) {
-            $validated['teacher_id'] = null;
-            $validated['class'] = null;
-            $validated['section'] = null;
-
-            $validated['subject'] =
-                $validated['period_type'];
-
-            $validated['subject_type'] = 'Activity';
-            $validated['room'] = null;
-            $validated['lecture_type'] = 'activity';
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | ACTIVITY
-        |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        | Activity keeps:
-        | - Teacher
-        | - Class
-        | - Section
-        | - Subject / Activity name
-        |
-        | Only subject type and lecture type are automatically set.
-        |
-        */
-
-        if ($validated['period_type'] === 'Activity') {
-
-            /*
-            | DO NOT set teacher_id to null.
-            | DO NOT set class to null.
-            | DO NOT set section to null.
-            */
-
-            $validated['subject_type'] = 'Activity';
-            $validated['lecture_type'] = 'activity';
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CONFLICT CHECKS
-        |--------------------------------------------------------------------------
-        |
-        | Conflict checking is performed for Regular and Activity.
-        | Break and Lunch are excluded.
-        |
-        */
-
-        if (
-            $validated['period_type'] !== 'Break' &&
-            $validated['period_type'] !== 'Lunch'
-        ) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | TEACHER CONFLICT
-            |--------------------------------------------------------------------------
-            */
-
-            $teacherConflict = TeacherTimetable::where(
-                    'teacher_id',
-                    $validated['teacher_id']
-                )
-                ->where(
-                    'timetable_date',
-                    $validated['timetable_date']
-                )
-                ->where(
-                    'academic_year',
-                    $validated['academic_year']
-                )
-                ->where(
-                    'day',
-                    $validated['day']
-                )
-                ->where(function ($query) use ($validated) {
-
-                    $query
-                        ->where(
-                            'start_time',
-                            '<',
-                            $validated['end_time']
-                        )
-                        ->where(
-                            'end_time',
-                            '>',
-                            $validated['start_time']
-                        );
-                })
-                ->exists();
-
-            if ($teacherConflict) {
-
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'teacher_id' =>
-                            'This teacher already has a timetable entry on this date during this time.',
-                    ]);
             }
 
+            $slot = $schedule[$day][$periodNumber];
+            $type = $slot['period_type'];
+
             /*
-            |--------------------------------------------------------------------------
-            | CLASS / SECTION CONFLICT
-            |--------------------------------------------------------------------------
-            */
+             * Fixed durations:
+             * Regular lecture = 45 minutes
+             * Activity = 45 minutes
+             * Break = 15 minutes
+             * Lunch = 60 minutes
+             */
+            $duration = match ($type) {
+                'Regular', 'Activity' => 45,
+                'Break' => 15,
+                'Lunch' => 60,
+            };
 
-            $classConflict = TeacherTimetable::where(
-                    'academic_year',
-                    $validated['academic_year']
-                )
-                ->where(
-                    'timetable_date',
-                    $validated['timetable_date']
-                )
-                ->where(
-                    'day',
-                    $validated['day']
-                )
-                ->where(
-                    'class',
-                    $validated['class']
-                )
-                ->where(function ($query) use ($validated) {
+            $start = Carbon::createFromFormat(
+                'H:i',
+                $slot['start_time']
+            );
 
-                    if (!empty($validated['section'])) {
+            $end = $start->copy()->addMinutes($duration);
 
-                        $query->where(
-                            'section',
-                            $validated['section']
-                        );
+            $isBreakOrLunch = in_array($type, ['Break', 'Lunch']);
 
-                    } else {
-
-                        $query->whereNull('section');
-                    }
-                })
-                ->where(function ($query) use ($validated) {
-
-                    $query
-                        ->where(
-                            'start_time',
-                            '<',
-                            $validated['end_time']
-                        )
-                        ->where(
-                            'end_time',
-                            '>',
-                            $validated['start_time']
-                        );
-                })
-                ->exists();
-
-            if ($classConflict) {
-
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'class' =>
-                            'This class and section already have a timetable entry on this date during this time.',
+            if (!$isBreakOrLunch) {
+                if (empty($slot['teacher_id'])) {
+                    return back()->withInput()->withErrors([
+                        "timetable.$day.$periodNumber.teacher_id" =>
+                            "$day, period $periodNumber requires a teacher.",
                     ]);
-            }
+                }
 
-            /*
-            |--------------------------------------------------------------------------
-            | ROOM CONFLICT
-            |--------------------------------------------------------------------------
-            */
+                if (empty($slot['subject'])) {
+                    return back()->withInput()->withErrors([
+                        "timetable.$day.$periodNumber.subject" =>
+                            "$day, period $periodNumber requires a subject.",
+                    ]);
+                }
 
-            if (!empty($validated['room'])) {
-
-                $roomConflict = TeacherTimetable::where(
-                        'academic_year',
-                        $validated['academic_year']
-                    )
-                    ->where(
-                        'timetable_date',
-                        $validated['timetable_date']
-                    )
-                    ->where(
-                        'day',
-                        $validated['day']
-                    )
-                    ->where(
-                        'room',
-                        $validated['room']
-                    )
-                    ->where(function ($query) use ($validated) {
-
-                        $query
-                            ->where(
-                                'start_time',
-                                '<',
-                                $validated['end_time']
-                            )
-                            ->where(
-                                'end_time',
-                                '>',
-                                $validated['start_time']
-                            );
-                    })
-                    ->exists();
-
-                if ($roomConflict) {
-
-                    return back()
-                        ->withInput()
-                        ->withErrors([
-                            'room' =>
-                                'This room is already occupied on this date during this time.',
-                        ]);
+                if (empty($slot['subject_type'])) {
+                    return back()->withInput()->withErrors([
+                        "timetable.$day.$periodNumber.subject_type" =>
+                            "$day, period $periodNumber requires a subject type.",
+                    ]);
                 }
             }
+
+            $rows[] = [
+                'academic_year' => $validated['academic_year'],
+                'timetable_date' => $date,
+                'day' => $day,
+                'period_number' => $periodNumber,
+                'period_type' => $type,
+
+                'teacher_id' => $isBreakOrLunch
+                    ? null
+                    : $slot['teacher_id'],
+
+                'class' => $isBreakOrLunch
+                    ? null
+                    : $validated['class'],
+
+                'section' => $isBreakOrLunch
+                    ? null
+                    : $validated['section'],
+
+                'subject' => $isBreakOrLunch
+                    ? $type
+                    : $slot['subject'],
+
+                'subject_type' => $isBreakOrLunch
+                    ? 'Activity'
+                    : ($type === 'Activity'
+                        ? 'Activity'
+                        : $slot['subject_type']),
+
+                'lecture_type' => $isBreakOrLunch
+                    ? 'activity'
+                    : ($type === 'Activity'
+                        ? 'activity'
+                        : ($slot['lecture_type'] ?? 'regular')),
+
+                'start_time' => $start->format('H:i:s'),
+                'end_time' => $end->format('H:i:s'),
+                'duration_minutes' => $duration,
+
+                'room' => $isBreakOrLunch
+                    ? null
+                    : ($slot['room'] ?? null),
+            ];
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK CONFLICTS WITH OTHER TIMETABLE RECORDS
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($rows as $row) {
+        if (in_array($row['period_type'], ['Break', 'Lunch'])) {
+            continue;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE
-        |--------------------------------------------------------------------------
-        */
+        $overlap = function ($query) use ($row) {
+            $query->where('start_time', '<', $row['end_time'])
+                ->where('end_time', '>', $row['start_time']);
+        };
 
-        TeacherTimetable::create($validated);
+        $teacherConflict = TeacherTimetable::where(
+                'academic_year',
+                $row['academic_year']
+            )
+            ->where('timetable_date', $row['timetable_date'])
+            ->where('teacher_id', $row['teacher_id'])
+            ->where($overlap)
+            ->exists();
 
-        return redirect()
-            ->route('admin.timetable.index')
-            ->with(
-                'success',
-                'Timetable added successfully.'
-            );
+        if ($teacherConflict) {
+            return back()->withInput()->withErrors([
+                'timetable' =>
+                    "Teacher conflict on {$row['day']}, period {$row['period_number']}.",
+            ]);
+        }
+
+        $classConflict = TeacherTimetable::where(
+                'academic_year',
+                $row['academic_year']
+            )
+            ->where('timetable_date', $row['timetable_date'])
+            ->where('class', $row['class'])
+            ->where('section', $row['section'])
+            ->where($overlap)
+            ->exists();
+
+        if ($classConflict) {
+            return back()->withInput()->withErrors([
+                'timetable' =>
+                    "Class/section conflict on {$row['day']}, period {$row['period_number']}.",
+            ]);
+        }
+
+        if (!empty($row['room'])) {
+            $roomConflict = TeacherTimetable::where(
+                    'academic_year',
+                    $row['academic_year']
+                )
+                ->where('timetable_date', $row['timetable_date'])
+                ->where('room', $row['room'])
+                ->where($overlap)
+                ->exists();
+
+            if ($roomConflict) {
+                return back()->withInput()->withErrors([
+                    'timetable' =>
+                        "Room conflict on {$row['day']}, period {$row['period_number']}.",
+                ]);
+            }
+        }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK OVERLAPPING PERIODS WITHIN THIS SUBMISSION
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($rows as $index => $row) {
+        if (in_array($row['period_type'], ['Break', 'Lunch'])) {
+            continue;
+        }
+
+        foreach ($rows as $otherIndex => $other) {
+            if (
+                $index === $otherIndex ||
+                $row['timetable_date'] !== $other['timetable_date'] ||
+                in_array($other['period_type'], ['Break', 'Lunch'])
+            ) {
+                continue;
+            }
+
+            $overlap =
+                $row['start_time'] < $other['end_time'] &&
+                $row['end_time'] > $other['start_time'];
+
+            if (!$overlap) {
+                continue;
+            }
+
+            $sameTeacher =
+                $row['teacher_id'] === $other['teacher_id'];
+
+            $sameClass =
+                $row['class'] === $other['class'] &&
+                $row['section'] === $other['section'];
+
+            $sameRoom =
+                !empty($row['room']) &&
+                $row['room'] === $other['room'];
+
+            if ($sameTeacher || $sameClass || $sameRoom) {
+                return back()->withInput()->withErrors([
+                    'timetable' =>
+                        "Overlapping periods found on {$row['day']}. Please check the start times.",
+                ]);
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE ALL 48 RECORDS TOGETHER
+    |--------------------------------------------------------------------------
+    */
+
+    DB::transaction(function () use ($rows) {
+        foreach ($rows as $row) {
+            TeacherTimetable::create($row);
+        }
+    });
+
+    return redirect()
+        ->route('admin.timetable.index')
+        ->with('success', 'Weekly timetable saved successfully.');
+}
+
 
     /*
     |--------------------------------------------------------------------------

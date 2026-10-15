@@ -1,1478 +1,959 @@
 @extends('layouts.app')
 
 @section('title', 'All Teachers')
+@section('page-title', 'All Teachers')
 
 @section('content')
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
 <style>
-
-/* =========================================================
-   TEACHERS PAGE
-========================================================= */
-
-.teachers-container {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 28px;
-    background: #f4f7fb;
-}
-
-/* =========================================================
-   PAGE HEADER
-========================================================= */
-
-.teachers-welcome-card {
-    position: relative;
-    overflow: hidden;
-    min-height: 145px;
-    padding: 30px 34px;
-    margin-bottom: 24px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #1769d1 0%, #159cc7 100%);
-    color: #fff;
-    box-shadow: 0 10px 28px rgba(23, 105, 209, .18);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.teachers-welcome-card::before {
-    content: "";
-    position: absolute;
-    width: 190px;
-    height: 190px;
-    right: -45px;
-    top: -105px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.10);
-}
-
-.teachers-welcome-card::after {
-    content: "";
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    right: 100px;
-    bottom: -82px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.12);
-}
-
-.teachers-welcome-content {
-    position: relative;
-    z-index: 2;
-}
-
-.teachers-welcome-content h2 {
-    margin: 0 0 7px;
-    font-size: 30px;
-    font-weight: 800;
-}
-
-.teachers-welcome-content p {
-    margin: 0;
-    font-size: 15px;
-    color: rgba(255,255,255,.94);
-}
-
-.teachers-add-button {
-    position: relative;
-    z-index: 3;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 18px;
-    border-radius: 10px;
-    background: #fff;
-    color: #1769d1;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,.10);
-    transition: .2s ease;
-}
-
-.teachers-add-button:hover {
-    color: #1769d1;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
-}
-
-/* =========================================================
-   STATISTICS
-========================================================= */
-
-.teacher-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
-}
-
-.teacher-stat-card {
-    position: relative;
-    overflow: hidden;
-    min-height: 145px;
-    padding: 24px 25px;
-    border-radius: 17px;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 8px 22px rgba(15,23,42,.12);
-    transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.teacher-stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 32px rgba(15,23,42,.18);
-}
-
-.teacher-stat-card::before {
-    content: "";
-    position: absolute;
-    width: 150px;
-    height: 150px;
-    right: -50px;
-    top: -65px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.10);
-}
-
-.teacher-stat-card::after {
-    content: "";
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    right: -20px;
-    bottom: -38px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.08);
-}
-
-.teacher-stat-card.blue {
-    background: linear-gradient(135deg, #1769d1, #237de0);
-}
-
-.teacher-stat-card.orange {
-    background: linear-gradient(135deg, #ed9208, #f7aa25);
-}
-
-.teacher-stat-card.red {
-    background: linear-gradient(135deg, #e94d47, #f75d56);
-}
-
-.teacher-stat-top {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-}
-
-.teacher-stat-number {
-    margin: 0 0 7px;
-    font-size: 32px;
-    line-height: 1;
-    font-weight: 800;
-}
-
-.teacher-stat-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(255,255,255,.95);
-}
-
-.teacher-stat-icon {
-    position: relative;
-    z-index: 2;
-    font-size: 38px;
-    color: rgba(255,255,255,.90);
-}
-
-/* =========================================================
-   MAIN CARD
-========================================================= */
-
-.teachers-card {
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid #e5ebf3;
-    border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(15,23,42,.06);
-}
-
-/* =========================================================
-   CARD HEADER
-========================================================= */
-
-.teachers-card-header {
-    min-height: 75px;
-    padding: 17px 22px;
-    border-bottom: 1px solid #edf1f6;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.teachers-card-title {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-}
-
-.teachers-card-title i {
-    color: #1769d1;
-    font-size: 19px;
-}
-
-.teachers-card-title h3 {
-    margin: 0;
-    color: #172033;
-    font-size: 17px;
-    font-weight: 700;
-}
-
-.teachers-card-subtitle {
-    margin: 4px 0 0 28px;
-    color: #718096;
-    font-size: 12px;
-}
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-.teacher-search-box {
-    width: 330px;
-    display: flex;
-    align-items: center;
-    border: 1px solid #e3eaf2;
-    background: #f8fafc;
-    border-radius: 9px;
-    overflow: hidden;
-}
-
-.teacher-search-box i {
-    padding-left: 13px;
-    color: #94a3b8;
-    font-size: 13px;
-}
-
-.teacher-search-box input {
-    width: 100%;
-    padding: 10px 12px;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: #334155;
-    font-size: 12px;
-}
-
-.teacher-search-box input::placeholder {
-    color: #94a3b8;
-}
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.teachers-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.teachers-table {
-    width: 100%;
-    min-width: 1250px;
-    margin: 0;
-    border-collapse: separate;
-    border-spacing: 0;
-    table-layout: fixed;
-}
-
-/* # */
-.teachers-table th:nth-child(1),
-.teachers-table td:nth-child(1) {
-    width: 55px;
-    text-align: center;
-}
-
-/* Teacher */
-.teachers-table th:nth-child(2),
-.teachers-table td:nth-child(2) {
-    width: 220px;
-}
-
-/* Teacher ID */
-.teachers-table th:nth-child(3),
-.teachers-table td:nth-child(3) {
-    width: 120px;
-}
-
-/* Email */
-.teachers-table th:nth-child(4),
-.teachers-table td:nth-child(4) {
-    width: 220px;
-}
-
-/* Phone */
-.teachers-table th:nth-child(5),
-.teachers-table td:nth-child(5) {
-    width: 135px;
-}
-
-/* Qualification */
-.teachers-table th:nth-child(6),
-.teachers-table td:nth-child(6) {
-    width: 150px;
-}
-
-/* Subject */
-.teachers-table th:nth-child(7),
-.teachers-table td:nth-child(7) {
-    width: 150px;
-}
-
-/* Joining Date */
-.teachers-table th:nth-child(8),
-.teachers-table td:nth-child(8) {
-    width: 125px;
-}
-
-/* Status */
-.teachers-table th:nth-child(9),
-.teachers-table td:nth-child(9) {
-    width: 120px;
-}
-
-/* Actions */
-.teachers-table th:nth-child(10),
-.teachers-table td:nth-child(10) {
-    width: 150px;
-}
-
-/* =========================================================
-   TABLE HEADER
-========================================================= */
-
-.teachers-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    padding: 15px 14px;
-    background: #f8fafc;
-    border-top: 1px solid #edf1f6;
-    border-bottom: 1px solid #e5eaf1;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    white-space: nowrap;
-    text-align: left;
-}
-
-/* =========================================================
-   TABLE BODY
-========================================================= */
-
-.teachers-table tbody td {
-    padding: 16px 14px;
-    background: #fff;
-    border-bottom: 1px solid #edf1f6;
-    color: #334155;
-    font-size: 12px;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.teachers-table tbody tr {
-    transition: background .2s ease;
-}
-
-.teachers-table tbody tr:hover td {
-    background: #f8fbff;
-}
-
-.teachers-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* =========================================================
-   SERIAL NUMBER
-========================================================= */
-
-.teacher-number {
-    width: 29px;
-    height: 29px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: #eef5ff;
-    color: #1769d1;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-/* =========================================================
-   TEACHER PROFILE
-========================================================= */
-
-.teacher-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-}
-
-.teacher-avatar,
-.teacher-avatar-placeholder {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    border-radius: 50%;
-}
-
-.teacher-avatar {
-    object-fit: cover;
-    box-shadow: 0 3px 8px rgba(15,23,42,.10);
-}
-
-.teacher-avatar-placeholder {
-    background: linear-gradient(135deg, #1769d1, #159cc7);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: 800;
-}
-
-.teacher-profile-info {
-    min-width: 0;
-}
-
-.teacher-name {
-    margin-bottom: 3px;
-    overflow: hidden;
-    color: #172033;
-    font-size: 13px;
-    font-weight: 800;
-    text-overflow: ellipsis;
-}
-
-.teacher-gender {
-    color: #94a3b8;
-    font-size: 10px;
-    text-transform: capitalize;
-}
-
-/* =========================================================
-   TEACHER ID
-========================================================= */
-
-.teacher-id {
-    display: inline-flex;
-    padding: 6px 9px;
-    border-radius: 7px;
-    background: #eef5ff;
-    color: #1769d1;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-/* =========================================================
-   EMAIL
-========================================================= */
-
-.teacher-email {
-    color: #475569;
-    font-size: 11px;
-}
-
-/* =========================================================
-   SUBJECT
-========================================================= */
-
-.teacher-subject {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 10px;
-    border-radius: 7px;
-    background: #f0edff;
-    color: #6c63ff;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.teacher-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.teacher-status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.teacher-status.active {
-    background: #dcfce7;
-    color: #16a34a;
-}
-
-.teacher-status.active .teacher-status-dot {
-    background: #16a34a;
-}
-
-.teacher-status.inactive {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.teacher-status.inactive .teacher-status-dot {
-    background: #dc2626;
-}
-
-/* =========================================================
-   ACTIONS
-========================================================= */
-
-.teachers-table .teacher-actions {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    white-space: nowrap;
-}
-
-.teachers-table .teacher-actions form {
-    display: inline-flex !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.teachers-table .teacher-action {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 1px solid transparent !important;
-    border-radius: 9px !important;
-    text-decoration: none !important;
-    cursor: pointer !important;
-    font-size: 15px !important;
-    line-height: 1 !important;
-    transition:
-        transform .2s ease,
-        background .2s ease,
-        color .2s ease !important;
-}
-
-.teachers-table .teacher-view-action {
-    background: #eaf3ff !important;
-    color: #1477df !important;
-    border-color: #d9eaff !important;
-}
-
-.teachers-table .teacher-view-action:hover {
-    background: #1477df !important;
-    color: #fff !important;
-    transform: translateY(-2px);
-}
-
-.teachers-table .teacher-edit-action {
-    background: #f0edff !important;
-    color: #6c63ff !important;
-    border-color: #e3defe !important;
-}
-
-.teachers-table .teacher-edit-action:hover {
-    background: #6c63ff !important;
-    color: #fff !important;
-    transform: translateY(-2px);
-}
-
-.teachers-table .teacher-delete-action {
-    background: #fff0f0 !important;
-    color: #ef2028 !important;
-    border-color: #ffe0e0 !important;
-}
-
-.teachers-table .teacher-delete-action:hover {
-    background: #ef2028 !important;
-    color: #fff !important;
-    transform: translateY(-2px);
-}
-
-.teachers-table .teacher-action i {
-    display: block !important;
-    color: inherit !important;
-    font-size: 15px !important;
-    line-height: 1 !important;
-}
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.teacher-empty-state {
-    padding: 60px 20px;
-    text-align: center;
-}
-
-.teacher-empty-icon {
-    width: 68px;
-    height: 68px;
-    margin: 0 auto 16px;
-    border-radius: 18px;
-    background: #eef5ff;
-    color: #1769d1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-}
-
-.teacher-empty-state h4 {
-    margin: 0 0 7px;
-    color: #172033;
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.teacher-empty-state p {
-    margin: 0 0 18px;
-    color: #94a3b8;
-    font-size: 12px;
-}
-
-.teacher-empty-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 15px;
-    border-radius: 8px;
-    background: #1769d1;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: .2s ease;
-}
-
-.teacher-empty-button:hover {
-    background: #1258b5;
-    color: #fff;
-    transform: translateY(-2px);
-}
-
-/* =========================================================
-   SUCCESS MESSAGE
-========================================================= */
-
-.teacher-success {
-    margin-bottom: 20px;
-    padding: 13px 16px;
-    border: 1px solid #bbf7d0;
-    border-radius: 10px;
-    background: #f0fdf4;
-    color: #15803d;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-/* =========================================================
-   PAGINATION
-========================================================= */
-
-.teacher-pagination {
-    padding: 17px 22px;
-    border-top: 1px solid #edf1f6;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.teacher-pagination-info {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.teacher-pagination nav > div:first-child {
-    display: none;
-}
-
-.teacher-pagination nav > div:last-child {
-    display: flex;
-    align-items: center;
-}
-
-.teacher-pagination nav a,
-.teacher-pagination nav span {
-    min-width: 34px;
-    height: 34px;
-    margin-left: 5px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 9px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #fff;
-    color: #475569;
-    font-size: 11px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all .2s ease;
-}
-
-.teacher-pagination nav a:hover {
-    background: #1769d1;
-    border-color: #1769d1;
-    color: #fff;
-    transform: translateY(-1px);
-}
-
-.teacher-pagination nav span[aria-current="page"] {
-    background: #1769d1;
-    border-color: #1769d1;
-    color: #fff;
-}
-
-.teacher-pagination nav span[aria-disabled="true"] {
-    background: #f8fafc;
-    color: #cbd5e1;
-    cursor: not-allowed;
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1200px) {
-
-    .teacher-stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 850px) {
-
-    .teachers-container {
-        padding: 18px;
+    .teachers-page {
+        max-width: 1500px;
+        margin: 0 auto;
     }
 
-    .teachers-welcome-card {
-        padding: 25px;
+    .paper {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
     }
 
-    .teachers-card-header {
-        align-items: flex-start;
-        flex-direction: column;
+    /* ── Hero ─────────────────────────────────────────── */
+    .teachers-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+        margin-bottom: 22px;
+        overflow: hidden;
+        position: relative;
     }
 
-    .teacher-search-box {
-        width: 100%;
+    .teachers-hero::before {
+        content: "";
+        position: absolute;
+        left: 34px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(228, 87, 46, .35);
     }
 
-    .teacher-pagination {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 650px) {
-
-    .teachers-container {
-        padding: 15px;
+    .teachers-hero-left {
+        padding: 26px 28px 26px 56px;
     }
 
-    .teacher-stats-grid {
-        grid-template-columns: 1fr;
+    .teachers-hero-left h1 {
+        font-family: var(--serif);
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0 0 6px;
     }
 
-    .teachers-welcome-card {
-        min-height: 135px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 18px;
+    .teachers-hero-left p {
+        color: var(--muted);
+        margin: 0 0 20px;
+        font-size: 14px;
+        line-height: 1.5;
     }
 
-    .teachers-welcome-content h2 {
-        font-size: 24px;
+    .hero-btns {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
-    .teachers-welcome-content p {
+    /* ── Functional buttons ───────────────────────────── */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all .15s ease;
+        cursor: pointer;
+        font-family: inherit;
+        border: 1px solid transparent;
+        flex-shrink: 0;
+    }
+
+    .btn i {
         font-size: 13px;
     }
 
-    .teachers-add-button {
-        padding: 9px 14px;
+    /* Add Teacher – Primary */
+    .btn-add {
+        background: var(--ink);
+        color: #fff;
+        border-color: var(--ink);
+    }
+    .btn-add:hover {
+        background: var(--ink-2);
+        border-color: var(--ink-2);
+        color: #fff;
+    }
+
+    /* Export Excel – Green */
+    .btn-excel {
+        background: #217346;
+        color: #fff;
+        border-color: #217346;
+    }
+    .btn-excel:hover {
+        background: #1a5c38;
+        border-color: #1a5c38;
+        color: #fff;
+    }
+
+    /* Export PDF – Red */
+    .btn-pdf {
+        background: #e4572e;
+        color: #fff;
+        border-color: #e4572e;
+    }
+    .btn-pdf:hover {
+        background: #c93f1a;
+        border-color: #c93f1a;
+        color: #fff;
+    }
+
+    /* Download Template – Soft blue-gray */
+    .btn-template {
+        background: #5b7a8c;
+        color: #fff;
+        border-color: #5b7a8c;
+    }
+    .btn-template:hover {
+        background: #4a6575;
+        border-color: #4a6575;
+        color: #fff;
+    }
+
+    /* Import Teachers – Blue */
+    .btn-import {
+        background: #2b5d8a;
+        color: #fff;
+        border-color: #2b5d8a;
+    }
+    .btn-import:hover {
+        background: #1f4669;
+        border-color: #1f4669;
+        color: #fff;
+    }
+
+    .teachers-hero-right {
+        background: var(--ink);
+        color: #e9efe2;
+        padding: 26px 28px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        background-image: radial-gradient(ellipse at 20% 0, rgba(255, 255, 255, .09), transparent 60%);
+    }
+
+    .teachers-hero-right .label {
+        font-family: var(--hand);
+        font-size: 22px;
+        color: var(--chalk);
+        line-height: 1;
+    }
+
+    .teachers-hero-right .value {
+        font-family: var(--serif);
+        font-size: 26px;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.15;
+    }
+
+    .teachers-hero-right .sub {
+        font-size: 13px;
+        color: #c5d0bd;
+    }
+
+    /* ── KPI cards ────────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .kpi {
+        transition: transform .22s ease, box-shadow .22s ease;
+        position: relative;
+        padding: 22px 22px 16px;
+        margin-top: 10px;
+        border-top: 4px solid var(--c);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .kpi:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 28px rgba(29, 58, 51, .16);
+    }
+
+    .kpi-tab {
+        position: absolute;
+        top: -24px;
+        left: 16px;
+        padding: 3px 12px;
+        background: var(--c);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 7px 7px 0 0;
+    }
+
+    .kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .kpi-value {
+        font-family: var(--serif);
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--ink);
+    }
+
+    .kpi-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        background: color-mix(in srgb, var(--c) 14%, #fff);
+        color: var(--c);
+    }
+
+    .kpi-label {
+        padding-top: 12px;
+        border-top: 1px dashed #d8d1bf;
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    .c-blue  { --c: #2b5d8a; }
+    .c-amber { --c: #d58a0b; }
+    .c-red   { --c: #e4572e; }
+
+    /* ── Alerts ───────────────────────────────────────── */
+    .success-msg,
+    .error-msg,
+    .import-errors {
+        margin-bottom: 18px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .success-msg {
+        border: 1px solid #c5e6d0;
+        background: #f0faf3;
+        color: #2b7a52;
+        font-weight: 600;
+    }
+
+    .error-msg,
+    .import-errors {
+        border: 1px solid #f0c6bc;
+        background: #fff6f3;
+        color: #a83b27;
+    }
+
+    .import-errors ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+    }
+
+    .import-errors li {
+        margin: 4px 0;
+        overflow-wrap: anywhere;
+    }
+
+    /* ── Panel ────────────────────────────────────────── */
+    .panel {
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 20px;
+        border-bottom: 1px dashed #d8d1bf;
+        flex-wrap: nowrap;
+    }
+
+    .panel-head-left {
+        flex-shrink: 0;
+    }
+
+    .panel-head h3 {
+        font-family: var(--serif);
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .panel-head span {
+        font-size: 12.5px;
+        color: var(--muted);
+    }
+
+    /* ── Single-line toolbar ──────────────────────────── */
+    .panel-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: thin;
+    }
+
+    .panel-toolbar::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .panel-toolbar::-webkit-scrollbar-thumb {
+        background: #cfc8b6;
+        border-radius: 4px;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        height: 36px;
+        border: 1px solid #cfc8b6;
+        border-radius: 8px;
+        background: #fff;
+        min-width: 200px;
+        max-width: 240px;
+        flex-shrink: 0;
+    }
+
+    .search-box i {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .search-box input {
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 13px;
+        color: var(--text);
+        width: 100%;
+    }
+
+    .import-form {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: nowrap;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .import-form input[type="file"] {
+        width: 150px;
+        font-size: 12px;
+        color: var(--text);
+        padding: 6px 8px;
+        border: 1px solid #cfc8b6;
+        border-radius: 8px;
+        background: #fff;
+        flex-shrink: 0;
+    }
+
+    /* ── Table ────────────────────────────────────────── */
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
     }
 
     .teachers-table {
-        min-width: 1250px;
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
     }
 
-    .teacher-pagination {
-        padding: 15px;
+    .teachers-table thead th {
+        padding: 13px 16px;
+        background: #f8f6f0;
+        border-bottom: 1px solid #e6e0d2;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        white-space: nowrap;
+        text-align: left;
     }
-}
 
+    .teachers-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #f0ebe0;
+        color: var(--text);
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .teachers-table tbody tr:hover td {
+        background: #fffdf6;
+    }
+
+    .teachers-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .teacher-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .teacher-avatar,
+    .teacher-avatar-ph {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .teacher-avatar {
+        object-fit: cover;
+    }
+
+    .teacher-avatar-ph {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, #2b5d8a 14%, #fff);
+        color: #2b5d8a;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .teacher-name {
+        font-weight: 700;
+        color: var(--ink);
+        font-size: 12px;
+    }
+
+    .teacher-gender {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+        text-transform: capitalize;
+    }
+
+    .id-badge,
+    .subject-badge {
+        display: inline-flex;
+        padding: 4px 9px;
+        border-radius: 6px;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .id-badge {
+        background: color-mix(in srgb, #2b5d8a 10%, #fff);
+        color: #2b5d8a;
+    }
+
+    .subject-badge {
+        background: color-mix(in srgb, #7a4fb5 10%, #fff);
+        color: #7a4fb5;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .status-badge.active {
+        background: color-mix(in srgb, #3a9d6b 12%, #fff);
+        color: #3a9d6b;
+    }
+
+    .status-badge.inactive {
+        background: color-mix(in srgb, #e4572e 12%, #fff);
+        color: #e4572e;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    .status-badge.active .status-dot  { background: #3a9d6b; }
+    .status-badge.inactive .status-dot { background: #e4572e; }
+
+    .actions-cell {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .actions-cell form {
+        margin: 0;
+    }
+
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        font-size: 14px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+    .action-view {
+        background: color-mix(in srgb, #2b5d8a 12%, #fff);
+        color: #2b5d8a;
+    }
+    .action-view:hover {
+        background: #2b5d8a;
+        color: #fff;
+    }
+
+    .action-edit {
+        background: color-mix(in srgb, #7a4fb5 12%, #fff);
+        color: #7a4fb5;
+    }
+    .action-edit:hover {
+        background: #7a4fb5;
+        color: #fff;
+    }
+
+    .action-delete {
+        background: color-mix(in srgb, #e4572e 12%, #fff);
+        color: #e4572e;
+        border: none;
+    }
+    .action-delete:hover {
+        background: #e4572e;
+        color: #fff;
+    }
+
+    /* ── Empty state ──────────────────────────────────── */
+    .empty {
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+    .empty i {
+        font-size: 30px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .empty h4 {
+        font-family: var(--serif);
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0 0 6px;
+    }
+
+    .empty p {
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    /* ── Pagination ───────────────────────────────────── */
+    .pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 22px;
+        border-top: 1px dashed #d8d1bf;
+        flex-wrap: wrap;
+    }
+
+    .pagination-info {
+        font-size: 12.5px;
+        color: var(--muted);
+    }
+
+    /* ── Responsive ───────────────────────────────────── */
+    @media (max-width: 1100px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .teachers-hero {
+            grid-template-columns: 1fr;
+        }
+        .teachers-hero-left {
+            padding: 22px 20px 22px 44px;
+        }
+        .teachers-hero::before {
+            left: 24px;
+        }
+
+        .panel-head {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .panel-toolbar {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .teachers-hero-left h1 {
+            font-size: 23px;
+        }
+    }
 </style>
 
+<div class="teachers-page">
 
-<div class="teachers-container">
-
-    {{-- =====================================================
-         PAGE HEADER
-    ====================================================== --}}
-
-    <div class="teachers-welcome-card">
-
-        <div class="teachers-welcome-content">
-
-            <h2>All Teachers 👨‍🏫</h2>
-
-            <p>
-                Manage teachers, faculty information and teacher records.
-            </p>
-
-        </div>
-
-        <a href="{{ route('admin.teachers.create') }}"
-           class="teachers-add-button">
-
-            <i class="bi bi-person-plus-fill"></i>
-
-            Add Teacher
-
-        </a>
-
-    </div>
-
-
-    {{-- =====================================================
-         SUCCESS MESSAGE
-    ====================================================== --}}
-
+    {{-- Flash messages --}}
     @if(session('success'))
-
-        <div class="teacher-success">
-
-            <i class="bi bi-check-circle-fill me-2"></i>
-
+        <div class="success-msg" role="status">
+            <i class="bi bi-check-circle-fill me-1"></i>
             {{ session('success') }}
-
         </div>
-
     @endif
 
+    @if(session('error'))
+        <div class="error-msg" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            {{ session('error') }}
+        </div>
+    @endif
 
-    {{-- =====================================================
-         STATISTICS
-    ====================================================== --}}
+    @if(session('import_errors') && count(session('import_errors')) > 0)
+        <div class="import-errors" role="alert">
+            <strong>Some Excel rows need correction:</strong>
+            <ul>
+                @foreach(session('import_errors') as $message)
+                    <li>{{ $message }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    <div class="teacher-stats-grid">
+    @if($errors->any())
+        <div class="import-errors" role="alert">
+            <strong>Please correct the following:</strong>
+            <ul>
+                @foreach($errors->all() as $message)
+                    <li>{{ $message }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-        {{-- TOTAL --}}
+    {{-- Hero – only Add Teacher --}}
+    <section class="paper teachers-hero">
+        <div class="teachers-hero-left">
+            <h1>All Teachers</h1>
+            <p>Manage faculty information, subjects and teacher records.</p>
 
-        <div class="teacher-stat-card blue">
-
-            <div class="teacher-stat-top">
-
-                <div>
-
-                    <div class="teacher-stat-number">
-
-                        {{ number_format(
-                            $totalTeachers ?? $teachers->count()
-                        ) }}
-
-                    </div>
-
-                    <div class="teacher-stat-title">
-                        Total Teachers
-                    </div>
-
-                </div>
-
-                <i class="bi bi-people-fill teacher-stat-icon"></i>
-
+            <div class="hero-btns">
+                <a href="{{ route('admin.teachers.create') }}" class="btn btn-add">
+                    <i class="bi bi-person-plus-fill"></i> Add Teacher
+                </a>
             </div>
-
         </div>
 
-
-        {{-- ACTIVE --}}
-
-        <div class="teacher-stat-card orange">
-
-            <div class="teacher-stat-top">
-
-                <div>
-
-                    <div class="teacher-stat-number">
-
-                        {{ number_format(
-                            $activeTeachers
-                            ?? $teachers->where('status', 'Active')->count()
-                        ) }}
-
-                    </div>
-
-                    <div class="teacher-stat-title">
-                        Active Teachers
-                    </div>
-
-                </div>
-
-                <i class="bi bi-person-check-fill teacher-stat-icon"></i>
-
+        <div class="teachers-hero-right">
+            <div class="label">Faculty</div>
+            <div class="value">
+                {{ number_format($totalTeachers ?? $teachers->count()) }} Teachers
             </div>
+            <div class="sub">Registered in the school</div>
+        </div>
+    </section>
 
+    {{-- KPI cards --}}
+    <div class="kpi-grid">
+        <div class="paper kpi c-blue">
+            <span class="kpi-tab">Total</span>
+            <div class="kpi-top">
+                <div class="kpi-value">
+                    {{ number_format($totalTeachers ?? $teachers->count()) }}
+                </div>
+                <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+            </div>
+            <div class="kpi-label">Total teachers</div>
         </div>
 
-
-        {{-- INACTIVE --}}
-
-        <div class="teacher-stat-card red">
-
-            <div class="teacher-stat-top">
-
-                <div>
-
-                    <div class="teacher-stat-number">
-
-                        {{ number_format(
-                            $inactiveTeachers
-                            ?? $teachers->where('status', 'Inactive')->count()
-                        ) }}
-
-                    </div>
-
-                    <div class="teacher-stat-title">
-                        Inactive Teachers
-                    </div>
-
+        <div class="paper kpi c-amber">
+            <span class="kpi-tab">Active</span>
+            <div class="kpi-top">
+                <div class="kpi-value">
+                    {{ number_format($activeTeachers ?? $teachers->where('status', 'Active')->count()) }}
                 </div>
-
-                <i class="bi bi-person-x-fill teacher-stat-icon"></i>
-
+                <div class="kpi-icon"><i class="bi bi-person-check-fill"></i></div>
             </div>
-
+            <div class="kpi-label">Active teachers</div>
         </div>
 
+        <div class="paper kpi c-red">
+            <span class="kpi-tab">Inactive</span>
+            <div class="kpi-top">
+                <div class="kpi-value">
+                    {{ number_format($inactiveTeachers ?? $teachers->where('status', 'Inactive')->count()) }}
+                </div>
+                <div class="kpi-icon"><i class="bi bi-person-x-fill"></i></div>
+            </div>
+            <div class="kpi-label">Inactive teachers</div>
+        </div>
     </div>
 
-
-    {{-- =====================================================
-         TEACHER LIST CARD
-    ====================================================== --}}
-
-    <div class="teachers-card">
-
-        {{-- CARD HEADER --}}
-
-        <div class="teachers-card-header">
-
-            <div>
-
-                <div class="teachers-card-title">
-
-                    <i class="bi bi-person-workspace"></i>
-
-                    <h3>Teacher List</h3>
-
-                </div>
-
-                <div class="teachers-card-subtitle">
-
-                    All registered teachers in the school
-
-                </div>
-
+    {{-- Teachers list --}}
+    <section class="paper panel">
+        <div class="panel-head">
+            <div class="panel-head-left">
+                <h3>Teacher List</h3>
+                <span>All registered teachers in the school</span>
             </div>
 
+            {{-- Search + all buttons on ONE line --}}
+            <div class="panel-toolbar">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           id="teacherSearch"
+                           placeholder="Search name, ID, email..."
+                           autocomplete="off"
+                           aria-label="Search teachers">
+                </div>
 
-            {{-- SEARCH --}}
+                <a href="{{ route('admin.teachers.export.excel') }}" class="btn btn-excel">
+                    <i class="bi bi-file-earmark-excel"></i> Export Excel
+                </a>
 
-            <div class="teacher-search-box">
+                <a href="{{ route('admin.teachers.export.pdf') }}" class="btn btn-pdf">
+                    <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                </a>
 
-                <i class="bi bi-search"></i>
+                <a href="{{ route('admin.teachers.import.template') }}" class="btn btn-template">
+                    <i class="bi bi-download"></i> Download Template
+                </a>
 
-                <input
-                    type="text"
-                    id="teacherSearch"
-                    placeholder="Search teacher, ID, email, phone, subject..."
-                    autocomplete="off"
-                >
-
+                <form action="{{ route('admin.teachers.import') }}"
+                      method="POST"
+                      enctype="multipart/form-data"
+                      class="import-form">
+                    @csrf
+                    <input type="file"
+                           name="file"
+                           accept=".xlsx,.xls,.csv"
+                           required
+                           aria-label="Choose Excel or CSV file">
+                    <button type="submit" class="btn btn-import">
+                        <i class="bi bi-upload"></i> Import
+                    </button>
+                </form>
             </div>
-
         </div>
 
-
-        {{-- =================================================
-             TABLE
-        ================================================== --}}
-
-        <div class="teachers-table-wrapper">
-
+        <div class="table-wrap">
             <table class="teachers-table" id="teachersTable">
-
                 <thead>
-
                     <tr>
-
                         <th>#</th>
-
                         <th>Teacher</th>
-
                         <th>Teacher ID</th>
-
                         <th>Email</th>
-
                         <th>Phone</th>
-
                         <th>Qualification</th>
-
                         <th>Subject</th>
-
                         <th>Joining Date</th>
-
                         <th>Status</th>
-
                         <th>Actions</th>
-
                     </tr>
-
                 </thead>
-
-
                 <tbody>
-
                     @forelse($teachers as $teacher)
-
                         <tr>
-
-                            {{-- NUMBER --}}
-
                             <td>
-
-                                <span class="teacher-number">
-
-                                    {{ method_exists($teachers, 'firstItem')
-                                        ? $teachers->firstItem() + $loop->index
-                                        : $loop->iteration }}
-
-                                </span>
-
+                                {{ method_exists($teachers, 'firstItem') ? $teachers->firstItem() + $loop->index : $loop->iteration }}
                             </td>
 
-
-                            {{-- TEACHER --}}
-
                             <td>
-
                                 <div class="teacher-profile">
-
                                     @if(!empty($teacher->profile_image))
-
-                                        <img
-                                            src="{{ $teacher->profile_image }}"
-                                            alt="{{ $teacher->first_name }}"
-                                            class="teacher-avatar"
-                                        >
-
+                                        <img src="{{ $teacher->profile_image }}"
+                                             alt="{{ $teacher->first_name }} {{ $teacher->last_name }}"
+                                             class="teacher-avatar">
                                     @else
-
-                                        <div class="teacher-avatar-placeholder">
-
-                                            {{ strtoupper(
-                                                substr(
-                                                    $teacher->first_name ?? 'T',
-                                                    0,
-                                                    1
-                                                )
-                                            ) }}
-
+                                        <div class="teacher-avatar-ph">
+                                            {{ strtoupper(substr($teacher->first_name ?? 'T', 0, 1)) }}
                                         </div>
-
                                     @endif
-
-
-                                    <div class="teacher-profile-info">
-
+                                    <div>
                                         <div class="teacher-name">
-
-                                            {{ $teacher->first_name ?? '' }}
-                                            {{ $teacher->last_name ?? '' }}
-
+                                            {{ trim(($teacher->first_name ?? '') . ' ' . ($teacher->last_name ?? '')) ?: '—' }}
                                         </div>
-
                                         <div class="teacher-gender">
-
-                                            {{ $teacher->gender ?? 'Not specified' }}
-
+                                            {{ $teacher->gender ?? '—' }}
                                         </div>
-
                                     </div>
-
                                 </div>
-
                             </td>
 
-
-                            {{-- TEACHER ID --}}
-
                             <td>
-
-                                <span class="teacher-id">
-
-                                    {{ $teacher->teacher_id ?? '—' }}
-
-                                </span>
-
+                                <span class="id-badge">{{ $teacher->teacher_id ?? '—' }}</span>
                             </td>
 
-
-                            {{-- EMAIL --}}
-
-                            <td>
-
-                                <span class="teacher-email">
-
-                                    {{ $teacher->email ?? '—' }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- PHONE --}}
+                            <td>{{ $teacher->email ?? '—' }}</td>
+                            <td>{{ $teacher->phone ?? '—' }}</td>
+                            <td>{{ $teacher->qualification ?? '—' }}</td>
 
                             <td>
-
-                                {{ $teacher->phone ?? '—' }}
-
-                            </td>
-
-
-                            {{-- QUALIFICATION --}}
-
-                            <td>
-
-                                {{ $teacher->qualification ?? '—' }}
-
-                            </td>
-
-
-                            {{-- SUBJECT --}}
-
-                            <td>
-
                                 @if(!empty($teacher->subject))
-
-                                    <span class="teacher-subject">
-
-                                        {{ $teacher->subject }}
-
-                                    </span>
-
+                                    <span class="subject-badge">{{ $teacher->subject }}</span>
                                 @else
-
-                                    <span style="color:#94a3b8;">
-                                        —
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- JOINING DATE --}}
-
-                            <td>
-
-                                @if($teacher->joining_date)
-
-                                    {{ \Carbon\Carbon::parse(
-                                        $teacher->joining_date
-                                    )->format('d M Y') }}
-
-                                @else
-
                                     —
-
                                 @endif
-
                             </td>
 
-
-                            {{-- STATUS --}}
-
                             <td>
-
-                                @if(strtolower($teacher->status ?? '') === 'active')
-
-                                    <span class="teacher-status active">
-
-                                        <span class="teacher-status-dot"></span>
-
-                                        Active
-
-                                    </span>
-
+                                @if(!empty($teacher->joining_date))
+                                    {{ \Carbon\Carbon::parse($teacher->joining_date)->format('d M Y') }}
                                 @else
-
-                                    <span class="teacher-status inactive">
-
-                                        <span class="teacher-status-dot"></span>
-
-                                        Inactive
-
-                                    </span>
-
+                                    —
                                 @endif
-
                             </td>
-
-
-                            {{-- ACTIONS --}}
 
                             <td>
+                                @if(strtolower($teacher->status ?? '') === 'active')
+                                    <span class="status-badge active">
+                                        <span class="status-dot"></span> Active
+                                    </span>
+                                @else
+                                    <span class="status-badge inactive">
+                                        <span class="status-dot"></span> Inactive
+                                    </span>
+                                @endif
+                            </td>
 
-                                <div class="teacher-actions">
-
-                                    {{-- VIEW --}}
-
-                                    <a
-                                        href="{{ route(
-                                            'admin.teachers.show',
-                                            $teacher->id
-                                        ) }}"
-                                        class="teacher-action teacher-view-action"
-                                        title="View Profile"
-                                        aria-label="View Profile"
-                                    >
-
+                            <td>
+                                <div class="actions-cell">
+                                    <a href="{{ route('admin.teachers.show', $teacher->id) }}"
+                                       class="action-btn action-view"
+                                       title="View"
+                                       aria-label="View teacher">
                                         <i class="bi bi-eye"></i>
-
                                     </a>
 
-
-                                    {{-- EDIT --}}
-
-                                    <a
-                                        href="{{ route(
-                                            'admin.teachers.edit',
-                                            $teacher->id
-                                        ) }}"
-                                        class="teacher-action teacher-edit-action"
-                                        title="Edit Teacher"
-                                        aria-label="Edit Teacher"
-                                    >
-
+                                    <a href="{{ route('admin.teachers.edit', $teacher->id) }}"
+                                       class="action-btn action-edit"
+                                       title="Edit"
+                                       aria-label="Edit teacher">
                                         <i class="bi bi-pencil"></i>
-
                                     </a>
 
-
-                                    {{-- DELETE --}}
-
-                                    <form
-                                        action="{{ route(
-                                            'admin.teachers.destroy',
-                                            $teacher->id
-                                        ) }}"
-                                        method="POST"
-                                        onsubmit="return confirm(
-                                            'Are you sure you want to delete this teacher?'
-                                        );"
-                                    >
-
+                                    <form action="{{ route('admin.teachers.destroy', $teacher->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Are you sure you want to delete this teacher?');">
                                         @csrf
-
                                         @method('DELETE')
-
-                                        <button
-                                            type="submit"
-                                            class="teacher-action teacher-delete-action"
-                                            title="Delete Teacher"
-                                            aria-label="Delete Teacher"
-                                        >
-
+                                        <button type="submit"
+                                                class="action-btn action-delete"
+                                                title="Delete"
+                                                aria-label="Delete teacher">
                                             <i class="bi bi-trash"></i>
-
                                         </button>
-
                                     </form>
-
                                 </div>
-
                             </td>
-
                         </tr>
-
                     @empty
-
                         <tr>
-
                             <td colspan="10">
-
-                                <div class="teacher-empty-state">
-
-                                    <div class="teacher-empty-icon">
-
-                                        <i class="bi bi-person-workspace"></i>
-
-                                    </div>
-
-                                    <h4>
-                                        No Teachers Found
-                                    </h4>
-
-                                    <p>
-                                        No teachers have been added yet.
-                                    </p>
-
-                                    <a
-                                        href="{{ route('admin.teachers.create') }}"
-                                        class="teacher-empty-button"
-                                    >
-
-                                        <i class="bi bi-person-plus-fill"></i>
-
-                                        Add First Teacher
-
+                                <div class="empty">
+                                    <i class="bi bi-person-workspace"></i>
+                                    <h4>No Teachers Found</h4>
+                                    <p>No teachers have been added yet.</p>
+                                    <a href="{{ route('admin.teachers.create') }}" class="btn btn-add">
+                                        <i class="bi bi-person-plus-fill"></i> Add First Teacher
                                     </a>
-
                                 </div>
-
                             </td>
-
                         </tr>
-
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
 
-
-        {{-- =================================================
-             PAGINATION
-        ================================================== --}}
-
-        @if(
-            method_exists($teachers, 'hasPages')
-            && $teachers->hasPages()
-        )
-
-            <div class="teacher-pagination">
-
-                <div class="teacher-pagination-info">
-
-                    Showing
-
-                    {{ $teachers->firstItem() }}
-
-                    to
-
-                    {{ $teachers->lastItem() }}
-
-                    of
-
-                    {{ $teachers->total() }}
-
-                    teachers
-
+        @if(method_exists($teachers, 'hasPages') && $teachers->hasPages())
+            <div class="pagination-bar">
+                <div class="pagination-info">
+                    Showing {{ $teachers->firstItem() }} to {{ $teachers->lastItem() }}
+                    of {{ $teachers->total() }} teachers
                 </div>
-
-
-                <div>
-
-                    {{ $teachers->links() }}
-
-                </div>
-
+                <div>{{ $teachers->links() }}</div>
             </div>
-
         @endif
-
-    </div>
-
+    </section>
 </div>
 
-
-{{-- =========================================================
-     SEARCH SCRIPT
-========================================================= --}}
-
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
-    const searchInput = document.getElementById('teacherSearch');
+    const input = document.getElementById('teacherSearch');
     const table = document.getElementById('teachersTable');
 
-    if (!searchInput || !table) {
-        return;
-    }
+    if (!input || !table) return;
 
-    searchInput.addEventListener('input', function () {
+    input.addEventListener('input', function () {
+        const query = this.value.toLowerCase().trim();
 
-        const searchValue = this.value.toLowerCase().trim();
+        table.querySelectorAll('tbody tr').forEach(function (row) {
+            if (row.querySelector('.empty')) return;
 
-        const rows = table.querySelectorAll('tbody tr');
-
-        rows.forEach(function (row) {
-
-            const rowText = row.textContent.toLowerCase();
-
-            row.style.display =
-                rowText.includes(searchValue)
-                    ? ''
-                    : 'none';
-
+            row.style.display = row.textContent.toLowerCase().includes(query)
+                ? ''
+                : 'none';
         });
-
     });
-
 });
-
 </script>
 
 @endsection

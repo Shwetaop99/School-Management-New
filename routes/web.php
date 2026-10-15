@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\FeePaymentController;
@@ -606,6 +606,26 @@ Route::prefix('admin')
                 TeacherController::class
             );
 
+
+            Route::get('teachers/export/excel', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'exportExcel',
+])->name('teachers.export.excel');
+
+Route::get('teachers/export/pdf', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'exportPdf',
+])->name('teachers.export.pdf');
+
+Route::get('teachers/import/template', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'importTemplate',
+])->name('teachers.import.template');
+
+Route::post('teachers/import', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'importExcel',
+])->name('teachers.import');
 
             /*
             |--------------------------------------------------------------------------
