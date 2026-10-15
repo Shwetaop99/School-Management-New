@@ -13,6 +13,8 @@ use Illuminate\Validation\Rule;
 use Cloudinary\Cloudinary;
 use Illuminate\Validation\ValidationException;
 use Throwable;
+use App\Exports\AllStudentsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
 {
@@ -211,7 +213,7 @@ public function create()
     |--------------------------------------------------------------------------
     */
 
-    
+
 public function store(Request $request)
 {
     $validated = $this->validateStudent($request);
@@ -1953,10 +1955,10 @@ public function store(Request $request)
 | Example:
 |
 | STU-{YEAR}-{NUMBER}
-| → STU-2026-0001
+| â†’ STU-2026-0001
 |
 | SCH-{YY}-{CLASS}{SECTION}-{NUMBER}
-| → SCH-26-10A-0001
+| â†’ SCH-26-10A-0001
 |
 |--------------------------------------------------------------------------
 */
@@ -2831,4 +2833,22 @@ private function generateStudentId(
             )
         );
     }
+
+
+public function export(Request $request)
+{
+    $filters = $request->only([
+        'search',
+        'class',
+        'section',
+        'academic_year',
+        'status',
+    ]);
+
+    return Excel::download(
+        new AllStudentsExport($filters),
+        'all_students_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
+    );
+}
+
 }

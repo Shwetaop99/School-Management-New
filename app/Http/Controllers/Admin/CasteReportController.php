@@ -469,6 +469,10 @@ public function print(Request $request)
 /**
  * Download the actual PDF.
  */
+
+/**
+ * Download the actual PDF.
+ */
 public function pdfDownload(Request $request)
 {
     $data = $this->getCasteReportData($request);
@@ -476,9 +480,12 @@ public function pdfDownload(Request $request)
     return \Barryvdh\DomPDF\Facade\Pdf::loadView(
         'admin.caste-reports.pdf-document',
         $data
-    )->setPaper('a4', 'landscape')
-     ->download('caste-category-report.pdf');
+    )
+        ->setOption('isRemoteEnabled', true)
+        ->setPaper('a4', 'landscape')
+        ->download('caste-category-report.pdf');
 }
+
 
 /**
  * Build filtered report data for print and PDF.
