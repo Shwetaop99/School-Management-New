@@ -1,744 +1,1003 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.auth')
 
-    <title>Set Up 2FA | Gurukul Vidyalaya</title>
+@section('title', 'Two-Factor Authentication')
 
-    <style>
-        * {
-            box-sizing: border-box;
+@section('content')
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    :root {
+        --ink: #1d3a33;
+        --ink-2: #2a4a41;
+        --chalk: #f2b632;
+        --wood: #8a5a2c;
+        --red: #e4572e;
+        --green: #3a9d6b;
+        --accent: #2b5d8a;
+        --text: #26302c;
+        --muted: #6a756f;
+        --line: #ddd6c4;
+        --serif: 'Fraunces', Georgia, serif;
+        --hand: 'Caveat', 'Comic Sans MS', cursive;
+    }
+
+    .twofa-page {
+        min-height: calc(100vh - 40px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        color: var(--text);
+
+        background-color: #fbf8f1;
+        background-image:
+            repeating-linear-gradient(
+                transparent 0 31px,
+                rgba(43, 93, 138, .07) 31px 32px
+            );
+    }
+
+    .twofa-card {
+        position: relative;
+        width: 960px;
+        max-width: 100%;
+        min-height: 560px;
+
+        display: flex;
+
+        border-radius: 14px;
+        overflow: hidden;
+
+        background: #fff;
+
+        box-shadow:
+            0 20px 44px rgba(29, 58, 51, .16);
+    }
+
+    .twofa-card::before {
+        content: "";
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+
+        background: linear-gradient(
+            90deg,
+            var(--red) 0 25%,
+            var(--chalk) 25% 50%,
+            var(--green) 50% 75%,
+            var(--accent) 75% 100%
+        );
+    }
+
+    /* =========================================================
+       LEFT CHALKBOARD
+    ========================================================= */
+
+    .twofa-board {
+        position: relative;
+        width: 42%;
+
+        padding: 56px 40px 110px;
+
+        color: #e9efe2;
+        overflow: hidden;
+
+        background:
+            radial-gradient(
+                ellipse at 18% 8%,
+                rgba(255,255,255,.08),
+                transparent 55%
+            ),
+            radial-gradient(
+                ellipse at 85% 90%,
+                rgba(255,255,255,.06),
+                transparent 50%
+            ),
+            var(--ink);
+
+        border-right: 10px solid var(--wood);
+
+        box-shadow:
+            inset -3px 0 6px rgba(0,0,0,.28);
+    }
+
+    .twofa-logo {
+        width: 68px;
+        height: 68px;
+
+        border-radius: 50%;
+        overflow: hidden;
+
+        background: #26306a;
+
+        margin-bottom: 22px;
+
+        box-shadow:
+            0 0 0 3px var(--ink),
+            0 0 0 5px var(--chalk);
+    }
+
+    .twofa-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .twofa-board h1 {
+        font-family: var(--serif);
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.15;
+
+        color: #fff;
+
+        margin-bottom: 8px;
+    }
+
+    .twofa-board .hand {
+        font-family: var(--hand);
+        font-size: 24px;
+
+        color: var(--chalk);
+
+        line-height: 1;
+
+        margin-bottom: 26px;
+    }
+
+    .security-list {
+        list-style: none;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 14px;
+
+        padding: 0;
+        margin: 0;
+    }
+
+    .security-list li {
+        display: flex;
+        align-items: flex-start;
+
+        gap: 11px;
+
+        font-size: 14px;
+        line-height: 1.5;
+
+        color: #d9e1d0;
+    }
+
+    .security-list li i {
+        color: var(--chalk);
+        font-size: 16px;
+
+        margin-top: 2px;
+    }
+
+    /* =========================================================
+       SCHOOL BUS
+    ========================================================= */
+
+    .twofa-road {
+        position: absolute;
+
+        left: 0;
+        right: 0;
+
+        bottom: 0;
+
+        height: 90px;
+
+        pointer-events: none;
+    }
+
+    .twofa-road::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        right: 0;
+
+        bottom: 22px;
+
+        border-top: 2px dashed rgba(233,239,226,.35);
+    }
+
+    .twofa-bus {
+        position: absolute;
+
+        bottom: 28px;
+        left: 34px;
+
+        width: 150px;
+
+        animation:
+            twofaDrive
+            2.2s
+            cubic-bezier(.3,.6,.25,1)
+            .5s
+            both;
+    }
+
+    .twofa-bus svg {
+        display: block;
+
+        width: 100%;
+        height: auto;
+    }
+
+    @keyframes twofaDrive {
+        from {
+            transform: translateX(-500px);
+        }
+
+        to {
+            transform: none;
+        }
+    }
+
+    /* =========================================================
+       RIGHT SIDE
+    ========================================================= */
+
+    .twofa-right {
+        width: 58%;
+
+        padding: 60px 64px 40px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .twofa-right h2 {
+        font-family: var(--serif);
+
+        font-size: 28px;
+        font-weight: 700;
+
+        color: var(--ink);
+
+        margin-bottom: 5px;
+    }
+
+    .twofa-subtitle {
+        color: var(--muted);
+
+        font-size: 14px;
+
+        margin-bottom: 28px;
+    }
+
+    /* Shield */
+
+    .twofa-shield {
+        width: 68px;
+        height: 68px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background: #f3efe3;
+
+        color: var(--ink);
+
+        font-size: 30px;
+
+        margin-bottom: 20px;
+
+        box-shadow:
+            0 0 0 5px rgba(242,182,50,.22);
+    }
+
+    /* Error */
+
+    .twofa-error {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        background: #fdecea;
+
+        border: 1px solid #f5c2bb;
+
+        color: #b3321d;
+
+        padding: 11px 13px;
+
+        border-radius: 8px;
+
+        font-size: 13px;
+
+        margin-bottom: 18px;
+    }
+
+    /* Instructions */
+
+    .twofa-instructions {
+        display: flex;
+
+        gap: 12px;
+
+        padding: 15px;
+
+        margin-bottom: 22px;
+
+        background: #f8f6ef;
+
+        border: 1px solid var(--line);
+
+        border-radius: 9px;
+    }
+
+    .twofa-instructions i {
+        color: var(--accent);
+
+        font-size: 20px;
+
+        margin-top: 1px;
+    }
+
+    .twofa-instructions p {
+        margin: 0;
+
+        color: var(--muted);
+
+        font-size: 13.5px;
+
+        line-height: 1.55;
+    }
+
+    /* OTP */
+
+    .twofa-field {
+        margin-bottom: 20px;
+    }
+
+    .twofa-field label {
+        display: block;
+
+        font-size: 13px;
+        font-weight: 600;
+
+        color: var(--ink);
+
+        margin-bottom: 7px;
+    }
+
+    .otp-wrapper {
+        position: relative;
+    }
+
+    .otp-wrapper > i {
+        position: absolute;
+
+        left: 15px;
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        color: var(--muted);
+
+        font-size: 17px;
+    }
+
+    .otp-input {
+        width: 100%;
+
+        height: 54px;
+
+        padding: 0 48px;
+
+        font-family: 'Public Sans', Arial, sans-serif;
+
+        font-size: 22px;
+        font-weight: 700;
+
+        letter-spacing: 8px;
+
+        color: var(--text);
+
+        text-align: center;
+
+        background: #fff;
+
+        border: 1px solid var(--line);
+
+        border-radius: 8px;
+
+        outline: none;
+
+        transition:
+            border-color .15s,
+            box-shadow .15s;
+    }
+
+    .otp-input::placeholder {
+        color: #b4b7b2;
+        letter-spacing: 7px;
+    }
+
+    .otp-input:focus {
+        border-color: var(--ink);
+
+        box-shadow:
+            0 0 0 3px rgba(242,182,50,.4);
+    }
+
+    /* Verify button */
+
+    .verify-btn {
+        width: 100%;
+
+        height: 50px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 10px;
+
+        border: none;
+
+        border-radius: 9px;
+
+        background: var(--ink);
+
+        color: #fff;
+
+        font-family: 'Public Sans', Arial, sans-serif;
+
+        font-size: 14.5px;
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition:
+            background .15s,
+            transform .15s;
+    }
+
+    .verify-btn:hover {
+        background: var(--ink-2);
+
+        transform: translateY(-1px);
+    }
+
+    .verify-btn i {
+        color: var(--chalk);
+    }
+
+    .verify-btn.is-busy {
+        pointer-events: none;
+        opacity: .85;
+    }
+
+    .twofa-spinner {
+        width: 15px;
+        height: 15px;
+
+        border: 2px solid #fff;
+
+        border-right-color: transparent;
+
+        border-radius: 50%;
+
+        animation:
+            twofaSpin
+            .7s
+            linear
+            infinite;
+    }
+
+    @keyframes twofaSpin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Footer */
+
+    .twofa-footer {
+        margin-top: 24px;
+
+        text-align: center;
+
+        font-size: 12px;
+
+        color: #8a938d;
+    }
+
+    .twofa-footer i {
+        color: var(--green);
+
+        margin-right: 4px;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 860px) {
+
+        .twofa-page {
+            padding: 18px;
+        }
+
+        .twofa-card {
+            max-width: 520px;
+
+            flex-direction: column;
+
+            min-height: 0;
+        }
+
+        .twofa-board {
+            width: 100%;
+
+            border-right: none;
+
+            border-bottom: 8px solid var(--wood);
+
+            box-shadow: none;
+
+            padding: 26px 28px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 16px;
+        }
+
+        .twofa-logo {
             margin: 0;
-            padding: 0;
-        }
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f3f6fb;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            color: #102a56;
-        }
+            width: 56px;
+            height: 56px;
 
-        .page-wrapper {
-            width: 100%;
-            max-width: 1100px;
-        }
-
-        .auth-container {
-            width: 100%;
-            min-height: 680px;
-            background: #ffffff;
-            border-radius: 14px;
-            overflow: hidden;
-            display: flex;
-            box-shadow: 0 12px 40px rgba(25, 65, 120, 0.12);
-        }
-
-        /* =========================================
-           LEFT SIDE
-        ========================================= */
-
-        .left-panel {
-            width: 50%;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(
-                145deg,
-                #176df5 0%,
-                #159ad9 55%,
-                #29b7c2 100%
-            );
-            color: white;
-            padding: 42px 38px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Decorative dots */
-
-        .dots {
-            position: absolute;
-            top: 28px;
-            left: 28px;
-            width: 80px;
-            height: 70px;
-
-            background-image: radial-gradient(
-                rgba(255,255,255,0.35) 2px,
-                transparent 2px
-            );
-
-            background-size: 10px 10px;
-            opacity: 0.8;
-        }
-
-        /* Decorative circle */
-
-        .blue-circle {
-            position: absolute;
-            top: -90px;
-            right: -80px;
-
-            width: 210px;
-            height: 210px;
-
-            border-radius: 50%;
-            background: rgba(255,255,255,0.12);
-        }
-
-        /* Logo */
-
-        .logo-box {
-            width: 120px;
-            height: 120px;
-
-            background: #ffffff;
-            border-radius: 25px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            margin-top: 28px;
-            margin-bottom: 32px;
-
-            position: relative;
-            z-index: 5;
-
-            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
-        }
-
-        .logo-box img {
-            width: 92px;
-            height: 92px;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-
-        .left-title {
-            position: relative;
-            z-index: 5;
-            font-size: 31px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .left-subtitle {
-            position: relative;
-            z-index: 5;
-
-            font-size: 15px;
-            line-height: 1.6;
-
-            max-width: 300px;
-
-            color: rgba(255,255,255,0.92);
-
-            margin-bottom: 30px;
-        }
-
-        /* Features */
-
-        .features {
-            position: relative;
-            z-index: 5;
-
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .feature {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-
-            font-size: 14px;
-            color: #ffffff;
-        }
-
-        .check {
-            width: 32px;
-            height: 32px;
-
-            border: 2px solid rgba(255,255,255,0.95);
-            border-radius: 50%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 18px;
             flex-shrink: 0;
         }
 
-        /* Simple school illustration */
+        .twofa-board h1 {
+            font-size: 23px;
 
-        .school-scene {
-            position: absolute;
-            bottom: 0;
-            left: 0;
+            margin: 0;
+        }
 
+        .twofa-board .hand,
+        .security-list,
+        .twofa-road {
+            display: none;
+        }
+
+        .twofa-right {
             width: 100%;
-            height: 290px;
 
-            opacity: 0.28;
+            padding: 34px 28px 28px;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .twofa-page {
+            padding: 10px;
         }
 
-        .ground {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-
-            width: 100%;
-            height: 115px;
-
-            background: rgba(255,255,255,0.20);
-
-            border-radius: 50% 50% 0 0;
+        .twofa-right {
+            padding: 30px 20px 24px;
         }
 
-        .school {
-            position: absolute;
-
-            bottom: 18px;
-            left: 17%;
-
-            width: 66%;
-            height: 125px;
-
-            background: rgba(255,255,255,0.65);
+        .twofa-right h2 {
+            font-size: 25px;
         }
-
-        .school-roof {
-            position: absolute;
-
-            bottom: 143px;
-            left: 27%;
-
-            width: 46%;
-            height: 75px;
-
-            background: rgba(255,255,255,0.72);
-
-            clip-path: polygon(
-                50% 0,
-                100% 100%,
-                0 100%
-            );
-        }
-
-        .school-door {
-            position: absolute;
-
-            bottom: 18px;
-            left: 46%;
-
-            width: 8%;
-            height: 72px;
-
-            background: rgba(35,130,220,0.45);
-        }
-
-        .school-window {
-            position: absolute;
-
-            bottom: 65px;
-
-            width: 38px;
-            height: 45px;
-
-            background: rgba(35,130,220,0.38);
-        }
-
-        .window-one {
-            left: 25%;
-        }
-
-        .window-two {
-            left: 35%;
-        }
-
-        .window-three {
-            right: 35%;
-        }
-
-        .window-four {
-            right: 25%;
-        }
-
-        /* =========================================
-           RIGHT SIDE
-        ========================================= */
-
-        .right-panel {
-            width: 50%;
-            padding: 48px 58px;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-
-            background: #ffffff;
-        }
-
-        .right-panel h1 {
-            font-size: 29px;
-            line-height: 1.2;
-
-            color: #102a56;
-
-            margin-bottom: 9px;
-        }
-
-        .intro {
-            color: #6c7f9c;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 24px;
-        }
-
-        /* Error */
-
-        .error-box {
-            background: #fff0f1;
-            border: 1px solid #ffc7cc;
-
-            color: #dc3545;
-
-            padding: 12px 14px;
-            border-radius: 7px;
-
-            font-size: 13px;
-
-            margin-bottom: 20px;
-        }
-
-        /* QR */
-
-        .qr-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            margin: 4px 0 18px;
-        }
-
-        .qr-box {
-            width: 190px;
-            height: 190px;
-
-            border: 1px solid #e0e6ef;
-            border-radius: 10px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: #ffffff;
-
-            padding: 12px;
-
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .qr-box svg,
-        .qr-box img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        /* Secret */
-
-        .secret-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #102a56;
-
-            margin-bottom: 7px;
-        }
-
-        .secret {
-            background: #f5f7fa;
-
-            border: 1px solid #e1e6ee;
-
-            border-radius: 7px;
-
-            padding: 11px 13px;
-
-            font-family: monospace;
-            font-size: 12px;
-
-            color: #536783;
-
-            word-break: break-all;
-
-            margin-bottom: 18px;
-        }
-
-        /* Instructions */
-
-        .instruction {
-            color: #687b96;
-
-            font-size: 13px;
-            line-height: 1.55;
-
-            margin-bottom: 16px;
-        }
-
-        /* OTP */
 
         .otp-input {
-            width: 100%;
+            font-size: 19px;
 
-            height: 52px;
-
-            border: 1px solid #d6dfeb;
-            border-radius: 8px;
-
-            outline: none;
-
-            font-size: 22px;
-            font-weight: 600;
-
-            color: #102a56;
-
-            text-align: center;
-
-            letter-spacing: 8px;
-
-            margin-bottom: 14px;
-
-            transition: 0.2s;
-        }
-
-        .otp-input:focus {
-            border-color: #2377f5;
-
-            box-shadow: 0 0 0 3px rgba(35,119,245,0.10);
-        }
-
-        .otp-input::placeholder {
-            color: #a9b5c5;
             letter-spacing: 5px;
         }
+    }
 
-        /* Button */
+    @media (prefers-reduced-motion: reduce) {
 
-        .verify-button {
-            width: 100%;
-
-            height: 49px;
-
-            border: none;
-            border-radius: 7px;
-
-            background: linear-gradient(
-                90deg,
-                #2865f3,
-                #159dd9
-            );
-
-            color: #ffffff;
-
-            font-size: 14px;
-            font-weight: 600;
-
-            cursor: pointer;
-
-            transition: 0.2s;
-
-            box-shadow: 0 6px 15px rgba(40,101,243,0.20);
+        .twofa-bus {
+            animation: none;
         }
 
-        .verify-button:hover {
-            transform: translateY(-1px);
-
-            box-shadow: 0 8px 18px rgba(40,101,243,0.28);
+        .twofa-spinner {
+            animation-duration: 1.6s;
         }
+    }
 
-        /* Footer */
+</style>
 
-        .security-note {
-            text-align: center;
 
-            margin-top: 18px;
+<div class="twofa-page">
 
-            font-size: 11px;
+    <div class="twofa-card">
 
-            color: #9aa8ba;
-        }
+        {{-- =====================================================
+             CHALKBOARD PANEL
+        ====================================================== --}}
 
-        /* =========================================
-           RESPONSIVE
-        ========================================= */
+        <section class="twofa-board">
 
-        @media (max-width: 850px) {
+            <div>
 
-            body {
-                padding: 15px;
-            }
+                <div class="twofa-logo">
 
-            .auth-container {
-                flex-direction: column;
-            }
+                    <img
+                        src="{{ asset('images/gurukullogo.png') }}"
+                        alt="Gurukul Vidyalaya logo"
+                    >
 
-            .left-panel,
-            .right-panel {
-                width: 100%;
-            }
+                </div>
 
-            .left-panel {
-                min-height: 390px;
-                padding: 30px;
-            }
+                <h1>
+                    Gurukul Vidyalaya
+                </h1>
 
-            .logo-box {
-                width: 90px;
-                height: 90px;
-                border-radius: 18px;
-                margin-bottom: 20px;
-            }
+                <div class="hand">
+                    School management
+                </div>
 
-            .logo-box img {
-                width: 70px;
-                height: 70px;
-            }
+                <ul class="security-list">
 
-            .left-title {
-                font-size: 25px;
-            }
+                    <li>
+                        <i class="bi bi-shield-check"></i>
 
-            .features {
-                gap: 12px;
-            }
+                        <span>
+                            Your account is protected with
+                            two-factor authentication.
+                        </span>
+                    </li>
 
-            .feature {
-                font-size: 13px;
-            }
+                    <li>
+                        <i class="bi bi-phone"></i>
 
-            .right-panel {
-                padding: 35px 30px;
-            }
-        }
+                        <span>
+                            Use your authenticator app to
+                            generate a verification code.
+                        </span>
+                    </li>
 
-        @media (max-width: 500px) {
+                    <li>
+                        <i class="bi bi-lock-fill"></i>
 
-            .left-panel {
-                min-height: 350px;
-            }
+                        <span>
+                            Never share your verification code
+                            with anyone.
+                        </span>
+                    </li>
 
-            .right-panel {
-                padding: 30px 20px;
-            }
+                    <li>
+                        <i class="bi bi-check-lg"></i>
 
-            .right-panel h1 {
-                font-size: 25px;
-            }
+                        <span>
+                            Complete verification to access
+                            the school dashboard.
+                        </span>
+                    </li>
 
-            .qr-box {
-                width: 170px;
-                height: 170px;
-            }
-        }
-    </style>
-</head>
+                </ul>
 
-<body>
-
-<div class="page-wrapper">
-
-    <div class="auth-container">
-
-        <!-- =====================================
-             LEFT PANEL
-        ====================================== -->
-
-        <div class="left-panel">
-
-            <div class="dots"></div>
-
-            <div class="blue-circle"></div>
-
-            <!-- Gurukul Vidyalaya Logo -->
-
-            <div class="logo-box">
-                <img
-                    src="{{ asset('images/gurukullogo.png') }}"
-                    alt="Gurukul Vidyalaya Logo"
-                >
             </div>
 
-            <h2 class="left-title">
-                Gurukul Vidyalaya
+            {{-- School bus --}}
+
+            <div class="twofa-road" aria-hidden="true">
+
+                <div class="twofa-bus">
+
+                    <svg
+                        viewBox="0 0 240 100"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+
+                        <rect
+                            x="2"
+                            y="4"
+                            width="230"
+                            height="78"
+                            rx="12"
+                            fill="#f2b632"
+                        />
+
+                        <rect
+                            x="2"
+                            y="52"
+                            width="230"
+                            height="8"
+                            fill="#e0a21f"
+                        />
+
+                        <g
+                            fill="#cfe7f3"
+                            stroke="#26302c"
+                            stroke-width="2.5"
+                        >
+
+                            <rect x="16" y="16" width="32" height="26" rx="3"/>
+                            <rect x="56" y="16" width="32" height="26" rx="3"/>
+                            <rect x="96" y="16" width="32" height="26" rx="3"/>
+                            <rect x="136" y="16" width="32" height="26" rx="3"/>
+                            <rect x="182" y="14" width="40" height="32" rx="4"/>
+
+                        </g>
+
+                        <text
+                            x="16"
+                            y="74"
+                            font-family="Arial"
+                            font-weight="700"
+                            font-size="12"
+                            fill="#26302c"
+                        >
+                            SCHOOL BUS
+                        </text>
+
+                        <rect
+                            x="226"
+                            y="56"
+                            width="10"
+                            height="12"
+                            rx="3"
+                            fill="#e4572e"
+                        />
+
+                        <g fill="#26302c">
+
+                            <circle cx="54" cy="84" r="15"/>
+                            <circle cx="180" cy="84" r="15"/>
+
+                        </g>
+
+                        <g fill="#d9d2bf">
+
+                            <circle cx="54" cy="84" r="6"/>
+                            <circle cx="180" cy="84" r="6"/>
+
+                        </g>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        {{-- =====================================================
+             RIGHT 2FA PANEL
+        ====================================================== --}}
+
+        <section class="twofa-right">
+
+            <div class="twofa-shield">
+
+                <i class="bi bi-shield-lock-fill"></i>
+
+            </div>
+
+            <h2>
+                Verify your identity
             </h2>
 
-            <p class="left-subtitle">
-                Secure school management for
-                administrators, teachers and staff.
+            <p class="twofa-subtitle">
+                One more step to securely access your school dashboard.
             </p>
 
-            <div class="features">
 
-                <div class="feature">
-                    <div class="check">✓</div>
-                    <span>Manage students and teachers</span>
-                </div>
-
-                <div class="feature">
-                    <div class="check">✓</div>
-                    <span>Manage attendance and fees</span>
-                </div>
-
-                <div class="feature">
-                    <div class="check">✓</div>
-                    <span>View school results and reports</span>
-                </div>
-
-                <div class="feature">
-                    <div class="check">✓</div>
-                    <span>Protected with two-factor authentication</span>
-                </div>
-
-            </div>
-
-            <!-- School illustration -->
-
-            <div class="school-scene">
-
-                <div class="ground"></div>
-
-                <div class="school"></div>
-
-                <div class="school-roof"></div>
-
-                <div class="school-door"></div>
-
-                <div class="school-window window-one"></div>
-                <div class="school-window window-two"></div>
-                <div class="school-window window-three"></div>
-                <div class="school-window window-four"></div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =====================================
-             RIGHT PANEL
-        ====================================== -->
-
-        <div class="right-panel">
-
-            <h1>
-                Set Up Two-Factor Authentication
-            </h1>
-
-            <p class="intro">
-                Secure your Gurukul Vidyalaya account by
-                connecting it with Google Authenticator.
-            </p>
-
+            {{-- Errors --}}
 
             @if ($errors->any())
 
-                <div class="error-box">
-                    {{ $errors->first() }}
+                <div class="twofa-error" role="alert">
+
+                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                    <span>
+                        {{ $errors->first() }}
+                    </span>
+
                 </div>
 
             @endif
 
 
-            <p class="instruction">
-                Open Google Authenticator on your mobile
-                and scan the QR code below.
-            </p>
+            {{-- Instructions --}}
 
+            <div class="twofa-instructions">
 
-            <!-- QR CODE -->
+                <i class="bi bi-phone-fill"></i>
 
-            <div class="qr-wrapper">
-
-                <div class="qr-box">
-
-                    {!! $qrCodeUrl !!}
-
-                </div>
+                <p>
+                    Open your authenticator app and enter the
+                    <strong>6-digit verification code</strong>
+                    currently shown for your Gurukul Vidyalaya account.
+                </p>
 
             </div>
 
 
-            <p class="instruction">
-                Can't scan the QR code? Enter the secret
-                key manually in your authenticator app.
-            </p>
-
-
-            <!-- SECRET -->
-
-            <div class="secret-title">
-                Manual Setup Key
-            </div>
-
-            <div class="secret">
-                {{ $secret }}
-            </div>
-
-
-            <p class="instruction">
-                After adding the account, enter the
-                6-digit verification code generated by
-                Google Authenticator.
-            </p>
-
-
-            <!-- VERIFY FORM -->
+            {{-- Verification Form --}}
 
             <form
                 method="POST"
                 action="{{ route('admin.2fa.verify') }}"
+                id="twoFactorForm"
             >
 
                 @csrf
 
-                <input
-                    type="text"
-                    name="code"
-                    class="otp-input"
-                    inputmode="numeric"
-                    maxlength="6"
-                    pattern="[0-9]{6}"
-                    autocomplete="one-time-code"
-                    placeholder="000000"
-                    required
-                >
+                <div class="twofa-field">
+
+                    <label for="code">
+                        Authentication code
+                    </label>
+
+                    <div class="otp-wrapper">
+
+                        <i class="bi bi-key-fill"></i>
+
+                        <input
+                            type="text"
+                            id="code"
+                            name="code"
+                            class="otp-input"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            placeholder="000000"
+                            required
+                            autofocus
+                        >
+
+                    </div>
+
+                </div>
+
 
                 <button
                     type="submit"
-                    class="verify-button"
+                    class="verify-btn"
+                    id="verifyButton"
                 >
-                    Verify & Continue →
+
+                    <span id="verifyText">
+                        Verify & Continue
+                    </span>
+
+                    <i
+                        class="bi bi-arrow-right"
+                        id="verifyArrow"
+                    ></i>
+
                 </button>
 
             </form>
 
 
-            <div class="security-note">
-                🔒 Your account is protected with two-factor authentication.
+            <div class="twofa-footer">
+
+                <i class="bi bi-shield-check"></i>
+
+                Secure two-factor authentication
+
+                &nbsp;•&nbsp;
+
+                Authorized staff only
+
             </div>
 
-        </div>
+        </section>
 
     </div>
 
 </div>
 
-</body>
-</html>
+
+<script>
+
+    const twoFactorForm =
+        document.getElementById('twoFactorForm');
+
+    const verifyButton =
+        document.getElementById('verifyButton');
+
+    const verifyText =
+        document.getElementById('verifyText');
+
+    const verifyArrow =
+        document.getElementById('verifyArrow');
+
+    const codeInput =
+        document.getElementById('code');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Allow digits only
+    |--------------------------------------------------------------------------
+    */
+
+    codeInput.addEventListener('input', function () {
+
+        this.value = this.value
+            .replace(/\D/g, '')
+            .slice(0, 6);
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Submit state
+    |--------------------------------------------------------------------------
+    */
+
+    twoFactorForm.addEventListener('submit', function () {
+
+        if (codeInput.value.length !== 6) {
+            return;
+        }
+
+        verifyButton.classList.add('is-busy');
+
+        verifyText.textContent = 'Verifying...';
+
+        verifyArrow.outerHTML =
+            '<span class="twofa-spinner"></span>';
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Restore button when navigating back
+    |--------------------------------------------------------------------------
+    */
+
+    window.addEventListener('pageshow', function (event) {
+
+        if (!event.persisted) {
+            return;
+        }
+
+        verifyButton.classList.remove('is-busy');
+
+        verifyText.textContent =
+            'Verify & Continue';
+
+        const spinner =
+            verifyButton.querySelector('.twofa-spinner');
+
+        if (spinner) {
+
+            spinner.outerHTML =
+                '<i class="bi bi-arrow-right" id="verifyArrow"></i>';
+
+        }
+
+    });
+
+</script>
+
+@endsection

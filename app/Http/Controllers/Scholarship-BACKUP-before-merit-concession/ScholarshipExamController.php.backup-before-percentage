@@ -1,0 +1,158 @@
+<?php
+
+namespace App\Http\Controllers\Scholarship;
+
+use App\Http\Controllers\Controller;
+use App\Models\Scholarship\ScholarshipExam;
+use Illuminate\Http\Request;
+
+class ScholarshipExamController extends Controller
+{
+    /**
+     * Display all scholarship exams.
+     */
+    public function index()
+    {
+        $exams = ScholarshipExam::latest()->paginate(10);
+
+        return view(
+            'admin.scholarship-exams.index',
+            compact('exams')
+        );
+    }
+
+    /**
+     * Show create form.
+     */
+    public function create()
+    {
+        return view('admin.scholarship-exams.create');
+    }
+
+    /**
+     * Store a new scholarship exam.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'exam_name' => 'required|string|max:255',
+            'exam_code' => 'nullable|string|max:100',
+            'academic_year' => 'required|string|max:20',
+            'conducting_authority' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+
+            'eligible_classes' => 'nullable|string|max:255',
+            'minimum_marks' => 'nullable|numeric|min:0|max:100',
+            'minimum_attendance' => 'nullable|numeric|min:0|max:100',
+            'other_eligibility' => 'nullable|string',
+
+            'exam_type' => 'nullable|string|max:100',
+            'total_marks' => 'nullable|integer|min:0',
+            'duration_minutes' => 'nullable|integer|min:0',
+            'number_of_papers' => 'nullable|integer|min:1',
+            'passing_marks' => 'nullable|integer|min:0',
+
+            'award_amount' => 'nullable|numeric|min:0',
+            'number_of_awardees' => 'nullable|integer|min:0',
+            'benefit_details' => 'nullable|string',
+
+            'application_start_date' => 'nullable|date',
+            'application_end_date' => 'nullable|date|after_or_equal:application_start_date',
+            'exam_date' => 'nullable|date',
+
+            'status' => 'required|in:draft,active,completed,inactive',
+        ]);
+
+        ScholarshipExam::create($validated);
+
+        return redirect()
+            ->route('admin.scholarship.exams.index')
+            ->with(
+                'success',
+                'Scholarship exam created successfully.'
+            );
+    }
+
+    /**
+     * Display a scholarship exam.
+     */
+    public function show(ScholarshipExam $scholarshipExam)
+    {
+        return view(
+            'admin.scholarship-exams.show',
+            compact('scholarshipExam')
+        );
+    }
+
+    /**
+     * Show edit form.
+     */
+    public function edit(ScholarshipExam $scholarshipExam)
+    {
+        return view(
+            'admin.scholarship-exams.edit',
+            compact('scholarshipExam')
+        );
+    }
+
+    /**
+     * Update scholarship exam.
+     */
+    public function update(
+        Request $request,
+        ScholarshipExam $scholarshipExam
+    ) {
+        $validated = $request->validate([
+            'exam_name' => 'required|string|max:255',
+            'exam_code' => 'nullable|string|max:100',
+            'academic_year' => 'required|string|max:20',
+            'conducting_authority' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+
+            'eligible_classes' => 'nullable|string|max:255',
+            'minimum_marks' => 'nullable|numeric|min:0|max:100',
+            'minimum_attendance' => 'nullable|numeric|min:0|max:100',
+            'other_eligibility' => 'nullable|string',
+
+            'exam_type' => 'nullable|string|max:100',
+            'total_marks' => 'nullable|integer|min:0',
+            'duration_minutes' => 'nullable|integer|min:0',
+            'number_of_papers' => 'nullable|integer|min:1',
+            'passing_marks' => 'nullable|integer|min:0',
+
+            'award_amount' => 'nullable|numeric|min:0',
+            'number_of_awardees' => 'nullable|integer|min:0',
+            'benefit_details' => 'nullable|string',
+
+            'application_start_date' => 'nullable|date',
+            'application_end_date' => 'nullable|date|after_or_equal:application_start_date',
+            'exam_date' => 'nullable|date',
+
+            'status' => 'required|in:draft,active,completed,inactive',
+        ]);
+
+        $scholarshipExam->update($validated);
+
+        return redirect()
+            ->route('admin.scholarship.exams.index')
+            ->with(
+                'success',
+                'Scholarship exam updated successfully.'
+            );
+    }
+
+    /**
+     * Delete scholarship exam.
+     */
+    public function destroy(ScholarshipExam $scholarshipExam)
+    {
+        $scholarshipExam->delete();
+
+        return redirect()
+            ->route('admin.scholarship.exams.index')
+            ->with(
+                'success',
+                'Scholarship exam deleted successfully.'
+            );
+    }
+}

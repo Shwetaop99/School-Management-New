@@ -1,157 +1,109 @@
 @extends('layouts.app')
 
 @section('title', 'Meal Items | Admin')
+@section('page-title', 'Meal Items')
 
 @section('content')
 
 <div class="meal-items-page">
-
     <div class="container-fluid py-4">
 
-        {{-- =========================================================
-             PAGE HEADER
-             ========================================================= --}}
-        <div class="meal-page-header mb-4">
+        {{-- SUCCESS MESSAGE --}}
+        @if(session('success'))
+            <div class="meal-alert meal-alert-success" role="status">
+                <span class="meal-alert-icon"><i class="fas fa-check"></i></span>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
 
-            <div class="meal-heading-wrapper">
+        {{-- ERROR MESSAGE --}}
+        @if(session('error'))
+            <div class="meal-alert meal-alert-error" role="alert">
+                <i class="fas fa-circle-exclamation"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
 
-                <div class="meal-page-icon">
+        {{-- VALIDATION ERRORS --}}
+        @if($errors->any())
+            <div class="meal-alert meal-alert-error" role="alert">
+                <i class="fas fa-circle-exclamation"></i>
+                <div>
+                    <strong>Please check the following:</strong>
+                    <ul class="mb-0 mt-1">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
+        {{-- SCHOOL DIARY HERO --}}
+        <section class="meal-hero">
+
+            <div class="meal-hero-content">
+                <div class="meal-hero-icon">
                     <i class="fas fa-utensils"></i>
                 </div>
 
-                <div>
-                    <h4 class="meal-page-title mb-1">
-                        Meal Items
-                    </h4>
+                <div class="meal-hero-text">
+                    <span class="meal-eyebrow">SCHOOL OPERATIONS / INVENTORY</span>
 
-                    <p class="meal-page-subtitle mb-0">
-                        Manage meal inventory, stock in and stock out activities.
+                    <h2>Meal Items</h2>
+
+                    <p>
+                        Manage school meal inventory, monitor available stock,
+                        and organise stock-in and stock-out activities.
                     </p>
-                </div>
 
-            </div>
-
-            <div class="meal-header-actions">
-
-                <a href="{{ route('admin.meal.items.stock.create') }}"
-                   class="btn meal-stock-btn">
-
-                    <i class="fas fa-right-left me-1"></i>
-                    Stock In / Out
-
-                </a>
-
-                <a href="{{ route('admin.meal.items.create') }}"
-                   class="btn meal-add-btn">
-
-                    <i class="fas fa-plus me-1"></i>
-                    Add Meal Item
-
-                </a>
-
-            </div>
-
-        </div>
-
-
-        {{-- =========================================================
-             ALERTS
-             ========================================================= --}}
-
-        @if(session('success'))
-
-            <div class="alert alert-success alert-dismissible fade show meal-alert"
-                 role="alert">
-
-                <div class="d-flex align-items-center">
-
-                    <i class="fas fa-circle-check me-2"></i>
-
-                    <span>{{ session('success') }}</span>
-
-                </div>
-
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                </button>
-
-            </div>
-
-        @endif
-
-
-        @if(session('error'))
-
-            <div class="alert alert-danger alert-dismissible fade show meal-alert"
-                 role="alert">
-
-                <div class="d-flex align-items-center">
-
-                    <i class="fas fa-circle-exclamation me-2"></i>
-
-                    <span>{{ session('error') }}</span>
-
-                </div>
-
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                </button>
-
-            </div>
-
-        @endif
-
-
-        @if($errors->any())
-
-            <div class="alert alert-danger meal-alert">
-
-                <div class="d-flex align-items-start">
-
-                    <i class="fas fa-circle-exclamation me-2 mt-1"></i>
-
-                    <div>
-
-                        <strong class="d-block mb-1">
-                            Please check the following:
-                        </strong>
-
-                        <ul class="mb-0 ps-3">
-
-                            @foreach($errors->all() as $error)
-
-                                <li>{{ $error }}</li>
-
-                            @endforeach
-
-                        </ul>
-
+                    <div class="meal-hero-note">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>School Meal Inventory Management</span>
                     </div>
-
                 </div>
-
             </div>
 
-        @endif
+            <div class="meal-hero-actions">
+                <div class="meal-handwritten">
+                    Manage. Monitor. Maintain.
+                </div>
 
+                <p>
+                    Keep inventory organised, track stock movements,
+                    and identify items that need replenishment.
+                </p>
 
-        {{-- =========================================================
-             SAFE COLLECTIONS
-             ========================================================= --}}
+                <div class="meal-hero-buttons">
+                    <a href="{{ route('admin.admin.meal.items.stock.create') }}"
+                       class="meal-primary-btn">
+                        <i class="fas fa-right-left"></i>
+                        Stock In / Out
+                    </a>
 
+                    <a href="{{ route('admin.admin.meal.items.create') }}"
+                       class="meal-secondary-btn">
+                        <i class="fas fa-plus"></i>
+                        Add Meal Item
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+        {{-- COLLECTIONS AND STATISTICS --}}
         @php
-
             $itemsCollection = $items ?? collect();
 
-            $transactionsCollection = isset($transactions)
-                ? $transactions->getCollection()
-                : collect();
+            $transactionsCollection = collect();
 
-            $totalItems = isset($items)
+            if (isset($transactions)) {
+                $transactionsCollection = method_exists($transactions, 'getCollection')
+                    ? $transactions->getCollection()
+                    : collect($transactions);
+            }
+
+            $totalItems = isset($items) && method_exists($items, 'total')
                 ? $items->total()
                 : $itemsCollection->count();
 
@@ -161,8 +113,8 @@
 
             $lowStockItems = $itemsCollection
                 ->filter(function ($item) {
-                    return (float) $item->current_stock
-                        <= (float) $item->minimum_stock;
+                    return (float) ($item->current_stock ?? 0)
+                        <= (float) ($item->minimum_stock ?? 0);
                 })
                 ->count();
 
@@ -174,1831 +126,1995 @@
                 ->where('transaction_type', 'stock_out')
                 ->count();
 
+            $stockMovementCount = $stockInCount + $stockOutCount;
         @endphp
 
+        {{-- KPI CARDS --}}
+        <section class="meal-kpis">
 
-        {{-- =========================================================
-             SUMMARY CARDS
-             ========================================================= --}}
-
-        <div class="meal-summary-grid">
-
-            {{-- TOTAL ITEMS --}}
-            <div class="meal-summary-card summary-blue">
-
-                <div class="summary-pattern"></div>
-
-                <div class="summary-icon">
-                    <i class="fas fa-boxes-stacked"></i>
-                </div>
-
-                <div class="summary-content">
-
-                    <span class="summary-label">
-                        Total Meal Items
+            <article class="meal-kpi blue">
+                <div class="kpi-top">
+                    <span class="kpi-label">Total Meal Items</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-boxes-stacked"></i>
                     </span>
-
-                    <strong>
-                        {{ $totalItems }}
-                    </strong>
-
-                    <small>
-                        Inventory items
-                    </small>
-
                 </div>
 
-            </div>
+                <div class="kpi-value">{{ $totalItems }}</div>
 
-
-            {{-- ACTIVE ITEMS --}}
-            <div class="meal-summary-card summary-cyan">
-
-                <div class="summary-pattern"></div>
-
-                <div class="summary-icon">
-                    <i class="fas fa-circle-check"></i>
+                <div class="kpi-caption">
+                    All registered inventory items
                 </div>
+            </article>
 
-                <div class="summary-content">
-
-                    <span class="summary-label">
-                        Active Items
+            <article class="meal-kpi green">
+                <div class="kpi-top">
+                    <span class="kpi-label">Active Items</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-circle-check"></i>
                     </span>
-
-                    <strong>
-                        {{ $activeItems }}
-                    </strong>
-
-                    <small>
-                        Currently available
-                    </small>
-
                 </div>
 
-            </div>
+                <div class="kpi-value">{{ $activeItems }}</div>
 
-
-            {{-- LOW STOCK --}}
-            <div class="meal-summary-card summary-orange">
-
-                <div class="summary-pattern"></div>
-
-                <div class="summary-icon">
-                    <i class="fas fa-triangle-exclamation"></i>
+                <div class="kpi-caption">
+                    Currently available items
                 </div>
+            </article>
 
-                <div class="summary-content">
-
-                    <span class="summary-label">
-                        Low Stock
+            <article class="meal-kpi orange">
+                <div class="kpi-top">
+                    <span class="kpi-label">Low Stock</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-triangle-exclamation"></i>
                     </span>
-
-                    <strong>
-                        {{ $lowStockItems }}
-                    </strong>
-
-                    <small>
-                        Need attention
-                    </small>
-
                 </div>
 
-            </div>
+                <div class="kpi-value">{{ $lowStockItems }}</div>
 
-
-            {{-- STOCK MOVEMENTS --}}
-            <div class="meal-summary-card summary-red">
-
-                <div class="summary-pattern"></div>
-
-                <div class="summary-icon">
-                    <i class="fas fa-right-left"></i>
+                <div class="kpi-caption">
+                    Items requiring attention
                 </div>
+            </article>
 
-                <div class="summary-content">
-
-                    <span class="summary-label">
-                        Stock Movements
+            <article class="meal-kpi red">
+                <div class="kpi-top">
+                    <span class="kpi-label">Stock Movements</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-right-left"></i>
                     </span>
-
-                    <strong>
-                        {{ $stockInCount + $stockOutCount }}
-                    </strong>
-
-                    <small>
-                        In / Out records
-                    </small>
-
                 </div>
 
-            </div>
+                <div class="kpi-value">{{ $stockMovementCount }}</div>
 
-        </div>
+                <div class="kpi-caption">
+                    Stock-in and stock-out records
+                </div>
+            </article>
 
+        </section>
 
-        {{-- =========================================================
-             MEAL ITEMS CARD
-             ========================================================= --}}
+        {{-- MAIN INVENTORY PANEL --}}
+        <section class="meal-paper-panel">
 
-        <div class="meal-card mb-4">
-
-            <div class="meal-card-header">
-
-                <div class="meal-card-title">
-
-                    <div class="meal-title-icon">
+            <div class="meal-panel-header">
+                <div class="panel-title-wrap">
+                    <div class="panel-title-icon">
                         <i class="fas fa-bowl-food"></i>
                     </div>
 
                     <div>
-
-                        <h5>
-                            Meal Items
-                        </h5>
-
-                        <span>
-                            Manage available meal inventory items
-                        </span>
-
+                        <span class="meal-section-kicker">INVENTORY REGISTER</span>
+                        <h3>Meal Inventory</h3>
+                        <p>View and manage all school meal inventory items.</p>
                     </div>
-
                 </div>
 
-                <div class="meal-item-count">
-
-                    <i class="fas fa-box me-1"></i>
-
-                    {{ $totalItems }}
-
+                <div class="meal-record-count">
+                    <i class="fas fa-folder-open"></i>
+                    <strong>{{ $totalItems }}</strong>
                     {{ $totalItems == 1 ? 'Item' : 'Items' }}
-
                 </div>
-
             </div>
 
+            {{-- SEARCH AND FILTERS --}}
+            <form method="GET"
+                  action="{{ route('admin.admin.meal.items.index') }}"
+                  class="meal-filter-panel">
 
-            {{-- =====================================================
-                 ITEM FILTER
-                 ===================================================== --}}
-
-            <div class="meal-filter-wrapper">
-
-                <form method="GET"
-                      action="{{ route('admin.meal.items.index') }}"
-                      class="meal-filter-form">
-
-                    <div class="filter-search">
-
-                        <i class="fas fa-search"></i>
-
-                        <input type="text"
-                               name="search"
-                               value="{{ request('search') }}"
-                               class="form-control"
-                               placeholder="Search meal item or category...">
-
+                <div class="filter-heading">
+                    <div class="filter-heading-icon">
+                        <i class="fas fa-filter"></i>
                     </div>
 
+                    <div>
+                        <h4>Search &amp; Filter Items</h4>
+                        <p>Find inventory items by name, category, or status.</p>
+                    </div>
+                </div>
 
-                    <div class="filter-control">
+                <div class="meal-filter-grid">
 
-                        <select name="status"
-                                class="form-select">
+                    <div class="diary-filter-group">
+                        <label for="meal-search">Search Meal Items</label>
 
-                            <option value="">
-                                All Status
-                            </option>
+                        <div class="diary-search-input">
+                            <i class="fas fa-search"></i>
+
+                            <input
+                                id="meal-search"
+                                type="text"
+                                name="search"
+                                value="{{ request('search') }}"
+                                placeholder="Item name or category..."
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="diary-filter-group">
+                        <label for="meal-status">Item Status</label>
+
+                        <select id="meal-status"
+                                name="status"
+                                class="diary-control">
+                            <option value="">All Statuses</option>
 
                             <option value="active"
-                                {{ request('status') === 'active' ? 'selected' : '' }}>
+                                @selected(request('status') === 'active')>
                                 Active
                             </option>
 
                             <option value="inactive"
-                                {{ request('status') === 'inactive' ? 'selected' : '' }}>
+                                @selected(request('status') === 'inactive')>
                                 Inactive
                             </option>
-
                         </select>
-
                     </div>
 
+                    <div class="meal-filter-actions">
+                        <button type="submit" class="meal-apply-btn">
+                            <i class="fas fa-filter"></i>
+                            Apply Filters
+                        </button>
 
-                    <button type="submit"
-                            class="filter-btn">
-
-                        <i class="fas fa-filter me-1"></i>
-                        Filter
-
-                    </button>
-
-
-                    @if(request()->hasAny(['search', 'status']))
-
-                        <a href="{{ route('admin.meal.items.index') }}"
-                           class="reset-filter-btn"
-                           title="Clear Filters">
-
+                        <a href="{{ route('admin.admin.meal.items.index') }}"
+                           class="meal-reset-btn">
                             <i class="fas fa-rotate-left"></i>
-
+                            Reset
                         </a>
-
-                    @endif
-
-                </form>
-
-            </div>
-
-
-            {{-- =====================================================
-                 ITEMS TABLE
-                 ===================================================== --}}
-
-            <div class="meal-card-body">
-
-                @if($itemsCollection->count())
-
-                    <div class="table-responsive">
-
-                        <table class="table meal-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th class="ps-4">
-                                        #
-                                    </th>
-
-                                    <th>
-                                        Meal Item
-                                    </th>
-
-                                    <th>
-                                        Category
-                                    </th>
-
-                                    <th>
-                                        Current Stock
-                                    </th>
-
-                                    <th>
-                                        Minimum Stock
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
-                                    <th class="text-center">
-                                        Actions
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                @foreach($itemsCollection as $item)
-
-                                    @php
-
-                                        $currentStock = (float) $item->current_stock;
-                                        $minimumStock = (float) $item->minimum_stock;
-
-                                        $isLowStock = $currentStock <= $minimumStock;
-
-                                    @endphp
-
-                                    <tr>
-
-                                        {{-- NUMBER --}}
-                                        <td class="ps-4">
-
-                                            <span class="item-number">
-
-                                                @if(isset($items) && method_exists($items, 'firstItem'))
-
-                                                    {{ $items->firstItem() + $loop->index }}
-
-                                                @else
-
-                                                    {{ $loop->iteration }}
-
-                                                @endif
-
-                                            </span>
-
-                                        </td>
-
-
-                                        {{-- ITEM --}}
-                                        <td>
-
-                                            <div class="item-name-wrapper">
-
-                                                <div class="item-icon">
-
-                                                    <i class="fas fa-bowl-food"></i>
-
-                                                </div>
-
-                                                <div class="item-details">
-
-                                                    <span class="item-name">
-
-                                                        {{ $item->item_name }}
-
-                                                    </span>
-
-                                                    <small class="item-description">
-
-                                                        {{ $item->unit }}
-
-                                                    </small>
-
-                                                </div>
-
-                                            </div>
-
-                                        </td>
-
-
-                                        {{-- CATEGORY --}}
-                                        <td>
-
-                                            @if($item->category)
-
-                                                <span class="category-badge">
-
-                                                    {{ $item->category }}
-
-                                                </span>
-
-                                            @else
-
-                                                <span class="empty-value">
-                                                    —
-                                                </span>
-
-                                            @endif
-
-                                        </td>
-
-
-                                        {{-- CURRENT STOCK --}}
-                                        <td>
-
-                                            <div class="stock-value-wrapper">
-
-                                                <strong class="{{ $isLowStock ? 'stock-low' : 'stock-normal' }}">
-
-                                                    {{ number_format($currentStock, 2) }}
-
-                                                </strong>
-
-                                                <span>
-                                                    {{ $item->unit }}
-                                                </span>
-
-                                            </div>
-
-                                            @if($isLowStock)
-
-                                                <small class="low-stock-label">
-
-                                                    <i class="fas fa-triangle-exclamation me-1"></i>
-                                                    Low Stock
-
-                                                </small>
-
-                                            @endif
-
-                                        </td>
-
-
-                                        {{-- MINIMUM STOCK --}}
-                                        <td>
-
-                                            <span class="minimum-stock">
-
-                                                {{ number_format($minimumStock, 2) }}
-
-                                                {{ $item->unit }}
-
-                                            </span>
-
-                                        </td>
-
-
-                                        {{-- STATUS --}}
-                                        <td>
-
-                                            @if($item->status === 'active')
-
-                                                <span class="status-badge status-active">
-
-                                                    <span class="status-dot"></span>
-                                                    Active
-
-                                                </span>
-
-                                            @else
-
-                                                <span class="status-badge status-inactive">
-
-                                                    <span class="status-dot"></span>
-                                                    Inactive
-
-                                                </span>
-
-                                            @endif
-
-                                        </td>
-
-
-                                        {{-- ACTIONS --}}
-                                        <td class="text-center">
-
-                                            <div class="action-wrapper">
-
-                                                {{-- STOCK --}}
-                                                <a href="{{ route('admin.meal.items.stock.create') }}"
-                                                   class="action-btn stock-action"
-                                                   title="Stock In / Stock Out">
-
-                                                    <i class="fas fa-right-left"></i>
-
-                                                </a>
-
-
-                                                {{-- EDIT --}}
-                                                <a href="{{ route('admin.meal.items.edit', $item) }}"
-                                                   class="action-btn edit-btn"
-                                                   title="Edit Item">
-
-                                                    <i class="fas fa-pen"></i>
-
-                                                </a>
-
-
-                                                {{-- DELETE --}}
-                                                <form method="POST"
-                                                      action="{{ route('admin.meal.items.destroy', $item) }}"
-                                                      class="d-inline"
-                                                      onsubmit="return confirm('Are you sure you want to delete this meal item?');">
-
-                                                    @csrf
-                                                    @method('DELETE')
-
-                                                    <button type="submit"
-                                                            class="action-btn delete-btn"
-                                                            title="Delete Item">
-
-                                                        <i class="fas fa-trash"></i>
-
-                                                    </button>
-
-                                                </form>
-
-                                            </div>
-
-                                        </td>
-
-                                    </tr>
-
-                                @endforeach
-
-                            </tbody>
-
-                        </table>
-
                     </div>
 
+                </div>
+            </form>
 
-                    {{-- PAGINATION --}}
+            {{-- ACTIVE FILTERS --}}
+            @if(request()->hasAny(['search', 'status']))
+                <div class="meal-active-filters">
+                    <div class="active-filter-items">
+                        <span class="active-filter-label">
+                            <i class="fas fa-sliders-h"></i>
+                            Active filters
+                        </span>
 
-                    @if(isset($items) && $items->hasPages())
+                        @if(request('search'))
+                            <span class="filter-chip">
+                                <i class="fas fa-search"></i>
+                                {{ request('search') }}
+                            </span>
+                        @endif
 
-                        <div class="meal-pagination">
-
-                            {{ $items->links() }}
-
-                        </div>
-
-                    @endif
-
-
-                @else
-
-                    <div class="empty-state">
-
-                        <div class="empty-icon">
-
-                            <i class="fas fa-bowl-food"></i>
-
-                        </div>
-
-                        <h5>
-                            No Meal Items Found
-                        </h5>
-
-                        <p>
-                            No meal items match your current filters.
-                            Add your first meal item to start managing inventory.
-                        </p>
-
-                        <a href="{{ route('admin.meal.items.create') }}"
-                           class="btn meal-add-btn">
-
-                            <i class="fas fa-plus me-1"></i>
-                            Add Meal Item
-
-                        </a>
-
+                        @if(request('status'))
+                            <span class="filter-chip">
+                                <i class="fas fa-circle-half-stroke"></i>
+                                {{ ucfirst(request('status')) }}
+                            </span>
+                        @endif
                     </div>
 
-                @endif
+                    <span class="filter-result-count">
+                        {{ $totalItems }}
+                        {{ $totalItems == 1 ? 'result' : 'results' }}
+                    </span>
+                </div>
+            @endif
 
+            {{-- INVENTORY TABLE --}}
+            <div class="meal-table-wrapper">
+                <table class="meal-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Meal Item</th>
+                            <th>Category</th>
+                            <th>Current Stock</th>
+                            <th>Minimum Stock</th>
+                            <th>Status</th>
+                            <th class="actions-heading">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse($itemsCollection as $item)
+
+                            @php
+                                $currentStock = (float) ($item->current_stock ?? 0);
+                                $minimumStock = (float) ($item->minimum_stock ?? 0);
+
+                                $isLowStock = $currentStock <= $minimumStock;
+                                $isActive = $item->status === 'active';
+                            @endphp
+
+                            <tr>
+                                <td>
+                                    <span class="meal-row-number">
+                                        @if(isset($items) && method_exists($items, 'firstItem'))
+                                            {{ $items->firstItem() + $loop->index }}
+                                        @else
+                                            {{ $loop->iteration }}
+                                        @endif
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="meal-item-info">
+                                        <div class="meal-item-avatar">
+                                            <i class="fas fa-bowl-food"></i>
+                                        </div>
+
+                                        <div class="meal-item-details">
+                                            <div class="meal-item-title">
+                                                {{ $item->item_name }}
+                                            </div>
+
+                                            <div class="meal-item-unit">
+                                                <i class="fas fa-scale-balanced"></i>
+                                                {{ $item->unit ?: 'Unit not specified' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @if($item->category)
+                                        <span class="meal-category-badge">
+                                            <i class="fas fa-tag"></i>
+                                            {{ $item->category }}
+                                        </span>
+                                    @else
+                                        <span class="meal-muted">—</span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <div class="meal-stock-value">
+                                        <strong class="{{ $isLowStock ? 'low' : 'normal' }}">
+                                            {{ number_format($currentStock, 2) }}
+                                        </strong>
+                                        <span>{{ $item->unit }}</span>
+                                    </div>
+
+                                    @if($isLowStock)
+                                        <div class="meal-low-stock-label">
+                                            <i class="fas fa-triangle-exclamation"></i>
+                                            Low Stock
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <span class="meal-minimum-stock">
+                                        {{ number_format($minimumStock, 2) }}
+                                        {{ $item->unit }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="meal-status-badge {{ $isActive ? 'active' : 'inactive' }}">
+                                        <span class="status-dot"></span>
+                                        {{ $isActive ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="meal-actions">
+                                        <a
+                                            href="{{ route('admin.admin.meal.items.stock.create') }}"
+                                            class="meal-action-btn stock"
+                                            title="Stock In / Stock Out"
+                                            aria-label="Stock in or stock out">
+                                            <i class="fas fa-right-left"></i>
+                                        </a>
+
+                                        <a
+                                            href="{{ route('admin.admin.meal.items.edit', $item) }}"
+                                            class="meal-action-btn edit"
+                                            title="Edit Meal Item"
+                                            aria-label="Edit meal item">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+
+                                        <form
+                                            action="{{ route('admin.admin.meal.items.destroy', $item) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Are you sure you want to delete this meal item?');">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="meal-action-btn delete"
+                                                title="Delete Meal Item"
+                                                aria-label="Delete meal item">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        @empty
+                            <tr>
+                                <td colspan="7">
+                                    <div class="meal-empty-state">
+                                        <div class="empty-state-icon">
+                                            <i class="fas fa-bowl-food"></i>
+                                        </div>
+
+                                        <h4>No Meal Items Found</h4>
+
+                                        <p>
+                                            No meal items match your current filters.
+                                            Add your first inventory item to get started.
+                                        </p>
+
+                                        <a href="{{ route('admin.admin.meal.items.create') }}"
+                                           class="meal-primary-btn">
+                                            <i class="fas fa-plus"></i>
+                                            Add Meal Item
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
 
-        </div>
+            {{-- PAGINATION --}}
+            @if(isset($items) && method_exists($items, 'hasPages') && $items->hasPages())
+                <div class="meal-pagination">
+                    <div class="pagination-info">
+                        Showing
+                        <strong>{{ $items->firstItem() }}</strong>
+                        to
+                        <strong>{{ $items->lastItem() }}</strong>
+                        of
+                        <strong>{{ $items->total() }}</strong>
+                        items
+                    </div>
 
+                    <div>
+                        {{ $items->withQueryString()->links() }}
+                    </div>
+                </div>
+            @endif
 
-        {{-- =========================================================
-             RECENT STOCK MOVEMENTS
-             ========================================================= --}}
+            {{-- PANEL FOOTER --}}
+            @if($totalItems > 0)
+                <div class="meal-card-footer">
+                    <div>
+                        Showing
+                        <strong>{{ $itemsCollection->count() }}</strong>
+                        item(s) on this page
+                    </div>
 
+                    <div class="footer-status">
+                        <i class="fas fa-circle-check"></i>
+                        Inventory loaded successfully
+                    </div>
+                </div>
+            @endif
+
+        </section>
+
+        {{-- RECENT STOCK MOVEMENTS --}}
         @if(isset($transactions))
+            <section class="meal-paper-panel meal-movements-panel">
 
-            <div class="meal-card">
-
-                <div class="meal-card-header">
-
-                    <div class="meal-card-title">
-
-                        <div class="meal-title-icon">
+                <div class="meal-panel-header">
+                    <div class="panel-title-wrap">
+                        <div class="panel-title-icon movements-icon">
                             <i class="fas fa-right-left"></i>
                         </div>
 
                         <div>
-
-                            <h5>
-                                Recent Stock Movements
-                            </h5>
-
-                            <span>
-                                Stock In and Stock Out activity
-                            </span>
-
+                            <span class="meal-section-kicker">TRANSACTION HISTORY</span>
+                            <h3>Recent Stock Movements</h3>
+                            <p>Review recent stock-in and stock-out activity.</p>
                         </div>
-
                     </div>
 
-                    <a href="{{ route('admin.meal.items.stock.index') }}"
-                       class="view-all-link">
-
+                    <a href="{{ route('admin.admin.meal.items.stock.index') }}"
+                       class="meal-view-all">
                         View All
-                        <i class="fas fa-arrow-right ms-1"></i>
-
+                        <i class="fas fa-arrow-right"></i>
                     </a>
-
                 </div>
 
+                <div class="meal-table-wrapper">
+                    <table class="meal-table movements-table">
+                        <thead>
+                            <tr>
+                                <th>Meal Item</th>
+                                <th>Transaction Type</th>
+                                <th>Quantity</th>
+                                <th>Date</th>
+                                <th>Supplier / Reason</th>
+                            </tr>
+                        </thead>
 
-                <div class="meal-card-body">
+                        <tbody>
+                            @forelse($transactions as $transaction)
+                                <tr>
+                                    <td>
+                                        <div class="meal-item-info">
+                                            <div class="meal-item-avatar">
+                                                <i class="fas fa-bowl-food"></i>
+                                            </div>
 
-                    @if($transactions->count())
-
-                        <div class="table-responsive">
-
-                            <table class="table movement-table">
-
-                                <thead>
-
-                                    <tr>
-
-                                        <th class="ps-4">
-                                            Item
-                                        </th>
-
-                                        <th>
-                                            Type
-                                        </th>
-
-                                        <th>
-                                            Quantity
-                                        </th>
-
-                                        <th>
-                                            Date
-                                        </th>
-
-                                        <th>
-                                            Supplier / Reason
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach($transactions as $transaction)
-
-                                        <tr>
-
-                                            <td class="ps-4">
-
-                                                <div class="movement-item">
-
-                                                    <div class="movement-icon">
-
-                                                        <i class="fas fa-bowl-food"></i>
-
-                                                    </div>
-
-                                                    <div>
-
-                                                        <strong>
-                                                            {{ $transaction->mealItem->item_name ?? 'Unknown Item' }}
-                                                        </strong>
-
-                                                        <small>
-                                                            {{ $transaction->mealItem->category ?? 'Uncategorized' }}
-                                                        </small>
-
-                                                    </div>
-
+                                            <div class="meal-item-details">
+                                                <div class="meal-item-title">
+                                                    {{ $transaction->mealItem->item_name ?? 'Unknown Item' }}
                                                 </div>
 
-                                            </td>
+                                                <div class="meal-item-unit">
+                                                    {{ $transaction->mealItem->category ?? 'Uncategorized' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
 
+                                    <td>
+                                        @if($transaction->transaction_type === 'stock_in')
+                                            <span class="meal-transaction-badge stock-in">
+                                                <i class="fas fa-arrow-down"></i>
+                                                Stock In
+                                            </span>
+                                        @else
+                                            <span class="meal-transaction-badge stock-out">
+                                                <i class="fas fa-arrow-up"></i>
+                                                Stock Out
+                                            </span>
+                                        @endif
+                                    </td>
 
-                                            <td>
+                                    <td>
+                                        <div class="movement-quantity">
+                                            <strong>
+                                                {{ number_format((float) $transaction->quantity, 2) }}
+                                            </strong>
+                                            <span>{{ $transaction->unit }}</span>
+                                        </div>
+                                    </td>
 
-                                                @if($transaction->transaction_type === 'stock_in')
+                                    <td>
+                                        <span class="movement-date">
+                                            {{ $transaction->transaction_date
+                                                ? \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y')
+                                                : '—' }}
+                                        </span>
+                                    </td>
 
-                                                    <span class="transaction-badge transaction-in">
+                                    <td>
+                                        @if($transaction->transaction_type === 'stock_in')
+                                            {{ $transaction->supplier ?: '—' }}
+                                        @else
+                                            {{ $transaction->reason ?: '—' }}
+                                        @endif
+                                    </td>
+                                </tr>
 
-                                                        <i class="fas fa-arrow-down"></i>
-                                                        Stock In
+                            @empty
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="meal-movement-empty">
+                                            <div class="empty-state-icon">
+                                                <i class="fas fa-right-left"></i>
+                                            </div>
 
-                                                    </span>
+                                            <strong>No stock movements recorded yet.</strong>
 
-                                                @else
+                                            <span>Stock transactions will appear here.</span>
 
-                                                    <span class="transaction-badge transaction-out">
-
-                                                        <i class="fas fa-arrow-up"></i>
-                                                        Stock Out
-
-                                                    </span>
-
-                                                @endif
-
-                                            </td>
-
-
-                                            <td>
-
-                                                <strong class="quantity-value">
-
-                                                    {{ number_format((float) $transaction->quantity, 2) }}
-
-                                                </strong>
-
-                                                <span class="quantity-unit">
-
-                                                    {{ $transaction->unit }}
-
-                                                </span>
-
-                                            </td>
-
-
-                                            <td>
-
-                                                <span class="movement-date">
-
-                                                    {{ optional($transaction->transaction_date)->format('d M Y') }}
-
-                                                </span>
-
-                                            </td>
-
-
-                                            <td>
-
-                                                @if($transaction->transaction_type === 'stock_in')
-
-                                                    {{ $transaction->supplier ?: '—' }}
-
-                                                @else
-
-                                                    {{ $transaction->reason ?: '—' }}
-
-                                                @endif
-
-                                            </td>
-
-                                        </tr>
-
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                    @else
-
-                        <div class="movement-empty">
-
-                            <i class="fas fa-right-left"></i>
-
-                            <span>
-                                No stock movements recorded yet.
-                            </span>
-
-                            <a href="{{ route('admin.meal.items.stock.create') }}">
-                                Add Stock Movement
-                            </a>
-
-                        </div>
-
-                    @endif
-
+                                            <a href="{{ route('admin.admin.meal.items.stock.create') }}"
+                                               class="meal-primary-btn">
+                                                <i class="fas fa-plus"></i>
+                                                Add Stock Movement
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
 
-            </div>
+                @if(method_exists($transactions, 'hasPages') && $transactions->hasPages())
+                    <div class="meal-pagination">
+                        {{ $transactions->withQueryString()->links() }}
+                    </div>
+                @endif
 
+            </section>
         @endif
 
     </div>
-
 </div>
 
-@endsection
-
-
-@push('styles')
-
 <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* =========================================================
-   PAGE
-   ========================================================= */
+   LOCKED SCHOOL DIARY DESIGN SYSTEM
+   MEAL ITEMS — PAGE-SCOPED STYLES
+========================================================= */
 
 .meal-items-page {
+    --ink: #263b35;
+    --ink-dark: #20352c;
+    --ink-hover: #456854;
+    --text: #34423d;
+    --muted: #788078;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --page: #f7f6f0;
+    --page-soft: #f5f3e9;
+    --chalk: #f1ead8;
+    --chalk-hover: #e8dfc9;
+    --wood: #a87543;
+    --blue: #2b5d8a;
+    --green: #43815b;
+    --amber: #b77a24;
+    --red: #bd5148;
+    --cyan: #527f79;
+    --hand: 'DM Serif Display', Georgia, serif;
+
     min-height: calc(100vh - 70px);
-    background: #f6f8fb;
-    color: #263142;
-    font-family: 'Inter', sans-serif;
-}
-
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-
-.meal-page-header {
-    min-height: 52px;
-    width: 100%;
-    display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.meal-heading-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-}
-
-.meal-page-icon {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #147cf5, #1268ca);
-    color: #ffffff;
-    font-size: 18px;
-    box-shadow: 0 6px 16px rgba(20, 124, 245, 0.18);
-}
-
-.meal-page-title {
-    color: #1f2937;
-    font-size: 23px;
-    font-weight: 650;
-    letter-spacing: -0.3px;
-}
-
-.meal-page-subtitle {
-    color: #7a8494 !important;
-    font-size: 13.5px;
-    line-height: 1.5;
-}
-
-
-/* =========================================================
-   HEADER BUTTONS
-   ========================================================= */
-
-.meal-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-left: auto;
-}
-
-.meal-add-btn,
-.meal-stock-btn {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    min-height: 40px;
-    padding: 9px 16px;
-    border-radius: 7px;
+    color: var(--text);
+    background: var(--page);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
     font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.18s ease;
 }
 
-.meal-add-btn {
-    background: linear-gradient(135deg, #147cf5, #1268ca);
-    border: 1px solid #147cf5;
-    color: #ffffff !important;
-    box-shadow: 0 4px 10px rgba(20, 124, 245, 0.16);
+.meal-items-page *,
+.meal-items-page *::before,
+.meal-items-page *::after {
+    box-sizing: border-box;
 }
 
-.meal-add-btn:hover {
-    background: linear-gradient(135deg, #1268ca, #1058ad);
-    border-color: #1268ca;
-    color: #ffffff !important;
-    transform: translateY(-1px);
-    box-shadow: 0 7px 16px rgba(20, 124, 245, 0.22);
+.meal-items-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
 }
 
-.meal-stock-btn {
-    background: #ffffff;
-    border: 1px solid #d8e5f5;
-    color: #147cf5 !important;
+.meal-items-page a,
+.meal-items-page button {
+    transition: background .18s ease, color .18s ease,
+        border-color .18s ease, box-shadow .18s ease,
+        transform .18s ease;
 }
 
-.meal-stock-btn:hover {
-    background: #f1f7ff;
-    border-color: #bcd8fa;
-    color: #1268ca !important;
-    transform: translateY(-1px);
+.meal-items-page button,
+.meal-items-page input,
+.meal-items-page select {
+    font-family: inherit;
 }
 
+.meal-items-page a:focus-visible,
+.meal-items-page button:focus-visible,
+.meal-items-page input:focus-visible,
+.meal-items-page select:focus-visible {
+    outline: 3px solid rgba(69, 104, 84, .28);
+    outline-offset: 3px;
+}
 
-/* =========================================================
-   ALERTS
-   ========================================================= */
+/* ALERTS */
 
 .meal-alert {
-    border: 0;
-    border-radius: 8px;
-    padding: 13px 16px;
-    margin-bottom: 18px;
-    font-size: 13.5px;
-    box-shadow: 0 2px 8px rgba(31, 41, 55, 0.04);
-}
-
-.meal-alert.alert-success {
-    background: #eaf8f0;
-    color: #198754;
-}
-
-.meal-alert.alert-danger {
-    background: #fff0ef;
-    color: #dc3545;
-}
-
-
-/* =========================================================
-   SUMMARY
-   ========================================================= */
-
-.meal-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 22px;
-}
-
-.meal-summary-card {
-    position: relative;
-    min-height: 118px;
-    padding: 18px;
     display: flex;
     align-items: center;
-    gap: 14px;
-    overflow: hidden;
-    border-radius: 10px;
-    color: #ffffff;
-    box-shadow: 0 6px 16px rgba(25, 55, 95, 0.08);
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    gap: 11px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
-.meal-summary-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 11px 25px rgba(25, 55, 95, 0.14);
+.meal-alert-success {
+    border-color: #c9dfca;
+    color: #386d48;
+    background: #f1f7ed;
 }
 
-.summary-blue {
-    background: linear-gradient(135deg, #147cf5, #1268ca);
+.meal-alert-error {
+    align-items: flex-start;
+    border-color: #e9c9bf;
+    color: #a84840;
+    background: #fff4ef;
 }
 
-.summary-orange {
-    background: linear-gradient(135deg, #ffb238, #ff9d1c);
-}
-
-.summary-red {
-    background: linear-gradient(135deg, #ff6d61, #f65343);
-}
-
-.summary-cyan {
-    background: linear-gradient(135deg, #2bcfe8, #18b5d5);
-}
-
-.summary-pattern {
-    position: absolute;
-    width: 125px;
-    height: 125px;
-    right: -42px;
-    top: -50px;
+.meal-alert-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 27px;
+    width: 27px;
+    height: 27px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.10);
+    background: #e1eddc;
 }
 
-.summary-pattern::after {
+/* =========================================================
+   HERO — WARM PAPER + FOREST GREEN
+========================================================= */
+
+.meal-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, .9fr);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 35px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--paper);
+    box-shadow: 0 7px 22px rgba(38, 59, 53, .055);
+}
+
+.meal-hero::before {
     content: "";
     position: absolute;
-    width: 80px;
-    height: 80px;
-    right: 48px;
-    top: 72px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.07);
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 30px;
+    width: 2px;
+    background: rgba(189, 81, 72, .30);
 }
 
-.summary-icon {
-    position: relative;
-    z-index: 2;
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
+.meal-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 19px;
+    min-width: 0;
+    padding: 30px 28px 30px 52px;
+}
+
+.meal-hero-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex: 0 0 55px;
+    width: 55px;
+    height: 55px;
+    border: 1px solid #e5decc;
     border-radius: 11px;
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    font-size: 19px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 22px;
 }
 
-.summary-content {
-    position: relative;
-    z-index: 2;
+.meal-hero-text {
     min-width: 0;
 }
 
-.summary-label {
+.meal-eyebrow,
+.meal-section-kicker {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    color: var(--wood);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.25px;
+    line-height: 1.5;
+}
+
+.meal-hero-text h2 {
+    margin: 0 0 9px;
+    color: var(--ink);
+    font-family: var(--hand);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -.3px;
+}
+
+.meal-hero-text p {
+    max-width: 520px;
+    margin: 0;
+    color: #727a70;
     font-size: 12px;
-    font-weight: 500;
-    opacity: 0.92;
+    line-height: 1.85;
 }
 
-.summary-content strong {
-    display: block;
-    font-size: 26px;
-    line-height: 1;
+.meal-hero-note {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+    color: var(--ink-hover);
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: -0.4px;
 }
 
-.summary-content small {
-    display: block;
-    margin-top: 6px;
-    font-size: 10.5px;
-    font-weight: 500;
-    opacity: 0.78;
+.meal-hero-note i {
+    color: var(--wood);
 }
 
+.meal-hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 215px;
+    padding: 27px 25px;
+    color: var(--chalk);
+    background: linear-gradient(135deg, #344f43 0%, #20352c 100%);
+    text-align: center;
+}
+
+.meal-handwritten {
+    position: relative;
+    z-index: 1;
+    color: #fffefa;
+    font-family: var(--hand, "Brush Script MT"), "Segoe Script", cursive !important;
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: .2px;
+    line-height: 1.35;
+}
+
+
+.meal-hero-actions p {
+    max-width: 330px;
+    margin: 0;
+    color: #e0e6d9;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.meal-hero-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 3px;
+}
+
+/* BUTTON SYSTEM */
+
+.meal-primary-btn,
+.meal-secondary-btn,
+.meal-apply-btn,
+.meal-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 39px;
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.meal-primary-btn,
+.meal-apply-btn {
+    border-color: var(--ink);
+    color: #fffefa;
+    background: var(--ink);
+    box-shadow: 0 2px 5px rgba(38, 59, 53, .08);
+}
+
+.meal-primary-btn:hover,
+.meal-apply-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--ink-hover);
+    color: #fffefa;
+    background: var(--ink-hover);
+    box-shadow: 0 5px 12px rgba(38, 59, 53, .12);
+}
+
+/* Cream buttons only in the dark hero */
+
+.meal-hero-actions .meal-primary-btn {
+    border-color: var(--chalk);
+    color: var(--ink);
+    background: var(--chalk);
+}
+
+.meal-hero-actions .meal-primary-btn:hover {
+    border-color: var(--chalk-hover);
+    color: var(--ink-dark);
+    background: var(--chalk-hover);
+}
+
+.meal-secondary-btn {
+    border-color: rgba(255, 254, 250, .45);
+    color: #fffefa;
+    background: transparent;
+}
+
+.meal-secondary-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--chalk);
+    color: var(--ink);
+    background: var(--chalk);
+}
+
+.meal-reset-btn {
+    border-color: #d8d5c8;
+    color: var(--ink);
+    background: var(--paper);
+}
+
+.meal-reset-btn:hover {
+    border-color: var(--ink-hover);
+    color: var(--ink);
+    background: var(--page-soft);
+}
 
 /* =========================================================
-   CARD
-   ========================================================= */
+   KPI CARDS — FOLDER TAB DESIGN
+========================================================= */
 
-.meal-card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 3px 14px rgba(31, 41, 55, 0.045);
+.meal-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin: 35px 0 25px;
 }
 
-.meal-card-header {
-    min-height: 68px;
-    padding: 15px 20px;
+.meal-kpi {
+    --kpi: var(--blue);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    min-width: 0;
+    padding: 23px 20px 17px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--kpi);
+    border-radius: 9px;
+    background: var(--paper);
+    box-shadow: 0 4px 12px rgba(38, 59, 53, .035);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.meal-kpi::before {
+    content: "";
+    position: absolute;
+    top: -23px;
+    left: 15px;
+    width: 94px;
+    height: 22px;
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    border-radius: 7px 7px 0 0;
+    background: var(--paper);
+}
+
+.meal-kpi::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    border-radius: 9px 9px 0 0;
+    background: var(--kpi);
+}
+
+.meal-kpi.blue { --kpi: #2b5d8a; }
+.meal-kpi.green { --kpi: #43815b; }
+.meal-kpi.orange { --kpi: #b77a24; }
+.meal-kpi.red { --kpi: #bd5148; }
+
+.meal-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 20px rgba(38, 59, 53, .08);
+}
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.kpi-label {
+    color: #727a70;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.meal-items-page .kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    color: var(--kpi);
+    background: var(--page-soft);
+    font-size: 17px;
+}
+
+.kpi-value {
+    color: var(--ink);
+    font-family: var(--hand);
+    font-size: 35px;
+    font-weight: 400;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.kpi-caption {
+    padding-top: 11px;
+    border-top: 1px dashed #ddd8c9;
+    color: #7b8177;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   PAPER PANELS
+========================================================= */
+
+.meal-paper-panel {
+    overflow: hidden;
+    margin-bottom: 25px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    box-shadow: 0 5px 17px rgba(38, 59, 53, .035);
+}
+
+.meal-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
-    border-bottom: 1px solid #edf0f5;
+    padding: 19px 21px;
+    border-bottom: 1px solid var(--line);
+    background: #fffefa;
 }
 
-.meal-card-title {
+.panel-title-wrap {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 13px;
     min-width: 0;
 }
 
-.meal-title-icon {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
+.panel-title-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    background: #eaf3ff;
-    color: #147cf5;
-    font-size: 15px;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #dfe3d6;
+    border-radius: 9px;
+    color: var(--ink);
+    background: var(--page-soft);
+    font-size: 17px;
 }
 
-.meal-card-title h5 {
-    margin: 0 0 2px;
-    color: #273142;
-    font-size: 15.5px;
-    font-weight: 650;
+.panel-title-wrap h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--hand);
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1.3;
 }
 
-.meal-card-title span {
-    color: #8a94a3;
-    font-size: 12px;
+.panel-title-wrap p {
+    margin: 4px 0 0;
+    color: #7b8177;
+    font-size: 11px;
+    line-height: 1.65;
 }
 
-.meal-item-count {
-    flex-shrink: 0;
-    color: #7a8494;
-    background: #f6f8fb;
-    border: 1px solid #edf0f5;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 600;
+.meal-section-kicker {
+    margin-bottom: 3px;
+    font-size: 8px;
 }
 
-
-/* =========================================================
-   FILTER
-   ========================================================= */
-
-.meal-filter-wrapper {
-    padding: 14px 20px;
-    background: #fbfcfe;
-    border-bottom: 1px solid #edf0f5;
-}
-
-.meal-filter-form {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    flex-wrap: wrap;
-}
-
-.filter-search {
-    position: relative;
-    flex: 1;
-    min-width: 260px;
-}
-
-.filter-search i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9aa3af;
-    font-size: 12px;
-    pointer-events: none;
-}
-
-.filter-search .form-control {
-    padding-left: 35px;
-}
-
-.filter-control {
-    width: 165px;
-}
-
-.meal-filter-form .form-control,
-.meal-filter-form .form-select {
-    height: 38px;
-    border: 1px solid #e3e8ef;
-    border-radius: 7px;
-    color: #4d5868;
-    background: #ffffff;
-    font-size: 12.5px;
-    box-shadow: none;
-}
-
-.meal-filter-form .form-control:focus,
-.meal-filter-form .form-select:focus {
-    border-color: #9bc5fa;
-    box-shadow: 0 0 0 3px rgba(20, 124, 245, 0.08);
-}
-
-.filter-btn {
-    height: 38px;
-    padding: 0 14px;
-    border: 1px solid #147cf5;
-    border-radius: 7px;
-    background: #147cf5;
-    color: #ffffff;
-    font-size: 12.5px;
-    font-weight: 600;
-    transition: all 0.18s ease;
-}
-
-.filter-btn:hover {
-    background: #1268ca;
-    border-color: #1268ca;
-    transform: translateY(-1px);
-}
-
-.reset-filter-btn {
-    width: 38px;
-    height: 38px;
+.meal-record-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e3e8ef;
+    gap: 7px;
+    min-height: 32px;
+    padding: 7px 11px;
+    border: 1px solid #e2ddce;
     border-radius: 7px;
-    background: #ffffff;
-    color: #7a8494;
-    text-decoration: none;
-    font-size: 12px;
-    transition: all 0.18s ease;
+    color: #6e776c;
+    background: var(--page);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-.reset-filter-btn:hover {
-    color: #147cf5;
-    background: #f1f7ff;
-    border-color: #cfe3ff;
+.meal-record-count i,
+.meal-record-count strong {
+    color: var(--ink);
 }
-
 
 /* =========================================================
-   TABLE
-   ========================================================= */
+   FILTER PANEL
+========================================================= */
 
-.meal-card-body {
-    background: #ffffff;
+.meal-filter-panel {
+    padding: 20px 21px;
+    border-bottom: 1px solid var(--line);
+    background: #fbfaf5;
+}
+
+.filter-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 17px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #ddd8c9;
+}
+
+.filter-heading-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 39px;
+    width: 39px;
+    height: 39px;
+    border: 1px solid #e0ddcf;
+    border-radius: 8px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 14px;
+}
+
+.filter-heading h4 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--hand);
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 1.35;
+}
+
+.filter-heading p {
+    margin: 4px 0 0;
+    color: #7b8177;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.meal-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(200px, 1.6fr) minmax(160px, .9fr) auto;
+    align-items: end;
+    gap: 13px;
+}
+
+.diary-filter-group {
+    min-width: 0;
+}
+
+.diary-filter-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #58675d;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.diary-control,
+.diary-search-input {
+    width: 100%;
+    min-width: 0;
+    height: 41px;
+    border: 1px solid #dedbce;
+    border-radius: 7px;
+    color: var(--text);
+    background: #fffefa;
+    font-size: 11px;
+}
+
+.diary-control {
+    padding: 0 11px;
+    outline: none;
+}
+
+.diary-search-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+}
+
+.diary-search-input > i {
+    flex: 0 0 auto;
+    color: #858b80;
+    font-size: 12px;
+}
+
+.diary-search-input input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    color: var(--text);
+    background: transparent;
+    font-size: 11px;
+}
+
+.diary-search-input input::placeholder {
+    color: #96998e;
+}
+
+.diary-control:focus,
+.diary-search-input:focus-within {
+    border-color: #829b85;
+    box-shadow: 0 0 0 3px rgba(69, 104, 84, .10);
+}
+
+.meal-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.meal-apply-btn,
+.meal-reset-btn {
+    min-height: 41px;
+    padding: 0 13px;
+}
+
+/* ACTIVE FILTERS */
+
+.meal-active-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 21px;
+    border-bottom: 1px solid #e9e5d9;
+    background: #fffefa;
+}
+
+.active-filter-items {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+
+.active-filter-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #737a70;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .45px;
+    text-transform: uppercase;
+}
+
+.active-filter-label i {
+    color: var(--wood);
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 250px;
+    padding: 6px 9px;
+    overflow-wrap: anywhere;
+    border: 1px solid #e5ddc7;
+    border-radius: 6px;
+    color: #705d3b;
+    background: #f8f3e6;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.filter-chip i {
+    color: var(--wood);
+}
+
+.filter-result-count {
+    color: #777e73;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   INVENTORY TABLE
+========================================================= */
+
+.meal-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .meal-table {
     width: 100%;
-    min-width: 980px;
+    min-width: 990px;
     margin: 0;
-    font-size: 13px;
+    border-collapse: collapse;
 }
 
 .meal-table thead th {
-    padding: 13px 12px;
-    background: #f8f9fb;
-    color: #687386;
-    border-bottom: 1px solid #edf0f5;
-    font-size: 11px;
-    font-weight: 650;
+    padding: 13px 14px;
+    border-bottom: 1px solid #e2dfd3;
+    color: #697369;
+    background: #f4f2e9;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .65px;
+    text-align: left;
     text-transform: uppercase;
-    letter-spacing: 0.35px;
     white-space: nowrap;
 }
 
 .meal-table tbody td {
-    padding: 14px 12px;
-    color: #4d5868;
-    border-bottom: 1px solid #f0f2f5;
+    padding: 13px 14px;
+    border-bottom: 1px solid #eeece3;
+    color: var(--text);
+    font-size: 11px;
     vertical-align: middle;
 }
 
 .meal-table tbody tr {
-    transition: background 0.15s ease;
+    transition: background .16s ease;
 }
 
 .meal-table tbody tr:hover {
-    background: #f8fbff;
+    background: #faf9f3;
 }
 
 .meal-table tbody tr:last-child td {
     border-bottom: 0;
 }
 
+.meal-table .actions-heading {
+    text-align: right;
+}
 
-/* =========================================================
-   ITEM
-   ========================================================= */
-
-.item-number {
+.meal-row-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 29px;
     height: 29px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    border: 1px solid #e3dfd2;
     border-radius: 7px;
-    background: #f4f7fb;
-    color: #8993a2;
-    font-size: 11.5px;
-    font-weight: 600;
-}
-
-.item-name-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 190px;
-}
-
-.item-icon {
-    width: 35px;
-    height: 35px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: #eef5ff;
-    color: #147cf5;
-    font-size: 13px;
-    transition: all 0.18s ease;
-}
-
-.meal-table tbody tr:hover .item-icon {
-    background: #147cf5;
-    color: #ffffff;
-    transform: scale(1.04);
-}
-
-.item-details {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.item-name {
-    display: block;
-    max-width: 210px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #263142;
-    font-size: 13.5px;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-.item-description {
-    display: block;
-    margin-top: 2px;
-    color: #9aa3af;
-    font-size: 10.5px;
-}
-
-
-/* =========================================================
-   CATEGORY
-   ========================================================= */
-
-.category-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 9px;
-    border-radius: 6px;
-    background: #f1f7ff;
-    color: #147cf5;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   STOCK
-   ========================================================= */
-
-.stock-value-wrapper {
-    display: flex;
-    align-items: baseline;
-    gap: 5px;
-}
-
-.stock-value-wrapper strong {
-    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--page-soft);
+    font-size: 10px;
     font-weight: 700;
 }
 
-.stock-value-wrapper span {
-    color: #8a94a3;
-    font-size: 10.5px;
+/* ITEM INFORMATION */
+
+.meal-item-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 175px;
 }
 
-.stock-normal {
-    color: #198754;
+.meal-item-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 37px;
+    width: 37px;
+    height: 37px;
+    border: 1px solid #e3dfd2;
+    border-radius: 8px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 14px;
 }
 
-.stock-low {
-    color: #dc3545;
+.meal-item-details {
+    min-width: 0;
 }
 
-.low-stock-label {
-    display: block;
-    margin-top: 3px;
-    color: #dc3545;
-    font-size: 9.5px;
-    font-weight: 600;
+.meal-item-title {
+    max-width: 220px;
+    overflow: hidden;
+    color: #2e4137;
+    font-size: 11px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.minimum-stock {
-    color: #687386;
-    font-size: 12px;
-    font-weight: 500;
+.meal-item-unit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    color: #858b80;
+    font-size: 9px;
 }
 
+.meal-item-unit i {
+    color: var(--wood);
+}
 
-/* =========================================================
-   STATUS
-   ========================================================= */
+.meal-muted {
+    color: #92968b;
+    font-size: 11px;
+}
 
-.status-badge {
+/* CATEGORY */
+
+.meal-category-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 9px;
+    padding: 6px 9px;
+    border: 1px solid #dcded0;
     border-radius: 6px;
+    color: #526b5a;
+    background: #f2f3e9;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.meal-category-badge i {
+    color: var(--wood);
+}
+
+/* STOCK */
+
+.meal-stock-value {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.meal-stock-value strong {
     font-size: 11px;
+    font-weight: 800;
+}
+
+.meal-stock-value strong.normal {
+    color: #43815b;
+}
+
+.meal-stock-value strong.low {
+    color: var(--red);
+}
+
+.meal-stock-value span {
+    color: #7d8478;
+    font-size: 9px;
+}
+
+.meal-low-stock-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    color: var(--red);
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.meal-minimum-stock {
+    color: #647267;
+    font-size: 10px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-.status-active {
-    background: #eaf8f0;
-    color: #198754;
-}
+/* STATUS */
 
-.status-inactive {
-    background: #f1f3f5;
-    color: #7a8494;
+.meal-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
 }
 
 .status-dot {
     width: 6px;
     height: 6px;
+    flex: 0 0 6px;
     border-radius: 50%;
-    background: currentColor;
 }
 
+.meal-status-badge.active {
+    border-color: #d2e2cc;
+    color: #3d7149;
+    background: #f0f5e9;
+}
 
-/* =========================================================
-   ACTIONS
-   ========================================================= */
+.meal-status-badge.active .status-dot {
+    background: #43815b;
+}
 
-.action-wrapper {
+.meal-status-badge.inactive {
+    border-color: #e2ded2;
+    color: #777b70;
+    background: #f4f2ea;
+}
+
+.meal-status-badge.inactive .status-dot {
+    background: #92968b;
+}
+
+/* ACTION BUTTONS */
+
+.meal-actions {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 6px;
 }
 
-.action-btn {
-    width: 32px;
-    height: 32px;
+.meal-actions form {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border-radius: 6px;
-    background: #ffffff;
-    font-size: 11.5px;
-    text-decoration: none;
-    transition: all 0.18s ease;
-}
-
-.stock-action {
-    color: #147cf5;
-    border: 1px solid #cfe3ff;
-}
-
-.stock-action:hover {
-    color: #ffffff;
-    background: #147cf5;
-    border-color: #147cf5;
-    transform: translateY(-1px);
-}
-
-.edit-btn {
-    color: #ff9d1c;
-    border: 1px solid #ffe0ad;
-}
-
-.edit-btn:hover {
-    color: #ffffff;
-    background: #ff9d1c;
-    border-color: #ff9d1c;
-    transform: translateY(-1px);
-}
-
-.delete-btn {
-    color: #dc3545;
-    border: 1px solid #ffd0cc;
-}
-
-.delete-btn:hover {
-    color: #ffffff;
-    background: #dc3545;
-    border-color: #dc3545;
-    transform: translateY(-1px);
-}
-
-
-/* =========================================================
-   RECENT MOVEMENTS
-   ========================================================= */
-
-.view-all-link {
-    display: inline-flex;
-    align-items: center;
-    color: #147cf5;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.view-all-link:hover {
-    color: #1268ca;
-}
-
-.movement-table {
-    width: 100%;
-    min-width: 780px;
     margin: 0;
 }
 
-.movement-table thead th {
-    padding: 12px;
-    background: #f8f9fb;
-    color: #687386;
-    border-bottom: 1px solid #edf0f5;
-    font-size: 10.5px;
-    font-weight: 650;
-    text-transform: uppercase;
-    letter-spacing: 0.35px;
-}
-
-.movement-table tbody td {
-    padding: 13px 12px;
-    border-bottom: 1px solid #f0f2f5;
-    color: #4d5868;
-    font-size: 12.5px;
-    vertical-align: middle;
-}
-
-.movement-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.movement-table tbody tr:hover {
-    background: #f8fbff;
-}
-
-.movement-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-}
-
-.movement-icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
+.meal-action-btn {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid #e0ddd1;
     border-radius: 7px;
-    background: #eef5ff;
-    color: #147cf5;
+    color: var(--ink);
+    background: #fffefa;
+    font-size: 10px;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.movement-item strong {
-    display: block;
-    color: #263142;
-    font-size: 12.5px;
-    font-weight: 600;
+.meal-action-btn:hover {
+    transform: translateY(-1px);
 }
 
-.movement-item small {
-    display: block;
-    margin-top: 2px;
-    color: #9aa3af;
-    font-size: 9.5px;
+.meal-action-btn.stock:hover {
+    border-color: #b8cdbd;
+    color: #fffefa;
+    background: var(--ink);
 }
 
-.transaction-badge {
+.meal-action-btn.edit:hover {
+    border-color: #d8c39e;
+    color: #fffefa;
+    background: var(--wood);
+}
+
+.meal-action-btn.delete:hover {
+    border-color: var(--red);
+    color: #fffefa;
+    background: var(--red);
+}
+
+/* =========================================================
+   RECENT STOCK MOVEMENTS
+========================================================= */
+
+.movements-icon {
+    border-color: #d4e0d0;
+    color: var(--ink);
+    background: #edf2e7;
+}
+
+.meal-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid #dedbce;
+    border-radius: 7px;
+    color: var(--ink);
+    background: #fffefa;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.meal-view-all:hover {
+    border-color: var(--ink);
+    color: #fffefa;
+    background: var(--ink);
+}
+
+.movements-table {
+    min-width: 800px;
+}
+
+.meal-transaction-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    min-width: 82px;
-    padding: 5px 8px;
+    padding: 6px 9px;
+    border: 1px solid transparent;
     border-radius: 6px;
-    font-size: 10.5px;
-    font-weight: 650;
+    font-size: 9px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
-.transaction-in {
-    background: #e8f8ef;
-    color: #198754;
+.meal-transaction-badge.stock-in {
+    border-color: #d2e2cc;
+    color: #3d7149;
+    background: #f0f5e9;
 }
 
-.transaction-out {
-    background: #fff0ef;
-    color: #dc3545;
+.meal-transaction-badge.stock-out {
+    border-color: #e9d2c7;
+    color: #a84c40;
+    background: #fff1e9;
 }
 
-.quantity-value {
-    color: #263142;
-    font-size: 12.5px;
-    font-weight: 650;
+.movement-quantity {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    white-space: nowrap;
 }
 
-.quantity-unit {
-    margin-left: 4px;
-    color: #8a94a3;
-    font-size: 10px;
+.movement-quantity strong {
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.movement-quantity span {
+    color: var(--muted);
+    font-size: 9px;
 }
 
 .movement-date {
-    color: #586474;
-    font-size: 11.5px;
-    font-weight: 600;
+    color: #586b5e;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-.movement-empty {
-    padding: 35px 20px;
+/* EMPTY STATES */
+
+.meal-empty-state,
+.meal-movement-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 11px;
+    padding: 48px 20px;
+    text-align: center;
+}
+
+.empty-state-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    color: #8a94a3;
-    font-size: 12.5px;
+    width: 67px;
+    height: 67px;
+    margin-bottom: 4px;
+    border: 1px solid #e5decc;
+    border-radius: 13px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 25px;
 }
 
-.movement-empty > i {
-    color: #147cf5;
+.meal-empty-state h4 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--hand);
+    font-size: 23px;
+    font-weight: 400;
 }
 
-.movement-empty a {
-    color: #147cf5;
-    font-weight: 600;
-    text-decoration: none;
+.meal-empty-state p {
+    max-width: 430px;
+    margin: 0 0 5px;
+    color: #7b8177;
+    font-size: 11px;
+    line-height: 1.8;
 }
 
-.movement-empty a:hover {
-    color: #1268ca;
+.meal-movement-empty > strong {
+    color: var(--ink);
+    font-size: 12px;
 }
 
+.meal-movement-empty > span {
+    color: #7b8177;
+    font-size: 10px;
+}
 
 /* =========================================================
-   PAGINATION
-   ========================================================= */
+   PAGINATION AND FOOTER
+========================================================= */
 
 .meal-pagination {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding: 14px 18px;
-    border-top: 1px solid #edf0f5;
-    background: #ffffff;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px 20px;
+    border-top: 1px dashed #ddd8c9;
+    background: #fffefa;
+}
+
+.meal-pagination nav {
+    margin: 0;
 }
 
 .meal-pagination .pagination {
+    flex-wrap: wrap;
+    gap: 4px;
     margin: 0;
 }
 
 .meal-pagination .page-link {
-    border-color: #e7ebf0;
-    color: #687386;
-    font-size: 12.5px;
-    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 5px 9px;
+    border: 1px solid #e0ddd1;
+    border-radius: 6px !important;
+    color: var(--ink);
+    background: #fffefa;
+    font-size: 11px;
+    box-shadow: none;
 }
 
 .meal-pagination .page-link:hover {
-    background: #f1f7ff;
-    color: #147cf5;
-    border-color: #cfe3ff;
+    border-color: var(--ink-hover);
+    color: #fffefa;
+    background: var(--ink-hover);
 }
 
 .meal-pagination .page-item.active .page-link {
-    background: #147cf5;
-    border-color: #147cf5;
-    color: #ffffff;
+    border-color: var(--ink);
+    color: #fffefa;
+    background: var(--ink);
 }
 
-
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
-
-.empty-state {
-    padding: 65px 20px;
-    text-align: center;
+.meal-pagination .page-item.disabled .page-link {
+    color: #aaa99d;
+    background: #f7f6f0;
 }
 
-.empty-icon {
-    width: 70px;
-    height: 70px;
+.pagination-info {
+    color: #7b8177;
+    font-size: 10px;
+}
+
+.pagination-info strong {
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.meal-card-footer {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin: 0 auto 18px;
-    border-radius: 50%;
-    background: #eef5ff;
-    color: #147cf5;
-    font-size: 27px;
+    justify-content: space-between;
+    gap: 14px;
+    min-height: 48px;
+    padding: 12px 20px;
+    border-top: 1px dashed #ddd8c9;
+    color: #7b8177;
+    background: #f9f8f2;
+    font-size: 10px;
 }
 
-.empty-state h5 {
-    margin-bottom: 7px;
-    color: #303846;
-    font-size: 16px;
-    font-weight: 650;
+.meal-card-footer strong {
+    color: var(--ink);
 }
 
-.empty-state p {
-    max-width: 470px;
-    margin: 0 auto 18px;
-    color: #8a94a3;
-    font-size: 13.5px;
-    line-height: 1.6;
+.footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #627367;
+    font-size: 10px;
 }
 
+.footer-status i {
+    color: #43815b;
+}
 
 /* =========================================================
-   RESPONSIVE — TABLET
-   ========================================================= */
+   RESPONSIVE DESIGN
+========================================================= */
 
-@media (max-width: 1100px) {
-
-    .meal-summary-grid {
+@media (max-width: 1200px) {
+    .meal-kpis {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .meal-table {
-        min-width: 980px;
+    .meal-filter-grid {
+        grid-template-columns: minmax(180px, 1.4fr) minmax(145px, 1fr);
+    }
+
+    .meal-filter-actions {
+        grid-column: 1 / -1;
+    }
+
+    .meal-filter-actions > * {
+        flex: 0 0 auto;
     }
 }
 
-
-/* =========================================================
-   RESPONSIVE — MOBILE
-   ========================================================= */
-
-@media (max-width: 768px) {
-
-    .meal-page-header {
-        align-items: flex-start !important;
+@media (max-width: 900px) {
+    .meal-hero {
+        grid-template-columns: 1fr;
     }
 
-    .meal-header-actions {
+    .meal-hero-actions {
+        min-height: 185px;
+    }
+}
+
+@media (max-width: 650px) {
+    .meal-items-page .container-fluid {
+        padding-top: 19px !important;
+        padding-bottom: 18px !important;
+    }
+
+    .meal-hero::before {
+        left: 21px;
+    }
+
+    .meal-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 24px 16px 23px 39px;
+    }
+
+    .meal-hero-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        font-size: 18px;
+    }
+
+    .meal-hero-text h2 {
+        font-size: 27px;
+    }
+
+    .meal-hero-text p {
+        font-size: 11px;
+    }
+
+    .meal-hero-note {
+        font-size: 10px;
+    }
+
+    .meal-handwritten {
+        font-size: 23px;
+    }
+
+    .meal-hero-actions {
+        min-height: 175px;
+        padding: 22px 17px;
+    }
+
+    .meal-kpis {
+        gap: 19px 12px;
+        margin-top: 31px;
+    }
+
+    .meal-kpi {
+        padding: 20px 14px 14px;
+    }
+
+    .kpi-label {
+        font-size: 10px;
+    }
+
+    .meal-items-page .kpi-icon {
+        flex-basis: 35px;
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .kpi-value {
+        font-size: 30px;
+    }
+
+    .kpi-caption {
+        font-size: 9px;
+    }
+
+    .meal-panel-header {
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .panel-title-wrap {
+        gap: 10px;
+    }
+
+    .panel-title-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .panel-title-wrap h3 {
+        font-size: 19px;
+    }
+
+    .panel-title-wrap p {
+        font-size: 10px;
+    }
+
+    .meal-record-count {
+        gap: 5px;
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+
+    .meal-filter-panel {
+        padding: 15px;
+    }
+
+    .filter-heading h4 {
+        font-size: 17px;
+    }
+
+    .meal-filter-grid {
+        grid-template-columns: 1fr;
+        gap: 13px;
+    }
+
+    .meal-filter-actions {
+        grid-column: auto;
         flex-wrap: wrap;
-        justify-content: flex-end;
     }
 
-    .meal-page-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-
-    .meal-page-title {
-        font-size: 20px;
-    }
-
-    .meal-page-subtitle {
-        font-size: 12.5px;
-    }
-
-    .meal-card-header {
-        padding: 13px 15px;
-    }
-
-    .meal-item-count {
-        display: none;
-    }
-
-    .meal-filter-wrapper {
-        padding: 12px 15px;
-    }
-
-    .filter-search {
-        min-width: 100%;
-        flex: 100%;
-    }
-
-    .filter-control {
-        width: calc(50% - 5px);
-    }
-
-    .filter-btn {
+    .meal-filter-actions > * {
         flex: 1;
     }
 
-    .meal-table {
-        min-width: 980px;
+    .meal-active-filters {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 15px;
+    }
+
+    .meal-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 15px;
+    }
+
+    .meal-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px 15px;
+    }
+
+    .meal-view-all {
+        padding: 8px;
+        font-size: 9px;
     }
 }
 
-
-/* =========================================================
-   RESPONSIVE — SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 576px) {
-
-    .meal-items-page .container-fluid {
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-    }
-
-    .meal-page-header {
-        flex-direction: column;
-        align-items: stretch !important;
-    }
-
-    .meal-heading-wrapper {
-        width: 100%;
-    }
-
-    .meal-header-actions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .meal-add-btn,
-    .meal-stock-btn {
-        width: 100%;
-    }
-
-    .meal-summary-grid {
+@media (max-width: 400px) {
+    .meal-kpis {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 20px;
     }
 
-    .meal-summary-card {
-        min-height: 105px;
+    .meal-kpi {
+        padding: 21px 18px 15px;
     }
 
-    .meal-card {
-        border-radius: 8px;
+    .meal-items-page .kpi-icon {
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
     }
 
-    .meal-card-title span {
-        display: none;
+    .meal-panel-header {
+        flex-wrap: wrap;
     }
 
-    .filter-control {
+    .meal-record-count {
+        margin-left: 46px;
+    }
+
+    .meal-hero-buttons {
         width: 100%;
-    }
-
-    .filter-btn {
-        width: 100%;
-        flex: none;
-    }
-
-    .reset-filter-btn {
-        width: 100%;
-    }
-
-    .movement-empty {
         flex-direction: column;
-        text-align: center;
+    }
+
+    .meal-hero-buttons a {
+        width: 100%;
+    }
+
+    .meal-filter-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .meal-apply-btn,
+    .meal-reset-btn {
+        width: 100%;
+    }
+
+    .active-filter-items {
+        align-items: flex-start;
+    }
+
+    .filter-chip {
+        max-width: 100%;
     }
 }
 
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+    .meal-items-page *,
+    .meal-items-page *::before,
+    .meal-items-page *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}
 </style>
 
-@endpush
+@endsection

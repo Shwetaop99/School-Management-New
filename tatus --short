@@ -1,0 +1,534 @@
+[1mdiff --git a/resources/views/layouts/app.blade.php b/resources/views/layouts/app.blade.php[m
+[1mindex 8f1e352..48f0660 100644[m
+[1m--- a/resources/views/layouts/app.blade.php[m
+[1m+++ b/resources/views/layouts/app.blade.php[m
+[36m@@ -1,13 +1,19 @@[m
+ <!DOCTYPE html>[m
+[32m+[m
+ <html lang="en">[m
+[32m+[m
+ <head>[m
+[32m+[m
+     <meta charset="UTF-8">[m
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">[m
+[31m-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">[m
+[32m+[m
+[32m+[m[32m    <link rel="stylesheet"[m
+[32m+[m[32m          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">[m
+ [m
+     <title>@yield('title', 'School Management')</title>[m
+ [m
+     <style>[m
+[32m+[m
+         * {[m
+             box-sizing: border-box;[m
+             margin: 0;[m
+[36m@@ -57,7 +63,6 @@[m
+             display: flex;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SIDEBAR[m
+         ========================================================= */[m
+[36m@@ -76,7 +81,6 @@[m
+             transition: transform 0.3s ease;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SIDEBAR LOGO[m
+         ========================================================= */[m
+[36m@@ -91,23 +95,23 @@[m
+         }[m
+ [m
+         .brand-icon {[m
+[31m-    width: 52px;[m
+[31m-    height: 52px;[m
+[31m-    border-radius: 12px;[m
+[31m-    overflow: hidden;[m
+[31m-    display: flex;[m
+[31m-    align-items: center;[m
+[31m-    justify-content: center;[m
+[31m-    flex-shrink: 0;[m
+[31m-    background: #ffffff;[m
+[31m-}[m
+[31m-[m
+[31m-.brand-icon img {[m
+[31m-    width: 100%;[m
+[31m-    height: 100%;[m
+[31m-    object-fit: contain;[m
+[31m-    display: block;[m
+[31m-}[m
+[32m+[m[32m            width: 52px;[m
+[32m+[m[32m            height: 52px;[m
+[32m+[m[32m            border-radius: 12px;[m
+[32m+[m[32m            overflow: hidden;[m
+[32m+[m[32m            display: flex;[m
+[32m+[m[32m            align-items: center;[m
+[32m+[m[32m            justify-content: center;[m
+[32m+[m[32m            flex-shrink: 0;[m
+[32m+[m[32m            background: #ffffff;[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        .brand-icon img {[m
+[32m+[m[32m            width: 100%;[m
+[32m+[m[32m            height: 100%;[m
+[32m+[m[32m            object-fit: contain;[m
+[32m+[m[32m            display: block;[m
+[32m+[m[32m        }[m
+ [m
+         .brand-text {[m
+             line-height: 1.2;[m
+[36m@@ -125,7 +129,6 @@[m
+             margin-top: 3px;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SIDEBAR SCROLL[m
+         ========================================================= */[m
+[36m@@ -145,7 +148,6 @@[m
+             border-radius: 10px;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SECTION TITLE[m
+         ========================================================= */[m
+[36m@@ -159,7 +161,6 @@[m
+             padding: 16px 14px 8px;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SIDEBAR ITEM[m
+         ========================================================= */[m
+[36m@@ -176,9 +177,7 @@[m
+             font-weight: 500;[m
+             margin-bottom: 3px;[m
+             cursor: pointer;[m
+[31m-            transition:[m
+[31m-                background 0.2s ease,[m
+[31m-                color 0.2s ease;[m
+[32m+[m[32m            transition: background 0.2s ease, color 0.2s ease;[m
+             border: none;[m
+             background: transparent;[m
+             text-align: left;[m
+[36m@@ -217,7 +216,6 @@[m
+             transform: rotate(90deg);[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SUBMENU[m
+         ========================================================= */[m
+[36m@@ -268,7 +266,6 @@[m
+             background: var(--primary);[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            OTHER SECTION[m
+         ========================================================= */[m
+[36m@@ -285,7 +282,6 @@[m
+             letter-spacing: 2px;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            LOGOUT[m
+         ========================================================= */[m
+[36m@@ -316,7 +312,6 @@[m
+             color: #ef4444;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            MAIN AREA[m
+         ========================================================= */[m
+[36m@@ -329,7 +324,6 @@[m
+             flex-direction: column;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            HEADER[m
+         ========================================================= */[m
+[36m@@ -369,7 +363,6 @@[m
+             white-space: nowrap;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SEARCH[m
+         ========================================================= */[m
+[36m@@ -430,7 +423,6 @@[m
+             color: var(--primary);[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            SEARCH RESULTS[m
+         ========================================================= */[m
+[36m@@ -483,7 +475,6 @@[m
+             font-size: 13px;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            HEADER RIGHT[m
+         ========================================================= */[m
+[36m@@ -494,24 +485,6 @@[m
+             gap: 12px;[m
+         }[m
+ [m
+[31m-        .header-icon-button {[m
+[31m-            width: 36px;[m
+[31m-            height: 36px;[m
+[31m-            border: none;[m
+[31m-            background: transparent;[m
+[31m-            border-radius: 8px;[m
+[31m-            color: #64748b;[m
+[31m-            font-size: 18px;[m
+[31m-            cursor: pointer;[m
+[31m-            position: relative;[m
+[31m-        }[m
+[31m-[m
+[31m-        .header-icon-button:hover {[m
+[31m-            background: #f1f5f9;[m
+[31m-        }[m
+[31m-[m
+[31m-        [m
+[31m-[m
+         .admin-profile {[m
+             display: flex;[m
+             align-items: center;[m
+[36m@@ -543,30 +516,23 @@[m
+             color: #25334a;[m
+         }[m
+ [m
+[31m-        .admin-role {[m
+[31m-            font-size: 10px;[m
+[31m-            color: #8491a4;[m
+[32m+[m[32m        .admin-status {[m
+[32m+[m[32m            display: flex;[m
+[32m+[m[32m            align-items: center;[m
+[32m+[m[32m            gap: 6px;[m
+[32m+[m[32m            font-size: 12px;[m
+[32m+[m[32m            color: #16a34a;[m
+             margin-top: 3px;[m
+         }[m
+ [m
+[31m-        .admin-status {[m
+[31m-    display: flex;[m
+[31m-    align-items: center;[m
+[31m-    gap: 6px;[m
+[31m-    font-size: 12px;[m
+[31m-    color: #16a34a;[m
+[31m-    margin-top: 3px;[m
+[31m-}[m
+[31m-[m
+[31m-.online-dot {[m
+[31m-    width: 7px;[m
+[31m-    height: 7px;[m
+[31m-    background: #22c55e;[m
+[31m-    border-radius: 50%;[m
+[31m-    display: inline-block;[m
+[31m-    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);[m
+[31m-}[m
+[31m-[m
+[32m+[m[32m        .online-dot {[m
+[32m+[m[32m            width: 7px;[m
+[32m+[m[32m            height: 7px;[m
+[32m+[m[32m            background: #22c55e;[m
+[32m+[m[32m            border-radius: 50%;[m
+[32m+[m[32m            display: inline-block;[m
+[32m+[m[32m            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);[m
+[32m+[m[32m        }[m
+ [m
+         /* =========================================================[m
+            PAGE CONTENT[m
+[36m@@ -578,7 +544,6 @@[m
+             padding: 22px;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            FOOTER[m
+         ========================================================= */[m
+[36m@@ -599,7 +564,6 @@[m
+             color: #8b98a9;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            MOBILE OVERLAY[m
+         ========================================================= */[m
+[36m@@ -612,7 +576,6 @@[m
+             z-index: 999;[m
+         }[m
+ [m
+[31m-[m
+         /* =========================================================[m
+            RESPONSIVE[m
+         ========================================================= */[m
+[36m@@ -641,7 +604,6 @@[m
+             }[m
+         }[m
+ [m
+[31m-[m
+         @media (max-width: 700px) {[m
+ [m
+             .top-header {[m
+[36m@@ -677,13 +639,42 @@[m
+                 gap: 5px;[m
+             }[m
+         }[m
+[32m+[m
+     </style>[m
+ [m
+     @stack('styles')[m
+[32m+[m
+ </head>[m
+ [m
+ <body>[m
+ [m
+[32m+[m[32m@php[m
+[32m+[m
+[32m+[m[32m    $can = function ($permission) {[m
+[32m+[m[32m        return auth()->check() && auth()->user()->can($permission);[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    $canAny = function ($permissions) use ($can) {[m
+[32m+[m[32m        foreach ($permissions as $permission) {[m
+[32m+[m[32m            if ($can($permission)) {[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return false;[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    $studentMenuActive = request()->routeIs([m
+[32m+[m[32m        'admin.students.*',[m
+[32m+[m[32m        'admin.student-profile.*',[m
+[32m+[m[32m        'admin.student-documents.*',[m
+[32m+[m[32m        'admin.id-card.*',[m
+[32m+[m[32m        'admin.student-supply-kits.*',[m
+[32m+[m[32m        'admin.student-general-register.*'[m
+[32m+[m[32m    );[m
+[32m+[m
+[32m+[m[32m@endphp[m
+[32m+[m
+ <div class="app-wrapper">[m
+ [m
+     <!-- =========================================================[m
+[36m@@ -693,13 +684,16 @@[m
+     <aside class="sidebar" id="sidebar">[m
+ [m
+         <!-- Brand -->[m
+[32m+[m
+         <div class="sidebar-brand">[m
+ [m
+[31m-           <div class="brand-icon">[m
+[31m-    <img src="{{ asset('images/gurukullogo.png') }}" alt="Gurukul Logo">[m
+[31m-</div>[m
+[32m+[m[32m            <div class="brand-icon">[m
+[32m+[m[32m                <img src="{{ asset('images/gurukullogo.png') }}"[m
+[32m+[m[32m                     alt="Gurukul Logo">[m
+[32m+[m[32m            </div>[m
+ [m
+             <div class="brand-text">[m
+[32m+[m
+                 <div class="brand-title">[m
+                     Gurukul Vidyalaya[m
+                 </div>[m
+[36m@@ -707,14 +701,17 @@[m
+                 <div class="brand-subtitle">[m
+                     School Management[m
+                 </div>[m
+[32m+[m
+             </div>[m
+ [m
+         </div>[m
+ [m
+ [m
+         <!-- Sidebar Navigation -->[m
+[32m+[m
+         <div class="sidebar-content">[m
+ [m
+[32m+[m
+             <!-- Dashboard -->[m
+ [m
+             <a href="{{ route('admin.dashboard') }}"[m
+[36m@@ -722,170 +719,196 @@[m [mclass="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"[m
+                data-search="dashboard home">[m
+ [m
+                 <span class="sidebar-icon">[m
+[31m-    <i class="fas fa-tachometer-alt"></i>[m
+[31m-</span>[m
+[32m+[m[32m                    <i class="fas fa-tachometer-alt"></i>[m
+[32m+[m[32m                </span>[m
+ [m
+[31m-<span class="sidebar-label">[m
+[31m-    Dashboard[m
+[31m-</span>[m
+[32m+[m[32m                <span class="sidebar-label">[m
+[32m+[m[32m                    Dashboard[m
+[32m+[m[32m                </span>[m
+ [m
+             </a>[m
+ [m
+ [m
+[31m-            <!-- =================================================[m
+[32m+[m[32m            {{-- =================================================[m
+                  STUDENT[m
+[31m-            ================================================== -->[m
+[32m+[m[32m            ================================================== --}}[m
+ [m
+[31m-            <button class="sidebar-item has-submenu[m
+[31m-                    {{ request()->routeIs('admin.students.*') ? 'active open' : '' }}"[m
+[31m-                    data-submenu="student-menu"[m
+[31m-                    data-search="student students">[m
+[32m+[m[32m            @if($canAny(['students.view','students.create','students.edit','students.delete']))[m
+ [m
+[31m-                <span class="sidebar-icon">[m
+[31m-    <i class="fa fa-user-graduate"></i>[m
+[31m-</span>[m
+[32m+[m[32m                <button class="sidebar-item has-submenu {{ $studentMenuActive ? 'active open' : '' }}"[m
+[32m+[m[32m                        data-submenu="student-menu"[m
+[32m+[m[32m                        data-search="student students"[m
+[32m+[m[32m                        type="button">[m
+ [m
+[31m-<span class="sidebar-label">[m
+[31m-    Student[m
+[31m-</span>[m
+[32m+[m[32m                    <span class="sidebar-icon">[m
+[32m+[m[32m                        <i class="fa fa-user-graduate"></i>[m
+[32m+[m[32m                    </span>[m
+ [m
+[31m-                <span class="sidebar-arrow">›</span>[m
+[32m+[m[32m                    <span class="sidebar-label">[m
+[32m+[m[32m                        Student[m
+[32m+[m[32m                    </span>[m
+ [m
+[31m-            </button>[m
+[32m+[m[32m                    <span class="sidebar-arrow">›</span>[m
+ [m
+[31m-            <div class="submenu[m
+[31m-                        {{ request()->routeIs('admin.students.*') ? 'open' : '' }}"[m
+[31m-                 id="student-menu">[m
+[32m+[m[32m                </button>[m
+ [m
+[31m-                <a href="{{ route('admin.students.index') }}"[m
+[31m-                   class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">[m
+[31m-                    All Students[m
+[31m-                </a>[m
+[32m+[m[32m                <div class="submenu {{ $studentMenuActive ? 'open' : '' }}"[m
+[32m+[m[32m                     id="student-menu">[m
+ [m
+[31m-                <a href="{{ route('admin.students.index') }}"[m
+[31m-                   class="submenu-item">[m
+[31m-                    Add Student[m
+[31m-                </a>[m
+[32m+[m[32m                    @if($can('students.view'))[m
+ [m
+[31m-                <a href="{{ route('admin.students.index') }}"[m
+[31m-                   class="submenu-item">[m
+[31m-                    Student Profile[m
+[31m-                </a>[m
+[32m+[m[32m                        <a href="{{ route('admin.students.index') }}"[m
+[32m+[m[32m                           class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">[m
+[32m+[m[32m                            All Students[m
+[32m+[m[32m                        </a>[m
+ [m
+[31m-                <a href="{{ route('admin.students.index') }}"[m
+[31m-                   class="submenu-item">[m
+[31m-                    Student Documents[m
+[31m-                </a>[m
+[32m+[m[32m                        <a href="{{ route('admin.student-profile.index') }}"[m
+[32m+[m[32m                           class="submenu-item {{ request()->routeIs('admin.student-profile.*') ? 'active' : '' }}">[m
+[32m+[m[32m                            Student Profile[m
+[32m+[m[32m                        </a>[m
+ [m
+[31m-                <a href="{{ route('admin.students.index') }}"[m
+[31m-                   class="submenu-item">[m
+[31m-                    Student ID[m
+[31m-                </a>[m
+[32m+[m[32m                        <a href="{{ route('admin.student-documents.index') }}"[m
+[32m+[m[32m                           class="submenu-item {{ request()->routeIs('admin.student-documents.*') ? 'active' : '' }}">[m
+[32m+[m[32m                            Student Documents[m
+[32m+[m[32m                        </a>[m
+ [m
+[31m-                <a href="{{ route('admin.attendance.index') }}"[m
+[31m-                   class="submenu-item">[m
+[31m-                    Attendance[m
+[31m-                </a>[m
+[32m+[m[32m                        <a href="{{ route('admin.id-card.index') }}"[m
+[32m+[m[32m                           class="submenu-item {{ request()->routeIs('admin.id-card.*') ? 'active' : '' }}">[m
+[32m+[m[32m                            Student ID[m
+[32m+[m[32m                        </a>[m
+ [m
+[31m-                <a href="{{ route('admin.students.index') }}"[m
+[31m-                   class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">[m
+[31m-                    School Supplies(Kit)[m
+[31m-                </a>[m
+[32m+[m[32m                        <a href="{{ route('admin.student-supply-kits.index') }}"[m
+[32m+[m[32m                           class="submenu-item {{ request()->routeIs('admin.student-supply-kits.*') ? 'active' : '' }}">[m
+[32m+[m[32m                            School Supplies (Kit)[m
+[32m+[m[32m                        </a>[m
+ [m
+[31m-                <a href="{{ route('admin.students.index') }}"[m
+[31m-                   class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">[m
+[31m-                    Student Report[m
+[31m-                </a>[m
+[32m+[m[32m                        <a href="{{ route('admin.student-general-register.index') }}"[m
+[32m+[m[32m                           class="submenu-item {{ request()->routeIs('admin.student-general-register.*') ? 'active' : '' }}">[m
+[32m+[m[32m                            Student Report[m
+[32m+[m[32m                        </a>[m
+ [m
+[32m+[m[32m                    @endif[m
+ [m
+[32m+[m[32m                </div>[m
+ [m
+[31m-            </div>[m
+[32m+[m[32m            @endif[m
+ [m
+ [m
+[31m-            <!-- =================================================[m
+[32m+[m[32m            {{-- =================================================[m
+                  FACULTY[m
+[31m-            ================================================== -->[m
+[32m+[m[32m            ================================================== --}}[m
+ [m
+[31m-            <button class="sidebar-item has-submenu[m
+[31m-                    {{ request()->routeIs('admin.faculty.*') ? 'active open' : '' }}"[m
+[31m-                    data-submenu="faculty-menu"[m
+[31m-                    data-search="faculty teacher teachers">[m
+[32m+[m[32m            @if($canAny(['faculty.view','faculty.create','faculty.edit','faculty.delete']))[m
+ [m
+[31m-                <span class="sidebar-icon">[m
+[31m-    <i class="fas fa-chalkboard-teacher"></i>[m
+[31m-</span>[m
+[32m+[m[32m                <button class="sidebar-item has-submenu {{ request()->routeIs('admin.teachers.*') ? 'active open' : '' }}"[m
+[32m+[m[32m                        data-submenu="faculty-menu"[m
+[32m+[m[32m                        data-search="faculty teacher teachers"[m
+[32m+[m[32m                        type="button">[m
+ [m
+[31m-<span class="sidebar-label">[m
+[31m-    Faculty (Teacher)[m
+[31m-</span>[m
+[32m+[m[32m                    <span class="sidebar-icon">[m
+[32m+[m[32m                        <i class="fas fa-chalkboard-teacher"></i>[m
+[32m+[m[32m                    </span>[m
+ [m
+[31m-                <span class="sidebar-arrow">›</span>[m
+[32m+[m[32m                    <span class="sidebar-label">[m
+[32m+[m[32m                        Faculty (Teacher)[m
+[32m+[m[32m                    </span>[m
+ [m
+[31m-            </button>[m
+[32m+[m[32m                    <span class="sidebar-arrow">›</span>[m
+ [m
+[31m-            <div class="

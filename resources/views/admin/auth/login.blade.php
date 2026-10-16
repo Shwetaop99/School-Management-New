@@ -1,1298 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Admin Login | School Management System</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --ink:#1d3a33; --ink-2:#2a4a41; --chalk:#f2b632; --wood:#8a5a2c;
+            --red:#e4572e; --green:#3a9d6b; --accent:#2b5d8a;
+            --text:#26302c; --muted:#6a756f; --line:#ddd6c4; --bg:#f3f5f9;
+            --serif:'Fraunces',Georgia,serif; --hand:'Caveat','Comic Sans MS',cursive;
         }
+        body{font-family:'Public Sans',Arial,Helvetica,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;color:var(--text);
+            background-color:#fbf8f1;background-image:repeating-linear-gradient(transparent 0 31px,rgba(43,93,138,.07) 31px 32px)}
+        :focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            min-height: 100vh;
-            background: #eef3f9;
+        .login{position:relative;width:960px;max-width:100%;min-height:560px;display:flex;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 20px 44px rgba(29,58,51,.16)}
+        .login::before{content:"";position:absolute;z-index:10;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--red) 0 25%,var(--chalk) 25% 50%,var(--green) 50% 75%,var(--accent) 75% 100%)}
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* ---------- Left: same chalkboard as the dashboard sidebar ---------- */
+        .board{position:relative;width:42%;padding:56px 40px 110px;color:#e9efe2;overflow:hidden;
+            background:radial-gradient(ellipse at 18% 8%,rgba(255,255,255,.08),transparent 55%),radial-gradient(ellipse at 85% 90%,rgba(255,255,255,.06),transparent 50%),var(--ink);
+            border-right:10px solid var(--wood);box-shadow:inset -3px 0 6px rgba(0,0,0,.28)}
+        .logo{width:68px;height:68px;border-radius:50%;overflow:hidden;background:#26306a;margin-bottom:22px;box-shadow:0 0 0 3px var(--ink),0 0 0 5px var(--chalk)}
+        .logo img{width:100%;height:100%;object-fit:cover;display:block}
+        .board h1{font-family:var(--serif);font-size:30px;font-weight:700;line-height:1.15;color:#fff;margin-bottom:8px}
+        .board .hand{font-family:var(--hand);font-size:24px;color:var(--chalk);line-height:1;margin-bottom:22px}
+        .board ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+        .board li{display:flex;align-items:center;gap:11px;font-size:14.5px;color:#d9e1d0}
+        .board li i{color:var(--chalk);font-size:15px}
 
-            padding: 30px;
+        .road{position:absolute;left:0;right:0;bottom:0;height:90px;pointer-events:none}
+        .road::before{content:"";position:absolute;left:0;right:0;bottom:22px;border-top:2px dashed rgba(233,239,226,.35)}
+        .bus{position:absolute;bottom:28px;left:34px;width:150px;animation:drive 2.2s cubic-bezier(.3,.6,.25,1) .5s both}
+        .bus svg{display:block;width:100%;height:auto}
+        @keyframes drive{from{transform:translateX(-500px)}to{transform:none}}
+
+        /* ---------- Right: sign in ---------- */
+        .right{width:58%;padding:60px 64px 40px;display:flex;flex-direction:column;justify-content:center}
+        .right h2{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--ink);margin-bottom:4px}
+        .right .sub{color:var(--muted);font-size:14px;margin-bottom:26px}
+
+        .error-box{display:flex;align-items:center;gap:10px;background:#fdecea;border:1px solid #f5c2bb;color:#b3321d;padding:11px 13px;border-radius:8px;font-size:13px;margin-bottom:18px}
+
+        .field{margin-bottom:16px}
+        .field label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px}
+        .input{position:relative}
+        .input>i.lead-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px}
+        .input input{width:100%;height:48px;padding:0 44px;font:inherit;font-size:14.5px;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:8px;outline:none;transition:border-color .15s,box-shadow .15s}
+        .input input::placeholder{color:#a3a89f}
+        .input input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(242,182,50,.4)}
+        .toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;background:transparent;border-radius:7px;color:var(--muted);font-size:16px;cursor:pointer}
+        .toggle:hover{background:#f3efe3;color:var(--ink)}
+
+        .remember{display:flex;align-items:center;gap:8px;margin:2px 0 22px;font-size:13px;color:var(--muted);cursor:pointer}
+        .remember input{width:15px;height:15px;accent-color:var(--ink)}
+
+        .btn{width:100%;height:50px;display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:9px;background:var(--ink);color:#fff;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:background .15s,transform .15s}
+        .btn:hover{background:var(--ink-2);transform:translateY(-1px)}
+        .btn i{color:var(--chalk)}
+        .btn.is-busy{pointer-events:none;opacity:.85}
+        .spin{width:15px;height:15px;border:2px solid #fff;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        .foot{margin-top:26px;text-align:center;font-size:12px;color:#8a938d}
+
+        @media (max-width:860px){
+            body{padding:18px}
+            .login{max-width:520px;flex-direction:column;min-height:0}
+            .board{width:100%;border-right:none;border-bottom:8px solid var(--wood);box-shadow:none;padding:26px 28px;display:flex;align-items:center;gap:16px}
+            .board .logo{margin:0;width:56px;height:56px;flex-shrink:0}
+            .board h1{font-size:23px;margin:0}
+            .board .hand,.board ul,.road{display:none}
+            .right{width:100%;padding:34px 28px 28px}
         }
-
-        /* =========================================
-           MAIN LOGIN CONTAINER
-        ========================================= */
-
-        .login-container {
-            width: 1100px;
-            max-width: 100%;
-            min-height: 650px;
-
-            background: white;
-
-            border-radius: 16px;
-            overflow: hidden;
-
-            display: flex;
-
-            box-shadow:
-                0 20px 50px rgba(15, 23, 42, 0.15);
-        }
-
-
-        /* =========================================
-           LEFT PANEL
-        ========================================= */
-
-        .left-panel {
-            width: 50%;
-
-            position: relative;
-            overflow: hidden;
-
-            padding: 48px 55px;
-
-            color: white;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #1769ff 0%,
-                    #1689ed 52%,
-                    #24b7c8 100%
-                );
-        }
-
-
-        /* =========================================
-           DECORATIVE CIRCLES
-        ========================================= */
-
-        .top-circle {
-            position: absolute;
-
-            width: 300px;
-            height: 300px;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.10);
-
-            top: -150px;
-            right: -100px;
-        }
-
-        .bottom-circle {
-            position: absolute;
-
-            width: 350px;
-            height: 350px;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.07);
-
-            bottom: -230px;
-            left: -150px;
-        }
-
-
-        /* =========================================
-           DOT PATTERN
-        ========================================= */
-
-        .dots {
-            position: absolute;
-
-            top: 38px;
-            left: 38px;
-
-            width: 65px;
-            height: 55px;
-
-            background-image:
-                radial-gradient(
-                    rgba(255,255,255,0.35) 2px,
-                    transparent 2px
-                );
-
-            background-size: 10px 10px;
-        }
-
-
-        /* =========================================
-           SCHOOL LOGO
-        ========================================= */
-
-        .admin-logo {
-            width: 96px;
-            height: 96px;
-
-            border: 3px solid rgba(255,255,255,0.95);
-
-            border-radius: 20px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            margin-top: 38px;
-            margin-bottom: 27px;
-
-            position: relative;
-            z-index: 5;
-
-            background: white;
-
-            overflow: hidden;
-
-            box-shadow:
-                0 8px 25px rgba(0,0,0,0.12);
-        }
-
-        .admin-logo img {
-            width: 100%;
-            height: 100%;
-
-            object-fit: contain;
-
-            padding: 8px;
-
-            display: block;
-        }
-
-
-        /* =========================================
-           LEFT CONTENT
-        ========================================= */
-
-        .left-panel h1 {
-            position: relative;
-            z-index: 5;
-
-            font-size: 40px;
-            line-height: 1.15;
-
-            margin-bottom: 24px;
-
-            font-weight: 700;
-        }
-
-        .description {
-            position: relative;
-            z-index: 5;
-
-            max-width: 470px;
-
-            font-size: 17px;
-            line-height: 1.7;
-
-            color: rgba(255,255,255,0.95);
-
-            margin-bottom: 24px;
-        }
-
-
-        /* =========================================
-           DIVIDER
-        ========================================= */
-
-        .divider {
-            position: relative;
-            z-index: 5;
-
-            width: 45px;
-            height: 2px;
-
-            background: rgba(255,255,255,0.8);
-
-            margin-bottom: 26px;
-        }
-
-
-        /* =========================================
-           FEATURES
-        ========================================= */
-
-        .features {
-            position: relative;
-            z-index: 5;
-
-            list-style: none;
-
-            display: flex;
-            flex-direction: column;
-
-            gap: 17px;
-        }
-
-        .features li {
-            display: flex;
-            align-items: center;
-
-            gap: 13px;
-
-            font-size: 15px;
-
-            color: white;
-        }
-
-        .check {
-            width: 27px;
-            height: 27px;
-
-            min-width: 27px;
-
-            border: 2px solid rgba(255,255,255,0.9);
-
-            border-radius: 50%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 15px;
-        }
-
-
-        /* =========================================
-           SCHOOL ILLUSTRATION
-        ========================================= */
-
-        .school-illustration {
-            position: absolute;
-
-            left: 0;
-            bottom: 0;
-
-            width: 100%;
-            height: 48%;
-
-            z-index: 2;
-
-            opacity: 0.38;
-
-            pointer-events: none;
-        }
-
-        .school-illustration svg {
-            width: 100%;
-            height: 100%;
-
-            display: block;
-        }
-
-
-        /* =========================================
-           RIGHT PANEL
-        ========================================= */
-
-        .right-panel {
-            width: 50%;
-
-            padding: 65px 75px;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .welcome-title {
-            color: #172554;
-
-            font-size: 38px;
-
-            margin-bottom: 9px;
-        }
-
-        .welcome-text {
-            color: #64748b;
-
-            font-size: 15px;
-
-            margin-bottom: 28px;
-        }
-
-
-        /* =========================================
-           ERROR MESSAGE
-        ========================================= */
-
-        .error-box {
-            display: flex;
-            align-items: center;
-
-            gap: 10px;
-
-            background: #fff1f2;
-
-            border: 1px solid #fecdd3;
-
-            color: #dc2626;
-
-            padding: 13px 15px;
-
-            border-radius: 7px;
-
-            font-size: 13px;
-
-            margin-bottom: 23px;
-        }
-
-
-        /* =========================================
-           FORM
-        ========================================= */
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-
-            color: #172554;
-
-            font-size: 14px;
-
-            font-weight: 700;
-
-            margin-bottom: 8px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-
-            left: 16px;
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            color: #64748b;
-
-            font-size: 17px;
-
-            z-index: 2;
-        }
-
-        .input-wrapper input {
-            width: 100%;
-            height: 54px;
-
-            border: 1px solid #dbe3ef;
-
-            border-radius: 8px;
-
-            padding: 0 48px;
-
-            font-size: 15px;
-
-            color: #334155;
-
-            outline: none;
-
-            transition: 0.2s;
-        }
-
-        .input-wrapper input::placeholder {
-            color: #94a3b8;
-        }
-
-        .input-wrapper input:focus {
-            border-color: #2477f9;
-
-            box-shadow:
-                0 0 0 3px rgba(36,119,249,0.10);
-        }
-
-
-        /* =========================================
-           PASSWORD TOGGLE
-        ========================================= */
-
-        .toggle-password {
-            position: absolute;
-
-            right: 15px;
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            border: none;
-
-            background: transparent;
-
-            cursor: pointer;
-
-            color: #64748b;
-
-            font-size: 16px;
-        }
-
-
-        /* =========================================
-           REMEMBER + FORGOT
-        ========================================= */
-
-        .form-options {
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            margin-bottom: 27px;
-
-            font-size: 13px;
-        }
-
-        .remember {
-            display: flex;
-
-            align-items: center;
-
-            gap: 7px;
-
-            color: #64748b;
-        }
-
-        .remember input {
-            width: 15px;
-            height: 15px;
-
-            accent-color: #1769ff;
-        }
-
-        .forgot {
-            color: #1769ff;
-
-            text-decoration: none;
-
-            font-weight: 600;
-        }
-
-        .forgot:hover {
-            text-decoration: underline;
-        }
-
-
-        /* =========================================
-           SIGN IN BUTTON
-        ========================================= */
-
-        .login-button {
-            width: 100%;
-            height: 54px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    #1769ff,
-                    #1da5df
-                );
-
-            color: white;
-
-            font-size: 15px;
-
-            font-weight: 700;
-
-            cursor: pointer;
-
-            box-shadow:
-                0 8px 20px rgba(23,105,255,0.25);
-
-            transition: all 0.2s ease;
-        }
-
-        .login-button:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 12px 25px rgba(23,105,255,0.32);
-        }
-
-        .login-button span {
-            margin-left: 8px;
-
-            font-size: 18px;
-        }
-
-
-        /* =========================================
-           FOOTER
-        ========================================= */
-
-        .system-name {
-            text-align: center;
-
-            margin-top: 25px;
-
-            color: #94a3b8;
-
-            font-size: 12px;
-        }
-
-
-        /* =========================================
-           RESPONSIVE
-        ========================================= */
-
-        @media (max-width: 900px) {
-
-            body {
-                padding: 20px;
-            }
-
-            .left-panel {
-                display: none;
-            }
-
-            .right-panel {
-                width: 100%;
-
-                padding: 55px 50px;
-            }
-
-            .login-container {
-                max-width: 550px;
-            }
-        }
-
-
-        @media (max-width: 500px) {
-
-            body {
-                padding: 10px;
-            }
-
-            .right-panel {
-                padding: 40px 25px;
-            }
-
-            .welcome-title {
-                font-size: 30px;
-            }
-
-            .form-options {
-                flex-direction: column;
-
-                align-items: flex-start;
-
-                gap: 12px;
-            }
-        }
-
+        @media (prefers-reduced-motion:reduce){.bus{animation:none}.spin{animation-duration:1.6s}}
     </style>
-
 </head>
 
-
 <body>
+<div class="login">
 
-<div class="login-container">
+    {{-- ===== Chalkboard panel (matches the dashboard sidebar) ===== --}}
+    <section class="board">
+        <div class="logo"><img src="{{ asset('images/gurukullogo.png') }}" alt="Gurukul Vidyalaya logo"></div>
+        <div>
+            <h1>Gurukul Vidyalaya</h1>
+            <div class="hand">School management</div>
+        </div>
 
-
-    <!-- ==================================================
-         LEFT SIDE
-    =================================================== -->
-
-    <div class="left-panel">
-
-
-        <!-- Decorative elements -->
-
-        <div class="dots"></div>
-
-        <div class="top-circle"></div>
-
-        <div class="bottom-circle"></div>
-
-
-        <!-- ==================================================
-             SCHOOL LOGO
-        =================================================== -->
-
-        
-
-
-        <!-- Heading -->
-
-        <h1>
-            Gurukul Vidyalaya
-        </h1>
-
-
-        <!-- Description -->
-
-        <p class="description">
-
-            Secure login for authorized school administrators only.
-
-            Manage your entire school from one powerful dashboard.
-
-        </p>
-
-
-        <!-- Divider -->
-
-        <div class="divider"></div>
-
-
-        <!-- Features -->
-
-        <ul class="features">
-
-            <li>
-
-                <span class="check">
-                    ✓
-                </span>
-
-                <span>
-                    Manage students and teachers
-                </span>
-
-            </li>
-
-
-            <li>
-
-                <span class="check">
-                    ✓
-                </span>
-
-                <span>
-                    Manage attendance and fees
-                </span>
-
-            </li>
-
-
-            <li>
-
-                <span class="check">
-                    ✓
-                </span>
-
-                <span>
-                    View school results and reports
-                </span>
-
-            </li>
-
-
-            <li>
-
-                <span class="check">
-                    ✓
-                </span>
-
-                <span>
-                    Protected with two-factor authentication
-                </span>
-
-            </li>
-
+        <ul>
+            <li><i class="bi bi-check-lg"></i> Students and faculty</li>
+            <li><i class="bi bi-check-lg"></i> Attendance and fees</li>
+            <li><i class="bi bi-check-lg"></i> Results and reports</li>
         </ul>
 
-
-        <!-- ==================================================
-             SCHOOL BUILDING SVG
-        =================================================== -->
-
-        <div class="school-illustration">
-
-            <svg
-                viewBox="0 0 600 300"
-                preserveAspectRatio="xMidYMax meet"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-
-
-                <!-- Clouds -->
-
-                <g fill="white">
-
-                    <circle
-                        cx="75"
-                        cy="170"
-                        r="28"
-                    />
-
-                    <circle
-                        cx="105"
-                        cy="155"
-                        r="40"
-                    />
-
-                    <circle
-                        cx="140"
-                        cy="170"
-                        r="27"
-                    />
-
-                    <rect
-                        x="55"
-                        y="170"
-                        width="110"
-                        height="25"
-                        rx="12"
-                    />
-
-
-                    <circle
-                        cx="475"
-                        cy="130"
-                        r="25"
-                    />
-
-                    <circle
-                        cx="505"
-                        cy="115"
-                        r="38"
-                    />
-
-                    <circle
-                        cx="540"
-                        cy="130"
-                        r="25"
-                    />
-
-                    <rect
-                        x="455"
-                        y="130"
-                        width="110"
-                        height="25"
-                        rx="12"
-                    />
-
-                </g>
-
-
-                <!-- Ground -->
-
-                <path
-                    d="M0 275 Q150 245 300 270 Q450 245 600 275 V300 H0Z"
-                    fill="#ffffff"
-                    opacity="0.28"
-                />
-
-
-                <!-- Main building -->
-
-                <rect
-                    x="115"
-                    y="155"
-                    width="370"
-                    height="125"
-                    fill="white"
-                />
-
-
-                <!-- Building side wings -->
-
-                <rect
-                    x="70"
-                    y="180"
-                    width="80"
-                    height="100"
-                    fill="white"
-                />
-
-                <rect
-                    x="450"
-                    y="180"
-                    width="80"
-                    height="100"
-                    fill="white"
-                />
-
-
-                <!-- Main roof -->
-
-                <path
-                    d="M80 160 L300 45 L520 160 Z"
-                    fill="white"
-                />
-
-
-                <!-- Roof lower line -->
-
-                <rect
-                    x="70"
-                    y="158"
-                    width="460"
-                    height="15"
-                    fill="white"
-                />
-
-
-                <!-- Clock -->
-
-                <circle
-                    cx="300"
-                    cy="103"
-                    r="28"
-                    fill="white"
-                    stroke="#1769ff"
-                    stroke-width="5"
-                />
-
-
-                <!-- Clock hands -->
-
-                <line
-                    x1="300"
-                    y1="103"
-                    x2="300"
-                    y2="86"
-                    stroke="#1769ff"
-                    stroke-width="4"
-                />
-
-                <line
-                    x1="300"
-                    y1="103"
-                    x2="314"
-                    y2="110"
-                    stroke="#1769ff"
-                    stroke-width="4"
-                />
-
-
-                <!-- Columns -->
-
-                <g
-                    fill="#1769ff"
-                    opacity="0.45"
-                >
-
-                    <rect
-                        x="145"
-                        y="175"
-                        width="24"
-                        height="105"
-                    />
-
-                    <rect
-                        x="205"
-                        y="175"
-                        width="24"
-                        height="105"
-                    />
-
-                    <rect
-                        x="265"
-                        y="175"
-                        width="24"
-                        height="105"
-                    />
-
-                    <rect
-                        x="325"
-                        y="175"
-                        width="24"
-                        height="105"
-                    />
-
-                    <rect
-                        x="385"
-                        y="175"
-                        width="24"
-                        height="105"
-                    />
-
-                    <rect
-                        x="445"
-                        y="175"
-                        width="24"
-                        height="105"
-                    />
-
-                </g>
-
-
-                <!-- Windows -->
-
-                <g
-                    fill="#1769ff"
-                    opacity="0.45"
-                >
-
-                    <rect
-                        x="85"
-                        y="205"
-                        width="35"
-                        height="45"
-                    />
-
-                    <rect
-                        x="130"
-                        y="205"
-                        width="35"
-                        height="45"
-                    />
-
-                    <rect
-                        x="435"
-                        y="205"
-                        width="35"
-                        height="45"
-                    />
-
-                    <rect
-                        x="480"
-                        y="205"
-                        width="35"
-                        height="45"
-                    />
-
-                </g>
-
-
-                <!-- Main entrance -->
-
-                <rect
-                    x="265"
-                    y="205"
-                    width="70"
-                    height="75"
-                    fill="#1769ff"
-                    opacity="0.65"
-                />
-
-
-                <!-- Door -->
-
-                <rect
-                    x="278"
-                    y="225"
-                    width="44"
-                    height="55"
-                    fill="white"
-                    opacity="0.4"
-                />
-
-                <circle
-                    cx="315"
-                    cy="253"
-                    r="4"
-                    fill="#1769ff"
-                />
-
-
-                <!-- Flag pole -->
-
-                <line
-                    x1="300"
-                    y1="47"
-                    x2="300"
-                    y2="15"
-                    stroke="white"
-                    stroke-width="4"
-                />
-
-
-                <!-- Flag -->
-
-                <path
-                    d="M300 15 L345 25 L300 36 Z"
-                    fill="white"
-                />
-
-
-                <!-- Trees -->
-
-                <g
-                    fill="#1769ff"
-                    opacity="0.65"
-                >
-
-                    <!-- Left tree -->
-
-                    <rect
-                        x="42"
-                        y="235"
-                        width="15"
-                        height="45"
-                    />
-
-                    <circle
-                        cx="50"
-                        cy="215"
-                        r="30"
-                    />
-
-                    <circle
-                        cx="30"
-                        cy="230"
-                        r="23"
-                    />
-
-                    <circle
-                        cx="70"
-                        cy="230"
-                        r="23"
-                    />
-
-
-                    <!-- Right tree -->
-
-                    <rect
-                        x="543"
-                        y="235"
-                        width="15"
-                        height="45"
-                    />
-
-                    <circle
-                        cx="550"
-                        cy="215"
-                        r="30"
-                    />
-
-                    <circle
-                        cx="530"
-                        cy="230"
-                        r="23"
-                    />
-
-                    <circle
-                        cx="570"
-                        cy="230"
-                        r="23"
-                    />
-
-                </g>
-
-            </svg>
-
+        <div class="road" aria-hidden="true">
+            <div class="bus">
+                <svg viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="4" width="230" height="78" rx="12" fill="#f2b632"/>
+                    <rect x="2" y="52" width="230" height="8" fill="#e0a21f"/>
+                    <g fill="#cfe7f3" stroke="#26302c" stroke-width="2.5">
+                        <rect x="16" y="16" width="32" height="26" rx="3"/><rect x="56" y="16" width="32" height="26" rx="3"/>
+                        <rect x="96" y="16" width="32" height="26" rx="3"/><rect x="136" y="16" width="32" height="26" rx="3"/>
+                        <rect x="182" y="14" width="40" height="32" rx="4"/>
+                    </g>
+                    <text x="16" y="74" font-family="Arial" font-weight="700" font-size="12" fill="#26302c">SCHOOL BUS</text>
+                    <rect x="226" y="56" width="10" height="12" rx="3" fill="#e4572e"/>
+                    <g fill="#26302c"><circle cx="54" cy="84" r="15"/><circle cx="180" cy="84" r="15"/></g>
+                    <g fill="#d9d2bf"><circle cx="54" cy="84" r="6"/><circle cx="180" cy="84" r="6"/></g>
+                </svg>
+            </div>
         </div>
+    </section>
 
-    </div>
-
-
-
-    <!-- ==================================================
-         RIGHT SIDE
-    =================================================== -->
-
-    <div class="right-panel">
-
-
-        <h2 class="welcome-title">
-            Welcome Back
-        </h2>
-
-
-        <p class="welcome-text">
-            Sign in to access your school dashboard.
-        </p>
-
-
-        <!-- Laravel validation errors -->
+    {{-- ===== Sign in ===== --}}
+    <section class="right">
+        <h2>Welcome back</h2>
+        <p class="sub">Sign in to open your school dashboard.</p>
 
         @if ($errors->any())
-
-            <div class="error-box">
-
-                <span>
-                    !
-                </span>
-
-                <span>
-                    {{ $errors->first() }}
-                </span>
-
+            <div class="error-box" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span>{{ $errors->first() }}</span>
             </div>
-
         @endif
 
-
-        <!-- ==================================================
-             LOGIN FORM
-        =================================================== -->
-
-        <form
-            method="POST"
-            action="{{ route('admin.login.submit') }}"
-        >
-
+        <form method="POST" action="{{ route('admin.login.submit') }}" id="loginForm">
             @csrf
 
-
-            <!-- Email -->
-
-            <div class="form-group">
-
-                <label for="email">
-                    Email Address
-                </label>
-
-
-                <div class="input-wrapper">
-
-                    <span class="input-icon">
-                        ✉
-                    </span>
-
-
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value="{{ old('email') }}"
-                        placeholder="admin@example.com"
-                        required
-                        autocomplete="email"
-                    >
-
+            <div class="field">
+                <label for="email">Email address</label>
+                <div class="input">
+                    <i class="bi bi-envelope lead-icon"></i>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}"
+                           placeholder="admin@example.com" required autocomplete="email" autofocus>
                 </div>
-
             </div>
 
-
-
-            <!-- Password -->
-
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-
-                <div class="input-wrapper">
-
-                    <span class="input-icon">
-                        🔒
-                    </span>
-
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        required
-                        autocomplete="current-password"
-                    >
-
-
-                    <button
-                        type="button"
-                        class="toggle-password"
-                        onclick="togglePassword()"
-                        id="passwordToggle"
-                    >
-                        👁
+            <div class="field">
+                <label for="password">Password</label>
+                <div class="input">
+                    <i class="bi bi-lock lead-icon"></i>
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password" required autocomplete="current-password">
+                    <button type="button" class="toggle" id="passwordToggle" aria-label="Show password">
+                        <i class="bi bi-eye"></i>
                     </button>
-
                 </div>
-
             </div>
 
+            <label class="remember">
+                <input type="checkbox" name="remember" value="1">
+                <span>Keep me signed in</span>
+            </label>
 
-
-            <!-- Remember / Forgot -->
-
-            <div class="form-options">
-
-
-                <label class="remember">
-
-                    <input
-                        type="checkbox"
-                        name="remember"
-                        value="1"
-                    >
-
-                    <span>
-                        Remember me
-                    </span>
-
-                </label>
-
-
-            </div>
-
-
-
-            <!-- Login button -->
-
-            <button
-                type="submit"
-                class="login-button"
-            >
-
-                Sign In
-
-                <span>
-                    →
-                </span>
-
+            <button type="submit" class="btn" id="loginButton">
+                <span id="btnText">Sign in</span>
+                <i class="bi bi-arrow-right" id="btnArrow"></i>
             </button>
-
         </form>
 
-
-        <!-- Footer -->
-
-        <div class="system-name">
-            @ Gurukul_Vidyalaya
-        </div>
-
-    </div>
+        <div class="foot">Authorized staff only. © {{ date('Y') }} Gurukul Vidyalaya</div>
+    </section>
 
 </div>
 
-
-
 <script>
+    const pw = document.getElementById('password');
+    const toggle = document.getElementById('passwordToggle');
 
-    function togglePassword() {
+    toggle.addEventListener('click', function () {
+        const show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        toggle.innerHTML = '<i class="bi ' + (show ? 'bi-eye-slash' : 'bi-eye') + '"></i>';
+    });
 
-        const password =
-            document.getElementById('password');
+    document.getElementById('loginForm').addEventListener('submit', function () {
+        document.getElementById('loginButton').classList.add('is-busy');
+        document.getElementById('btnText').textContent = 'Signing in...';
+        document.getElementById('btnArrow').outerHTML = '<span class="spin"></span>';
+    });
 
-        const button =
-            document.getElementById('passwordToggle');
-
-
-        if (password.type === 'password') {
-
-            password.type = 'text';
-
-            button.textContent = '🙈';
-
-        } else {
-
-            password.type = 'password';
-
-            button.textContent = '👁';
-
-        }
-
-    }
-
+    window.addEventListener('pageshow', function (e) {
+        if (!e.persisted) return;
+        const btn = document.getElementById('loginButton');
+        btn.classList.remove('is-busy');
+        document.getElementById('btnText').textContent = 'Sign in';
+        const sp = btn.querySelector('.spin');
+        if (sp) sp.outerHTML = '<i class="bi bi-arrow-right" id="btnArrow"></i>';
+    });
 </script>
-
 </body>
-
 </html>
