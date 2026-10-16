@@ -730,7 +730,6 @@
                         'class_id' => request('class_id'),
                         'section' => request('section'),
                     ]) }}"
-
                     class="btn btn-light border rounded-3"
                 >
 
@@ -956,6 +955,10 @@
         display: flex;
 
         align-items: center;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
         justify-content: center;
 
         font-weight: 700;

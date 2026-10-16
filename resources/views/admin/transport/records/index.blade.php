@@ -487,6 +487,7 @@
 .transport-records-page *::before,
 .transport-records-page *::after {
     box-sizing: border-box;
+
 }
 
 .transport-records-page a,
@@ -566,6 +567,7 @@
     margin-bottom: 11px;
     color: #858d80;
     font-size: 10px;
+
     font-weight: 800;
     letter-spacing: .8px;
     text-transform: uppercase;
@@ -698,6 +700,7 @@
     font-weight: 800;
     text-decoration: none;
     white-space: nowrap;
+
 }
 
 .transport-hero-actions .diary-primary-btn {
@@ -1009,7 +1012,9 @@
 
 .diary-search-input {
     display: flex;
+
     align-items: center;
+
     gap: 10px;
     padding: 0 13px;
 }
@@ -1038,14 +1043,18 @@
 
 .diary-filter-actions {
     display: flex;
+
     align-items: center;
+
     gap: 9px;
+
 }
 
 .diary-apply-btn,
 .diary-reset-btn {
     display: inline-flex;
     align-items: center;
+
     justify-content: center;
     gap: 8px;
     min-height: 44px;
@@ -1090,6 +1099,7 @@
 
 .transport-active-filters {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
     gap: 12px;
@@ -1108,7 +1118,9 @@
 
 .active-filter-label {
     display: inline-flex;
+
     align-items: center;
+
     gap: 6px;
     margin-right: 3px;
     color: #758075;
@@ -1213,13 +1225,16 @@
     color: #68776a;
     background: #f5f4ec;
     font-size: 10px;
+
     font-weight: 800;
+
 }
 
 /* STUDENT */
 
 .student-info {
     display: flex;
+
     align-items: center;
     gap: 11px;
     min-width: 190px;
@@ -1228,6 +1243,7 @@
 .student-avatar {
     display: flex;
     align-items: center;
+
     justify-content: center;
     flex: 0 0 40px;
     width: 40px;
@@ -1252,11 +1268,14 @@
     font-weight: 800;
     text-overflow: ellipsis;
     white-space: nowrap;
+
 }
 
 .student-id {
     display: flex;
+
     align-items: center;
+
     gap: 5px;
     margin-top: 5px;
     color: #828c7f;
@@ -1335,7 +1354,9 @@
 
 .location-icon {
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
     flex: 0 0 27px;
     width: 27px;
@@ -1417,6 +1438,7 @@
 
 .date-primary {
     display: flex;
+
     align-items: center;
     gap: 7px;
     color: #34443a;
@@ -1508,6 +1530,7 @@
 .pagination-info strong {
     color: var(--ink);
     font-weight: 800;
+
 }
 
 .pagination-links {
@@ -1641,11 +1664,13 @@
     .diary-filter-actions {
         grid-column: span 2;
     }
+
 }
 
 @media (max-width: 900px) {
     .transport-hero {
         grid-template-columns: 1fr;
+
     }
 
     .transport-hero-actions {
@@ -1656,6 +1681,7 @@
         padding-top: 29px;
         padding-bottom: 29px;
     }
+
 }
 
 /* MOBILE */

@@ -38,7 +38,7 @@
             <div class="header-actions">
 
                 <a
-                    href="{{ route('admin.attendance.index') }}"
+                    href="{{ route('admin.attendance.report') }}"
                     class="header-btn header-btn-outline"
                 >
                     <i class="bi bi-calendar-check"></i>
@@ -47,7 +47,7 @@
 
 
                 <a
-                    href="{{ route('admin.attendance.monthly') }}"
+                    href="{{ route('admin.attendance.report') }}"
                     class="header-btn header-btn-success"
                 >
                     <i class="bi bi-calendar3"></i>

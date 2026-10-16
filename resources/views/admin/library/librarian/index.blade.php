@@ -16,7 +16,7 @@
         <a href="{{ route('admin.other-staff.create') }}"
            class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>
-            Add Staff
+            Add Librarian
         </a>
     </div>
 

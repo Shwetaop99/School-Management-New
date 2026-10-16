@@ -18,6 +18,12 @@ class IdCardController extends Controller
      */
     public function index(Request $request)
     {
+
+    $query = IdCard::with([
+        'student',
+        'idCardTemplate',
+    ])->latest();
+
         $query = IdCard::with([
             'student',
             'idCardTemplate',

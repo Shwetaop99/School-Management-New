@@ -2,6 +2,8 @@
 
 
 
+
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -39,6 +41,11 @@ use App\Http\Controllers\Sports\EquipmentController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 use App\Http\Controllers\Admin\Auth\TwoFactorController;
+use App\Http\Controllers\Admin\SupplyStockController;
+
+
+
+
 
 
 
@@ -193,7 +200,15 @@ use App\Http\Controllers\Meal\MealStockLogController;
 
 use App\Http\Controllers\Meal\MealStockTransactionController;
 
+use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\PublicResultController;
 
+/*
+|--------------------------------------------------------------------------
+| Goverment Suppy kit MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\Admin\GovernmentSchemeController;
 
 
 
@@ -222,6 +237,7 @@ use App\Http\Controllers\Scholarship\ScholarshipExamController;
 
 
 
+
 /*
 
 \|--------------------------------------------------------------------------
@@ -240,6 +256,7 @@ Route::prefix('admin')
 
     ->group(function () {
 
+    
 
 
 
@@ -462,7 +479,7 @@ Route::post('/settings/security/disable', [
 
             /*
             |--------------------------------------------------------------------------
-            | REPORTS
+            | TEACHER SALARY
             |--------------------------------------------------------------------------
             */
 
@@ -3687,43 +3704,68 @@ Route::get('/admin/meals', function () {
 })->name('admin.meals.index');
 
 
+
+
+
 /*
-|--------------------------------------------------------------------------
-| MEAL STOCK LOGS
-|--------------------------------------------------------------------------
+
+\|--------------------------------------------------------------------------
+
+\| MEAL STOCK LOGS
+
+\|--------------------------------------------------------------------------
+
 */
 
+
+
 Route::prefix('admin/meal/logs')
+
     ->name('admin.meal.logs.')
+
     ->group(function () {
 
         // Logs Index
         Route::get('/', [
+
             MealStockLogController::class,
+
             'index'
+
         ])->name('index');
 
         // PDF Test
         Route::get('/meal-pdf-test', function () {
+
             return 'MEAL PDF TEST WORKS';
+
         })->name('test-pdf');
 
         // Download Meal Logs PDF
         Route::get('/download-pdf', [
+
             MealStockLogController::class,
+
             'downloadPdf'
+
         ])->name('pdf');
 
         // Download Meal Logs Excel
         Route::get('/excel', [
+
             MealStockLogController::class,
+
             'downloadExcel'
+
         ])->name('excel');
 
         // View Log Details — keep this last
         Route::get('/{mealStockLog}', [
+
             MealStockLogController::class,
+
             'show'
+
         ])->name('show');
     });
 

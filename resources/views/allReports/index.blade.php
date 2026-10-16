@@ -360,7 +360,7 @@
 
 
         {{-- 3. STAFF --}}
-        <a href="{{ route('admin.reports.staff') }}" class="report-card">
+        <a href="{{ route('reports.staff.index') }}" class="report-card">
 
             <div class="report-icon">
                 <i class="fas fa-users"></i>
@@ -386,7 +386,7 @@
 
 
         {{-- 5. ATTENDANCE --}}
-        <a href="{{ route('admin.reports.attendance') }}" class="report-card">
+        <a href="{{ route('admin.attendance.report') }}" class="report-card">
 
             <div class="report-icon">
                 <i class="fas fa-calendar-check"></i>
@@ -412,8 +412,7 @@
 
 
         {{-- 6. FEES --}}
-        <a href="#" class="report-card">
-
+       <a href="{{ route('admin.reports.fees') }}" class="report-card">
             <div class="report-icon">
                 <i class="fas fa-indian-rupee-sign"></i>
             </div>
@@ -516,7 +515,7 @@
 
 
         {{-- 10. TRANSPORT --}}
-        <a href="{{ route('admin.reports.transport') }}" class="report-card">
+        <a href="{{ route('admin.transport.reports.student-search') }}" class="report-card">
 
             <div class="report-icon">
                 <i class="fas fa-bus"></i>
@@ -542,7 +541,7 @@
 
 
         {{-- 11. MEAL --}}
-        <a href="{{ route('admin.reports.meal') }}" class="report-card">
+        <a href="{{ route('admin.meal.logs.index') }}" class="report-card">
 
     <div class="report-icon">
         <i class="fas fa-utensils"></i>

@@ -57,7 +57,7 @@ class ClassTeacherController extends Controller
 
     public function create()
     {
-        $teachers = Teacher::where('status', 'active')
+        $teachers = Teacher::where('status', 'Active')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -89,24 +89,24 @@ class ClassTeacherController extends Controller
         $validated = $request->validate([
             'teacher_id' => [
                 'required',
-                'exists:teachers,id'
+                'exists:teachers,id',
             ],
 
             'class_id' => [
                 'required',
-                'exists:classes,id'
+                'exists:classes,id',
             ],
 
             'section_id' => [
                 'required',
                 'integer',
-                'exists:sections,id'
+                'exists:sections,id',
             ],
 
             'academic_year' => [
                 'nullable',
                 'string',
-                'max:20'
+                'max:20',
             ],
         ]);
 
@@ -124,9 +124,9 @@ class ClassTeacherController extends Controller
     // EDIT TEACHER ALLOCATION
     // =========================================================
 
-    public function edit(ClassTeacherAssignment $assignment)
+    public function edit(ClassTeacherAssignment $classTeacher)
     {
-        $teachers = Teacher::where('status', 'active')
+        $teachers = Teacher::where('status', 'Active')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -142,7 +142,7 @@ class ClassTeacherController extends Controller
         return view(
             'admin.teachers.assign-class.edit',
             compact(
-                'assignment',
+                'classTeacher',
                 'teachers',
                 'classes',
                 'sections'
@@ -156,33 +156,33 @@ class ClassTeacherController extends Controller
 
     public function update(
         Request $request,
-        ClassTeacherAssignment $assignment
+        ClassTeacherAssignment $classTeacher
     ) {
         $validated = $request->validate([
             'teacher_id' => [
                 'required',
-                'exists:teachers,id'
+                'exists:teachers,id',
             ],
 
             'class_id' => [
                 'required',
-                'exists:classes,id'
+                'exists:classes,id',
             ],
 
             'section_id' => [
                 'required',
                 'integer',
-                'exists:sections,id'
+                'exists:sections,id',
             ],
 
             'academic_year' => [
                 'nullable',
                 'string',
-                'max:20'
+                'max:20',
             ],
         ]);
 
-        $assignment->update($validated);
+        $classTeacher->update($validated);
 
         return redirect()
             ->route('admin.teachers.assign-class.index')
@@ -196,9 +196,9 @@ class ClassTeacherController extends Controller
     // DELETE TEACHER ALLOCATION
     // =========================================================
 
-    public function destroy(ClassTeacherAssignment $assignment)
+    public function destroy(ClassTeacherAssignment $classTeacher)
     {
-        $assignment->delete();
+        $classTeacher->delete();
 
         return redirect()
             ->route('admin.teachers.assign-class.index')

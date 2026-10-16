@@ -10,127 +10,89 @@ use Illuminate\Validation\Rule;
 class SupplyItemController extends Controller
 {
     /**
-     * Display supply items.
+     * Display a listing of supply items.
      */
-    public function index(Request $request)
-    {
-        $query = SupplyItem::query();
+   
 
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
+public function index(Request $request)
+{
+    // Dashboard counts: all supply items.
+    $totalItems = SupplyItem::count();
 
-            $query->where(function ($q) use ($search) {
-                $q->where('item_code', 'like', "%{$search}%")
-                    ->orWhere('item_name', 'like', "%{$search}%")
-                    ->orWhere('category', 'like', "%{$search}%");
-            });
-        }
+    $activeItems = SupplyItem::where('status', 'active')->count();
 
-        // Category filter
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
+    $inactiveItems = SupplyItem::where('status', 'inactive')->count();
 
-        // Status filter
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+    $lowStockItems = SupplyItem::where('status', 'active')
+    ->whereColumn('quantity_in_stock', '<=', 'minimum_stock')
+    ->count();
 
-        $items = $query
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+    $totalStock = SupplyItem::sum('quantity_in_stock');
 
-        // Statistics
-        $totalItems = SupplyItem::count();
+    $categories = collect();
 
-        $activeItems = SupplyItem::where('status', 'active')->count();
+    // Listing query with search and status filters.
+    $query = SupplyItem::query();
 
-        $lowStockItems = SupplyItem::whereColumn(
-            'quantity_in_stock',
-            '<=',
-            'minimum_stock'
-        )->count();
+    if ($request->filled('search')) {
+        $search = $request->search;
 
-        $totalStock = SupplyItem::sum('quantity_in_stock');
-
-        $categories = SupplyItem::whereNotNull('category')
-            ->where('category', '!=', '')
-            ->distinct()
-            ->orderBy('category')
-            ->pluck('category');
-
-        return view('admin.supply-items.index', compact(
-            'items',
-            'totalItems',
-            'activeItems',
-            'lowStockItems',
-            'totalStock',
-            'categories'
-        ));
+        $query->where(function ($q) use ($search) {
+            $q->where('item_name', 'like', "%{$search}%")
+                ->orWhere('item_code', 'like', "%{$search}%")
+                ->orWhere('unit', 'like', "%{$search}%");
+        });
     }
 
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    $supplyItems = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    
+return view('admin.supply-items.index', compact(
+    'supplyItems',
+    'totalItems',
+    'activeItems',
+    'inactiveItems',
+    'lowStockItems',
+    'totalStock',
+    'categories'
+));
+
+}
+
+
+
     /**
-     * Show create form.
+     * Show the form for creating a new supply item.
      */
     public function create()
     {
-        $categories = [
-            'Stationery',
-            'Books',
-            'Uniform',
-            'Footwear',
-            'Bag',
-            'Accessories',
-            'Sports',
-            'Other',
-        ];
-
-        $units = [
-            'Piece',
-            'Pair',
-            'Set',
-            'Box',
-            'Pack',
-            'Bottle',
-            'Dozen',
-        ];
-
-        return view('admin.supply-items.create', compact(
-            'categories',
-            'units'
-        ));
+        return view('admin.supply-items.create');
     }
 
     /**
-     * Store supply item.
+     * Store a newly created supply item.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'item_code' => [
-                'required',
-                'string',
-                'max:100',
-                'unique:supply_items,item_code',
-            ],
-
             'item_name' => [
                 'required',
                 'string',
                 'max:255',
             ],
 
-            'category' => [
+            'item_code' => [
                 'nullable',
                 'string',
                 'max:100',
-            ],
-
-            'description' => [
-                'nullable',
-                'string',
+                'unique:supply_items,item_code',
             ],
 
             'unit' => [
@@ -139,22 +101,9 @@ class SupplyItemController extends Controller
                 'max:50',
             ],
 
-            'quantity_in_stock' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-
-            'minimum_stock' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-
-            'unit_price' => [
-                'required',
-                'numeric',
-                'min:0',
+            'description' => [
+                'nullable',
+                'string',
             ],
 
             'status' => [
@@ -171,75 +120,51 @@ class SupplyItemController extends Controller
     }
 
     /**
-     * Display supply item.
+     * Display the specified supply item.
      */
     public function show(SupplyItem $supplyItem)
     {
-        return view('admin.supply-items.show', compact('supplyItem'));
+        $supplyItem->load([
+            'kitTemplateItems.kitTemplate'
+        ]);
+
+        return view(
+            'admin.supply-items.show',
+            compact('supplyItem')
+        );
     }
 
     /**
-     * Show edit form.
+     * Show the form for editing the specified supply item.
      */
     public function edit(SupplyItem $supplyItem)
     {
-        $categories = [
-            'Stationery',
-            'Books',
-            'Uniform',
-            'Footwear',
-            'Bag',
-            'Accessories',
-            'Sports',
-            'Other',
-        ];
-
-        $units = [
-            'Piece',
-            'Pair',
-            'Set',
-            'Box',
-            'Pack',
-            'Bottle',
-            'Dozen',
-        ];
-
-        return view('admin.supply-items.edit', compact(
-            'supplyItem',
-            'categories',
-            'units'
-        ));
+        return view(
+            'admin.supply-items.edit',
+            compact('supplyItem')
+        );
     }
 
     /**
-     * Update supply item.
+     * Update the specified supply item.
      */
-    public function update(Request $request, SupplyItem $supplyItem)
-    {
+    public function update(
+        Request $request,
+        SupplyItem $supplyItem
+    ) {
         $validated = $request->validate([
-            'item_code' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('supply_items', 'item_code')
-                    ->ignore($supplyItem->id),
-            ],
-
             'item_name' => [
                 'required',
                 'string',
                 'max:255',
             ],
 
-            'category' => [
+            'item_code' => [
                 'nullable',
                 'string',
                 'max:100',
-            ],
-
-            'description' => [
-                'nullable',
-                'string',
+                Rule::unique('supply_items', 'item_code')
+                    ->ignore($supplyItem->id),
             ],
 
             'unit' => [
@@ -248,22 +173,9 @@ class SupplyItemController extends Controller
                 'max:50',
             ],
 
-            'quantity_in_stock' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-
-            'minimum_stock' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-
-            'unit_price' => [
-                'required',
-                'numeric',
-                'min:0',
+            'description' => [
+                'nullable',
+                'string',
             ],
 
             'status' => [
@@ -280,20 +192,17 @@ class SupplyItemController extends Controller
     }
 
     /**
-     * Delete supply item.
+     * Remove the specified supply item.
      */
     public function destroy(SupplyItem $supplyItem)
     {
-        // Prevent deletion if item is already used
-        if (
-            $supplyItem->kitTemplateItems()->exists() ||
-            $supplyItem->studentSupplyKitItems()->exists()
-        ) {
+        // Do not delete an item already used in a kit template.
+        if ($supplyItem->kitTemplateItems()->exists()) {
             return redirect()
                 ->route('admin.supply-items.index')
                 ->with(
                     'error',
-                    'This supply item cannot be deleted because it is already used in a kit.'
+                    'This supply item cannot be deleted because it is already used in a kit template.'
                 );
         }
 

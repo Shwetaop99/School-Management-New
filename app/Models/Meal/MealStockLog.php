@@ -2,13 +2,12 @@
 
 namespace App\Models\Meal;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Meal\MealItem;
+use App\Models\Meal\MealStockTransaction;
 
 class MealStockLog extends Model
 {
-    use HasFactory;
-
     protected $table = 'meal_stock_logs';
 
     protected $fillable = [
@@ -30,6 +29,9 @@ class MealStockLog extends Model
         'updated_stock' => 'decimal:2',
     ];
 
+    /**
+     * Meal item associated with this stock log.
+     */
     public function mealItem()
     {
         return $this->belongsTo(
@@ -38,6 +40,9 @@ class MealStockLog extends Model
         );
     }
 
+    /**
+     * Stock transaction associated with this log.
+     */
     public function stockTransaction()
     {
         return $this->belongsTo(

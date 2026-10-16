@@ -3,41 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\SchoolSetting;
 use App\Models\Student;
+use App\Models\Class\SchoolClass;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class AgeReportController extends Controller
 {
-    /**
-     * Classes used in Age Report.
-     */
-    private function getClasses(): array
-    {
-        return [
-            'Nursery',
-            'LKG',
-            'UKG',
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-            '10',
-            '11',
-            '12',
-        ];
-    }
-
-    /**
-     * Age groups used in Format 1.
-     */
-    private function getAgeGroups(): array
+    private function ageGroups(): array
     {
         return [
             'Below 5',
@@ -51,544 +27,355 @@ class AgeReportController extends Controller
         ];
     }
 
-    /**
-     * Get age group from completed age.
-     */
-    private function getAgeGroup(int $age): string
+    public function index(Request $request)
     {
-        if ($age < 5) {
-            return 'Below 5';
-        }
+        $data = $this->buildReportData($request);
+        $data['schoolSetting'] = $this->getSchoolSetting();
 
-        if ($age <= 6) {
-            return '5–6';
-        }
-
-        if ($age <= 8) {
-            return '7–8';
-        }
-
-        if ($age <= 10) {
-            return '9–10';
-        }
-
-        if ($age <= 12) {
-            return '11–12';
-        }
-
-        if ($age <= 14) {
-            return '13–14';
-        }
-
-        if ($age <= 16) {
-            return '15–16';
-        }
-
-        return '17+';
+        return view('admin.age-reports.index', $data);
     }
 
-    /**
-     * Normalize gender.
-     */
-    private function getGenderType(?string $gender): ?string
+    public function print(Request $request)
     {
-        $gender = strtolower(trim($gender ?? ''));
+        $data = $this->buildReportData($request);
+        $data['schoolSetting'] = $this->getSchoolSetting();
 
-        if (in_array($gender, [
-            'male',
-            'm',
-            'boy',
-            'boys',
-        ], true)) {
-            return 'boys';
-        }
-
-        if (in_array($gender, [
-            'female',
-            'f',
-            'girl',
-            'girls',
-        ], true)) {
-            return 'girls';
-        }
-
-        return null;
+        return view('admin.age-reports.print', $data);
     }
 
-    /**
-     * Build the Format 1 report.
-     */
-    private function buildReport(
-        Request $request,
-        Carbon $ageAsOn
-    ): array {
-        $classes = $this->getClasses();
-        $ageGroups = $this->getAgeGroups();
-
+    private function buildReportData(Request $request): array
+    {
         /*
         |--------------------------------------------------------------------------
-        | Base Student Query
+        | Selected filters
         |--------------------------------------------------------------------------
         */
 
-        $query = Student::query()
-            ->where('status', 'active')
-            ->whereNotNull('date_of_birth')
-            ->whereDate(
-                'date_of_birth',
-                '<=',
-                $ageAsOn->format('Y-m-d')
-            );
+        $selectedAcademicYear = trim((string) $request->input('academic_year', ''));
+        $selectedClass = trim((string) $request->input('class', ''));
+        $selectedSection = trim((string) $request->input('section', ''));
+        $selectedGender = trim((string) $request->input('gender', ''));
 
-        /*
-        |--------------------------------------------------------------------------
-        | Academic Year Filter
-        |--------------------------------------------------------------------------
-        */
+        try {
+            $asOnDate = $request->filled('age_as_on')
+                ? Carbon::parse($request->input('age_as_on'))->startOfDay()
+                : Carbon::today();
 
-        if ($request->filled('academic_year')) {
-            $query->where(
-                'academic_year',
-                $request->academic_year
-            );
+            $ageAsOn = $asOnDate->format('Y-m-d');
+        } catch (\Throwable $e) {
+            $asOnDate = Carbon::today();
+            $ageAsOn = $asOnDate->format('Y-m-d');
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Class Filter
+        | Academic year options
         |--------------------------------------------------------------------------
         */
 
-        if ($request->filled('class')) {
-            $query->where(
-                'class',
-                $request->class
-            );
-        }
+        $academicYears = Student::query()
+            ->whereNotNull('academic_year')
+            ->where('academic_year', '!=', '')
+            ->distinct()
+            ->orderByDesc('academic_year')
+            ->pluck('academic_year')
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->unique()
+            ->values();
 
         /*
         |--------------------------------------------------------------------------
-        | Section Filter
+        | Class options
         |--------------------------------------------------------------------------
         */
 
-        if ($request->filled('section')) {
-            $query->where(
-                'section',
-                $request->section
-            );
-        }
+        $classes = collect();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Gender Filter
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('gender')) {
-
-            if ($request->gender === 'Male') {
-
-                $query->whereRaw("
-                    LOWER(TRIM(gender)) IN (
-                        'male',
-                        'm',
-                        'boy',
-                        'boys'
-                    )
-                ");
-
-            } elseif ($request->gender === 'Female') {
-
-                $query->whereRaw("
-                    LOWER(TRIM(gender)) IN (
-                        'female',
-                        'f',
-                        'girl',
-                        'girls'
-                    )
-                ");
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Students
-        |--------------------------------------------------------------------------
-        */
-
-        $students = $query
-            ->orderBy('class')
-            ->orderBy('section')
-            ->orderBy('first_name')
-            ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Initialize Report
-        |--------------------------------------------------------------------------
-        |
-        | Structure:
-        |
-        | Age Group
-        |     Class
-        |         Boys
-        |         Girls
-        |         Total
-        |
-        |--------------------------------------------------------------------------
-        */
-
-        $reportData = [];
-
-        foreach ($ageGroups as $ageGroup) {
-
-            foreach ($classes as $class) {
-
-                $reportData[$ageGroup][$class] = [
-                    'boys'  => 0,
-                    'girls' => 0,
-                    'total' => 0,
-                ];
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate Age And Populate Report
-        |--------------------------------------------------------------------------
-        */
-
-        foreach ($students as $student) {
-
-            if (!$student->date_of_birth) {
-                continue;
-            }
-
+        if (Schema::hasTable('school_classes')) {
             try {
-
-                $dob = Carbon::parse($student->date_of_birth);
-
-                /*
-                |--------------------------------------------------------------------------
-                | Exact completed age as on selected date
-                |--------------------------------------------------------------------------
-                */
-
-                $age = $dob->diffInYears($ageAsOn);
-
+                $classes = SchoolClass::query()
+                    ->where(function ($query) {
+                        $query->where('status', 1)
+                            ->orWhere('status', 'active')
+                            ->orWhereNull('status');
+                    })
+                    ->orderBy('class_name')
+                    ->pluck('class_name')
+                    ->map(fn ($value) => trim((string) $value))
+                    ->filter()
+                    ->unique()
+                    ->values();
             } catch (\Throwable $e) {
-
-                continue;
+                $classes = collect();
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Age Group
-            |--------------------------------------------------------------------------
-            */
-
-            $ageGroup = $this->getAgeGroup($age);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Student Class
-            |--------------------------------------------------------------------------
-            */
-
-            $class = trim((string) $student->class);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Ignore classes outside the report classes.
-            |--------------------------------------------------------------------------
-            */
-
-            if (!in_array($class, $classes, true)) {
-                continue;
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Gender
-            |--------------------------------------------------------------------------
-            */
-
-            $genderType = $this->getGenderType(
-                $student->gender
-            );
-
-            if ($genderType === 'boys') {
-
-                $reportData[$ageGroup][$class]['boys']++;
-
-            } elseif ($genderType === 'girls') {
-
-                $reportData[$ageGroup][$class]['girls']++;
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Total
-            |--------------------------------------------------------------------------
-            */
-
-            $reportData[$ageGroup][$class]['total'] =
-                $reportData[$ageGroup][$class]['boys']
-                +
-                $reportData[$ageGroup][$class]['girls'];
         }
+
+        if ($classes->isEmpty()) {
+            $classes = Student::query()
+                ->whereNotNull('class')
+                ->where('class', '!=', '')
+                ->distinct()
+                ->pluck('class')
+                ->map(fn ($value) => trim((string) $value))
+                ->filter()
+                ->unique()
+                ->values();
+        }
+
+        $classes = $this->sortClasses($classes);
 
         /*
         |--------------------------------------------------------------------------
-        | Convert Array Into Collection
-        |--------------------------------------------------------------------------
-        |
-        | Blade expects:
-        |
-        | $row->age_group
-        | $row->class
-        | $row->boys
-        | $row->girls
-        | $row->total
-        |
+        | Section options
         |--------------------------------------------------------------------------
         */
 
-        $report = collect();
+        $sections = Student::query()
+            ->whereNotNull('section')
+            ->where('section', '!=', '')
+            ->distinct()
+            ->pluck('section')
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->unique()
+            ->sort(fn ($a, $b) => strcasecmp($a, $b))
+            ->values();
 
-        foreach ($ageGroups as $ageGroup) {
+        /*
+        |--------------------------------------------------------------------------
+        | Filter students
+        |--------------------------------------------------------------------------
+        */
 
-            foreach ($classes as $class) {
+        $studentsQuery = Student::query()
+            ->whereNotNull('date_of_birth')
+            ->where('date_of_birth', '!=', '');
 
-                $report->push(
-                    (object) [
-                        'age_group' => $ageGroup,
-                        'class'     => $class,
-                        'boys'      => $reportData[$ageGroup][$class]['boys'],
-                        'girls'     => $reportData[$ageGroup][$class]['girls'],
-                        'total'     => $reportData[$ageGroup][$class]['total'],
-                    ]
+        if ($selectedAcademicYear !== '') {
+            $studentsQuery->where(
+                'academic_year',
+                $selectedAcademicYear
+            );
+        }
+
+        if ($selectedSection !== '') {
+            $studentsQuery->where(
+                'section',
+                $selectedSection
+            );
+        }
+
+        if ($selectedGender !== '') {
+            $gender = strtolower($selectedGender);
+
+            if (in_array($gender, ['male', 'm', 'boy', 'boys'], true)) {
+                $studentsQuery->whereRaw(
+                    "LOWER(TRIM(gender)) IN ('male','m','boy','boys')"
+                );
+            } elseif (in_array($gender, ['female', 'f', 'girl', 'girls'], true)) {
+                $studentsQuery->whereRaw(
+                    "LOWER(TRIM(gender)) IN ('female','f','girl','girls')"
+                );
+            } else {
+                $studentsQuery->whereRaw(
+                    'LOWER(TRIM(gender)) = ?',
+                    [$gender]
                 );
             }
         }
 
         /*
+         * Apply the class filter to the retrieved collection.
+         * This supports "1" and "Class 1" even when the database
+         * uses different formats for class values.
+         */
+
+        $students = $studentsQuery->get();
+
+        if ($selectedClass !== '') {
+            $students = $students->filter(function ($student) use ($selectedClass) {
+                return $this->classesMatch(
+                    $student->class,
+                    $selectedClass
+                );
+            })->values();
+        }
+
+        /*
         |--------------------------------------------------------------------------
-        | Summary
+        | Calculate ages and remove future/invalid DOB values
+        |--------------------------------------------------------------------------
+        */
+
+        $students = $students->map(function ($student) use ($asOnDate) {
+            try {
+                $dob = Carbon::parse($student->date_of_birth)->startOfDay();
+
+                if ($dob->greaterThan($asOnDate)) {
+                    $student->calculated_age = null;
+                    $student->age_group = null;
+
+                    return $student;
+                }
+
+                $age = (int) $dob->diffInYears($asOnDate);
+
+                $student->calculated_age = $age;
+                $student->age_group = $this->getAgeGroup($age);
+            } catch (\Throwable $e) {
+                $student->calculated_age = null;
+                $student->age_group = null;
+            }
+
+            return $student;
+        })->filter(function ($student) {
+            return $student->age_group !== null;
+        })->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Build report matrix
+        |--------------------------------------------------------------------------
+        */
+
+        $report = collect();
+
+        foreach ($this->ageGroups() as $ageGroup) {
+            foreach ($classes as $class) {
+                $matchingStudents = $students->filter(function ($student) use (
+                    $ageGroup,
+                    $class
+                ) {
+                    return $student->age_group === $ageGroup
+                        && $this->classesMatch($student->class, $class);
+                });
+
+                $boys = $matchingStudents->filter(
+                    fn ($student) => $this->isMale($student->gender)
+                )->count();
+
+                $girls = $matchingStudents->filter(
+                    fn ($student) => $this->isFemale($student->gender)
+                )->count();
+
+                $report->push((object) [
+                    'age_group' => $ageGroup,
+                    'class' => $class,
+                    'boys' => $boys,
+                    'girls' => $girls,
+                    'total' => $matchingStudents->count(),
+                ]);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Summary totals from the same filtered student collection
         |--------------------------------------------------------------------------
         */
 
         $totalStudents = $students->count();
 
-        $maleStudents = $students
-            ->filter(function ($student) {
+        $maleStudents = $students->filter(
+            fn ($student) => $this->isMale($student->gender)
+        )->count();
 
-                return $this->getGenderType(
-                    $student->gender
-                ) === 'boys';
-
-            })
-            ->count();
-
-        $femaleStudents = $students
-            ->filter(function ($student) {
-
-                return $this->getGenderType(
-                    $student->gender
-                ) === 'girls';
-
-            })
-            ->count();
+        $femaleStudents = $students->filter(
+            fn ($student) => $this->isFemale($student->gender)
+        )->count();
 
         return [
-            'report'         => $report,
-            'students'       => $students,
-            'totalStudents'  => $totalStudents,
-            'maleStudents'   => $maleStudents,
+            'academicYears' => $academicYears,
+            'classes' => $classes,
+            'sections' => $sections,
+            'ageAsOn' => $ageAsOn,
+            'report' => $report,
+            'totalStudents' => $totalStudents,
+            'maleStudents' => $maleStudents,
             'femaleStudents' => $femaleStudents,
-            'classes'        => $classes,
-            'ageGroups'      => $ageGroups,
+            'ageGroups' => $this->ageGroups(),
+            'selectedAcademicYear' => $selectedAcademicYear,
+            'selectedClass' => $selectedClass,
+            'selectedSection' => $selectedSection,
+            'selectedGender' => $selectedGender,
         ];
     }
 
-    /**
-     * Display Age Report.
-     */
-    public function index(Request $request)
+    private function getAgeGroup(int $age): string
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Age As On Date
-        |--------------------------------------------------------------------------
-        */
+        if ($age < 5) return 'Below 5';
+        if ($age <= 6) return '5–6';
+        if ($age <= 8) return '7–8';
+        if ($age <= 10) return '9–10';
+        if ($age <= 12) return '11–12';
+        if ($age <= 14) return '13–14';
+        if ($age <= 16) return '15–16';
 
-        if ($request->filled('age_as_on')) {
+        return '17+';
+    }
 
-            try {
+    private function classesMatch($studentClass, $reportClass): bool
+    {
+        $normalize = function ($value) {
+            $value = trim((string) $value);
+            $value = preg_replace('/^class\s*/i', '', $value);
 
-                $ageAsOn = Carbon::parse(
-                    $request->age_as_on
-                )->startOfDay();
+            return strtolower(trim((string) $value));
+        };
 
-            } catch (\Throwable $e) {
+        return $normalize($studentClass) === $normalize($reportClass);
+    }
 
-                $ageAsOn = now()->startOfDay();
-            }
-
-        } else {
-
-            $ageAsOn = now()->startOfDay();
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Build Report
-        |--------------------------------------------------------------------------
-        */
-
-        $data = $this->buildReport(
-            $request,
-            $ageAsOn
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Academic Years
-        |--------------------------------------------------------------------------
-        */
-
-        $academicYears = Student::query()
-            ->where('status', 'active')
-            ->whereNotNull('academic_year')
-            ->where('academic_year', '!=', '')
-            ->distinct()
-            ->orderBy('academic_year', 'desc')
-            ->pluck('academic_year');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sections
-        |--------------------------------------------------------------------------
-        */
-
-        $sections = [
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-        ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | School Settings
-        |--------------------------------------------------------------------------
-        */
-
-        $schoolSetting = SchoolSetting::first();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return Age Report View
-        |--------------------------------------------------------------------------
-        */
-
-        return view(
-            'admin.age-reports.index',
-            [
-                'report'         => $data['report'],
-                'students'       => $data['students'],
-                'ageAsOn'        => $ageAsOn,
-                'academicYears'  => $academicYears,
-                'classes'        => $data['classes'],
-                'sections'       => $sections,
-                'ageGroups'      => $data['ageGroups'],
-                'totalStudents'  => $data['totalStudents'],
-                'maleStudents'   => $data['maleStudents'],
-                'femaleStudents' => $data['femaleStudents'],
-                'schoolSetting'  => $schoolSetting,
-            ]
+    private function isMale($gender): bool
+    {
+        return in_array(
+            strtolower(trim((string) $gender)),
+            ['male', 'm', 'boy', 'boys'],
+            true
         );
     }
 
-    /**
-     * Print Age Report.
-     */
-    public function print(Request $request)
+    private function isFemale($gender): bool
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Age As On Date
-        |--------------------------------------------------------------------------
-        */
+        return in_array(
+            strtolower(trim((string) $gender)),
+            ['female', 'f', 'girl', 'girls'],
+            true
+        );
+    }
 
-        if ($request->filled('age_as_on')) {
+    private function sortClasses(Collection $classes): Collection
+    {
+        return $classes->sort(function ($a, $b) {
+            $normalize = fn ($value) => trim(
+                (string) preg_replace('/^class\s*/i', '', (string) $value)
+            );
 
-            try {
+            $aValue = $normalize($a);
+            $bValue = $normalize($b);
 
-                $ageAsOn = Carbon::parse(
-                    $request->age_as_on
-                )->startOfDay();
+            $aNumeric = is_numeric($aValue);
+            $bNumeric = is_numeric($bValue);
 
-            } catch (\Throwable $e) {
-
-                $ageAsOn = now()->startOfDay();
+            if ($aNumeric && $bNumeric) {
+                return (float) $aValue <=> (float) $bValue;
             }
 
-        } else {
+            if ($aNumeric !== $bNumeric) {
+                return $aNumeric ? -1 : 1;
+            }
 
-            $ageAsOn = now()->startOfDay();
+            return strcasecmp((string) $a, (string) $b);
+        })->values();
+    }
+
+    private function getSchoolSetting(): ?object
+    {
+        if (!Schema::hasTable('school_settings')) {
+            return null;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Build Same Report With Same Filters
-        |--------------------------------------------------------------------------
-        */
-
-        $data = $this->buildReport(
-            $request,
-            $ageAsOn
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | School Settings
-        |--------------------------------------------------------------------------
-        */
-
-        $schoolSetting = SchoolSetting::first();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Report Date
-        |--------------------------------------------------------------------------
-        */
-
-        $reportDate = $ageAsOn->format('d-m-Y');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return Print View
-        |--------------------------------------------------------------------------
-        */
-
-        return view(
-            'admin.age-reports.print',
-            [
-                'report'         => $data['report'],
-                'students'       => $data['students'],
-                'ageAsOn'        => $ageAsOn,
-                'classes'        => $data['classes'],
-                'ageGroups'      => $data['ageGroups'],
-                'totalStudents'  => $data['totalStudents'],
-                'maleStudents'   => $data['maleStudents'],
-                'femaleStudents' => $data['femaleStudents'],
-                'schoolSetting'  => $schoolSetting,
-                'reportDate'     => $reportDate,
-            ]
-        );
+        return DB::table('school_settings')->first();
     }
 }

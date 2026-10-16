@@ -15,17 +15,13 @@ use BaconQrCode\Writer;
 class TwoFactorController extends Controller
 {
     /**
-     * Show the 2FA setup page.
+     * Show the 2FA verification page during login.
+     *
+     * This page NEVER displays the QR code or secret.
      */
     public function showSetup()
     {
         $user = Auth::user();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make sure a user is authenticated
-        |--------------------------------------------------------------------------
-        */
 
         if (!$user) {
             return redirect()->route('admin.login');
@@ -33,7 +29,22 @@ class TwoFactorController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | If 2FA is already verified
+        | If 2FA is disabled
+        |--------------------------------------------------------------------------
+        |
+        | User does not need to enter an authenticator code during login.
+        |
+        */
+
+        if (!$user->two_factor_enabled) {
+            session()->put('two_factor_verified', true);
+
+            return $this->redirectByRole($user);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | If 2FA has already been verified
         |--------------------------------------------------------------------------
         */
 
@@ -41,56 +52,20 @@ class TwoFactorController extends Controller
             return $this->redirectByRole($user);
         }
 
-        $google2fa = new Google2FA();
-
         /*
         |--------------------------------------------------------------------------
-        | Generate secret
+        | Show login verification page
         |--------------------------------------------------------------------------
+        |
+        | We reuse the existing 2FA Blade page but DO NOT pass the secret
+        | or QR code to it.
+        |
         */
-
-        if (!$user->two_factor_secret) {
-
-            $secret = $google2fa->generateSecretKey();
-
-            $user->two_factor_secret = $secret;
-            $user->save();
-
-        } else {
-
-            $secret = $user->two_factor_secret;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Generate Google Authenticator QR URL
-        |--------------------------------------------------------------------------
-        */
-
-        $qrCodeUrl = $google2fa->getQRCodeUrl(
-            'Gurukul Vidyalaya',
-            $user->email,
-            $secret
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Generate SVG QR Code
-        |--------------------------------------------------------------------------
-        */
-
-        $renderer = new ImageRenderer(
-            new RendererStyle(220),
-            new SvgImageBackEnd()
-        );
-
-        $writer = new Writer($renderer);
-
-        $qrCode = $writer->writeString($qrCodeUrl);
 
         return view('admin.auth.2fa-setup', [
-            'secret'   => $secret,
-            'qrCodeUrl' => $qrCode,
+            'secret'    => null,
+            'qrCodeUrl' => null,
+            'loginMode' => true,
         ]);
     }
 
@@ -100,24 +75,12 @@ class TwoFactorController extends Controller
      */
     public function verify(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Validate input
-        |--------------------------------------------------------------------------
-        */
-
         $request->validate([
             'code' => [
                 'required',
                 'digits:6',
             ],
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get authenticated user
-        |--------------------------------------------------------------------------
-        */
 
         $user = Auth::user();
 
@@ -127,7 +90,22 @@ class TwoFactorController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Make sure the account is still active
+        | Make sure 2FA is actually enabled
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->two_factor_enabled) {
+            $request->session()->put(
+                'two_factor_verified',
+                true
+            );
+
+            return $this->redirectByRole($user);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure account is still active
         |--------------------------------------------------------------------------
         */
 
@@ -141,13 +119,13 @@ class TwoFactorController extends Controller
             return redirect()
                 ->route('admin.login')
                 ->withErrors([
-                    'login_id' => 'This account is inactive. Please contact the administrator.',
+                    'email' => 'This account is inactive. Please contact the administrator.',
                 ]);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Make sure the user still has an active role
+        | Make sure role is still active
         |--------------------------------------------------------------------------
         */
 
@@ -163,13 +141,28 @@ class TwoFactorController extends Controller
             return redirect()
                 ->route('admin.login')
                 ->withErrors([
-                    'login_id' => 'Your assigned role is inactive or unavailable. Please contact the administrator.',
+                    'email' => 'Your assigned role is inactive or unavailable. Please contact the administrator.',
                 ]);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Verify Google Authenticator Code
+        | Make sure secret exists
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->two_factor_secret) {
+
+            return redirect()
+                ->route('admin.login')
+                ->withErrors([
+                    'email' => 'Two-factor authentication is not configured correctly. Please contact the administrator.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verify Google Authenticator code
         |--------------------------------------------------------------------------
         */
 
@@ -228,6 +221,257 @@ class TwoFactorController extends Controller
 
 
     /**
+     * Show Security / Two-Factor Authentication settings.
+     */
+   public function security()
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return redirect()->route('admin.login');
+    }
+
+    $google2fa = new Google2FA();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate secret if the account does not have one
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$user->two_factor_secret) {
+
+        $user->two_factor_secret = $google2fa->generateSecretKey();
+
+        $user->save();
+    }
+
+    $secret = null;
+    $qrCode = null;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate QR code while 2FA is disabled
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$user->two_factor_enabled) {
+
+        $secret = $user->two_factor_secret;
+
+        $qrCodeUrl = $google2fa->getQRCodeUrl(
+            'Gurukul Vidyalaya',
+            $user->email,
+            $secret
+        );
+
+        $renderer = new ImageRenderer(
+            new RendererStyle(220),
+            new SvgImageBackEnd()
+        );
+
+        $writer = new Writer($renderer);
+
+        $qrCode = $writer->writeString($qrCodeUrl);
+    }
+
+    return view('admin.settings.security', [
+        'user'      => $user,
+        'secret'    => $secret,
+        'qrCodeUrl' => $qrCode,
+    ]);
+}
+
+
+    /**
+     * Enable / complete 2FA setup.
+     *
+     * First-time setup generates a secret and requires the user
+     * to verify the authenticator code before enabling 2FA.
+     */
+    public function enable(Request $request)
+    {
+        $request->validate([
+            'code' => [
+                'required',
+                'digits:6',
+            ],
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('admin.login');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | If no secret exists, create one.
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->two_factor_secret) {
+
+            $google2fa = new Google2FA();
+
+            $user->two_factor_secret = $google2fa->generateSecretKey();
+
+            $user->save();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verify authenticator code
+        |--------------------------------------------------------------------------
+        */
+
+        $google2fa = new Google2FA();
+
+        $valid = $google2fa->verifyKey(
+            $user->two_factor_secret,
+            $request->code
+        );
+
+        if (!$valid) {
+
+            return back()
+                ->withErrors([
+                    'code' => 'Invalid authenticator code. Please try again.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Enable 2FA
+        |--------------------------------------------------------------------------
+        */
+
+        $user->two_factor_enabled = true;
+        $user->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mark current session as verified
+        |--------------------------------------------------------------------------
+        */
+
+        $request->session()->put(
+            'two_factor_verified',
+            true
+        );
+
+        return redirect()
+            ->route('admin.2fa.security')
+            ->with(
+                'success',
+                'Two-factor authentication has been enabled successfully.'
+            );
+    }
+
+
+    /**
+     * Disable 2FA.
+     *
+     * The current authenticator code is required.
+     *
+     * IMPORTANT:
+     * The secret is intentionally NOT deleted.
+     *
+     * This allows 2FA to be re-enabled later without scanning
+     * a new QR code.
+     */
+    public function disable(Request $request)
+    {
+        $request->validate([
+            'code' => [
+                'required',
+                'digits:6',
+            ],
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('admin.login');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure 2FA is currently enabled
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->two_factor_enabled) {
+
+            return redirect()
+                ->route('admin.2fa.security')
+                ->with(
+                    'error',
+                    'Two-factor authentication is already disabled.'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verify current authenticator code
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->two_factor_secret) {
+
+            return redirect()
+                ->route('admin.2fa.security')
+                ->with(
+                    'error',
+                    'Two-factor authentication is not configured correctly.'
+                );
+        }
+
+        $google2fa = new Google2FA();
+
+        $valid = $google2fa->verifyKey(
+            $user->two_factor_secret,
+            $request->code
+        );
+
+        if (!$valid) {
+
+            return back()
+                ->withErrors([
+                    'code' => 'Invalid authenticator code. 2FA was not disabled.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Disable 2FA
+        |--------------------------------------------------------------------------
+        |
+        | Keep the secret so it can be reused when 2FA is enabled again.
+        |
+        */
+
+        $user->two_factor_enabled = false;
+        $user->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reset current session verification
+        |--------------------------------------------------------------------------
+        */
+
+        $request->session()->forget('two_factor_verified');
+
+        return redirect()
+            ->route('admin.2fa.security')
+            ->with(
+                'success',
+                'Two-factor authentication has been disabled.'
+            );
+    }
+
+
+    /**
      * Redirect the authenticated user according to their assigned role.
      */
     private function redirectByRole($user)
@@ -249,10 +493,6 @@ class TwoFactorController extends Controller
         |--------------------------------------------------------------------------
         | Role-based destinations
         |--------------------------------------------------------------------------
-        |
-        | These route names can be changed later when each module's
-        | dedicated landing page is created.
-        |
         */
 
         $roleRoutes = [
@@ -287,10 +527,6 @@ class TwoFactorController extends Controller
         |--------------------------------------------------------------------------
         | Safety Check
         |--------------------------------------------------------------------------
-        |
-        | Prevent Laravel from throwing RouteNotFoundException if a module's
-        | landing route has not been created yet.
-        |
         */
 
         if (!Route::has($destination)) {

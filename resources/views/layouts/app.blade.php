@@ -372,7 +372,13 @@
                                     if ($childActive) { $matched = true; }
                                 @endphp
                                 <a href="{{ $route($child[1]) }}"
+<<<<<<< HEAD
                                    class="submenu-item {{ $childActive ? 'active' : '' }}">{{ $child[0] }}</a>
+=======
+   class="submenu-item {{ $childActive ? 'active' : '' }}">
+    {{ $child[0] }}
+</a>
+>>>>>>> origin/main
                             @endforeach
                         </div>
                     @elseif (\Illuminate\Support\Facades\Route::has($item['r']))

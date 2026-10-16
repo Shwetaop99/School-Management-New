@@ -1,1128 +1,997 @@
-```blade
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Student Kit Distribution -
-        {{ $studentSupplyKit->student?->student_id ?? '' }}
-    </title>
-
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        rel="stylesheet"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $reportTitle ?? 'Student Supply Kit Report' }}</title>
 
     <style>
-
-        @page {
-
-            size: A4 portrait;
-
-            margin: 12mm;
-
-        }
-
-
         * {
-
             box-sizing: border-box;
-
         }
 
+        html {
+            width: 100%;
+        }
 
         body {
-
             margin: 0;
-
-            padding: 0;
-
-            background: #e9ecef;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            color: #212529;
-
+            padding: 20px;
+            background: #f3f4f6;
+            color: #1f2937;
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 13px;
-
         }
 
-
-        .print-wrapper {
-
-            width: 210mm;
-
-            min-height: 297mm;
-
-            margin: 20px auto;
-
-            padding: 12mm;
-
+        .print-page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 25px;
             background: #fff;
-
-            box-shadow:
-                0 0 12px rgba(0, 0, 0, 0.12);
-
         }
 
+        /* FAINT SCHOOL LOGO WATERMARK */
 
-        /* =====================================================
-           SCHOOL HEADER
-        ====================================================== */
+        .print-watermark {
+            display: none;
+        }
+
+        /* SCHOOL HEADER */
 
         .school-header {
-
-            border-bottom: 2px solid #212529;
-
-            padding-bottom: 12px;
-
-            margin-bottom: 16px;
-
+            text-align: center;
+            border-bottom: 2px solid #1677f0;
+            padding-bottom: 15px;
+            margin-bottom: 18px;
         }
 
+        .school-header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+        }
 
         .school-logo {
-
-            width: 82px;
-
-            height: 82px;
-
+            width: 75px;
+            height: 75px;
             object-fit: contain;
-
+            border-radius: 6px;
         }
 
+        .school-details {
+            text-align: center;
+            min-width: 0;
+        }
 
         .school-name {
-
-            font-size: 24px;
-
+            margin: 0;
+            font-size: 25px;
             font-weight: 700;
-
-            margin-bottom: 3px;
-
-            text-transform: uppercase;
-
+            color: #111827;
         }
-
 
         .school-address {
-
-            font-size: 12px;
-
-            line-height: 1.5;
-
+            margin-top: 5px;
+            font-size: 13px;
+            color: #4b5563;
         }
-
 
         .school-contact {
-
-            font-size: 11px;
-
-            margin-top: 3px;
-
-        }
-
-
-        /* =====================================================
-           TITLE
-        ====================================================== */
-
-        .document-title {
-
-            text-align: center;
-
-            margin: 15px 0 18px;
-
-        }
-
-
-        .document-title h2 {
-
-            font-size: 19px;
-
-            font-weight: 700;
-
-            margin: 0;
-
-            text-transform: uppercase;
-
-            letter-spacing: .4px;
-
-        }
-
-
-        .document-title .subtitle {
-
-            font-size: 11px;
-
-            color: #555;
-
             margin-top: 4px;
-
+            font-size: 12px;
+            color: #6b7280;
+            overflow-wrap: anywhere;
         }
 
-
-        /* =====================================================
-           STATUS
-        ====================================================== */
-
-        .status-box {
-
-            display: inline-block;
-
-            padding: 4px 12px;
-
-            border: 1px solid #999;
-
-            border-radius: 4px;
-
-            font-size: 11px;
-
+        .report-title {
+            margin: 15px 0 0;
+            font-size: 19px;
             font-weight: 700;
-
+            color: #1677f0;
             text-transform: uppercase;
-
         }
 
+        /* REPORT INFORMATION */
 
-        /* =====================================================
-           INFORMATION TABLE
-        ====================================================== */
-
-        .info-table {
-
-            width: 100%;
-
-            border-collapse: collapse;
-
+        .report-info {
+            border: 1px solid #dfe5ec;
+            border-radius: 7px;
+            padding: 12px 15px;
             margin-bottom: 18px;
-
+            background: #f8fafc;
         }
 
-
-        .info-table td {
-
-            border: 1px solid #bfc3c7;
-
-            padding: 7px 9px;
-
-            vertical-align: middle;
-
+        .report-info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
         }
 
+        .info-item {
+            min-width: 0;
+        }
 
         .info-label {
-
-            width: 18%;
-
+            margin-bottom: 3px;
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
             font-weight: 700;
-
-            background: #f5f5f5;
-
-            white-space: nowrap;
-
         }
-
 
         .info-value {
-
-            width: 32%;
-
-        }
-
-
-        /* =====================================================
-           ITEMS TABLE
-        ====================================================== */
-
-        .items-title {
-
-            font-size: 14px;
-
-            font-weight: 700;
-
-            margin-bottom: 8px;
-
-        }
-
-
-        .items-table {
-
-            width: 100%;
-
-            border-collapse: collapse;
-
-            margin-bottom: 15px;
-
-        }
-
-
-        .items-table th,
-        .items-table td {
-
-            border: 1px solid #555;
-
-            padding: 7px 8px;
-
-        }
-
-
-        .items-table th {
-
-            background: #f1f1f1;
-
-            font-weight: 700;
-
-            text-align: center;
-
-        }
-
-
-        .items-table td {
-
-            vertical-align: middle;
-
-        }
-
-
-        .text-center {
-
-            text-align: center;
-
-        }
-
-
-        .text-right {
-
-            text-align: right;
-
-        }
-
-
-        .total-row td {
-
-            font-weight: 700;
-
-            background: #f7f7f7;
-
-        }
-
-
-        /* =====================================================
-           DECLARATION
-        ====================================================== */
-
-        .declaration {
-
-            border: 1px solid #aaa;
-
-            padding: 10px 12px;
-
-            margin-top: 15px;
-
-            margin-bottom: 40px;
-
-            line-height: 1.6;
-
-        }
-
-
-        .declaration-title {
-
-            font-weight: 700;
-
-            margin-bottom: 4px;
-
-        }
-
-
-        /* =====================================================
-           SIGNATURES
-        ====================================================== */
-
-        .signature-section {
-
-            margin-top: 55px;
-
-        }
-
-
-        .signature-line {
-
-            border-top: 1px solid #333;
-
-            width: 145px;
-
-            margin: 0 auto 6px;
-
-        }
-
-
-        .signature-label {
-
-            text-align: center;
-
-            font-size: 11px;
-
+            font-size: 13px;
             font-weight: 600;
-
+            color: #1f2937;
+            overflow-wrap: anywhere;
         }
 
+        /* FILTERS */
 
-        /* =====================================================
-           FOOTER
-        ====================================================== */
+        .filter-summary {
+            border: 1px solid #dfe5ec;
+            border-radius: 7px;
+            padding: 11px 14px;
+            margin-bottom: 18px;
+            background: #fff;
+        }
 
-        .document-footer {
+        .filter-heading {
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #374151;
+        }
 
-            margin-top: 35px;
-
-            padding-top: 8px;
-
-            border-top: 1px solid #aaa;
-
+        .filter-list {
             display: flex;
-
-            justify-content: space-between;
-
-            font-size: 9px;
-
-            color: #666;
-
+            flex-wrap: wrap;
+            gap: 7px;
         }
 
+        .filter-badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 5px;
+            background: #eef6ff;
+            color: #0d5fc7;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #d6e9ff;
+        }
 
-        /* =====================================================
-           PRINT BUTTON
-        ====================================================== */
+        /* SUMMARY CARDS */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .summary-box {
+            border: 1px solid #e5e7eb;
+            border-radius: 7px;
+            padding: 10px;
+            text-align: center;
+            background: #fff;
+        }
+
+        .summary-number {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .summary-label {
+            margin-top: 3px;
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .summary-issued .summary-number {
+            color: #198754;
+        }
+
+        .summary-pending .summary-number {
+            color: #f59e0b;
+        }
+
+        .summary-cancelled .summary-number {
+            color: #dc3545;
+        }
+
+        .summary-not-assigned .summary-number {
+            color: #6c757d;
+        }
+
+        /* TABLE */
+
+        .report-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .report-table th {
+            background: #1677f0;
+            color: #fff;
+            border: 1px solid #0d5fc7;
+            padding: 9px 7px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: left;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
+
+        .report-table td {
+            border: 1px solid #dfe5ec;
+            padding: 8px 7px;
+            font-size: 11px;
+            vertical-align: middle;
+            color: #374151;
+            overflow-wrap: anywhere;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .report-table .text-center {
+            text-align: center;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .kit-name {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .scheme-name {
+            margin-top: 2px;
+            color: #6b7280;
+            font-size: 9px;
+        }
+
+        /* STATUS */
+
+        .status {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-issued {
+            color: #146c43;
+            background: #d1e7dd;
+        }
+
+        .status-pending {
+            color: #8a5a00;
+            background: #fff3cd;
+        }
+
+        .status-cancelled {
+            color: #b02a37;
+            background: #f8d7da;
+        }
+
+        .status-not-assigned {
+            color: #495057;
+            background: #e9ecef;
+        }
+
+        /* EMPTY STATE */
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            border: 1px solid #dfe5ec;
+            border-radius: 7px;
+        }
+
+        .empty-title {
+            margin-bottom: 5px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .empty-text {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        /* FOOTER */
+
+        .report-footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #dfe5ec;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        /* ACTION BUTTONS */
 
         .print-actions {
-
-            width: 210mm;
-
-            margin: 15px auto;
-
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto 15px;
             display: flex;
-
-            justify-content: center;
-
-            gap: 10px;
-
+            justify-content: flex-end;
+            gap: 8px;
         }
 
+        .print-button,
+        .back-button {
+            display: inline-block;
+            border: 0;
+            border-radius: 6px;
+            padding: 9px 15px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .print-button {
+            background: #1677f0;
+            color: #fff;
+        }
+
+        .back-button {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #dfe5ec;
+        }
+
+        /* A4 LANDSCAPE PRINT SETTINGS */
+
+        @page {
+            size: A4 landscape;
+            margin: 7mm;
+        }
 
         @media print {
-
+            html,
             body {
-
-                background: #fff;
-
+                width: auto !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                color: #000;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 8px;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
-
-
-            .print-wrapper {
-
-                width: auto;
-
-                min-height: auto;
-
-                margin: 0;
-
-                padding: 0;
-
-                box-shadow: none;
-
-            }
-
 
             .print-actions {
-
                 display: none !important;
-
             }
 
-
-            .no-print {
-
-                display: none !important;
-
+            /*
+             * Watermark stays behind report content.
+             * A fixed watermark can repeat on printed pages.
+             */
+            .print-watermark {
+                display: flex !important;
+                position: fixed;
+                z-index: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                pointer-events: none;
             }
 
+            .print-watermark img {
+                display: block !important;
+                width: 42%;
+                max-width: 350px;
+                max-height: 75%;
+                object-fit: contain;
+                opacity: 0.07 !important;
+            }
+
+            .print-page {
+                position: relative;
+                z-index: 1;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            .school-header {
+                padding-bottom: 5px;
+                margin-bottom: 7px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .school-header-inner {
+                flex-direction: row;
+                gap: 9px;
+            }
+
+            .school-logo {
+                width: 45px;
+                height: 45px;
+            }
+
+            .school-name {
+                font-size: 16px;
+                color: #111827 !important;
+            }
+
+            .school-address {
+                margin-top: 3px;
+                font-size: 8px;
+            }
+
+            .school-contact {
+                margin-top: 2px;
+                font-size: 7px;
+            }
+
+            .report-title {
+                font-size: 12px;
+                margin-top: 5px;
+            }
+
+            .report-info {
+                padding: 5px 7px;
+                margin-bottom: 6px;
+                background: transparent !important;
+                border-radius: 2px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .report-info-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 4px;
+            }
+
+            .info-label {
+                font-size: 7px;
+            }
+
+            .info-value {
+                font-size: 8px;
+            }
+
+            .filter-summary {
+                padding: 5px 7px;
+                margin-bottom: 6px;
+                background: transparent !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .filter-heading {
+                font-size: 8px;
+                margin-bottom: 3px;
+            }
+
+            .filter-list {
+                gap: 4px;
+            }
+
+            .filter-badge {
+                padding: 2px 4px;
+                font-size: 7px;
+                background: transparent !important;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 4px;
+                margin-bottom: 6px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .summary-box {
+                padding: 4px 2px;
+                border-radius: 2px;
+                background: transparent !important;
+            }
+
+            .summary-number {
+                font-size: 12px;
+            }
+
+            .summary-label {
+                font-size: 6px;
+            }
+
+            .report-table-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+            }
+
+            .report-table {
+                width: 100% !important;
+                max-width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+                page-break-inside: auto;
+            }
+
+            .report-table thead {
+                display: table-header-group;
+            }
+
+            .report-table tfoot {
+                display: table-footer-group;
+            }
+
+            .report-table tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .report-table th {
+                padding: 4px 2px;
+                font-size: 6.5px;
+                line-height: 1.15;
+                background: #1677f0 !important;
+                color: #fff !important;
+                border: 1px solid #0d5fc7 !important;
+                overflow-wrap: anywhere;
+                word-break: normal;
+            }
+
+            .report-table td {
+                padding: 3px 2px;
+                font-size: 7px;
+                line-height: 1.15;
+                color: #222 !important;
+                border: 1px solid #cbd5e1 !important;
+                overflow-wrap: anywhere;
+                word-break: normal;
+                background-color: transparent !important;
+            }
+
+            .report-table tbody tr:nth-child(even) {
+                background: transparent !important;
+            }
+
+            .student-name,
+            .kit-name {
+                font-size: 7px;
+            }
+
+            .scheme-name {
+                font-size: 6px;
+            }
+
+            .status {
+                padding: 2px;
+                font-size: 6px;
+                white-space: normal;
+                border-radius: 2px;
+                background: transparent !important;
+                border: 1px solid currentColor;
+            }
+
+            .empty-state {
+                padding: 15px;
+                background: transparent !important;
+                break-inside: avoid;
+            }
+
+            .empty-title {
+                font-size: 12px;
+            }
+
+            .empty-text {
+                font-size: 9px;
+            }
+
+            .report-footer {
+                margin-top: 6px;
+                padding-top: 4px;
+                font-size: 7px;
+                background: transparent !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            /*
+             * Avoid clipping due to screen-specific styles.
+             */
+            .print-page *,
+            .report-table-wrapper {
+                max-width: 100%;
+            }
+
+            a {
+                color: inherit !important;
+                text-decoration: none !important;
+            }
         }
 
+        /* SCREEN RESPONSIVENESS */
+
+        @media screen and (max-width: 900px) {
+            body {
+                padding: 10px;
+            }
+
+            .print-page {
+                padding: 15px;
+            }
+
+            .report-info-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .school-header-inner {
+                flex-direction: column;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .report-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .school-name {
+                font-size: 20px;
+            }
+        }
     </style>
-
 </head>
-
 
 <body>
 
-
 @php
+    $school = $schoolSetting ?? \App\Models\SchoolSetting::first();
 
-    $schoolName =
-        $school?->school_name
-        ?? 'Gurukul Vidyalay';
+    $schoolName = $school?->school_name ?? 'School Name';
 
-    $schoolAddress =
-        $school?->address
-        ?? '';
+    $schoolAddress = implode(', ', array_filter([
+        $school?->address,
+        $school?->city,
+        $school?->district,
+        $school?->state,
+        $school?->pincode,
+    ]));
 
-    $schoolCity =
-        $school?->city
-        ?? '';
+    $contactParts = [];
 
-    $schoolDistrict =
-        $school?->district
-        ?? '';
+    if ($school?->phone) {
+        $contactParts[] = 'Phone: ' . $school->phone;
+    }
 
-    $schoolState =
-        $school?->state
-        ?? '';
+    if ($school?->email) {
+        $contactParts[] = 'Email: ' . $school->email;
+    }
 
-    $schoolPincode =
-        $school?->pincode
-        ?? '';
+    if ($school?->udise_code) {
+        $contactParts[] = 'UDISE: ' . $school->udise_code;
+    }
 
-    $schoolPhone =
-        $school?->phone
-        ?? '';
+    if ($school?->school_code) {
+        $contactParts[] = 'School Code: ' . $school->school_code;
+    }
 
-    $schoolEmail =
-        $school?->email
-        ?? '';
+    $schoolLogo = null;
 
-    $schoolUdise =
-        $school?->udise_code
-        ?? '';
+    if ($school?->logo) {
+        $schoolLogo = preg_match('~^https?://~i', $school->logo)
+            ? $school->logo
+            : asset('storage/' . ltrim($school->logo, '/'));
+    }
 
-    $schoolCode =
-        $school?->school_code
-        ?? '';
+    $watermarkLogo = $schoolLogo ?: asset('images/gurukullogo.png');
 
-    $schoolLogo =
-        $school?->logo_url
-        ?? asset('images/gurukullogo.png');
-
-
-    $student =
-        $studentSupplyKit->student;
-
-    $kitTemplate =
-        $studentSupplyKit->kitTemplate;
-
-
-    $studentName = $student
-        ? collect([
-            $student->first_name,
-            $student->middle_name,
-            $student->last_name,
-        ])->filter()->implode(' ')
-        : '-';
-
-
-    $totalQuantity =
-        $studentSupplyKit->items->sum('quantity');
-
-
-    $statusText =
-        ucfirst(
-            $studentSupplyKit->status
-        );
-
+    $displayAcademicYear = $academicYear ?? '—';
+    $reportStudents = $students ?? collect();
+    $reportSummary = $summary ?? [];
+    $reportMode = $reportMode ?? 'all';
 @endphp
 
-
-{{-- =========================================================
-     PRINT ACTIONS
-========================================================== --}}
-
-<div class="print-actions">
-
-    <button
-        type="button"
-        onclick="window.print()"
-        class="btn btn-primary"
-    >
-
-        <i class="bi bi-printer me-1"></i>
-
-        Print
-
-    </button>
-
-
-    <button
-        type="button"
-        onclick="window.close()"
-        class="btn btn-outline-secondary"
-    >
-
-        <i class="bi bi-x-lg me-1"></i>
-
-        Close
-
-    </button>
-
+{{-- FAINT BACKGROUND SCHOOL LOGO --}}
+<div class="print-watermark" aria-hidden="true">
+    <img src="{{ $watermarkLogo }}" alt="">
 </div>
 
+{{-- ACTION BUTTONS --}}
+<div class="print-actions">
+    <a href="{{ url()->previous() }}" class="back-button">
+        &larr; Back
+    </a>
 
-{{-- =========================================================
-     PRINT DOCUMENT
-========================================================== --}}
+    <button type="button" onclick="window.print()" class="print-button">
+        Print Report
+    </button>
+</div>
 
-<div class="print-wrapper">
+<div class="print-page">
 
-
-    {{-- =====================================================
-         SCHOOL HEADER
-    ====================================================== --}}
-
+    {{-- SCHOOL HEADER --}}
     <div class="school-header">
+        <div class="school-header-inner">
 
-        <div class="row align-items-center">
-
-            <div class="col-2 text-center">
-
+            @if($schoolLogo)
                 <img
                     src="{{ $schoolLogo }}"
                     alt="School Logo"
                     class="school-logo"
                 >
-
-            </div>
-
-
-            <div class="col-10 text-center">
-
-                <div class="school-name">
-
-                    {{ $schoolName }}
-
-                </div>
-
-
-                @if($schoolAddress || $schoolCity || $schoolDistrict)
-
-                    <div class="school-address">
-
-                        {{ $schoolAddress }}
-
-                        @if($schoolCity)
-                            , {{ $schoolCity }}
-                        @endif
-
-                        @if($schoolDistrict)
-                            , {{ $schoolDistrict }}
-                        @endif
-
-                        @if($schoolState)
-                            , {{ $schoolState }}
-                        @endif
-
-                        @if($schoolPincode)
-                            - {{ $schoolPincode }}
-                        @endif
-
-                    </div>
-
-                @endif
-
-
-                @if($schoolPhone || $schoolEmail)
-
-                    <div class="school-contact">
-
-                        @if($schoolPhone)
-
-                            Phone:
-                            {{ $schoolPhone }}
-
-                        @endif
-
-
-                        @if($schoolPhone && $schoolEmail)
-
-                            &nbsp; | &nbsp;
-
-                        @endif
-
-
-                        @if($schoolEmail)
-
-                            Email:
-                            {{ $schoolEmail }}
-
-                        @endif
-
-                    </div>
-
-                @endif
-
-
-                @if($schoolUdise || $schoolCode)
-
-                    <div class="school-contact">
-
-                        @if($schoolUdise)
-
-                            UDISE Code:
-                            <strong>
-                                {{ $schoolUdise }}
-                            </strong>
-
-                        @endif
-
-
-                        @if($schoolUdise && $schoolCode)
-
-                            &nbsp; | &nbsp;
-
-                        @endif
-
-
-                        @if($schoolCode)
-
-                            School Code:
-                            <strong>
-                                {{ $schoolCode }}
-                            </strong>
-
-                        @endif
-
-                    </div>
-
-                @endif
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         DOCUMENT TITLE
-    ====================================================== --}}
-
-    <div class="document-title">
-
-        <h2>
-            Government Student Supply Kit Distribution
-        </h2>
-
-        <div class="subtitle">
-            Student Kit Distribution Record
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         STUDENT + DISTRIBUTION INFORMATION
-    ====================================================== --}}
-
-    <table class="info-table">
-
-        <tr>
-
-            <td class="info-label">
-                Student Name
-            </td>
-
-            <td class="info-value">
-                {{ $studentName }}
-            </td>
-
-
-            <td class="info-label">
-                Student ID
-            </td>
-
-            <td class="info-value">
-                {{ $student?->student_id ?? '-' }}
-            </td>
-
-        </tr>
-
-
-        <tr>
-
-            <td class="info-label">
-                Class
-            </td>
-
-            <td class="info-value">
-
-                {{ $student?->class ?? '-' }}
-
-                @if($student?->section)
-                    / {{ $student->section }}
-                @endif
-
-            </td>
-
-
-            <td class="info-label">
-                Academic Year
-            </td>
-
-            <td class="info-value">
-                {{ $studentSupplyKit->academic_year ?? '-' }}
-            </td>
-
-        </tr>
-
-
-        <tr>
-
-            <td class="info-label">
-                Government Kit
-            </td>
-
-            <td class="info-value">
-                {{ $kitTemplate?->kit_name ?? '-' }}
-            </td>
-
-
-            <td class="info-label">
-                Kit Class
-            </td>
-
-            <td class="info-value">
-                {{ $kitTemplate?->class ?? '-' }}
-            </td>
-
-        </tr>
-
-
-        <tr>
-
-            <td class="info-label">
-                Distribution Date
-            </td>
-
-            <td class="info-value">
-
-                @if($studentSupplyKit->issue_date)
-
-                    {{ \Carbon\Carbon::parse(
-                        $studentSupplyKit->issue_date
-                    )->format('d-m-Y') }}
-
-                @else
-
-                    -
-
-                @endif
-
-            </td>
-
-
-            <td class="info-label">
-                Status
-            </td>
-
-            <td class="info-value">
-
-                <span class="status-box">
-
-                    {{ $statusText }}
-
-                </span>
-
-            </td>
-
-        </tr>
-
-
-        @if($studentSupplyKit->remarks)
-
-            <tr>
-
-                <td class="info-label">
-                    Remarks
-                </td>
-
-                <td
-                    class="info-value"
-                    colspan="3"
-                >
-                    {{ $studentSupplyKit->remarks }}
-                </td>
-
-            </tr>
-
-        @endif
-
-    </table>
-
-
-    {{-- =====================================================
-         ITEMS
-    ====================================================== --}}
-
-    <div class="items-title">
-
-        Government Supplied Items
-
-    </div>
-
-
-    <table class="items-table">
-
-        <thead>
-
-            <tr>
-
-                <th style="width:45px;">
-                    Sr. No.
-                </th>
-
-                <th>
-                    Supply Item
-                </th>
-
-                <th style="width:100px;">
-                    Item Code
-                </th>
-
-                <th style="width:75px;">
-                    Unit
-                </th>
-
-                <th style="width:85px;">
-                    Quantity
-                </th>
-
-                <th style="width:90px;">
-                    Condition
-                </th>
-
-                <th>
-                    Remarks
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            @forelse($studentSupplyKit->items as $index => $item)
-
-                <tr>
-
-                    <td class="text-center">
-
-                        {{ $index + 1 }}
-
-                    </td>
-
-
-                    <td>
-
-                        {{ $item->supplyItem?->item_name ?? '-' }}
-
-                    </td>
-
-
-                    <td class="text-center">
-
-                        {{ $item->supplyItem?->item_code ?? '-' }}
-
-                    </td>
-
-
-                    <td class="text-center">
-
-                        {{ $item->supplyItem?->unit ?? '-' }}
-
-                    </td>
-
-
-                    <td class="text-center fw-bold">
-
-                        {{ $item->quantity }}
-
-                    </td>
-
-
-                    <td class="text-center">
-
-                        {{ $item->condition ?? 'New' }}
-
-                    </td>
-
-
-                    <td>
-
-                        {{ $item->remarks ?? '-' }}
-
-                    </td>
-
-                </tr>
-
-            @empty
-
-                <tr>
-
-                    <td
-                        colspan="7"
-                        class="text-center"
-                    >
-
-                        No distribution items found.
-
-                    </td>
-
-                </tr>
-
-            @endforelse
-
-
-            @if($studentSupplyKit->items->count())
-
-                <tr class="total-row">
-
-                    <td
-                        colspan="4"
-                        class="text-right"
-                    >
-
-                        Total Quantity
-
-                    </td>
-
-
-                    <td class="text-center">
-
-                        {{ $totalQuantity }}
-
-                    </td>
-
-
-                    <td colspan="2"></td>
-
-                </tr>
-
             @endif
 
-        </tbody>
+            <div class="school-details">
+                <h1 class="school-name">{{ $schoolName }}</h1>
 
-    </table>
+                @if($schoolAddress)
+                    <div class="school-address">{{ $schoolAddress }}</div>
+                @endif
 
-
-    {{-- =====================================================
-         DECLARATION
-    ====================================================== --}}
-
-    <div class="declaration">
-
-        <div class="declaration-title">
-            Distribution Declaration
+                @if(count($contactParts))
+                    <div class="school-contact">
+                        {{ implode(' | ', $contactParts) }}
+                    </div>
+                @endif
+            </div>
         </div>
 
-        This record confirms that the above government-supplied
-        student kit items have been recorded against the student
-        mentioned in this document.
-
-        The quantities shown above represent the items recorded
-        for this distribution.
-
+        <div class="report-title">
+            {{ $reportTitle ?? 'Student Supply Kit Report' }}
+        </div>
     </div>
 
+    {{-- REPORT INFORMATION --}}
+    <div class="report-info">
+        <div class="report-info-grid">
 
-    {{-- =====================================================
-         SIGNATURES
-    ====================================================== --}}
+            <div class="info-item">
+                <div class="info-label">Academic Year</div>
+                <div class="info-value">{{ $displayAcademicYear }}</div>
+            </div>
 
-    <div class="row signature-section">
+            <div class="info-item">
+                <div class="info-label">Class</div>
+                <div class="info-value">
+                    {{ !empty($selectedClass) ? $selectedClass : 'All Classes' }}
+                </div>
+            </div>
 
-        <div class="col-4">
+            <div class="info-item">
+                <div class="info-label">Section</div>
+                <div class="info-value">
+                    {{ !empty($section) ? $section : 'All Sections' }}
+                </div>
+            </div>
 
-            <div class="signature-line"></div>
-
-            <div class="signature-label">
-                Student / Parent Signature
+            <div class="info-item">
+                <div class="info-label">Generated On</div>
+                <div class="info-value">{{ now()->format('d-m-Y h:i A') }}</div>
             </div>
 
         </div>
-
-
-        <div class="col-4">
-
-            <div class="signature-line"></div>
-
-            <div class="signature-label">
-                Distributed By
-            </div>
-
-        </div>
-
-
-        <div class="col-4">
-
-            <div class="signature-line"></div>
-
-            <div class="signature-label">
-                Headmaster / Principal
-            </div>
-
-        </div>
-
     </div>
 
+    {{-- APPLIED FILTERS --}}
+    @if(!empty($search) || !empty($status) || !empty($schemeId) || !empty($kitTemplateId))
+        <div class="filter-summary">
+            <div class="filter-heading">Applied Filters</div>
 
-    {{-- =====================================================
-         FOOTER
-    ====================================================== --}}
+            <div class="filter-list">
+                @if(!empty($search))
+                    <span class="filter-badge">Search: {{ $search }}</span>
+                @endif
 
-    <div class="document-footer">
+                @if(!empty($status))
+                    <span class="filter-badge">
+                        Status: {{ ucwords(str_replace('_', ' ', $status)) }}
+                    </span>
+                @endif
 
-        <div>
+                @if(!empty($schemeId))
+                    <span class="filter-badge">
+                        Scheme: {{ $selectedScheme?->scheme_name ?? '—' }}
+                    </span>
+                @endif
 
-            Distribution ID:
+                @if(!empty($kitTemplateId))
+                    <span class="filter-badge">
+                        Kit: {{ $selectedKitTemplate?->kit_name ?? '—' }}
+                    </span>
+                @endif
+            </div>
+        </div>
+    @endif
 
-            <strong>
-                #{{ $studentSupplyKit->id }}
-            </strong>
-
+    {{-- SUMMARY --}}
+    <div class="summary-grid">
+        <div class="summary-box">
+            <div class="summary-number">{{ $reportSummary['total'] ?? 0 }}</div>
+            <div class="summary-label">Total Students</div>
         </div>
 
-
-        <div>
-
-            Generated:
-
-            {{ now()->format('d-m-Y H:i') }}
-
+        <div class="summary-box summary-issued">
+            <div class="summary-number">{{ $reportSummary['issued'] ?? 0 }}</div>
+            <div class="summary-label">Issued</div>
         </div>
 
+        <div class="summary-box summary-pending">
+            <div class="summary-number">{{ $reportSummary['pending'] ?? 0 }}</div>
+            <div class="summary-label">Pending</div>
+        </div>
+
+        <div class="summary-box summary-cancelled">
+            <div class="summary-number">{{ $reportSummary['cancelled'] ?? 0 }}</div>
+            <div class="summary-label">Cancelled</div>
+        </div>
+
+        <div class="summary-box summary-not-assigned">
+            <div class="summary-number">{{ $reportSummary['not_assigned'] ?? 0 }}</div>
+            <div class="summary-label">Not Assigned</div>
+        </div>
+    </div>
+
+    {{-- STUDENT DATA --}}
+    @if($reportStudents->isNotEmpty())
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%;" class="text-center">#</th>
+
+                        @if($reportMode === 'all')
+                            <th style="width: 10%;">Class</th>
+                        @endif
+
+                        <th style="width: 18%;">Student</th>
+                        <th style="width: 10%;">Student ID</th>
+                        <th style="width: 7%;" class="text-center">Section</th>
+                        <th style="width: 10%;" class="text-center">Academic Year</th>
+                        <th style="width: 20%;">Kit</th>
+                        <th style="width: 10%;" class="text-center">Distribution Date</th>
+                        <th style="width: 11%;" class="text-center">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach($reportStudents as $student)
+                        @php
+                            $studentName = trim(implode(' ', array_filter([
+                                $student->first_name ?? '',
+                                $student->middle_name ?? '',
+                                $student->last_name ?? '',
+                            ])));
+
+                            $kit = $student->supplyKitRecord ?? null;
+                            $kitStatus = $kit?->status ?? 'not_assigned';
+                        @endphp
+
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+
+                            @if($reportMode === 'all')
+                                <td>{{ $student->admission_class ?: '—' }}</td>
+                            @endif
+
+                            <td>
+                                <div class="student-name">
+                                    {{ $studentName ?: '—' }}
+                                </div>
+                            </td>
+
+                            <td>{{ $student->student_id ?: '—' }}</td>
+
+                            <td class="text-center">
+                                {{ $student->section ?: '—' }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ $student->academic_year ?: $displayAcademicYear }}
+                            </td>
+
+                            <td>
+                                @if($kit)
+                                    <div class="kit-name">
+                                        {{ $kit->kitTemplate?->kit_name ?? '—' }}
+                                    </div>
+
+                                    @if($kit->kitTemplate?->scheme)
+                                        <div class="scheme-name">
+                                            {{ $kit->kitTemplate->scheme->scheme_name }}
+                                        </div>
+                                    @endif
+                                @else
+                                    Not Assigned
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if($kit?->distribution_date)
+                                    {{ \Illuminate\Support\Carbon::parse($kit->distribution_date)->format('d-m-Y') }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if($kitStatus === 'issued')
+                                    <span class="status status-issued">Issued</span>
+                                @elseif($kitStatus === 'pending')
+                                    <span class="status status-pending">Pending</span>
+                                @elseif($kitStatus === 'cancelled')
+                                    <span class="status status-cancelled">Cancelled</span>
+                                @else
+                                    <span class="status status-not-assigned">Not Assigned</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @else
+        <div class="empty-state">
+            <div class="empty-title">No Students Found</div>
+            <div class="empty-text">
+                No students match the selected academic year or filters.
+            </div>
+        </div>
+    @endif
+
+    {{-- FOOTER --}}
+    <div class="report-footer">
+        <div>Student Supply Kit Management Report</div>
+        <div>Total Records: {{ $reportStudents->count() }}</div>
     </div>
 
 </div>
 
-
 </body>
-
 </html>

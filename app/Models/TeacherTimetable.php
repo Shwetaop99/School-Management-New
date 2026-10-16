@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Teacher;
 
 class TeacherTimetable extends Model
 {
@@ -13,23 +14,19 @@ class TeacherTimetable extends Model
         'day',
         'period_number',
         'period_type',
+        'lecture_type',
         'class',
         'section',
         'subject',
         'subject_type',
         'start_time',
         'end_time',
-        'room',
         'duration_minutes',
-        'lecture_type',
-    ];
-
-    protected $casts = [
-        'timetable_date' => 'date',
+        'room',
     ];
 
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class);
+        return $this->belongsTo(Teacher::class, 'teacher_id');
     }
 }

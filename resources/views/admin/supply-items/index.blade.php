@@ -274,12 +274,12 @@
 
                     <tbody>
 
-                    @forelse($items as $item)
+                    @forelse($supplyItems as $item)
 
                         <tr>
 
                             <td class="px-3">
-                                {{ $items->firstItem() + $loop->index }}
+                                {{ $supplyItems->firstItem() + $loop->index }}
                             </td>
 
                             <td>
@@ -435,11 +435,11 @@
         </div>
 
 
-        @if($items->hasPages())
+        @if($supplyItems->hasPages())
 
             <div class="card-footer bg-white border-0">
 
-                {{ $items->links() }}
+                {{ $supplyItems->links() }}
 
             </div>
 
@@ -450,3 +450,4 @@
 </div>
 
 @endsection
+

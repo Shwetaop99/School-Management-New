@@ -32,6 +32,11 @@ class SchoolSetting extends Model
         'logo',
         'principal_name',
         'established_year',
+
+        // Student ID settings
+        'student_id_format',
+        'student_id_start',
+        'student_id_length',
     ];
 
     /**
@@ -39,6 +44,8 @@ class SchoolSetting extends Model
      */
     protected $casts = [
         'established_year' => 'integer',
+        'student_id_start' => 'integer',
+        'student_id_length' => 'integer',
     ];
 
     /**

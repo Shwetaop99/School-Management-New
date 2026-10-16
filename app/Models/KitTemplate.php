@@ -12,13 +12,39 @@ class KitTemplate extends Model
     protected $table = 'kit_templates';
 
     protected $fillable = [
+        'scheme_id',
+        'class_id',
         'kit_name',
-        'class',
         'academic_year',
         'description',
         'status',
     ];
 
+    /**
+     * Government Scheme
+     */
+    public function scheme()
+    {
+        return $this->belongsTo(
+            GovernmentScheme::class,
+            'scheme_id'
+        );
+    }
+
+    /**
+     * School Class
+     */
+    public function schoolClass()
+    {
+        return $this->belongsTo(
+            \App\Models\Class\SchoolClass::class,
+            'class_id'
+        );
+    }
+
+    /**
+     * Kit Items
+     */
     public function items()
     {
         return $this->hasMany(
@@ -27,6 +53,9 @@ class KitTemplate extends Model
         );
     }
 
+    /**
+     * Student Supply Kits
+     */
     public function studentSupplyKits()
     {
         return $this->hasMany(
