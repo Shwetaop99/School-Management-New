@@ -663,10 +663,27 @@ Route::post('teachers/import', [
                 'classPdf'
             ])->name('timetable.class.pdf');
 
-            Route::get('/timetable/class/excel', [
-                TimetableController::class,
-                'classExcel'
-            ])->name('timetable.class.excel');
+         // Weekly timetable tools — place BEFORE the {timetable} routes.
+
+Route::get('/timetable/weekly/fetch', [
+    TimetableController::class,
+    'fetchWeekly',
+])->name('timetable.weekly.fetch');
+
+Route::get('/timetable/weekly/excel', [
+    TimetableController::class,
+    'exportWeekly',
+])->name('timetable.weekly.excel');
+
+Route::get('/timetable/weekly/pdf', [
+    TimetableController::class,
+    'weeklyPdf',
+])->name('timetable.weekly.pdf');
+
+Route::post('/timetable/weekly/import', [
+    TimetableController::class,
+    'importWeekly',
+])->name('timetable.weekly.import');
 
             Route::get('/timetable/{timetable}', [
                 TimetableController::class,

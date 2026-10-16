@@ -12,6 +12,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ClassTimetableExport;
 use Carbon\Carbon;
+use App\Exports\WeeklyTimetableExport;
+use App\Imports\WeeklyTimetableImport;
 
 class TimetableController extends Controller
 {
@@ -127,8 +129,17 @@ public function store(Request $request)
         'timetable.*.*.end_time' => ['nullable', 'date_format:H:i'],
         'timetable.*.*.room' => ['nullable', 'string', 'max:100'],
     ]);
+$weekStartValue = $first['week_start_date'];
 
-    $weekStart = Carbon::parse($validated['week_start_date'])->startOfDay();
+if (is_numeric($weekStartValue)) {
+    $weekStart = Carbon::instance(
+        \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject(
+            (float) $weekStartValue
+        )
+    )->startOfDay();
+} else {
+    $weekStart = Carbon::parse($weekStartValue)->startOfDay();
+}
 
     if ($weekStart->format('l') !== 'Monday') {
         return back()
@@ -1365,4 +1376,448 @@ public function store(Request $request)
             compact('timetable')
         );
     }
+
+public function exportWeekly(Request $request)
+{
+    $validated = $request->validate([
+        'academic_year' => ['required', 'string', 'max:30'],
+        'class' => ['required', 'string', 'max:100'],
+        'section' => ['required', 'string', 'max:50'],
+        'week_start_date' => ['required', 'date'],
+    ]);
+
+    $weekStart = Carbon::parse($validated['week_start_date']);
+
+    if ($weekStart->dayOfWeekIso !== 1) {
+    return back()->withErrors([
+        'file' => 'Debug: Excel date = '
+            . $weekStart->format('Y-m-d')
+            . ', weekday = '
+            . $weekStart->format('l')
+            . '. Expected Monday.',
+    ]);
+}
+
+    $filename = 'weekly-timetable-' .
+        $weekStart->format('Y-m-d') . '.xlsx';
+
+    return Excel::download(
+        new WeeklyTimetableExport(
+            $validated['class'],
+            $validated['section'],
+            $validated['academic_year'],
+            $weekStart->format('Y-m-d')
+        ),
+        $filename
+    );
+}
+
+public function importWeekly(Request $request)
+{
+    $request->validate([
+        'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
+    ]);
+
+    try {
+        $import = new WeeklyTimetableImport();
+
+        Excel::import($import, $request->file('file'));
+
+        $rows = $import->rows;
+
+        if ($rows->isEmpty()) {
+            return back()->withErrors([
+                'file' => 'The uploaded Excel file contains no timetable rows.',
+            ]);
+        }
+
+        // These headings match WeeklyTimetableExport.
+        $requiredHeadings = [
+            'academic_year',
+            'date',
+            'day',
+            'period',
+            'period_type',
+            'class',
+            'section',
+            'teacher_id',
+            'subject',
+            'start_time',
+            'end_time',
+            'room',
+        ];
+
+        $missing = array_diff(
+            $requiredHeadings,
+            array_keys($rows->first()->toArray())
+        );
+
+        if (!empty($missing)) {
+            return back()->withErrors([
+                'file' => 'Excel headings are missing or incorrect: '
+                    . implode(', ', $missing),
+            ]);
+        }
+
+        // Parse Excel dates and common text date formats.
+        $parseDate = function ($value): Carbon {
+            if ($value === null || trim((string) $value) === '') {
+                throw new \RuntimeException('Date is missing.');
+            }
+
+            if (is_numeric($value)) {
+                return Carbon::instance(
+                    \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject(
+                        (float) $value
+                    )
+                )->startOfDay();
+            }
+
+            $value = trim((string) $value);
+
+            foreach (['!d-m-Y', '!d/m/Y', '!Y-m-d', '!Y/m/d'] as $format) {
+                try {
+                    $date = Carbon::createFromFormat($format, $value);
+
+                    if ($date && $date->format(substr($format, 1)) === $value) {
+                        return $date->startOfDay();
+                    }
+                } catch (\Throwable $e) {
+                    // Try the next supported date format.
+                }
+            }
+
+            throw new \RuntimeException(
+                "Invalid date '{$value}'. Use DD-MM-YYYY or a valid Excel date."
+            );
+        };
+
+        // Accept Excel time values and text such as 09:00 or 09:00:00.
+       $periodTypeValue = trim(
+    (string) ($row['period_type'] ?? '')
+);
+
+$periodTypeKey = strtolower($periodTypeValue);
+
+// Accept common Excel labels.
+$periodTypeKey = preg_replace('/\s+/', ' ', $periodTypeKey);
+$periodTypeKey = trim($periodTypeKey);
+
+$periodTypeMap = [
+    'regular'       => 'Regular',
+    'regular class' => 'Regular',
+    'class'         => 'Regular',
+    'lecture'       => 'Regular',
+    'break'         => 'Break',
+    'lunch'         => 'Lunch',
+    'activity'      => 'Activity',
+];
+
+if (!isset($periodTypeMap[$periodTypeKey])) {
+    throw new \RuntimeException(
+        "Excel row {$excelRow}: Invalid Period Type '{$periodTypeValue}'. "
+        . 'Use Regular, Regular Class, Class, Break, Lunch or Activity.'
+    );
+}
+
+$periodType = $periodTypeMap[$periodTypeKey];
+       // Use the first populated class/section row because Break/Lunch
+        // rows may have blank class and section cells.
+        $classRow = $rows->first(function ($row) {
+            return trim((string) ($row['class'] ?? '')) !== ''
+                && trim((string) ($row['section'] ?? '')) !== '';
+        });
+
+        if (!$classRow) {
+            throw new \RuntimeException(
+                'No populated Class and Section were found in the Excel file.'
+            );
+        }
+
+        $academicYear = trim((string) $rows->first()['academic_year']);
+        $class = trim((string) $classRow['class']);
+        $section = trim((string) $classRow['section']);
+
+        if ($academicYear === '') {
+            throw new \RuntimeException('Academic Year is missing.');
+        }
+
+        // Determine the week from the actual Date column.
+        // Week Start Date is not required in Excel.
+        $firstDate = $parseDate($rows->first()['date']);
+        $weekStart = $firstDate->copy()->startOfWeek(Carbon::MONDAY);
+        $weekEnd = $weekStart->copy()->addDays(5)->endOfDay();
+
+        $records = [];
+
+        foreach ($rows as $index => $row) {
+            $excelRow = $index + 2;
+
+            $rowAcademicYear = trim((string) ($row['academic_year'] ?? ''));
+            $rowClass = trim((string) ($row['class'] ?? ''));
+            $rowSection = trim((string) ($row['section'] ?? ''));
+
+            if ($rowAcademicYear !== $academicYear) {
+                throw new \RuntimeException(
+                    "Excel row {$excelRow}: Academic Year must match the other rows."
+                );
+            }
+
+            if (
+                ($rowClass !== '' && $rowClass !== $class) ||
+                ($rowSection !== '' && $rowSection !== $section)
+            ) {
+                throw new \RuntimeException(
+                    "Excel row {$excelRow}: Class and Section must match the other rows."
+                );
+            }
+
+            $date = $parseDate($row['date']);
+
+            if ($date->lt($weekStart) || $date->gt($weekEnd)) {
+                throw new \RuntimeException(
+                    "Excel row {$excelRow}: Date must be within the same Monday-to-Saturday week."
+                );
+            }
+
+            $day = $date->format('l');
+            $excelDay = trim((string) ($row['day'] ?? ''));
+
+            if ($excelDay !== '' && strcasecmp($excelDay, $day) !== 0) {
+                throw new \RuntimeException(
+                    "Excel row {$excelRow}: Day does not match the Date. Expected {$day}."
+                );
+            }
+
+$periodTypeValue = trim(
+    (string) ($row['period_type'] ?? '')
+);
+
+$periodTypeKey = strtolower($periodTypeValue);
+
+// Accept common Excel labels.
+$periodTypeKey = preg_replace('/\s+/', ' ', $periodTypeKey);
+$periodTypeKey = trim($periodTypeKey);
+
+$periodTypeMap = [
+    'regular'       => 'Regular',
+    'regular class' => 'Regular',
+    'class'         => 'Regular',
+    'lecture'       => 'Regular',
+    'break'         => 'Break',
+    'lunch'         => 'Lunch',
+    'activity'      => 'Activity',
+];
+
+if (!isset($periodTypeMap[$periodTypeKey])) {
+    throw new \RuntimeException(
+        "Excel row {$excelRow}: Invalid Period Type '{$periodTypeValue}'. "
+        . 'Use Regular, Regular Class, Class, Break, Lunch or Activity.'
+    );
+}
+
+$periodType = $periodTypeMap[$periodTypeKey];
+            $period = filter_var(
+                $row['period'] ?? null,
+                FILTER_VALIDATE_INT
+            );
+
+            if ($period === false || $period < 1 || $period > 8) {
+                throw new \RuntimeException(
+                    "Excel row {$excelRow}: Period must be between 1 and 8."
+                );
+            }
+
+            $isBreakOrLunch = in_array(
+                $periodType,
+                ['Break', 'Lunch'],
+                true
+            );
+
+            $startTime = $parseTime(
+                $row['start_time'] ?? null,
+                'Start Time'
+            );
+
+            $endTime = $parseTime(
+                $row['end_time'] ?? null,
+                'End Time'
+            );
+
+            $start = $startTime->format('H:i:s');
+            $end = $endTime->format('H:i:s');
+
+            if ($endTime->lessThanOrEqualTo($startTime)) {
+                throw new \RuntimeException(
+                    "Excel row {$excelRow}: End Time must be later than Start Time."
+                );
+            }
+
+            $duration = $startTime->diffInMinutes($endTime);
+
+            $teacherId = null;
+
+            if (!$isBreakOrLunch) {
+                $teacherValue = trim((string) ($row['teacher_id'] ?? ''));
+
+                if (
+                    $teacherValue === '' ||
+                    !ctype_digit($teacherValue) ||
+                    !Teacher::whereKey((int) $teacherValue)->exists()
+                ) {
+                    throw new \RuntimeException(
+                        "Excel row {$excelRow}: Teacher ID is missing or does not exist."
+                    );
+                }
+
+                $teacherId = (int) $teacherValue;
+            }
+
+            $subject = trim((string) ($row['subject'] ?? ''));
+
+            if (!$isBreakOrLunch && $subject === '') {
+                throw new \RuntimeException(
+                    "Excel row {$excelRow}: Subject is required."
+                );
+            }
+
+            $records[] = [
+                'academic_year' => $academicYear,
+                'timetable_date' => $date->toDateString(),
+                'day' => $day,
+                'period_number' => $period,
+                'period_type' => $periodType,
+                'teacher_id' => $teacherId,
+                'class' => $isBreakOrLunch ? null : $class,
+                'section' => $isBreakOrLunch ? null : $section,
+                'subject' => $isBreakOrLunch ? $periodType : $subject,
+
+                // These fields remain in the database but are no longer
+                // required as Excel columns.
+                'subject_type' => $isBreakOrLunch
+                    ? 'Activity'
+                    : ($periodType === 'Activity' ? 'Activity' : 'Theory'),
+
+                'lecture_type' => $periodType === 'Activity'
+                    ? 'activity'
+                    : 'regular',
+
+                'start_time' => $start,
+                'end_time' => $end,
+                'duration_minutes' => $duration,
+                'room' => $isBreakOrLunch
+                    ? null
+                    : (trim((string) ($row['room'] ?? '')) ?: null),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        DB::transaction(function () use ($records) {
+            foreach ($records as $record) {
+                TeacherTimetable::updateOrCreate(
+                    [
+                        'academic_year' => $record['academic_year'],
+                        'timetable_date' => $record['timetable_date'],
+                        'period_number' => $record['period_number'],
+                        'class' => $record['class'],
+                        'section' => $record['section'],
+                    ],
+                    $record
+                );
+            }
+        });
+
+        return redirect()
+            ->route('admin.timetable.index')
+            ->with(
+                'success',
+                count($records) . ' timetable rows imported successfully.'
+            );
+
+    } catch (\Throwable $e) {
+        report($e);
+
+        return back()->withErrors([
+            'file' => 'Import failed: ' . $e->getMessage(),
+        ]);
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| WEEKLY TIMETABLE PDF
+|--------------------------------------------------------------------------
+*/
+
+public function weeklyPdf(Request $request)
+{
+    $validated = $request->validate([
+        'academic_year' => ['required', 'string', 'max:30'],
+        'class' => ['required', 'string', 'max:100'],
+        'section' => ['required', 'string', 'max:50'],
+        'week_start_date' => ['required', 'date'],
+    ]);
+
+    $weekStartDate = Carbon::parse(
+        $validated['week_start_date']
+    )->startOfDay();
+
+    // The weekly timetable must start on Monday.
+    if ($weekStartDate->dayOfWeekIso !== 1) {
+        return back()->withErrors([
+            'week_start_date' => 'Please select a Monday as the week starting date.',
+        ]);
+    }
+
+    $weekEndDate = $weekStartDate->copy()
+        ->addDays(5)
+        ->endOfDay();
+
+    $records = TeacherTimetable::with('teacher')
+        ->whereBetween('timetable_date', [
+            $weekStartDate->toDateString(),
+            $weekEndDate->toDateString(),
+        ])
+        ->where('academic_year', $validated['academic_year'])
+        ->where(function ($query) use ($validated) {
+            $query->where(function ($q) use ($validated) {
+                $q->where('class', $validated['class'])
+                    ->where('section', $validated['section']);
+            })->orWhereIn('period_type', ['Break', 'Lunch']);
+        })
+        ->orderBy('timetable_date')
+        ->orderBy('period_number')
+        ->orderBy('start_time')
+        ->get();
+
+    $class = $validated['class'];
+    $section = $validated['section'];
+    $academicYear = $validated['academic_year'];
+
+    $pdf = Pdf::loadView(
+        'admin.timetable.weekly-pdf',
+        compact(
+            'records',
+            'class',
+            'section',
+            'academicYear',
+            'weekStartDate'
+        )
+    );
+
+    $pdf->setPaper('a4', 'landscape');
+
+    $filename = 'weekly-timetable-'
+        . preg_replace('/[^A-Za-z0-9_-]/', '-', $class)
+        . '-'
+        . preg_replace('/[^A-Za-z0-9_-]/', '-', $section)
+        . '-'
+        . $weekStartDate->format('Y-m-d')
+        . '.pdf';
+
+    return $pdf->download($filename);
+}
+
 }

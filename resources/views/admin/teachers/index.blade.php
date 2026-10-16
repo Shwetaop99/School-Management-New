@@ -85,7 +85,6 @@
         font-size: 13px;
     }
 
-    /* Add Teacher – Primary */
     .btn-add {
         background: var(--ink);
         color: #fff;
@@ -97,7 +96,6 @@
         color: #fff;
     }
 
-    /* Export Excel – Green */
     .btn-excel {
         background: #217346;
         color: #fff;
@@ -109,7 +107,6 @@
         color: #fff;
     }
 
-    /* Export PDF – Red */
     .btn-pdf {
         background: #e4572e;
         color: #fff;
@@ -121,7 +118,6 @@
         color: #fff;
     }
 
-    /* Download Template – Soft blue-gray */
     .btn-template {
         background: #5b7a8c;
         color: #fff;
@@ -133,7 +129,6 @@
         color: #fff;
     }
 
-    /* Import Teachers – Blue */
     .btn-import {
         background: #2b5d8a;
         color: #fff;
@@ -143,6 +138,11 @@
         background: #1f4669;
         border-color: #1f4669;
         color: #fff;
+    }
+
+    .btn-import:disabled {
+        opacity: .7;
+        cursor: not-allowed;
     }
 
     .teachers-hero-right {
@@ -366,24 +366,14 @@
         width: 100%;
     }
 
+    /* Hidden file input – only Import button is visible */
     .import-form {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: nowrap;
         margin: 0;
         flex-shrink: 0;
     }
 
     .import-form input[type="file"] {
-        width: 150px;
-        font-size: 12px;
-        color: var(--text);
-        padding: 6px 8px;
-        border: 1px solid #cfc8b6;
-        border-radius: 8px;
-        background: #fff;
-        flex-shrink: 0;
+        display: none;
     }
 
     /* ── Table ────────────────────────────────────────── */
@@ -776,17 +766,22 @@
                     <i class="bi bi-download"></i> Download Template
                 </a>
 
+                {{-- Import: hidden file + button opens picker then auto-submits --}}
                 <form action="{{ route('admin.teachers.import') }}"
                       method="POST"
                       enctype="multipart/form-data"
-                      class="import-form">
+                      class="import-form"
+                      id="importTeachersForm">
                     @csrf
                     <input type="file"
                            name="file"
+                           id="importFileInput"
                            accept=".xlsx,.xls,.csv"
-                           required
-                           aria-label="Choose Excel or CSV file">
-                    <button type="submit" class="btn btn-import">
+                           required>
+
+                    <button type="button"
+                            class="btn btn-import"
+                            id="importTeachersBtn">
                         <i class="bi bi-upload"></i> Import
                     </button>
                 </form>
@@ -937,22 +932,44 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const input = document.getElementById('teacherSearch');
+    // ── Live search ────────────────────────────────────
+    const searchInput = document.getElementById('teacherSearch');
     const table = document.getElementById('teachersTable');
 
-    if (!input || !table) return;
+    if (searchInput && table) {
+        searchInput.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
 
-    input.addEventListener('input', function () {
-        const query = this.value.toLowerCase().trim();
+            table.querySelectorAll('tbody tr').forEach(function (row) {
+                if (row.querySelector('.empty')) return;
 
-        table.querySelectorAll('tbody tr').forEach(function (row) {
-            if (row.querySelector('.empty')) return;
-
-            row.style.display = row.textContent.toLowerCase().includes(query)
-                ? ''
-                : 'none';
+                row.style.display = row.textContent.toLowerCase().includes(query)
+                    ? ''
+                    : 'none';
+            });
         });
-    });
+    }
+
+    // ── Import: click button → open file picker → auto submit ─
+    const importBtn  = document.getElementById('importTeachersBtn');
+    const fileInput  = document.getElementById('importFileInput');
+    const importForm = document.getElementById('importTeachersForm');
+
+    if (importBtn && fileInput && importForm) {
+        // Click Import → open file dialog
+        importBtn.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        // After file is selected → submit form
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                importBtn.disabled = true;
+                importBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Importing...';
+                importForm.submit();
+            }
+        });
+    }
 });
 </script>
 
