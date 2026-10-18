@@ -437,7 +437,9 @@
 
 
         {{-- 7. EXAM --}}
-        <a href="#" class="report-card">
+       
+<a href="{{ route('admin.reports.exams') }}" class="report-card">
+
 
             <div class="report-icon">
                 <i class="fas fa-file-alt"></i>
@@ -463,7 +465,7 @@
 
 
         {{-- 8. RESULT --}}
-        <a href="#" class="report-card">
+        <a href="{{ route('admin.reports.results.index') }}" class="report-card">
 
             <div class="report-icon">
                 <i class="fas fa-chart-column"></i>

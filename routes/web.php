@@ -402,10 +402,24 @@ Route::delete('/backup/{backup}', [
     'destroy'
 ])->name('backup.destroy');
 
+Route::post('/backup/{backup}/validate', [
+    BackupController::class,
+    'validateBackup',
+])->name('backup.validate');
+
+Route::get('/backup/restore', [
+    BackupController::class,
+    'showRestore',
+])->name('backup.restore');
+
+Route::post('/backup/restore/upload', [
+    BackupController::class,
+    'uploadRestore',
+])->name('backup.restore.upload');
+
 
 
         /*
-
         |--------------------------------------------------------------------------
         | SPORTS MANAGEMENT
         |--------------------------------------------------------------------------
@@ -1223,6 +1237,19 @@ Route::prefix('bonafide')
                 'show'
 
             ])->name('teachers.reports.show');
+
+            Route::get('/reports/results', [
+    \App\Http\Controllers\Admin\ResultReportController::class,
+    'index',
+])->name('reports.results.index');
+
+
+
+Route::get('/reports/exams', [
+    \App\Http\Controllers\Admin\ExamReportController::class,
+    'index',
+])->name('reports.exams');
+
 
 
             /*

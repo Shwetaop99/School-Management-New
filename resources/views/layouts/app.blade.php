@@ -159,50 +159,22 @@
         <div class="loader-sub">This may take a few moments.</div>
     </div>
 </div>
+
 @php
     /* Safe route helper: returns '#' if a route doesn't exist. */
     $route = function ($name, $fallback = '#') {
-    try {
-        return \Illuminate\Support\Facades\Route::has($name)
-            ? route($name)
-            : $fallback;
-    } catch (\Throwable $e) {
-        return $fallback;
-    }
-};
-
-    /*
-     * Sidebar definition.
-     * l = label, i = icon, a = route patterns that mark the item active,
-     * r = route (single link) or c = children [label, route name].
-     */
-    $menu = [
-        'Main' => [
-            ['l'=>'Dashboard','i'=>'fa-gauge-high','a'=>['admin.dashboard'],'r'=>'admin.dashboard'],
-           
-
-[
-    'l' => 'Student',
-    'i' => 'fa-user-graduate',
-    'a' => [
-        'admin.students.*',
-        'admin.student-profile.*',
-        'admin.student-documents.*',
-        'admin.id-card.*',
-        'admin.attendance.*',
-
-@php
-    $user = auth()->user();
-
-    $isSuperAdmin = $user?->role?->name === 'super_admin';
-
-    $can = function (string $permission) use ($user, $isSuperAdmin): bool {
-        if ($isSuperAdmin) {
-            return true;
+        try {
+            return \Illuminate\Support\Facades\Route::has($name)
+                ? route($name)
+                : $fallback;
+        } catch (\Throwable $e) {
+            return $fallback;
         }
-
-        return $user?->hasPermission($permission) ?? false;
     };
+
+    /* Permission helper: super_admin sees everything, others need ANY listed permission. */
+    $user = auth()->user();
+    $isSuperAdmin = $user?->role?->name === 'super_admin';
 
     $canAny = function (array $permissions) use ($user, $isSuperAdmin): bool {
         if ($isSuperAdmin) {
@@ -217,268 +189,264 @@
 
         return false;
     };
-@endphp
 
-{{-- DASHBOARD --}}
-@if ($can('dashboard.view'))
-    <a href="{{ route('admin.dashboard') }}"
-       class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
-       data-search="dashboard home">
-        <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
-        <span class="sidebar-label">Dashboard</span>
-    </a>
-@endif
+    /*
+     * Sidebar definition.
+     * l = label, i = icon, a = route patterns that mark the item active,
+     * r = route (single link) or c = children [label, route name],
+     * p = (optional) permissions - item is shown if the user has ANY of them.
+     */
+    $menu = [
 
-{{-- STUDENT --}}
-@if ($canAny(['students.view', 'students.create', 'students.edit', 'students.delete']))
-    <button class="sidebar-item has-submenu {{ request()->routeIs('admin.students.*', 'admin.student-profile.*', 'admin.student-documents.*', 'admin.id-card.*', 'admin.student-supply-kits.*', 'admin.student-general-register.*') ? 'active open' : '' }}"
-            data-submenu="student-menu"
-            data-search="student students">
-        <span class="sidebar-icon"><i class="fa fa-user-graduate"></i></span>
-        <span class="sidebar-label">Student</span>
-        <span class="sidebar-arrow">›</span>
-    </button>
-
-    <div class="submenu {{ request()->routeIs('admin.students.*', 'admin.student-profile.*', 'admin.student-documents.*', 'admin.id-card.*', 'admin.student-supply-kits.*', 'admin.student-general-register.*') ? 'open' : '' }}"
-         id="student-menu">
-
-        @if ($can('students.view'))
-            <a href="{{ route('admin.students.index') }}"
-               class="submenu-item {{ request()->routeIs('admin.students.index') ? 'active' : '' }}">
-                All Students
-            </a>
-
-            <a href="{{ route('admin.student-profile.index') }}" class="submenu-item">
-                Student Profile
-            </a>
-
-            <a href="{{ route('admin.student-documents.index') }}" class="submenu-item">
-                Student Documents
-            </a>
-
-            <a href="{{ route('admin.id-card.index') }}" class="submenu-item">
-                Student ID
-            </a>
-
-            <a href="{{ route('admin.student-supply-kits.index') }}" class="submenu-item">
-                School Supplies (Kit)
-            </a>
-
-            @if ($can('admin.student-general-register.*'))
-                <a href="{{ route('admin.student-general-register.index') }}" class="submenu-item">
-                    Student Register
-                </a>
-            @endif
-
-            @if ($can('admin.government-schemes.*'))
-                <a href="{{ route('admin.government-schemes.index') }}" class="submenu-item">
-                    Government Schemes
-                </a>
-            @endif
-
-            @if ($can('admin.student-health.*'))
-                <a href="{{ route('admin.student-health.index') }}" class="submenu-item">
-                    Student Health
-                </a>
-            @endif
-        @endif
-
-        @if ($can('students.create'))
-            <a href="{{ route('admin.students.bulk-create') }}" class="submenu-item">
-                Add Student
-            </a>
-        @endif
-    </div>
-@endif
-
-{{-- FACULTY --}}
-@if ($canAny(['faculty.view', 'faculty.create', 'faculty.edit', 'faculty.delete']))
-    <button class="sidebar-item has-submenu {{ request()->routeIs('admin.teachers.*') ? 'active open' : '' }}"
-            data-submenu="faculty-menu"
-            data-search="faculty teacher teachers">
-        <span class="sidebar-icon">
-            <i class="fas fa-chalkboard-teacher"></i>
-        </span>
-
-        <span class="sidebar-label">Faculty (Teacher)</span>
-        <span class="sidebar-arrow">›</span>
-    </button>
-
-    <div class="submenu {{ request()->routeIs('admin.teachers.*') ? 'open' : '' }}"
-         id="faculty-menu">
-
-        @if ($can('teachers.view'))
-            <a href="{{ route('admin.teachers.index') }}" class="submenu-item">
-                All Faculty
-            </a>
-        @endif
-
-    </div>
-@endif
-
-[
-    'l' => 'Faculty (Teacher)',
-    'i' => 'fa-chalkboard-user',
-    'a' => [
-        'admin.faculty.*',
-        'admin.teachers.assign-class.*',
-        'admin.leave-applications.*'
-    ],
-    'c' => [
-        ['All Faculty', 'admin.faculty.index'],
-        ['Teacher Allocation', 'admin.teachers.assign-class.index'],
-        ['Leave Applications', 'admin.leave-applications.index']
-    ]
-],
-
-
-
-            ['l'=>'Other Staff','i'=>'fa-users','a'=>['admin.other-staff.*'],
-                'c'=>[['All Staff','admin.other-staff.index'],['Add Staff','admin.other-staff.create']]],
-           
-[
-    'l' => 'Time Table',
-    'i' => 'fa-table-cells',
-    'a' => ['admin.timetable.*'],
-    'c' => [
-        ['Class Timetable', 'admin.timetable.class'],
-        ['Teacher Timetable', 'admin.timetable.teacher'],
-        ['Create Timetable', 'admin.timetable.create'],
-    ],
-],
+        'Main' => [
 
             [
-    'l' => 'Attendance',
-    'i' => 'fa-check',
-    'a' => [
-        'admin.attendance.*',
-        'admin.teachers.attendance.*',
-    ],
-    'c' => [
-        ['Student Attendance', 'admin.attendance.index'],
-        ['Faculty Attendance', 'admin.teachers.attendance.index'],
-    ],
-],
+                'l' => 'Dashboard',
+                'i' => 'fa-gauge-high',
+                'a' => ['admin.dashboard'],
+                'r' => 'admin.dashboard',
+                'p' => ['dashboard.view'],
+            ],
 
+            [
+                'l' => 'Student',
+                'i' => 'fa-user-graduate',
+                'a' => [
+                    'admin.students.*',
+                    'admin.student-profile.*',
+                    'admin.student-documents.*',
+                    'admin.id-card.*',
+                    'admin.student-supply-kits.*',
+                    'admin.supply-items.*',
+                    'admin.student-general-register.*',
+                    'admin.government-schemes.*',
+                    'admin.student-health.*',
+                ],
+                'c' => [
+                    ['All Students', 'admin.students.index'],
+                    ['Student Profile', 'admin.student-profile.index'],
+                    ['Student Documents', 'admin.student-documents.index'],
+                    ['Student ID', 'admin.id-card.index'],
+                    ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
+                    ['Supply Items', 'admin.supply-items.index'],
+                    ['Student Register', 'admin.student-general-register.index'],
+                    ['Government Schemes', 'admin.government-schemes.index'],
+                    ['Student Health', 'admin.student-health.index'],
+                    ['Student Report', 'admin.reports.students'],
+                    ['Add Student', 'admin.students.create'],
+                    ['Bulk Add Students', 'admin.students.bulk-create'],
+                ],
+                'p' => ['students.view', 'students.create', 'students.edit', 'students.delete'],
+            ],
 
-            
+            [
+                'l' => 'Faculty (Teacher)',
+                'i' => 'fa-chalkboard-user',
+                'a' => [
+                    'admin.faculty.*',
+                    'admin.teachers.index',
+                    'admin.teachers.create',
+                    'admin.teachers.show',
+                    'admin.teachers.edit',
+                    'admin.teachers.assign-class.*',
+                    'admin.leave-applications.*',
+                ],
+                'c' => [
+                    ['All Faculty', 'admin.faculty.index'],
+                    ['Teacher Allocation', 'admin.teachers.assign-class.index'],
+                    ['Leave Applications', 'admin.leave-applications.index'],
+                ],
+                'p' => ['faculty.view', 'faculty.create', 'faculty.edit', 'faculty.delete'],
+            ],
 
-[
-    'l' => 'Fees',
-    'i' => 'fa-indian-rupee-sign',
-    'a' => [
-        'admin.fees.fee-structures.*',
-        'admin.fees.student-fees.*',
-        'admin.fees.payment-history.*',
-    ],
-    'c' => [
-        ['Fee Structure', 'admin.fees.fee-structures.index'],
-        ['Student Fee', 'admin.fees.student-fees.index'],
-        ['Payment History', 'admin.fees.payment-history.index'],
-    ],
-],
+            [
+                'l' => 'Other Staff',
+                'i' => 'fa-users',
+                'a' => ['admin.other-staff.*'],
+                'c' => [
+                    ['All Staff', 'admin.other-staff.index'],
+                    ['Add Staff', 'admin.other-staff.create'],
+                ],
+            ],
 
+            [
+                'l' => 'Time Table',
+                'i' => 'fa-table-cells',
+                'a' => ['admin.timetable.*'],
+                'c' => [
+                    ['Class Timetable', 'admin.timetable.class'],
+                    ['Teacher Timetable', 'admin.timetable.teacher'],
+                    ['Create Timetable', 'admin.timetable.create'],
+                ],
+            ],
 
+            [
+                'l' => 'Attendance',
+                'i' => 'fa-check',
+                'a' => [
+                    'admin.attendance.*',
+                    'admin.teachers.attendance.*',
+                ],
+                'c' => [
+                    ['Student Attendance', 'admin.attendance.index'],
+                    ['Faculty Attendance', 'admin.teachers.attendance.index'],
+                ],
+            ],
 
-          ['l'=>'Exam','i'=>'fa-file-lines','a'=>['admin.exams.*'],'r'=>'admin.exams.index'],
-           
-    [
-    'l' => 'Result',
-    'i' => 'fa-chart-column',
-    'a' => ['admin.results.*'],
-    'c' => [
-        ['Student Result', 'admin.results.index'],
-        ['Grade Management', 'admin.results.generate'],
-        ['Publish Result', 'admin.results.class-results'],
-        ['Result History', 'admin.results.index'],
-        ['Result Report', 'admin.results.class-wise-toppers'],
-    ],
-],
-            ['l'=>'Notice','i'=>'fa-flag','a'=>['admin.notices.*'],
-                'c'=>[['All Notices','admin.notices.index'],['Add Notice','admin.notices.create']]],
-            ['l'=>'Library','i'=>'fa-book','a'=>['admin.library.*'],
-                'c'=>[['Total Books','admin.library.books.index'],['Issues / Returns / Fine','admin.library.issues.index'],['Librarian','admin.library.librarian.index'],['Reports','admin.library.reports.index']]],
+            [
+                'l' => 'Fees',
+                'i' => 'fa-indian-rupee-sign',
+                'a' => [
+                    'admin.fees.fee-structures.*',
+                    'admin.fees.student-fees.*',
+                    'admin.fees.payment-history.*',
+                ],
+                'c' => [
+                    ['Fee Structure', 'admin.fees.fee-structures.index'],
+                    ['Student Fee', 'admin.fees.student-fees.index'],
+                    ['Payment History', 'admin.fees.payment-history.index'],
+                ],
+            ],
+
+            [
+                'l' => 'Exam',
+                'i' => 'fa-file-lines',
+                'a' => [
+                    'admin.exams.*',
+                    'admin.exam-classes.*',
+                    'admin.exam-subjects.*',
+                    'admin.exam-sessions.*',
+                    'admin.exam-holidays.*',
+                    'admin.exam-schedules.*',
+                ],
+                'r' => 'admin.exams.index',
+            ],
+
+            [
+                'l' => 'Result',
+                'i' => 'fa-chart-column',
+                'a' => ['admin.results.*'],
+                'c' => [
+                    ['Student Result', 'admin.results.index'],
+                    ['Grade Management', 'admin.results.generate'],
+                    ['Publish Result', 'admin.results.class-results'],
+                    ['Result History', 'admin.results.index'],
+                    ['Result Report', 'admin.results.class-wise-toppers'],
+                ],
+            ],
+
+            [
+                'l' => 'Notice',
+                'i' => 'fa-flag',
+                'a' => ['admin.notices.*'],
+                'c' => [
+                    ['All Notices', 'admin.notices.index'],
+                    ['Add Notice', 'admin.notices.create'],
+                ],
+            ],
+
+            [
+                'l' => 'Library',
+                'i' => 'fa-book',
+                'a' => ['admin.library.*'],
+                'c' => [
+                    ['Total Books', 'admin.library.books.index'],
+                    ['Issues / Returns / Fine', 'admin.library.issues.index'],
+                    ['Librarian', 'admin.library.librarian.index'],
+                    ['Reports', 'admin.library.reports.index'],
+                ],
+            ],
         ],
-       
-'Other' => [
-    [
-        'l' => 'Transport',
-        'i' => 'fa-bus',
-        'a' => [
-            'admin.transport.records.*',
-            'admin.transport.routes.*',
-            'admin.transport.vehicles.*',
+
+        'Other' => [
+
+            [
+                'l' => 'Transport',
+                'i' => 'fa-bus',
+                'a' => [
+                    'admin.transport.records.*',
+                    'admin.transport.routes.*',
+                    'admin.transport.vehicles.*',
+                ],
+                'c' => [
+                    ['Transport Records', 'admin.transport.records.index'],
+                    ['Routes', 'admin.transport.routes.index'],
+                    ['Vehicles', 'admin.transport.vehicles.index'],
+                ],
+            ],
+
+            [
+                'l' => 'Meal Management',
+                'i' => 'fa-utensils',
+                'a' => [
+                    'admin.meal.*',
+                    'admin.meals.*',
+                ],
+                'c' => [
+                    ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
+                    ['Logs', 'admin.meal.logs.index'],
+                ],
+            ],
+
+            [
+                'l' => 'Payroll',
+                'i' => 'fa-money-check-dollar',
+                'a' => ['admin.teachers.salary.*'],
+                'r' => 'admin.teachers.salary.index',
+            ],
+
+            [
+                'l' => 'Sports',
+                'i' => 'fa-futbol',
+                'a' => ['admin.sports.*'],
+                'c' => [
+                    ['Games / Events', 'admin.sports.games.index'],
+                    ['Achievements', 'admin.sports.achievements.index'],
+                    ['Sports Equipments', 'admin.sports.equipment.index'],
+                ],
+            ],
+
+            [
+                'l' => 'Scholarship',
+                'i' => 'fa-graduation-cap',
+                'a' => ['admin.scholarship.*'],
+                'r' => 'admin.scholarship.index',
+            ],
+
+            [
+                'l' => 'Class',
+                'i' => 'fa-chalkboard',
+                'a' => ['admin.classes.*', 'admin.subjects.*'],
+                'c' => [
+                    ['Classes', 'admin.classes.index'],
+                    ['Subjects', 'admin.subjects.index'],
+                ],
+            ],
+
+            [
+                'l' => 'Reports',
+                'i' => 'fa-chart-pie',
+                'a' => ['admin.reports.*'],
+                'r' => 'admin.reports.index',
+            ],
+
+            [
+                'l' => 'Settings',
+                'i' => 'fa-gear',
+                'a' => [
+                    'admin.settings.*',
+                    'backup.*',
+                    'admin.2fa.*',
+                ],
+                'c' => [
+                    ['School Profile', 'admin.settings.index'],
+                    ['User Roles & Permission', 'admin.settings.roles.index'],
+                    ['Security', 'admin.2fa.security'],
+                    ['Backup & Recovery', 'backup.index'],
+                ],
+            ],
         ],
-        'c' => [
-            ['Transport Records', 'admin.transport.records.index'],
-            ['Routes', 'admin.transport.routes.index'],
-            ['Vehicles', 'admin.transport.vehicles.index'],
-        ],
-    ],
-
-          
-[
-    'l' => 'Meal Management',
-    'i' => 'fa-utensils',
-    'a' => [
-        'admin.admin.meal.*',
-        'admin.admin.meals.*',
-    ],
-    'c' => [
-    ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
-    ['Logs', 'admin.meal.logs.index'],
-],
-],
-
-           
-['l'=>'Payroll','i'=>'fa-money-check-dollar','a'=>['admin.teachers.salary.*'],'r'=>'admin.teachers.salary.index'],
-
-['l'=>'Sports','i'=>'fa-futbol','a'=>['admin.sports.*'],
-    'c'=>[
-        ['Games / Events','admin.sports.games.index'],
-        ['Achievements','admin.sports.achievements.index'],
-        ['Sports Equipments','admin.sports.equipment.index']
-    ]
-],
-
-['l'=>'Scholarship','i'=>'fa-graduation-cap',
-    'a'=>['admin.scholarship.*'],
-    'r'=>'admin.scholarship.index'
-],
-
-[
-    'l' => 'Class',
-    'i' => 'fa-chalkboard',
-    'a' => ['admin.classes.*', 'admin.subjects.*'],
-    'c' => [
-        ['Classes', 'admin.classes.index'],
-        ['Subjects', 'admin.subjects.index'],
-    ],
-],
-
-['l'=>'Reports','i'=>'fa-chart-pie','a'=>['admin.reports.*'],'r'=>'admin.reports.index'],
-
-          
-[
-    'l' => 'Settings',
-    'i' => 'fa-gear',
-    'a' => [
-        'admin.settings.*',
-        'admin.backup.*',
-        'admin.2fa.*',
-    ],
-    'c' => [
-        ['School Profile', 'admin.settings.index'],
-['User Roles & Permission', 'admin.settings.roles.index'],
-        ['Security', 'admin.2fa.security'],
-        ['Backup & Recovery', 'backup.index'],
-    ],
-],
-
-        ],
-    
     ];
-
 @endphp
 
 <div class="app-wrapper">
@@ -500,9 +468,18 @@
 
         <nav class="sidebar-content" aria-label="Main navigation">
             @foreach ($menu as $group => $items)
+                @php
+                    // Only items the current user is allowed to see.
+                    $visible = collect($items)
+                        ->filter(fn ($item) => empty($item['p']) || $canAny($item['p']))
+                        ->values();
+                @endphp
+
+                @continue($visible->isEmpty())
+
                 <div class="nav-group">{{ $group }}</div>
 
-                @foreach ($items as $n => $item)
+                @foreach ($visible as $item)
                     @php
                         $isActive = request()->routeIs(...$item['a']);
                         $id = \Illuminate\Support\Str::slug($group . '-' . $item['l']);
@@ -514,6 +491,7 @@
                             <span class="nav-label">{{ $item['l'] }}</span>
                             <i class="fas fa-chevron-right nav-arrow"></i>
                         </button>
+
                         <div class="submenu {{ $isActive ? 'open' : '' }}" id="{{ $id }}">
                             @php $matched = false; @endphp
                             @foreach ($item['c'] as $child)
@@ -523,12 +501,12 @@
                                     if ($childActive) { $matched = true; }
                                 @endphp
                                 <a href="{{ $route($child[1]) }}"
-   class="submenu-item {{ $childActive ? 'active' : '' }}">
-    {{ $child[0] }}
-</a>
+                                   class="submenu-item {{ $childActive ? 'active' : '' }}">
+                                    {{ $child[0] }}
+                                </a>
                             @endforeach
                         </div>
-                    @elseif (\Illuminate\Support\Facades\Route::has($item['r']))
+                    @elseif (isset($item['r']) && \Illuminate\Support\Facades\Route::has($item['r']))
                         <a href="{{ route($item['r']) }}" class="nav-item {{ $isActive ? 'active' : '' }}">
                             <span class="nav-icon"><i class="fas {{ $item['i'] }}"></i></span>
                             <span class="nav-label">{{ $item['l'] }}</span>

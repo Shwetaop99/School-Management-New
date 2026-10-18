@@ -21,6 +21,92 @@ class BackupController extends Controller
      * so the index route is expected to be backup.index.
      * Verify with: php artisan route:list --name=backup
      */
+
+    
+public function showRestore()
+{
+    $backups = collect(File::files($this->ensureBackupDirectory()))
+        ->filter(fn ($file) => strtolower($file->getExtension()) === 'zip')
+        ->map(fn ($file) => [
+            'name' => $file->getFilename(),
+            'size' => $file->getSize(),
+            'date' => date('Y-m-d H:i:s', $file->getMTime()),
+        ])
+        ->sortByDesc('date')
+        ->values();
+
+    return view('admin.backup.restore', compact('backups'));
+}
+
+
+public function uploadRestore(Request $request)
+{
+    $request->validate([
+        'backup_file' => [
+            'required',
+            'file',
+            'mimes:zip',
+            'max:512000',
+        ],
+    ]);
+
+    $uploadedFile = $request->file('backup_file');
+    $temporaryPath = $uploadedFile->getRealPath();
+
+    if (!is_string($temporaryPath) || !is_file($temporaryPath)) {
+        return back()->withErrors([
+            'backup_file' => 'The uploaded ZIP file could not be read.',
+        ]);
+    }
+
+    $destination = null;
+
+    try {
+        // Inspect the actual archive before saving it as a backup.
+        $this->validateZipArchiveContents($temporaryPath);
+
+        $directory = $this->ensureBackupDirectory();
+
+        // Generate our own filename; never trust the uploaded filename.
+        $filename = 'uploaded_backup_'
+            . now()->format('Y-m-d_H-i-s')
+            . '_' . bin2hex(random_bytes(4))
+            . '.zip';
+
+        $destination = $directory . DIRECTORY_SEPARATOR . $filename;
+
+        if (!copy($temporaryPath, $destination)) {
+            throw new RuntimeException(
+                'The validated backup could not be saved.'
+            );
+        }
+
+        return redirect()
+            ->route('backup.restore')
+            ->with(
+                'success',
+                "Archive checks passed. Backup saved as {$filename}. "
+                . 'No school data has been restored or changed.'
+            );
+    } catch (Throwable $exception) {
+        if ($destination !== null && File::exists($destination)) {
+            File::delete($destination);
+        }
+
+        Log::warning('Backup upload validation failed', [
+            'message' => $exception->getMessage(),
+        ]);
+
+        return back()->withErrors([
+            'backup_file' => config('app.debug')
+                ? 'Backup validation failed: ' . $exception->getMessage()
+                : 'Backup validation failed. Check that it is a valid school backup '
+                    . 'and that the configured backup password is correct.',
+        ]);
+    }
+}
+
+
     private const INDEX_ROUTE = 'backup.index';
 
     private function backupDirectory(): string
@@ -258,20 +344,308 @@ class BackupController extends Controller
             ->with('success', 'Backup deleted successfully.');
     }
 
+    
+    /**
+     * Validate a backup archive without modifying the database.
+     */
+    public function validateBackup(string $backup)
+    {
+        $path = $this->safeBackupPath($backup);
+
+        abort_unless(File::isFile($path), 404, 'Backup file not found.');
+
+        if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'zip') {
+            return redirect()
+                ->route(self::INDEX_ROUTE)
+                ->with('error', 'Only ZIP backups can be validated.');
+        }
+
+        if (!class_exists(ZipArchive::class)) {
+            return redirect()
+                ->route(self::INDEX_ROUTE)
+                ->with('error', 'PHP ZIP support is unavailable.');
+        }
+
+        $password = config('backup.password');
+
+        if (!is_string($password) || $password === '') {
+            return redirect()
+                ->route(self::INDEX_ROUTE)
+                ->with('error', 'Backup password is not configured.');
+        }
+
+        $zip = new ZipArchive();
+
+        try {
+            $opened = $zip->open($path, ZipArchive::RDONLY);
+
+            if ($opened !== true) {
+                throw new RuntimeException('The ZIP archive could not be opened.');
+            }
+
+            $zip->setPassword($password);
+
+            $sqlEntryFound = false;
+            $metadataFound = false;
+
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $entry = $zip->getNameIndex($i);
+
+                if (!is_string($entry)) {
+                    continue;
+                }
+
+                if (preg_match('~^database/database_[^/]+\.sql$~', $entry)) {
+                    $sqlEntryFound = true;
+
+                    $stream = $zip->getStream($entry);
+
+                    if ($stream === false) {
+                        throw new RuntimeException(
+                            'The SQL backup cannot be read. Check its password or archive integrity.'
+                        );
+                    }
+
+                    // Read the first bytes to verify that the encrypted entry is readable.
+                    $header = fread($stream, 4096);
+                    fclose($stream);
+
+                    if (!is_string($header) || !str_contains($header, 'School Management database backup')) {
+                        throw new RuntimeException(
+                            'The SQL backup header is missing or invalid.'
+                        );
+                    }
+                }
+
+                if ($entry === 'backup-info.json') {
+                    $metadataFound = true;
+                }
+            }
+
+            if (!$sqlEntryFound || !$metadataFound) {
+                throw new RuntimeException(
+                    'The archive is missing required backup files.'
+                );
+            }
+
+            return redirect()
+                ->route(self::INDEX_ROUTE)
+                ->with('success', 'Backup validation passed. No database changes were made.');
+        } catch (Throwable $exception) {
+            Log::warning('Backup validation failed', [
+                'backup' => basename($path),
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route(self::INDEX_ROUTE)
+                ->with('error', 'Backup validation failed: ' . $exception->getMessage());
+        } finally {
+            $zip->close();
+        }
+    }
+
+
     // ---------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------
 
-    private function safeBackupPath(string $filename): string
-    {
-        abort_if(
-            $filename !== basename($filename) ||
-            !preg_match('/\A[a-zA-Z0-9._-]+\.(zip|sql|json)\z/i', $filename),
-            404
-        );
+   
 
-        return $this->backupDirectory() . DIRECTORY_SEPARATOR . $filename;
+
+private function safeBackupPath(string $filename): string
+{
+    abort_if(
+        $filename !== basename($filename) ||
+        !preg_match('/\A[a-zA-Z0-9._-]+\.(?:zip|sql|json)\z/i', $filename),
+        404
+    );
+
+    return $this->backupDirectory() . DIRECTORY_SEPARATOR . $filename;
+}
+
+
+private function validateZipArchiveContents(string $path): void
+{
+    if (!class_exists(ZipArchive::class)) {
+        throw new RuntimeException('PHP ZIP support is unavailable.');
     }
+
+    $password = config('backup.password');
+
+    if (!is_string($password) || $password === '') {
+        throw new RuntimeException(
+            'The backup password is not configured.'
+        );
+    }
+
+    $zip = new ZipArchive();
+    $opened = $zip->open($path, ZipArchive::RDONLY);
+
+    if ($opened !== true) {
+        throw new RuntimeException(
+            'The uploaded file is not a readable ZIP archive.'
+        );
+    }
+
+    try {
+        if (!$zip->setPassword($password)) {
+            throw new RuntimeException(
+                'Unable to configure ZIP decryption.'
+            );
+        }
+
+        if ($zip->numFiles < 2 || $zip->numFiles > 100000) {
+            throw new RuntimeException(
+                'The archive has an invalid number of entries.'
+            );
+        }
+
+        $sqlEntry = null;
+        $jsonEntry = null;
+        $metadataEntry = false;
+        $totalSize = 0;
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $stat = $zip->statIndex($i);
+
+            if (!is_array($stat) || !isset($stat['name'])) {
+                throw new RuntimeException(
+                    'An archive entry could not be inspected.'
+                );
+            }
+
+            $name = $stat['name'];
+
+            if (!is_string($name) || $name === '') {
+                throw new RuntimeException(
+                    'The archive contains an invalid entry name.'
+                );
+            }
+
+            // Reject absolute paths, Windows paths and traversal.
+            if (
+                str_starts_with($name, '/') ||
+                str_contains($name, '\\') ||
+                preg_match('/^[a-zA-Z]:/', $name) ||
+                in_array('..', explode('/', $name), true)
+            ) {
+                throw new RuntimeException(
+                    'The archive contains an unsafe file path.'
+                );
+            }
+
+            $size = (int) ($stat['size'] ?? 0);
+
+            if ($size < 0) {
+                throw new RuntimeException(
+                    'The archive contains an invalid file size.'
+                );
+            }
+
+            $totalSize += $size;
+
+            // Limit expanded data to 10 GiB for this initial check.
+            if ($totalSize > 10 * 1024 * 1024 * 1024) {
+                throw new RuntimeException(
+                    'The expanded archive exceeds the permitted size.'
+                );
+            }
+
+            if (preg_match(
+                '~\Adatabase/database_[^/]+\.sql\z~i',
+                $name
+            )) {
+                $sqlEntry = $name;
+            }
+
+            if (preg_match(
+                '~\Adatabase/database_[^/]+\.json\z~i',
+                $name
+            )) {
+                $jsonEntry = $name;
+            }
+
+            if ($name === 'backup-info.json') {
+                $metadataEntry = true;
+            }
+        }
+
+        if (!$sqlEntry || !$jsonEntry || !$metadataEntry) {
+            throw new RuntimeException(
+                'The archive must contain a SQL dump, JSON export, '
+                . 'and backup-info.json metadata.'
+            );
+        }
+
+        // Check that the encrypted SQL entry can be read and has
+        // the expected backup header.
+        $stream = $zip->getStream($sqlEntry);
+
+        if ($stream === false) {
+            throw new RuntimeException(
+                'The SQL dump cannot be decrypted. Check the password '
+                . 'and archive integrity.'
+            );
+        }
+
+        try {
+            $header = fread($stream, 4096);
+        } finally {
+            fclose($stream);
+        }
+
+        if (
+            !is_string($header) ||
+            !str_contains(
+                $header,
+                'School Management database backup'
+            )
+        ) {
+            throw new RuntimeException(
+                'The SQL dump header is missing or invalid.'
+            );
+        }
+
+        // Read and parse metadata with a strict size limit.
+        $stream = $zip->getStream('backup-info.json');
+
+        if ($stream === false) {
+            throw new RuntimeException(
+                'The metadata cannot be decrypted.'
+            );
+        }
+
+        try {
+            $metadata = stream_get_contents($stream, 1048577);
+        } finally {
+            fclose($stream);
+        }
+
+        if (!is_string($metadata) || strlen($metadata) > 1048576) {
+            throw new RuntimeException(
+                'The backup metadata is missing or too large.'
+            );
+        }
+
+        $decoded = json_decode($metadata, true);
+
+        if (
+            !is_array($decoded) ||
+            !isset($decoded['created_at'], $decoded['format'])
+        ) {
+            throw new RuntimeException(
+                'The backup metadata is invalid.'
+            );
+        }
+    } finally {
+        $zip->close();
+    }
+}
+
+
+
+
 
     private function makeTempFile(): string
     {

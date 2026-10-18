@@ -16,6 +16,11 @@
             <button class="btn btn-success" type="submit">
                 <i class="fa-solid fa-database me-2"></i>Create Backup
             </button>
+
+            <a href="{{ route('backup.restore') }}"
+   class="btn btn-outline-warning">
+    <i class="fa-solid fa-rotate-left me-2"></i>Restore Backup
+</a>
         </form>
     </div>
 
@@ -62,22 +67,27 @@
                                     </td>
                                     <td>{{ number_format($backup['size'] / 1024, 2) }} KB</td>
                                     <td>{{ $backup['date'] }}</td>
-                                    <td class="text-end">
-                                        <a href="{{ route('backup.download', ['backup' => $backup['name']]) }}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="fa-solid fa-download"></i> Download
-                                        </a>
+                                   
+<td class="text-end">
+    {{-- Download Backup --}}
+    <a href="{{ route('backup.download', ['backup' => $backup['name']]) }}"
+       class="btn btn-sm btn-outline-primary mb-1">
+        <i class="fa-solid fa-download"></i> Download
+    </a>
 
-                                        <form action="{{ route('backup.destroy', ['backup' => $backup['name']]) }}"
-                                              method="POST" class="d-inline"
-                                              onsubmit="return confirm('Permanently delete this backup?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger" type="submit">
-                                                <i class="fa-solid fa-trash"></i> Delete
-                                            </button>
-                                        </form>
-                                    </td>
+    {{-- Delete Backup --}}
+    <form action="{{ route('backup.destroy', ['backup' => $backup['name']]) }}"
+          method="POST"
+          class="d-inline"
+          onsubmit="return confirm('Permanently delete this backup?');">
+        @csrf
+        @method('DELETE')
+        <button class="btn btn-sm btn-outline-danger mb-1" type="submit">
+            <i class="fa-solid fa-trash"></i> Delete
+        </button>
+    </form>
+</td>
+
                                 </tr>
                             @endforeach
                         </tbody>
