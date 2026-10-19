@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 
 
@@ -1109,6 +1109,26 @@ Route::prefix('bonafide')
                 });
 
 
+            Route::get('teachers/export/excel', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'exportExcel',
+])->name('teachers.export.excel');
+
+Route::get('teachers/export/pdf', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'exportPdf',
+])->name('teachers.export.pdf');
+
+Route::get('teachers/import/template', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'importTemplate',
+])->name('teachers.import.template');
+
+Route::post('teachers/import', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'importExcel',
+])->name('teachers.import');
+
             /*
             |--------------------------------------------------------------------------
             | TEACHERS
@@ -1119,6 +1139,77 @@ Route::prefix('bonafide')
                 'teachers',
                 TeacherController::class
             )->whereNumber('teacher');
+            Route::get('/timetable', [
+                TimetableController::class,
+                'index'
+            ])->name('timetable.index');
+
+            Route::get('/timetable/create', [
+                TimetableController::class,
+                'create'
+            ])->name('timetable.create');
+
+            Route::post('/timetable', [
+                TimetableController::class,
+                'store'
+            ])->name('timetable.save');
+
+            Route::get('/timetable/teacher', [
+                TimetableController::class,
+                'teacherTimetable'
+            ])->name('timetable.teacher');
+
+            Route::get('/timetable/class', [
+                TimetableController::class,
+                'classTimetable'
+            ])->name('timetable.class');
+
+            Route::get('/timetable/class/pdf', [
+                TimetableController::class,
+                'classPdf'
+            ])->name('timetable.class.pdf');
+
+         // Weekly timetable tools — place BEFORE the {timetable} routes.
+
+Route::get('/timetable/weekly/fetch', [
+    TimetableController::class,
+    'fetchWeekly',
+])->name('timetable.weekly.fetch');
+
+Route::get('/timetable/weekly/excel', [
+    TimetableController::class,
+    'exportWeekly',
+])->name('timetable.weekly.excel');
+
+Route::get('/timetable/weekly/pdf', [
+    TimetableController::class,
+    'weeklyPdf',
+])->name('timetable.weekly.pdf');
+
+Route::post('/timetable/weekly/import', [
+    TimetableController::class,
+    'importWeekly',
+])->name('timetable.weekly.import');
+
+            Route::get('/timetable/{timetable}', [
+                TimetableController::class,
+                'show'
+            ])->name('timetable.show');
+
+            Route::get('/timetable/{timetable}/edit', [
+                TimetableController::class,
+                'edit'
+            ])->name('timetable.edit');
+
+            Route::put('/timetable/{timetable}', [
+                TimetableController::class,
+                'update'
+            ])->name('timetable.update');
+
+            Route::delete('/timetable/{timetable}', [
+                TimetableController::class,
+                'destroy'
+            ])->name('timetable.destroy');
 
 
             /*

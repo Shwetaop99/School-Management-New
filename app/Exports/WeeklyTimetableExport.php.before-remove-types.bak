@@ -1,0 +1,92 @@
+<?php
+namespace App\Exports;
+
+use App\Models\TeacherTimetable;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+
+class WeeklyTimetableExport implements FromCollection, WithHeadings
+{
+    protected string $class;
+    protected string $section;
+    protected string $academicYear;
+    protected string $weekStartDate;
+
+    public function __construct(
+        string $class,
+        string $section,
+        string $academicYear,
+        string $weekStartDate
+    ) {
+        $this->class = $class;
+        $this->section = $section;
+        $this->academicYear = $academicYear;
+        $this->weekStartDate = $weekStartDate;
+    }
+
+    public function collection(): Collection
+    {
+        $start = Carbon::parse($this->weekStartDate)->startOfDay();
+        $end = $start->copy()->addDays(5)->endOfDay();
+
+        $records = TeacherTimetable::with('teacher')
+            ->whereBetween('timetable_date', [
+                $start->toDateString(),
+                $end->toDateString(),
+            ])
+            ->where('academic_year', $this->academicYear)
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('class', $this->class)
+                      ->where('section', $this->section);
+                })->orWhereIn('period_type', ['Break', 'Lunch']);
+            })
+            ->orderBy('timetable_date')
+            ->orderBy('period_number')
+            ->orderBy('start_time')
+            ->get();
+
+        return $records->map(function ($item) {
+            return [
+                'Academic Year' => $item->academic_year,
+                'Week Start Date' => Carbon::parse($item->timetable_date)
+                    ->startOfWeek(Carbon::MONDAY)->format('Y-m-d'),
+                'Date' => Carbon::parse($item->timetable_date)->format('Y-m-d'),
+                'Day' => $item->day,
+                'Period' => $item->period_number,
+                'Period Type' => $item->period_type,
+                'Class' => $this->class,
+                'Section' => $this->section,
+                'Teacher ID' => $item->teacher_id,
+                'Subject' => $item->subject,
+                'Subject Type' => $item->subject_type,
+                'Lecture Type' => $item->lecture_type,
+                'Start Time' => $item->start_time
+                    ? substr($item->start_time, 0, 5) : '',
+                'Room' => $item->room,
+            ];
+        });
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Academic Year',
+            'Week Start Date',
+            'Date',
+            'Day',
+            'Period',
+            'Period Type',
+            'Class',
+            'Section',
+            'Teacher ID',
+            'Subject',
+            'Subject Type',
+            'Lecture Type',
+            'Start Time',
+            'Room',
+        ];
+    }
+}

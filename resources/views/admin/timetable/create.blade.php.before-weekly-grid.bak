@@ -1,0 +1,509 @@
+@extends('layouts.app')
+
+@section('title', 'Create Weekly Timetable')
+@section('page-title', 'Create Weekly Timetable')
+
+@section('content')
+@php
+    $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    $periodNumbers = range(1, 8);
+@endphp
+
+<style>
+    .tt-page {
+        --blue: #2563eb; --blue-dark: #1d4ed8; --ink: #172b4d;
+        --muted: #64748b; --line: #dbe4f0; --pale: #eff6ff;
+        max-width: 1600px; margin: 0 auto; padding-bottom: 25px; color: var(--ink);
+    }
+    .tt-page * { box-sizing: border-box; }
+    .tt-card { background: #fff; border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 5px 18px rgba(15,23,42,.035); }
+    .tt-hero { display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap; padding:23px 25px; margin-bottom:18px; }
+    .tt-hero-main { display:flex; align-items:center; gap:14px; }
+    .tt-icon { width:48px; height:48px; display:grid; place-items:center; flex-shrink:0; border-radius:13px; background:var(--pale); color:var(--blue); font-size:22px; }
+    .tt-eyebrow { margin:0 0 5px; color:var(--blue); font-size:10px; font-weight:850; letter-spacing:1px; text-transform:uppercase; }
+    .tt-hero h1 { margin:0 0 5px; font-size:23px; font-weight:850; }
+    .tt-subtitle { margin:0; color:var(--muted); font-size:12px; }
+    .tt-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:39px; padding:9px 14px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; color:#334155; font-size:12px; font-weight:750; text-decoration:none; cursor:pointer; }
+    .tt-btn-primary { background:var(--blue); color:#fff; border-color:var(--blue); }
+    .tt-btn-primary:hover { background:var(--blue-dark); color:#fff; }
+    .tt-btn:disabled { opacity:.65; cursor:wait; }
+    .tt-section { padding:22px 24px; }
+    .tt-section + .tt-section { border-top:1px solid var(--line); }
+    .tt-heading { display:flex; align-items:center; gap:11px; margin-bottom:17px; }
+    .tt-heading .tt-icon { width:38px; height:38px; border-radius:10px; font-size:17px; }
+    .tt-heading h2 { margin:0 0 3px; font-size:15px; font-weight:850; }
+    .tt-heading p { margin:0; color:var(--muted); font-size:11px; }
+    .tt-meta { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    .tt-field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+    .tt-label { color:#334155; font-size:11px; font-weight:800; }
+    .tt-required { color:#dc2626; }
+    .tt-control { width:100%; min-width:0; height:39px; padding:0 10px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; color:#1e293b; font-family:inherit; font-size:12px; outline:none; }
+    .tt-control:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .tt-help { color:var(--muted); font-size:10px; line-height:1.4; }
+    .tt-error { color:#dc2626; font-size:11px; }
+    .tt-alert,.tt-success { padding:12px 15px; margin-bottom:15px; border-radius:10px; font-size:12px; }
+    .tt-alert { color:#991b1b; background:#fef2f2; border:1px solid #fecaca; }
+    .tt-success { color:#166534; background:#f0fdf4; border:1px solid #bbf7d0; }
+    .tt-alert ul { margin:7px 0 0; padding-left:20px; }
+    .tt-hint { display:flex; align-items:flex-start; gap:9px; padding:11px 13px; margin-bottom:14px; border:1px solid #bfdbfe; border-radius:9px; background:#f8fbff; color:#475569; font-size:11px; line-height:1.5; }
+    .tt-hint i { color:var(--blue); margin-top:1px; }
+    .tt-stats { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .tt-stat { padding:8px 11px; border:1px solid var(--line); border-radius:8px; background:#f8fafc; color:#475569; font-size:11px; }
+    .tt-stat strong { color:var(--ink); font-size:13px; }
+    .tt-grid-wrap { overflow:auto; border:1px solid var(--line); border-radius:11px; }
+    .tt-grid { width:100%; min-width:1780px; table-layout:fixed; border-collapse:separate; border-spacing:0; }
+    .tt-grid th { position:sticky; top:0; z-index:3; padding:12px 7px; background:#eff6ff; color:#1d4ed8; border-right:1px solid #dbeafe; border-bottom:1px solid #dbeafe; text-align:center; font-size:11px; font-weight:850; white-space:nowrap; }
+    .tt-grid th:first-child { left:0; z-index:5; width:100px; }
+    .tt-grid td { padding:6px; vertical-align:top; border-right:1px solid #e5eaf2; border-bottom:1px solid #e5eaf2; background:#fff; }
+    .tt-grid tr:last-child td { border-bottom:0; }
+    .tt-grid .tt-day { position:sticky; left:0; z-index:2; width:100px; background:#f8fafc; text-align:center; vertical-align:middle; font-size:11px; font-weight:850; }
+    .tt-day-date { display:block; margin-top:5px; color:#64748b; font-size:10px; font-weight:500; }
+    .tt-cell { display:flex; flex-direction:column; gap:6px; min-width:180px; padding:8px; border:1px solid #e2e8f0; border-radius:9px; background:#fbfdff; }
+    .tt-cell:focus-within { border-color:#60a5fa; box-shadow:0 0 0 2px #dbeafe; }
+    .tt-cell-title { display:flex; justify-content:space-between; gap:5px; align-items:center; color:#2563eb; font-size:10px; font-weight:850; }
+    .tt-cell .tt-control { height:32px; padding:0 7px; font-size:11px; }
+    .tt-time-row { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+    .tt-cell.tt-special { background:#fff7ed; border-color:#fed7aa; }
+    .tt-cell.tt-special .tt-cell-title { color:#9a3412; }
+    .tt-subject-row { display:grid; grid-template-columns:1fr auto; gap:5px; align-items:center; }
+    .tt-add-subject { display:grid; place-items:center; width:32px; height:32px; border:1px solid #bfdbfe; border-radius:7px; background:#eff6ff; color:#1d4ed8; cursor:pointer; }
+    .tt-subject-note { color:#64748b; font-size:9px; line-height:1.35; }
+    .tt-footer { position:sticky; bottom:0; z-index:6; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; padding:15px 24px; background:rgba(255,255,255,.97); border-top:1px solid var(--line); border-radius:0 0 15px 15px; box-shadow:0 -5px 15px rgba(15,23,42,.04); }
+    .tt-footer-note { color:var(--muted); font-size:10px; }
+    .tt-actions { display:flex; gap:9px; }
+    .tt-modal-backdrop { display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center; padding:18px; background:rgba(15,23,42,.45); }
+    .tt-modal-backdrop.open { display:flex; }
+    .tt-modal { width:min(440px,100%); padding:20px; border-radius:14px; background:#fff; box-shadow:0 20px 60px rgba(15,23,42,.25); }
+    .tt-modal h3 { margin:0 0 5px; font-size:17px; }
+    .tt-modal p { margin:0 0 15px; color:var(--muted); font-size:12px; }
+    .tt-modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:17px; }
+    @media(max-width:1000px) { .tt-meta { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:600px) {
+        .tt-hero,.tt-section { padding:16px; } .tt-hero { align-items:stretch; flex-direction:column; }
+        .tt-hero h1 { font-size:20px; } .tt-hero > .tt-btn { width:100%; }
+        .tt-meta { grid-template-columns:1fr; } .tt-footer { position:static; padding:15px; align-items:stretch; flex-direction:column; }
+        .tt-actions { display:grid; grid-template-columns:1fr 1fr; }
+    }
+</style>
+
+<div class="tt-page">
+    <header class="tt-card tt-hero">
+        <div class="tt-hero-main">
+            <div class="tt-icon"><i class="bi bi-calendar2-week"></i></div>
+            <div>
+                <div class="tt-eyebrow">Academic Management</div>
+                <h1>Create Weekly Timetable</h1>
+                <p class="tt-subtitle">A clear, subject-first grid to plan your whole week in one place.</p>
+            </div>
+        </div>
+        <a href="{{ route('admin.timetable.index') }}" class="tt-btn"><i class="bi bi-arrow-left"></i> Back to Timetable</a>
+    </header>
+
+    @if (session('success'))
+        <div class="tt-success"><i class="bi bi-check-circle"></i> {{ session('success') }}</div>
+    @endif
+    @if ($errors->any())
+        <div class="tt-alert" role="alert">
+            <strong><i class="bi bi-exclamation-triangle"></i> Please correct the following errors:</strong>
+            <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+        </div>
+    @endif
+
+    <form action="{{ route('admin.timetable.save') }}" method="POST" id="weeklyTimetableForm">
+        @csrf
+        <div class="tt-card">
+            <section class="tt-section">
+                <div class="tt-heading">
+                    <div class="tt-icon"><i class="bi bi-clipboard-check"></i></div>
+                    <div><h2>Timetable Details</h2><p>Set these details once for the entire weekly grid.</p></div>
+                </div>
+                <div class="tt-meta">
+                    <div class="tt-field">
+                        <label class="tt-label" for="academic_year">Academic Year <span class="tt-required">*</span></label>
+                        <input class="tt-control" type="text" id="academic_year" name="academic_year" value="{{ old('academic_year', '2026-2027') }}" placeholder="2026-2027" required>
+                        @error('academic_year') <div class="tt-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-label" for="class">Class / Standard <span class="tt-required">*</span></label>
+                        <select class="tt-control" id="class" name="class" required>
+                            <option value="">Select Class</option>
+                            @foreach ($classes as $classItem)
+                                @php $classValue = $classItem->class_name ?? $classItem->name ?? ''; @endphp
+                                <option value="{{ $classValue }}" @selected(old('class') == $classValue)>{{ $classValue }}</option>
+                            @endforeach
+                        </select>
+                        @error('class') <div class="tt-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-label" for="section">Section <span class="tt-required">*</span></label>
+                        <select class="tt-control" id="section" name="section" required><option value="">Select Section</option></select>
+                        <div class="tt-help" id="sectionHelp">Choose a class to load sections.</div>
+                        @error('section') <div class="tt-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-label" for="week_start_date">Week Starting (Monday) <span class="tt-required">*</span></label>
+                        <input class="tt-control" type="date" id="week_start_date" name="week_start_date" value="{{ old('week_start_date', now()->startOfWeek(\Carbon\Carbon::MONDAY)->format('Y-m-d')) }}" required>
+                        <div class="tt-help" id="weekDateHelp">Choose Monday; dates for each day will appear below.</div>
+                        @error('week_start_date') <div class="tt-error">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+            </section>
+
+            <section class="tt-section">
+                <div class="tt-heading">
+                    <div class="tt-icon"><i class="bi bi-grid-3x3-gap"></i></div>
+                    <div><h2>Weekly Schedule</h2><p>Select a subject first; the teacher list will be filtered for that subject when matching data is available.</p></div>
+                </div>
+
+                <div class="tt-hint"><i class="bi bi-lightbulb"></i><div><strong>Simple setup:</strong> choose a subject, choose its teacher, then set the time. Every period defaults to <strong>30 minutes</strong>. Break and Lunch slots automatically clear subject and teacher.</div></div>
+
+                <div class="tt-stats">
+                    <div class="tt-stat"><strong>6</strong> days</div>
+                    <div class="tt-stat"><strong>8</strong> periods per day</div>
+                    <div class="tt-stat"><strong>30 min</strong> default period duration</div>
+                    <div class="tt-stat">Save once for the full week</div>
+                </div>
+
+                <div class="tt-grid-wrap">
+                    <table class="tt-grid">
+                        <thead><tr><th>Day</th>@foreach ($periodNumbers as $periodNumber)<th>Period {{ $periodNumber }}</th>@endforeach</tr></thead>
+                        <tbody>
+                        @foreach ($weekDays as $dayIndex => $day)
+                            <tr>
+                                <td class="tt-day">{{ $day }}<span class="tt-day-date day-date" data-day-index="{{ $dayIndex }}">--</span></td>
+                                @foreach ($periodNumbers as $periodNumber)
+                                    @php
+                                        $oldPeriod = old("timetable.{$day}.{$periodNumber}", []);
+                                        $prefix = "timetable[{$day}][{$periodNumber}]";
+                                    @endphp
+                                    <td>
+                                        <div class="tt-cell">
+                                            <div class="tt-cell-title"><span>{{ $day }}</span><span>P{{ $periodNumber }}</span></div>
+
+                                            <select class="tt-control period-type" name="{{ $prefix }}[period_type]" required aria-label="{{ $day }} period {{ $periodNumber }} type">
+                                                @foreach (['Regular', 'Break', 'Lunch', 'Activity'] as $type)
+                                                    <option value="{{ $type }}" @selected(($oldPeriod['period_type'] ?? 'Regular') === $type)>{{ $type === 'Regular' ? 'Class' : $type }}</option>
+                                                @endforeach
+                                            </select>
+
+                                            <div class="tt-subject-row">
+                                                <select class="tt-control period-subject" name="{{ $prefix }}[subject]" required aria-label="{{ $day }} period {{ $periodNumber }} subject">
+                                                    <option value="">Select Subject</option>
+                                                    @foreach (($subjects ?? []) as $subjectItem)
+                                                        @php
+                                                            $subjectName = is_string($subjectItem) ? $subjectItem : ($subjectItem->subject_name ?? $subjectItem->name ?? $subjectItem->subject ?? '');
+                                                            $subjectValue = is_string($subjectItem) ? $subjectItem : ($subjectItem->id ?? $subjectName);
+                                                        @endphp
+                                                        <option value="{{ $subjectValue }}" data-subject-name="{{ $subjectName }}" @selected((string)($oldPeriod['subject'] ?? '') === (string)$subjectValue)>{{ $subjectName }}</option>
+                                                    @endforeach
+                                                    <option value="__add_subject__">＋ Add subject…</option>
+                                                </select>
+                                                <button type="button" class="tt-add-subject" title="Add a subject" aria-label="Add subject"><i class="bi bi-plus-lg"></i></button>
+                                            </div>
+
+                                            <select class="tt-control period-teacher" name="{{ $prefix }}[teacher_id]" aria-label="{{ $day }} period {{ $periodNumber }} teacher">
+                                                <option value="">Select Teacher</option>
+                                                @foreach ($teachers as $teacher)
+                                                    @php
+                                                        $teacherName = trim(($teacher->first_name ?? '') . ' ' . ($teacher->last_name ?? ''));
+                                                        $teacherSubjects = $teacher->subjects ?? $teacher->subject_names ?? [];
+                                                        if (is_string($teacherSubjects)) $teacherSubjects = array_map('trim', explode(',', $teacherSubjects));
+                                                    @endphp
+                                                    <option value="{{ $teacher->id }}"
+                                                        data-subjects="{{ is_array($teacherSubjects) ? implode('|', $teacherSubjects) : '' }}"
+                                                        @selected((string)($oldPeriod['teacher_id'] ?? '') === (string)$teacher->id)>
+                                                        {{ $teacherName !== '' ? $teacherName : ($teacher->name ?? 'Teacher') }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+
+                                            <div class="tt-time-row">
+                                                <input class="tt-control period-start" type="time" name="{{ $prefix }}[start_time]" value="{{ $oldPeriod['start_time'] ?? '' }}" required aria-label="{{ $day }} period {{ $periodNumber }} start time">
+                                                <input class="tt-control period-end" type="time" name="{{ $prefix }}[end_time]" value="{{ $oldPeriod['end_time'] ?? '' }}" required aria-label="{{ $day }} period {{ $periodNumber }} end time">
+                                            </div>
+
+                                            <input class="tt-control period-room" type="text" name="{{ $prefix }}[room]" value="{{ $oldPeriod['room'] ?? '' }}" placeholder="Room (optional)" maxlength="100" aria-label="{{ $day }} period {{ $periodNumber }} room">
+                                            <input type="hidden" name="{{ $prefix }}[day]" value="{{ $day }}">
+                                            <input type="hidden" name="{{ $prefix }}[period_number]" value="{{ $periodNumber }}">
+                                        </div>
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer class="tt-footer">
+                <div class="tt-footer-note"><i class="bi bi-info-circle"></i> Teacher filtering uses subject mappings available in the data. Ensure the controller supplies subject data for fully accurate filtering.</div>
+                <div class="tt-actions">
+                    <a href="{{ route('admin.timetable.index') }}" class="tt-btn">Cancel</a>
+                    <button type="submit" class="tt-btn tt-btn-primary" id="saveWeeklyBtn"><i class="bi bi-check-circle"></i> Save Weekly Timetable</button>
+                </div>
+            </footer>
+        </div>
+    </form>
+</div>
+
+<div class="tt-modal-backdrop" id="addSubjectModal" aria-hidden="true">
+    <div class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="addSubjectTitle">
+        <h3 id="addSubjectTitle">Add subject to this period</h3>
+        <p>This adds the subject as an option in the current form. To save it permanently in your subject master, use your school’s subject management page.</p>
+        <div class="tt-field">
+            <label class="tt-label" for="newSubjectName">Subject name</label>
+            <input class="tt-control" type="text" id="newSubjectName" maxlength="100" placeholder="e.g. Mathematics">
+        </div>
+        <div class="tt-modal-actions">
+            <button type="button" class="tt-btn" id="cancelAddSubject">Cancel</button>
+            <button type="button" class="tt-btn tt-btn-primary" id="confirmAddSubject">Add to timetable</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const classSelect = document.getElementById('class');
+    const sectionSelect = document.getElementById('section');
+    const sectionHelp = document.getElementById('sectionHelp');
+    const weekStart = document.getElementById('week_start_date');
+    const weekDateHelp = document.getElementById('weekDateHelp');
+    const form = document.getElementById('weeklyTimetableForm');
+    const saveButton = document.getElementById('saveWeeklyBtn');
+    const allClasses = @json($classes);
+    const allSections = @json($sections);
+    const oldSection = @json(old('section'));
+    let activeSubjectSelect = null;
+
+    function loadSections(className, selectedSection = '') {
+        sectionSelect.innerHTML = '<option value="">Select Section</option>';
+        if (!className) {
+            sectionHelp.textContent = 'Choose a class to load sections.';
+            return;
+        }
+        const selectedClass = allClasses.find(item =>
+            String(item.class_name ?? item.name ?? '').trim() === String(className).trim()
+        );
+        if (!selectedClass) {
+            sectionHelp.textContent = 'No matching class record found.';
+            return;
+        }
+        const sections = allSections.filter(item => String(item.class_id) === String(selectedClass.id));
+        sections.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.section_name;
+            option.textContent = item.section_name;
+            option.selected = String(item.section_name) === String(selectedSection);
+            sectionSelect.appendChild(option);
+        });
+        sectionHelp.textContent = sections.length ? 'Choose the section for this class.' : 'No sections found for this class.';
+    }
+
+    function formatDate(date) {
+        return new Intl.DateTimeFormat('en-IN', {day:'2-digit', month:'short', year:'numeric'}).format(date);
+    }
+
+    function updateWeekDates() {
+        if (!weekStart.value) return;
+        const start = new Date(weekStart.value + 'T12:00:00');
+        const monday = start.getDay() === 1;
+        weekDateHelp.textContent = monday
+            ? 'Monday to Saturday: ' + formatDate(start) + ' – ' + formatDate(new Date(start.getTime() + 5 * 86400000))
+            : 'Please choose a Monday.';
+        weekDateHelp.style.color = monday ? '#64748b' : '#dc2626';
+        document.querySelectorAll('.day-date').forEach(el => {
+            el.textContent = formatDate(new Date(start.getTime() + Number(el.dataset.dayIndex) * 86400000));
+        });
+    }
+
+    function getSubjectLabel(select) {
+        const option = select.options[select.selectedIndex];
+        return option ? (option.dataset.subjectName || option.textContent.trim()) : '';
+    }
+
+    function filterTeachers(cell) {
+        const subjectSelect = cell.querySelector('.period-subject');
+        const teacherSelect = cell.querySelector('.period-teacher');
+        const selectedSubject = getSubjectLabel(subjectSelect).trim().toLowerCase();
+        const currentTeacher = teacherSelect.value;
+
+        Array.from(teacherSelect.options).forEach((option, index) => {
+            if (index === 0) return;
+            const mapping = (option.dataset.subjects || '').split('|').map(s => s.trim().toLowerCase()).filter(Boolean);
+            // Only filter when teacher subject mappings exist. Otherwise keep available teachers.
+            const shouldFilter = selectedSubject && mapping.length > 0;
+            option.hidden = shouldFilter && !mapping.includes(selectedSubject);
+            option.disabled = option.hidden;
+        });
+
+        if (currentTeacher) {
+            const selected = teacherSelect.options[teacherSelect.selectedIndex];
+            if (selected && selected.disabled) teacherSelect.value = '';
+        }
+    }
+
+    function calculateEndTime(cell) {
+        const type = cell.querySelector('.period-type').value;
+        const start = cell.querySelector('.period-start');
+        const end = cell.querySelector('.period-end');
+        if (!start.value) return;
+
+        const minutes = type === 'Break' ? 15 : type === 'Lunch' ? 30 : 30;
+        const parts = start.value.split(':').map(Number);
+        const total = parts[0] * 60 + parts[1] + minutes;
+        if (total >= 1440) {
+            end.value = '';
+            return;
+        }
+        end.value = String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+    }
+
+    function configureCell(cell) {
+        const type = cell.querySelector('.period-type');
+        const subject = cell.querySelector('.period-subject');
+        const teacher = cell.querySelector('.period-teacher');
+        const start = cell.querySelector('.period-start');
+        const end = cell.querySelector('.period-end');
+        const room = cell.querySelector('.period-room');
+        const special = ['Break', 'Lunch'].includes(type.value);
+
+        cell.classList.toggle('tt-special', special);
+        subject.required = !special;
+        teacher.required = !special;
+        [subject, teacher, room].forEach(field => field.disabled = special);
+
+        if (special) {
+            subject.value = '';
+            teacher.value = '';
+            room.value = '';
+            end.required = true;
+        } else {
+            filterTeachers(cell);
+            if (start.value && !end.value) calculateEndTime(cell);
+        }
+    }
+
+    document.querySelectorAll('.tt-cell').forEach(cell => {
+        const type = cell.querySelector('.period-type');
+        const subject = cell.querySelector('.period-subject');
+        const start = cell.querySelector('.period-start');
+        const end = cell.querySelector('.period-end');
+
+        type.addEventListener('change', () => {
+            configureCell(cell);
+            if (start.value) calculateEndTime(cell);
+        });
+        subject.addEventListener('change', () => {
+            if (subject.value === '__add_subject__') {
+                subject.value = '';
+                activeSubjectSelect = subject;
+                document.getElementById('addSubjectModal').classList.add('open');
+                document.getElementById('newSubjectName').value = '';
+                document.getElementById('newSubjectName').focus();
+                return;
+            }
+            filterTeachers(cell);
+        });
+        cell.querySelector('.tt-add-subject').addEventListener('click', () => {
+            activeSubjectSelect = subject;
+            document.getElementById('addSubjectModal').classList.add('open');
+            document.getElementById('newSubjectName').value = '';
+            document.getElementById('newSubjectName').focus();
+        });
+        start.addEventListener('change', () => calculateEndTime(cell));
+        end.addEventListener('change', () => {
+            if (start.value && end.value && end.value <= start.value) {
+                end.setCustomValidity('End time must be after start time.');
+            } else {
+                end.setCustomValidity('');
+            }
+        });
+        configureCell(cell);
+    });
+
+    const modal = document.getElementById('addSubjectModal');
+    function closeSubjectModal() {
+        modal.classList.remove('open');
+        activeSubjectSelect = null;
+    }
+    document.getElementById('cancelAddSubject').addEventListener('click', closeSubjectModal);
+    modal.addEventListener('click', event => { if (event.target === modal) closeSubjectModal(); });
+    document.getElementById('confirmAddSubject').addEventListener('click', function () {
+        const name = document.getElementById('newSubjectName').value.trim();
+        if (!name || !activeSubjectSelect) {
+            alert('Enter a subject name.');
+            return;
+        }
+        const normalized = name.toLowerCase();
+        let option = Array.from(document.querySelectorAll('.period-subject option')).find(opt =>
+            opt.value !== '__add_subject__' && (opt.dataset.subjectName || opt.textContent).trim().toLowerCase() === normalized
+        );
+        if (!option) {
+            // Add the same subject to every period dropdown on this page.
+            document.querySelectorAll('.period-subject').forEach(select => {
+                const addOption = select.querySelector('option[value="__add_subject__"]');
+                const newOption = document.createElement('option');
+                newOption.value = name;
+                newOption.textContent = name;
+                newOption.dataset.subjectName = name;
+                select.insertBefore(newOption, addOption);
+            });
+        }
+        const targetOption = Array.from(activeSubjectSelect.options).find(opt =>
+            opt.value !== '__add_subject__' && (opt.dataset.subjectName || opt.textContent).trim().toLowerCase() === normalized
+        );
+        if (targetOption) activeSubjectSelect.value = targetOption.value;
+        const cell = activeSubjectSelect.closest('.tt-cell');
+        if (cell) filterTeachers(cell);
+        closeSubjectModal();
+    });
+
+    document.getElementById('newSubjectName').addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            document.getElementById('confirmAddSubject').click();
+        }
+        if (event.key === 'Escape') closeSubjectModal();
+    });
+
+    classSelect.addEventListener('change', () => loadSections(classSelect.value));
+    weekStart.addEventListener('change', updateWeekDates);
+
+    form.addEventListener('submit', function (event) {
+        if (!weekStart.value || new Date(weekStart.value + 'T12:00:00').getDay() !== 1) {
+            event.preventDefault();
+            alert('Please choose a Monday for the week starting date.');
+            weekStart.focus();
+            return;
+        }
+
+        let invalid = null;
+        document.querySelectorAll('.tt-cell').forEach(cell => {
+            if (invalid) return;
+            const type = cell.querySelector('.period-type').value;
+            const subject = cell.querySelector('.period-subject');
+            const teacher = cell.querySelector('.period-teacher');
+            const start = cell.querySelector('.period-start');
+            const end = cell.querySelector('.period-end');
+
+            if (!start.value) invalid = start;
+            else if (!end.value || end.value <= start.value) invalid = end;
+            else if (!['Break','Lunch'].includes(type) && !subject.value.trim()) invalid = subject;
+            else if (!['Break','Lunch'].includes(type) && !teacher.value) invalid = teacher;
+        });
+
+        if (invalid) {
+            event.preventDefault();
+            alert('Complete each period: subject, teacher, start time and end time. End time must be after start time.');
+            invalid.focus();
+            return;
+        }
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving timetable...';
+    });
+
+    if (classSelect.value) loadSections(classSelect.value, oldSection);
+    updateWeekDates();
+});
+</script>
+@endsection
