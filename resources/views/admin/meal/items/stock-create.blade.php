@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Stock In / Out | Admin')
@@ -6,78 +5,83 @@
 
 @section('content')
 
-<div class="meal-stock-page">
+<div class="meal-stock-form-page">
     <div class="container-fluid py-4">
 
-        {{-- PAGE HEADER --}}
-        <div class="meal-page-header mb-4">
-            <div class="meal-heading-wrapper">
-                <a href="{{ route('admin.admin.meal.items.stock.index') }}"
-                   class="back-btn"
-                   title="Back to Stock Transactions"
-                   aria-label="Back to Stock Transactions">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
+    
+{{-- BACK BUTTON --}}
+<div class="stock-back-row">
+    <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('admin.meal.items.index') }}"
+       class="stock-back-btn">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back</span>
+    </a>
+</div>
 
-                <div class="meal-heading-content">
-                    <div class="page-eyebrow">
-                        <i class="fas fa-warehouse"></i>
-                        MEAL MANAGEMENT / INVENTORY
+
+        {{-- SCHOOL DIARY PAGE HEADER --}}
+        <section class="form-hero">
+            <div class="form-hero-content">
+                <div class="form-hero-icon">
+                    <i class="fas fa-right-left"></i>
+                </div>
+
+                <div class="form-hero-text">
+                    <div class="form-breadcrumb">
+                        INVENTORY <span>/</span> STOCK MOVEMENTS <span>/</span> NEW TRANSACTION
                     </div>
 
-                    <h1 class="meal-page-title">Stock In / Out</h1>
+                    <h2>Stock In / Out</h2>
 
-                    <p class="meal-page-subtitle">
-                        Record stock purchases, usage and inventory movements.
-                    </p>
+                    <p>Record stock purchases, usage and inventory movements.</p>
                 </div>
             </div>
 
-            <div class="header-actions">
-                <a href="{{ route('admin.admin.meal.items.stock.index') }}"
-                   class="meal-secondary-btn">
+            <div class="form-hero-actions">
+                <a href="{{ route('admin.meal.items.stock.index') }}"
+                   class="diary-reset-btn">
                     <i class="fas fa-clock-rotate-left"></i>
                     Stock History
                 </a>
 
-                <a href="{{ route('admin.admin.meal.items.index') }}"
-                   class="meal-secondary-btn">
+                <a href="{{ route('admin.meal.items.index') }}"
+                   class="diary-reset-btn">
                     <i class="fas fa-boxes-stacked"></i>
                     Meal Items
                 </a>
             </div>
-        </div>
+        </section>
 
         {{-- SUCCESS MESSAGE --}}
         @if(session('success'))
-            <div class="custom-alert success-alert" role="status">
-                <div class="alert-icon">
+            <div class="form-success-alert" role="status">
+                <span class="success-icon">
                     <i class="fas fa-check"></i>
-                </div>
+                </span>
 
-                <div class="alert-content">
+                <div class="alert-copy">
                     <strong>Transaction completed</strong>
                     <span>{{ session('success') }}</span>
                 </div>
 
-                <button type="button"
-                        class="alert-close"
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                    <i class="fas fa-xmark"></i>
+                <button type="button" class="alert-close"
+                        aria-label="Close alert"
+                        onclick="this.parentElement.remove();">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
         @endif
 
         {{-- VALIDATION ERRORS --}}
         @if($errors->any())
-            <div class="custom-alert error-alert" role="alert">
-                <div class="alert-icon">
+            <div class="form-error-alert" role="alert">
+                <span class="error-icon">
                     <i class="fas fa-exclamation"></i>
-                </div>
+                </span>
 
-                <div class="alert-content">
+                <div class="alert-copy">
                     <strong>Please check the form</strong>
+
                     <ul>
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -85,69 +89,71 @@
                     </ul>
                 </div>
 
-                <button type="button"
-                        class="alert-close"
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                    <i class="fas fa-xmark"></i>
+                <button type="button" class="alert-close"
+                        aria-label="Close alert"
+                        onclick="this.parentElement.remove();">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
         @endif
 
         {{-- MAIN FORM CARD --}}
-        <div class="meal-form-card">
+        <section class="form-card">
 
-            <div class="meal-form-card-header">
-                <div class="form-header-left">
-                    <div class="form-header-icon">
+            <div class="form-panel-header">
+                <div class="panel-title-wrap">
+                    <div class="panel-title-icon">
                         <i class="fas fa-right-left"></i>
                     </div>
 
                     <div>
-                        <div class="card-eyebrow">INVENTORY MANAGEMENT</div>
-                        <h5>Stock Transaction</h5>
+                        <div class="section-eyebrow">INVENTORY MANAGEMENT</div>
+                        <h3>Stock Transaction</h3>
                         <p>Add or remove inventory for an existing meal item.</p>
                     </div>
                 </div>
 
-                <div class="secure-badge">
+                <div class="record-pill">
                     <i class="fas fa-shield-halved"></i>
                     Inventory Record
                 </div>
             </div>
 
-            <form action="{{ route('admin.admin.meal.items.stock.store') }}"
+            <form action="{{ route('admin.meal.items.stock.store') }}"
                   method="POST"
                   id="stockTransactionForm">
-
                 @csrf
 
-                <div class="meal-form-body">
+                <div class="form-body">
 
-                    {{-- SECTION 01 --}}
+                    {{-- ITEM AND TRANSACTION --}}
                     <div class="form-section">
+
                         <div class="section-heading">
-                            <div class="section-number">01</div>
+                            <div class="section-heading-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+
                             <div>
-                                <h6>Item & Transaction</h6>
-                                <p>Select the meal item and choose the inventory movement.</p>
+                                <h4>Item &amp; Transaction</h4>
+                                <span>Select the meal item and choose the inventory movement.</span>
                             </div>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="form-grid">
 
                             {{-- MEAL ITEM --}}
-                            <div class="col-lg-6">
-                                <label for="meal_item_id" class="meal-form-label">
-                                    Meal Item <span class="required-star">*</span>
+                            <div class="diary-filter-group">
+                                <label for="meal_item_id">
+                                    Meal Item <span class="required">*</span>
                                 </label>
 
-                                <div class="input-icon-wrapper">
+                                <div class="input-wrapper">
                                     <i class="fas fa-box input-icon"></i>
 
                                     <select name="meal_item_id"
                                             id="meal_item_id"
-                                            class="form-select meal-form-control input-with-icon @error('meal_item_id') is-invalid @enderror"
+                                            class="diary-control with-icon @error('meal_item_id') is-invalid @enderror"
                                             required>
                                         <option value="">Select a meal item</option>
 
@@ -155,30 +161,35 @@
                                             <option value="{{ $item->id }}"
                                                     data-stock="{{ $item->current_stock }}"
                                                     data-unit="{{ $item->unit }}"
-                                                    {{ old('meal_item_id') == $item->id ? 'selected' : '' }}>
+                                                    @selected(old('meal_item_id') == $item->id)>
                                                 {{ $item->item_name }}@if($item->category) — {{ $item->category }}@endif
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
 
-                                <div class="field-hint">
+                                <div class="field-help">
                                     <i class="fas fa-circle-info"></i>
                                     Only active meal items are shown.
                                 </div>
 
                                 @error('meal_item_id')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="field-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
                             {{-- TRANSACTION TYPE --}}
-                            <div class="col-lg-6">
-                                <label class="meal-form-label">
-                                    Transaction Type <span class="required-star">*</span>
-                                </label>
+                            <div class="diary-filter-group">
+                                <span class="group-label">
+                                    Transaction Type <span class="required">*</span>
+                                </span>
 
-                                <div class="transaction-type-wrapper">
+                                <div class="transaction-type-wrapper"
+                                     role="radiogroup"
+                                     aria-label="Transaction type">
 
                                     <label class="transaction-option stock-in-option">
                                         <input type="radio"
@@ -227,29 +238,35 @@
                                 </div>
 
                                 @error('transaction_type')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="field-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
+
                         </div>
                     </div>
 
-                    <div class="section-divider"></div>
-
-                    {{-- SECTION 02 --}}
+                    {{-- QUANTITY AND STOCK --}}
                     <div class="form-section">
+
                         <div class="section-heading">
-                            <div class="section-number">02</div>
+                            <div class="section-heading-icon">
+                                <i class="fas fa-scale-balanced"></i>
+                            </div>
+
                             <div>
-                                <h6>Quantity & Stock</h6>
-                                <p>Enter the quantity and verify the resulting inventory.</p>
+                                <h4>Quantity &amp; Stock</h4>
+                                <span>Enter the quantity and verify the resulting inventory.</span>
                             </div>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="form-grid cols-3">
 
                             {{-- CURRENT STOCK --}}
-                            <div class="col-lg-4 col-md-6">
-                                <label class="meal-form-label">Current Stock</label>
+                            <div class="diary-filter-group">
+                                <span class="group-label">Current Stock</span>
 
                                 <div class="current-stock-box">
                                     <div class="current-stock-icon">
@@ -261,1117 +278,1374 @@
                                         <div class="current-stock-label" id="currentStockUnit">Unit</div>
                                     </div>
 
-                                    <span class="live-badge">LIVE</span>
+                                    <span class="live-badge">Live</span>
                                 </div>
                             </div>
 
                             {{-- QUANTITY --}}
-                            <div class="col-lg-4 col-md-6">
-                                <label for="quantity" class="meal-form-label">
-                                    Quantity <span class="required-star">*</span>
+                            <div class="diary-filter-group">
+                                <label for="quantity">
+                                    Quantity <span class="required">*</span>
                                 </label>
 
-                                <div class="input-icon-wrapper">
+                                <div class="input-wrapper">
                                     <i class="fas fa-scale-balanced input-icon"></i>
 
                                     <input type="number"
                                            name="quantity"
                                            id="quantity"
                                            value="{{ old('quantity') }}"
-                                           class="form-control meal-form-control input-with-icon @error('quantity') is-invalid @enderror"
+                                           class="diary-control with-icon @error('quantity') is-invalid @enderror"
                                            min="0.01"
                                            step="0.01"
                                            placeholder="Enter quantity"
                                            required>
                                 </div>
 
-                                <div class="form-help-text" id="quantityHelp">
+                                <div class="field-help" id="quantityHelp">
+                                    <i class="fas fa-circle-info"></i>
                                     Select a meal item first.
                                 </div>
 
+                                <div class="field-error" id="quantityError" role="alert" hidden></div>
+
                                 @error('quantity')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="field-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
                             {{-- DATE --}}
-                            <div class="col-lg-4 col-md-6">
-                                <label for="transaction_date" class="meal-form-label">
-                                    Transaction Date <span class="required-star">*</span>
+                            <div class="diary-filter-group">
+                                <label for="transaction_date">
+                                    Transaction Date <span class="required">*</span>
                                 </label>
 
-                                <div class="input-icon-wrapper">
+                                <div class="input-wrapper">
                                     <i class="fas fa-calendar-days input-icon"></i>
 
                                     <input type="date"
                                            name="transaction_date"
                                            id="transaction_date"
                                            value="{{ old('transaction_date', now()->format('Y-m-d')) }}"
-                                           class="form-control meal-form-control input-with-icon @error('transaction_date') is-invalid @enderror"
+                                           class="diary-control with-icon @error('transaction_date') is-invalid @enderror"
                                            required>
                                 </div>
 
                                 @error('transaction_date')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="field-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
+
                         </div>
 
-                        {{-- STOCK PREVIEW --}}
-                        <div class="stock-preview-card mt-4">
+                        {{-- INVENTORY PREVIEW --}}
+                        <div class="stock-preview-card">
                             <div class="stock-preview-icon">
                                 <i class="fas fa-chart-line"></i>
                             </div>
 
                             <div class="stock-preview-content">
                                 <div class="stock-preview-title">Inventory Preview</div>
-                                <div class="stock-preview-text" id="stockPreviewText" aria-live="polite">
+
+                                <div class="stock-preview-text"
+                                     id="stockPreviewText"
+                                     aria-live="polite">
                                     Select an item and enter quantity to preview the updated stock.
                                 </div>
-                            </div>
-
-                            <div class="preview-arrow">
-                                <i class="fas fa-arrow-right"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="section-divider"></div>
-
-                    {{-- SECTION 03 --}}
+                    {{-- TRANSACTION DETAILS --}}
                     <div class="form-section">
+
                         <div class="section-heading">
-                            <div class="section-number">03</div>
+                            <div class="section-heading-icon">
+                                <i class="fas fa-align-left"></i>
+                            </div>
+
                             <div>
-                                <h6>Transaction Details</h6>
-                                <p>Add supplier or usage information.</p>
+                                <h4>Transaction Details</h4>
+                                <span>Add supplier or usage information.</span>
                             </div>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="form-grid">
 
                             {{-- SUPPLIER --}}
-                            <div class="col-lg-6 col-md-6">
-                                <label for="supplier" class="meal-form-label">
-                                    Supplier <span class="optional-text">Optional</span>
+                            <div class="diary-filter-group">
+                                <label for="supplier">
+                                    Supplier <span class="optional-badge">Optional</span>
                                 </label>
 
-                                <div class="input-icon-wrapper">
+                                <div class="input-wrapper">
                                     <i class="fas fa-truck input-icon"></i>
 
                                     <input type="text"
                                            name="supplier"
                                            id="supplier"
                                            value="{{ old('supplier') }}"
-                                           class="form-control meal-form-control input-with-icon @error('supplier') is-invalid @enderror"
+                                           class="diary-control with-icon @error('supplier') is-invalid @enderror"
                                            maxlength="255"
                                            placeholder="Enter supplier name">
                                 </div>
 
                                 @error('supplier')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="field-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
                             {{-- REASON --}}
-                            <div class="col-lg-6 col-md-6">
-                                <label for="reason" class="meal-form-label">
-                                    Reason <span class="optional-text">Optional</span>
+                            <div class="diary-filter-group">
+                                <label for="reason">
+                                    Reason <span class="optional-badge">Optional</span>
                                 </label>
 
-                                <div class="input-icon-wrapper">
+                                <div class="input-wrapper">
                                     <i class="fas fa-comment-dots input-icon"></i>
 
                                     <input type="text"
                                            name="reason"
                                            id="reason"
                                            value="{{ old('reason') }}"
-                                           class="form-control meal-form-control input-with-icon @error('reason') is-invalid @enderror"
+                                           class="diary-control with-icon @error('reason') is-invalid @enderror"
                                            maxlength="255"
                                            placeholder="Purchase / Daily Use">
                                 </div>
 
                                 @error('reason')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="field-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
                             {{-- REMARKS --}}
-                            <div class="col-12">
-                                <label for="remarks" class="meal-form-label">
-                                    Remarks <span class="optional-text">Optional</span>
-                                </label>
+                            <div class="diary-filter-group span-full">
+                                <div class="description-card">
 
-                                <textarea name="remarks"
-                                          id="remarks"
-                                          rows="4"
-                                          maxlength="1000"
-                                          class="form-control meal-form-control @error('remarks') is-invalid @enderror"
-                                          placeholder="Add any additional information about this stock transaction...">{{ old('remarks') }}</textarea>
+                                    <div class="description-header">
+                                        <div class="description-icon">
+                                            <i class="fas fa-pen"></i>
+                                        </div>
 
-                                <div class="textarea-footer">
-                                    <span>Additional notes for inventory records.</span>
-                                    <span id="remarksCounter">0 / 1000</span>
+                                        <label for="remarks">Remarks</label>
+
+                                        <span class="optional-badge">Optional</span>
+                                    </div>
+
+                                    <textarea name="remarks"
+                                              id="remarks"
+                                              rows="4"
+                                              maxlength="1000"
+                                              class="diary-textarea @error('remarks') is-invalid @enderror"
+                                              placeholder="Add any additional information about this stock transaction...">{{ old('remarks') }}</textarea>
+
+                                    <div class="description-footer">
+                                        <div class="field-help">
+                                            <i class="fas fa-lightbulb"></i>
+                                            Additional notes for inventory records.
+                                        </div>
+
+                                        <span class="character-count" id="remarksCounter">0 / 1000</span>
+                                    </div>
+
+                                    @error('remarks')
+                                        <div class="field-error">
+                                            <i class="fas fa-circle-exclamation"></i>
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
                                 </div>
-
-                                @error('remarks')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
                             </div>
+
                         </div>
                     </div>
+
                 </div>
 
-                {{-- FORM FOOTER --}}
-                <div class="meal-form-footer">
+                {{-- FORM ACTIONS --}}
+                <div class="form-actions">
                     <div class="footer-note">
                         <i class="fas fa-shield-halved"></i>
                         <span>Transaction will be added to the inventory log.</span>
                     </div>
 
                     <div class="footer-actions">
-                        <a href="{{ route('admin.admin.meal.items.stock.index') }}"
-                           class="meal-cancel-btn">
+                        <a href="{{ route('admin.meal.items.stock.index') }}"
+                           class="diary-reset-btn">
                             <i class="fas fa-xmark"></i>
                             Cancel
                         </a>
 
-                        <button type="submit" class="meal-save-btn" id="submitBtn">
+                        <button type="submit"
+                                class="diary-primary-btn"
+                                id="submitBtn">
                             <i class="fas fa-check"></i>
                             Record Transaction
                         </button>
                     </div>
                 </div>
+
             </form>
-        </div>
+        </section>
+
     </div>
 </div>
 
 <style>
 /* =========================================================
-   SCHOOL DIARY DESIGN SYSTEM — STOCK IN / OUT
+   LOCKED SCHOOL DIARY DESIGN SYSTEM
+   MEAL STOCK IN / OUT — TRANSACTION FORM PAGE
+   Same tokens, cards and buttons as Sports Achievements.
+   Every selector is scoped under .meal-stock-form-page.
 ========================================================= */
-.meal-stock-page {
-    --paper: #fffefa;
-    --ink: #263b35;
-    --muted: #849087;
-    --wood: #a87543;
-    --green: #34775a;
-    --green-dark: #245a43;
-    --green-light: #eaf3e9;
-    --cyan: #527f79;
-    --red: #bd5148;
-    --border: #e5e1d3;
-    --page: #f5f3e9;
-    --white: #ffffff;
 
-    min-height: calc(100vh - 70px);
-    background: var(--page);
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-}
 
-.meal-stock-page *,
-.meal-stock-page *::before,
-.meal-stock-page *::after {
-    box-sizing: border-box;
-}
-
-.meal-stock-page .container-fluid {
-    max-width: 1500px;
-    padding-left: 24px;
-    padding-right: 24px;
-}
-
-/* HEADER */
-.meal-stock-page .meal-page-header {
+/* BACK BUTTON — SCOPED TO STOCK FORM */
+.meal-stock-form-page .stock-back-row {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: 14px;
 }
 
-.meal-stock-page .meal-heading-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    min-width: 0;
-}
-
-.meal-stock-page .back-btn {
+.meal-stock-form-page .stock-back-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 39px;
-    height: 39px;
-    flex-shrink: 0;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    background: var(--paper);
-    color: var(--green);
-    text-decoration: none;
-    transition: background .2s ease, color .2s ease, transform .2s ease;
+    gap: 8px;
+    min-height: 38px;
+    padding: 9px 15px;
+    border: 1px solid #deded2;
+    border-radius: 7px;
+    color: #59675d !important;
+    background: #fffefa;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: color .18s ease, background .18s ease,
+        border-color .18s ease, transform .18s ease;
 }
 
-.meal-stock-page .back-btn:hover {
-    background: var(--green);
-    border-color: var(--green);
-    color: var(--white);
+.meal-stock-form-page .stock-back-btn:hover {
+    border-color: #b7c4b7;
+    color: var(--ink) !important;
+    background: #f5f4eb;
     transform: translateX(-2px);
 }
 
-.meal-stock-page .page-eyebrow {
+.meal-stock-form-page .stock-back-btn:focus-visible {
+    outline: 3px solid rgba(82, 127, 121, .45);
+    outline-offset: 3px;
+}
+
+@media (max-width: 650px) {
+    .meal-stock-form-page .stock-back-row {
+        margin-bottom: 12px;
+    }
+}
+
+
+.meal-stock-form-page {
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --ink-hover: #456854;
+    --text: #34423d;
+    --muted: #78827a;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --paper-bg: #f7f6f0;
+    --chalk: #f4f0df;
+    --blue: #2b5d8a;
+    --amber: #a87543;
+    --green: #3a8060;
+    --red: #bd5148;
+    --cyan: #527f79;
+    --serif: Georgia, "Times New Roman", serif;
+
+    min-height: calc(100vh - 70px);
+    color: var(--text);
+    background: var(--paper-bg);
+    font-family: "Public Sans", Inter, Arial, sans-serif;
+}
+
+.meal-stock-form-page *,
+.meal-stock-form-page *::before,
+.meal-stock-form-page *::after {
+    box-sizing: border-box;
+}
+
+.meal-stock-form-page a,
+.meal-stock-form-page button {
+    transition: color .18s ease, background .18s ease,
+        border-color .18s ease, transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.meal-stock-form-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
+}
+
+.meal-stock-form-page .form-hero,
+.meal-stock-form-page .form-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+}
+
+/* PAGE HEADER */
+
+.meal-stock-form-page .form-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .045);
+}
+
+.meal-stock-form-page .form-hero::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 34px;
+    width: 2px;
+    background: rgba(189, 81, 72, .35);
+}
+
+.meal-stock-form-page .form-hero-content {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 17px;
+    min-width: 0;
+    padding: 26px 28px 26px 56px;
+    background:
+        radial-gradient(ellipse at top left, rgba(244, 240, 223, .65), transparent 65%),
+        var(--paper);
+}
+
+.meal-stock-form-page .form-hero-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    border: 1px solid #e6dfce;
+    border-radius: 12px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 22px;
+}
+
+.meal-stock-form-page .form-hero-text {
+    min-width: 0;
+}
+
+.meal-stock-form-page .form-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 7px;
+    color: var(--amber);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+}
+
+.meal-stock-form-page .form-breadcrumb span {
+    color: #b8b09e;
+}
+
+.meal-stock-form-page .form-hero-text h2 {
+    margin: 0 0 7px;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 29px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.45px;
+}
+
+.meal-stock-form-page .form-hero-text p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.75;
+}
+
+.meal-stock-form-page .form-hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 28px;
+}
+
+/* LOCKED BUTTON STYLES */
+
+.meal-stock-form-page .diary-primary-btn,
+.meal-stock-form-page .diary-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 41px;
+    padding: 10px 16px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none !important;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.meal-stock-form-page .diary-primary-btn {
+    border: 1px solid var(--ink);
+    color: #fff !important;
+    background: var(--ink);
+}
+
+.meal-stock-form-page .diary-primary-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--ink-hover);
+    color: #fff !important;
+    background: var(--ink-hover);
+    box-shadow: 0 5px 13px rgba(29, 48, 43, .14);
+}
+
+.meal-stock-form-page .diary-primary-btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.meal-stock-form-page .diary-reset-btn {
+    border: 1px solid #deded2;
+    color: #59675d !important;
+    background: #fffefa;
+}
+
+.meal-stock-form-page .diary-reset-btn:hover {
+    border-color: #b7c4b7;
+    color: var(--ink) !important;
+    background: #f5f4eb;
+}
+
+/* ALERTS */
+
+.meal-stock-form-page .form-success-alert,
+.meal-stock-form-page .form-error-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.meal-stock-form-page .form-success-alert {
+    border: 1px solid #cfe3d1;
+    color: #347849;
+    background: #f1f8ef;
+}
+
+.meal-stock-form-page .form-error-alert {
+    border: 1px solid #f0d5ce;
+    color: #a84840;
+    background: #fff4ef;
+}
+
+.meal-stock-form-page .success-icon,
+.meal-stock-form-page .error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 27px;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+}
+
+.meal-stock-form-page .success-icon { background: #dcefd9; }
+.meal-stock-form-page .error-icon { background: #fbe0d8; }
+
+.meal-stock-form-page .alert-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.meal-stock-form-page .alert-copy strong {
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 800;
+}
+
+.meal-stock-form-page .alert-copy span {
+    font-weight: 600;
+}
+
+.meal-stock-form-page .alert-copy ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+    font-weight: 600;
+    line-height: 1.7;
+}
+
+.meal-stock-form-page .alert-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    margin-left: auto;
+    border: 0;
+    border-radius: 6px;
+    color: #68746a;
+    background: transparent;
+    cursor: pointer;
+}
+
+.meal-stock-form-page .alert-close:hover {
+    color: var(--ink);
+    background: rgba(38, 59, 53, .07);
+}
+
+/* FORM CARD */
+
+.meal-stock-form-page .form-card {
+    overflow: hidden;
+    box-shadow: 0 5px 17px rgba(38, 59, 53, .04);
+}
+
+.meal-stock-form-page .form-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 21px;
+    border-bottom: 1px dashed #d8d1bf;
+    background: var(--paper);
+}
+
+.meal-stock-form-page .panel-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.meal-stock-form-page .panel-title-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e3e2d5;
+    border-radius: 9px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 14px;
+}
+
+.meal-stock-form-page .section-eyebrow {
     margin-bottom: 4px;
-    color: var(--wood);
+    color: var(--amber);
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 1px;
 }
 
-.meal-stock-page .meal-page-title {
+.meal-stock-form-page .panel-title-wrap h3 {
     margin: 0;
     color: var(--ink);
-    font-size: 22px;
-    line-height: 1.3;
-    font-weight: 800;
-    letter-spacing: -.45px;
-}
-
-.meal-stock-page .meal-page-subtitle {
-    margin: 4px 0 0;
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1.5;
-}
-
-.meal-stock-page .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.meal-stock-page .meal-secondary-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-height: 36px;
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--paper);
-    color: var(--ink);
-    font-size: 10px;
+    font-family: var(--serif);
+    font-size: 18px;
     font-weight: 700;
-    text-decoration: none;
-    transition: all .2s ease;
 }
 
-.meal-stock-page .meal-secondary-btn:hover {
-    background: var(--green-light);
-    border-color: #bfd3c1;
-    color: var(--green-dark);
-}
-
-/* ALERTS */
-.meal-stock-page .custom-alert {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 15px;
-    padding: 12px 14px;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    background: var(--paper);
-}
-
-.meal-stock-page .success-alert {
-    background: #f0f6ed;
-    border-color: #cfdfc9;
-    color: var(--green-dark);
-}
-
-.meal-stock-page .error-alert {
-    background: #fff3ef;
-    border-color: #e9c9bf;
-    color: var(--red);
-}
-
-.meal-stock-page .alert-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 29px;
-    height: 29px;
-    flex-shrink: 0;
-    border-radius: 7px;
-    background: rgba(52, 119, 90, .1);
-}
-
-.meal-stock-page .error-alert .alert-icon {
-    background: rgba(189, 81, 72, .1);
-}
-
-.meal-stock-page .alert-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.meal-stock-page .alert-content strong {
-    display: block;
-    margin-bottom: 3px;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.meal-stock-page .alert-content span,
-.meal-stock-page .alert-content li {
+.meal-stock-form-page .panel-title-wrap p {
+    margin: 5px 0 0;
+    color: var(--muted);
     font-size: 11px;
     line-height: 1.6;
 }
 
-.meal-stock-page .alert-content ul {
-    margin: 4px 0 0;
-    padding-left: 17px;
-}
-
-.meal-stock-page .alert-close {
-    border: 0;
-    background: transparent;
-    color: currentColor;
-    opacity: .65;
-    cursor: pointer;
-}
-
-/* MAIN CARD */
-.meal-stock-page .meal-form-card {
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 11px;
-    background: var(--paper);
-    box-shadow: 0 5px 18px rgba(57, 65, 45, .045);
-}
-
-.meal-stock-page .meal-form-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 17px 20px;
-    border-bottom: 1px solid var(--border);
-    background: #fbfaf4;
-}
-
-.meal-stock-page .form-header-left {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    min-width: 0;
-}
-
-.meal-stock-page .form-header-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    border: 1px solid #d4e2d2;
-    border-radius: 9px;
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 14px;
-}
-
-.meal-stock-page .card-eyebrow {
-    margin-bottom: 3px;
-    color: var(--wood);
-    font-size: 8px;
-    font-weight: 800;
-    letter-spacing: .9px;
-}
-
-.meal-stock-page .meal-form-card-header h5 {
-    margin: 0 0 3px;
-    color: var(--ink);
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.meal-stock-page .meal-form-card-header p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 10px;
-}
-
-.meal-stock-page .secure-badge {
+.meal-stock-form-page .record-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 9px;
-    border: 1px solid #d9e4d5;
-    border-radius: 7px;
-    background: var(--green-light);
-    color: var(--green-dark);
-    font-size: 9px;
-    font-weight: 750;
+    gap: 7px;
+    flex-shrink: 0;
+    min-height: 31px;
+    padding: 6px 11px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    color: var(--muted);
+    background: #faf9f4;
+    font-size: 10px;
+    font-weight: 700;
     white-space: nowrap;
 }
 
-/* FORM BODY */
-.meal-stock-page .meal-form-body {
-    padding: 23px 22px 25px;
+.meal-stock-form-page .record-pill i {
+    color: var(--green);
 }
 
-.meal-stock-page .section-heading {
+/* FORM BODY AND SECTIONS */
+
+.meal-stock-form-page .form-body {
+    padding: 24px 22px 8px;
+}
+
+.meal-stock-form-page .form-section {
+    padding-bottom: 26px;
+    margin-bottom: 26px;
+    border-bottom: 1px dashed #d8d1bf;
+}
+
+.meal-stock-form-page .form-section:last-child {
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.meal-stock-form-page .section-heading {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 17px;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 20px;
 }
 
-.meal-stock-page .section-number {
+.meal-stock-form-page .section-heading-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
-    border: 1px solid #d4e2d2;
-    border-radius: 7px;
-    background: var(--green-light);
-    color: var(--green-dark);
-    font-size: 9px;
-    font-weight: 800;
-}
-
-.meal-stock-page .section-heading h6 {
-    margin: 1px 0 3px;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e3e2d5;
+    border-radius: 9px;
     color: var(--ink);
-    font-size: 12px;
-    font-weight: 800;
+    background: var(--chalk);
+    font-size: 13px;
 }
 
-.meal-stock-page .section-heading p {
+.meal-stock-form-page .section-heading h4 {
     margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.meal-stock-form-page .section-heading span {
+    display: block;
+    margin-top: 4px;
     color: var(--muted);
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.5;
 }
 
-.meal-stock-page .section-divider {
-    height: 1px;
-    margin: 23px 0;
-    background: var(--border);
+/* FORM GRID AND FIELDS */
+
+.meal-stock-form-page .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 20px 16px;
 }
 
-/* LABELS */
-.meal-stock-page .meal-form-label {
+.meal-stock-form-page .form-grid.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.meal-stock-form-page .form-grid .span-full {
+    grid-column: 1 / -1;
+}
+
+.meal-stock-form-page .diary-filter-group {
+    min-width: 0;
+}
+
+.meal-stock-form-page .diary-filter-group > label,
+.meal-stock-form-page .group-label {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 4px;
-    min-height: 18px;
+    gap: 6px;
     margin-bottom: 7px;
-    color: var(--ink);
-    font-size: 10px;
-    font-weight: 800;
+    color: #68766d;
+    font-size: 11px;
+    font-weight: 700;
 }
 
-.meal-stock-page .required-star {
+.meal-stock-form-page .required {
     color: var(--red);
 }
 
-.meal-stock-page .optional-text {
-    margin-left: 3px;
-    padding: 2px 5px;
-    border: 1px solid #e8e0cf;
-    border-radius: 4px;
-    background: #f6f0e3;
-    color: #8b785d;
-    font-size: 8px;
-    font-weight: 750;
-    text-transform: uppercase;
+.meal-stock-form-page .optional-badge {
+    padding: 2px 8px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    color: var(--muted);
+    background: #fffefa;
+    font-size: 9px;
+    font-weight: 700;
 }
 
-/* INPUTS */
-.meal-stock-page .input-icon-wrapper {
+.meal-stock-form-page .input-wrapper {
     position: relative;
+    width: 100%;
 }
 
-.meal-stock-page .input-icon {
+.meal-stock-form-page .input-icon {
     position: absolute;
     top: 50%;
     left: 12px;
     z-index: 2;
+    width: 15px;
     transform: translateY(-50%);
-    color: #8b9487;
-    font-size: 11px;
+    color: #929b8f;
+    font-size: 12px;
     pointer-events: none;
+    transition: color .18s ease;
 }
 
-.meal-stock-page .input-icon-wrapper:focus-within .input-icon {
+.meal-stock-form-page .input-wrapper:focus-within .input-icon {
     color: var(--green);
 }
 
-.meal-stock-page .meal-form-control {
+.meal-stock-form-page .diary-control,
+.meal-stock-form-page .diary-textarea {
+    display: block;
     width: 100%;
-    min-height: 39px;
-    border: 1px solid #dedccc;
+    min-width: 0;
+    border: 1px solid #deded2;
     border-radius: 7px;
-    background: #fffefa;
-    color: var(--ink);
-    font-family: inherit;
-    font-size: 11px;
-    box-shadow: none;
-    transition: border-color .2s ease, box-shadow .2s ease;
-}
-
-.meal-stock-page .meal-form-control::placeholder {
-    color: #a4a596;
-}
-
-.meal-stock-page .meal-form-control:hover {
-    border-color: #c8c6b5;
-}
-
-.meal-stock-page .meal-form-control:focus {
-    border-color: var(--green);
-    box-shadow: 0 0 0 3px rgba(52, 119, 90, .09);
     outline: none;
+    color: var(--text);
+    background: #fffefa;
+    font-family: inherit;
+    font-size: 12px;
+    box-shadow: none;
+    transition: border-color .18s ease, box-shadow .18s ease;
 }
 
-.meal-stock-page .input-with-icon {
+.meal-stock-form-page .diary-control {
+    height: 41px;
+    padding: 0 10px;
+}
+
+.meal-stock-form-page .diary-control.with-icon {
     padding-left: 35px;
 }
 
-.meal-stock-page select.meal-form-control {
-    padding-right: 30px;
+.meal-stock-form-page select.diary-control {
     cursor: pointer;
 }
 
-.meal-stock-page textarea.meal-form-control {
-    min-height: 95px;
-    padding: 11px 12px;
-    line-height: 1.6;
-    resize: vertical;
+.meal-stock-form-page .diary-control::placeholder,
+.meal-stock-form-page .diary-textarea::placeholder {
+    color: #929b8f;
 }
 
-.meal-stock-page .field-hint,
-.meal-stock-page .form-help-text {
+.meal-stock-form-page .diary-control:hover,
+.meal-stock-form-page .diary-textarea:hover {
+    border-color: #bfcbbd;
+}
+
+.meal-stock-form-page .diary-control:focus,
+.meal-stock-form-page .diary-textarea:focus {
+    border-color: #789382;
+    box-shadow: 0 0 0 3px rgba(58, 128, 96, .11);
+}
+
+.meal-stock-form-page .diary-control.is-invalid,
+.meal-stock-form-page .diary-textarea.is-invalid {
+    border-color: var(--red);
+    background: #fff8f5;
+}
+
+.meal-stock-form-page .diary-control.is-invalid:focus,
+.meal-stock-form-page .diary-textarea.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(189, 81, 72, .10);
+}
+
+/* HELP AND ERROR TEXT */
+
+.meal-stock-form-page .field-help {
     display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 6px;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 7px;
     color: var(--muted);
-    font-size: 9px;
-    line-height: 1.5;
-}
-
-.meal-stock-page .field-hint i {
-    color: var(--wood);
-}
-
-.meal-stock-page .invalid-feedback {
     font-size: 10px;
-    font-weight: 650;
+    line-height: 1.55;
+}
+
+.meal-stock-form-page .field-help i {
+    margin-top: 2px;
+    color: var(--amber);
+    font-size: 10px;
+}
+
+.meal-stock-form-page .field-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 6px;
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.meal-stock-form-page .field-error[hidden] {
+    display: none;
+}
+
+.meal-stock-form-page .field-error i {
+    margin-top: 2px;
 }
 
 /* TRANSACTION TYPE */
-.meal-stock-page .transaction-type-wrapper {
+
+.meal-stock-form-page .transaction-type-wrapper {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 9px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
 }
 
-.meal-stock-page .transaction-option {
+.meal-stock-form-page .transaction-option {
     display: block;
     position: relative;
-    margin: 0;
+    margin: 0 !important;
     cursor: pointer;
 }
 
-.meal-stock-page .transaction-option input {
+.meal-stock-form-page .transaction-option input {
     position: absolute;
     width: 1px;
     height: 1px;
     opacity: 0;
 }
 
-.meal-stock-page .transaction-option-content {
+.meal-stock-form-page .transaction-option-content {
     display: flex;
     align-items: center;
-    gap: 9px;
-    min-height: 61px;
-    padding: 9px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--paper);
-    transition: border-color .2s ease, background .2s ease;
+    gap: 10px;
+    min-height: 63px;
+    padding: 10px 11px;
+    border: 1px solid #deded2;
+    border-radius: 9px;
+    background: #fffefa;
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
 }
 
-.meal-stock-page .transaction-option:hover .transaction-option-content {
-    border-color: #b8cbb6;
+.meal-stock-form-page .transaction-option:hover .transaction-option-content {
+    border-color: #b7c4b7;
 }
 
-.meal-stock-page .transaction-option input:focus-visible + .transaction-option-content {
-    outline: 2px solid var(--green);
+.meal-stock-form-page .transaction-option input:focus-visible + .transaction-option-content {
+    outline: 3px solid rgba(82, 127, 121, .45);
     outline-offset: 2px;
 }
 
-.meal-stock-page .transaction-option-icon {
+.meal-stock-form-page .transaction-option-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-    border-radius: 7px;
-    font-size: 12px;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 13px;
 }
 
-.meal-stock-page .stock-in-option .transaction-option-icon {
-    background: var(--green-light);
-    color: var(--green);
+.meal-stock-form-page .stock-in-option .transaction-option-icon {
+    border-color: #cfe5d3;
+    color: #347849;
+    background: #edf7ed;
 }
 
-.meal-stock-page .stock-out-option .transaction-option-icon {
-    background: #f9e9e3;
+.meal-stock-form-page .stock-out-option .transaction-option-icon {
+    border-color: #f0d5ce;
     color: var(--red);
+    background: #fff1ed;
 }
 
-.meal-stock-page .transaction-option-text {
+.meal-stock-form-page .transaction-option-text {
     flex: 1;
     min-width: 0;
 }
 
-.meal-stock-page .transaction-option-text strong {
+.meal-stock-form-page .transaction-option-text strong {
     display: block;
     margin-bottom: 3px;
     color: var(--ink);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
 }
 
-.meal-stock-page .transaction-option-text small {
+.meal-stock-form-page .transaction-option-text small {
     display: block;
     color: var(--muted);
-    font-size: 8px;
+    font-size: 10px;
     line-height: 1.4;
 }
 
-.meal-stock-page .transaction-check {
+.meal-stock-form-page .transaction-check {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 17px;
-    height: 17px;
-    flex-shrink: 0;
+    flex: 0 0 19px;
+    width: 19px;
+    height: 19px;
     border: 1px solid #d8d5c7;
     border-radius: 50%;
     color: transparent;
-    font-size: 7px;
+    font-size: 8px;
 }
 
-.meal-stock-page .stock-in-option input:checked + .transaction-option-content {
+.meal-stock-form-page .stock-in-option input:checked + .transaction-option-content {
     border-color: var(--green);
-    background: #f0f6ed;
+    background: #f1f8ef;
+    box-shadow: 0 0 0 3px rgba(58, 128, 96, .09);
 }
 
-.meal-stock-page .stock-in-option input:checked + .transaction-option-content .transaction-check {
+.meal-stock-form-page .stock-in-option input:checked + .transaction-option-content .transaction-check {
     border-color: var(--green);
+    color: #fff;
     background: var(--green);
-    color: white;
 }
 
-.meal-stock-page .stock-out-option input:checked + .transaction-option-content {
+.meal-stock-form-page .stock-out-option input:checked + .transaction-option-content {
     border-color: var(--red);
-    background: #fff5f0;
+    background: #fff4ef;
+    box-shadow: 0 0 0 3px rgba(189, 81, 72, .09);
 }
 
-.meal-stock-page .stock-out-option input:checked + .transaction-option-content .transaction-check {
+.meal-stock-form-page .stock-out-option input:checked + .transaction-option-content .transaction-check {
     border-color: var(--red);
+    color: #fff;
     background: var(--red);
-    color: white;
 }
 
 /* CURRENT STOCK */
-.meal-stock-page .current-stock-box {
+
+.meal-stock-form-page .current-stock-box {
     display: flex;
     align-items: center;
-    gap: 9px;
-    min-height: 39px;
-    padding: 5px 9px;
-    border: 1px solid var(--border);
+    gap: 10px;
+    height: 41px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
     border-radius: 7px;
-    background: #f8f7ef;
+    background: #faf9f4;
 }
 
-.meal-stock-page .current-stock-icon {
+.meal-stock-form-page .current-stock-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    flex-shrink: 0;
-    border-radius: 6px;
-    background: var(--green-light);
-    color: var(--green);
+    flex: 0 0 27px;
+    width: 27px;
+    height: 27px;
+    border: 1px solid #e6dfce;
+    border-radius: 7px;
+    color: var(--ink);
+    background: var(--chalk);
     font-size: 11px;
 }
 
-.meal-stock-page .current-stock-info {
+.meal-stock-form-page .current-stock-info {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     min-width: 0;
 }
 
-.meal-stock-page .current-stock-value {
+.meal-stock-form-page .current-stock-value {
     color: var(--ink);
-    font-size: 13px;
-    line-height: 1.2;
+    font-size: 14px;
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
 }
 
-.meal-stock-page .current-stock-label {
-    margin-top: 2px;
+.meal-stock-form-page .current-stock-label {
     color: var(--muted);
-    font-size: 8px;
-    text-transform: uppercase;
+    font-size: 10px;
 }
 
-.meal-stock-page .live-badge {
+.meal-stock-form-page .live-badge {
     margin-left: auto;
-    padding: 3px 5px;
-    border-radius: 4px;
-    background: var(--green-light);
-    color: var(--green-dark);
-    font-size: 7px;
+    padding: 3px 8px;
+    border: 1px solid #cfe5d3;
+    border-radius: 20px;
+    color: #347849;
+    background: #edf7ed;
+    font-size: 9px;
     font-weight: 800;
-    letter-spacing: .5px;
 }
 
 /* INVENTORY PREVIEW */
-.meal-stock-page .stock-preview-card {
+
+.meal-stock-form-page .stock-preview-card {
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 13px;
-    border: 1px solid #d7e2d0;
-    border-radius: 8px;
-    background: #f2f6ed;
+    gap: 12px;
+    margin-top: 22px;
+    padding: 14px;
+    border: 1px solid #e6dfc9;
+    border-radius: 9px;
+    background: #faf5e7;
 }
 
-.meal-stock-page .stock-preview-icon {
+.meal-stock-form-page .stock-preview-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex: 0 0 36px;
     width: 36px;
     height: 36px;
-    flex-shrink: 0;
-    border: 1px solid #d4e2d2;
-    border-radius: 7px;
-    background: #e4efdf;
-    color: var(--green);
-    font-size: 12px;
+    border: 1px solid #e6dfc9;
+    border-radius: 9px;
+    color: var(--amber);
+    background: #fffefa;
+    font-size: 13px;
 }
 
-.meal-stock-page .stock-preview-content {
+.meal-stock-form-page .stock-preview-content {
     flex: 1;
     min-width: 0;
 }
 
-.meal-stock-page .stock-preview-title {
+.meal-stock-form-page .stock-preview-title {
     margin-bottom: 4px;
-    color: var(--ink);
-    font-size: 10px;
+    color: #765e32;
+    font-size: 12px;
     font-weight: 800;
 }
 
-.meal-stock-page .stock-preview-text {
-    color: #6e7c6f;
-    font-size: 10px;
-    line-height: 1.6;
+.meal-stock-form-page .stock-preview-text {
+    color: #8a7447;
+    font-size: 11px;
+    line-height: 1.65;
     overflow-wrap: anywhere;
 }
 
-.meal-stock-page .stock-preview-text strong {
-    color: var(--green-dark);
+.meal-stock-form-page .stock-preview-text strong {
+    color: var(--ink);
     font-weight: 800;
 }
 
-.meal-stock-page .preview-arrow {
+.meal-stock-form-page .stock-preview-error {
+    color: var(--red);
+    font-weight: 800;
+}
+
+/* REMARKS CARD */
+
+.meal-stock-form-page .description-card {
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #faf9f4;
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.meal-stock-form-page .description-card:focus-within {
+    border-color: #b7c4b7;
+    box-shadow: 0 3px 12px rgba(58, 128, 96, .06);
+}
+
+.meal-stock-form-page .description-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 11px;
+}
+
+.meal-stock-form-page .description-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
-    border: 1px solid #d8e2d2;
-    border-radius: 50%;
-    background: var(--paper);
-    color: var(--green);
-    font-size: 9px;
+    width: 29px;
+    height: 29px;
+    border: 1px solid #e6dfce;
+    border-radius: 7px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 11px;
 }
 
-/* REMARKS */
-.meal-stock-page .textarea-footer {
+.meal-stock-form-page .description-header label {
+    margin: 0;
+    color: #68766d;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.meal-stock-form-page .diary-textarea {
+    min-height: 110px;
+    padding: 11px 12px;
+    line-height: 1.7;
+    resize: vertical;
+}
+
+.meal-stock-form-page .description-footer {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin-top: 6px;
+    gap: 12px;
+    margin-top: 9px;
+}
+
+.meal-stock-form-page .description-footer .field-help {
+    margin-top: 0;
+}
+
+.meal-stock-form-page .character-count {
+    flex-shrink: 0;
     color: var(--muted);
-    font-size: 9px;
+    font-size: 10px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
-.meal-stock-page #remarksCounter {
-    color: var(--green-dark);
-    font-weight: 750;
-    white-space: nowrap;
-}
+/* ACTION BAR */
 
-/* FOOTER */
-.meal-stock-page .meal-form-footer {
+.meal-stock-form-page .form-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    padding: 14px 20px;
-    border-top: 1px solid var(--border);
-    background: #f9f7ef;
+    margin-top: 8px;
+    padding: 15px 22px;
+    border-top: 1px dashed #d8d1bf;
+    background: #faf9f4;
 }
 
-.meal-stock-page .footer-note {
+.meal-stock-form-page .footer-note {
     display: flex;
     align-items: center;
     gap: 7px;
     color: var(--muted);
-    font-size: 9px;
+    font-size: 11px;
     line-height: 1.5;
 }
 
-.meal-stock-page .footer-note i {
+.meal-stock-form-page .footer-note i {
     color: var(--green);
 }
 
-.meal-stock-page .footer-actions {
+.meal-stock-form-page .footer-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
 }
 
-.meal-stock-page .meal-cancel-btn,
-.meal-stock-page .meal-save-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-height: 36px;
-    padding: 8px 13px;
-    border: 1px solid transparent;
-    border-radius: 7px;
-    font-family: inherit;
-    font-size: 10px;
-    font-weight: 800;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background .2s ease, border-color .2s ease, transform .2s ease;
-}
+/* TABLET */
 
-.meal-stock-page .meal-cancel-btn {
-    border-color: var(--border);
-    background: var(--paper);
-    color: var(--ink);
-}
-
-.meal-stock-page .meal-cancel-btn:hover {
-    border-color: #c9c5b3;
-    background: #f1efe4;
-    color: var(--ink);
-}
-
-.meal-stock-page .meal-save-btn {
-    border-color: var(--green);
-    background: var(--green);
-    color: white;
-}
-
-.meal-stock-page .meal-save-btn:hover {
-    border-color: var(--green-dark);
-    background: var(--green-dark);
-    color: white;
-    transform: translateY(-1px);
-}
-
-.meal-stock-page .meal-save-btn:disabled {
-    opacity: .65;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* RESPONSIVE */
-@media (max-width: 991.98px) {
-    .meal-stock-page .secure-badge {
-        display: none;
-    }
-
-    .meal-stock-page .meal-form-card-header {
-        padding: 15px 17px;
+@media (max-width: 1100px) {
+    .meal-stock-form-page .form-grid.cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 767.98px) {
-    .meal-stock-page .container-fluid {
-        padding: 19px 15px !important;
-    }
-
-    .meal-stock-page .meal-page-header {
-        align-items: flex-start;
-    }
-
-    .meal-stock-page .meal-page-title {
-        font-size: 20px;
-    }
-
-    .meal-stock-page .header-actions {
-        width: 100%;
-    }
-
-    .meal-stock-page .header-actions .meal-secondary-btn {
-        flex: 1;
-    }
-
-    .meal-stock-page .meal-form-body {
-        padding: 19px 15px 21px;
-    }
-
-    .meal-stock-page .transaction-type-wrapper {
+@media (max-width: 900px) {
+    .meal-stock-form-page .form-hero {
         grid-template-columns: 1fr;
     }
 
-    .meal-stock-page .meal-form-footer {
-        align-items: stretch;
-        flex-direction: column;
-        padding: 14px 15px;
+    .meal-stock-form-page .form-hero-actions {
+        padding: 0 28px 24px 56px;
     }
 
-    .meal-stock-page .footer-note {
-        align-items: flex-start;
-    }
-
-    .meal-stock-page .footer-actions {
-        width: 100%;
-    }
-
-    .meal-stock-page .footer-actions > * {
-        flex: 1;
-    }
-
-    .meal-stock-page .preview-arrow {
-        display: none;
+    .meal-stock-form-page .form-grid,
+    .meal-stock-form-page .form-grid.cols-3 {
+        grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 480px) {
-    .meal-stock-page .meal-heading-wrapper {
-        align-items: flex-start;
-        gap: 9px;
+/* MOBILE */
+
+@media (max-width: 650px) {
+    .meal-stock-form-page .container-fluid {
+        padding-top: 18px !important;
+        padding-bottom: 18px !important;
     }
 
-    .meal-stock-page .back-btn {
+    .meal-stock-form-page .form-hero::before {
+        left: 22px;
+    }
+
+    .meal-stock-form-page .form-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 22px 16px 18px 42px;
+    }
+
+    .meal-stock-form-page .form-hero-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        border-radius: 9px;
+        font-size: 18px;
+    }
+
+    .meal-stock-form-page .form-hero-text h2 {
+        font-size: 23px;
+    }
+
+    .meal-stock-form-page .form-hero-text p {
+        font-size: 12px;
+    }
+
+    .meal-stock-form-page .form-hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0 16px 20px 42px;
+    }
+
+    .meal-stock-form-page .form-panel-header {
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .meal-stock-form-page .panel-title-wrap h3 {
+        font-size: 16px;
+    }
+
+    .meal-stock-form-page .record-pill {
+        display: none;
+    }
+
+    .meal-stock-form-page .form-body {
+        padding: 18px 15px 6px;
+    }
+
+    .meal-stock-form-page .transaction-type-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    /* 16px prevents iOS from zooming into focused fields */
+    .meal-stock-form-page .diary-control,
+    .meal-stock-form-page .diary-textarea {
+        font-size: 16px;
+    }
+
+    .meal-stock-form-page .description-card {
+        padding: 12px;
+    }
+
+    .meal-stock-form-page .description-footer {
+        align-items: flex-start;
+    }
+
+    .meal-stock-form-page .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px 15px;
+    }
+
+    .meal-stock-form-page .footer-actions {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .meal-stock-form-page .footer-actions > * {
+        width: 100%;
+    }
+}
+
+@media (max-width: 400px) {
+    .meal-stock-form-page .panel-title-icon {
+        flex-basis: 34px;
         width: 34px;
         height: 34px;
     }
 
-    .meal-stock-page .meal-page-title {
-        font-size: 18px;
-    }
-
-    .meal-stock-page .meal-page-subtitle {
-        font-size: 10px;
-    }
-
-    .meal-stock-page .header-actions {
-        flex-direction: column;
-    }
-
-    .meal-stock-page .header-actions .meal-secondary-btn {
-        width: 100%;
-    }
-
-    .meal-stock-page .meal-form-card-header {
-        padding: 14px 12px;
-    }
-
-    .meal-stock-page .meal-form-body {
-        padding: 17px 12px;
-    }
-
-    .meal-stock-page .form-header-icon {
-        width: 35px;
-        height: 35px;
-    }
-
-    .meal-stock-page .meal-form-card-header p {
-        max-width: 220px;
-        line-height: 1.5;
-    }
-
-    .meal-stock-page .stock-preview-card {
+    .meal-stock-form-page .section-heading {
         align-items: flex-start;
     }
 
-    .meal-stock-page .textarea-footer {
+    .meal-stock-form-page .stock-preview-card {
         align-items: flex-start;
-    }
-
-    .meal-stock-page .footer-actions {
-        flex-direction: column-reverse;
-    }
-
-    .meal-stock-page .footer-actions > * {
-        width: 100%;
     }
 }
 
+/* ACCESSIBILITY */
+
+.meal-stock-form-page :focus-visible {
+    outline: 3px solid rgba(82, 127, 121, .45);
+    outline-offset: 3px;
+}
+
+.meal-stock-form-page .diary-control:focus-visible,
+.meal-stock-form-page .diary-textarea:focus-visible {
+    outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .meal-stock-page *,
-    .meal-stock-page *::before,
-    .meal-stock-page *::after {
-        transition: none !important;
+    .meal-stock-form-page *,
+    .meal-stock-form-page *::before,
+    .meal-stock-form-page *::after {
         scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
     }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const page = document.querySelector('.meal-stock-page');
+    var page = document.querySelector('.meal-stock-form-page');
 
     if (!page) return;
 
-    const itemSelect = page.querySelector('#meal_item_id');
-    const quantityInput = page.querySelector('#quantity');
-    const currentStockValue = page.querySelector('#currentStockValue');
-    const currentStockUnit = page.querySelector('#currentStockUnit');
-    const quantityHelp = page.querySelector('#quantityHelp');
-    const stockPreviewText = page.querySelector('#stockPreviewText');
-    const transactionTypeInputs = page.querySelectorAll('input[name="transaction_type"]');
-    const submitBtn = page.querySelector('#submitBtn');
-    const form = page.querySelector('#stockTransactionForm');
-    const remarks = page.querySelector('#remarks');
-    const remarksCounter = page.querySelector('#remarksCounter');
+    var itemSelect = page.querySelector('#meal_item_id');
+    var quantityInput = page.querySelector('#quantity');
+    var currentStockValue = page.querySelector('#currentStockValue');
+    var currentStockUnit = page.querySelector('#currentStockUnit');
+    var quantityHelp = page.querySelector('#quantityHelp');
+    var quantityError = page.querySelector('#quantityError');
+    var stockPreviewText = page.querySelector('#stockPreviewText');
+    var transactionTypeInputs = page.querySelectorAll('input[name="transaction_type"]');
+    var submitBtn = page.querySelector('#submitBtn');
+    var form = page.querySelector('#stockTransactionForm');
+    var remarks = page.querySelector('#remarks');
+    var remarksCounter = page.querySelector('#remarksCounter');
 
-    let currentStock = 0;
-    let currentUnit = 'Unit';
+    var currentStock = 0;
+    var currentUnit = 'Unit';
 
     function getTransactionType() {
-        const selected = page.querySelector('input[name="transaction_type"]:checked');
+        var selected = page.querySelector('input[name="transaction_type"]:checked');
         return selected ? selected.value : 'stock_in';
     }
 
@@ -1382,8 +1656,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function showQuantityError(message) {
+        quantityError.innerHTML = '<i class="fas fa-circle-exclamation"></i> ' + message;
+        quantityError.hidden = false;
+        quantityInput.classList.add('is-invalid');
+        quantityInput.focus();
+    }
+
+    function clearQuantityError() {
+        quantityError.hidden = true;
+        quantityError.innerHTML = '';
+        quantityInput.classList.remove('is-invalid');
+    }
+
     function updateItemDetails() {
-        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+        var selectedOption = itemSelect.options[itemSelect.selectedIndex];
 
         if (!selectedOption || !selectedOption.value) {
             currentStock = 0;
@@ -1393,7 +1680,8 @@ document.addEventListener('DOMContentLoaded', function () {
             currentStockUnit.textContent = 'Unit';
             quantityInput.removeAttribute('max');
 
-            quantityHelp.textContent = 'Select a meal item first.';
+            quantityHelp.innerHTML =
+                '<i class="fas fa-circle-info"></i> Select a meal item first.';
             stockPreviewText.textContent =
                 'Select an item and enter quantity to preview the updated stock.';
 
@@ -1411,6 +1699,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateQuantityLimit() {
+        if (!itemSelect.value) return;
+
         if (getTransactionType() === 'stock_out') {
             quantityInput.max = currentStock;
 
@@ -1426,8 +1716,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updatePreview() {
-        const quantity = parseFloat(quantityInput.value || 0);
-        const transactionType = getTransactionType();
+        var quantity = parseFloat(quantityInput.value || 0);
+        var transactionType = getTransactionType();
+
+        clearQuantityError();
 
         if (!itemSelect.value) {
             stockPreviewText.textContent =
@@ -1442,12 +1734,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (transactionType === 'stock_in') {
-            const updatedStock = currentStock + quantity;
+            var increased = currentStock + quantity;
 
             stockPreviewText.innerHTML =
                 'Current stock <strong>' + formatNumber(currentStock) + ' ' + currentUnit +
                 '</strong> + Stock In <strong>' + formatNumber(quantity) + ' ' + currentUnit +
-                '</strong> = Updated stock <strong>' + formatNumber(updatedStock) + ' ' +
+                '</strong> = Updated stock <strong>' + formatNumber(increased) + ' ' +
                 currentUnit + '</strong>.';
 
             return;
@@ -1462,12 +1754,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const updatedStock = currentStock - quantity;
+        var reduced = currentStock - quantity;
 
         stockPreviewText.innerHTML =
             'Current stock <strong>' + formatNumber(currentStock) + ' ' + currentUnit +
             '</strong> − Stock Out <strong>' + formatNumber(quantity) + ' ' + currentUnit +
-            '</strong> = Updated stock <strong>' + formatNumber(updatedStock) + ' ' +
+            '</strong> = Updated stock <strong>' + formatNumber(reduced) + ' ' +
             currentUnit + '</strong>.';
     }
 
@@ -1491,39 +1783,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     form.addEventListener('submit', function (event) {
-        const transactionType = getTransactionType();
-        const quantity = parseFloat(quantityInput.value || 0);
-
-        if (transactionType === 'stock_out' && quantity > currentStock) {
-            event.preventDefault();
-
-            alert('Stock Out quantity cannot be greater than available stock.');
-            quantityInput.focus();
-            return;
-        }
+        var transactionType = getTransactionType();
+        var quantity = parseFloat(quantityInput.value || 0);
 
         if (!itemSelect.value || !quantity || quantity <= 0) {
             event.preventDefault();
+            showQuantityError('Please select a meal item and enter a valid quantity.');
+            return;
+        }
 
-            alert('Please select a meal item and enter a valid quantity.');
+        if (transactionType === 'stock_out' && quantity > currentStock) {
+            event.preventDefault();
+            showQuantityError('Stock Out quantity cannot be greater than available stock.');
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML =
-            '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     });
 
     updateItemDetails();
     updateRemarksCounter();
 });
 </script>
-
-<style>
-.meal-stock-page .stock-preview-error {
-    color: #bd5148;
-    font-weight: 800;
-}
-</style>
 
 @endsection

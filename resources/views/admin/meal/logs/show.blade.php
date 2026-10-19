@@ -882,7 +882,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('admin.admin.meal.logs.index') }}"
+            <a href="{{ route('admin.meal.logs.index') }}"
                class="meal-back-btn">
                 <span class="meal-back-icon">
                     <i class="fas fa-arrow-left"></i>
@@ -1390,7 +1390,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('admin.admin.meal.logs.index') }}"
+            <a href="{{ route('admin.meal.logs.index') }}"
                class="details-back-btn">
                 <i class="fas fa-arrow-left"></i>
                 Back to Logs

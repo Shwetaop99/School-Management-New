@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('admin.admin.meal.items.index') }}"
+            <a href="{{ route('admin.meal.items.index') }}"
                class="meal-back-btn">
                 <i class="fas fa-arrow-left"></i>
                 <span>Back to Items</span>
@@ -85,7 +85,7 @@
             {{-- CARD BODY --}}
             <div class="meal-form-card-body">
 
-                <form action="{{ route('admin.admin.meal.items.update', $mealItem) }}"
+                <form action="{{ route('admin.meal.items.update', $mealItem) }}"
                       method="POST">
 
                     @csrf
@@ -404,7 +404,7 @@
                         </div>
 
                         <div class="form-action-buttons">
-                            <a href="{{ route('admin.admin.meal.items.index') }}"
+                            <a href="{{ route('admin.meal.items.index') }}"
                                class="meal-cancel-btn">
                                 <i class="fas fa-xmark"></i>
                                 Cancel
