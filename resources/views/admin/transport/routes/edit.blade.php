@@ -6,99 +6,131 @@
 
 <style>
     /* =========================================================
-       EDIT TRANSPORT ROUTE
+       SCHOOL DIARY DESIGN SYSTEM — EDIT TRANSPORT ROUTE
     ========================================================= */
 
     .transport-route-edit-page {
+        --diary-bg: #f5f3e9;
+        --diary-paper: #fffefa;
+        --diary-ink: #263b35;
+        --diary-green: #34775a;
+        --diary-green-dark: #245a43;
+        --diary-green-light: #eaf3e9;
+        --diary-wood: #a87543;
+        --diary-cyan: #527f79;
+        --diary-red: #bd5148;
+        --diary-border: #e5e1d3;
+        --diary-muted: #827e70;
+
         width: 100%;
         min-height: calc(100vh - 60px);
-        background: #f4f7fb;
-        color: #172033;
+        background: var(--diary-bg);
+        color: var(--diary-ink);
         font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        padding-bottom: 24px;
+    }
+
+    .transport-route-edit-page *,
+    .transport-route-edit-page *::before,
+    .transport-route-edit-page *::after {
+        box-sizing: border-box;
     }
 
     .transport-route-edit-container {
         width: 100%;
-        padding: 28px 30px 40px;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 24px 28px 36px;
     }
 
     /* =========================================================
-       HEADER
+       PAGE HEADER
     ========================================================= */
 
     .route-edit-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 22px;
+        gap: 18px;
+        padding: 17px 20px;
+        margin-bottom: 15px;
+        background: var(--diary-paper);
+        border: 1px solid var(--diary-border);
+        border-left: 4px solid var(--diary-green);
+        border-radius: 9px;
+        box-shadow: 0 3px 12px rgba(38, 59, 53, 0.045);
     }
 
     .route-edit-heading {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 13px;
+        min-width: 0;
     }
 
     .route-edit-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        color: #fff;
-        font-size: 21px;
-        box-shadow: 0 7px 18px rgba(23, 105, 209, .20);
         flex-shrink: 0;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
+        font-size: 20px;
+        border: 1px solid #d7e7d5;
     }
 
     .route-edit-heading h1 {
         margin: 0;
-        font-size: 24px;
+        color: var(--diary-ink);
+        font-size: 22px;
+        line-height: 1.3;
         font-weight: 750;
-        color: #172033;
-        letter-spacing: -.3px;
+        letter-spacing: -0.45px;
     }
 
     .route-edit-heading p {
         margin: 4px 0 0;
-        color: #64748b;
-        font-size: 13px;
+        color: var(--diary-muted);
+        font-size: 11px;
+        line-height: 1.5;
     }
 
     .route-edit-header-actions {
         display: flex;
         align-items: center;
-        gap: 9px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
-    .header-btn {
-        min-height: 42px;
-        padding: 0 16px;
-        border-radius: 11px;
+    .transport-route-edit-page .header-btn {
+        min-height: 36px;
+        padding: 0 12px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 7px;
+        border: 1px solid var(--diary-border);
+        border-radius: 7px;
+        background: var(--diary-paper);
+        color: var(--diary-green);
         text-decoration: none;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 650;
-        transition: all .25s ease;
         white-space: nowrap;
+        transition: background .2s ease, border-color .2s ease,
+                    color .2s ease, transform .2s ease;
     }
 
-    .header-btn.secondary {
-        color: #1769d1;
-        background: #fff;
-        border: 1px solid #dce6f1;
-    }
-
-    .header-btn.secondary:hover {
-        color: #1769d1;
-        background: #f2f7ff;
-        border-color: #bcd3ee;
+    .transport-route-edit-page .header-btn:hover {
+        background: var(--diary-green-light);
+        border-color: #bfd4be;
+        color: var(--diary-green-dark);
+        transform: translateY(-1px);
     }
 
     /* =========================================================
@@ -108,325 +140,374 @@
     .route-edit-breadcrumb {
         display: flex;
         align-items: center;
-        gap: 7px;
-        margin-bottom: 22px;
-        font-size: 12px;
-        color: #94a3b8;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 18px;
+        padding: 0 2px;
+        color: var(--diary-muted);
+        font-size: 10px;
+        line-height: 1.7;
+        text-transform: uppercase;
+        letter-spacing: .35px;
     }
 
     .route-edit-breadcrumb a {
-        color: #1769d1;
+        color: var(--diary-green);
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
+        transition: color .2s ease;
+    }
+
+    .route-edit-breadcrumb a:hover {
+        color: var(--diary-green-dark);
+        text-decoration: underline;
     }
 
     .route-edit-breadcrumb i {
-        font-size: 10px;
+        color: #b5ad9c;
+        font-size: 9px;
     }
 
     /* =========================================================
-       VALIDATION
+       VALIDATION ALERT
     ========================================================= */
 
-    .validation-alert {
+    .transport-route-edit-page .validation-alert {
         display: flex;
         align-items: flex-start;
-        gap: 11px;
-        padding: 14px 16px;
-        margin-bottom: 20px;
-        border: 1px solid #fecaca;
-        border-radius: 12px;
-        background: #fff1f2;
-        color: #b91c1c;
-        font-size: 12px;
+        gap: 10px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        border: 1px solid #e9c8c2;
+        border-radius: 8px;
+        background: #fbefeb;
+        color: var(--diary-red);
+        font-size: 11px;
+        line-height: 1.6;
     }
 
-    .validation-alert i {
+    .transport-route-edit-page .validation-alert > i {
         margin-top: 1px;
         font-size: 15px;
+        flex-shrink: 0;
     }
 
-    .validation-alert strong {
+    .transport-route-edit-page .validation-alert strong {
         display: block;
         margin-bottom: 5px;
-        font-size: 12px;
+        color: #9f4039;
+        font-size: 11px;
+        font-weight: 750;
     }
 
-    .validation-alert ul {
+    .transport-route-edit-page .validation-alert ul {
         margin: 0;
         padding-left: 17px;
     }
 
-    .validation-alert li {
+    .transport-route-edit-page .validation-alert li {
         margin-bottom: 2px;
     }
 
     /* =========================================================
-       MAIN FORM
+       MAIN FORM CARD
     ========================================================= */
 
-    .route-edit-form-card {
-        background: #fff;
-        border: 1px solid #e5ebf3;
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
+    .transport-route-edit-page .route-edit-form-card {
         overflow: hidden;
+        background: var(--diary-paper);
+        border: 1px solid var(--diary-border);
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(38, 59, 53, 0.045);
     }
 
-    .form-section {
-        padding: 24px 25px;
-        border-bottom: 1px solid #edf1f6;
+    .transport-route-edit-page .form-section {
+        padding: 22px 24px;
+        border-bottom: 1px solid var(--diary-border);
     }
 
-    .form-section:last-of-type {
+    .transport-route-edit-page .form-section:last-of-type {
         border-bottom: 0;
     }
 
-    .form-section-header {
+    /* =========================================================
+       NUMBERED-STYLE SECTION HEADERS
+    ========================================================= */
+
+    .transport-route-edit-page .form-section-header {
         display: flex;
         align-items: center;
         gap: 11px;
         margin-bottom: 20px;
     }
 
-    .form-section-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 11px;
+    .transport-route-edit-page .form-section-icon {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #d8e6d5;
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        font-size: 16px;
-    }
-
-    .form-section-icon.blue {
-        background: #dbeafe;
-        color: #1769d1;
-    }
-
-    .form-section-icon.orange {
-        background: #ffedd5;
-        color: #ea580c;
-    }
-
-    .form-section-icon.purple {
-        background: #ede9fe;
-        color: #7c3aed;
-    }
-
-    .form-section-icon.green {
-        background: #dcfce7;
-        color: #16a34a;
-    }
-
-    .form-section-title h2 {
-        margin: 0;
-        color: #172033;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
         font-size: 15px;
+    }
+
+    .transport-route-edit-page .form-section-icon.blue,
+    .transport-route-edit-page .form-section-icon.orange,
+    .transport-route-edit-page .form-section-icon.purple,
+    .transport-route-edit-page .form-section-icon.green {
+        background: var(--diary-green-light);
+        color: var(--diary-green);
+        border-color: #d8e6d5;
+    }
+
+    .transport-route-edit-page .form-section-title h2 {
+        margin: 0;
+        color: var(--diary-ink);
+        font-size: 13px;
+        line-height: 1.4;
         font-weight: 750;
     }
 
-    .form-section-title p {
+    .transport-route-edit-page .form-section-title p {
         margin: 3px 0 0;
-        color: #94a3b8;
-        font-size: 10.5px;
+        color: var(--diary-muted);
+        font-size: 10px;
+        line-height: 1.5;
     }
 
     /* =========================================================
        FORM GRID
     ========================================================= */
 
-    .form-grid {
+    .transport-route-edit-page .form-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px 20px;
+        gap: 17px 20px;
     }
 
-    .form-grid.single {
+    .transport-route-edit-page .form-grid.single {
         grid-template-columns: 1fr;
     }
 
-    .form-group {
+    .transport-route-edit-page .form-group {
         min-width: 0;
     }
 
-    .form-group.full {
+    .transport-route-edit-page .form-group.full {
         grid-column: 1 / -1;
     }
 
-    .form-label {
+    .transport-route-edit-page .form-label {
         display: block;
         margin-bottom: 7px;
-        color: #334155;
-        font-size: 11.5px;
-        font-weight: 650;
-    }
-
-    .required {
-        color: #ef4444;
-        margin-left: 2px;
-    }
-
-    .form-control-custom {
-        width: 100%;
-        height: 43px;
-        padding: 0 13px;
-        border: 1px solid #dce5ef;
-        border-radius: 10px;
-        background: #fff;
-        color: #172033;
-        font-family: inherit;
-        font-size: 12px;
-        outline: none;
-        transition: all .22s ease;
-        box-sizing: border-box;
-    }
-
-    .form-control-custom::placeholder {
-        color: #a5b1c2;
-    }
-
-    .form-control-custom:focus {
-        border-color: #1769d1;
-        box-shadow: 0 0 0 3px rgba(23, 105, 209, .10);
-    }
-
-    textarea.form-control-custom {
-        height: auto;
-        min-height: 120px;
-        padding: 12px 13px;
-        resize: vertical;
-        line-height: 1.5;
-    }
-
-    select.form-control-custom {
-        cursor: pointer;
-    }
-
-    .field-help {
-        margin-top: 6px;
-        color: #94a3b8;
-        font-size: 10px;
+        color: var(--diary-ink);
+        font-size: 11px;
         line-height: 1.45;
+        font-weight: 700;
     }
 
-    .field-error {
-        margin-top: 5px;
-        color: #dc2626;
-        font-size: 10px;
-        font-weight: 550;
-    }
-
-    .input-prefix-wrapper {
-        position: relative;
-    }
-
-    .input-prefix-wrapper .form-control-custom {
-        padding-left: 38px;
-    }
-
-    .input-prefix-icon {
-        position: absolute;
-        left: 13px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #94a3b8;
-        font-size: 13px;
-        pointer-events: none;
+    .transport-route-edit-page .required {
+        margin-left: 2px;
+        color: var(--diary-red);
+        font-weight: 750;
     }
 
     /* =========================================================
-       STATUS
+       INPUTS
     ========================================================= */
 
-    .status-options {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
+    .transport-route-edit-page .form-control-custom {
+        display: block;
+        width: 100%;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid var(--diary-border);
+        border-radius: 7px;
+        background: #fffefa;
+        color: var(--diary-ink);
+        font-family: inherit;
+        font-size: 11.5px;
+        line-height: 1.5;
+        outline: none;
+        box-shadow: none;
+        transition: border-color .2s ease, box-shadow .2s ease,
+                    background .2s ease;
     }
 
-    .status-option {
+    .transport-route-edit-page .form-control-custom::placeholder {
+        color: #aaa493;
+        opacity: 1;
+    }
+
+    .transport-route-edit-page .form-control-custom:hover {
+        border-color: #cfc9b8;
+    }
+
+    .transport-route-edit-page .form-control-custom:focus {
+        border-color: var(--diary-green);
+        background: #fffefa;
+        box-shadow: 0 0 0 3px rgba(52, 119, 90, .11);
+    }
+
+    .transport-route-edit-page textarea.form-control-custom {
+        height: auto;
+        min-height: 125px;
+        padding: 11px 12px;
+        resize: vertical;
+        line-height: 1.65;
+    }
+
+    .transport-route-edit-page select.form-control-custom {
+        cursor: pointer;
+    }
+
+    .transport-route-edit-page .field-help {
+        margin-top: 6px;
+        color: var(--diary-muted);
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .transport-route-edit-page .field-error {
+        margin-top: 5px;
+        color: var(--diary-red);
+        font-size: 10px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       INPUT PREFIX ICONS
+    ========================================================= */
+
+    .transport-route-edit-page .input-prefix-wrapper {
         position: relative;
     }
 
-    .status-option input {
+    .transport-route-edit-page .input-prefix-wrapper .form-control-custom {
+        padding-left: 37px;
+    }
+
+    .transport-route-edit-page .input-prefix-icon {
         position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--diary-cyan);
+        font-size: 13px;
+        pointer-events: none;
+        transition: color .2s ease;
+    }
+
+    .transport-route-edit-page .input-prefix-wrapper:focus-within .input-prefix-icon {
+        color: var(--diary-green);
+    }
+
+    /* =========================================================
+       ROUTE STATUS
+    ========================================================= */
+
+    .transport-route-edit-page .status-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .transport-route-edit-page .status-option {
+        position: relative;
+    }
+
+    .transport-route-edit-page .status-option input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
         opacity: 0;
         pointer-events: none;
     }
 
-    .status-option label {
-        min-width: 125px;
-        height: 43px;
-        padding: 0 15px;
+    .transport-route-edit-page .status-option label {
+        min-width: 112px;
+        min-height: 40px;
+        padding: 0 13px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        border: 1px solid #dce5ef;
-        border-radius: 10px;
-        background: #fff;
-        color: #64748b;
-        font-size: 11.5px;
-        font-weight: 650;
+        border: 1px solid var(--diary-border);
+        border-radius: 7px;
+        background: var(--diary-paper);
+        color: var(--diary-muted);
+        font-size: 11px;
+        font-weight: 700;
         cursor: pointer;
-        transition: all .2s ease;
+        transition: background .2s ease, border-color .2s ease,
+                    color .2s ease, box-shadow .2s ease;
     }
 
-    .status-option label:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
+    .transport-route-edit-page .status-option label:hover {
+        background: #faf8ef;
+        border-color: #cec8b8;
     }
 
-    .status-option input:checked + label.active-option {
-        color: #15803d;
-        background: #f0fdf4;
-        border-color: #86efac;
+    .transport-route-edit-page .status-option input:focus-visible + label {
+        outline: 2px solid var(--diary-green);
+        outline-offset: 3px;
     }
 
-    .status-option input:checked + label.inactive-option {
-        color: #b91c1c;
-        background: #fef2f2;
-        border-color: #fca5a5;
+    .transport-route-edit-page .status-option input:checked + label.active-option {
+        color: var(--diary-green-dark);
+        background: var(--diary-green-light);
+        border-color: #b8d4b7;
+        box-shadow: inset 0 0 0 1px rgba(52, 119, 90, .05);
     }
 
-    .status-option-dot {
+    .transport-route-edit-page .status-option input:checked + label.inactive-option {
+        color: var(--diary-red);
+        background: #fbefeb;
+        border-color: #e9c8c2;
+    }
+
+    .transport-route-edit-page .status-option-dot {
         width: 7px;
         height: 7px;
         border-radius: 50%;
+        flex-shrink: 0;
     }
 
-    .status-option-dot.active {
-        background: #16a34a;
+    .transport-route-edit-page .status-option-dot.active {
+        background: var(--diary-green);
     }
 
-    .status-option-dot.inactive {
-        background: #ef4444;
+    .transport-route-edit-page .status-option-dot.inactive {
+        background: var(--diary-red);
     }
 
     /* =========================================================
-       INFO BOX
+       ROUTE INFORMATION BOX
     ========================================================= */
 
-    .route-info-box {
+    .transport-route-edit-page .route-info-box {
         display: flex;
         align-items: flex-start;
-        gap: 10px;
-        padding: 12px 14px;
-        margin-top: 13px;
-        border-radius: 11px;
-        background: #f2f7ff;
-        border: 1px solid #dbeafe;
-        color: #52657d;
+        gap: 9px;
+        padding: 11px 12px;
+        margin-top: 11px;
+        border: 1px solid #d8e6d5;
+        border-radius: 7px;
+        background: var(--diary-green-light);
+        color: #486451;
         font-size: 10.5px;
-        line-height: 1.55;
+        line-height: 1.6;
     }
 
-    .route-info-box i {
-        color: #1769d1;
-        font-size: 14px;
-        margin-top: 1px;
+    .transport-route-edit-page .route-info-box i {
+        margin-top: 2px;
+        color: var(--diary-green);
+        font-size: 13px;
         flex-shrink: 0;
     }
 
@@ -434,136 +515,276 @@
        FORM FOOTER
     ========================================================= */
 
-    .form-footer {
+    .transport-route-edit-page .form-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 15px;
-        padding: 18px 25px;
-        background: #fbfcfe;
-        border-top: 1px solid #edf1f6;
+        padding: 16px 24px;
+        background: #faf8ef;
+        border-top: 1px solid var(--diary-border);
     }
 
-    .form-footer-note {
-        color: #94a3b8;
-        font-size: 10.5px;
+    .transport-route-edit-page .form-footer-note {
+        color: var(--diary-muted);
+        font-size: 10px;
+        line-height: 1.6;
     }
 
-    .form-footer-actions {
+    .transport-route-edit-page .form-footer-note i {
+        margin-right: 4px;
+        color: var(--diary-cyan);
+    }
+
+    .transport-route-edit-page .form-footer-actions {
         display: flex;
         align-items: center;
-        gap: 9px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
-    .form-btn {
-        min-height: 42px;
-        padding: 0 17px;
-        border-radius: 10px;
+    .transport-route-edit-page .form-btn {
+        min-height: 38px;
+        padding: 0 14px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 7px;
+        border: 1px solid transparent;
+        border-radius: 7px;
         font-family: inherit;
-        font-size: 11.5px;
-        font-weight: 650;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.4;
         text-decoration: none;
+        white-space: nowrap;
         cursor: pointer;
-        transition: all .22s ease;
+        transition: background .2s ease, border-color .2s ease,
+                    color .2s ease, transform .2s ease,
+                    box-shadow .2s ease;
     }
 
-    .form-btn.cancel {
-        color: #64748b;
-        background: #fff;
-        border: 1px solid #dce5ef;
+    .transport-route-edit-page .form-btn.cancel {
+        color: var(--diary-ink);
+        background: var(--diary-paper);
+        border-color: var(--diary-border);
     }
 
-    .form-btn.cancel:hover {
-        color: #1769d1;
-        background: #f2f7ff;
-        border-color: #c2d7ed;
+    .transport-route-edit-page .form-btn.cancel:hover {
+        color: var(--diary-green-dark);
+        background: var(--diary-green-light);
+        border-color: #bfd4be;
     }
 
-    .form-btn.update {
-        color: #fff;
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        border: 1px solid #1769d1;
-        box-shadow: 0 6px 15px rgba(23, 105, 209, .18);
+    .transport-route-edit-page .form-btn.update {
+        color: #fffefa;
+        background: var(--diary-green);
+        border-color: var(--diary-green);
+        box-shadow: 0 3px 8px rgba(52, 119, 90, .13);
     }
 
-    .form-btn.update:hover {
+    .transport-route-edit-page .form-btn.update:hover {
+        color: #fffefa;
+        background: var(--diary-green-dark);
+        border-color: var(--diary-green-dark);
+        box-shadow: 0 5px 12px rgba(36, 90, 67, .17);
         transform: translateY(-1px);
-        box-shadow: 0 9px 20px rgba(23, 105, 209, .24);
+    }
+
+    .transport-route-edit-page .form-btn:focus-visible,
+    .transport-route-edit-page .header-btn:focus-visible {
+        outline: 2px solid var(--diary-green);
+        outline-offset: 3px;
     }
 
     /* =========================================================
-       RESPONSIVE
+       RESPONSIVE — TABLET
     ========================================================= */
 
-    @media (max-width: 800px) {
-
+    @media (max-width: 991.98px) {
         .transport-route-edit-container {
-            padding: 22px 20px 35px;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .form-group.full {
-            grid-column: auto;
+            padding: 21px 20px 30px;
         }
 
         .route-edit-header {
             align-items: flex-start;
-            flex-direction: column;
         }
 
         .route-edit-header-actions {
+            max-width: 48%;
+        }
+
+        .transport-route-edit-page .form-section {
+            padding: 20px;
+        }
+
+        .transport-route-edit-page .form-grid {
+            gap: 16px;
+        }
+
+        .transport-route-edit-page .form-footer {
+            padding: 15px 20px;
+        }
+    }
+
+    /* =========================================================
+       RESPONSIVE — MOBILE
+    ========================================================= */
+
+    @media (max-width: 767.98px) {
+        .transport-route-edit-container {
+            padding: 17px 15px 25px;
+        }
+
+        .route-edit-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .route-edit-heading h1 {
+            font-size: 20px;
+        }
+
+        .route-edit-header-actions {
+            max-width: none;
             width: 100%;
+            justify-content: flex-start;
         }
 
         .route-edit-header-actions .header-btn {
-            flex: 1;
+            flex: 1 1 auto;
         }
 
-        .form-footer {
-            align-items: flex-start;
+        .route-edit-breadcrumb {
+            gap: 6px;
+            margin-bottom: 14px;
+            font-size: 9px;
+        }
+
+        .transport-route-edit-page .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .transport-route-edit-page .form-group.full {
+            grid-column: auto;
+        }
+
+        .transport-route-edit-page .form-section {
+            padding: 18px 16px;
+        }
+
+        .transport-route-edit-page .form-section-header {
+            margin-bottom: 17px;
+        }
+
+        .transport-route-edit-page .form-footer {
+            align-items: stretch;
             flex-direction: column;
+            padding: 15px 16px;
         }
 
-        .form-footer-actions {
+        .transport-route-edit-page .form-footer-actions {
             width: 100%;
         }
 
-        .form-footer-actions .form-btn {
+        .transport-route-edit-page .form-footer-actions .form-btn {
             flex: 1;
         }
     }
 
-    @media (max-width: 550px) {
+    /* =========================================================
+       RESPONSIVE — SMALL MOBILE
+    ========================================================= */
 
+    @media (max-width: 480px) {
         .transport-route-edit-container {
-            padding: 18px 14px 30px;
+            padding: 13px 10px 22px;
+        }
+
+        .route-edit-header {
+            padding: 13px;
+        }
+
+        .route-edit-heading {
+            gap: 10px;
+        }
+
+        .route-edit-icon {
+            width: 39px;
+            height: 39px;
+            font-size: 17px;
         }
 
         .route-edit-heading h1 {
-            font-size: 21px;
+            font-size: 18px;
         }
 
-        .form-section {
-            padding: 20px 17px;
+        .route-edit-heading p {
+            font-size: 10px;
         }
 
-        .form-footer {
-            padding: 16px 17px;
-        }
-
-        .status-options {
+        .route-edit-header-actions {
             flex-direction: column;
+            align-items: stretch;
         }
 
-        .status-option label {
+        .route-edit-header-actions .header-btn {
             width: 100%;
+        }
+
+        .transport-route-edit-page .form-section {
+            padding: 16px 12px;
+        }
+
+        .transport-route-edit-page .form-section-icon {
+            width: 33px;
+            height: 33px;
+            font-size: 14px;
+        }
+
+        .transport-route-edit-page .form-section-title h2 {
+            font-size: 12px;
+        }
+
+        .transport-route-edit-page .form-section-title p {
+            font-size: 9.5px;
+        }
+
+        .transport-route-edit-page .status-options {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .transport-route-edit-page .status-option label {
+            width: 100%;
+        }
+
+        .transport-route-edit-page .form-footer-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .transport-route-edit-page .form-footer-actions .form-btn {
+            width: 100%;
+            min-height: 40px;
+        }
+    }
+
+    /* =========================================================
+       ACCESSIBILITY
+    ========================================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+        .transport-route-edit-page *,
+        .transport-route-edit-page *::before,
+        .transport-route-edit-page *::after {
+            scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
         }
     }
 </style>
@@ -658,13 +879,9 @@
                     </strong>
 
                     <ul>
-
                         @foreach($errors->all() as $error)
-
                             <li>{{ $error }}</li>
-
                         @endforeach
-
                     </ul>
 
                 </div>
@@ -1125,7 +1342,7 @@
 
                 <div class="form-footer-note">
                     <i class="bi bi-info-circle"></i>
-                    Fields marked with <span style="color:#ef4444;">*</span> are required.
+                    Fields marked with <span style="color:#bd5148;">*</span> are required.
                 </div>
 
                 <div class="form-footer-actions">

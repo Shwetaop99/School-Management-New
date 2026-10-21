@@ -41,117 +41,91 @@ class Result extends Model
         'published_at' => 'datetime',
     ];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Student who owns this result.
+     */
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | EXAM
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Exam for which this result was generated.
+     */
     public function exam(): BelongsTo
     {
         return $this->belongsTo(Exam::class);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESULT DETAILS
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Subject-wise result details.
+     */
     public function details(): HasMany
     {
         return $this->hasMany(ResultDetail::class);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | HISTORICAL RESULT VERSIONS
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Historical generated result versions.
+     */
     public function versions(): HasMany
     {
         return $this->hasMany(ResultVersion::class);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | PUBLISHED BY
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * User who published the result.
+     */
     public function publisher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'published_by');
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESULT STATUS HELPERS
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Check whether result is generated.
+     */
     public function isGenerated(): bool
     {
         return $this->publication_status === 'generated';
     }
 
+    /**
+     * Check whether result is verified.
+     */
     public function isVerified(): bool
     {
         return $this->publication_status === 'verified';
     }
 
+    /**
+     * Check whether result is approved.
+     */
     public function isApproved(): bool
     {
         return $this->publication_status === 'approved';
     }
 
+    /**
+     * Check whether result is published.
+     */
     public function isPublished(): bool
     {
         return $this->publication_status === 'published';
     }
 
+   public function notifications(): HasMany
+{
+    return $this->hasMany(ResultNotification::class);
+}
 
-    /*
-    |--------------------------------------------------------------------------
-    | NOTIFICATIONS
-    |--------------------------------------------------------------------------
-    */
-
-    public function notifications(): HasMany
-    {
-        return $this->hasMany(ResultNotification::class);
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | WHATSAPP NOTIFICATIONS
-    |--------------------------------------------------------------------------
-    */
-
-    public function whatsappNotifications(): HasMany
-    {
-        return $this->hasMany(
-            ResultWhatsappNotification::class,
-            'result_id'
-        );
-    }
+/**
+ * WhatsApp notification records for this result.
+ */
+public function whatsappNotifications()
+{
+    return $this->hasMany(
+        ResultWhatsappNotification::class,
+        'result_id'
+    );
+}
 }

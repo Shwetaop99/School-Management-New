@@ -6,20 +6,28 @@
 
 <style>
     /* =========================================================
-       TRANSPORT ROUTE DETAILS
+       SCHOOL DIARY DESIGN SYSTEM — TRANSPORT ROUTE DETAILS
     ========================================================= */
 
     .transport-route-show-page {
         width: 100%;
         min-height: calc(100vh - 60px);
-        background: #f4f7fb;
-        color: #172033;
+        padding-bottom: 24px;
+        background: #f5f3e9;
+        color: #263b35;
         font-family: 'Inter', sans-serif;
+        font-size: 12px;
+    }
+
+    .transport-route-show-page *,
+    .transport-route-show-page *::before,
+    .transport-route-show-page *::after {
+        box-sizing: border-box;
     }
 
     .transport-route-show-container {
         width: 100%;
-        padding: 28px 30px 40px;
+        padding: 24px 26px 32px;
     }
 
     /* =========================================================
@@ -30,89 +38,100 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 18px;
+        gap: 18px;
+        margin-bottom: 15px;
+        padding: 17px 19px;
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
+        border-left: 4px solid #34775a;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(38, 59, 53, .045);
     }
 
     .route-show-heading {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
         min-width: 0;
     }
 
     .route-show-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+        width: 43px;
+        height: 43px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        color: #fff;
-        font-size: 21px;
-        box-shadow: 0 7px 18px rgba(23, 105, 209, .20);
         flex-shrink: 0;
+        background: #eaf3e9;
+        color: #34775a;
+        font-size: 19px;
     }
 
     .route-show-heading h1 {
         margin: 0;
-        font-size: 24px;
+        color: #263b35;
+        font-size: 22px;
         font-weight: 750;
-        color: #172033;
-        letter-spacing: -.3px;
+        line-height: 1.3;
+        letter-spacing: -.35px;
     }
 
     .route-show-heading p {
         margin: 4px 0 0;
-        color: #64748b;
-        font-size: 13px;
+        color: #827e70;
+        font-size: 11px;
+        line-height: 1.5;
     }
 
     .route-show-actions {
         display: flex;
         align-items: center;
-        gap: 9px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .header-btn {
-        min-height: 42px;
-        padding: 0 16px;
-        border-radius: 11px;
+        min-height: 36px;
+        padding: 0 12px;
+        border-radius: 7px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        text-decoration: none;
-        font-size: 12px;
+        gap: 7px;
+        font-size: 10.5px;
         font-weight: 650;
-        transition: all .25s ease;
+        text-decoration: none;
         white-space: nowrap;
+        transition: background .2s ease, border-color .2s ease,
+                    color .2s ease, transform .2s ease;
     }
 
     .header-btn.secondary {
-        color: #1769d1;
-        background: #fff;
-        border: 1px solid #dce6f1;
+        color: #34775a;
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
     }
 
     .header-btn.secondary:hover {
-        color: #1769d1;
-        background: #f2f7ff;
-        border-color: #bcd3ee;
+        color: #245a43;
+        background: #eaf3e9;
+        border-color: #b8d0bb;
         transform: translateY(-1px);
     }
 
     .header-btn.edit {
-        color: #fff;
-        background: linear-gradient(135deg, #ed9208, #f7aa25);
-        box-shadow: 0 7px 16px rgba(237, 146, 8, .18);
+        color: #fffefa;
+        background: #34775a;
+        border: 1px solid #34775a;
     }
 
     .header-btn.edit:hover {
-        color: #fff;
+        color: #fffefa;
+        background: #245a43;
+        border-color: #245a43;
         transform: translateY(-1px);
-        box-shadow: 0 10px 22px rgba(237, 146, 8, .24);
     }
 
     /* =========================================================
@@ -124,291 +143,290 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 7px;
-        margin-bottom: 22px;
-        font-size: 12px;
-        color: #94a3b8;
-    }
-
-    .route-show-breadcrumb a {
-        color: #1769d1;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .route-show-breadcrumb a:hover {
-        color: #0f58b4;
-    }
-
-    .route-show-breadcrumb i {
+        margin: 0 0 17px;
+        padding: 0 2px;
+        color: #827e70;
         font-size: 10px;
     }
 
+    .route-show-breadcrumb a {
+        color: #34775a;
+        text-decoration: none;
+        font-weight: 650;
+    }
+
+    .route-show-breadcrumb a:hover {
+        color: #245a43;
+        text-decoration: underline;
+    }
+
+    .route-show-breadcrumb i {
+        color: #aaa493;
+        font-size: 9px;
+    }
+
     /* =========================================================
-       HERO CARD
+       ROUTE HERO
     ========================================================= */
 
     .route-hero-card {
         position: relative;
         overflow: hidden;
-        margin-bottom: 20px;
-        padding: 27px 30px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #1769d1 0%, #159cc7 100%);
-        color: #fff;
-        box-shadow: 0 10px 28px rgba(23, 105, 209, .18);
-    }
-
-    .route-hero-card::before {
-        content: "";
-        position: absolute;
-        width: 270px;
-        height: 270px;
-        right: -100px;
-        bottom: -160px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, .06);
-    }
-
-    .route-hero-card::after {
-        content: "";
-        position: absolute;
-        width: 210px;
-        height: 210px;
-        right: -60px;
-        top: -90px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, .08);
+        margin-bottom: 17px;
+        padding: 22px 24px;
+        border: 1px solid #c9d8c7;
+        border-radius: 11px;
+        background: #eaf3e9;
+        color: #263b35;
+        box-shadow: 0 3px 12px rgba(38, 59, 53, .045);
     }
 
     .route-hero-content {
         position: relative;
-        z-index: 2;
+        z-index: 1;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 25px;
+        gap: 22px;
     }
 
     .route-hero-left {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 14px;
         min-width: 0;
     }
 
     .route-hero-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 18px;
+        width: 55px;
+        height: 55px;
+        border-radius: 11px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, .16);
-        border: 1px solid rgba(255, 255, 255, .18);
-        font-size: 26px;
         flex-shrink: 0;
-        backdrop-filter: blur(8px);
+        background: #fffefa;
+        border: 1px solid #d9e4d5;
+        color: #34775a;
+        font-size: 23px;
     }
 
     .route-hero-number {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: .5px;
-        opacity: .82;
-        margin-bottom: 5px;
+        margin-bottom: 4px;
+        color: #527f79;
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .8px;
         text-transform: uppercase;
     }
 
     .route-hero-name {
         margin: 0;
-        font-size: 25px;
+        color: #263b35;
+        font-size: 22px;
         font-weight: 800;
-        letter-spacing: -.45px;
-        word-break: break-word;
+        line-height: 1.35;
+        letter-spacing: -.35px;
+        overflow-wrap: anywhere;
     }
 
     .route-hero-status {
         display: inline-flex;
         align-items: center;
-        gap: 7px;
-        margin-top: 10px;
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, .15);
-        border: 1px solid rgba(255, 255, 255, .16);
-        font-size: 10.5px;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 5px 10px;
+        border: 1px solid #c9d8c7;
+        border-radius: 6px;
+        background: #fffefa;
+        color: #34775a;
+        font-size: 10px;
         font-weight: 700;
     }
 
     .route-hero-status-dot {
-        width: 7px;
-        height: 7px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: #fff;
-        box-shadow: 0 0 0 3px rgba(255,255,255,.12);
+        background: #34775a;
     }
 
     .route-hero-meta {
         display: flex;
         align-items: center;
-        gap: 30px;
+        justify-content: flex-end;
+        gap: 25px;
         flex-shrink: 0;
     }
 
     .hero-meta-item {
+        min-width: 78px;
         text-align: right;
-        min-width: 85px;
     }
 
     .hero-meta-label {
-        font-size: 10px;
-        opacity: .72;
-        margin-bottom: 4px;
+        margin-bottom: 5px;
+        color: #6e8274;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .55px;
         text-transform: uppercase;
-        letter-spacing: .3px;
     }
 
     .hero-meta-value {
-        font-size: 13px;
-        font-weight: 700;
+        color: #263b35;
+        font-size: 11px;
+        font-weight: 750;
     }
 
     /* =========================================================
-       GRID
+       MAIN GRID
     ========================================================= */
 
     .route-details-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.5fr) minmax(300px, .85fr);
-        gap: 20px;
+        grid-template-columns: minmax(0, 1.5fr) minmax(280px, .85fr);
+        gap: 17px;
         align-items: start;
     }
 
+    .route-details-grid > div {
+        min-width: 0;
+    }
+
     .route-card {
-        background: #fff;
-        border: 1px solid #e5ebf3;
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
         overflow: hidden;
-        transition: box-shadow .22s ease, transform .22s ease;
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(38, 59, 53, .045);
+        transition: box-shadow .2s ease;
     }
 
     .route-card:hover {
-        box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+        box-shadow: 0 5px 16px rgba(38, 59, 53, .07);
     }
 
     .route-card-header {
         display: flex;
         align-items: center;
-        gap: 11px;
-        padding: 19px 21px;
-        border-bottom: 1px solid #edf1f6;
+        gap: 10px;
+        padding: 15px 17px;
+        background: #fffefa;
+        border-bottom: 1px solid #e5e1d3;
     }
 
     .route-card-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 11px;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
         flex-shrink: 0;
+        font-size: 15px;
     }
 
     .route-card-icon.blue {
-        background: #dbeafe;
-        color: #1769d1;
+        color: #34775a;
+        background: #eaf3e9;
     }
 
     .route-card-icon.orange {
-        background: #ffedd5;
-        color: #ea580c;
+        color: #a87543;
+        background: #f5eadb;
     }
 
     .route-card-icon.purple {
-        background: #ede9fe;
-        color: #7c3aed;
+        color: #527f79;
+        background: #e8f0ec;
     }
 
     .route-card-icon.green {
-        background: #dcfce7;
-        color: #16a34a;
+        color: #34775a;
+        background: #eaf3e9;
     }
 
     .route-card-header h2 {
         margin: 0;
-        color: #172033;
-        font-size: 15px;
+        color: #263b35;
+        font-size: 12.5px;
         font-weight: 750;
+        line-height: 1.4;
     }
 
     .route-card-header p {
         margin: 3px 0 0;
-        color: #94a3b8;
-        font-size: 10.5px;
+        color: #827e70;
+        font-size: 10px;
+        line-height: 1.45;
     }
 
     .route-card-body {
-        padding: 21px;
+        padding: 17px;
     }
 
     /* =========================================================
-       JOURNEY
+       JOURNEY DETAILS
     ========================================================= */
 
     .journey-box {
-        padding: 19px;
-        border: 1px solid #e6edf5;
-        border-radius: 13px;
-        background: #f8fafc;
+        padding: 16px;
+        border: 1px solid #e5e1d3;
+        border-radius: 8px;
+        background: #faf8ef;
     }
 
     .journey-point-row {
         display: flex;
         align-items: center;
-        gap: 13px;
+        gap: 11px;
+        min-width: 0;
     }
 
     .journey-point-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
+        width: 37px;
+        height: 37px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        font-size: 15px;
+        font-size: 14px;
     }
 
     .journey-point-icon.start {
-        background: #dbeafe;
-        color: #1769d1;
+        color: #34775a;
+        background: #eaf3e9;
+        border: 1px solid #d7e6d4;
     }
 
     .journey-point-icon.destination {
-        background: #dcfce7;
-        color: #16a34a;
+        color: #527f79;
+        background: #e8f0ec;
+        border: 1px solid #d6e2dc;
     }
 
     .journey-point-label {
-        color: #94a3b8;
-        font-size: 9.5px;
-        font-weight: 700;
         margin-bottom: 3px;
-        letter-spacing: .4px;
+        color: #827e70;
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .65px;
     }
 
     .journey-point-value {
-        color: #172033;
-        font-size: 13px;
-        font-weight: 700;
+        color: #263b35;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
     }
 
     .journey-connector {
-        height: 29px;
-        margin-left: 20px;
-        border-left: 2px dashed #cbd5e1;
+        height: 25px;
+        margin-left: 17px;
+        border-left: 2px dashed #c9d8c7;
     }
 
     /* =========================================================
@@ -424,9 +442,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        min-height: 49px;
-        border-bottom: 1px solid #edf1f6;
+        gap: 15px;
+        min-height: 43px;
+        padding: 8px 0;
+        border-bottom: 1px solid #eeeade;
     }
 
     .detail-row:last-child {
@@ -436,32 +455,32 @@
     .detail-label {
         display: flex;
         align-items: center;
-        gap: 8px;
-        color: #64748b;
-        font-size: 11.5px;
+        gap: 7px;
+        color: #827e70;
+        font-size: 10.5px;
         font-weight: 550;
     }
 
     .detail-label i {
-        color: #1769d1;
-        font-size: 13px;
+        color: #34775a;
+        font-size: 12px;
     }
 
     .detail-value {
-        color: #172033;
-        font-size: 12px;
-        font-weight: 700;
+        color: #263b35;
+        font-size: 10.5px;
+        font-weight: 750;
         text-align: right;
-        word-break: break-word;
+        overflow-wrap: anywhere;
     }
 
     .muted-value {
-        color: #94a3b8;
+        color: #9a9585;
         font-weight: 500;
     }
 
     /* =========================================================
-       STOPS
+       ROUTE STOPS
     ========================================================= */
 
     .stops-list {
@@ -473,8 +492,9 @@
     .stop-item {
         position: relative;
         display: flex;
-        gap: 13px;
-        padding-bottom: 18px;
+        gap: 10px;
+        padding-bottom: 15px;
+        min-width: 0;
     }
 
     .stop-item:last-child {
@@ -483,31 +503,41 @@
 
     .stop-marker-column {
         position: relative;
-        width: 18px;
-        flex-shrink: 0;
         display: flex;
         justify-content: center;
+        width: 17px;
+        flex-shrink: 0;
     }
 
     .stop-marker {
         position: relative;
         z-index: 2;
-        width: 13px;
-        height: 13px;
-        margin-top: 3px;
+        width: 9px;
+        height: 9px;
+        margin-top: 5px;
         border-radius: 50%;
-        background: #1769d1;
-        border: 3px solid #dbeafe;
+        background: #34775a;
+        border: 2px solid #d5e5d2;
         box-sizing: content-box;
     }
 
     .stop-item:not(:last-child) .stop-marker-column::after {
         content: "";
         position: absolute;
-        top: 18px;
-        bottom: -4px;
-        left: 9px;
-        border-left: 1px dashed #cbd5e1;
+        top: 19px;
+        bottom: -3px;
+        left: 8px;
+        border-left: 1px dashed #c9d8c7;
+    }
+
+    .stop-text {
+        min-width: 0;
+        padding-top: 1px;
+        color: #263b35;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
     }
 
     .stop-number {
@@ -515,85 +545,93 @@
         align-items: center;
         justify-content: center;
         min-width: 23px;
-        height: 23px;
-        margin-right: 8px;
-        border-radius: 7px;
-        background: #edf5ff;
-        color: #1769d1;
+        height: 21px;
+        margin-right: 6px;
+        padding: 0 4px;
+        border: 1px solid #d7e6d4;
+        border-radius: 5px;
+        background: #eaf3e9;
+        color: #34775a;
         font-size: 9px;
         font-weight: 750;
-    }
-
-    .stop-text {
-        color: #334155;
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1.45;
-        padding-top: 1px;
+        vertical-align: middle;
     }
 
     /* =========================================================
-       VEHICLE / DRIVER CARDS
+       VEHICLE AND DRIVER
     ========================================================= */
 
     .person-info-card,
     .vehicle-info-card {
         display: flex;
         align-items: center;
-        gap: 13px;
-        padding: 15px;
-        border: 1px solid #e6edf5;
-        border-radius: 13px;
-        background: #f8fafc;
-        transition: all .2s ease;
+        gap: 11px;
+        padding: 13px;
+        border: 1px solid #e5e1d3;
+        border-radius: 8px;
+        background: #faf8ef;
+        transition: background .2s ease, border-color .2s ease;
     }
 
     .person-info-card:hover,
     .vehicle-info-card:hover {
-        background: #f2f7ff;
-        border-color: #d8e6f5;
+        background: #f5f3e9;
+        border-color: #d3ddca;
     }
 
     .info-avatar {
-        width: 46px;
-        height: 46px;
-        border-radius: 13px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .info-avatar.driver {
-        color: #7c3aed;
-        background: #ede9fe;
+        color: #527f79;
+        background: #e8f0ec;
+        border: 1px solid #d6e2dc;
     }
 
     .info-avatar.vehicle {
-        color: #ea580c;
-        background: #ffedd5;
+        color: #a87543;
+        background: #f5eadb;
+        border: 1px solid #e9d8c0;
     }
 
     .info-label {
-        color: #94a3b8;
-        font-size: 9.5px;
         margin-bottom: 3px;
-        font-weight: 700;
-        letter-spacing: .35px;
+        color: #827e70;
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .55px;
     }
 
     .info-value {
-        color: #172033;
-        font-size: 13px;
+        color: #263b35;
+        font-size: 11.5px;
         font-weight: 750;
-        word-break: break-word;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
     }
 
     .info-secondary {
         margin-top: 4px;
-        color: #64748b;
-        font-size: 10.5px;
+        color: #827e70;
+        font-size: 10px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .info-secondary .bi-check-circle-fill {
+        color: #34775a;
+    }
+
+    .info-secondary .bi-telephone-fill {
+        color: #527f79;
     }
 
     /* =========================================================
@@ -601,37 +639,47 @@
     ========================================================= */
 
     .remarks-box {
-        padding: 14px;
-        border-radius: 12px;
-        background: #f8fafc;
-        border: 1px solid #e6edf5;
-        color: #475569;
-        font-size: 12px;
-        line-height: 1.65;
+        padding: 13px;
+        border: 1px solid #e5e1d3;
+        border-left: 3px solid #527f79;
+        border-radius: 7px;
+        background: #faf8ef;
+        color: #5e685d;
+        font-size: 11px;
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+    }
+
+    .remarks-box > i {
+        color: #527f79;
     }
 
     /* =========================================================
-       STATUS
+       STATUS BADGES
     ========================================================= */
 
     .status-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 7px 11px;
-        border-radius: 999px;
-        font-size: 10.5px;
-        font-weight: 700;
+        padding: 5px 8px;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        font-size: 9.5px;
+        font-weight: 750;
+        white-space: nowrap;
     }
 
     .status-badge.active {
-        color: #15803d;
-        background: #dcfce7;
+        color: #34775a;
+        background: #eaf3e9;
+        border-color: #d5e5d2;
     }
 
     .status-badge.inactive {
-        color: #b91c1c;
-        background: #fee2e2;
+        color: #bd5148;
+        background: #f9e9e5;
+        border-color: #efd0c9;
     }
 
     .status-dot {
@@ -646,36 +694,38 @@
     ========================================================= */
 
     .empty-info {
-        padding: 17px;
-        border-radius: 13px;
-        background: #f8fafc;
-        border: 1px dashed #d9e2ec;
+        padding: 17px 12px;
+        border: 1px dashed #d8d2c1;
+        border-radius: 8px;
+        background: #faf8ef;
         text-align: center;
     }
 
     .empty-info-icon {
-        width: 42px;
-        height: 42px;
-        margin: 0 auto 9px;
-        border-radius: 12px;
+        width: 38px;
+        height: 38px;
+        margin: 0 auto 8px;
+        border: 1px solid #e5e1d3;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #edf2f7;
-        color: #94a3b8;
-        font-size: 17px;
+        background: #f5f3e9;
+        color: #827e70;
+        font-size: 16px;
     }
 
     .empty-info-title {
-        color: #475569;
-        font-size: 11.5px;
-        font-weight: 700;
+        color: #263b35;
+        font-size: 10.5px;
+        font-weight: 750;
     }
 
     .empty-info-text {
-        margin-top: 3px;
-        color: #94a3b8;
+        margin-top: 4px;
+        color: #827e70;
         font-size: 10px;
+        line-height: 1.5;
     }
 
     /* =========================================================
@@ -686,90 +736,100 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-        padding: 18px 21px;
-        background: #fff;
-        border: 1px solid #e5ebf3;
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 17px;
+        padding: 14px 17px;
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(38, 59, 53, .045);
     }
 
     .bottom-btn {
-        min-height: 40px;
-        padding: 0 15px;
-        border-radius: 10px;
+        min-height: 35px;
+        padding: 0 12px;
+        border-radius: 7px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 7px;
-        font-size: 11.5px;
+        font-family: inherit;
+        font-size: 10.5px;
         font-weight: 650;
         text-decoration: none;
         cursor: pointer;
-        transition: all .22s ease;
+        transition: background .2s ease, border-color .2s ease,
+                    color .2s ease, transform .2s ease;
     }
 
     .bottom-btn.back {
-        color: #64748b;
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        color: #527f79;
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
     }
 
     .bottom-btn.back:hover {
-        color: #1769d1;
-        background: #f2f7ff;
-        border-color: #bfd5ed;
+        color: #245a43;
+        background: #eaf3e9;
+        border-color: #c9d8c7;
     }
 
     .bottom-btn.edit {
-        color: #fff;
-        background: #ed9208;
-        border: 1px solid #ed9208;
+        color: #fffefa;
+        background: #34775a;
+        border: 1px solid #34775a;
     }
 
     .bottom-btn.edit:hover {
-        color: #fff;
-        background: #d98100;
-        border-color: #d98100;
+        color: #fffefa;
+        background: #245a43;
+        border-color: #245a43;
         transform: translateY(-1px);
     }
 
     .bottom-btn.delete {
-        color: #dc2626;
-        background: #fff;
-        border: 1px solid #fecaca;
+        color: #bd5148;
+        background: #fffefa;
+        border: 1px solid #e8c9c2;
     }
 
     .bottom-btn.delete:hover {
-        color: #fff;
-        background: #dc2626;
-        border-color: #dc2626;
+        color: #fffefa;
+        background: #bd5148;
+        border-color: #bd5148;
         transform: translateY(-1px);
     }
 
+    .route-bottom-actions form {
+        display: inline-flex;
+        margin: 0;
+    }
+
     /* =========================================================
-       RESPONSIVE
+       RESPONSIVE — TABLET
     ========================================================= */
 
-    @media (max-width: 950px) {
-
+    @media (max-width: 991.98px) {
         .transport-route-show-container {
-            padding: 22px 20px 35px;
+            padding: 20px 18px 28px;
         }
 
         .route-details-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
         }
 
         .route-hero-content {
             align-items: flex-start;
             flex-direction: column;
+            gap: 18px;
         }
 
         .route-hero-meta {
             width: 100%;
             justify-content: flex-start;
+            padding-top: 14px;
+            border-top: 1px solid #d5e2d0;
         }
 
         .hero-meta-item {
@@ -777,19 +837,24 @@
         }
     }
 
-    @media (max-width: 650px) {
+    /* =========================================================
+       RESPONSIVE — MOBILE
+    ========================================================= */
 
+    @media (max-width: 767.98px) {
         .transport-route-show-container {
-            padding: 18px 14px 30px;
+            padding: 16px 13px 24px;
         }
 
         .route-show-header {
             align-items: flex-start;
             flex-direction: column;
+            padding: 15px;
         }
 
         .route-show-actions {
             width: 100%;
+            justify-content: flex-start;
         }
 
         .route-show-actions .header-btn {
@@ -797,11 +862,11 @@
         }
 
         .route-show-heading h1 {
-            font-size: 21px;
+            font-size: 19px;
         }
 
         .route-hero-card {
-            padding: 21px;
+            padding: 18px;
         }
 
         .route-hero-left {
@@ -809,7 +874,7 @@
         }
 
         .route-hero-name {
-            font-size: 20px;
+            font-size: 19px;
         }
 
         .route-hero-meta {
@@ -817,15 +882,19 @@
             flex-wrap: wrap;
         }
 
+        .route-card-header {
+            padding: 13px 14px;
+        }
+
         .route-card-body {
-            padding: 17px;
+            padding: 14px;
         }
 
         .detail-row {
             align-items: flex-start;
             flex-direction: column;
             gap: 5px;
-            padding: 12px 0;
+            padding: 10px 0;
         }
 
         .detail-value {
@@ -833,12 +902,152 @@
         }
 
         .route-bottom-actions {
-            padding: 15px;
-            flex-wrap: wrap;
+            justify-content: stretch;
+            padding: 12px;
         }
 
-        .bottom-btn {
-            flex: 1;
+        .route-bottom-actions > .bottom-btn,
+        .route-bottom-actions > form {
+            flex: 1 1 calc(50% - 8px);
+        }
+
+        .route-bottom-actions form .bottom-btn {
+            width: 100%;
+        }
+    }
+
+    /* =========================================================
+       RESPONSIVE — SMALL MOBILE
+    ========================================================= */
+
+    @media (max-width: 480px) {
+        .transport-route-show-container {
+            padding: 12px 10px 20px;
+        }
+
+        .route-show-heading {
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .route-show-icon {
+            width: 38px;
+            height: 38px;
+            font-size: 17px;
+        }
+
+        .route-show-heading h1 {
+            font-size: 17px;
+        }
+
+        .route-show-heading p {
+            font-size: 10px;
+        }
+
+        .route-show-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .route-show-actions .header-btn {
+            width: 100%;
+            flex: initial;
+        }
+
+        .route-hero-card {
+            padding: 15px;
+        }
+
+        .route-hero-left {
+            gap: 10px;
+        }
+
+        .route-hero-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+
+        .route-hero-name {
+            font-size: 16px;
+        }
+
+        .route-hero-meta {
+            gap: 14px;
+        }
+
+        .hero-meta-item {
+            min-width: 0;
+        }
+
+        .hero-meta-label {
+            font-size: 8px;
+        }
+
+        .hero-meta-value {
+            font-size: 10px;
+        }
+
+        .route-card-header {
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .route-card-icon {
+            width: 30px;
+            height: 30px;
+            font-size: 13px;
+        }
+
+        .route-card-header h2 {
+            font-size: 11.5px;
+        }
+
+        .route-card-body {
+            padding: 12px;
+        }
+
+        .journey-box {
+            padding: 12px;
+        }
+
+        .person-info-card,
+        .vehicle-info-card {
+            align-items: flex-start;
+            padding: 10px;
+        }
+
+        .info-avatar {
+            width: 34px;
+            height: 34px;
+            font-size: 14px;
+        }
+
+        .route-bottom-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .route-bottom-actions > .bottom-btn,
+        .route-bottom-actions > form {
+            width: 100%;
+            flex: initial;
+        }
+    }
+
+    /* =========================================================
+       REDUCED MOTION
+    ========================================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+        .transport-route-show-page *,
+        .transport-route-show-page *::before,
+        .transport-route-show-page *::after {
+            scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
         }
     }
 </style>
@@ -990,7 +1199,7 @@
 
             <div>
 
-                {{-- Journey --}}
+                {{-- JOURNEY DETAILS --}}
 
                 <div class="route-card">
 
@@ -1062,9 +1271,9 @@
 
                 </div>
 
-                {{-- Stops --}}
+                {{-- ROUTE STOPS --}}
 
-                <div class="route-card" style="margin-top:20px;">
+                <div class="route-card" style="margin-top:17px;">
 
                     <div class="route-card-header">
 
@@ -1176,11 +1385,11 @@
 
                 </div>
 
-                {{-- Remarks --}}
+                {{-- REMARKS --}}
 
                 @if($transportRoute->remarks)
 
-                    <div class="route-card" style="margin-top:20px;">
+                    <div class="route-card" style="margin-top:17px;">
 
                         <div class="route-card-header">
 
@@ -1219,7 +1428,7 @@
 
             <div>
 
-                {{-- Route Information --}}
+                {{-- ROUTE INFORMATION --}}
 
                 <div class="route-card">
 
@@ -1298,9 +1507,9 @@
 
                 </div>
 
-                {{-- Vehicle --}}
+                {{-- ASSIGNED VEHICLE --}}
 
-                <div class="route-card" style="margin-top:20px;">
+                <div class="route-card" style="margin-top:17px;">
 
                     <div class="route-card-header">
 
@@ -1371,9 +1580,9 @@
 
                 </div>
 
-                {{-- Driver --}}
+                {{-- DRIVER INFORMATION --}}
 
-                <div class="route-card" style="margin-top:20px;">
+                <div class="route-card" style="margin-top:17px;">
 
                     <div class="route-card-header">
 

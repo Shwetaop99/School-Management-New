@@ -1,15 +1,35 @@
+
 @extends('layouts.app')
 
 @section('title', 'Edit Vehicle | Admin')
+@section('page-title', 'Edit Transport Vehicle')
 
 @section('content')
 
 <style>
     .vehicle-edit-page {
+        --diary-bg: #f5f3e9;
+        --diary-paper: #fffefa;
+        --diary-ink: #263b35;
+        --diary-green: #34775a;
+        --diary-green-dark: #245a43;
+        --diary-green-light: #eaf3e9;
+        --diary-wood: #a87543;
+        --diary-cyan: #527f79;
+        --diary-red: #bd5148;
+        --diary-border: #e5e1d3;
+
         min-height: calc(100vh - 60px);
-        background: #f4f7fb;
-        padding: 28px 0 45px;
-        color: #172033;
+        padding: 24px 0 40px;
+        background: var(--diary-bg);
+        color: var(--diary-ink);
+        font-size: 12px;
+    }
+
+    .vehicle-edit-page *,
+    .vehicle-edit-page *::before,
+    .vehicle-edit-page *::after {
+        box-sizing: border-box;
     }
 
     .vehicle-edit-container {
@@ -19,114 +39,145 @@
         padding: 0 20px;
     }
 
+    /* PAGE HEADER */
+
     .vehicle-page-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 22px;
+        gap: 18px;
+        margin-bottom: 20px;
     }
 
     .vehicle-heading {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 13px;
+        min-width: 0;
+        padding-left: 13px;
+        border-left: 3px solid var(--diary-green);
     }
 
     .vehicle-heading-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        color: #fff;
         display: flex;
+        flex: 0 0 46px;
         align-items: center;
         justify-content: center;
-        font-size: 23px;
-        box-shadow: 0 8px 20px rgba(23, 105, 209, .18);
+        width: 46px;
+        height: 46px;
+        border: 1px solid #d4e3d4;
+        border-radius: 10px;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
+        font-size: 20px;
+    }
+
+    .vehicle-breadcrumb {
+        margin-bottom: 4px;
+        color: var(--diary-wood);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
     }
 
     .vehicle-heading h1 {
         margin: 0;
-        font-size: 25px;
-        font-weight: 700;
-        color: #172033;
+        color: var(--diary-ink);
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.3;
     }
 
     .vehicle-heading p {
         margin: 4px 0 0;
-        color: #64748b;
-        font-size: 14px;
+        color: #718078;
+        font-size: 11px;
+        line-height: 1.5;
     }
 
     .back-btn {
         display: inline-flex;
+        flex: 0 0 auto;
         align-items: center;
-        gap: 8px;
-        padding: 10px 17px;
-        border-radius: 10px;
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        color: #475569;
+        justify-content: center;
+        gap: 7px;
+        min-height: 37px;
+        padding: 8px 13px;
+        border: 1px solid var(--diary-border);
+        border-radius: 8px;
+        background: var(--diary-paper);
+        color: var(--diary-ink);
+        font-size: 11px;
+        font-weight: 700;
         text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        transition: .2s ease;
+        transition: background .2s ease, border-color .2s ease;
     }
 
     .back-btn:hover {
-        background: #f2f7ff;
-        color: #1769d1;
-        border-color: #cfe0fa;
+        border-color: #b7d0b9;
+        background: var(--diary-green-light);
+        color: var(--diary-green-dark);
     }
 
+    /* MAIN PAPER CARD */
+
     .vehicle-form-card {
-        background: #fff;
-        border: 1px solid #e5ebf3;
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
         overflow: hidden;
+        border: 1px solid var(--diary-border);
+        border-radius: 11px;
+        background: var(--diary-paper);
+        box-shadow: 0 4px 14px rgba(54, 64, 45, .045);
     }
 
     .form-card-header {
-        padding: 21px 25px;
-        border-bottom: 1px solid #e8edf3;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 11px;
+        padding: 17px 22px;
+        border-bottom: 1px solid var(--diary-border);
+        background: #fbfaf3;
     }
 
     .form-card-header-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 11px;
-        background: #dbeafe;
-        color: #1769d1;
         display: flex;
+        flex: 0 0 37px;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        width: 37px;
+        height: 37px;
+        border: 1px solid #d4e3d4;
+        border-radius: 9px;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
+        font-size: 16px;
     }
 
     .form-card-header h2 {
         margin: 0;
-        font-size: 17px;
-        font-weight: 700;
-        color: #172033;
+        color: var(--diary-ink);
+        font-size: 14px;
+        font-weight: 800;
     }
 
     .form-card-header p {
-        margin: 3px 0 0;
-        font-size: 13px;
-        color: #64748b;
+        margin: 4px 0 0;
+        color: #718078;
+        font-size: 10px;
+    }
+
+    .form-card-header p strong {
+        color: var(--diary-green-dark);
     }
 
     .vehicle-form-body {
-        padding: 28px 25px;
+        padding: 23px 22px;
     }
 
+    /* FORM SECTIONS */
+
     .form-section {
-        margin-bottom: 28px;
+        margin-bottom: 25px;
     }
 
     .form-section:last-child {
@@ -137,75 +188,105 @@
         display: flex;
         align-items: center;
         gap: 9px;
-        margin-bottom: 17px;
-        padding-bottom: 11px;
-        border-bottom: 1px solid #edf1f5;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--diary-border);
     }
 
-    .section-title-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 9px;
-        background: #f2f7ff;
-        color: #1769d1;
+    .section-number {
         display: flex;
+        flex: 0 0 28px;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
+        width: 28px;
+        height: 28px;
+        border: 1px solid #d4e3d4;
+        border-radius: 7px;
+        background: var(--diary-green-light);
+        color: var(--diary-green-dark);
+        font-size: 10px;
+        font-weight: 800;
     }
 
     .section-title h3 {
         margin: 0;
-        font-size: 15px;
-        font-weight: 700;
-        color: #172033;
+        color: var(--diary-ink);
+        font-size: 12px;
+        font-weight: 800;
     }
 
+    .section-title p {
+        margin: 3px 0 0;
+        color: #829087;
+        font-size: 10px;
+    }
+
+    /* FORM CONTROLS */
+
     .form-label {
-        color: #334155;
-        font-size: 13px;
-        font-weight: 650;
-        margin-bottom: 7px;
+        display: block;
+        margin-bottom: 6px;
+        color: #40534a;
+        font-size: 11px;
+        font-weight: 750;
     }
 
     .required {
-        color: #e94d47;
+        color: var(--diary-red);
     }
 
-    .form-control,
-    .form-select {
-        min-height: 44px;
-        border: 1px solid #dce4ee;
-        border-radius: 10px;
-        color: #172033;
-        font-size: 14px;
-        padding: 9px 13px;
-        background-color: #fff;
+    .vehicle-edit-page .form-control,
+    .vehicle-edit-page .form-select {
+        width: 100%;
+        min-height: 39px;
+        padding: 8px 11px;
+        border: 1px solid #dcdccf;
+        border-radius: 7px;
+        background-color: #fffefa;
+        color: var(--diary-ink);
+        font-size: 11px;
         box-shadow: none;
-        transition: .2s ease;
+        transition: border-color .2s ease, box-shadow .2s ease;
     }
 
-    textarea.form-control {
-        min-height: 105px;
+    .vehicle-edit-page .form-select {
+        padding-right: 30px;
+    }
+
+    .vehicle-edit-page textarea.form-control {
+        min-height: 95px;
         resize: vertical;
     }
 
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #1769d1;
-        box-shadow: 0 0 0 3px rgba(23, 105, 209, .10);
+    .vehicle-edit-page .form-control:focus,
+    .vehicle-edit-page .form-select:focus {
+        border-color: var(--diary-green);
+        box-shadow: 0 0 0 3px rgba(52, 119, 90, .10);
+        outline: none;
     }
 
-    .form-control[readonly] {
-        background: #f8fafc;
-        color: #475569;
+    .vehicle-edit-page .form-control[readonly] {
+        border-color: #e5e1d3;
+        background: #f5f3e9;
+        color: #66756c;
         cursor: not-allowed;
     }
 
+    .vehicle-edit-page .form-control.is-invalid,
+    .vehicle-edit-page .form-select.is-invalid {
+        border-color: var(--diary-red);
+    }
+
+    .vehicle-edit-page .form-control.is-invalid:focus,
+    .vehicle-edit-page .form-select.is-invalid:focus {
+        box-shadow: 0 0 0 3px rgba(189, 81, 72, .09);
+    }
+
     .form-text {
-        color: #94a3b8;
-        font-size: 12px;
-        margin-top: 6px;
+        margin-top: 5px;
+        color: #849087;
+        font-size: 10px;
+        line-height: 1.5;
     }
 
     .input-icon-wrapper {
@@ -214,63 +295,78 @@
 
     .input-icon-wrapper .form-control,
     .input-icon-wrapper .form-select {
-        padding-left: 40px;
+        padding-left: 34px;
     }
 
     .input-icon {
         position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #94a3b8;
-        font-size: 14px;
         z-index: 2;
+        top: 50%;
+        left: 12px;
+        color: var(--diary-cyan);
+        font-size: 12px;
         pointer-events: none;
+        transform: translateY(-50%);
     }
 
+    .field-error {
+        margin-top: 5px;
+        color: var(--diary-red);
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    /* DRIVER INFORMATION */
+
     .driver-info-box {
-        background: #f8fafc;
-        border: 1px solid #e5ebf3;
-        border-radius: 13px;
-        padding: 18px;
-        margin-top: 4px;
+        padding: 16px;
+        border: 1px solid #dce6d8;
+        border-radius: 9px;
+        background: #f8f8ef;
     }
 
     .driver-info-heading {
         display: flex;
         align-items: center;
         gap: 9px;
-        margin-bottom: 16px;
+        margin-bottom: 15px;
     }
 
     .driver-info-heading-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        background: #ede9fe;
-        color: #7c3aed;
         display: flex;
+        flex: 0 0 32px;
         align-items: center;
         justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1px solid #d4e3d4;
+        border-radius: 8px;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
         font-size: 14px;
     }
 
     .driver-info-heading strong {
-        font-size: 14px;
-        color: #172033;
+        display: block;
+        color: var(--diary-ink);
+        font-size: 11px;
+        font-weight: 800;
     }
 
     .driver-info-heading span {
         display: block;
-        font-size: 12px;
-        color: #64748b;
-        margin-top: 2px;
+        margin-top: 3px;
+        color: #77857b;
+        font-size: 10px;
+        line-height: 1.5;
     }
+
+    /* STATUS OPTIONS */
 
     .status-options {
         display: flex;
-        gap: 10px;
         flex-wrap: wrap;
+        gap: 9px;
     }
 
     .status-option {
@@ -279,6 +375,8 @@
 
     .status-option input {
         position: absolute;
+        width: 1px;
+        height: 1px;
         opacity: 0;
         pointer-events: none;
     }
@@ -286,146 +384,177 @@
     .status-option label {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        min-height: 42px;
-        padding: 8px 15px;
-        border-radius: 10px;
-        border: 1px solid #dce4ee;
-        background: #fff;
-        color: #475569;
-        font-size: 13px;
-        font-weight: 600;
+        justify-content: center;
+        gap: 7px;
+        min-height: 36px;
+        padding: 8px 13px;
+        border: 1px solid var(--diary-border);
+        border-radius: 7px;
+        background: var(--diary-paper);
+        color: #59685f;
+        font-size: 11px;
+        font-weight: 700;
         cursor: pointer;
-        transition: .2s ease;
+        transition: background .2s ease, border-color .2s ease;
     }
 
     .status-dot {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
-        background: #94a3b8;
+        background: #a4aaa3;
     }
 
     .status-option input:checked + label {
-        background: #f2f7ff;
-        border-color: #1769d1;
-        color: #1769d1;
+        border-color: var(--diary-green);
+        background: var(--diary-green-light);
+        color: var(--diary-green-dark);
     }
 
     .status-option input:checked + label .status-dot {
-        background: #1769d1;
+        background: var(--diary-green);
     }
 
     .status-option.maintenance input:checked + label {
-        background: #fff7e8;
-        border-color: #ed9208;
-        color: #d17a00;
+        border-color: var(--diary-wood);
+        background: #f7eee2;
+        color: #855b30;
     }
 
     .status-option.maintenance input:checked + label .status-dot {
-        background: #ed9208;
+        background: var(--diary-wood);
     }
 
     .status-option.inactive input:checked + label {
-        background: #fff1f0;
-        border-color: #e94d47;
-        color: #d63d37;
+        border-color: var(--diary-red);
+        background: #f9eae7;
+        color: #9e3e37;
     }
 
     .status-option.inactive input:checked + label .status-dot {
-        background: #e94d47;
+        background: var(--diary-red);
     }
 
+    .status-option input:focus-visible + label {
+        outline: 2px solid var(--diary-green);
+        outline-offset: 3px;
+    }
+
+    /* VALIDATION */
+
     .validation-alert {
-        border: 1px solid #fecaca;
-        background: #fff5f5;
-        color: #b42318;
-        border-radius: 11px;
-        padding: 13px 15px;
         margin-bottom: 22px;
-        font-size: 13px;
+        padding: 13px 15px;
+        border: 1px solid #e9c4bd;
+        border-radius: 8px;
+        background: #fbefeb;
+        color: #923f37;
+        font-size: 11px;
+    }
+
+    .validation-alert strong {
+        font-weight: 800;
     }
 
     .validation-alert ul {
-        margin: 7px 0 0 18px;
+        margin: 7px 0 0 17px;
         padding: 0;
     }
 
-    .field-error {
-        color: #dc2626;
-        font-size: 12px;
-        margin-top: 6px;
+    .validation-alert li {
+        margin-bottom: 3px;
     }
 
+    /* FORM FOOTER */
+
     .form-footer {
-        padding: 18px 25px;
-        border-top: 1px solid #e8edf3;
-        background: #fbfcfe;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        gap: 10px;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 15px 22px;
+        border-top: 1px solid var(--diary-border);
+        background: #fbfaf3;
     }
 
     .footer-right {
         display: flex;
-        gap: 10px;
+        flex-wrap: wrap;
+        gap: 9px;
     }
 
     .cancel-btn,
     .save-btn,
     .delete-btn {
-        min-height: 43px;
-        padding: 9px 19px;
-        border-radius: 10px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 7px;
-        font-size: 14px;
-        font-weight: 600;
+        min-height: 37px;
+        padding: 8px 14px;
+        border-radius: 7px;
+        font-size: 11px;
+        font-weight: 750;
         text-decoration: none;
-        transition: .2s ease;
+        cursor: pointer;
+        transition: background .2s ease, border-color .2s ease;
     }
 
     .cancel-btn {
-        border: 1px solid #dce4ee;
-        background: #fff;
-        color: #475569;
+        border: 1px solid var(--diary-border);
+        background: var(--diary-paper);
+        color: #59685f;
     }
 
     .cancel-btn:hover {
-        background: #f8fafc;
-        color: #172033;
+        border-color: #c8c9b8;
+        background: #f5f3e9;
+        color: var(--diary-ink);
     }
 
     .save-btn {
-        border: 0;
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        color: #fff;
-        box-shadow: 0 7px 16px rgba(23, 105, 209, .18);
+        border: 1px solid var(--diary-green);
+        background: var(--diary-green);
+        color: #fffefa;
     }
 
     .save-btn:hover {
-        transform: translateY(-1px);
-        color: #fff;
-        box-shadow: 0 9px 20px rgba(23, 105, 209, .24);
+        border-color: var(--diary-green-dark);
+        background: var(--diary-green-dark);
+        color: #fffefa;
     }
 
     .delete-btn {
-        border: 1px solid #fecaca;
-        background: #fff;
-        color: #dc2626;
-        cursor: pointer;
+        border: 1px solid #e8c7c0;
+        background: #fffefa;
+        color: var(--diary-red);
     }
 
     .delete-btn:hover {
-        background: #fff1f0;
-        border-color: #fca5a5;
+        border-color: var(--diary-red);
+        background: #f9eae7;
+        color: #9e3e37;
     }
 
-    @media (max-width: 767px) {
+    /* RESPONSIVE */
 
+    @media (max-width: 991.98px) {
+        .vehicle-edit-container {
+            padding: 0 16px;
+        }
+
+        .vehicle-form-body {
+            padding: 20px 18px;
+        }
+
+        .form-card-header,
+        .form-footer {
+            padding-right: 18px;
+            padding-left: 18px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
         .vehicle-edit-page {
             padding-top: 18px;
         }
@@ -437,678 +566,610 @@
         .vehicle-page-header {
             align-items: flex-start;
             flex-direction: column;
+            gap: 13px;
+        }
+
+        .vehicle-heading {
+            gap: 10px;
+            padding-left: 10px;
+        }
+
+        .vehicle-heading-icon {
+            flex-basis: 40px;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
         }
 
         .vehicle-heading h1 {
-            font-size: 21px;
+            font-size: 19px;
+        }
+
+        .back-btn {
+            margin-left: 13px;
         }
 
         .vehicle-form-body {
-            padding: 21px 17px;
+            padding: 18px 15px;
         }
 
         .form-card-header {
-            padding: 18px;
+            padding: 15px;
+        }
+
+        .form-section {
+            margin-bottom: 22px;
+        }
+
+        .driver-info-box {
+            padding: 12px;
         }
 
         .form-footer {
-            padding: 16px 17px;
-            flex-direction: column;
             align-items: stretch;
+            flex-direction: column;
+            padding: 14px 15px;
+        }
+
+        .delete-btn {
+            width: 100%;
         }
 
         .footer-right {
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
         }
 
         .cancel-btn,
-        .save-btn,
-        .delete-btn {
+        .save-btn {
             width: 100%;
-            justify-content: center;
+            padding-right: 8px;
+            padding-left: 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .vehicle-heading h1 {
+            font-size: 17px;
+        }
+
+        .vehicle-heading p {
+            font-size: 10px;
+        }
+
+        .vehicle-form-body {
+            padding: 16px 12px;
+        }
+
+        .form-card-header {
+            padding: 13px 12px;
+        }
+
+        .form-card-header h2 {
+            font-size: 12px;
+        }
+
+        .section-title h3 {
+            font-size: 11px;
+        }
+
+        .status-options {
+            gap: 7px;
+        }
+
+        .status-option label {
+            padding: 8px 10px;
+        }
+
+        .footer-right {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .vehicle-edit-page *,
+        .vehicle-edit-page *::before,
+        .vehicle-edit-page *::after {
+            scroll-behavior: auto !important;
+            transition: none !important;
         }
     }
 </style>
 
 <div class="vehicle-edit-page">
+    <div class="vehicle-edit-container">
 
-<div class="vehicle-edit-container">
+        {{-- PAGE HEADER --}}
+        <div class="vehicle-page-header">
 
-    {{-- PAGE HEADER --}}
-    <div class="vehicle-page-header">
-
-        <div class="vehicle-heading">
-
-            <div class="vehicle-heading-icon">
-                <i class="bi bi-bus-front-fill"></i>
-            </div>
-
-            <div>
-                <h1>Edit Transport Vehicle</h1>
-                <p>Update vehicle details and driver assignment.</p>
-            </div>
-
-        </div>
-
-        <a
-            href="{{ route('admin.transport.vehicles.index') }}"
-            class="back-btn"
-        >
-            <i class="bi bi-arrow-left"></i>
-            Back to Vehicles
-        </a>
-
-    </div>
-
-    {{-- MAIN CARD --}}
-    <div class="vehicle-form-card">
-
-        {{-- CARD HEADER --}}
-        <div class="form-card-header">
-
-            <div class="form-card-header-icon">
-                <i class="bi bi-pencil-square"></i>
-            </div>
-
-            <div>
-                <h2>Update Vehicle Information</h2>
-
-                <p>
-                    Vehicle:
-                    <strong>{{ $transportVehicle->vehicle_number }}</strong>
-                </p>
-            </div>
-
-        </div>
-
-        {{-- UPDATE FORM --}}
-        <form
-            id="updateVehicleForm"
-            action="{{ route('admin.transport.vehicles.update', $transportVehicle) }}"
-            method="POST"
-        >
-
-            @csrf
-            @method('PUT')
-
-            <div class="vehicle-form-body">
-
-                {{-- VALIDATION ERRORS --}}
-                @if ($errors->any())
-
-                    <div class="validation-alert">
-
-                        <strong>
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            Please correct the following errors:
-                        </strong>
-
-                        <ul>
-
-                            @foreach ($errors->all() as $error)
-
-                                <li>{{ $error }}</li>
-
-                            @endforeach
-
-                        </ul>
-
-                    </div>
-
-                @endif
-
-                {{-- BASIC INFORMATION --}}
-                <div class="form-section">
-
-                    <div class="section-title">
-
-                        <div class="section-title-icon">
-                            <i class="bi bi-card-text"></i>
-                        </div>
-
-                        <h3>Basic Vehicle Information</h3>
-
-                    </div>
-
-                    <div class="row g-4">
-
-                        {{-- VEHICLE NUMBER --}}
-                        <div class="col-md-6">
-
-                            <label
-                                for="vehicle_number"
-                                class="form-label"
-                            >
-                                Vehicle Number
-                                <span class="required">*</span>
-                            </label>
-
-                            <div class="input-icon-wrapper">
-
-                                <i class="bi bi-hash input-icon"></i>
-
-                                <input
-                                    type="text"
-                                    name="vehicle_number"
-                                    id="vehicle_number"
-                                    class="form-control @error('vehicle_number') is-invalid @enderror"
-                                    value="{{ old('vehicle_number', $transportVehicle->vehicle_number) }}"
-                                    placeholder="e.g. MH-09-AB-1234"
-                                    required
-                                >
-
-                            </div>
-
-                            @error('vehicle_number')
-                                <div class="field-error">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-
-                        </div>
-
-                        {{-- VEHICLE TYPE --}}
-                        <div class="col-md-6">
-
-                            <label
-                                for="vehicle_type"
-                                class="form-label"
-                            >
-                                Vehicle Type
-                                <span class="required">*</span>
-                            </label>
-
-                            <div class="input-icon-wrapper">
-
-                                <i class="bi bi-truck input-icon"></i>
-
-                                <select
-                                    name="vehicle_type"
-                                    id="vehicle_type"
-                                    class="form-select @error('vehicle_type') is-invalid @enderror"
-                                    required
-                                >
-
-                                    <option value="">
-                                        Select Vehicle Type
-                                    </option>
-
-                                    @foreach([
-                                        'Bus',
-                                        'Mini Bus',
-                                        'Van',
-                                        'School Van',
-                                        'Other'
-                                    ] as $type)
-
-                                        <option
-                                            value="{{ $type }}"
-                                            {{ old('vehicle_type', $transportVehicle->vehicle_type) === $type ? 'selected' : '' }}
-                                        >
-                                            {{ $type }}
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </div>
-
-                            @error('vehicle_type')
-
-                                <div class="field-error">
-                                    {{ $message }}
-                                </div>
-
-                            @enderror
-
-                        </div>
-
-                        {{-- CAPACITY --}}
-                        <div class="col-md-6">
-
-                            <label
-                                for="capacity"
-                                class="form-label"
-                            >
-                                Seating Capacity
-                                <span class="required">*</span>
-                            </label>
-
-                            <div class="input-icon-wrapper">
-
-                                <i class="bi bi-people input-icon"></i>
-
-                                <input
-                                    type="number"
-                                    name="capacity"
-                                    id="capacity"
-                                    class="form-control @error('capacity') is-invalid @enderror"
-                                    value="{{ old('capacity', $transportVehicle->capacity) }}"
-                                    min="1"
-                                    required
-                                >
-
-                            </div>
-
-                            @error('capacity')
-
-                                <div class="field-error">
-                                    {{ $message }}
-                                </div>
-
-                            @enderror
-
-                        </div>
-
-                    </div>
-
+            <div class="vehicle-heading">
+                <div class="vehicle-heading-icon">
+                    <i class="bi bi-bus-front-fill"></i>
                 </div>
 
-                {{-- DRIVER ASSIGNMENT --}}
-                <div class="form-section">
-
-                    <div class="section-title">
-
-                        <div class="section-title-icon">
-                            <i class="bi bi-person-badge"></i>
-                        </div>
-
-                        <h3>Driver Assignment</h3>
-
+                <div>
+                    <div class="vehicle-breadcrumb">
+                        Transport Management / Vehicles / Edit
                     </div>
 
-                    <div class="driver-info-box">
+                    <h1>Edit Transport Vehicle</h1>
 
-                        <div class="driver-info-heading">
+                    <p>Update vehicle details and driver assignment.</p>
+                </div>
+            </div>
 
-                            <div class="driver-info-heading-icon">
-                                <i class="bi bi-person-vcard"></i>
-                            </div>
+            <a
+                href="{{ route('admin.transport.vehicles.index') }}"
+                class="back-btn"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Back to Vehicles
+            </a>
 
+        </div>
+
+        {{-- MAIN CARD --}}
+        <div class="vehicle-form-card">
+
+            {{-- CARD HEADER --}}
+            <div class="form-card-header">
+                <div class="form-card-header-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+
+                <div>
+                    <h2>Update Vehicle Information</h2>
+                    <p>
+                        Vehicle:
+                        <strong>{{ $transportVehicle->vehicle_number }}</strong>
+                    </p>
+                </div>
+            </div>
+
+            {{-- UPDATE FORM --}}
+            <form
+                id="updateVehicleForm"
+                action="{{ route('admin.transport.vehicles.update', $transportVehicle) }}"
+                method="POST"
+            >
+                @csrf
+                @method('PUT')
+
+                <div class="vehicle-form-body">
+
+                    {{-- VALIDATION ERRORS --}}
+                    @if ($errors->any())
+                        <div class="validation-alert" role="alert">
+                            <strong>
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                Please correct the following errors:
+                            </strong>
+
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- 01: BASIC VEHICLE INFORMATION --}}
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <div class="section-number">01</div>
                             <div>
-
-                                <strong>Assign Driver</strong>
-
-                                <span>
-                                    Select an active driver from Other Staff.
-                                    Details are automatically loaded.
-                                </span>
-
+                                <h3>Basic Vehicle Information</h3>
+                                <p>Vehicle identification and seating details</p>
                             </div>
-
                         </div>
 
-                        <div class="row g-4">
+                        <div class="row g-3">
 
-                            {{-- DRIVER SELECT --}}
-                            <div class="col-md-12">
-
-                                <label
-                                    for="driver_id"
-                                    class="form-label"
-                                >
-                                    Select Driver
+                            {{-- VEHICLE NUMBER --}}
+                            <div class="col-md-6">
+                                <label for="vehicle_number" class="form-label">
+                                    Vehicle Number <span class="required">*</span>
                                 </label>
 
                                 <div class="input-icon-wrapper">
+                                    <i class="bi bi-hash input-icon"></i>
 
-                                    <i class="bi bi-person-check input-icon"></i>
+                                    <input
+                                        type="text"
+                                        name="vehicle_number"
+                                        id="vehicle_number"
+                                        class="form-control @error('vehicle_number') is-invalid @enderror"
+                                        value="{{ old('vehicle_number', $transportVehicle->vehicle_number) }}"
+                                        placeholder="e.g. MH-09-AB-1234"
+                                        required
+                                    >
+                                </div>
+
+                                @error('vehicle_number')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- VEHICLE TYPE --}}
+                            <div class="col-md-6">
+                                <label for="vehicle_type" class="form-label">
+                                    Vehicle Type <span class="required">*</span>
+                                </label>
+
+                                <div class="input-icon-wrapper">
+                                    <i class="bi bi-truck input-icon"></i>
 
                                     <select
-                                        name="driver_id"
-                                        id="driver_id"
-                                        class="form-select @error('driver_id') is-invalid @enderror"
+                                        name="vehicle_type"
+                                        id="vehicle_type"
+                                        class="form-select @error('vehicle_type') is-invalid @enderror"
+                                        required
                                     >
+                                        <option value="">Select Vehicle Type</option>
 
-                                        <option value="">
-                                            No Driver Assigned
-                                        </option>
-
-                                        @foreach($drivers as $driver)
-
+                                        @foreach([
+                                            'Bus',
+                                            'Mini Bus',
+                                            'Van',
+                                            'School Van',
+                                            'Other'
+                                        ] as $type)
                                             <option
-                                                value="{{ $driver->id }}"
-                                                data-name="{{ $driver->name }}"
-                                                data-phone="{{ $driver->phone }}"
-                                                data-license="{{ $driver->license_number }}"
-                                                {{ old('driver_id', $transportVehicle->driver_id) == $driver->id ? 'selected' : '' }}
+                                                value="{{ $type }}"
+                                                {{ old('vehicle_type', $transportVehicle->vehicle_type) === $type ? 'selected' : '' }}
                                             >
-                                                {{ $driver->name }}
-
-                                                @if($driver->staff_id)
-                                                    — {{ $driver->staff_id }}
-                                                @endif
-
+                                                {{ $type }}
                                             </option>
-
                                         @endforeach
-
                                     </select>
-
                                 </div>
 
-                                <div class="form-text">
-                                    Only active staff members with Driver designation are available.
+                                @error('vehicle_type')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- CAPACITY --}}
+                            <div class="col-md-6">
+                                <label for="capacity" class="form-label">
+                                    Seating Capacity <span class="required">*</span>
+                                </label>
+
+                                <div class="input-icon-wrapper">
+                                    <i class="bi bi-people input-icon"></i>
+
+                                    <input
+                                        type="number"
+                                        name="capacity"
+                                        id="capacity"
+                                        class="form-control @error('capacity') is-invalid @enderror"
+                                        value="{{ old('capacity', $transportVehicle->capacity) }}"
+                                        min="1"
+                                        required
+                                    >
                                 </div>
 
-                                @error('driver_id')
+                                @error('capacity')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                                    <div class="field-error">
-                                        {{ $message }}
+                        </div>
+                    </div>
+
+                    {{-- 02: DRIVER ASSIGNMENT --}}
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <div class="section-number">02</div>
+                            <div>
+                                <h3>Driver Assignment</h3>
+                                <p>Choose a driver and review the assigned details</p>
+                            </div>
+                        </div>
+
+                        <div class="driver-info-box">
+
+                            <div class="driver-info-heading">
+                                <div class="driver-info-heading-icon">
+                                    <i class="bi bi-person-vcard"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Assign Driver</strong>
+                                    <span>
+                                        Select an active driver from Other Staff.
+                                        Details are automatically loaded.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+
+                                {{-- DRIVER SELECT --}}
+                                <div class="col-12">
+                                    <label for="driver_id" class="form-label">
+                                        Select Driver
+                                    </label>
+
+                                    <div class="input-icon-wrapper">
+                                        <i class="bi bi-person-check input-icon"></i>
+
+                                        <select
+                                            name="driver_id"
+                                            id="driver_id"
+                                            class="form-select @error('driver_id') is-invalid @enderror"
+                                        >
+                                            <option value="">No Driver Assigned</option>
+
+                                            @foreach($drivers as $driver)
+                                                <option
+                                                    value="{{ $driver->id }}"
+                                                    data-name="{{ $driver->name }}"
+                                                    data-phone="{{ $driver->phone }}"
+                                                    data-license="{{ $driver->license_number }}"
+                                                    {{ old('driver_id', $transportVehicle->driver_id) == $driver->id ? 'selected' : '' }}
+                                                >
+                                                    {{ $driver->name }}
+
+                                                    @if($driver->staff_id)
+                                                        — {{ $driver->staff_id }}
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
+                                    <div class="form-text">
+                                        Only active staff members with Driver designation are available.
+                                    </div>
+
+                                    @error('driver_id')
+                                        <div class="field-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- DRIVER NAME --}}
+                                <div class="col-md-4">
+                                    <label for="driver_name" class="form-label">
+                                        Driver Name
+                                    </label>
+
+                                    <div class="input-icon-wrapper">
+                                        <i class="bi bi-person input-icon"></i>
+
+                                        <input
+                                            type="text"
+                                            id="driver_name"
+                                            class="form-control"
+                                            value="{{ old('driver_name', $transportVehicle->driver_name) }}"
+                                            placeholder="Auto-filled"
+                                            readonly
+                                        >
+                                    </div>
+                                </div>
+
+                                {{-- DRIVER CONTACT --}}
+                                <div class="col-md-4">
+                                    <label for="driver_contact" class="form-label">
+                                        Driver Contact
+                                    </label>
+
+                                    <div class="input-icon-wrapper">
+                                        <i class="bi bi-telephone input-icon"></i>
+
+                                        <input
+                                            type="text"
+                                            id="driver_contact"
+                                            class="form-control"
+                                            value="{{ old('driver_contact', $transportVehicle->driver_contact) }}"
+                                            placeholder="Auto-filled"
+                                            readonly
+                                        >
+                                    </div>
+                                </div>
+
+                                {{-- DRIVER LICENCE --}}
+                                <div class="col-md-4">
+                                    <label for="driver_license_number" class="form-label">
+                                        Driving Licence Number
+                                    </label>
+
+                                    <div class="input-icon-wrapper">
+                                        <i class="bi bi-credit-card-2-front input-icon"></i>
+
+                                        <input
+                                            type="text"
+                                            id="driver_license_number"
+                                            class="form-control"
+                                            value="{{ old('driver_license_number', $transportVehicle->driver_license_number) }}"
+                                            placeholder="Auto-filled"
+                                            readonly
+                                        >
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 03: VEHICLE DOCUMENTS --}}
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <div class="section-number">03</div>
+                            <div>
+                                <h3>Vehicle Documents</h3>
+                                <p>Keep track of vehicle insurance validity</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="insurance_expiry" class="form-label">
+                                    Insurance Expiry
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="insurance_expiry"
+                                    id="insurance_expiry"
+                                    class="form-control @error('insurance_expiry') is-invalid @enderror"
+                                    value="{{ old('insurance_expiry', optional($transportVehicle->insurance_expiry)->format('Y-m-d')) }}"
+                                >
+
+                                @error('insurance_expiry')
+                                    <div class="field-error">{{ $message }}</div>
                                 @enderror
-
                             </div>
+                        </div>
+                    </div>
 
-                            {{-- DRIVER NAME --}}
-                            <div class="col-md-4">
+                    {{-- 04: VEHICLE STATUS --}}
+                    <div class="form-section">
 
-                                <label
-                                    for="driver_name"
-                                    class="form-label"
+                        <div class="section-title">
+                            <div class="section-number">04</div>
+                            <div>
+                                <h3>Vehicle Status</h3>
+                                <p>Set the current operational status</p>
+                            </div>
+                        </div>
+
+                        <div class="status-options">
+
+                            {{-- ACTIVE --}}
+                            <div class="status-option">
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    id="status_active"
+                                    value="active"
+                                    {{ old('status', $transportVehicle->status) === 'active' ? 'checked' : '' }}
                                 >
-                                    Driver Name
+
+                                <label for="status_active">
+                                    <span class="status-dot"></span>
+                                    Active
                                 </label>
-
-                                <div class="input-icon-wrapper">
-
-                                    <i class="bi bi-person input-icon"></i>
-
-                                    <input
-                                        type="text"
-                                        id="driver_name"
-                                        class="form-control"
-                                        value="{{ old('driver_name', $transportVehicle->driver_name) }}"
-                                        placeholder="Auto-filled"
-                                        readonly
-                                    >
-
-                                </div>
-
                             </div>
 
-                            {{-- DRIVER CONTACT --}}
-                            <div class="col-md-4">
-
-                                <label
-                                    for="driver_contact"
-                                    class="form-label"
+                            {{-- MAINTENANCE --}}
+                            <div class="status-option maintenance">
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    id="status_maintenance"
+                                    value="maintenance"
+                                    {{ old('status', $transportVehicle->status) === 'maintenance' ? 'checked' : '' }}
                                 >
-                                    Driver Contact
+
+                                <label for="status_maintenance">
+                                    <span class="status-dot"></span>
+                                    Maintenance
                                 </label>
-
-                                <div class="input-icon-wrapper">
-
-                                    <i class="bi bi-telephone input-icon"></i>
-
-                                    <input
-                                        type="text"
-                                        id="driver_contact"
-                                        class="form-control"
-                                        value="{{ old('driver_contact', $transportVehicle->driver_contact) }}"
-                                        placeholder="Auto-filled"
-                                        readonly
-                                    >
-
-                                </div>
-
                             </div>
 
-                            {{-- DRIVER LICENSE --}}
-                            <div class="col-md-4">
-
-                                <label
-                                    for="driver_license_number"
-                                    class="form-label"
+                            {{-- INACTIVE --}}
+                            <div class="status-option inactive">
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    id="status_inactive"
+                                    value="inactive"
+                                    {{ old('status', $transportVehicle->status) === 'inactive' ? 'checked' : '' }}
                                 >
-                                    Driving Licence Number
+
+                                <label for="status_inactive">
+                                    <span class="status-dot"></span>
+                                    Inactive
                                 </label>
-
-                                <div class="input-icon-wrapper">
-
-                                    <i class="bi bi-credit-card-2-front input-icon"></i>
-
-                                    <input
-                                        type="text"
-                                        id="driver_license_number"
-                                        class="form-control"
-                                        value="{{ old('driver_license_number', $transportVehicle->driver_license_number) }}"
-                                        placeholder="Auto-filled"
-                                        readonly
-                                    >
-
-                                </div>
-
                             </div>
 
                         </div>
 
+                        @error('status')
+                            <div class="field-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- 05: ADDITIONAL INFORMATION --}}
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <div class="section-number">05</div>
+                            <div>
+                                <h3>Additional Information</h3>
+                                <p>Add optional notes about this vehicle</p>
+                            </div>
+                        </div>
+
+                        <label for="remarks" class="form-label">
+                            Remarks
+                        </label>
+
+                        <textarea
+                            name="remarks"
+                            id="remarks"
+                            class="form-control @error('remarks') is-invalid @enderror"
+                            placeholder="Enter any additional information..."
+                        >{{ old('remarks', $transportVehicle->remarks) }}</textarea>
+
+                        @error('remarks')
+                            <div class="field-error">{{ $message }}</div>
+                        @enderror
                     </div>
 
                 </div>
 
-                {{-- VEHICLE DOCUMENTS --}}
-                <div class="form-section">
+                {{-- FORM FOOTER --}}
+                <div class="form-footer">
 
-                    <div class="section-title">
-
-                        <div class="section-title-icon">
-                            <i class="bi bi-file-earmark-check"></i>
-                        </div>
-
-                        <h3>Vehicle Documents</h3>
-
-                    </div>
-
-                    <div class="row g-4">
-
-                        {{-- INSURANCE --}}
-                        <div class="col-md-6">
-
-                            <label
-                                for="insurance_expiry"
-                                class="form-label"
-                            >
-                                Insurance Expiry
-                            </label>
-
-                            <input
-                                type="date"
-                                name="insurance_expiry"
-                                id="insurance_expiry"
-                                class="form-control @error('insurance_expiry') is-invalid @enderror"
-                                value="{{ old('insurance_expiry', optional($transportVehicle->insurance_expiry)->format('Y-m-d')) }}"
-                            >
-
-                            @error('insurance_expiry')
-
-                                <div class="field-error">
-                                    {{ $message }}
-                                </div>
-
-                            @enderror
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {{-- STATUS --}}
-                <div class="form-section">
-
-                    <div class="section-title">
-
-                        <div class="section-title-icon">
-                            <i class="bi bi-toggle-on"></i>
-                        </div>
-
-                        <h3>Vehicle Status</h3>
-
-                    </div>
-
-                    <div class="status-options">
-
-                        {{-- ACTIVE --}}
-                        <div class="status-option">
-
-                            <input
-                                type="radio"
-                                name="status"
-                                id="status_active"
-                                value="active"
-                                {{ old('status', $transportVehicle->status) === 'active' ? 'checked' : '' }}
-                            >
-
-                            <label for="status_active">
-                                <span class="status-dot"></span>
-                                Active
-                            </label>
-
-                        </div>
-
-                        {{-- MAINTENANCE --}}
-                        <div class="status-option maintenance">
-
-                            <input
-                                type="radio"
-                                name="status"
-                                id="status_maintenance"
-                                value="maintenance"
-                                {{ old('status', $transportVehicle->status) === 'maintenance' ? 'checked' : '' }}
-                            >
-
-                            <label for="status_maintenance">
-                                <span class="status-dot"></span>
-                                Maintenance
-                            </label>
-
-                        </div>
-
-                        {{-- INACTIVE --}}
-                        <div class="status-option inactive">
-
-                            <input
-                                type="radio"
-                                name="status"
-                                id="status_inactive"
-                                value="inactive"
-                                {{ old('status', $transportVehicle->status) === 'inactive' ? 'checked' : '' }}
-                            >
-
-                            <label for="status_inactive">
-                                <span class="status-dot"></span>
-                                Inactive
-                            </label>
-
-                        </div>
-
-                    </div>
-
-                    @error('status')
-
-                        <div class="field-error">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-                {{-- ADDITIONAL INFORMATION --}}
-                <div class="form-section">
-
-                    <div class="section-title">
-
-                        <div class="section-title-icon">
-                            <i class="bi bi-chat-left-text"></i>
-                        </div>
-
-                        <h3>Additional Information</h3>
-
-                    </div>
-
-                    <label
-                        for="remarks"
-                        class="form-label"
-                    >
-                        Remarks
-                    </label>
-
-                    <textarea
-                        name="remarks"
-                        id="remarks"
-                        class="form-control @error('remarks') is-invalid @enderror"
-                        placeholder="Enter any additional information..."
-                    >{{ old('remarks', $transportVehicle->remarks) }}</textarea>
-
-                    @error('remarks')
-
-                        <div class="field-error">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </div>
-
-            </div>
-
-            {{-- FORM FOOTER --}}
-            <div class="form-footer">
-
-                {{-- DELETE BUTTON --}}
-                <button
-                    type="submit"
-                    form="deleteVehicleForm"
-                    class="delete-btn"
-                    onclick="return confirm('Are you sure you want to delete this vehicle?');"
-                >
-                    <i class="bi bi-trash3"></i>
-                    Delete Vehicle
-                </button>
-
-                <div class="footer-right">
-
-                    <a
-                        href="{{ route('admin.transport.vehicles.index') }}"
-                        class="cancel-btn"
-                    >
-                        <i class="bi bi-x-lg"></i>
-                        Cancel
-                    </a>
-
+                    {{-- DELETE BUTTON --}}
                     <button
                         type="submit"
-                        class="save-btn"
+                        form="deleteVehicleForm"
+                        class="delete-btn"
+                        onclick="return confirm('Are you sure you want to delete this vehicle?');"
                     >
-                        <i class="bi bi-check2-circle"></i>
-                        Update Vehicle
+                        <i class="bi bi-trash3"></i>
+                        Delete Vehicle
                     </button>
 
+                    <div class="footer-right">
+
+                        <a
+                            href="{{ route('admin.transport.vehicles.index') }}"
+                            class="cancel-btn"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="save-btn">
+                            <i class="bi bi-check2-circle"></i>
+                            Update Vehicle
+                        </button>
+
+                    </div>
                 </div>
 
-            </div>
+            </form>
 
-        </form>
+            {{-- SEPARATE DELETE FORM --}}
+            <form
+                id="deleteVehicleForm"
+                action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
+                method="POST"
+                style="display: none;"
+            >
+                @csrf
+                @method('DELETE')
+            </form>
 
-        {{-- SEPARATE DELETE FORM --}}
-        <form
-            id="deleteVehicleForm"
-            action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
-            method="POST"
-            style="display: none;"
-        >
-            @csrf
-            @method('DELETE')
-        </form>
-
+        </div>
     </div>
-
-</div>
-
 </div>
 
 <script>
@@ -1129,11 +1190,9 @@ document.addEventListener('DOMContentLoaded', function () {
             driverSelect.options[driverSelect.selectedIndex];
 
         if (!selectedOption || !selectedOption.value) {
-
             driverName.value = '';
             driverContact.value = '';
             driverLicense.value = '';
-
             return;
         }
 
@@ -1147,12 +1206,10 @@ document.addEventListener('DOMContentLoaded', function () {
             selectedOption.dataset.license || '';
     }
 
-    driverSelect.addEventListener(
-        'change',
-        fillDriverDetails
-    );
-
-    fillDriverDetails();
+    if (driverSelect) {
+        driverSelect.addEventListener('change', fillDriverDetails);
+        fillDriverDetails();
+    }
 
 });
 </script>

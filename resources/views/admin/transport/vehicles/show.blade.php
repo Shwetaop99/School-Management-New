@@ -1,15 +1,35 @@
+
 @extends('layouts.app')
 
 @section('title', 'Vehicle Details | Admin')
+@section('page-title', 'Vehicle Details')
 
 @section('content')
 
 <style>
     .vehicle-show-page {
+        --diary-bg: #f5f3e9;
+        --diary-paper: #fffefa;
+        --diary-ink: #263b35;
+        --diary-green: #34775a;
+        --diary-green-dark: #245a43;
+        --diary-green-light: #eaf3e9;
+        --diary-wood: #a87543;
+        --diary-cyan: #527f79;
+        --diary-red: #bd5148;
+        --diary-border: #e5e1d3;
+
         min-height: calc(100vh - 60px);
-        background: #f4f7fb;
-        padding: 28px 0 45px;
-        color: #172033;
+        padding: 24px 0 40px;
+        background: var(--diary-bg);
+        color: var(--diary-ink);
+        font-size: 12px;
+    }
+
+    .vehicle-show-page *,
+    .vehicle-show-page *::before,
+    .vehicle-show-page *::after {
+        box-sizing: border-box;
     }
 
     .vehicle-show-container {
@@ -19,228 +39,292 @@
         padding: 0 20px;
     }
 
+    /* PAGE HEADER */
+
     .vehicle-page-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 22px;
+        gap: 18px;
+        margin-bottom: 20px;
     }
 
     .vehicle-heading {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 13px;
+        min-width: 0;
+        padding-left: 13px;
+        border-left: 3px solid var(--diary-green);
     }
 
     .vehicle-heading-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        color: #fff;
         display: flex;
+        flex: 0 0 46px;
         align-items: center;
         justify-content: center;
-        font-size: 23px;
-        box-shadow: 0 8px 20px rgba(23, 105, 209, .18);
+        width: 46px;
+        height: 46px;
+        border: 1px solid #d4e3d4;
+        border-radius: 10px;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
+        font-size: 20px;
+    }
+
+    .vehicle-breadcrumb {
+        margin-bottom: 4px;
+        color: var(--diary-wood);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
     }
 
     .vehicle-heading h1 {
         margin: 0;
-        font-size: 25px;
-        font-weight: 700;
-        color: #172033;
+        color: var(--diary-ink);
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.3;
     }
 
     .vehicle-heading p {
         margin: 4px 0 0;
-        color: #64748b;
-        font-size: 14px;
+        color: #718078;
+        font-size: 11px;
+        line-height: 1.5;
     }
 
     .header-actions {
         display: flex;
-        gap: 9px;
         align-items: center;
+        flex: 0 0 auto;
+        gap: 8px;
     }
 
     .header-btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 7px;
-        padding: 10px 16px;
-        border-radius: 10px;
-        font-size: 14px;
-        font-weight: 600;
+        min-height: 37px;
+        padding: 8px 13px;
+        border: 1px solid var(--diary-border);
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 750;
         text-decoration: none;
-        transition: .2s ease;
+        transition: background .2s ease, border-color .2s ease;
     }
 
     .back-btn {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        color: #475569;
+        background: var(--diary-paper);
+        color: var(--diary-ink);
     }
 
     .back-btn:hover {
-        background: #f2f7ff;
-        color: #1769d1;
-        border-color: #cfe0fa;
+        border-color: #b7d0b9;
+        background: var(--diary-green-light);
+        color: var(--diary-green-dark);
     }
 
     .edit-btn {
-        background: linear-gradient(135deg, #1769d1, #237de0);
-        color: #fff;
-        box-shadow: 0 6px 15px rgba(23, 105, 209, .16);
+        border-color: var(--diary-green);
+        background: var(--diary-green);
+        color: #fffefa;
     }
 
     .edit-btn:hover {
-        color: #fff;
-        transform: translateY(-1px);
+        border-color: var(--diary-green-dark);
+        background: var(--diary-green-dark);
+        color: #fffefa;
     }
 
+    /* VEHICLE SUMMARY */
+
     .vehicle-summary-card {
-        background: linear-gradient(
-            135deg,
-            #1769d1 0%,
-            #237de0 55%,
-            #159cc7 100%
-        );
-        border-radius: 18px;
-        padding: 28px 30px;
-        color: #fff;
-        box-shadow: 0 10px 28px rgba(23, 105, 209, .18);
+        position: relative;
+        overflow: hidden;
         margin-bottom: 20px;
+        padding: 23px 25px;
+        border: 1px solid #2c694d;
+        border-radius: 11px;
+        background: var(--diary-green);
+        color: #fffefa;
+        box-shadow: 0 4px 14px rgba(36, 90, 67, .10);
+    }
+
+    .vehicle-summary-card::after {
+        position: absolute;
+        top: -48px;
+        right: -28px;
+        width: 180px;
+        height: 180px;
+        border: 1px solid rgba(255, 254, 250, .12);
+        border-radius: 50%;
+        content: "";
+        pointer-events: none;
     }
 
     .vehicle-summary-content {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 25px;
+        gap: 20px;
     }
 
     .vehicle-summary-left {
         display: flex;
         align-items: center;
-        gap: 18px;
+        min-width: 0;
+        gap: 15px;
     }
 
     .vehicle-large-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 18px;
-        background: rgba(255,255,255,.17);
-        border: 1px solid rgba(255,255,255,.20);
         display: flex;
+        flex: 0 0 58px;
         align-items: center;
         justify-content: center;
-        font-size: 30px;
+        width: 58px;
+        height: 58px;
+        border: 1px solid rgba(255, 254, 250, .25);
+        border-radius: 10px;
+        background: rgba(255, 254, 250, .12);
+        color: #fffefa;
+        font-size: 25px;
     }
 
     .vehicle-summary-left h2 {
         margin: 0 0 5px;
-        font-size: 25px;
-        font-weight: 750;
+        color: #fffefa;
+        font-size: 22px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
     }
 
     .vehicle-summary-left p {
         margin: 0;
-        font-size: 14px;
-        opacity: .9;
+        color: #e7f0e8;
+        font-size: 11px;
+    }
+
+    .summary-caption {
+        margin-bottom: 5px;
+        color: #e1ebe1;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
     }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 7px;
-        padding: 8px 14px;
-        border-radius: 999px;
-        font-size: 13px;
-        font-weight: 700;
-        background: rgba(255,255,255,.17);
-        border: 1px solid rgba(255,255,255,.20);
+        min-height: 31px;
+        padding: 7px 11px;
+        border: 1px solid rgba(255, 254, 250, .30);
+        border-radius: 7px;
+        background: rgba(255, 254, 250, .12);
+        color: #fffefa;
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
     }
 
     .status-badge-dot {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
-        background: #fff;
+        background: #fffefa;
     }
 
+    /* INFORMATION CARDS */
+
     .info-card {
-        background: #fff;
-        border: 1px solid #e5ebf3;
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
-        overflow: hidden;
+        display: flex;
+        flex-direction: column;
         height: 100%;
+        overflow: hidden;
+        border: 1px solid var(--diary-border);
+        border-radius: 10px;
+        background: var(--diary-paper);
+        box-shadow: 0 3px 12px rgba(54, 64, 45, .035);
     }
 
     .info-card-header {
-        padding: 19px 21px;
-        border-bottom: 1px solid #e8edf3;
         display: flex;
         align-items: center;
-        gap: 11px;
+        gap: 10px;
+        padding: 15px 17px;
+        border-bottom: 1px solid var(--diary-border);
+        background: #fbfaf3;
     }
 
     .info-card-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
         display: flex;
+        flex: 0 0 34px;
         align-items: center;
         justify-content: center;
-        font-size: 17px;
-    }
-
-    .blue-icon {
-        background: #dbeafe;
-        color: #1769d1;
-    }
-
-    .purple-icon {
-        background: #ede9fe;
-        color: #7c3aed;
-    }
-
-    .orange-icon {
-        background: #ffedd5;
-        color: #ea580c;
+        width: 34px;
+        height: 34px;
+        border: 1px solid #d4e3d4;
+        border-radius: 8px;
+        font-size: 15px;
     }
 
     .green-icon {
-        background: #dcfce7;
-        color: #16a34a;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
+    }
+
+    .purple-icon {
+        background: #eef0e4;
+        color: var(--diary-cyan);
+    }
+
+    .orange-icon {
+        background: #f7eee2;
+        color: var(--diary-wood);
+    }
+
+    .red-icon {
+        background: #f9eae7;
+        color: var(--diary-red);
     }
 
     .info-card-header h3 {
         margin: 0;
-        font-size: 15px;
-        font-weight: 700;
-        color: #172033;
+        color: var(--diary-ink);
+        font-size: 12px;
+        font-weight: 800;
     }
 
     .info-card-header p {
         margin: 3px 0 0;
-        font-size: 12px;
-        color: #64748b;
+        color: #829087;
+        font-size: 10px;
+        line-height: 1.4;
     }
 
     .info-card-body {
-        padding: 21px;
+        flex: 1;
+        padding: 16px 17px;
     }
+
+    /* INFORMATION ROWS */
 
     .info-row {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 20px;
-        padding: 12px 0;
-        border-bottom: 1px solid #edf1f5;
+        gap: 16px;
+        padding: 11px 0;
+        border-bottom: 1px solid #eeebdf;
     }
 
     .info-row:first-child {
@@ -248,152 +332,196 @@
     }
 
     .info-row:last-child {
-        border-bottom: 0;
         padding-bottom: 0;
+        border-bottom: 0;
     }
 
     .info-label {
-        color: #64748b;
-        font-size: 13px;
+        flex: 0 0 auto;
+        color: #718078;
+        font-size: 10px;
+        line-height: 1.6;
     }
 
     .info-value {
-        color: #172033;
-        font-size: 13px;
-        font-weight: 650;
+        max-width: 65%;
+        color: var(--diary-ink);
+        font-size: 11px;
+        font-weight: 750;
+        line-height: 1.6;
         text-align: right;
-        word-break: break-word;
+        overflow-wrap: anywhere;
     }
 
     .empty-value {
-        color: #94a3b8;
+        color: #92978b;
         font-weight: 500;
     }
+
+    /* DRIVER PROFILE */
 
     .driver-profile {
         display: flex;
         align-items: center;
-        gap: 13px;
-        padding: 14px;
-        border-radius: 12px;
-        background: #f8fafc;
-        border: 1px solid #e6edf5;
-        margin-bottom: 17px;
+        gap: 11px;
+        margin-bottom: 15px;
+        padding: 12px;
+        border: 1px solid #dce6d8;
+        border-radius: 8px;
+        background: #f8f8ef;
     }
 
     .driver-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        background: #ede9fe;
-        color: #7c3aed;
         display: flex;
+        flex: 0 0 40px;
         align-items: center;
         justify-content: center;
-        font-size: 19px;
-        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border: 1px solid #d4e3d4;
+        border-radius: 8px;
+        background: var(--diary-green-light);
+        color: var(--diary-green);
+        font-size: 18px;
     }
 
     .driver-profile strong {
         display: block;
-        font-size: 14px;
-        color: #172033;
+        color: var(--diary-ink);
+        font-size: 12px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
     }
 
     .driver-profile span {
         display: block;
-        margin-top: 3px;
-        font-size: 12px;
-        color: #64748b;
+        margin-top: 4px;
+        color: #77857b;
+        font-size: 10px;
     }
+
+    /* DOCUMENTS */
 
     .document-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 15px;
-        padding: 12px 0;
-        border-bottom: 1px solid #edf1f5;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid #eeebdf;
+    }
+
+    .document-item:first-child {
+        padding-top: 0;
     }
 
     .document-item:last-child {
+        padding-bottom: 0;
         border-bottom: 0;
     }
 
     .document-name {
         display: flex;
         align-items: center;
-        gap: 9px;
-        color: #475569;
-        font-size: 13px;
+        gap: 8px;
+        color: #52645a;
+        font-size: 11px;
     }
 
     .document-name i {
-        color: #1769d1;
+        color: var(--diary-green);
+        font-size: 13px;
     }
 
     .document-date {
-        font-size: 13px;
-        font-weight: 650;
-        color: #172033;
+        color: var(--diary-ink);
+        font-size: 11px;
+        font-weight: 750;
+        text-align: right;
     }
 
     .document-date.empty {
-        color: #94a3b8;
+        color: #92978b;
         font-weight: 500;
     }
 
+    /* REMARKS */
+
     .remarks-box {
-        background: #f8fafc;
-        border: 1px solid #e6edf5;
-        border-radius: 12px;
-        padding: 15px;
-        color: #475569;
-        font-size: 13px;
-        line-height: 1.7;
-        min-height: 90px;
+        min-height: 75px;
+        padding: 13px;
+        border: 1px solid var(--diary-border);
+        border-radius: 8px;
+        background: #f8f7ef;
+        color: #52645a;
+        font-size: 11px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+        white-space: normal;
     }
 
+    /* BOTTOM ACTIONS */
+
     .bottom-actions {
-        margin-top: 20px;
-        background: #fff;
-        border: 1px solid #e5ebf3;
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
-        padding: 17px 21px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 15px;
+        margin-top: 20px;
+        padding: 15px 17px;
+        border: 1px solid var(--diary-border);
+        border-radius: 10px;
+        background: var(--diary-paper);
+        box-shadow: 0 3px 12px rgba(54, 64, 45, .035);
     }
 
     .bottom-actions-text {
-        color: #64748b;
-        font-size: 13px;
+        color: #718078;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .bottom-actions-text i {
+        margin-right: 5px;
+        color: var(--diary-green);
     }
 
     .delete-btn {
-        border: 1px solid #fecaca;
-        background: #fff;
-        color: #dc2626;
-        padding: 10px 17px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 650;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 7px;
+        min-height: 37px;
+        padding: 8px 13px;
+        border: 1px solid #e8c7c0;
+        border-radius: 7px;
+        background: var(--diary-paper);
+        color: var(--diary-red);
+        font-size: 11px;
+        font-weight: 750;
         cursor: pointer;
-        transition: .2s ease;
+        transition: background .2s ease, border-color .2s ease;
     }
 
     .delete-btn:hover {
-        background: #fff1f0;
-        border-color: #fca5a5;
+        border-color: var(--diary-red);
+        background: #f9eae7;
+        color: #9e3e37;
     }
 
-    @media (max-width: 767px) {
+    /* RESPONSIVE */
 
+    @media (max-width: 991.98px) {
+        .vehicle-show-container {
+            padding: 0 16px;
+        }
+
+        .vehicle-summary-card {
+            padding: 20px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
         .vehicle-show-page {
             padding-top: 18px;
         }
@@ -405,6 +533,7 @@
         .vehicle-page-header {
             align-items: flex-start;
             flex-direction: column;
+            gap: 13px;
         }
 
         .header-actions {
@@ -413,20 +542,36 @@
 
         .header-btn {
             flex: 1;
-            justify-content: center;
+        }
+
+        .vehicle-heading {
+            gap: 10px;
+            padding-left: 10px;
+        }
+
+        .vehicle-heading-icon {
+            flex-basis: 40px;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+        }
+
+        .vehicle-heading h1 {
+            font-size: 19px;
         }
 
         .vehicle-summary-card {
-            padding: 22px;
+            padding: 18px;
         }
 
         .vehicle-summary-content {
             align-items: flex-start;
             flex-direction: column;
+            gap: 15px;
         }
 
         .vehicle-summary-left h2 {
-            font-size: 21px;
+            font-size: 19px;
         }
 
         .bottom-actions {
@@ -436,481 +581,415 @@
 
         .delete-btn {
             width: 100%;
-            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .vehicle-heading h1 {
+            font-size: 17px;
+        }
+
+        .vehicle-heading p {
+            font-size: 10px;
+        }
+
+        .info-card-header {
+            padding: 13px;
+        }
+
+        .info-card-body {
+            padding: 14px 13px;
+        }
+
+        .info-row {
+            gap: 10px;
+        }
+
+        .info-value {
+            max-width: 60%;
+        }
+
+        .vehicle-large-icon {
+            flex-basis: 48px;
+            width: 48px;
+            height: 48px;
+            font-size: 21px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .vehicle-show-page *,
+        .vehicle-show-page *::before,
+        .vehicle-show-page *::after {
+            scroll-behavior: auto !important;
+            transition: none !important;
         }
     }
 </style>
 
 <div class="vehicle-show-page">
+    <div class="vehicle-show-container">
 
-<div class="vehicle-show-container">
+        {{-- PAGE HEADER --}}
+        <div class="vehicle-page-header">
 
-    {{-- PAGE HEADER --}}
-    <div class="vehicle-page-header">
-
-        <div class="vehicle-heading">
-
-            <div class="vehicle-heading-icon">
-                <i class="bi bi-bus-front-fill"></i>
-            </div>
-
-            <div>
-                <h1>Vehicle Details</h1>
-                <p>View complete transport vehicle information.</p>
-            </div>
-
-        </div>
-
-        <div class="header-actions">
-
-            <a
-                href="{{ route('admin.transport.vehicles.index') }}"
-                class="header-btn back-btn"
-            >
-                <i class="bi bi-arrow-left"></i>
-                Back
-            </a>
-
-            <a
-                href="{{ route('admin.transport.vehicles.edit', $transportVehicle) }}"
-                class="header-btn edit-btn"
-            >
-                <i class="bi bi-pencil-square"></i>
-                Edit Vehicle
-            </a>
-
-        </div>
-
-    </div>
-
-    {{-- VEHICLE SUMMARY --}}
-    <div class="vehicle-summary-card">
-
-        <div class="vehicle-summary-content">
-
-            <div class="vehicle-summary-left">
-
-                <div class="vehicle-large-icon">
+            <div class="vehicle-heading">
+                <div class="vehicle-heading-icon">
                     <i class="bi bi-bus-front-fill"></i>
                 </div>
 
                 <div>
+                    <div class="vehicle-breadcrumb">
+                        Transport Management / Vehicles / Details
+                    </div>
 
-                    <h2>
-                        {{ $transportVehicle->vehicle_number }}
-                    </h2>
-
-                    <p>
-                        {{ $transportVehicle->vehicle_type }}
-                    </p>
-
+                    <h1>Vehicle Details</h1>
+                    <p>View complete transport vehicle information.</p>
                 </div>
-
             </div>
 
-            <div>
+            <div class="header-actions">
 
-                <span class="status-badge">
+                <a
+                    href="{{ route('admin.transport.vehicles.index') }}"
+                    class="header-btn back-btn"
+                >
+                    <i class="bi bi-arrow-left"></i>
+                    Back
+                </a>
 
-                    <span class="status-badge-dot"></span>
-
-                    {{ ucfirst($transportVehicle->status) }}
-
-                </span>
+                <a
+                    href="{{ route('admin.transport.vehicles.edit', $transportVehicle) }}"
+                    class="header-btn edit-btn"
+                >
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Vehicle
+                </a>
 
             </div>
-
         </div>
 
-    </div>
+        {{-- VEHICLE SUMMARY --}}
+        <div class="vehicle-summary-card">
 
-    <div class="row g-4">
+            <div class="vehicle-summary-content">
 
-        {{-- BASIC INFORMATION --}}
-        <div class="col-lg-6">
-
-            <div class="info-card">
-
-                <div class="info-card-header">
-
-                    <div class="info-card-icon blue-icon">
-                        <i class="bi bi-card-text"></i>
+                <div class="vehicle-summary-left">
+                    <div class="vehicle-large-icon">
+                        <i class="bi bi-bus-front-fill"></i>
                     </div>
 
                     <div>
-                        <h3>Vehicle Information</h3>
-                        <p>Basic vehicle details</p>
-                    </div>
+                        <div class="summary-caption">Vehicle Registration</div>
 
+                        <h2>{{ $transportVehicle->vehicle_number }}</h2>
+
+                        <p>{{ $transportVehicle->vehicle_type }}</p>
+                    </div>
                 </div>
 
-                <div class="info-card-body">
+                <div>
+                    <div class="summary-caption">Current Status</div>
 
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Vehicle Number
-                        </span>
-
-                        <span class="info-value">
-                            {{ $transportVehicle->vehicle_number }}
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Vehicle Type
-                        </span>
-
-                        <span class="info-value">
-                            {{ $transportVehicle->vehicle_type }}
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Seating Capacity
-                        </span>
-
-                        <span class="info-value">
-                            {{ $transportVehicle->capacity }} Seats
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Status
-                        </span>
-
-                        <span class="info-value">
-                            {{ ucfirst($transportVehicle->status) }}
-                        </span>
-
-                    </div>
-
+                    <span class="status-badge">
+                        <span class="status-badge-dot"></span>
+                        {{ ucfirst($transportVehicle->status) }}
+                    </span>
                 </div>
 
             </div>
-
         </div>
 
-        {{-- DRIVER INFORMATION --}}
-        <div class="col-lg-6">
+        <div class="row g-3">
 
-            <div class="info-card">
+            {{-- 01: BASIC INFORMATION --}}
+            <div class="col-lg-6">
 
-                <div class="info-card-header">
+                <div class="info-card">
 
-                    <div class="info-card-icon purple-icon">
-                        <i class="bi bi-person-badge"></i>
+                    <div class="info-card-header">
+                        <div class="info-card-icon green-icon">
+                            <i class="bi bi-card-text"></i>
+                        </div>
+
+                        <div>
+                            <h3>Vehicle Information</h3>
+                            <p>Basic vehicle details</p>
+                        </div>
                     </div>
 
-                    <div>
-                        <h3>Driver Information</h3>
-                        <p>Assigned transport driver</p>
-                    </div>
+                    <div class="info-card-body">
 
+                        <div class="info-row">
+                            <span class="info-label">Vehicle Number</span>
+                            <span class="info-value">
+                                {{ $transportVehicle->vehicle_number }}
+                            </span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Vehicle Type</span>
+                            <span class="info-value">
+                                {{ $transportVehicle->vehicle_type }}
+                            </span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Seating Capacity</span>
+                            <span class="info-value">
+                                {{ $transportVehicle->capacity }} Seats
+                            </span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Status</span>
+                            <span class="info-value">
+                                {{ ucfirst($transportVehicle->status) }}
+                            </span>
+                        </div>
+
+                    </div>
                 </div>
+            </div>
 
-                <div class="info-card-body">
+            {{-- 02: DRIVER INFORMATION --}}
+            <div class="col-lg-6">
 
-                    @if($transportVehicle->driver)
+                <div class="info-card">
 
-                        <div class="driver-profile">
-
-                            <div class="driver-avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    {{ $transportVehicle->driver->name }}
-                                </strong>
-
-                                <span>
-                                    Staff ID:
-                                    {{ $transportVehicle->driver->staff_id ?? 'N/A' }}
-                                </span>
-
-                            </div>
-
+                    <div class="info-card-header">
+                        <div class="info-card-icon purple-icon">
+                            <i class="bi bi-person-badge"></i>
                         </div>
 
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Contact Number
-                            </span>
-
-                            <span class="info-value">
-                                {{ $transportVehicle->driver->phone ?: 'Not provided' }}
-                            </span>
-
+                        <div>
+                            <h3>Driver Information</h3>
+                            <p>Assigned transport driver</p>
                         </div>
+                    </div>
 
-                        <div class="info-row">
+                    <div class="info-card-body">
 
-                            <span class="info-label">
-                                Licence Number
-                            </span>
+                        @if($transportVehicle->driver)
 
-                            <span class="info-value">
-                                {{ $transportVehicle->driver->license_number ?: 'Not provided' }}
-                            </span>
+                            <div class="driver-profile">
 
-                        </div>
+                                <div class="driver-avatar">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
 
-                        <div class="info-row">
+                                <div>
+                                    <strong>
+                                        {{ $transportVehicle->driver->name }}
+                                    </strong>
 
-                            <span class="info-label">
-                                Licence Expiry
-                            </span>
-
-                            <span class="info-value">
-
-                                @if($transportVehicle->driver->license_expiry)
-
-                                    {{ $transportVehicle->driver->license_expiry->format('d M Y') }}
-
-                                @else
-
-                                    <span class="empty-value">
-                                        Not provided
+                                    <span>
+                                        Staff ID:
+                                        {{ $transportVehicle->driver->staff_id ?? 'N/A' }}
                                     </span>
+                                </div>
 
-                                @endif
+                            </div>
 
-                            </span>
+                            <div class="info-row">
+                                <span class="info-label">Contact Number</span>
+
+                                <span class="info-value">
+                                    {{ $transportVehicle->driver->phone ?: 'Not provided' }}
+                                </span>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="info-label">Licence Number</span>
+
+                                <span class="info-value">
+                                    {{ $transportVehicle->driver->license_number ?: 'Not provided' }}
+                                </span>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="info-label">Licence Expiry</span>
+
+                                <span class="info-value">
+                                    @if($transportVehicle->driver->license_expiry)
+                                        {{ $transportVehicle->driver->license_expiry->format('d M Y') }}
+                                    @else
+                                        <span class="empty-value">Not provided</span>
+                                    @endif
+                                </span>
+                            </div>
+
+                        @else
+
+                            <div class="remarks-box">
+                                <i class="bi bi-person-x me-1"></i>
+                                No driver is currently assigned to this vehicle.
+                            </div>
+
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+
+            {{-- 03: VEHICLE DOCUMENTS --}}
+            <div class="col-lg-6">
+
+                <div class="info-card">
+
+                    <div class="info-card-header">
+                        <div class="info-card-icon orange-icon">
+                            <i class="bi bi-file-earmark-check"></i>
+                        </div>
+
+                        <div>
+                            <h3>Vehicle Documents</h3>
+                            <p>Insurance expiry information</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card-body">
+
+                        <div class="document-item">
+
+                            <div class="document-name">
+                                <i class="bi bi-shield-check"></i>
+                                Insurance
+                            </div>
+
+                            @if($transportVehicle->insurance_expiry)
+
+                                <div class="document-date">
+                                    {{ $transportVehicle->insurance_expiry->format('d M Y') }}
+                                </div>
+
+                            @else
+
+                                <div class="document-date empty">
+                                    Not provided
+                                </div>
+
+                            @endif
 
                         </div>
 
-                    @else
+                    </div>
+                </div>
+            </div>
+
+            {{-- 04: STORED DRIVER DETAILS --}}
+            <div class="col-lg-6">
+
+                <div class="info-card">
+
+                    <div class="info-card-header">
+                        <div class="info-card-icon green-icon">
+                            <i class="bi bi-database-check"></i>
+                        </div>
+
+                        <div>
+                            <h3>Assigned Driver Record</h3>
+                            <p>Driver details stored with vehicle</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card-body">
+
+                        <div class="info-row">
+                            <span class="info-label">Driver Name</span>
+
+                            <span class="info-value">
+                                {{ $transportVehicle->driver_name ?: 'Not assigned' }}
+                            </span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Driver Contact</span>
+
+                            <span class="info-value">
+                                {{ $transportVehicle->driver_contact ?: 'Not provided' }}
+                            </span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Driving Licence</span>
+
+                            <span class="info-value">
+                                {{ $transportVehicle->driver_license_number ?: 'Not provided' }}
+                            </span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Vehicle Added</span>
+
+                            <span class="info-value">
+                                {{ $transportVehicle->created_at->format('d M Y, h:i A') }}
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            {{-- 05: REMARKS --}}
+            <div class="col-12">
+
+                <div class="info-card">
+
+                    <div class="info-card-header">
+                        <div class="info-card-icon green-icon">
+                            <i class="bi bi-chat-left-text"></i>
+                        </div>
+
+                        <div>
+                            <h3>Remarks</h3>
+                            <p>Additional vehicle information</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card-body">
 
                         <div class="remarks-box">
-
-                            <i class="bi bi-person-x me-1"></i>
-
-                            No driver is currently assigned to this vehicle.
-
+                            @if($transportVehicle->remarks)
+                                {{ $transportVehicle->remarks }}
+                            @else
+                                <span class="empty-value">
+                                    No remarks have been added for this vehicle.
+                                </span>
+                            @endif
                         </div>
 
-                    @endif
-
+                    </div>
                 </div>
-
             </div>
 
         </div>
 
-        {{-- VEHICLE DOCUMENTS --}}
-        <div class="col-lg-6">
+        {{-- BOTTOM ACTIONS --}}
+        <div class="bottom-actions">
 
-            <div class="info-card">
-
-                <div class="info-card-header">
-
-                    <div class="info-card-icon orange-icon">
-                        <i class="bi bi-file-earmark-check"></i>
-                    </div>
-
-                    <div>
-                        <h3>Vehicle Documents</h3>
-                        <p>Expiry information</p>
-                    </div>
-
-                </div>
-
-                <div class="info-card-body">
-
-                    {{-- INSURANCE ONLY --}}
-                    <div class="document-item">
-
-                        <div class="document-name">
-                            <i class="bi bi-shield-check"></i>
-                            Insurance
-                        </div>
-
-                        @if($transportVehicle->insurance_expiry)
-
-                            <div class="document-date">
-                                {{ $transportVehicle->insurance_expiry->format('d M Y') }}
-                            </div>
-
-                        @else
-
-                            <div class="document-date empty">
-                                Not provided
-                            </div>
-
-                        @endif
-
-                    </div>
-
-                </div>
-
+            <div class="bottom-actions-text">
+                <i class="bi bi-info-circle"></i>
+                Manage this vehicle from the actions on this page.
             </div>
 
-        </div>
-
-        {{-- STORED DRIVER DETAILS --}}
-        <div class="col-lg-6">
-
-            <div class="info-card">
-
-                <div class="info-card-header">
-
-                    <div class="info-card-icon green-icon">
-                        <i class="bi bi-database-check"></i>
-                    </div>
-
-                    <div>
-                        <h3>Assigned Driver Record</h3>
-                        <p>Driver details stored with vehicle</p>
-                    </div>
-
-                </div>
-
-                <div class="info-card-body">
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Driver Name
-                        </span>
-
-                        <span class="info-value">
-                            {{ $transportVehicle->driver_name ?: 'Not assigned' }}
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Driver Contact
-                        </span>
-
-                        <span class="info-value">
-                            {{ $transportVehicle->driver_contact ?: 'Not provided' }}
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Driving Licence
-                        </span>
-
-                        <span class="info-value">
-                            {{ $transportVehicle->driver_license_number ?: 'Not provided' }}
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Vehicle Added
-                        </span>
-
-                        <span class="info-value">
-                            {{ $transportVehicle->created_at->format('d M Y, h:i A') }}
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        {{-- REMARKS --}}
-        <div class="col-12">
-
-            <div class="info-card">
-
-                <div class="info-card-header">
-
-                    <div class="info-card-icon blue-icon">
-                        <i class="bi bi-chat-left-text"></i>
-                    </div>
-
-                    <div>
-                        <h3>Remarks</h3>
-                        <p>Additional vehicle information</p>
-                    </div>
-
-                </div>
-
-                <div class="info-card-body">
-
-                    <div class="remarks-box">
-
-                        @if($transportVehicle->remarks)
-
-                            {{ $transportVehicle->remarks }}
-
-                        @else
-
-                            <span class="empty-value">
-                                No remarks have been added for this vehicle.
-                            </span>
-
-                        @endif
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    {{-- BOTTOM ACTIONS --}}
-    <div class="bottom-actions">
-
-        <div class="bottom-actions-text">
-
-            <i class="bi bi-info-circle me-1"></i>
-
-            Manage this vehicle from the actions on this page.
-
-        </div>
-
-        <form
-            action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
-            method="POST"
-            onsubmit="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');"
-        >
-
-            @csrf
-            @method('DELETE')
-
-            <button
-                type="submit"
-                class="delete-btn"
+            <form
+                action="{{ route('admin.transport.vehicles.destroy', $transportVehicle) }}"
+                method="POST"
+                onsubmit="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');"
             >
-                <i class="bi bi-trash3"></i>
-                Delete Vehicle
-            </button>
+                @csrf
+                @method('DELETE')
 
-        </form>
+                <button type="submit" class="delete-btn">
+                    <i class="bi bi-trash3"></i>
+                    Delete Vehicle
+                </button>
+            </form>
+
+        </div>
 
     </div>
-
-</div>
-
 </div>
 
 @endsection

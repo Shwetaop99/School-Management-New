@@ -8,51 +8,38 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('result_version_details', function (Blueprint $table) {
-            $table->id();
-
-            $table->foreignId('result_version_id')
-                ->constrained('result_versions')
+        Schema::table('result_version_details', function (Blueprint $table) {
+            $table->foreign('result_version_id')
+                ->references('id')
+                ->on('result_versions')
                 ->cascadeOnDelete();
 
-            $table->foreignId('subject_id')
-                ->nullable()
-                ->constrained('subjects')
+            $table->foreign('subject_id')
+                ->references('id')
+                ->on('subjects')
                 ->nullOnDelete();
 
-            $table->string('subject_name');
-
-            $table->decimal('max_marks', 8, 2)->default(0);
-
-            $table->decimal('internal_marks', 8, 2)->default(0);
-
-            $table->decimal('theory_marks', 8, 2)->default(0);
-
-            $table->decimal('practical_marks', 8, 2)->default(0);
-
-            $table->decimal('total_marks', 8, 2)->default(0);
-
-            $table->decimal('obtained_marks', 8, 2)->default(0);
-
-            $table->string('grade')->nullable();
-
-            $table->decimal('grade_point', 5, 2)->nullable();
-
-            $table->string('status')->default('present');
-
-            $table->text('remarks')->nullable();
-
-            $table->timestamps();
-
-            $table->index([
-                'result_version_id',
-                'subject_id'
-            ]);
+            $table->index(
+                ['result_version_id', 'subject_id'],
+                'result_version_details_version_subject_index'
+            );
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('result_version_details');
+        Schema::table('result_version_details', function (Blueprint $table) {
+            $table->dropForeign([
+                'result_version_id',
+            ]);
+
+            $table->dropForeign([
+                'subject_id',
+            ]);
+
+            $table->dropIndex(
+                'result_version_details_version_subject_index'
+            );
+        });
     }
 };

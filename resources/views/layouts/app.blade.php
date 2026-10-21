@@ -159,6 +159,7 @@
         <div class="loader-sub">This may take a few moments.</div>
     </div>
 </div>
+
 @php
     /* Safe route helper: returns '#' if a route doesn't exist. */
     $route = function ($name, $fallback = '#') {
@@ -501,6 +502,19 @@
                 @php $matched = false; @endphp
 
                 @foreach ($item['c'] as $child)
+            @foreach ($menu as $group => $items)
+                @php
+                    // Only items the current user is allowed to see.
+                    $visible = collect($items)
+                        ->filter(fn ($item) => empty($item['p']) || $canAny($item['p']))
+                        ->values();
+                @endphp
+
+                @continue($visible->isEmpty())
+
+                <div class="nav-group">{{ $group }}</div>
+
+                @foreach ($visible as $item)
                     @php
                         $childActive = !$matched && request()->routeIs($child[1]);
 
@@ -515,6 +529,33 @@
                     >
                         {{ $child[0] }}
                     </a>
+                    @if (isset($item['c']))
+                        <button type="button" class="nav-item has-submenu {{ $isActive ? 'active open' : '' }}" data-submenu="{{ $id }}">
+                            <span class="nav-icon"><i class="fas {{ $item['i'] }}"></i></span>
+                            <span class="nav-label">{{ $item['l'] }}</span>
+                            <i class="fas fa-chevron-right nav-arrow"></i>
+                        </button>
+
+                        <div class="submenu {{ $isActive ? 'open' : '' }}" id="{{ $id }}">
+                            @php $matched = false; @endphp
+                            @foreach ($item['c'] as $child)
+                                @php
+                                    // Several children can share one route; highlight only the first match.
+                                    $childActive = !$matched && request()->routeIs($child[1]);
+                                    if ($childActive) { $matched = true; }
+                                @endphp
+                                <a href="{{ $route($child[1]) }}"
+                                   class="submenu-item {{ $childActive ? 'active' : '' }}">
+                                    {{ $child[0] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    @elseif (isset($item['r']) && \Illuminate\Support\Facades\Route::has($item['r']))
+                        <a href="{{ route($item['r']) }}" class="nav-item {{ $isActive ? 'active' : '' }}">
+                            <span class="nav-icon"><i class="fas {{ $item['i'] }}"></i></span>
+                            <span class="nav-label">{{ $item['l'] }}</span>
+                        </a>
+                    @endif
                 @endforeach
             </div>
 

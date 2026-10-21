@@ -11,16 +11,37 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PublicResultController extends Controller
 {
+<<<<<<< HEAD
+    /**
+     * Public result verification page.
+     */
+=======
     /*
     |--------------------------------------------------------------------------
     | PUBLIC RESULT VERIFICATION PAGE
     |--------------------------------------------------------------------------
     */
 
+>>>>>>> origin/main
     public function index()
     {
         $school = SchoolSetting::first();
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Generate Mixed CAPTCHA
+        |--------------------------------------------------------------------------
+        |
+        | Example:
+        | K7@p#3
+        | A9&xP2
+        | m4#Q8@
+        |
+        */
+
+=======
+>>>>>>> origin/main
         $captcha = $this->generateCaptcha();
 
         return view(
@@ -30,6 +51,18 @@ class PublicResultController extends Controller
     }
 
 
+<<<<<<< HEAD
+    /**
+     * Generate mixed CAPTCHA.
+     *
+     * Contains:
+     * - Uppercase letters
+     * - Lowercase letters
+     * - Numbers
+     * - Special symbols
+     */
+    private function generateCaptcha()
+=======
     /*
     |--------------------------------------------------------------------------
     | GENERATE CAPTCHA
@@ -37,6 +70,7 @@ class PublicResultController extends Controller
     */
 
     private function generateCaptcha(): string
+>>>>>>> origin/main
     {
         $characters =
             'ABCDEFGHJKLMNPQRSTUVWXYZ' .
@@ -47,7 +81,10 @@ class PublicResultController extends Controller
         $captcha = '';
 
         for ($i = 0; $i < 6; $i++) {
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/main
             $captcha .= $characters[
                 random_int(
                     0,
@@ -56,6 +93,15 @@ class PublicResultController extends Controller
             ];
         }
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Store CAPTCHA in Session
+        |--------------------------------------------------------------------------
+        */
+
+=======
+>>>>>>> origin/main
         Session::put(
             'result_captcha',
             $captcha
@@ -65,12 +111,18 @@ class PublicResultController extends Controller
     }
 
 
+<<<<<<< HEAD
+    /**
+     * Refresh CAPTCHA using AJAX.
+     */
+=======
     /*
     |--------------------------------------------------------------------------
     | REFRESH CAPTCHA
     |--------------------------------------------------------------------------
     */
 
+>>>>>>> origin/main
     public function refreshCaptcha()
     {
         $captcha = $this->generateCaptcha();
@@ -81,12 +133,20 @@ class PublicResultController extends Controller
     }
 
 
+<<<<<<< HEAD
+    /**
+     * Verify student result.
+     *
+     * Student ID + Mother's Name + CAPTCHA
+     */
+=======
     /*
     |--------------------------------------------------------------------------
     | VERIFY RESULT
     |--------------------------------------------------------------------------
     */
 
+>>>>>>> origin/main
     public function search(Request $request)
     {
         $request->validate([
@@ -109,12 +169,20 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Verify CAPTCHA
+=======
         | CAPTCHA CHECK
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
         $enteredCaptcha = trim(
+<<<<<<< HEAD
+            $request->captcha
+=======
             $request->input('captcha')
+>>>>>>> origin/main
         );
 
         $storedCaptcha = Session::get(
@@ -122,6 +190,15 @@ class PublicResultController extends Controller
         );
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | CAPTCHA must exist
+        |--------------------------------------------------------------------------
+        */
+
+=======
+>>>>>>> origin/main
         if (!$storedCaptcha) {
 
             return back()
@@ -138,6 +215,18 @@ class PublicResultController extends Controller
         }
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Compare CAPTCHA
+        |--------------------------------------------------------------------------
+        |
+        | hash_equals() performs a safe string comparison.
+        |
+        */
+
+=======
+>>>>>>> origin/main
         if (
             !hash_equals(
                 $storedCaptcha,
@@ -161,8 +250,16 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Remove CAPTCHA after successful verification
+        |--------------------------------------------------------------------------
+        |
+        | This prevents the same CAPTCHA from being reused.
+        |
+=======
         | REMOVE USED CAPTCHA
         |--------------------------------------------------------------------------
+>>>>>>> origin/main
         */
 
         Session::forget(
@@ -172,6 +269,15 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Find Student
+        |--------------------------------------------------------------------------
+        */
+
+        $student = Student::where(
+            'student_id',
+            trim($request->student_id)
+=======
         | FIND STUDENT
         |--------------------------------------------------------------------------
         */
@@ -183,6 +289,7 @@ class PublicResultController extends Controller
         $student = Student::where(
             'student_id',
             $studentId
+>>>>>>> origin/main
         )->first();
 
 
@@ -199,12 +306,20 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Verify Mother's Name
+=======
         | MOTHER NAME CHECK
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
         $enteredMotherName = trim(
+<<<<<<< HEAD
+            $request->mother_name
+=======
             $request->input('mother_name')
+>>>>>>> origin/main
         );
 
         $storedMotherName = trim(
@@ -231,14 +346,22 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Find Latest Published Result
+=======
         | FIND LATEST PUBLISHED RESULT
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
         $result = Result::with([
             'student',
             'exam',
+<<<<<<< HEAD
+            'details',
+=======
             'details.subject',
+>>>>>>> origin/main
         ])
             ->where(
                 'student_id',
@@ -265,8 +388,18 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Store Verification Session
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        | Store the student's public Student ID,
+        | not the database ID.
+        |
+=======
         | STORE VERIFIED RESULT IN SESSION
         |--------------------------------------------------------------------------
+>>>>>>> origin/main
         */
 
         Session::put(
@@ -282,11 +415,27 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Redirect to Verified Result
+=======
         | REDIRECT TO RESULT DISPLAY
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
         return redirect()->route(
+<<<<<<< HEAD
+            'result.public.show'
+        );
+    }
+
+
+    /**
+     * Show verified result.
+     */
+    public function show()
+    {
+=======
     'result.public.show',
     ['student' => $student->student_id]
 );
@@ -307,6 +456,7 @@ class PublicResultController extends Controller
         |--------------------------------------------------------------------------
         */
 
+>>>>>>> origin/main
         $verifiedResultId = Session::get(
             'verified_result_id'
         );
@@ -318,7 +468,11 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Check Verification Session
+=======
         | USER HAS NOT VERIFIED
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
@@ -338,13 +492,28 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Get Result
+=======
         | LOAD RESULT
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
         $result = Result::with([
             'student',
             'exam',
+<<<<<<< HEAD
+            'details',
+        ])
+            ->find($verifiedResultId);
+
+
+        if (
+            !$result ||
+            $result->publication_status !== 'published'
+        ) {
+=======
             'details.subject',
         ])
             ->where(
@@ -365,6 +534,7 @@ class PublicResultController extends Controller
         */
 
         if (!$result) {
+>>>>>>> origin/main
 
             Session::forget([
                 'verified_result_id',
@@ -375,14 +545,22 @@ class PublicResultController extends Controller
                 ->route('result.public')
                 ->with(
                     'error',
+<<<<<<< HEAD
+                    'This result is not available.'
+=======
                     'This result is no longer available.'
+>>>>>>> origin/main
                 );
         }
 
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Verify Student
+=======
         | VERIFY STUDENT SESSION AGAIN
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
@@ -408,7 +586,11 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | School Information
+=======
         | SCHOOL PROFILE
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
@@ -417,6 +599,9 @@ class PublicResultController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+<<<<<<< HEAD
+        | Show Result
+=======
         | RESULT DETAILS
         |--------------------------------------------------------------------------
         */
@@ -427,10 +612,25 @@ class PublicResultController extends Controller
         /*
         |--------------------------------------------------------------------------
         | DISPLAY PAGE
+>>>>>>> origin/main
         |--------------------------------------------------------------------------
         */
 
         return view(
+<<<<<<< HEAD
+            'public.result-show',
+            compact(
+                'result',
+                'school'
+            )
+        );
+    }
+
+
+    /**
+     * View verified result PDF in browser.
+     */
+=======
     'public.result-show',
     compact(
         'result',
@@ -447,12 +647,17 @@ class PublicResultController extends Controller
     |--------------------------------------------------------------------------
     */
 
+>>>>>>> origin/main
     public function pdf(string $student)
     {
         $verifiedResultId = Session::get(
             'verified_result_id'
         );
 
+<<<<<<< HEAD
+
+        if (!$verifiedResultId) {
+=======
         $verifiedStudentId = Session::get(
             'verified_student_id'
         );
@@ -463,6 +668,7 @@ class PublicResultController extends Controller
             !$verifiedStudentId
         ) {
 
+>>>>>>> origin/main
             abort(
                 403,
                 'Please verify your result first.'
@@ -470,10 +676,23 @@ class PublicResultController extends Controller
         }
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Get Published Result
+        |--------------------------------------------------------------------------
+        */
+
+        $result = Result::with([
+            'student',
+            'exam',
+            'details',
+=======
         $result = Result::with([
             'student',
             'exam',
             'details.subject',
+>>>>>>> origin/main
         ])
             ->where(
                 'id',
@@ -500,6 +719,15 @@ class PublicResultController extends Controller
         }
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Verify URL Student ID
+        |--------------------------------------------------------------------------
+        */
+
+=======
+>>>>>>> origin/main
         if (
             !$result->student ||
             strcasecmp(
@@ -515,9 +743,27 @@ class PublicResultController extends Controller
         }
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | School Information
+        |--------------------------------------------------------------------------
+        */
+
         $school = SchoolSetting::first();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Generate PDF
+        |--------------------------------------------------------------------------
+        */
+
+=======
+        $school = SchoolSetting::first();
+
+
+>>>>>>> origin/main
         $pdf = Pdf::loadView(
             'public.result-pdf',
             compact(
@@ -526,13 +772,25 @@ class PublicResultController extends Controller
             )
         );
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/main
         $pdf->setPaper(
             'A4',
             'portrait'
         );
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Stream PDF
+        |--------------------------------------------------------------------------
+        */
+
+=======
+>>>>>>> origin/main
         return $pdf->stream(
             'student-result-' .
             $result->student->student_id .
@@ -541,18 +799,28 @@ class PublicResultController extends Controller
     }
 
 
+<<<<<<< HEAD
+    /**
+     * Download verified result PDF.
+     */
+=======
     /*
     |--------------------------------------------------------------------------
     | DOWNLOAD PDF
     |--------------------------------------------------------------------------
     */
 
+>>>>>>> origin/main
     public function downloadPdf(string $student)
     {
         $verifiedResultId = Session::get(
             'verified_result_id'
         );
 
+<<<<<<< HEAD
+
+        if (!$verifiedResultId) {
+=======
         $verifiedStudentId = Session::get(
             'verified_student_id'
         );
@@ -563,6 +831,7 @@ class PublicResultController extends Controller
             !$verifiedStudentId
         ) {
 
+>>>>>>> origin/main
             abort(
                 403,
                 'Please verify your result first.'
@@ -570,10 +839,23 @@ class PublicResultController extends Controller
         }
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Get Published Result
+        |--------------------------------------------------------------------------
+        */
+
+        $result = Result::with([
+            'student',
+            'exam',
+            'details',
+=======
         $result = Result::with([
             'student',
             'exam',
             'details.subject',
+>>>>>>> origin/main
         ])
             ->where(
                 'id',
@@ -600,6 +882,15 @@ class PublicResultController extends Controller
         }
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Verify URL Student ID
+        |--------------------------------------------------------------------------
+        */
+
+=======
+>>>>>>> origin/main
         if (
             !$result->student ||
             strcasecmp(
@@ -615,9 +906,27 @@ class PublicResultController extends Controller
         }
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | School Information
+        |--------------------------------------------------------------------------
+        */
+
         $school = SchoolSetting::first();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Generate PDF
+        |--------------------------------------------------------------------------
+        */
+
+=======
+        $school = SchoolSetting::first();
+
+
+>>>>>>> origin/main
         $pdf = Pdf::loadView(
             'public.result-pdf',
             compact(
@@ -626,13 +935,25 @@ class PublicResultController extends Controller
             )
         );
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/main
         $pdf->setPaper(
             'A4',
             'portrait'
         );
 
 
+<<<<<<< HEAD
+        /*
+        |--------------------------------------------------------------------------
+        | Download PDF
+        |--------------------------------------------------------------------------
+        */
+
+=======
+>>>>>>> origin/main
         return $pdf->download(
             'student-result-' .
             $result->student->student_id .

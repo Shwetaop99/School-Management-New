@@ -1,18 +1,31 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Publishing fields were already added by
-        // 2026_09_26_102029_add_publishing_fields_to_results_table.
+        Schema::table('results', function (Blueprint $table) {
+            $table->timestamp('published_at')
+                ->nullable()
+                ->after('publication_status');
+
+            $table->unsignedBigInteger('published_by')
+                ->nullable()
+                ->after('published_at');
+        });
     }
 
     public function down(): void
     {
-        // Do not remove the fields here because they belong
-        // to the earlier publishing-fields migration.
+        Schema::table('results', function (Blueprint $table) {
+            $table->dropColumn([
+                'published_at',
+                'published_by',
+            ]);
+        });
     }
 };

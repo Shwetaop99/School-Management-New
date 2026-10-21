@@ -1,99 +1,113 @@
+
 @extends('layouts.app')
 
-@section('title', '')
+@section('title', 'Transport Record | Admin')
+@section('page-title', 'Transport Record')
 
 @section('content')
 
 <style>
-
 /* =========================================================
-   TRANSPORT RECORD PAGE
+   SCHOOL DIARY DESIGN SYSTEM — TRANSPORT RECORD
 ========================================================= */
 
 .transport-show-page {
+    --diary-bg: #f5f3e9;
+    --diary-paper: #fffefa;
+    --diary-ink: #263b35;
+    --diary-green: #34775a;
+    --diary-dark-green: #245a43;
+    --diary-green-light: #eaf3e9;
+    --diary-wood: #a87543;
+    --diary-cyan: #527f79;
+    --diary-red: #bd5148;
+    --diary-border: #e5e1d3;
+    --diary-muted: #7b847b;
+
     width: 100%;
     min-height: calc(100vh - 60px);
-    background: #f4f7fb;
-    padding: 28px 0 40px;
-    color: #172033;
+    padding: 22px 0 36px;
+    background: var(--diary-bg);
+    color: var(--diary-ink);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+}
+
+.transport-show-page *,
+.transport-show-page *::before,
+.transport-show-page *::after {
+    box-sizing: border-box;
 }
 
 .transport-container {
     width: 100%;
-    padding: 0 28px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 24px;
 }
-
 
 /* =========================================================
    PAGE HEADER
 ========================================================= */
 
 .page-header {
-    background: linear-gradient(
-        135deg,
-        #1769d1 0%,
-        #159cc7 100%
-    );
-
-    border-radius: 18px;
-    padding: 25px 30px;
-    margin-bottom: 22px;
-
-    color: #fff;
-
-    box-shadow:
-        0 10px 28px rgba(23, 105, 209, .18);
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    gap: 20px;
+    gap: 18px;
+    padding: 19px 22px;
+    margin-bottom: 18px;
+    background: var(--diary-paper);
+    border: 1px solid var(--diary-border);
+    border-left: 5px solid var(--diary-green);
+    border-radius: 10px;
+    box-shadow: 0 4px 13px rgba(38, 59, 53, .045);
 }
 
 .page-header-left {
     display: flex;
     align-items: center;
-    gap: 16px;
-
+    gap: 13px;
     min-width: 0;
 }
 
 .page-header-icon {
-    width: 54px;
-    height: 54px;
-    min-width: 54px;
-
-    border-radius: 15px;
-
-    background: rgba(255, 255, 255, .18);
-
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 9px;
+    background: var(--diary-green-light);
+    color: var(--diary-green);
+    font-size: 22px;
+}
 
-    font-size: 25px;
-
-    backdrop-filter: blur(5px);
+.page-breadcrumb {
+    margin-bottom: 5px;
+    color: var(--diary-muted);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .page-header h1 {
     margin: 0;
-
-    font-size: 23px;
-    font-weight: 700;
-
-    letter-spacing: -.3px;
+    color: var(--diary-ink);
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 750;
+    letter-spacing: -.35px;
 }
 
 .page-header p {
-    margin: 5px 0 0;
-
-    font-size: 13px;
-
-    color: rgba(255, 255, 255, .84);
+    margin: 4px 0 0;
+    color: var(--diary-muted);
+    font-size: 11px;
+    line-height: 1.5;
 }
-
 
 /* =========================================================
    HEADER ACTIONS
@@ -102,143 +116,128 @@
 .header-actions {
     display: flex;
     align-items: center;
-
-    gap: 10px;
-
+    justify-content: flex-end;
     flex-wrap: wrap;
-
+    gap: 7px;
     flex-shrink: 0;
 }
 
 .header-btn {
-    height: 40px;
-
-    padding: 0 16px;
-
-    border-radius: 10px;
-
-    border: 1px solid rgba(255, 255, 255, .25);
-
-    background: rgba(255, 255, 255, .14);
-
-    color: #fff;
-
-    text-decoration: none;
-
+    min-height: 35px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    gap: 8px;
-
-    font-size: 12.5px;
-    font-weight: 600;
-
-    transition: all .2s ease;
-
-    cursor: pointer;
-
+    gap: 7px;
+    padding: 0 12px;
+    border: 1px solid var(--diary-border);
+    border-radius: 7px;
+    background: var(--diary-paper);
+    color: var(--diary-ink);
     font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease,
+                border-color .18s ease, transform .18s ease;
 }
 
 .header-btn:hover {
-    background: #fff;
-    color: #1769d1;
-
+    background: var(--diary-green-light);
+    border-color: #b9d1bd;
+    color: var(--diary-dark-green);
+    text-decoration: none;
     transform: translateY(-1px);
 }
 
+.header-btn.primary {
+    background: var(--diary-green);
+    border-color: var(--diary-green);
+    color: #fffefa;
+}
+
+.header-btn.primary:hover {
+    background: var(--diary-dark-green);
+    border-color: var(--diary-dark-green);
+    color: #fffefa;
+}
+
+.header-btn:focus-visible,
+.action-btn:focus-visible {
+    outline: 2px solid var(--diary-wood);
+    outline-offset: 3px;
+}
 
 /* =========================================================
-   PRINT ONLY HEADER
+   PRINT-ONLY HEADER
 ========================================================= */
 
 .print-only {
     display: none;
 }
 
-
 /* =========================================================
    MAIN DETAILS CARD
 ========================================================= */
 
 .details-card {
-    background: #fff;
-
-    border: 1px solid #e5ebf3;
-
-    border-radius: 16px;
-
-    box-shadow:
-        0 5px 20px rgba(15, 23, 42, .06);
-
     overflow: hidden;
+    background: var(--diary-paper);
+    border: 1px solid var(--diary-border);
+    border-radius: 10px;
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .045);
 }
-
 
 /* =========================================================
    RECORD TOP
 ========================================================= */
 
 .record-top {
-    padding: 24px 26px;
-
-    border-bottom: 1px solid #e8edf4;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    gap: 20px;
+    gap: 18px;
+    padding: 20px 23px;
+    background: #fbfaf3;
+    border-bottom: 1px solid var(--diary-border);
 }
 
 .student-heading {
     display: flex;
     align-items: center;
-
-    gap: 15px;
+    gap: 13px;
+    min-width: 0;
 }
 
 .student-avatar {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-
-    border-radius: 16px;
-
-    background: linear-gradient(
-        135deg,
-        #dbeafe,
-        #e0f2fe
-    );
-
-    color: #1769d1;
-
+    width: 49px;
+    height: 49px;
+    min-width: 49px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    font-size: 22px;
-    font-weight: 700;
+    border: 1px solid #d4e4d4;
+    border-radius: 10px;
+    background: var(--diary-green-light);
+    color: var(--diary-green);
+    font-size: 21px;
 }
 
 .student-heading h2 {
     margin: 0;
-
-    font-size: 18px;
-    font-weight: 700;
-
-    color: #172033;
+    color: var(--diary-ink);
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 750;
+    overflow-wrap: anywhere;
 }
 
 .student-heading p {
-    margin: 5px 0 0;
-
-    font-size: 12px;
-
-    color: #64748b;
+    margin: 4px 0 0;
+    color: var(--diary-muted);
+    font-size: 10.5px;
+    line-height: 1.6;
 }
-
 
 /* =========================================================
    STATUS BADGES
@@ -247,290 +246,237 @@
 .status-badge {
     display: inline-flex;
     align-items: center;
-
-    gap: 6px;
-
-    padding: 7px 12px;
-
-    border-radius: 999px;
-
-    font-size: 11.5px;
-    font-weight: 700;
-
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 750;
     text-transform: capitalize;
+    white-space: nowrap;
 }
 
 .status-active {
-    background: #dcfce7;
-    color: #15803d;
+    background: #eaf3e9;
+    border-color: #cfe2ce;
+    color: #286846;
 }
 
 .status-inactive {
-    background: #fee2e2;
-    color: #dc2626;
+    background: #f9e9e5;
+    border-color: #edcfca;
+    color: var(--diary-red);
 }
 
 .status-partial {
-    background: #ffedd5;
-    color: #c2410c;
+    background: #f8eee0;
+    border-color: #ead5b7;
+    color: #94602c;
 }
 
 .status-pending {
-    background: #fee2e2;
-    color: #dc2626;
+    background: #f9e9e5;
+    border-color: #edcfca;
+    color: var(--diary-red);
 }
 
-
 /* =========================================================
-   DETAILS SECTION
+   DETAILS SECTIONS
 ========================================================= */
 
 .details-section {
-    padding: 25px 26px;
-
-    border-bottom: 1px solid #edf1f5;
+    padding: 22px 23px;
+    border-bottom: 1px solid var(--diary-border);
 }
 
 .details-section:last-child {
     border-bottom: none;
 }
 
-
 /* =========================================================
-   SECTION HEADING
+   NUMBERED SECTION HEADINGS
 ========================================================= */
 
 .section-heading {
     display: flex;
     align-items: center;
-
     gap: 10px;
-
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .section-icon {
-    width: 36px;
-    height: 36px;
-
-    border-radius: 10px;
-
+    position: relative;
+    width: 35px;
+    height: 35px;
+    min-width: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 15px;
 }
 
 .section-icon.blue {
-    background: #dbeafe;
-    color: #1769d1;
+    background: var(--diary-green-light);
+    color: var(--diary-green);
 }
 
 .section-icon.orange {
-    background: #ffedd5;
-    color: #ea580c;
+    background: #f7ecdf;
+    color: var(--diary-wood);
 }
 
 .section-icon.cyan {
-    background: #cffafe;
-    color: #0891b2;
+    background: #e6efec;
+    color: var(--diary-cyan);
 }
 
 .section-icon.green {
-    background: #dcfce7;
-    color: #16a34a;
+    background: #eaf3e9;
+    color: var(--diary-dark-green);
 }
 
 .section-heading h3 {
     margin: 0;
-
-    font-size: 15px;
-    font-weight: 700;
-
-    color: #172033;
+    color: var(--diary-ink);
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 750;
 }
 
 .section-heading span {
     display: block;
-
-    margin-top: 2px;
-
-    font-size: 11px;
-
-    color: #94a3b8;
+    margin-top: 3px;
+    color: var(--diary-muted);
+    font-size: 10px;
+    line-height: 1.4;
 }
 
-
 /* =========================================================
-   INFO GRID
+   INFORMATION GRID
 ========================================================= */
 
 .info-grid {
     display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
 }
 
 .info-item {
-    background: #f8fafc;
-
-    border: 1px solid #e6edf5;
-
-    border-radius: 13px;
-
-    padding: 15px 16px;
-
-    min-height: 72px;
-
-    transition: all .2s ease;
+    min-width: 0;
+    min-height: 69px;
+    padding: 12px 13px;
+    border: 1px solid var(--diary-border);
+    border-radius: 8px;
+    background: #fbfaf4;
+    transition: background .18s ease, border-color .18s ease;
 }
 
 .info-item:hover {
-    background: #fff;
-
-    border-color: #d5e1ee;
-
-    box-shadow:
-        0 4px 12px rgba(15, 23, 42, .04);
+    background: var(--diary-paper);
+    border-color: #cbd8c9;
 }
 
 .info-label {
     display: flex;
     align-items: center;
-
     gap: 6px;
-
     margin-bottom: 7px;
-
-    font-size: 10.5px;
-
-    color: #94a3b8;
-
-    font-weight: 600;
-
+    color: var(--diary-muted);
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: .55px;
     text-transform: uppercase;
-
-    letter-spacing: .35px;
+    line-height: 1.4;
 }
 
 .info-label i {
+    color: var(--diary-green);
     font-size: 11px;
-
-    color: #1769d1;
 }
 
 .info-value {
-    font-size: 13px;
-
-    color: #172033;
-
-    font-weight: 600;
-
+    color: var(--diary-ink);
+    font-size: 11.5px;
+    font-weight: 650;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
     word-break: break-word;
 }
 
+.info-value .status-badge {
+    vertical-align: middle;
+}
 
 /* =========================================================
    FOOTER ACTIONS
 ========================================================= */
 
 .record-actions {
-    padding: 20px 26px;
-
-    background: #fbfcfe;
-
-    border-top: 1px solid #edf1f5;
-
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px 23px;
+    background: #fbfaf3;
+    border-top: 1px solid var(--diary-border);
 }
 
 .action-btn {
-    height: 40px;
-
-    padding: 0 17px;
-
-    border-radius: 10px;
-
+    min-height: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    gap: 8px;
-
-    font-size: 12.5px;
-
-    font-weight: 600;
-
-    text-decoration: none;
-
-    transition: all .2s ease;
-
+    gap: 7px;
+    padding: 0 14px;
     border: 1px solid transparent;
-
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-decoration: none;
     cursor: pointer;
+    transition: background .18s ease, color .18s ease,
+                border-color .18s ease, transform .18s ease;
 }
 
-
-/* =========================================================
-   BACK BUTTON
-========================================================= */
+.action-btn:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+}
 
 .btn-back {
-    background: #fff;
-
-    color: #475569;
-
-    border-color: #dce4ed;
+    background: var(--diary-paper);
+    color: var(--diary-ink);
+    border-color: var(--diary-border);
 }
 
 .btn-back:hover {
-    background: #f8fafc;
-
-    color: #172033;
-
-    transform: translateY(-1px);
+    background: var(--diary-green-light);
+    color: var(--diary-dark-green);
+    border-color: #b9d1bd;
 }
 
-
-/* =========================================================
-   EDIT BUTTON
-========================================================= */
-
 .btn-edit {
-    background: linear-gradient(
-        135deg,
-        #1769d1,
-        #237de0
-    );
-
-    color: #fff;
-
-    box-shadow:
-        0 5px 12px rgba(23, 105, 209, .18);
+    background: var(--diary-green);
+    color: #fffefa;
+    border-color: var(--diary-green);
 }
 
 .btn-edit:hover {
-    color: #fff;
-
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 7px 16px rgba(23, 105, 209, .25);
+    background: var(--diary-dark-green);
+    color: #fffefa;
+    border-color: var(--diary-dark-green);
 }
-
 
 /* =========================================================
    PRINT CSS
 ========================================================= */
 
 @media print {
-
     @page {
         size: A4;
         margin: 12mm;
@@ -539,10 +485,8 @@
     html,
     body {
         width: 100% !important;
-
         margin: 0 !important;
         padding: 0 !important;
-
         background: #fff !important;
     }
 
@@ -557,16 +501,17 @@
 
     .transport-print-area {
         position: absolute !important;
-
-        left: 0 !important;
         top: 0 !important;
-
+        left: 0 !important;
         width: 100% !important;
-
+        min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-
         background: #fff !important;
+        color: #263b35 !important;
+        font-family: Arial, sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     .no-print {
@@ -579,354 +524,211 @@
         visibility: visible !important;
     }
 
-
-    /* =====================================================
-       SCHOOL PRINT HEADER
-    ===================================================== */
-
     .print-title {
         width: 100% !important;
-
-        text-align: center;
-
-        margin: 0 0 18px !important;
-
-        padding: 0 0 12px !important;
-
-        border-bottom: 2px solid #1769d1 !important;
-
+        margin: 0 0 15px !important;
+        padding: 0 0 11px !important;
+        border-bottom: 2px solid #34775a !important;
+        text-align: center !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
 
     .print-school-header {
         width: 100% !important;
-
         display: flex !important;
-
         align-items: center !important;
-
         justify-content: center !important;
-
-        gap: 14px !important;
-
+        gap: 13px !important;
         margin-bottom: 8px !important;
     }
 
     .print-school-logo {
-        width: 62px !important;
-
-        height: 62px !important;
-
-        object-fit: contain !important;
-
         display: block !important;
-
+        width: 58px !important;
+        height: 58px !important;
         flex-shrink: 0 !important;
+        object-fit: contain !important;
     }
 
     .print-school-details {
-        text-align: left !important;
-
         max-width: 560px !important;
+        text-align: left !important;
     }
 
     .print-school-name {
         margin: 0 !important;
-
-        font-size: 19px !important;
-
-        line-height: 1.2 !important;
-
+        color: #263b35 !important;
+        font-size: 18px !important;
+        line-height: 1.25 !important;
         font-weight: 800 !important;
-
-        color: #172033 !important;
-
-        letter-spacing: .1px !important;
     }
 
     .print-school-address {
         margin: 4px 0 0 !important;
-
-        font-size: 9.5px !important;
-
-        line-height: 1.35 !important;
-
-        color: #64748b !important;
+        color: #626d65 !important;
+        font-size: 9px !important;
+        line-height: 1.4 !important;
     }
 
     .print-school-contact {
         margin: 3px 0 0 !important;
-
-        font-size: 9px !important;
-
-        line-height: 1.3 !important;
-
-        color: #64748b !important;
+        color: #626d65 !important;
+        font-size: 8.5px !important;
+        line-height: 1.4 !important;
     }
 
     .print-document-title {
         margin: 8px 0 0 !important;
-
-        font-size: 18px !important;
-
-        line-height: 1.2 !important;
-
+        color: #245a43 !important;
+        font-size: 16px !important;
+        line-height: 1.3 !important;
         font-weight: 800 !important;
-
-        color: #1769d1 !important;
-
         text-transform: uppercase !important;
-
         letter-spacing: .8px !important;
     }
 
-    .print-document-subtitle {
-        margin: 3px 0 0 !important;
-
-        font-size: 9.5px !important;
-
-        color: #64748b !important;
-    }
-
-
-    /* =====================================================
-       MAIN PRINT CONTAINER
-    ===================================================== */
-
     .transport-print-area .transport-container {
         width: 100% !important;
-
         max-width: none !important;
-
-        padding: 0 !important;
-
         margin: 0 !important;
+        padding: 0 !important;
     }
-
-
-    /* =====================================================
-       DETAILS CARD
-    ===================================================== */
 
     .transport-print-area .details-card {
         width: 100% !important;
-
         margin: 0 !important;
-
         padding: 0 !important;
-
-        background: #fff !important;
-
-        border: 1px solid #d9e2ec !important;
-
-        border-radius: 8px !important;
-
-        box-shadow: none !important;
-
         overflow: visible !important;
+        border: 1px solid #d8d8cb !important;
+        border-radius: 6px !important;
+        background: #fffefa !important;
+        box-shadow: none !important;
     }
-
-
-    /* =====================================================
-       RECORD HEADER
-    ===================================================== */
 
     .transport-print-area .record-top {
-        padding: 18px 20px !important;
-
-        border-bottom: 1px solid #dce4ed !important;
-
+        padding: 14px 16px !important;
+        border-bottom: 1px solid #e5e1d3 !important;
+        background: #fbfaf3 !important;
         break-inside: avoid !important;
-
         page-break-inside: avoid !important;
     }
-
-
-    /* =====================================================
-       DETAILS SECTIONS
-    ===================================================== */
 
     .transport-print-area .details-section {
-        padding: 18px 20px !important;
-
-        border-bottom: 1px solid #e5ebf3 !important;
-
-        break-inside: avoid !important;
-
-        page-break-inside: avoid !important;
+        padding: 14px 16px !important;
+        border-bottom: 1px solid #e5e1d3 !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
     }
 
+    .transport-print-area .section-heading {
+        margin-bottom: 10px !important;
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+    }
 
-    /* =====================================================
-       INFO GRID
-    ===================================================== */
+    .transport-print-area .section-icon {
+        width: 27px !important;
+        height: 27px !important;
+        min-width: 27px !important;
+        border-radius: 6px !important;
+    }
+
+    .transport-print-area .section-heading h3 {
+        font-size: 11px !important;
+    }
+
+    .transport-print-area .section-heading span {
+        font-size: 8px !important;
+    }
 
     .transport-print-area .info-grid {
         display: grid !important;
-
-        grid-template-columns: repeat(3, 1fr) !important;
-
-        gap: 10px !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 7px !important;
     }
 
     .transport-print-area .info-item {
         min-height: auto !important;
-
-        padding: 11px 12px !important;
-
-        background: #f8fafc !important;
-
-        border: 1px solid #e2e8f0 !important;
-
-        border-radius: 8px !important;
-
+        padding: 9px 10px !important;
+        background: #fbfaf4 !important;
+        border: 1px solid #e5e1d3 !important;
+        border-radius: 5px !important;
         box-shadow: none !important;
-
         break-inside: avoid !important;
-
         page-break-inside: avoid !important;
     }
-
-
-    /* =====================================================
-       SECTION HEADINGS
-    ===================================================== */
-
-    .transport-print-area .section-heading {
-        margin-bottom: 13px !important;
-
-        break-inside: avoid !important;
-
-        page-break-inside: avoid !important;
-    }
-
-    .transport-print-area .section-icon {
-        width: 30px !important;
-
-        height: 30px !important;
-
-        border-radius: 8px !important;
-
-        -webkit-print-color-adjust: exact !important;
-
-        print-color-adjust: exact !important;
-    }
-
-    .transport-print-area .section-heading h3 {
-        font-size: 13px !important;
-    }
-
-    .transport-print-area .section-heading span {
-        font-size: 9px !important;
-    }
-
-
-    /* =====================================================
-       INFO TEXT
-    ===================================================== */
 
     .transport-print-area .info-label {
-        font-size: 8.5px !important;
-
-        margin-bottom: 5px !important;
+        margin-bottom: 4px !important;
+        color: #69756c !important;
+        font-size: 7.5px !important;
+        letter-spacing: .25px !important;
     }
 
     .transport-print-area .info-value {
-        font-size: 10.5px !important;
+        color: #263b35 !important;
+        font-size: 9px !important;
+        line-height: 1.45 !important;
     }
 
-
-    /* =====================================================
-       STUDENT AVATAR
-    ===================================================== */
-
     .transport-print-area .student-avatar {
-        width: 46px !important;
-
-        height: 46px !important;
-
-        min-width: 46px !important;
-
-        border-radius: 12px !important;
-
-        -webkit-print-color-adjust: exact !important;
-
-        print-color-adjust: exact !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        border-radius: 8px !important;
     }
 
     .transport-print-area .student-heading h2 {
-        font-size: 15px !important;
+        color: #263b35 !important;
+        font-size: 13px !important;
     }
 
     .transport-print-area .student-heading p {
-        font-size: 9.5px !important;
+        color: #69756c !important;
+        font-size: 8px !important;
     }
 
-
-    /* =====================================================
-       STATUS BADGES
-    ===================================================== */
-
     .transport-print-area .status-badge {
+        padding: 4px 7px !important;
+        font-size: 8px !important;
         -webkit-print-color-adjust: exact !important;
-
         print-color-adjust: exact !important;
-
-        font-size: 9px !important;
-
-        padding: 5px 9px !important;
     }
 
     .transport-print-area .status-active {
-        background: #dcfce7 !important;
-
-        color: #15803d !important;
+        background: #eaf3e9 !important;
+        color: #286846 !important;
     }
 
-    .transport-print-area .status-inactive {
-        background: #fee2e2 !important;
-
-        color: #dc2626 !important;
+    .transport-print-area .status-inactive,
+    .transport-print-area .status-pending {
+        background: #f9e9e5 !important;
+        color: #bd5148 !important;
     }
 
     .transport-print-area .status-partial {
-        background: #ffedd5 !important;
-
-        color: #c2410c !important;
-    }
-
-    .transport-print-area .status-pending {
-        background: #fee2e2 !important;
-
-        color: #dc2626 !important;
-    }
-
-
-    /* =====================================================
-       PRINT CLEANUP
-    ===================================================== */
-
-    .transport-print-area,
-    .transport-print-area * {
-        box-shadow: none !important;
-
-        text-shadow: none !important;
+        background: #f8eee0 !important;
+        color: #94602c !important;
     }
 
     .transport-print-area .section-icon,
     .transport-print-area .student-avatar,
-    .transport-print-area .status-badge,
-    .transport-print-area .info-item {
+    .transport-print-area .info-item,
+    .transport-print-area .status-badge {
         -webkit-print-color-adjust: exact !important;
-
         print-color-adjust: exact !important;
     }
 
-    .transport-print-area a {
-        text-decoration: none !important;
+    .transport-print-area,
+    .transport-print-area * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
 
+    .transport-print-area a {
         color: inherit !important;
+        text-decoration: none !important;
     }
 
     .transport-print-area a::after {
@@ -934,111 +736,192 @@
     }
 }
 
-
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — TABLET
 ========================================================= */
 
-@media (max-width: 992px) {
-
-    .info-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-
-@media (max-width: 768px) {
-
+@media (max-width: 991.98px) {
     .transport-container {
-        padding: 0 16px;
+        padding: 0 18px;
     }
 
     .page-header {
-        padding: 20px;
-
         align-items: flex-start;
+    }
 
+    .header-actions {
+        max-width: 340px;
+    }
+
+    .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
+
+@media (max-width: 767.98px) {
+    .transport-show-page {
+        padding: 15px 0 26px;
+    }
+
+    .transport-container {
+        padding: 0 12px;
+    }
+
+    .page-header {
         flex-direction: column;
+        padding: 16px;
+        gap: 15px;
+    }
+
+    .page-header-left {
+        align-items: flex-start;
+    }
+
+    .page-header h1 {
+        font-size: 19px;
     }
 
     .header-actions {
         width: 100%;
+        max-width: none;
+        justify-content: flex-start;
     }
 
     .header-btn {
-        flex: 1;
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 0 10px;
     }
 
     .record-top {
         align-items: flex-start;
-
         flex-direction: column;
-    }
-
-    .info-grid {
-        grid-template-columns: 1fr;
+        padding: 17px;
     }
 
     .details-section {
-        padding: 20px;
+        padding: 17px;
     }
 
     .record-actions {
-        padding: 18px 20px;
+        padding: 14px 17px;
+    }
 
+    .action-btn {
+        flex: 1;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE — SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+    .transport-container {
+        padding: 0 9px;
+    }
+
+    .page-header {
+        padding: 13px;
+    }
+
+    .page-header-icon {
+        width: 39px;
+        height: 39px;
+        min-width: 39px;
+        font-size: 19px;
+    }
+
+    .page-header h1 {
+        font-size: 17px;
+    }
+
+    .page-header p {
+        font-size: 10px;
+    }
+
+    .header-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .header-btn {
+        width: 100%;
+        min-height: 35px;
+        font-size: 9.5px;
+    }
+
+    .info-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .record-top,
+    .details-section {
+        padding: 14px;
+    }
+
+    .section-heading h3 {
+        font-size: 12px;
+    }
+
+    .record-actions {
         flex-direction: column;
+        padding: 13px 14px;
     }
 
     .action-btn {
         width: 100%;
+        flex: auto;
     }
 }
 
-</style>
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
 
+@media (prefers-reduced-motion: reduce) {
+    .transport-show-page *,
+    .transport-show-page *::before,
+    .transport-show-page *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+</style>
 
 {{-- =========================================================
      TRANSPORT PRINT AREA
 ========================================================= --}}
 
 <div class="transport-show-page transport-print-area">
-
     <div class="transport-container">
 
-
-        {{-- =====================================================
-             SCREEN HEADER
-        ====================================================== --}}
+        {{-- SCREEN HEADER --}}
 
         <div class="page-header no-print">
-
             <div class="page-header-left">
-
                 <div class="page-header-icon">
                     <i class="bi bi-bus-front-fill"></i>
                 </div>
 
                 <div>
+                    <div class="page-breadcrumb">
+                        Transport Management / Records / View Record
+                    </div>
 
-                    <h1>
-                        Transport Record
-                    </h1>
+                    <h1>Transport Record</h1>
 
-                    <p>
-                        View complete transport assignment details
-                    </p>
-
+                    <p>View complete transport assignment details</p>
                 </div>
-
             </div>
 
-
-            {{-- HEADER ACTIONS --}}
-
             <div class="header-actions">
-
-                {{-- BACK --}}
-
                 <a
                     href="{{ route('admin.transport.records.index') }}"
                     class="header-btn"
@@ -1046,9 +929,6 @@
                     <i class="bi bi-arrow-left"></i>
                     Back to Records
                 </a>
-
-
-                {{-- PRINT --}}
 
                 <button
                     type="button"
@@ -1059,9 +939,6 @@
                     Print
                 </button>
 
-
-                {{-- REAL PDF DOWNLOAD --}}
-
                 <a
                     href="{{ route('admin.transport.records.download-pdf', ['transportRecord' => $transportRecord->id]) }}"
                     class="header-btn"
@@ -1071,47 +948,30 @@
                     Download PDF
                 </a>
 
-
-                {{-- EDIT --}}
-
                 <a
                     href="{{ route('admin.transport.records.edit', ['transportRecord' => $transportRecord->id]) }}"
-                    class="header-btn"
+                    class="header-btn primary"
                 >
                     <i class="bi bi-pencil-square"></i>
                     Edit
                 </a>
-
             </div>
-
         </div>
 
-
-        {{-- =====================================================
-             PRINT HEADER
-        ====================================================== --}}
+        {{-- PRINT HEADER --}}
 
         <div class="print-only print-title">
-
             <div class="print-school-header">
-
-                {{-- SCHOOL LOGO --}}
-
                 <img
                     src="{{ $school?->logo_url ?? asset('images/gurukullogo.png') }}"
                     alt="{{ $school?->school_name ?? 'School Logo' }}"
                     class="print-school-logo"
                 >
 
-
-                {{-- SCHOOL DETAILS --}}
-
                 <div class="print-school-details">
-
                     <div class="print-school-name">
                         {{ $school?->school_name ?? 'School Name' }}
                     </div>
-
 
                     @php
                         $schoolAddress = collect([
@@ -1123,20 +983,14 @@
                         ])->filter()->implode(', ');
                     @endphp
 
-
                     @if($schoolAddress)
-
                         <div class="print-school-address">
                             {{ $schoolAddress }}
                         </div>
-
                     @endif
 
-
                     @if($school?->phone || $school?->email)
-
                         <div class="print-school-contact">
-
                             @if($school?->phone)
                                 Phone: {{ $school->phone }}
                             @endif
@@ -1148,528 +1002,274 @@
                             @if($school?->email)
                                 Email: {{ $school->email }}
                             @endif
-
                         </div>
-
                     @endif
-
                 </div>
-
             </div>
-
-
-            {{-- DOCUMENT TITLE --}}
 
             <div class="print-document-title">
                 Transport Record
             </div>
-
-
-        
-
-
-
-
         </div>
 
-
-        {{-- =====================================================
-             DETAILS CARD
-        ====================================================== --}}
+        {{-- DETAILS CARD --}}
 
         <div class="details-card">
 
-
-            {{-- =================================================
-                 RECORD HEADER
-            ================================================== --}}
+            {{-- RECORD HEADER --}}
 
             <div class="record-top">
-
                 <div class="student-heading">
-
                     <div class="student-avatar">
-
                         <i class="bi bi-person-fill"></i>
-
                     </div>
 
-
                     <div>
-
                         <h2>
                             {{ $transportRecord->student?->full_name ?? 'Student Not Available' }}
                         </h2>
 
                         <p>
-
                             Student ID:
                             {{ $transportRecord->student?->student_id ?? '—' }}
 
                             @if($transportRecord->student?->roll_number)
-
                                 &nbsp; • &nbsp;
-
                                 Roll No:
                                 {{ $transportRecord->student->roll_number }}
-
                             @endif
-
                         </p>
-
                     </div>
-
                 </div>
-
-
-                {{-- TRANSPORT STATUS --}}
 
                 @if($transportRecord->transport_status === 'active')
-
                     <span class="status-badge status-active">
-
                         <i class="bi bi-check-circle-fill"></i>
-
                         Active
-
                     </span>
-
                 @else
-
                     <span class="status-badge status-inactive">
-
                         <i class="bi bi-x-circle-fill"></i>
-
                         Inactive
-
                     </span>
-
                 @endif
-
             </div>
 
-
-            {{-- =================================================
-                 STUDENT INFORMATION
-            ================================================== --}}
+            {{-- 01: STUDENT INFORMATION --}}
 
             <div class="details-section">
-
                 <div class="section-heading">
-
                     <div class="section-icon blue">
-
                         <i class="bi bi-person-vcard-fill"></i>
-
                     </div>
 
                     <div>
-
-                        <h3>
-                            Student Information
-                        </h3>
-
-                        <span>
-                            Student and parent details
-                        </span>
-
+                        <h3>01. Student Information</h3>
+                        <span>Student and parent details</span>
                     </div>
-
                 </div>
 
-
                 <div class="info-grid">
-
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-person"></i>
-
                             Student Name
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->full_name ?? '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-card-text"></i>
-
                             Student ID
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->student_id ?? '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-123"></i>
-
                             Roll No.
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->roll_number ?? '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-mortarboard"></i>
-
                             Class
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->class ?? '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-grid-3x3-gap"></i>
-
                             Division
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->section ?? '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-people"></i>
-
                             Parent Name
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->father_name ?? '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-telephone"></i>
-
                             Parent Phone
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->father_phone ?? '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-geo-alt"></i>
-
                             Address
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->student?->address ?? '—' }}
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- =================================================
-                 TRANSPORT INFORMATION
-            ================================================== --}}
+            {{-- 02: TRANSPORT INFORMATION --}}
 
             <div class="details-section">
-
                 <div class="section-heading">
-
                     <div class="section-icon orange">
-
                         <i class="bi bi-bus-front-fill"></i>
-
                     </div>
 
                     <div>
-
-                        <h3>
-                            Transport Information
-                        </h3>
-
-                        <span>
-                            Transport assignment details
-                        </span>
-
+                        <h3>02. Transport Information</h3>
+                        <span>Transport assignment details</span>
                     </div>
-
                 </div>
-
 
                 <div class="info-grid">
-
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-signpost-2"></i>
-
                             Route
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->route ?: '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-bus-front"></i>
-
                             Vehicle
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->vehicle ?: '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-geo-alt"></i>
-
                             Pickup Point
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->pickup_point ?: '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-geo-alt-fill"></i>
-
                             Drop Point
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->drop_point ?: '—' }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-toggle-on"></i>
-
                             Transport Status
-
                         </div>
-
                         <div class="info-value">
-
                             @if($transportRecord->transport_status === 'active')
-
                                 <span class="status-badge status-active">
-
                                     <i class="bi bi-check-circle-fill"></i>
-
                                     Active
-
                                 </span>
-
                             @else
-
                                 <span class="status-badge status-inactive">
-
                                     <i class="bi bi-x-circle-fill"></i>
-
                                     Inactive
-
                                 </span>
-
                             @endif
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-calendar-event"></i>
-
                             Start Date
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->start_date?->format('d M Y') ?? '—' }}
-
                         </div>
-
                     </div>
-
 
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-calendar-x"></i>
-
                             End Date
-
                         </div>
-
                         <div class="info-value">
-
                             {{ $transportRecord->end_date?->format('d M Y') ?? '—' }}
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- =================================================
-                 TRAVEL DETAILS
-            ================================================== --}}
+            {{-- 03: TRAVEL DETAILS --}}
 
             <div class="details-section">
-
                 <div class="section-heading">
-
                     <div class="section-icon cyan">
-
                         <i class="bi bi-clock-history"></i>
-
                     </div>
 
                     <div>
-
-                        <h3>
-                            Travel Details
-                        </h3>
-
-                        <span>
-                            Daily transportation timing
-                        </span>
-
+                        <h3>03. Travel Details</h3>
+                        <span>Daily transportation timing</span>
                     </div>
-
                 </div>
 
-
                 <div class="info-grid">
-
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-truck"></i>
-
                             Transport Type
-
                         </div>
-
                         <div class="info-value">
-
                             {{
                                 $transportRecord->transport_type
                                 ? ucwords(
@@ -1681,24 +1281,15 @@
                                 )
                                 : '—'
                             }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-clock"></i>
-
                             Pickup Time
-
                         </div>
-
                         <div class="info-value">
-
                             {{
                                 $transportRecord->pickup_time
                                 ? \Carbon\Carbon::parse(
@@ -1706,24 +1297,15 @@
                                 )->format('h:i A')
                                 : '—'
                             }}
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-clock-fill"></i>
-
                             Drop Time
-
                         </div>
-
                         <div class="info-value">
-
                             {{
                                 $transportRecord->drop_time
                                 ? \Carbon\Carbon::parse(
@@ -1731,161 +1313,87 @@
                                 )->format('h:i A')
                                 : '—'
                             }}
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- =================================================
-                 FEE INFORMATION
-            ================================================== --}}
+            {{-- 04: FEE INFORMATION --}}
 
             <div class="details-section">
-
                 <div class="section-heading">
-
                     <div class="section-icon green">
-
                         <i class="bi bi-cash-stack"></i>
-
                     </div>
 
                     <div>
-
-                        <h3>
-                            Fee Information
-                        </h3>
-
-                        <span>
-                            Transport fee and payment details
-                        </span>
-
+                        <h3>04. Fee Information</h3>
+                        <span>Transport fee and payment details</span>
                     </div>
-
                 </div>
 
-
                 <div class="info-grid">
-
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-currency-rupee"></i>
-
                             Transport Fee
-
                         </div>
-
                         <div class="info-value">
-
                             @if($transportRecord->transport_fee !== null)
-
                                 ₹ {{ number_format(
                                     (float) $transportRecord->transport_fee,
                                     2
                                 ) }}
-
                             @else
-
                                 —
-
                             @endif
-
                         </div>
-
                     </div>
 
-
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-arrow-repeat"></i>
-
                             Fee Frequency
-
                         </div>
-
                         <div class="info-value">
-
                             {{
                                 $transportRecord->fee_frequency
                                 ? ucfirst($transportRecord->fee_frequency)
                                 : '—'
                             }}
-
                         </div>
-
                     </div>
-
 
                     <div class="info-item">
-
                         <div class="info-label">
-
                             <i class="bi bi-credit-card"></i>
-
                             Payment Status
-
                         </div>
-
                         <div class="info-value">
-
                             @if($transportRecord->payment_status === 'paid')
-
                                 <span class="status-badge status-active">
-
                                     <i class="bi bi-check-circle-fill"></i>
-
                                     Paid
-
                                 </span>
-
                             @elseif($transportRecord->payment_status === 'partially_paid')
-
                                 <span class="status-badge status-partial">
-
                                     <i class="bi bi-clock-fill"></i>
-
                                     Partially Paid
-
                                 </span>
-
                             @else
-
                                 <span class="status-badge status-pending">
-
                                     <i class="bi bi-exclamation-circle-fill"></i>
-
                                     Pending
-
                                 </span>
-
                             @endif
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- =================================================
-                 FOOTER ACTIONS
-                 ONLY BACK + EDIT
-            ================================================== --}}
+            {{-- FOOTER ACTIONS --}}
 
             <div class="record-actions no-print">
-
                 <a
                     href="{{ route('admin.transport.records.index') }}"
                     class="action-btn btn-back"
@@ -1894,7 +1402,6 @@
                     Back
                 </a>
 
-
                 <a
                     href="{{ route('admin.transport.records.edit', ['transportRecord' => $transportRecord->id]) }}"
                     class="action-btn btn-edit"
@@ -1902,24 +1409,17 @@
                     <i class="bi bi-pencil-square"></i>
                     Edit Record
                 </a>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
-
 <script>
-
 /* =========================================================
    PRINT TRANSPORT RECORD
 ========================================================= */
 
 function printTransportRecord() {
-
     const originalTitle = document.title;
 
     document.title = 'Transport Record';
@@ -1927,12 +1427,9 @@ function printTransportRecord() {
     window.print();
 
     setTimeout(function () {
-
         document.title = originalTitle;
-
     }, 1000);
 }
-
 </script>
 
 @endsection

@@ -1,42 +1,31 @@
 @extends('layouts.app')
 
 @section('title', 'Achievement Details | Admin')
+@section('page-title', 'Achievement Details')
 
 @section('content')
 
 <div class="sports-achievement-page">
-
     <div class="container-fluid py-4">
 
-        {{-- =========================================================
-             PAGE HEADER
-        ========================================================== --}}
+        {{-- PAGE HEADER --}}
         <div class="achievement-page-header">
-
             <div class="achievement-heading-wrapper">
-
                 <div class="achievement-page-icon">
                     <i class="fas fa-trophy"></i>
                 </div>
 
-                <div>
+                <div class="achievement-heading-content">
                     <div class="page-breadcrumb">
-                        Sports Management
-                        <span>/</span>
-                        Achievements
+                        Sports Management <span>/</span> Achievements
                     </div>
 
                     <h2>Achievement Details</h2>
-
-                    <p>
-                        View complete achievement information and student performance details.
-                    </p>
+                    <p>View complete achievement information and student performance details.</p>
                 </div>
-
             </div>
 
             <div class="achievement-header-actions">
-
                 <a href="{{ route('admin.sports.achievements.index') }}"
                    class="achievement-back-btn">
                     <i class="fas fa-arrow-left"></i>
@@ -48,45 +37,26 @@
                     <i class="fas fa-pen"></i>
                     <span>Edit Achievement</span>
                 </a>
-
             </div>
-
         </div>
 
-
-        {{-- =========================================================
-             MAIN PROFILE CARD
-        ========================================================== --}}
+        {{-- MAIN PROFILE CARD --}}
         <div class="achievement-profile-card">
 
-
-            {{-- =====================================================
-                 ACHIEVEMENT HERO
-            ====================================================== --}}
+            {{-- ACHIEVEMENT HERO --}}
             <div class="achievement-hero">
-
                 <div class="hero-left">
-
                     <div class="hero-medal">
-
                         <div class="medal-glow"></div>
-
                         <i class="fas fa-medal"></i>
-
                     </div>
 
                     <div class="hero-content">
+                        <div class="hero-label">SPORTS ACHIEVEMENT</div>
 
-                        <div class="hero-label">
-                            SPORTS ACHIEVEMENT
-                        </div>
-
-                        <h1>
-                            {{ $achievement->title }}
-                        </h1>
+                        <h1>{{ $achievement->title }}</h1>
 
                         <div class="hero-meta">
-
                             @if($achievement->sport_name)
                                 <span>
                                     <i class="fas fa-futbol"></i>
@@ -107,1713 +77,1129 @@
                                     {{ $achievement->academic_year }}
                                 </span>
                             @endif
-
                         </div>
-
                     </div>
-
                 </div>
 
-
                 <div class="hero-status">
-
                     @if($achievement->status === 'active')
-
                         <span class="status-badge active">
-
                             <span class="status-indicator"></span>
-
                             <span>
                                 <strong>Active</strong>
                                 <small>Currently active</small>
                             </span>
-
                         </span>
-
                     @else
-
                         <span class="status-badge inactive">
-
                             <span class="status-indicator"></span>
-
                             <span>
                                 <strong>Inactive</strong>
                                 <small>Currently inactive</small>
                             </span>
-
                         </span>
-
                     @endif
-
                 </div>
-
             </div>
 
-
-            {{-- =====================================================
-                 QUICK HIGHLIGHTS
-            ====================================================== --}}
+            {{-- QUICK HIGHLIGHTS --}}
             <div class="achievement-highlights">
-
                 <div class="highlight-card">
-
-                    <div class="highlight-icon blue">
+                    <div class="highlight-icon green">
                         <i class="fas fa-user-graduate"></i>
                     </div>
-
-                    <div>
+                    <div class="highlight-info">
                         <span>Student</span>
-
-                        <strong>
-                            {{ $achievement->student_name ?: 'Not specified' }}
-                        </strong>
+                        <strong>{{ $achievement->student_name ?: 'Not specified' }}</strong>
                     </div>
-
                 </div>
 
-
                 <div class="highlight-card">
-
-                    <div class="highlight-icon orange">
+                    <div class="highlight-icon brown">
                         <i class="fas fa-trophy"></i>
                     </div>
-
-                    <div>
+                    <div class="highlight-info">
                         <span>Position / Award</span>
-
-                        <strong>
-                            {{ $achievement->position ?: 'Not specified' }}
-                        </strong>
+                        <strong>{{ $achievement->position ?: 'Not specified' }}</strong>
                     </div>
-
                 </div>
 
-
                 <div class="highlight-card">
-
                     <div class="highlight-icon cyan">
                         <i class="fas fa-running"></i>
                     </div>
-
-                    <div>
+                    <div class="highlight-info">
                         <span>Sport</span>
-
-                        <strong>
-                            {{ $achievement->sport_name ?: 'Not specified' }}
-                        </strong>
-
+                        <strong>{{ $achievement->sport_name ?: 'Not specified' }}</strong>
                     </div>
-
                 </div>
 
-
                 <div class="highlight-card">
-
                     <div class="highlight-icon red">
                         <i class="fas fa-award"></i>
                     </div>
-
-                    <div>
+                    <div class="highlight-info">
                         <span>Achievement Type</span>
-
-                        <strong>
-                            {{ $achievement->achievement_type ?: 'Not specified' }}
-                        </strong>
-
+                        <strong>{{ $achievement->achievement_type ?: 'Not specified' }}</strong>
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- =====================================================
-                 INFORMATION SECTION
-            ====================================================== --}}
+            {{-- DETAILS CONTENT --}}
             <div class="details-content">
-
 
                 {{-- STUDENT INFORMATION --}}
                 <div class="details-panel">
-
                     <div class="panel-header">
-
-                        <div class="panel-icon blue">
+                        <div class="panel-icon green">
                             <i class="fas fa-user-graduate"></i>
                         </div>
-
                         <div>
                             <h3>Student Information</h3>
                             <p>Student and academic details</p>
                         </div>
-
                     </div>
-
 
                     <div class="details-grid">
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Student Name
-                            </span>
-
+                            <span class="detail-label">Student Name</span>
                             <div class="detail-value">
-
-                                <div class="value-icon blue">
-                                    <i class="fas fa-user"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->student_name ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon green"><i class="fas fa-user"></i></div>
+                                <span>{{ $achievement->student_name ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
 
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Class
-                            </span>
-
+                            <span class="detail-label">Class</span>
                             <div class="detail-value">
-
-                                <div class="value-icon cyan">
-                                    <i class="fas fa-school"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->class ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon cyan"><i class="fas fa-school"></i></div>
+                                <span>{{ $achievement->class ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
 
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Section
-                            </span>
-
+                            <span class="detail-label">Section</span>
                             <div class="detail-value">
-
-                                <div class="value-icon orange">
-                                    <i class="fas fa-users"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->section ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon brown"><i class="fas fa-users"></i></div>
+                                <span>{{ $achievement->section ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
 
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Academic Year
-                            </span>
-
+                            <span class="detail-label">Academic Year</span>
                             <div class="detail-value">
-
-                                <div class="value-icon red">
-                                    <i class="fas fa-calendar"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->academic_year ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon red"><i class="fas fa-calendar"></i></div>
+                                <span>{{ $achievement->academic_year ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
 
                 {{-- COMPETITION INFORMATION --}}
                 <div class="details-panel">
-
                     <div class="panel-header">
-
-                        <div class="panel-icon orange">
+                        <div class="panel-icon brown">
                             <i class="fas fa-trophy"></i>
                         </div>
-
                         <div>
                             <h3>Competition Information</h3>
                             <p>Competition, venue and achievement details</p>
                         </div>
-
                     </div>
 
-
                     <div class="details-grid">
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Competition Name
-                            </span>
-
+                            <span class="detail-label">Competition Name</span>
                             <div class="detail-value">
-
-                                <div class="value-icon orange">
-                                    <i class="fas fa-trophy"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->competition_name ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon brown"><i class="fas fa-trophy"></i></div>
+                                <span>{{ $achievement->competition_name ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
 
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Achievement Type
-                            </span>
-
+                            <span class="detail-label">Achievement Type</span>
                             <div class="detail-value">
-
-                                <div class="value-icon blue">
-                                    <i class="fas fa-award"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->achievement_type ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon green"><i class="fas fa-award"></i></div>
+                                <span>{{ $achievement->achievement_type ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
 
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Position / Award
-                            </span>
-
+                            <span class="detail-label">Position / Award</span>
                             <div class="detail-value">
-
-                                <div class="value-icon red">
-                                    <i class="fas fa-medal"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->position ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon red"><i class="fas fa-medal"></i></div>
+                                <span>{{ $achievement->position ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
 
-
                         <div class="detail-item">
-
-                            <span class="detail-label">
-                                Achievement Date
-                            </span>
-
+                            <span class="detail-label">Achievement Date</span>
                             <div class="detail-value">
-
-                                <div class="value-icon cyan">
-                                    <i class="far fa-calendar-check"></i>
-                                </div>
-
+                                <div class="value-icon cyan"><i class="far fa-calendar-check"></i></div>
                                 <span>
                                     {{ $achievement->achievement_date
                                         ? $achievement->achievement_date->format('d M Y')
                                         : 'Not specified' }}
                                 </span>
-
                             </div>
-
                         </div>
-
 
                         <div class="detail-item full-width">
-
-                            <span class="detail-label">
-                                Venue
-                            </span>
-
+                            <span class="detail-label">Venue</span>
                             <div class="detail-value">
-
-                                <div class="value-icon blue">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-
-                                <span>
-                                    {{ $achievement->venue ?: 'Not specified' }}
-                                </span>
-
+                                <div class="value-icon green"><i class="fas fa-map-marker-alt"></i></div>
+                                <span>{{ $achievement->venue ?: 'Not specified' }}</span>
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
 
                 {{-- DESCRIPTION --}}
                 <div class="details-panel description-panel">
-
                     <div class="panel-header">
-
                         <div class="panel-icon red">
                             <i class="fas fa-align-left"></i>
                         </div>
-
                         <div>
                             <h3>Description</h3>
                             <p>Additional information about this achievement</p>
                         </div>
-
                     </div>
 
-
                     <div class="description-content">
-
                         @if($achievement->description)
-
                             <div class="description-icon">
                                 <i class="fas fa-quote-left"></i>
                             </div>
-
-                            <p>
-                                {{ $achievement->description }}
-                            </p>
-
+                            <p>{{ $achievement->description }}</p>
                         @else
-
                             <div class="description-empty">
-
                                 <i class="far fa-file-alt"></i>
-
-                                <span>
-                                    No description available for this achievement.
-                                </span>
-
+                                <span>No description available for this achievement.</span>
                             </div>
-
                         @endif
-
                     </div>
-
                 </div>
-
 
             </div>
 
-
-            {{-- =====================================================
-                 FOOTER ACTIONS
-            ====================================================== --}}
+            {{-- FOOTER ACTIONS --}}
             <div class="achievement-footer">
-
                 <div class="footer-left">
-
                     <div class="footer-status-icon">
-                        <i class="fas fa-shield-check"></i>
+                        <i class="fas fa-shield-alt"></i>
                     </div>
-
                     <div>
                         <strong>Achievement Record</strong>
-
-                        <span>
-                            Information is stored in the sports management system.
-                        </span>
+                        <span>Information is stored in the sports management system.</span>
                     </div>
-
                 </div>
 
-
                 <div class="footer-actions">
-
                     <a href="{{ route('admin.sports.achievements.index') }}"
                        class="footer-back-btn">
-
                         <i class="fas fa-arrow-left"></i>
-
                         Back to Achievements
-
                     </a>
-
 
                     <a href="{{ route('admin.sports.achievements.edit', $achievement) }}"
                        class="footer-edit-btn">
-
                         <i class="fas fa-pen"></i>
-
                         Edit Achievement
-
                     </a>
-
 
                     <form action="{{ route('admin.sports.achievements.destroy', $achievement) }}"
                           method="POST"
                           onsubmit="return confirm('Are you sure you want to delete this achievement?');">
-
                         @csrf
                         @method('DELETE')
 
-                        <button type="submit"
-                                class="footer-delete-btn">
-
+                        <button type="submit" class="footer-delete-btn">
                             <i class="fas fa-trash-alt"></i>
-
                             Delete
-
                         </button>
-
                     </form>
-
                 </div>
-
             </div>
 
         </div>
-
     </div>
-
 </div>
 
-
 <style>
-
 /* =========================================================
-   SPORTS ACHIEVEMENT DETAILS
+   SCHOOL DIARY THEME — SPORTS ACHIEVEMENT DETAILS
+   All styles are scoped to this page.
 ========================================================= */
 
 .sports-achievement-page {
+    --achievement-ink: #263b35;
+    --achievement-ink-dark: #1d302b;
+    --achievement-green: #34775a;
+    --achievement-green-dark: #245a43;
+    --achievement-green-soft: #eaf3e9;
+    --achievement-paper: #fffefa;
+    --achievement-cream: #f5f3e9;
+    --achievement-muted: #849087;
+    --achievement-border: #e5e1d3;
+    --achievement-brown: #a87543;
+    --achievement-brown-soft: #f7eee3;
+    --achievement-red: #bd5148;
+    --achievement-red-soft: #fff0ec;
+    --achievement-cyan: #527f79;
+
     min-height: calc(100vh - 60px);
-    background: #f6f8fb;
-    color: #172033;
+    background: var(--achievement-cream);
+    color: var(--achievement-ink);
     font-family: 'Inter', sans-serif;
 }
 
+.sports-achievement-page .container-fluid {
+    max-width: 1600px;
+}
 
-/* =========================================================
-   PAGE HEADER
-========================================================= */
-
-.achievement-page-header {
+/* PAGE HEADER */
+.sports-achievement-page .achievement-page-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 24px;
+    gap: 22px;
+    margin-bottom: 23px;
 }
 
-.achievement-heading-wrapper {
+.sports-achievement-page .achievement-heading-wrapper {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 15px;
     min-width: 0;
 }
 
-.achievement-page-icon {
-    width: 50px;
-    height: 50px;
-    flex: 0 0 50px;
-
+.sports-achievement-page .achievement-page-icon {
+    width: 51px;
+    height: 51px;
+    flex: 0 0 51px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 14px;
-
-    background: linear-gradient(
-        135deg,
-        #147cf5 0%,
-        #1268ca 100%
-    );
-
-    color: #fff;
+    border: 1px solid #cbdcc9;
+    border-radius: 13px;
+    background: var(--achievement-green-soft);
+    color: var(--achievement-green);
     font-size: 20px;
-
-    box-shadow:
-        0 7px 18px rgba(20,124,245,.20);
 }
 
-.page-breadcrumb {
+.sports-achievement-page .achievement-heading-content {
+    min-width: 0;
+}
+
+.sports-achievement-page .page-breadcrumb {
     display: flex;
     align-items: center;
-    gap: 7px;
-
-    margin-bottom: 3px;
-
-    color: #94a3b8;
-    font-size: 10px;
-    font-weight: 700;
-
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: var(--achievement-muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    letter-spacing: .55px;
 }
 
-.page-breadcrumb span {
-    color: #cbd5e1;
+.sports-achievement-page .page-breadcrumb span {
+    color: #b8b9a9;
 }
 
-.achievement-heading-wrapper h2 {
+.sports-achievement-page .achievement-heading-wrapper h2 {
     margin: 0;
-
-    color: #172033;
-
-    font-size: 23px;
-    line-height: 1.25;
-    font-weight: 750;
-    letter-spacing: -.25px;
+    color: var(--achievement-ink-dark);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.4px;
 }
 
-.achievement-heading-wrapper p {
-    margin: 5px 0 0;
-
-    color: #718096;
+.sports-achievement-page .achievement-heading-wrapper p {
+    margin: 6px 0 0;
+    color: #778078;
     font-size: 12px;
+    line-height: 1.6;
 }
 
-
-/* =========================================================
-   HEADER ACTIONS
-========================================================= */
-
-.achievement-header-actions {
+.sports-achievement-page .achievement-header-actions {
     display: flex;
     align-items: center;
     gap: 9px;
     flex-shrink: 0;
 }
 
-.achievement-back-btn,
-.achievement-edit-btn {
+/* BUTTONS */
+.sports-achievement-page .achievement-back-btn,
+.sports-achievement-page .achievement-edit-btn,
+.sports-achievement-page .footer-back-btn,
+.sports-achievement-page .footer-edit-btn,
+.sports-achievement-page .footer-delete-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-
-    min-height: 40px;
-
-    border-radius: 9px;
-
-    padding: 9px 15px;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    text-decoration: none;
-
-    transition:
-        background .2s ease,
-        border-color .2s ease,
-        color .2s ease,
-        transform .2s ease,
-        box-shadow .2s ease;
-}
-
-.achievement-back-btn {
-    background: #fff;
-
-    color: #64748b;
-
-    border: 1px solid #e3e8ef;
-
-    box-shadow: 0 2px 5px rgba(15,23,42,.03);
-}
-
-.achievement-back-btn:hover {
-    background: #f8fafc;
-    color: #172033;
-    border-color: #d7dee8;
-    transform: translateY(-1px);
-}
-
-.achievement-edit-btn {
-    color: #fff;
-
+    min-height: 39px;
+    padding: 9px 14px;
     border: 1px solid transparent;
-
-    background: linear-gradient(
-        135deg,
-        #147cf5 0%,
-        #1268ca 100%
-    );
-
-    box-shadow:
-        0 5px 14px rgba(20,124,245,.18);
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
 }
 
-.achievement-edit-btn:hover {
+.sports-achievement-page .achievement-back-btn,
+.sports-achievement-page .footer-back-btn {
+    background: var(--achievement-paper);
+    color: var(--achievement-ink);
+    border-color: var(--achievement-border);
+}
+
+.sports-achievement-page .achievement-back-btn:hover,
+.sports-achievement-page .footer-back-btn:hover {
+    background: #f0eee3;
+    color: var(--achievement-ink-dark);
+    border-color: #cfcbbb;
+}
+
+.sports-achievement-page .achievement-edit-btn,
+.sports-achievement-page .footer-edit-btn {
+    background: var(--achievement-green);
+    color: #fff;
+    border-color: var(--achievement-green);
+}
+
+.sports-achievement-page .achievement-edit-btn:hover,
+.sports-achievement-page .footer-edit-btn:hover {
+    background: var(--achievement-green-dark);
+    border-color: var(--achievement-green-dark);
     color: #fff;
     transform: translateY(-1px);
-
-    box-shadow:
-        0 8px 18px rgba(20,124,245,.24);
 }
 
+.sports-achievement-page .footer-delete-btn {
+    background: var(--achievement-paper);
+    color: var(--achievement-red);
+    border-color: #e8c8bf;
+}
 
-/* =========================================================
-   MAIN PROFILE CARD
-========================================================= */
+.sports-achievement-page .footer-delete-btn:hover {
+    background: var(--achievement-red-soft);
+    border-color: #dca69b;
+    color: #963d35;
+}
 
-.achievement-profile-card {
-    background: #fff;
-
-    border: 1px solid #e9edf3;
-
-    border-radius: 16px;
-
+/* MAIN CARD */
+.sports-achievement-page .achievement-profile-card {
     overflow: hidden;
-
-    box-shadow:
-        0 5px 20px rgba(15,23,42,.055);
+    border: 1px solid var(--achievement-border);
+    border-radius: 12px;
+    background: var(--achievement-paper);
+    box-shadow: 0 4px 16px rgba(38, 59, 53, .045);
 }
 
-
-/* =========================================================
-   ACHIEVEMENT HERO
-========================================================= */
-
-.achievement-hero {
+/* ACHIEVEMENT HERO */
+.sports-achievement-page .achievement-hero {
     position: relative;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    gap: 25px;
-
+    gap: 24px;
     padding: 27px 28px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #fbfdff 65%,
-            #f6faff 100%
-        );
-
-    border-bottom: 1px solid #edf0f5;
+    border-bottom: 1px solid var(--achievement-border);
+    background: var(--achievement-paper);
 }
 
-.achievement-hero::after {
-    content: '';
-
+.sports-achievement-page .achievement-hero::after {
     position: absolute;
-
-    left: 0;
     bottom: 0;
-
-    width: 100%;
-    height: 3px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #147cf5,
-            #21b8d6
-        );
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--achievement-green);
+    content: '';
 }
 
-.hero-left {
+.sports-achievement-page .hero-left {
     display: flex;
     align-items: center;
     gap: 17px;
-
     min-width: 0;
 }
 
-.hero-medal {
+.sports-achievement-page .hero-medal {
     position: relative;
-
-    width: 64px;
-    height: 64px;
-
-    flex: 0 0 64px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 17px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ffb238 0%,
-            #ff9d1c 100%
-        );
-
-    color: #fff;
-
-    font-size: 25px;
-
-    box-shadow:
-        0 8px 20px rgba(255,178,56,.22);
-
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
     overflow: hidden;
+    border: 1px solid #e6d3b8;
+    border-radius: 12px;
+    background: var(--achievement-brown-soft);
+    color: var(--achievement-brown);
+    font-size: 26px;
 }
 
-.medal-glow {
+.sports-achievement-page .medal-glow {
     position: absolute;
-
-    width: 45px;
-    height: 45px;
-
     top: -20px;
     right: -15px;
-
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
-
-    background: rgba(255,255,255,.22);
-
-    filter: blur(2px);
+    background: rgba(168, 117, 67, .12);
 }
 
-.hero-medal i {
+.sports-achievement-page .hero-medal i {
     position: relative;
-    z-index: 2;
+    z-index: 1;
 }
 
-.hero-content {
+.sports-achievement-page .hero-content {
     min-width: 0;
 }
 
-.hero-label {
-    margin-bottom: 4px;
-
-    color: #147cf5;
-
+.sports-achievement-page .hero-label {
+    margin-bottom: 5px;
+    color: var(--achievement-green);
     font-size: 9px;
-    font-weight: 800;
-
-    letter-spacing: 1px;
+    font-weight: 850;
+    letter-spacing: 1.35px;
 }
 
-.hero-content h1 {
-    margin: 0 0 8px;
-
-    color: #172033;
-
-    font-size: 21px;
+.sports-achievement-page .hero-content h1 {
+    margin: 0 0 9px;
+    color: var(--achievement-ink-dark);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 25px;
+    font-weight: 700;
     line-height: 1.3;
-    font-weight: 750;
-
-    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
-.hero-meta {
+.sports-achievement-page .hero-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
-
-    color: #718096;
-
+    gap: 9px 16px;
+    color: #778078;
     font-size: 11px;
     font-weight: 600;
 }
 
-.hero-meta span {
+.sports-achievement-page .hero-meta span {
     display: inline-flex;
     align-items: center;
     gap: 6px;
 }
 
-.hero-meta i {
-    color: #147cf5;
-    font-size: 11px;
+.sports-achievement-page .hero-meta i {
+    color: var(--achievement-green);
 }
 
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.hero-status {
+/* STATUS */
+.sports-achievement-page .hero-status {
     flex-shrink: 0;
 }
 
-.status-badge {
+.sports-achievement-page .status-badge {
     display: inline-flex;
     align-items: center;
     gap: 9px;
-
-    min-width: 105px;
-
-    padding: 9px 13px;
-
-    border-radius: 11px;
-
+    min-width: 120px;
+    padding: 9px 12px;
     border: 1px solid;
+    border-radius: 8px;
 }
 
-.status-badge > span:last-child {
+.sports-achievement-page .status-badge > span:last-child {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 2px;
 }
 
-.status-badge strong {
-    font-size: 12px;
-    line-height: 1.2;
+.sports-achievement-page .status-badge strong {
+    font-size: 11px;
+    line-height: 1.3;
 }
 
-.status-badge small {
+.sports-achievement-page .status-badge small {
     font-size: 9px;
     font-weight: 600;
 }
 
-.status-indicator {
+.sports-achievement-page .status-indicator {
     width: 8px;
     height: 8px;
-
     flex: 0 0 8px;
-
     border-radius: 50%;
 }
 
-.status-badge.active {
-    color: #15803d;
-
-    background: #f0fdf4;
-
-    border-color: #bbf7d0;
+.sports-achievement-page .status-badge.active {
+    color: var(--achievement-green-dark);
+    background: var(--achievement-green-soft);
+    border-color: #cbdcc9;
 }
 
-.status-badge.active .status-indicator {
-    background: #22c55e;
-
-    box-shadow:
-        0 0 0 4px rgba(34,197,94,.10);
+.sports-achievement-page .status-badge.active .status-indicator {
+    background: var(--achievement-green);
 }
 
-.status-badge.inactive {
-    color: #dc2626;
-
-    background: #fff5f5;
-
-    border-color: #fecaca;
+.sports-achievement-page .status-badge.inactive {
+    color: var(--achievement-red);
+    background: var(--achievement-red-soft);
+    border-color: #e8c8bf;
 }
 
-.status-badge.inactive .status-indicator {
-    background: #ef4444;
-
-    box-shadow:
-        0 0 0 4px rgba(239,68,68,.10);
+.sports-achievement-page .status-badge.inactive .status-indicator {
+    background: var(--achievement-red);
 }
 
-
-/* =========================================================
-   HIGHLIGHTS
-========================================================= */
-
-.achievement-highlights {
+/* QUICK HIGHLIGHTS */
+.sports-achievement-page .achievement-highlights {
     display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
-
-    padding: 18px 24px;
-
-    background: #fafbfd;
-
-    border-bottom: 1px solid #edf0f5;
+    padding: 19px 23px;
+    border-bottom: 1px solid var(--achievement-border);
+    background: #f9f8f0;
 }
 
-.highlight-card {
+.sports-achievement-page .highlight-card {
     display: flex;
     align-items: center;
-
     gap: 11px;
-
     min-width: 0;
-
-    padding: 13px 14px;
-
-    background: #fff;
-
-    border: 1px solid #edf0f5;
-
-    border-radius: 11px;
-
-    transition:
-        border-color .2s ease,
-        box-shadow .2s ease,
-        transform .2s ease;
+    padding: 13px;
+    border: 1px solid var(--achievement-border);
+    border-radius: 8px;
+    background: var(--achievement-paper);
+    transition: border-color .2s ease, transform .2s ease;
 }
 
-.highlight-card:hover {
-    border-color: #dce5ef;
-
+.sports-achievement-page .highlight-card:hover {
+    border-color: #c8d5c3;
     transform: translateY(-1px);
-
-    box-shadow:
-        0 5px 14px rgba(15,23,42,.05);
 }
 
-.highlight-icon {
-    width: 36px;
-    height: 36px;
-
-    flex: 0 0 36px;
-
+.sports-achievement-page .highlight-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 9px;
-
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 8px;
     font-size: 13px;
 }
 
-.highlight-icon.blue {
-    color: #147cf5;
-    background: #edf5ff;
+.sports-achievement-page .highlight-icon.green,
+.sports-achievement-page .panel-icon.green,
+.sports-achievement-page .value-icon.green {
+    color: var(--achievement-green);
+    background: var(--achievement-green-soft);
 }
 
-.highlight-icon.cyan {
-    color: #18b5d5;
-    background: #e9fbfe;
+.sports-achievement-page .highlight-icon.brown,
+.sports-achievement-page .panel-icon.brown,
+.sports-achievement-page .value-icon.brown {
+    color: var(--achievement-brown);
+    background: var(--achievement-brown-soft);
 }
 
-.highlight-icon.orange {
-    color: #f59e0b;
-    background: #fff6e8;
+.sports-achievement-page .highlight-icon.cyan,
+.sports-achievement-page .panel-icon.cyan,
+.sports-achievement-page .value-icon.cyan {
+    color: var(--achievement-cyan);
+    background: #eaf1ed;
 }
 
-.highlight-icon.red {
-    color: #f65343;
-    background: #fff0ee;
+.sports-achievement-page .highlight-icon.red,
+.sports-achievement-page .panel-icon.red,
+.sports-achievement-page .value-icon.red {
+    color: var(--achievement-red);
+    background: var(--achievement-red-soft);
 }
 
-.highlight-card > div:last-child {
+.sports-achievement-page .highlight-info {
     min-width: 0;
 }
 
-.highlight-card span {
+.sports-achievement-page .highlight-info span {
     display: block;
-
-    margin-bottom: 3px;
-
-    color: #94a3b8;
-
+    margin-bottom: 4px;
+    color: var(--achievement-muted);
     font-size: 9px;
-    font-weight: 700;
-
+    font-weight: 800;
+    letter-spacing: .55px;
     text-transform: uppercase;
-    letter-spacing: .4px;
 }
 
-.highlight-card strong {
+.sports-achievement-page .highlight-info strong {
     display: block;
-
     overflow: hidden;
-
-    color: #172033;
-
+    color: var(--achievement-ink);
     font-size: 12px;
-    font-weight: 700;
-
+    font-weight: 750;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-
-/* =========================================================
-   DETAILS CONTENT
-========================================================= */
-
-.details-content {
+/* DETAILS */
+.sports-achievement-page .details-content {
     padding: 24px;
 }
 
-.details-panel {
-    margin-bottom: 18px;
-
-    border: 1px solid #edf0f5;
-
-    border-radius: 13px;
-
+.sports-achievement-page .details-panel {
     overflow: hidden;
-
-    background: #fff;
+    margin-bottom: 19px;
+    border: 1px solid var(--achievement-border);
+    border-radius: 9px;
+    background: var(--achievement-paper);
 }
 
-.details-panel:last-child {
+.sports-achievement-page .details-panel:last-child {
     margin-bottom: 0;
 }
 
-.panel-header {
+.sports-achievement-page .panel-header {
     display: flex;
     align-items: center;
-
     gap: 11px;
-
     padding: 15px 17px;
-
-    background: #fafbfd;
-
-    border-bottom: 1px solid #edf0f5;
+    border-bottom: 1px solid var(--achievement-border);
+    background: #f8f7ef;
 }
 
-.panel-icon {
-    width: 37px;
-    height: 37px;
+.sports-achievement-page .panel-header::after {
+    align-self: stretch;
+    order: -1;
+    width: 3px;
+    min-height: 34px;
+    margin: -3px 1px -3px -17px;
+    background: var(--achievement-green);
+    content: '';
+}
 
-    flex: 0 0 37px;
-
+.sports-achievement-page .panel-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 9px;
-
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border: 1px solid var(--achievement-border);
+    border-radius: 8px;
     font-size: 13px;
 }
 
-.panel-icon.blue {
-    background: #edf5ff;
-    color: #147cf5;
-}
-
-.panel-icon.cyan {
-    background: #e9fbfe;
-    color: #18b5d5;
-}
-
-.panel-icon.orange {
-    background: #fff6e8;
-    color: #f59e0b;
-}
-
-.panel-icon.red {
-    background: #fff0ee;
-    color: #f65343;
-}
-
-.panel-header h3 {
+.sports-achievement-page .panel-header h3 {
     margin: 0;
-
-    color: #172033;
-
-    font-size: 13px;
-    font-weight: 750;
+    color: var(--achievement-ink-dark);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 16px;
+    font-weight: 700;
 }
 
-.panel-header p {
-    margin: 3px 0 0;
-
-    color: #94a3b8;
-
+.sports-achievement-page .panel-header p {
+    margin: 4px 0 0;
+    color: var(--achievement-muted);
     font-size: 10px;
+    line-height: 1.5;
 }
 
-
-/* =========================================================
-   DETAIL GRID
-========================================================= */
-
-.details-grid {
+/* DETAIL GRID */
+.sports-achievement-page .details-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.detail-item {
+.sports-achievement-page .detail-item {
     min-width: 0;
-
     padding: 17px;
-
-    border-bottom: 1px solid #f0f2f6;
+    border-bottom: 1px solid #eeece2;
 }
 
-.detail-item:nth-child(odd) {
-    border-right: 1px solid #f0f2f6;
+.sports-achievement-page .detail-item:nth-child(odd) {
+    border-right: 1px solid #eeece2;
 }
 
-.detail-item:nth-last-child(-n+2) {
+.sports-achievement-page .detail-item:nth-last-child(-n+2) {
     border-bottom: none;
 }
 
-.detail-item.full-width {
+.sports-achievement-page .detail-item.full-width {
     grid-column: 1 / -1;
-
     border-right: none;
     border-bottom: none;
 }
 
-.detail-label {
+.sports-achievement-page .detail-label {
     display: block;
-
-    margin-bottom: 8px;
-
-    color: #94a3b8;
-
+    margin-bottom: 9px;
+    color: var(--achievement-muted);
     font-size: 9px;
-    font-weight: 750;
-
+    font-weight: 800;
+    letter-spacing: .8px;
     text-transform: uppercase;
-    letter-spacing: .55px;
 }
 
-.detail-value {
+.sports-achievement-page .detail-value {
     display: flex;
     align-items: center;
-
     gap: 10px;
-
     min-width: 0;
-
-    color: #172033;
-
-    font-size: 13px;
-    font-weight: 650;
+    color: var(--achievement-ink);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.6;
 }
 
-.detail-value span {
+.sports-achievement-page .detail-value span {
     min-width: 0;
-
     overflow-wrap: anywhere;
 }
 
-.value-icon {
-    width: 32px;
-    height: 32px;
-
-    flex: 0 0 32px;
-
+.sports-achievement-page .value-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 8px;
-
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border: 1px solid rgba(132, 144, 135, .14);
+    border-radius: 7px;
     font-size: 11px;
 }
 
-.value-icon.blue {
-    background: #edf5ff;
-    color: #147cf5;
-}
-
-.value-icon.cyan {
-    background: #e9fbfe;
-    color: #18b5d5;
-}
-
-.value-icon.orange {
-    background: #fff6e8;
-    color: #f59e0b;
-}
-
-.value-icon.red {
-    background: #fff0ee;
-    color: #f65343;
-}
-
-
-/* =========================================================
-   DESCRIPTION
-========================================================= */
-
-.description-content {
-    min-height: 110px;
-
+/* DESCRIPTION */
+.sports-achievement-page .description-content {
+    min-height: 105px;
     padding: 20px;
-
-    background: #fff;
+    background: var(--achievement-paper);
 }
 
-.description-content p {
+.sports-achievement-page .description-content p {
     margin: 0;
-
-    color: #596579;
-
-    font-size: 13px;
-
-    line-height: 1.75;
-
+    color: #59675e;
+    font-size: 12px;
+    line-height: 1.85;
+    overflow-wrap: anywhere;
     white-space: pre-line;
 }
 
-.description-icon {
+.sports-achievement-page .description-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 31px;
     height: 31px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
     margin-bottom: 10px;
-
-    border-radius: 8px;
-
-    background: #fff0ee;
-
-    color: #f65343;
-
+    border: 1px solid #e8c8bf;
+    border-radius: 7px;
+    background: var(--achievement-red-soft);
+    color: var(--achievement-red);
     font-size: 11px;
 }
 
-.description-empty {
-    min-height: 70px;
-
+.sports-achievement-page .description-empty {
     display: flex;
     align-items: center;
     justify-content: center;
-
     flex-direction: column;
-
-    gap: 7px;
-
-    color: #a0aec0;
-
+    gap: 8px;
+    min-height: 75px;
+    color: var(--achievement-muted);
     font-size: 11px;
+    text-align: center;
 }
 
-.description-empty i {
-    font-size: 20px;
-
-    color: #cbd5e1;
+.sports-achievement-page .description-empty i {
+    color: #b5b7a9;
+    font-size: 21px;
 }
 
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.achievement-footer {
+/* FOOTER */
+.sports-achievement-page .achievement-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 20px;
-
-    padding: 17px 24px;
-
-    background: #fafbfd;
-
-    border-top: 1px solid #edf0f5;
+    padding: 17px 23px;
+    border-top: 1px solid var(--achievement-border);
+    background: #f8f7ef;
 }
 
-.footer-left {
+.sports-achievement-page .footer-left {
     display: flex;
     align-items: center;
-
     gap: 10px;
-
     min-width: 0;
 }
 
-.footer-status-icon {
-    width: 34px;
-    height: 34px;
-
-    flex: 0 0 34px;
-
+.sports-achievement-page .footer-status-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 9px;
-
-    background: #edf5ff;
-
-    color: #147cf5;
-
+    width: 35px;
+    height: 35px;
+    flex: 0 0 35px;
+    border: 1px solid #cbdcc9;
+    border-radius: 8px;
+    background: var(--achievement-green-soft);
+    color: var(--achievement-green);
     font-size: 12px;
 }
 
-.footer-left strong {
+.sports-achievement-page .footer-left strong {
     display: block;
-
-    color: #344054;
-
+    color: var(--achievement-ink);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
-.footer-left span {
+.sports-achievement-page .footer-left span {
     display: block;
-
-    margin-top: 2px;
-
-    color: #94a3b8;
-
+    margin-top: 3px;
+    color: var(--achievement-muted);
     font-size: 9px;
+    line-height: 1.5;
 }
 
-.footer-actions {
+.sports-achievement-page .footer-actions {
     display: flex;
     align-items: center;
-
+    flex-wrap: wrap;
     gap: 8px;
-
     flex-shrink: 0;
 }
 
-.footer-actions form {
+.sports-achievement-page .footer-actions form {
     margin: 0;
 }
 
-.footer-back-btn,
-.footer-edit-btn,
-.footer-delete-btn {
-    min-height: 38px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 7px;
-
-    padding: 8px 13px;
-
-    border-radius: 8px;
-
-    font-size: 11px;
-    font-weight: 700;
-
-    text-decoration: none;
-
-    transition:
-        background .2s ease,
-        border-color .2s ease,
-        color .2s ease,
-        transform .2s ease,
-        box-shadow .2s ease;
-}
-
-.footer-back-btn {
-    background: #fff;
-
-    color: #64748b;
-
-    border: 1px solid #dfe4ea;
-}
-
-.footer-back-btn:hover {
-    background: #f8fafc;
-
-    color: #172033;
-
-    border-color: #d3dae4;
-}
-
-.footer-edit-btn {
-    background: linear-gradient(
-        135deg,
-        #147cf5,
-        #1268ca
-    );
-
-    color: #fff;
-
-    border: 1px solid transparent;
-
-    box-shadow:
-        0 4px 11px rgba(20,124,245,.15);
-}
-
-.footer-edit-btn:hover {
-    color: #fff;
-
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 7px 16px rgba(20,124,245,.22);
-}
-
-.footer-delete-btn {
-    background: #fff;
-
-    color: #e04435;
-
-    border: 1px solid #ffd6d1;
-}
-
-.footer-delete-btn:hover {
-    background: #fff5f4;
-
-    color: #c93629;
-
-    border-color: #ffc3bc;
-
-    transform: translateY(-1px);
-}
-
-
-/* =========================================================
-   LARGE TABLET
-========================================================= */
-
+/* TABLET */
 @media (max-width: 1100px) {
-
-    .achievement-highlights {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+    .sports-achievement-page .achievement-highlights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-}
-
-
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 768px) {
-
-    .achievement-page-header {
+    .sports-achievement-page .achievement-footer {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .achievement-header-actions {
+    .sports-achievement-page .footer-actions {
+        width: 100%;
+    }
+}
+
+/* SMALL TABLET */
+@media (max-width: 768px) {
+    .sports-achievement-page .achievement-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sports-achievement-page .achievement-header-actions {
         width: 100%;
     }
 
-    .achievement-header-actions a {
+    .sports-achievement-page .achievement-header-actions a {
         flex: 1;
     }
 
-    .achievement-hero {
+    .sports-achievement-page .achievement-hero {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .hero-status {
+    .sports-achievement-page .hero-status,
+    .sports-achievement-page .status-badge {
         width: 100%;
     }
 
-    .status-badge {
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    .details-content {
+    .sports-achievement-page .details-content {
         padding: 16px;
     }
 
-    .achievement-footer {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .footer-left {
-        width: 100%;
-    }
-
-    .footer-actions {
-        width: 100%;
-    }
-
-    .footer-actions > *,
-    .footer-actions form,
-    .footer-actions a,
-    .footer-actions button {
+    .sports-achievement-page .footer-actions > a,
+    .sports-achievement-page .footer-actions form {
         flex: 1;
     }
 
-    .footer-actions button {
+    .sports-achievement-page .footer-actions form button {
         width: 100%;
     }
-
 }
 
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
+/* MOBILE */
 @media (max-width: 576px) {
-
-    .achievement-page-header {
-        margin-bottom: 18px;
+    .sports-achievement-page .achievement-page-header {
+        margin-bottom: 17px;
     }
 
-    .achievement-heading-wrapper {
+    .sports-achievement-page .achievement-heading-wrapper {
         align-items: flex-start;
+        gap: 11px;
     }
 
-    .achievement-page-icon {
-        width: 44px;
-        height: 44px;
-        flex-basis: 44px;
-
-        border-radius: 12px;
-
+    .sports-achievement-page .achievement-page-icon {
+        width: 43px;
+        height: 43px;
+        flex-basis: 43px;
+        border-radius: 10px;
         font-size: 17px;
     }
 
-    .achievement-heading-wrapper h2 {
-        font-size: 19px;
+    .sports-achievement-page .achievement-heading-wrapper h2 {
+        font-size: 22px;
     }
 
-    .achievement-heading-wrapper p {
+    .sports-achievement-page .achievement-heading-wrapper p {
         font-size: 11px;
     }
 
-    .page-breadcrumb {
-        display: none;
+    .sports-achievement-page .page-breadcrumb {
+        font-size: 8px;
     }
 
-    .achievement-header-actions {
+    .sports-achievement-page .achievement-header-actions {
         flex-direction: column;
     }
 
-    .achievement-header-actions a {
+    .sports-achievement-page .achievement-header-actions a {
         width: 100%;
         flex: none;
     }
 
-    .achievement-hero {
-        padding: 20px 17px;
+    .sports-achievement-page .achievement-hero {
+        padding: 20px 17px 20px 21px;
     }
 
-    .hero-left {
+    .sports-achievement-page .hero-left {
         align-items: flex-start;
+        gap: 12px;
     }
 
-    .hero-medal {
-        width: 52px;
-        height: 52px;
-        flex-basis: 52px;
-
-        border-radius: 13px;
-
+    .sports-achievement-page .hero-medal {
+        width: 49px;
+        height: 49px;
+        flex-basis: 49px;
         font-size: 20px;
     }
 
-    .hero-content h1 {
-        font-size: 17px;
+    .sports-achievement-page .hero-content h1 {
+        font-size: 20px;
     }
 
-    .hero-meta {
+    .sports-achievement-page .hero-meta {
         gap: 8px 12px;
         font-size: 10px;
     }
 
-    .achievement-highlights {
+    .sports-achievement-page .achievement-highlights {
         grid-template-columns: 1fr;
-
-        padding: 14px;
+        padding: 13px;
     }
 
-    .details-grid {
+    .sports-achievement-page .details-grid {
         grid-template-columns: 1fr;
     }
 
-    .detail-item,
-    .detail-item:nth-child(odd),
-    .detail-item:nth-last-child(-n+2) {
+    .sports-achievement-page .detail-item,
+    .sports-achievement-page .detail-item:nth-child(odd),
+    .sports-achievement-page .detail-item:nth-last-child(-n+2) {
         border-right: none;
-        border-bottom: 1px solid #f0f2f6;
+        border-bottom: 1px solid #eeece2;
     }
 
-    .detail-item:last-child {
+    .sports-achievement-page .detail-item:last-child {
         border-bottom: none;
     }
 
-    .detail-item.full-width {
+    .sports-achievement-page .detail-item.full-width {
         grid-column: auto;
     }
 
-    .panel-header {
+    .sports-achievement-page .panel-header {
         padding: 13px 14px;
     }
 
-    .detail-item {
-        padding: 14px;
-    }
-
-    .description-content {
-        padding: 16px;
-    }
-
-    .footer-actions {
-        display: grid;
-
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .footer-actions form {
-        grid-column: 1 / -1;
-    }
-
-    .footer-actions > a,
-    .footer-actions form,
-    .footer-actions button {
-        width: 100%;
-    }
-
-}
-
-
-/* =========================================================
-   VERY SMALL DEVICES
-========================================================= */
-
-@media (max-width: 380px) {
-
-    .achievement-heading-wrapper {
-        gap: 10px;
-    }
-
-    .achievement-page-icon {
-        width: 40px;
-        height: 40px;
-        flex-basis: 40px;
-    }
-
-    .achievement-heading-wrapper h2 {
-        font-size: 17px;
-    }
-
-    .achievement-hero {
-        padding: 17px 14px;
-    }
-
-    .hero-left {
-        gap: 11px;
-    }
-
-    .hero-content h1 {
+    .sports-achievement-page .panel-header h3 {
         font-size: 15px;
     }
 
-    .details-content {
-        padding: 12px;
+    .sports-achievement-page .detail-item {
+        padding: 14px;
     }
 
-    .footer-actions {
+    .sports-achievement-page .description-content {
+        padding: 16px;
+    }
+
+    .sports-achievement-page .achievement-footer {
+        padding: 15px;
+    }
+
+    .sports-achievement-page .footer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .sports-achievement-page .footer-actions > a {
+        width: 100%;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .sports-achievement-page .footer-actions form {
+        grid-column: 1 / -1;
+    }
+
+    .sports-achievement-page .footer-actions form,
+    .sports-achievement-page .footer-actions button {
+        width: 100%;
+    }
+}
+
+/* VERY SMALL DEVICES */
+@media (max-width: 380px) {
+    .sports-achievement-page .achievement-heading-wrapper h2 {
+        font-size: 19px;
+    }
+
+    .sports-achievement-page .achievement-hero {
+        padding: 17px 13px 17px 17px;
+    }
+
+    .sports-achievement-page .hero-content h1 {
+        font-size: 17px;
+    }
+
+    .sports-achievement-page .details-content {
+        padding: 11px;
+    }
+
+    .sports-achievement-page .footer-actions {
         grid-template-columns: 1fr;
     }
 
-    .footer-actions form {
+    .sports-achievement-page .footer-actions form {
         grid-column: auto;
     }
-
 }
-
 </style>
 
 @endsection
