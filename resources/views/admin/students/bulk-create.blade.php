@@ -1,7 +1,6 @@
-
 @extends('layouts.app')
 
-@section('title', 'Bulk Student Registration')
+@section('title', 'Bulk Student Registration | Admin')
 
 @section('content')
 @php
@@ -10,215 +9,690 @@
 @endphp
 
 <style>
+    /* =========================================================
+       SCHOOL DIARY DESIGN SYSTEM — BULK STUDENT REGISTRATION
+    ========================================================= */
+
     .bulk-page {
-        --primary: #1677f0;
-        --primary-light: #eef5ff;
-        --border: #e5eaf1;
-        --muted: #718096;
-        color: #263449;
+        width: 100%;
+        min-height: calc(100vh - 60px);
+        padding-bottom: 40px;
+        background: #f5f3e9;
+        color: #263b35;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
     }
 
-    .bulk-page .page-heading {
-        display:flex; justify-content:space-between; align-items:center;
-        flex-wrap:wrap; gap:15px; margin-bottom:24px;
+    .bulk-page *,
+    .bulk-page *::before,
+    .bulk-page *::after {
+        box-sizing: border-box;
     }
 
-    .bulk-page .page-heading h2 {
-        font-size:25px; font-weight:750; margin-bottom:5px;
+    /* ---------- PAGE HEADER ---------- */
+    .bulk-header {
+        position: relative;
+        overflow: hidden;
+        padding: 23px 25px;
+        margin-bottom: 20px;
+        color: #263b35;
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
+        border-left: 4px solid #34775a;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(38, 59, 53, .05);
     }
 
-    .bulk-page .page-heading p { color:var(--muted); margin:0; }
-
-    .bulk-page .registration-card {
-        background:#fff; border:1px solid var(--border);
-        border-radius:16px; box-shadow:0 5px 22px rgba(25,45,75,.045);
-        overflow:hidden;
+    .bulk-header-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
     }
 
-    .bulk-page .student-toolbar {
-        display:flex; justify-content:space-between; align-items:center;
-        flex-wrap:wrap; gap:12px; padding:18px 24px;
-        background:#fbfcfe; border-bottom:1px solid var(--border);
+    .bulk-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #7a857d;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .55px;
     }
 
-    .bulk-page .student-toolbar label { font-weight:650; margin-bottom:6px; }
-
-    .bulk-page .student-selector { min-width:250px; max-width:100%; }
-
-    .bulk-page .student-count {
-        background:var(--primary-light); color:var(--primary);
-        padding:8px 13px; border-radius:9px;
-        font-weight:700; font-size:13px;
+    .bulk-breadcrumb a {
+        color: #34775a;
+        text-decoration: none;
+        transition: color .2s ease;
     }
 
-    .bulk-page .student-panel[hidden],
-    .bulk-page .tab-content-section[hidden] { display:none !important; }
-
-    .bulk-page .student-panel { border-bottom:1px solid var(--border); }
-
-    .bulk-page .registration-tabs {
-        display:flex; overflow-x:auto; background:#f8faff;
-        border-bottom:1px solid var(--border);
+    .bulk-breadcrumb a:hover {
+        color: #245a43;
+        text-decoration: underline;
     }
 
-    .bulk-page .registration-tab {
-        display:flex; align-items:center; gap:10px;
-        flex:1 0 175px; min-width:175px; padding:16px 18px;
-        border:0; border-bottom:3px solid transparent;
-        background:transparent; text-align:left; color:#64748b;
-        font-weight:650; font-size:13px;
+    .bulk-breadcrumb i {
+        color: #a87543;
+        font-size: 9px;
     }
 
-    .bulk-page .registration-tab.active {
-        background:#fff; border-bottom-color:var(--primary);
-        color:var(--primary);
+    .bulk-title-row {
+        display: flex;
+        align-items: center;
+        gap: 13px;
     }
 
-    .bulk-page .tab-number {
-        width:31px; height:31px; flex-shrink:0; border-radius:50%;
-        display:grid; place-items:center; background:#e9edf5; color:#64748b;
+    .bulk-title-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        color: #34775a;
+        background: linear-gradient(145deg, #eaf3e9, #dce9d9);
+        border: 1px solid #d0e2d0;
+        border-radius: 12px;
+        font-size: 22px;
+        box-shadow: 0 2px 6px rgba(52, 119, 90, .08);
     }
 
-    .bulk-page .registration-tab.active .tab-number {
-        background:var(--primary); color:#fff;
+    .bulk-title {
+        margin: 0;
+        color: #263b35;
+        font-size: 22px;
+        font-weight: 750;
+        line-height: 1.25;
+        letter-spacing: -.4px;
     }
 
-    .bulk-page .tab-label small {
-        display:block; margin-top:3px; color:var(--muted);
-        font-size:11px; font-weight:400;
+    .bulk-subtitle {
+        margin: 5px 0 0;
+        color: #778078;
+        font-size: 11px;
+        line-height: 1.5;
     }
 
-    .bulk-page .registration-body { padding:28px; }
-
-    .bulk-page .section-heading {
-        display:flex; align-items:center; gap:13px; margin-bottom:24px;
+    /* ---------- BUTTONS ---------- */
+    .btn-scheme-back,
+    .btn-scheme-save,
+    .btn-scheme-add,
+    .btn-scheme-outline,
+    .btn-scheme-danger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 38px;
+        padding: 0 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all .18s ease;
     }
 
-    .bulk-page .heading-icon {
-        width:44px; height:44px; display:grid; place-items:center;
-        border-radius:12px; background:var(--primary-light);
-        color:var(--primary); font-size:20px;
+    .btn-scheme-back {
+        color: #526057;
+        background: #fffefa;
+        border-color: #dcd8ca;
     }
 
-    .bulk-page .section-heading h5 {
-        font-size:17px; font-weight:750; margin:0 0 4px;
+    .btn-scheme-back:hover {
+        color: #263b35;
+        background: #f5f3e9;
+        border-color: #c5c0b0;
     }
 
-    .bulk-page .section-heading p {
-        color:var(--muted); font-size:12px; margin:0;
+    .btn-scheme-save,
+    .btn-scheme-add {
+        color: #fffefa;
+        background: linear-gradient(135deg, #34775a, #2d6a50);
+        border-color: #34775a;
+        box-shadow: 0 3px 10px rgba(52, 119, 90, .18);
     }
 
-    .bulk-page .form-label {
-        font-size:13px; font-weight:650; color:#39475b; margin-bottom:7px;
+    .btn-scheme-save:hover,
+    .btn-scheme-add:hover {
+        color: #fffefa;
+        background: linear-gradient(135deg, #245a43, #1f4f3a);
+        border-color: #245a43;
+        box-shadow: 0 5px 14px rgba(36, 90, 67, .22);
+        transform: translateY(-1px);
     }
 
-    .bulk-page .required-star { color:#dc3545; }
-
-    .bulk-page .form-control,
-    .bulk-page .form-select {
-        min-height:43px; border:1px solid #dce3ec;
-        border-radius:8px; font-size:13px;
+    .btn-scheme-outline {
+        color: #34775a;
+        background: #fffefa;
+        border-color: #c5dcc8;
     }
 
-    .bulk-page textarea.form-control { min-height:95px; }
-
-    .bulk-page .form-control:focus,
-    .bulk-page .form-select:focus {
-        border-color:var(--primary);
-        box-shadow:0 0 0 3px rgba(22,119,240,.10);
+    .btn-scheme-outline:hover {
+        background: #eaf3e9;
+        border-color: #83aa8a;
     }
 
-    .bulk-page .form-text { font-size:11px; color:var(--muted); }
-
-    .bulk-page .parent-card {
-        border:1px solid var(--border); border-radius:12px;
-        padding:20px; margin-bottom:20px; background:#fff;
+    .btn-scheme-danger {
+        color: #bd5148;
+        background: #fffefa;
+        border-color: #e0b8b2;
     }
 
-    .bulk-page .parent-card h6 {
-        font-size:14px; font-weight:750; margin-bottom:18px;
-        color:#344256;
+    .btn-scheme-danger:hover {
+        color: #a23d36;
+        background: #fff1ed;
+        border-color: #dba39a;
     }
 
-    .bulk-page .photo-box {
-        border:1px dashed #b8c9df; border-radius:12px;
-        background:#fafcff; padding:16px; height:100%;
+    /* ---------- MAIN CARD ---------- */
+    .registration-card {
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(38, 59, 53, .05);
+        overflow: hidden;
     }
 
-    .bulk-page .photo-preview {
-        width:100%; max-width:190px; height:165px;
-        object-fit:cover; border-radius:10px;
-        border:1px solid var(--border); background:#fff;
-        display:none; margin:0 auto 12px;
+    /* ---------- TOOLBAR ---------- */
+    .student-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        padding: 16px 22px;
+        background: #faf8f0;
+        border-bottom: 1px solid #e5e1d3;
     }
 
-    .bulk-page .photo-placeholder {
-        height:165px; display:flex; align-items:center;
-        justify-content:center; flex-direction:column;
-        color:#8190a5; gap:8px;
+    .student-toolbar label {
+        display: block;
+        margin-bottom: 6px;
+        color: #405149;
+        font-size: 11px;
+        font-weight: 650;
     }
 
-    .bulk-page .photo-placeholder i { font-size:38px; }
-
-    .bulk-page .student-panel-footer,
-    .bulk-page .main-footer {
-        display:flex; align-items:center; justify-content:space-between;
-        flex-wrap:wrap; gap:12px; padding:18px 28px;
-        background:#fbfcfe; border-top:1px solid var(--border);
+    .student-selector {
+        min-width: 260px;
+        max-width: 100%;
+        height: 40px;
+        padding: 0 12px;
+        color: #263b35;
+        background: #fffefa;
+        border: 1px solid #e0ddcf;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 500;
+        outline: none;
+        transition: border-color .18s ease, box-shadow .18s ease;
     }
 
-    .bulk-page .main-footer { padding:20px 24px; }
-
-    .bulk-page .btn {
-        border-radius:8px; font-size:13px; font-weight:650; padding:10px 16px;
+    .student-selector:focus {
+        border-color: #6e9a7c;
+        box-shadow: 0 0 0 3px rgba(52, 119, 90, .10);
     }
 
-    .bulk-page .btn-primary { background:var(--primary); border-color:var(--primary); }
+    .student-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        color: #245a43;
+        background: #eaf3e9;
+        border: 1px solid #c5dcc8;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
 
-    .bulk-page .invalid-feedback { font-size:11px; }
+    .form-text-hint {
+        margin-top: 5px;
+        color: #7a857d;
+        font-size: 10px;
+    }
 
-    .bulk-page .form-control.is-invalid,
-    .bulk-page .form-select.is-invalid { border-color:#dc3545; }
+    /* ---------- TABS ---------- */
+    .registration-tabs {
+        display: flex;
+        overflow-x: auto;
+        background: #faf8f0;
+        border-bottom: 1px solid #e5e1d3;
+    }
 
-    @media(max-width:767px) {
-        .bulk-page .registration-body { padding:18px; }
-        .bulk-page .student-toolbar,
-        .bulk-page .main-footer,
-        .bulk-page .student-panel-footer { padding:16px; }
-        .bulk-page .student-selector { width:100%; }
+    .registration-tab {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1 0 160px;
+        min-width: 160px;
+        padding: 14px 16px;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        background: transparent;
+        text-align: left;
+        color: #5c6b62;
+        font-weight: 650;
+        font-size: 11px;
+        cursor: pointer;
+        transition: color .18s ease, background .18s ease, border-color .18s ease;
+    }
+
+    .registration-tab:hover {
+        color: #34775a;
+        background: rgba(52, 119, 90, .05);
+    }
+
+    .registration-tab.active {
+        background: #fffefa;
+        border-bottom-color: #34775a;
+        color: #245a43;
+    }
+
+    .tab-number {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: #e9e5d9;
+        color: #5c6b62;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .registration-tab.active .tab-number {
+        background: #34775a;
+        color: #fffefa;
+    }
+
+    .tab-label small {
+        display: block;
+        margin-top: 2px;
+        color: #879087;
+        font-size: 10px;
+        font-weight: 400;
+    }
+
+    /* ---------- BODY ---------- */
+    .registration-body {
+        padding: 24px 22px;
+    }
+
+    .student-panel[hidden],
+    .tab-content-section[hidden] {
+        display: none !important;
+    }
+
+    .student-panel {
+        border-bottom: 1px solid #e5e1d3;
+    }
+
+    /* ---------- SECTION HEADING ---------- */
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e9e5d9;
+    }
+
+    .heading-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        color: #34775a;
+        background: linear-gradient(145deg, #eaf3e9, #dce9d9);
+        border: 1px solid #d0e2d0;
+        border-radius: 10px;
+        font-size: 17px;
+        box-shadow: 0 2px 5px rgba(52, 119, 90, .07);
+    }
+
+    .section-heading h5 {
+        margin: 0 0 3px;
+        color: #263b35;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+    .section-heading p {
+        margin: 0;
+        color: #7a857d;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    /* ---------- FORM FIELDS ---------- */
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #405149;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .required-star {
+        color: #bd5148;
+    }
+
+    .form-control,
+    .form-select {
+        display: block;
+        width: 100%;
+        color: #263b35;
+        background: #fffefa;
+        border: 1px solid #e0ddcf;
+        border-radius: 8px;
+        outline: none;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .form-control:not(textarea),
+    .form-select {
+        height: 40px;
+        padding: 0 12px;
+    }
+
+    textarea.form-control {
+        min-height: 95px;
+        padding: 10px 12px;
+        resize: vertical;
+        line-height: 1.5;
+    }
+
+    .form-control::placeholder {
+        color: #a0a397;
+        font-weight: 400;
+    }
+
+    .form-control:hover,
+    .form-select:hover {
+        border-color: #c5d1c2;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #6e9a7c;
+        box-shadow: 0 0 0 3px rgba(52, 119, 90, .10);
+    }
+
+    .form-control[readonly] {
+        cursor: default;
+        color: #69766d;
+        background: #f5f3e9;
+    }
+
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+        border-color: #bd5148;
+        background: #fff8f5;
+    }
+
+    .invalid-feedback {
+        display: block;
+        margin-top: 4px;
+        color: #bd5148;
+        font-size: 10px;
+    }
+
+    /* ---------- PARENT CARDS ---------- */
+    .parent-card {
+        border: 1px solid #e5e1d3;
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 16px;
+        background: linear-gradient(180deg, #faf8f0 0%, #f7f5ec 100%);
+    }
+
+    .parent-card h6 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e9e5d9;
+        color: #263b35;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .parent-card h6 i {
+        color: #34775a;
+    }
+
+    /* ---------- PHOTO BOX ---------- */
+    .photo-box {
+        border: 1px dashed #c5d1c2;
+        border-radius: 12px;
+        background: #faf8f0;
+        padding: 16px;
+        height: 100%;
+    }
+
+    .photo-preview {
+        width: 100%;
+        max-width: 180px;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid #d8e8d8;
+        background: #fffefa;
+        display: none;
+        margin: 0 auto 12px;
+        box-shadow: 0 3px 10px rgba(38, 59, 53, .1);
+    }
+
+    .photo-placeholder {
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #7a857d;
+        gap: 8px;
+        background: #f5f3e9;
+        border-radius: 10px;
+        border: 1px solid #e5e1d3;
+        margin-bottom: 12px;
+    }
+
+    .photo-placeholder i {
+        font-size: 36px;
+        color: #34775a;
+    }
+
+    /* ---------- FOOTERS ---------- */
+    .student-panel-footer,
+    .main-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 16px 22px;
+        background: #faf8f0;
+        border-top: 1px solid #e5e1d3;
+    }
+
+    .footer-note {
+        color: #7a857d;
+        font-size: 11px;
+    }
+
+    .footer-note .required-star {
+        color: #bd5148;
+    }
+
+    /* ---------- ALERTS ---------- */
+    .scheme-alert {
+        margin-bottom: 18px;
+        padding: 14px 16px;
+        border-radius: 9px;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .scheme-alert-danger {
+        background: #fff1ed;
+        border: 1px solid #e8b8b0;
+        border-left: 4px solid #bd5148;
+        color: #8a3a34;
+    }
+
+    .scheme-alert-success {
+        background: #eaf3e9;
+        border: 1px solid #c5dcc8;
+        border-left: 4px solid #34775a;
+        color: #245a43;
+    }
+
+    .scheme-alert-warning {
+        background: #f8eee0;
+        border: 1px solid #d9b88f;
+        border-left: 4px solid #a87543;
+        color: #87582d;
+        font-size: 11px;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 767.98px) {
+        .bulk-header {
+            padding: 18px 16px;
+        }
+
+        .bulk-title {
+            font-size: 19px;
+        }
+
+        .bulk-title-icon {
+            flex-basis: 42px;
+            width: 42px;
+            height: 42px;
+            font-size: 19px;
+        }
+
+        .bulk-header-content {
+            flex-direction: column;
+        }
+
+        .registration-body {
+            padding: 18px 15px;
+        }
+
+        .student-toolbar,
+        .main-footer,
+        .student-panel-footer {
+            padding: 14px 15px;
+        }
+
+        .student-selector {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .registration-tab {
+            min-width: 140px;
+            padding: 12px 12px;
+            font-size: 10px;
+        }
+
+        .main-footer,
+        .student-panel-footer {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .main-footer .d-flex,
+        .student-panel-footer .d-flex {
+            width: 100%;
+        }
+
+        .btn-scheme-back,
+        .btn-scheme-save,
+        .btn-scheme-add,
+        .btn-scheme-outline,
+        .btn-scheme-danger {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .bulk-page *,
+        .bulk-page *::before,
+        .bulk-page *::after {
+            scroll-behavior: auto !important;
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
+        }
     }
 </style>
 
-<div class="container-fluid py-4 bulk-page">
+<div class="bulk-page">
 
-    <div class="page-heading">
-        <div>
-            <h2><i class="bi bi-people-fill text-primary me-2"></i>Bulk Student Registration</h2>
-            <p>Register new admissions or update existing student records.</p>
+    {{-- ===================== PAGE HEADER ===================== --}}
+    <div class="bulk-header">
+        <div class="bulk-header-content">
+            <div>
+                <div class="bulk-breadcrumb">
+                    <a href="{{ route('admin.students.index') }}">Students</a>
+                    <i class="bi bi-chevron-right"></i>
+                    <span>Bulk Registration</span>
+                </div>
+
+                <div class="bulk-title-row">
+                    <div class="bulk-title-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <h1 class="bulk-title">Bulk Student Registration</h1>
+                        <p class="bulk-subtitle">Register new admissions or update existing student records.</p>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ route('admin.students.index') }}" class="btn-scheme-back">
+                <i class="bi bi-arrow-left"></i>
+                Back to Students
+            </a>
         </div>
-        <a href="{{ route('admin.students.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Students
-        </a>
     </div>
 
+    {{-- ALERTS --}}
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show">
-            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="scheme-alert scheme-alert-success">
+            <i class="bi bi-check-circle-fill me-1"></i>{{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="scheme-alert scheme-alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ session('error') }}
         </div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger">
-            <div class="fw-bold mb-2">Please correct the following errors:</div>
-            <ul class="mb-0">
+        <div class="scheme-alert scheme-alert-danger">
+            <strong class="d-block mb-2">Please correct the following errors:</strong>
+            <ul class="mb-0 ps-3">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -237,15 +711,16 @@
 
             <div class="student-toolbar">
                 <div>
-                    <label for="studentSelector" class="d-block">Select Student Form</label>
-                    <select id="studentSelector" class="form-select student-selector"></select>
-                    <div class="form-text">Switch between student forms to enter their details.</div>
+                    <label for="studentSelector">Select Student Form</label>
+                    <select id="studentSelector" class="student-selector"></select>
+                    <div class="form-text-hint">Switch between student forms to enter their details.</div>
                 </div>
 
                 <div class="d-flex align-items-center flex-wrap gap-2">
                     <span class="student-count" id="studentCount">1 Student</span>
-                    <button type="button" class="btn btn-primary" id="addStudentBtn">
-                        <i class="bi bi-plus-circle me-1"></i> Add Student
+                    <button type="button" class="btn-scheme-add" id="addStudentBtn">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Student
                     </button>
                 </div>
             </div>
@@ -253,16 +728,17 @@
             <div id="studentPanels"></div>
 
             <div class="main-footer">
-                <div class="text-muted small">
+                <div class="footer-note">
                     <i class="bi bi-info-circle me-1"></i>
                     Required fields are marked with <span class="required-star">*</span>.
                     Maximum 100 students per submission.
                 </div>
 
                 <div class="d-flex gap-2 flex-wrap">
-                    <a href="{{ route('admin.students.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary" id="saveAllBtn">
-                        <i class="bi bi-check2-circle me-1"></i> Save All Students
+                    <a href="{{ route('admin.students.index') }}" class="btn-scheme-back">Cancel</a>
+                    <button type="submit" class="btn-scheme-save" id="saveAllBtn">
+                        <i class="bi bi-check2-circle"></i>
+                        Save All Students
                     </button>
                 </div>
             </div>
@@ -318,7 +794,7 @@
                             </div>
                             <input type="file" class="form-control" data-name="profile_image"
                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-                            <div class="form-text mt-2">JPG, PNG, WEBP. Maximum 2 MB.</div>
+                            <div class="form-text-hint mt-2">JPG, PNG, WEBP. Maximum 2 MB.</div>
                             <div class="invalid-feedback" data-error-for="profile_image"></div>
                         </div>
                     </div>
@@ -348,7 +824,7 @@
                                 <label class="form-label">Name in Marathi</label>
                                 <input type="text" class="form-control" data-name="marathi_name"
                                        maxlength="255" placeholder="मराठी नाव">
-                                <div class="form-text">Can be entered manually.</div>
+                                <div class="form-text-hint">Can be entered manually.</div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Gender <span class="required-star">*</span></label>
@@ -513,7 +989,7 @@
                 </div>
 
                 <div class="parent-card">
-                    <h6><i class="bi bi-person me-2 text-primary"></i>Father's Information</h6>
+                    <h6><i class="bi bi-person"></i> Father's Information</h6>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Father's Name</label>
@@ -533,7 +1009,7 @@
                 </div>
 
                 <div class="parent-card">
-                    <h6><i class="bi bi-person me-2 text-primary"></i>Mother's Information</h6>
+                    <h6><i class="bi bi-person"></i> Mother's Information</h6>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Mother's Name</label>
@@ -553,7 +1029,7 @@
                 </div>
 
                 <div class="parent-card mb-0">
-                    <h6><i class="bi bi-person-badge me-2 text-primary"></i>Guardian Information</h6>
+                    <h6><i class="bi bi-person-badge"></i> Guardian Information</h6>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Guardian's Name</label>
@@ -620,7 +1096,7 @@
             </div>
         </section>
 
-        {{-- ADDRESS WITH LOCATION API --}}
+        {{-- ADDRESS --}}
         <section class="tab-content-section" data-section="address" hidden>
             <div class="registration-body">
                 <div class="section-heading">
@@ -686,7 +1162,7 @@
                     </div>
 
                     <div class="col-12">
-                        <div class="alert alert-warning py-2 small mb-0"
+                        <div class="scheme-alert scheme-alert-warning py-2 mb-0"
                              data-location-error hidden>
                             Unable to load locations. Check your location routes and API response.
                         </div>
@@ -696,16 +1172,16 @@
         </section>
 
         <div class="student-panel-footer">
-            <button type="button" class="btn btn-outline-danger" data-action="remove-student">
-                <i class="bi bi-trash me-1"></i> Remove Student
+            <button type="button" class="btn-scheme-danger" data-action="remove-student">
+                <i class="bi bi-trash"></i> Remove Student
             </button>
 
             <div class="d-flex gap-2 flex-wrap">
-                <button type="button" class="btn btn-outline-primary" data-action="previous-tab">
-                    <i class="bi bi-arrow-left me-1"></i> Previous
+                <button type="button" class="btn-scheme-outline" data-action="previous-tab">
+                    <i class="bi bi-arrow-left"></i> Previous
                 </button>
-                <button type="button" class="btn btn-primary" data-action="next-tab">
-                    Next <i class="bi bi-arrow-right ms-1"></i>
+                <button type="button" class="btn-scheme-add" data-action="next-tab">
+                    Next <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -743,9 +1219,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function getPanel(index) {
-        return panelsContainer.querySelector(
-            '.student-panel[data-index="' + index + '"]'
-        );
+        return panelsContainer.querySelector('.student-panel[data-index="' + index + '"]');
     }
 
     function field(panel, name) {
@@ -755,7 +1229,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function setFieldValue(panel, name, value) {
         const input = field(panel, name);
         if (!input || value === null || value === undefined || input.type === 'file') return;
-
         input.value = value;
     }
 
@@ -767,21 +1240,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function clearFieldError(input) {
         input.classList.remove('is-invalid');
-
         const error = input.closest('.student-panel')?.querySelector(
             '[data-error-for="' + input.dataset.name + '"]'
         );
-
         if (error) error.textContent = '';
     }
 
     function showFieldError(input, message) {
         input.classList.add('is-invalid');
-
         const error = input.closest('.student-panel')?.querySelector(
             '[data-error-for="' + input.dataset.name + '"]'
         );
-
         if (error) error.textContent = message;
     }
 
@@ -789,7 +1258,6 @@ document.addEventListener('DOMContentLoaded', function () {
         panel.querySelectorAll('.registration-tab').forEach(function (button) {
             button.classList.toggle('active', button.dataset.tab === tabName);
         });
-
         panel.querySelectorAll('.tab-content-section').forEach(function (section) {
             section.hidden = section.dataset.section !== tabName;
         });
@@ -812,14 +1280,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const option = document.createElement('option');
             option.value = String(index);
             option.textContent = 'Student ' + (position + 1);
-
             if (first || last) option.textContent += ' — ' + [first, last].filter(Boolean).join(' ');
-
             selector.appendChild(option);
         });
 
         countLabel.textContent = panels.length + (panels.length === 1 ? ' Student' : ' Students');
-
         if (getPanel(activeIndex)) selector.value = String(activeIndex);
     }
 
@@ -829,16 +1294,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const panel = getPanel(activeIndex);
-
         if (panel) {
             const activeTab = panel.querySelector('.registration-tab.active');
             activateTab(panel, activeTab?.dataset.tab || 'basic');
         }
-
         updateSelector();
     }
 
-    // LOCATION API HELPERS
     async function fetchLocationList(url, parameter, value) {
         const requestUrl = new URL(url, window.location.origin);
         requestUrl.searchParams.set(parameter, value);
@@ -852,33 +1314,26 @@ document.addEventListener('DOMContentLoaded', function () {
             credentials: 'same-origin'
         });
 
-        if (!response.ok) {
-            throw new Error('Location request failed: HTTP ' + response.status);
-        }
+        if (!response.ok) throw new Error('Location request failed: HTTP ' + response.status);
 
         const result = await response.json();
-
         if (Array.isArray(result)) return result;
         if (result && Array.isArray(result.data)) return result.data;
         if (result && Array.isArray(result.results)) return result.results;
-
         throw new Error(result?.message || 'Unexpected location API response.');
     }
 
     function resetLocationSelect(select, placeholder) {
         select.innerHTML = '';
-
         const option = document.createElement('option');
         option.value = '';
         option.textContent = placeholder;
         select.appendChild(option);
-
         select.disabled = true;
     }
 
     function fillLocationSelect(select, items, valueKey, labelKey, placeholder) {
         select.innerHTML = '';
-
         const first = document.createElement('option');
         first.value = '';
         first.textContent = placeholder;
@@ -887,19 +1342,13 @@ document.addEventListener('DOMContentLoaded', function () {
         items.forEach(function (item) {
             const value = item[valueKey];
             const label = item[labelKey];
-
-            if (value === undefined || value === null || label === undefined || label === null) {
-                return;
-            }
+            if (value === undefined || value === null || label === undefined || label === null) return;
 
             const option = document.createElement('option');
             option.value = String(value);
             option.textContent = String(label);
             option.dataset.locationId = String(item.id ?? value);
-            option.dataset.pincode = String(
-                item.pin_code ?? item.pincode ?? item.pinCode ?? ''
-            );
-
+            option.dataset.pincode = String(item.pin_code ?? item.pincode ?? item.pinCode ?? '');
             select.appendChild(option);
         });
 
@@ -909,7 +1358,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function showLocationError(panel, message) {
         const alert = panel.querySelector('[data-location-error]');
         if (!alert) return;
-
         alert.textContent = message;
         alert.hidden = false;
     }
@@ -917,7 +1365,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function clearLocationError(panel) {
         const alert = panel.querySelector('[data-location-error]');
         if (!alert) return;
-
         alert.textContent = '';
         alert.hidden = true;
     }
@@ -931,26 +1378,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         stateSelect.addEventListener('change', async function () {
             const stateId = stateSelect.selectedOptions[0]?.dataset.stateId;
-
             resetLocationSelect(districtSelect, 'Select District');
             resetLocationSelect(talukaSelect, 'Select Taluka');
             resetLocationSelect(citySelect, 'Select City / Village');
             pincodeInput.value = '';
             clearLocationError(panel);
-
             clearFieldError(stateSelect);
-
             if (!stateId) return;
 
             try {
-                const districts = await fetchLocationList(
-                    locationUrls.districts, 'state_id', stateId
-                );
-
-                fillLocationSelect(
-                    districtSelect, districts,
-                    'district_name', 'district_name', 'Select District'
-                );
+                const districts = await fetchLocationList(locationUrls.districts, 'state_id', stateId);
+                fillLocationSelect(districtSelect, districts, 'district_name', 'district_name', 'Select District');
             } catch (error) {
                 console.error('District API error:', error);
                 showLocationError(panel, 'Could not load districts. Check the districts route and API response.');
@@ -959,25 +1397,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         districtSelect.addEventListener('change', async function () {
             const districtId = districtSelect.selectedOptions[0]?.dataset.locationId;
-
             resetLocationSelect(talukaSelect, 'Select Taluka');
             resetLocationSelect(citySelect, 'Select City / Village');
             pincodeInput.value = '';
             clearLocationError(panel);
-
             clearFieldError(districtSelect);
-
             if (!districtId) return;
 
             try {
-                const talukas = await fetchLocationList(
-                    locationUrls.talukas, 'district_id', districtId
-                );
-
-                fillLocationSelect(
-                    talukaSelect, talukas,
-                    'id', 'tehsil_name', 'Select Taluka'
-                );
+                const talukas = await fetchLocationList(locationUrls.talukas, 'district_id', districtId);
+                fillLocationSelect(talukaSelect, talukas, 'id', 'tehsil_name', 'Select Taluka');
             } catch (error) {
                 console.error('Taluka API error:', error);
                 showLocationError(panel, 'Could not load talukas. Check the tehsils route and API response.');
@@ -986,24 +1415,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         talukaSelect.addEventListener('change', async function () {
             const talukaId = talukaSelect.selectedOptions[0]?.dataset.locationId;
-
             resetLocationSelect(citySelect, 'Select City / Village');
             pincodeInput.value = '';
             clearLocationError(panel);
-
             clearFieldError(talukaSelect);
-
             if (!talukaId) return;
 
             try {
-                const cities = await fetchLocationList(
-                    locationUrls.cities, 'tehsil_id', talukaId
-                );
-
-                fillLocationSelect(
-                    citySelect, cities,
-                    'id', 'location_name', 'Select City / Village'
-                );
+                const cities = await fetchLocationList(locationUrls.cities, 'tehsil_id', talukaId);
+                fillLocationSelect(citySelect, cities, 'id', 'location_name', 'Select City / Village');
             } catch (error) {
                 console.error('City/village API error:', error);
                 showLocationError(panel, 'Could not load cities or villages. Check the locations route and API response.');
@@ -1012,7 +1432,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         citySelect.addEventListener('change', function () {
             const selectedCity = citySelect.selectedOptions[0];
-
             pincodeInput.value = selectedCity?.dataset.pincode || '';
             clearLocationError(panel);
             clearFieldError(citySelect);
@@ -1026,7 +1445,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         input.addEventListener('change', function () {
             clearFieldError(input);
-
             const file = input.files?.[0];
 
             if (!file) {
@@ -1049,42 +1467,31 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const reader = new FileReader();
-
             reader.onload = function (event) {
                 preview.src = event.target.result;
                 preview.style.display = 'block';
                 placeholder.style.display = 'none';
             };
-
             reader.readAsDataURL(file);
         });
     }
 
     function attachNumericFiltering(panel) {
-        [
-            'aadhar_card_no', 'phone', 'father_phone',
-            'mother_phone', 'guardian_phone', 'pincode'
-        ].forEach(function (name) {
+        ['aadhar_card_no', 'phone', 'father_phone', 'mother_phone', 'guardian_phone', 'pincode'].forEach(function (name) {
             const input = field(panel, name);
-
             input.addEventListener('input', function () {
                 if (name === 'phone') {
                     let value = input.value.replace(/[^\d+]/g, '');
-
                     if (value.startsWith('+')) {
                         value = '+' + value.slice(1).replace(/\+/g, '').slice(0, 12);
                     } else {
                         value = value.replace(/\+/g, '').slice(0, 10);
                     }
-
                     input.value = value;
                 } else {
-                    const limit = name === 'aadhar_card_no' ? 12 :
-                        name === 'pincode' ? 6 : 10;
-
+                    const limit = name === 'aadhar_card_no' ? 12 : name === 'pincode' ? 6 : 10;
                     input.value = input.value.replace(/\D/g, '').slice(0, limit);
                 }
-
                 clearFieldError(input);
             });
         });
@@ -1106,35 +1513,24 @@ document.addEventListener('DOMContentLoaded', function () {
         async function generateMarathiName() {
             if (manuallyEdited || marathiName.value.trim()) return;
 
-            const name = [
-                firstName.value.trim(),
-                middleName.value.trim(),
-                lastName.value.trim()
-            ].filter(Boolean).join(' ');
-
+            const name = [firstName.value.trim(), middleName.value.trim(), lastName.value.trim()]
+                .filter(Boolean).join(' ');
             if (!name) return;
 
             const currentRequest = ++requestNumber;
 
             try {
                 const url = 'https://inputtools.google.com/request?text=' +
-                    encodeURIComponent(name) +
-                    '&itc=mr-t-i0-und&num=1';
-
+                    encodeURIComponent(name) + '&itc=mr-t-i0-und&num=1';
                 const response = await fetch(url);
                 const data = await response.json();
 
-                if (
-                    currentRequest === requestNumber &&
-                    !manuallyEdited &&
-                    !marathiName.value.trim() &&
-                    data[0] === 'SUCCESS' &&
-                    data[1]?.[0]?.[1]?.[0]
-                ) {
+                if (currentRequest === requestNumber && !manuallyEdited && !marathiName.value.trim() &&
+                    data[0] === 'SUCCESS' && data[1]?.[0]?.[1]?.[0]) {
                     marathiName.value = data[1][0][1][0];
                 }
             } catch (error) {
-                // The Marathi name can be entered manually if transliteration fails.
+                // Manual entry is fine if transliteration fails.
             }
         }
 
@@ -1161,36 +1557,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         panelsContainer.appendChild(fragment);
-
         const newPanel = getPanel(index);
 
         if (!field(newPanel, 'academic_year').value) {
             field(newPanel, 'academic_year').value = @json($defaultAcademicYear);
         }
-
         if (!field(newPanel, 'country').value) field(newPanel, 'country').value = 'India';
         if (!field(newPanel, 'nationality').value) field(newPanel, 'nationality').value = 'Indian';
         if (!field(newPanel, 'status').value) field(newPanel, 'status').value = 'active';
-
         if (!field(newPanel, 'admission_date').value) {
             field(newPanel, 'admission_date').value = new Date().toISOString().slice(0, 10);
         }
 
-        // Restore a previous address value when returning from server validation.
-        // Location dropdowns must be reselected if their IDs were not returned.
         const oldState = values.state || '';
-
         if (oldState) {
             const stateSelect = field(newPanel, 'state');
-            const stateOption = Array.from(stateSelect.options).find(
-                option => option.value === oldState
-            );
-
+            const stateOption = Array.from(stateSelect.options).find(option => option.value === oldState);
             if (stateOption) stateSelect.value = oldState;
         }
 
         activateTab(newPanel, 'basic');
-
         attachPhotoPreview(newPanel);
         attachNumericFiltering(newPanel);
         attachMarathiHelper(newPanel);
@@ -1211,66 +1597,34 @@ document.addEventListener('DOMContentLoaded', function () {
         let firstInvalid = null;
         let valid = true;
 
-        const requiredNames = [
-            'first_name', 'last_name', 'gender',
-            'academic_year', 'admission_class', 'section'
-        ];
-
+        const requiredNames = ['first_name', 'last_name', 'gender', 'academic_year', 'admission_class', 'section'];
         const parentPhoneNames = ['father_phone', 'mother_phone', 'guardian_phone'];
 
         panel.querySelectorAll('[data-name]').forEach(function (input) {
             if (!allFields && input.closest('.tab-content-section')?.hidden) return;
 
             clearFieldError(input);
-
             const name = input.dataset.name;
             const value = (input.value || '').trim();
             let message = '';
 
-            if (requiredNames.includes(name) && !value) {
-                message = 'This field is required.';
-            }
-
-            if (value && name === 'aadhar_card_no' && !/^\d{12}$/.test(value)) {
-                message = 'Aadhaar must contain exactly 12 digits.';
-            }
-
-            if (value && name === 'phone' &&
-                !/^(?:\+91[\s-]?)?[6-9]\d{9}$/.test(value)) {
-                message = 'Enter a valid 10-digit mobile number, optionally with +91.';
-            }
-
-            if (value && parentPhoneNames.includes(name) && !/^[6-9]\d{9}$/.test(value)) {
-                message = 'Enter a valid 10-digit mobile number.';
-            }
-
-            if (value && name === 'pincode' && !/^\d{6}$/.test(value)) {
-                message = 'Pincode must contain exactly 6 digits.';
-            }
-
-            if (value && name === 'email' &&
-                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                message = 'Enter a valid email address.';
-            }
+            if (requiredNames.includes(name) && !value) message = 'This field is required.';
+            if (value && name === 'aadhar_card_no' && !/^\d{12}$/.test(value)) message = 'Aadhaar must contain exactly 12 digits.';
+            if (value && name === 'phone' && !/^(?:\+91[\s-]?)?[6-9]\d{9}$/.test(value)) message = 'Enter a valid 10-digit mobile number, optionally with +91.';
+            if (value && parentPhoneNames.includes(name) && !/^[6-9]\d{9}$/.test(value)) message = 'Enter a valid 10-digit mobile number.';
+            if (value && name === 'pincode' && !/^\d{6}$/.test(value)) message = 'Pincode must contain exactly 6 digits.';
+            if (value && name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) message = 'Enter a valid email address.';
 
             if (value && ['date_of_birth', 'admission_date'].includes(name)) {
                 const date = new Date(value + 'T00:00:00');
-
-                if (Number.isNaN(date.getTime())) {
-                    message = 'Enter a valid date.';
-                } else if (name === 'date_of_birth' && date > new Date()) {
-                    message = 'Date of birth cannot be in the future.';
-                }
+                if (Number.isNaN(date.getTime())) message = 'Enter a valid date.';
+                else if (name === 'date_of_birth' && date > new Date()) message = 'Date of birth cannot be in the future.';
             }
 
             if (input.type === 'file' && input.files?.[0]) {
                 const file = input.files[0];
-
-                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                    message = 'Choose a JPG, PNG, or WEBP image.';
-                } else if (file.size > 2 * 1024 * 1024) {
-                    message = 'Photo size must not exceed 2 MB.';
-                }
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) message = 'Choose a JPG, PNG, or WEBP image.';
+                else if (file.size > 2 * 1024 * 1024) message = 'Photo size must not exceed 2 MB.';
             }
 
             if (message) {
@@ -1285,10 +1639,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function focusInvalid(panel, input) {
         if (!input) return;
-
         const section = input.closest('.tab-content-section');
         if (section) activateTab(panel, section.dataset.section);
-
         input.focus({ preventScroll: true });
         input.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -1311,12 +1663,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (tabButton) {
             const currentResult = validatePanel(panel, false);
-
             if (!currentResult.valid) {
                 focusInvalid(panel, currentResult.firstInvalid);
                 return;
             }
-
             activateTab(panel, tabButton.dataset.tab);
             activeIndex = index;
             updateSelector();
@@ -1331,7 +1681,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (action === 'next-tab') {
             const result = validatePanel(panel, false);
-
             if (!result.valid) {
                 focusInvalid(panel, result.firstInvalid);
                 return;
@@ -1342,7 +1691,6 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 const panels = getPanels();
                 const position = panels.indexOf(panel);
-
                 if (position < panels.length - 1) {
                     activeIndex = Number(panels[position + 1].dataset.index);
                     showActiveStudent();
@@ -1358,7 +1706,6 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 const panels = getPanels();
                 const position = panels.indexOf(panel);
-
                 if (position > 0) {
                     activeIndex = Number(panels[position - 1].dataset.index);
                     showActiveStudent();
@@ -1371,9 +1718,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('At least one student form is required.');
                 return;
             }
-
             if (!confirm('Remove this student form? Its entered details will be lost.')) return;
-
             panel.remove();
             activeIndex = Number(getPanels()[0].dataset.index);
             showActiveStudent();
@@ -1401,7 +1746,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const panels = getPanels();
-
         if (!panels.length) {
             event.preventDefault();
             alert('Please add at least one student.');
@@ -1409,10 +1753,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         let firstProblem = null;
-
         for (const panel of panels) {
             const result = validatePanel(panel, true);
-
             if (!result.valid && !firstProblem) {
                 firstProblem = { panel, input: result.firstInvalid };
             }
@@ -1429,11 +1771,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         isSubmitting = true;
         saveButton.disabled = true;
-        saveButton.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2"></span>Saving Students...';
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving Students...';
     });
 
-    // Restore old form data after a validation failure.
     if (Array.isArray(oldStudents) && oldStudents.length) {
         oldStudents.slice(0, maxStudents).forEach(function (student) {
             addStudent(student || {}, false);
@@ -1445,29 +1785,20 @@ document.addEventListener('DOMContentLoaded', function () {
     activeIndex = Number(getPanels()[0].dataset.index);
     showActiveStudent();
 
-    // Focus the student and tab associated with the first server validation error.
-    const firstErrorKey = Object.keys(serverErrors || {}).find(
-        key => key.startsWith('students.')
-    );
-
+    const firstErrorKey = Object.keys(serverErrors || {}).find(key => key.startsWith('students.'));
     if (firstErrorKey) {
         const match = firstErrorKey.match(/^students\.(\d+)\.([^.]*)/);
-
         if (match) {
             const index = Number(match[1]);
             const fieldName = match[2];
             const panel = getPanel(index);
-
             if (panel) {
                 activeIndex = index;
                 showActiveStudent();
-
                 const input = field(panel, fieldName);
-
                 if (input) {
                     const section = input.closest('.tab-content-section');
                     if (section) activateTab(panel, section.dataset.section);
-
                     showFieldError(input, serverErrors[firstErrorKey][0]);
                     focusInvalid(panel, input);
                 }

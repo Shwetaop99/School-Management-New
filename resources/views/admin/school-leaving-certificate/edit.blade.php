@@ -1,107 +1,521 @@
 @extends('layouts.app')
 
+@section('title', 'Edit School Leaving Certificate | Admin')
+
 @section('content')
 
-<div class="container-fluid py-4">
+<style>
+    /* =========================================================
+       SCHOOL DIARY DESIGN SYSTEM — EDIT SCHOOL LEAVING CERTIFICATE
+       LOCKED VERSION
+    ========================================================= */
 
-    {{-- =========================================================
-        PAGE HEADER
-    ========================================================== --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    .slc-edit-page {
+        width: 100%;
+        min-height: calc(100vh - 60px);
+        padding-bottom: 40px;
+        background: #f5f3e9;
+        color: #263b35;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+    }
 
-        <div>
-            <h3 class="fw-bold mb-1">
-                <i class="bi bi-pencil-square text-primary me-2"></i>
-                Edit School Leaving Certificate
-            </h3>
+    .slc-edit-page *,
+    .slc-edit-page *::before,
+    .slc-edit-page *::after {
+        box-sizing: border-box;
+    }
 
-            <p class="text-muted mb-0">
-                Update certificate information and student details.
-            </p>
-        </div>
+    /* ---------- PAGE HEADER ---------- */
+    .slc-header {
+        position: relative;
+        overflow: hidden;
+        padding: 23px 25px;
+        margin-bottom: 20px;
+        color: #263b35;
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
+        border-left: 4px solid #34775a;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(38, 59, 53, .05);
+    }
 
-        <div>
-            <a href="{{ route('admin.school-leaving-certificate.show', $certificate) }}"
-               class="btn btn-outline-secondary">
-                <i class="bi bi-eye me-1"></i>
-                View Certificate
-            </a>
+    .slc-header-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
 
-            <a href="{{ route('admin.school-leaving-certificate.index') }}"
-               class="btn btn-outline-dark">
-                <i class="bi bi-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+    .slc-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #7a857d;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .55px;
+    }
 
-    </div>
+    .slc-breadcrumb a {
+        color: #34775a;
+        text-decoration: none;
+        transition: color .2s ease;
+    }
 
+    .slc-breadcrumb a:hover {
+        color: #245a43;
+        text-decoration: underline;
+    }
 
-    {{-- =========================================================
-        VALIDATION ERRORS
-    ========================================================== --}}
-    @if ($errors->any())
+    .slc-breadcrumb i {
+        color: #a87543;
+        font-size: 9px;
+    }
 
-        <div class="alert alert-danger">
-            <div class="fw-bold mb-2">
-                <i class="bi bi-exclamation-triangle me-1"></i>
-                Please correct the following errors:
+    .slc-title-row {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .slc-title-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        color: #34775a;
+        background: linear-gradient(145deg, #eaf3e9, #dce9d9);
+        border: 1px solid #d0e2d0;
+        border-radius: 12px;
+        font-size: 22px;
+        box-shadow: 0 2px 6px rgba(52, 119, 90, .08);
+    }
+
+    .slc-title {
+        margin: 0;
+        color: #263b35;
+        font-size: 22px;
+        font-weight: 750;
+        line-height: 1.25;
+        letter-spacing: -.4px;
+    }
+
+    .slc-subtitle {
+        margin: 5px 0 0;
+        color: #778078;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .slc-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-shrink: 0;
+        flex-wrap: wrap;
+    }
+
+    /* ---------- BUTTONS ---------- */
+    .btn-scheme-back,
+    .btn-scheme-view,
+    .btn-scheme-save,
+    .btn-scheme-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 38px;
+        padding: 0 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all .18s ease;
+    }
+
+    .btn-scheme-back,
+    .btn-scheme-cancel {
+        color: #526057;
+        background: #fffefa;
+        border-color: #dcd8ca;
+    }
+
+    .btn-scheme-back:hover,
+    .btn-scheme-cancel:hover {
+        color: #263b35;
+        background: #f5f3e9;
+        border-color: #c5c0b0;
+    }
+
+    .btn-scheme-view {
+        color: #245a43;
+        background: #eaf3e9;
+        border-color: #c5dcc8;
+    }
+
+    .btn-scheme-view:hover {
+        background: #dce9d9;
+        border-color: #83aa8a;
+    }
+
+    .btn-scheme-save {
+        color: #fffefa;
+        background: linear-gradient(135deg, #34775a, #2d6a50);
+        border-color: #34775a;
+        box-shadow: 0 3px 10px rgba(52, 119, 90, .18);
+        min-height: 40px;
+        padding: 0 18px;
+    }
+
+    .btn-scheme-save:hover {
+        color: #fffefa;
+        background: linear-gradient(135deg, #245a43, #1f4f3a);
+        border-color: #245a43;
+        box-shadow: 0 5px 14px rgba(36, 90, 67, .22);
+        transform: translateY(-1px);
+    }
+
+    /* ---------- ALERTS ---------- */
+    .scheme-alert {
+        margin-bottom: 18px;
+        padding: 14px 16px;
+        border-radius: 9px;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .scheme-alert-danger {
+        background: #fff1ed;
+        border: 1px solid #e8b8b0;
+        border-left: 4px solid #bd5148;
+        color: #8a3a34;
+    }
+
+    .scheme-alert strong {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+        font-weight: 700;
+    }
+
+    .scheme-alert ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    /* ---------- FORM CARDS ---------- */
+    .form-card {
+        background: #fffefa;
+        border: 1px solid #e5e1d3;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(38, 59, 53, .05);
+        margin-bottom: 18px;
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: linear-gradient(180deg, #fffefa 0%, #faf8f0 100%);
+        border-bottom: 1px solid #e9e5d9;
+    }
+
+    .form-card-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        color: #34775a;
+        background: linear-gradient(145deg, #eaf3e9, #dce9d9);
+        border: 1px solid #d0e2d0;
+        border-radius: 10px;
+        font-size: 15px;
+        box-shadow: 0 2px 5px rgba(52, 119, 90, .07);
+    }
+
+    .form-card-header h5 {
+        margin: 0;
+        color: #263b35;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .form-card-body {
+        padding: 20px;
+    }
+
+    /* ---------- FORM FIELDS ---------- */
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #405149;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .required {
+        color: #bd5148;
+    }
+
+    .scheme-form-control,
+    .scheme-form-select,
+    .scheme-form-textarea {
+        display: block;
+        width: 100%;
+        color: #263b35;
+        background: #fffefa;
+        border: 1px solid #e0ddcf;
+        border-radius: 8px;
+        outline: none;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .scheme-form-control,
+    .scheme-form-select {
+        height: 40px;
+        padding: 0 12px;
+    }
+
+    .scheme-form-textarea {
+        min-height: 90px;
+        padding: 10px 12px;
+        resize: vertical;
+        line-height: 1.5;
+    }
+
+    .scheme-form-control::placeholder,
+    .scheme-form-textarea::placeholder {
+        color: #a0a397;
+        font-weight: 400;
+    }
+
+    .scheme-form-control:hover,
+    .scheme-form-select:hover,
+    .scheme-form-textarea:hover {
+        border-color: #c5d1c2;
+    }
+
+    .scheme-form-control:focus,
+    .scheme-form-select:focus,
+    .scheme-form-textarea:focus {
+        border-color: #6e9a7c;
+        box-shadow: 0 0 0 3px rgba(52, 119, 90, .10);
+    }
+
+    .scheme-form-control[readonly] {
+        cursor: default;
+        color: #69766d;
+        background: #f0eee6;
+    }
+
+    .scheme-form-control.is-invalid,
+    .scheme-form-select.is-invalid,
+    .scheme-form-textarea.is-invalid {
+        border-color: #bd5148;
+        background: #fff8f5;
+    }
+
+    .field-error {
+        margin-top: 5px;
+        color: #bd5148;
+        font-size: 10px;
+        line-height: 1.4;
+    }
+
+    .field-hint {
+        margin-top: 5px;
+        color: #7a857d;
+        font-size: 10px;
+    }
+
+    /* ---------- FORM ACTIONS ---------- */
+    .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 8px;
+        padding: 16px 0 8px;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 767.98px) {
+        .slc-header {
+            padding: 18px 16px;
+        }
+
+        .slc-title {
+            font-size: 19px;
+        }
+
+        .slc-title-icon {
+            flex-basis: 42px;
+            width: 42px;
+            height: 42px;
+            font-size: 19px;
+        }
+
+        .slc-header-content {
+            flex-direction: column;
+        }
+
+        .slc-header-actions {
+            width: 100%;
+        }
+
+        .btn-scheme-view,
+        .btn-scheme-back {
+            flex: 1;
+        }
+
+        .form-card-body {
+            padding: 16px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .btn-scheme-cancel,
+        .btn-scheme-save {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .slc-title {
+            font-size: 17px;
+        }
+
+        .slc-subtitle {
+            font-size: 10px;
+        }
+
+        .slc-header-actions {
+            flex-direction: column;
+        }
+
+        .btn-scheme-view,
+        .btn-scheme-back {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .slc-edit-page *,
+        .slc-edit-page *::before,
+        .slc-edit-page *::after {
+            scroll-behavior: auto !important;
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
+        }
+    }
+</style>
+
+<div class="slc-edit-page">
+
+    {{-- ===================== PAGE HEADER ===================== --}}
+    <div class="slc-header">
+        <div class="slc-header-content">
+            <div>
+                <div class="slc-breadcrumb">
+                    <a href="{{ route('admin.school-leaving-certificate.index') }}">School Leaving Certificates</a>
+                    <i class="bi bi-chevron-right"></i>
+                    <a href="{{ route('admin.school-leaving-certificate.show', $certificate) }}">{{ $certificate->certificate_no }}</a>
+                    <i class="bi bi-chevron-right"></i>
+                    <span>Edit</span>
+                </div>
+
+                <div class="slc-title-row">
+                    <div class="slc-title-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <div>
+                        <h1 class="slc-title">Edit School Leaving Certificate</h1>
+                        <p class="slc-subtitle">Update certificate information and student details.</p>
+                    </div>
+                </div>
             </div>
 
-            <ul class="mb-0">
+            <div class="slc-header-actions">
+                <a href="{{ route('admin.school-leaving-certificate.show', $certificate) }}"
+                   class="btn-scheme-view">
+                    <i class="bi bi-eye"></i>
+                    View Certificate
+                </a>
+                <a href="{{ route('admin.school-leaving-certificate.index') }}"
+                   class="btn-scheme-back">
+                    <i class="bi bi-arrow-left"></i>
+                    Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- VALIDATION ERRORS --}}
+    @if ($errors->any())
+        <div class="scheme-alert scheme-alert-danger">
+            <strong>
+                <i class="bi bi-exclamation-triangle"></i>
+                Please correct the following errors:
+            </strong>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
-
     @endif
 
-
-    {{-- =========================================================
-        FORM
-    ========================================================== --}}
+    {{-- ===================== FORM ===================== --}}
     <form method="POST"
           action="{{ route('admin.school-leaving-certificate.update', $certificate) }}">
-
         @csrf
         @method('PUT')
 
-
-        {{-- =====================================================
-            STUDENT INFORMATION
-        ====================================================== --}}
-        <div class="card shadow-sm border-0 mb-4">
-
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-person-vcard text-primary me-2"></i>
-                    Student Information
-                </h5>
+        {{-- STUDENT INFORMATION --}}
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-icon">
+                    <i class="bi bi-person-vcard"></i>
+                </div>
+                <h5>Student Information</h5>
             </div>
 
-            <div class="card-body">
-
+            <div class="form-card-body">
                 <div class="row g-3">
-
-                    {{-- Student --}}
                     <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Select Student <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Select Student <span class="required">*</span>
                         </label>
-
                         <select name="student_id"
                                 id="student_id"
-                                class="form-select @error('student_id') is-invalid @enderror"
+                                class="scheme-form-select @error('student_id') is-invalid @enderror"
                                 required>
-
-                            <option value="">
-                                -- Select Student --
-                            </option>
-
+                            <option value="">-- Select Student --</option>
                             @foreach ($students as $student)
-
                                 @php
                                     $studentName = trim(
                                         ($student->first_name ?? '') . ' ' .
@@ -109,7 +523,6 @@
                                         ($student->last_name ?? '')
                                     );
                                 @endphp
-
                                 <option value="{{ $student->id }}"
                                         data-student-id="{{ $student->student_id ?? '' }}"
                                         data-name="{{ $studentName }}"
@@ -119,197 +532,114 @@
                                         data-dob="{{ $student->date_of_birth ? \Illuminate\Support\Carbon::parse($student->date_of_birth)->format('d-m-Y') : '' }}"
                                         data-gender="{{ $student->gender ?? '' }}"
                                         {{ old('student_id', $certificate->student_id) == $student->id ? 'selected' : '' }}>
-
-                                    {{ $student->student_id ?? 'N/A' }}
-                                    -
-                                    {{ $studentName ?: 'Unnamed Student' }}
-
+                                    {{ $student->student_id ?? 'N/A' }} - {{ $studentName ?: 'Unnamed Student' }}
                                 </option>
-
                             @endforeach
-
                         </select>
-
                         @error('student_id')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Student ID --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Student ID
-                        </label>
-
+                        <label class="form-label">Student ID</label>
                         <input type="text"
                                id="student_code"
-                               class="form-control bg-light"
+                               class="scheme-form-control"
                                value="{{ $certificate->student->student_id ?? '' }}"
                                readonly>
-
                     </div>
 
-
-                    {{-- Student Name --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Student Name
-                        </label>
-
+                        <label class="form-label">Student Name</label>
                         <input type="text"
                                id="student_name"
-                               class="form-control bg-light"
+                               class="scheme-form-control"
                                value="{{ trim(
                                    ($certificate->student->first_name ?? '') . ' ' .
                                    ($certificate->student->middle_name ?? '') . ' ' .
                                    ($certificate->student->last_name ?? '')
                                ) }}"
                                readonly>
-
                     </div>
 
-
-                    {{-- Class --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Class
-                        </label>
-
+                        <label class="form-label">Class</label>
                         <input type="text"
                                id="student_class"
-                               class="form-control bg-light"
+                               class="scheme-form-control"
                                value="{{ $certificate->student->class ?? '' }}"
                                readonly>
-
                     </div>
 
-
-                    {{-- Division --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Division
-                        </label>
-
+                        <label class="form-label">Division</label>
                         <input type="text"
                                id="student_section"
-                               class="form-control bg-light"
+                               class="scheme-form-control"
                                value="{{ $certificate->student->section ?? '' }}"
                                readonly>
-
                     </div>
 
-
-                    {{-- Roll Number --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Roll Number
-                        </label>
-
+                        <label class="form-label">Roll Number</label>
                         <input type="text"
                                id="student_roll"
-                               class="form-control bg-light"
+                               class="scheme-form-control"
                                value="{{ $certificate->student->roll_number ?? '' }}"
                                readonly>
-
                     </div>
 
-
-                    {{-- DOB --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Date of Birth
-                        </label>
-
+                        <label class="form-label">Date of Birth</label>
                         <input type="text"
                                id="student_dob"
-                               class="form-control bg-light"
+                               class="scheme-form-control"
                                value="{{ $certificate->student->date_of_birth
                                    ? \Illuminate\Support\Carbon::parse($certificate->student->date_of_birth)->format('d-m-Y')
                                    : '' }}"
                                readonly>
-
                     </div>
 
-
-                    {{-- Gender --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Gender
-                        </label>
-
+                        <label class="form-label">Gender</label>
                         <input type="text"
                                id="student_gender"
-                               class="form-control bg-light"
+                               class="scheme-form-control"
                                value="{{ $certificate->student->gender ?? '' }}"
                                readonly>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-
-
-        {{-- =====================================================
-            CERTIFICATE INFORMATION
-        ====================================================== --}}
-        <div class="card shadow-sm border-0 mb-4">
-
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-file-earmark-text text-primary me-2"></i>
-                    Certificate Information
-                </h5>
+        {{-- CERTIFICATE INFORMATION --}}
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <h5>Certificate Information</h5>
             </div>
 
-            <div class="card-body">
-
+            <div class="form-card-body">
                 <div class="row g-3">
-
-                    {{-- Certificate Number --}}
                     <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Certificate Number
-                            <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Certificate Number <span class="required">*</span>
                         </label>
-
                         <input type="text"
                                name="certificate_no"
                                value="{{ old('certificate_no', $certificate->certificate_no) }}"
-                               class="form-control @error('certificate_no') is-invalid @enderror"
+                               class="scheme-form-control @error('certificate_no') is-invalid @enderror"
                                required>
-
                         @error('certificate_no')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Issue Date --}}
                     <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Issue Date
-                        </label>
-
+                        <label class="form-label">Issue Date</label>
                         <input type="date"
                                name="issue_date"
                                value="{{ old(
@@ -318,25 +648,16 @@
                                        ? $certificate->issue_date->format('Y-m-d')
                                        : ''
                                ) }}"
-                               class="form-control @error('issue_date') is-invalid @enderror">
-
+                               class="scheme-form-control @error('issue_date') is-invalid @enderror">
                         @error('issue_date')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Leaving Date --}}
                     <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Leaving Date
-                            <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Leaving Date <span class="required">*</span>
                         </label>
-
                         <input type="date"
                                name="leaving_date"
                                value="{{ old(
@@ -345,277 +666,159 @@
                                        ? $certificate->leaving_date->format('Y-m-d')
                                        : ''
                                ) }}"
-                               class="form-control @error('leaving_date') is-invalid @enderror"
+                               class="scheme-form-control @error('leaving_date') is-invalid @enderror"
                                required>
-
-                        <small class="text-muted">
-                            This date is entered manually for the certificate.
-                        </small>
-
+                        <div class="field-hint">This date is entered manually for the certificate.</div>
                         @error('leaving_date')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Leaving Reason --}}
                     <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Leaving Reason
-                        </label>
-
+                        <label class="form-label">Leaving Reason</label>
                         <input type="text"
                                name="leaving_reason"
                                value="{{ old('leaving_reason', $certificate->leaving_reason) }}"
-                               class="form-control @error('leaving_reason') is-invalid @enderror"
+                               class="scheme-form-control @error('leaving_reason') is-invalid @enderror"
                                placeholder="Enter reason for leaving">
-
                         @error('leaving_reason')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Academic Year --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Academic Year
-                        </label>
-
+                        <label class="form-label">Academic Year</label>
                         <input type="text"
                                name="academic_year"
                                value="{{ old('academic_year', $certificate->academic_year) }}"
-                               class="form-control @error('academic_year') is-invalid @enderror"
+                               class="scheme-form-control @error('academic_year') is-invalid @enderror"
                                placeholder="2026-2027">
-
                         @error('academic_year')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Status --}}
                     <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Status
-                            <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Status <span class="required">*</span>
                         </label>
-
                         <select name="status"
-                                class="form-select @error('status') is-invalid @enderror"
+                                class="scheme-form-select @error('status') is-invalid @enderror"
                                 required>
-
                             <option value="draft"
                                 {{ old('status', $certificate->status) === 'draft' ? 'selected' : '' }}>
                                 Draft
                             </option>
-
                             <option value="issued"
                                 {{ old('status', $certificate->status) === 'issued' ? 'selected' : '' }}>
                                 Issued
                             </option>
-
                             <option value="cancelled"
                                 {{ old('status', $certificate->status) === 'cancelled' ? 'selected' : '' }}>
                                 Cancelled
                             </option>
-
                         </select>
-
                         @error('status')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-
-
-        {{-- =====================================================
-            ACADEMIC / CONDUCT INFORMATION
-        ====================================================== --}}
-        <div class="card shadow-sm border-0 mb-4">
-
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-mortarboard-fill text-primary me-2"></i>
-                    Academic & Conduct Information
-                </h5>
+        {{-- ACADEMIC / CONDUCT INFORMATION --}}
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <h5>Academic & Conduct Information</h5>
             </div>
 
-            <div class="card-body">
-
+            <div class="form-card-body">
                 <div class="row g-3">
-
-                    {{-- Last Class --}}
                     <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Last Class
-                        </label>
-
+                        <label class="form-label">Last Class</label>
                         <input type="text"
                                name="last_class"
                                id="last_class"
                                value="{{ old('last_class', $certificate->last_class) }}"
-                               class="form-control @error('last_class') is-invalid @enderror">
-
+                               class="scheme-form-control @error('last_class') is-invalid @enderror">
                         @error('last_class')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Last Division --}}
                     <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Last Division
-                        </label>
-
+                        <label class="form-label">Last Division</label>
                         <input type="text"
                                name="last_division"
                                id="last_division"
                                value="{{ old('last_division', $certificate->last_division) }}"
-                               class="form-control @error('last_division') is-invalid @enderror">
-
+                               class="scheme-form-control @error('last_division') is-invalid @enderror">
                         @error('last_division')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Conduct --}}
                     <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Conduct
-                        </label>
-
+                        <label class="form-label">Conduct</label>
                         <input type="text"
                                name="conduct"
                                value="{{ old('conduct', $certificate->conduct) }}"
-                               class="form-control @error('conduct') is-invalid @enderror"
+                               class="scheme-form-control @error('conduct') is-invalid @enderror"
                                placeholder="Good">
-
                         @error('conduct')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Progress --}}
                     <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Progress
-                        </label>
-
+                        <label class="form-label">Progress</label>
                         <input type="text"
                                name="progress"
                                value="{{ old('progress', $certificate->progress) }}"
-                               class="form-control @error('progress') is-invalid @enderror"
+                               class="scheme-form-control @error('progress') is-invalid @enderror"
                                placeholder="Satisfactory">
-
                         @error('progress')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
 
-
-                    {{-- Remarks --}}
                     <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Remarks
-                        </label>
-
+                        <label class="form-label">Remarks</label>
                         <textarea name="remarks"
                                   rows="3"
-                                  class="form-control @error('remarks') is-invalid @enderror"
+                                  class="scheme-form-textarea @error('remarks') is-invalid @enderror"
                                   placeholder="Enter any additional remarks">{{ old('remarks', $certificate->remarks) }}</textarea>
-
                         @error('remarks')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-
-
-        {{-- =====================================================
-            ACTION BUTTONS
-        ====================================================== --}}
-        <div class="d-flex justify-content-end gap-2 mb-4">
-
+        {{-- ACTION BUTTONS --}}
+        <div class="form-actions">
             <a href="{{ route('admin.school-leaving-certificate.show', $certificate) }}"
-               class="btn btn-outline-secondary px-4">
-                <i class="bi bi-x-circle me-1"></i>
+               class="btn-scheme-cancel">
+                <i class="bi bi-x-circle"></i>
                 Cancel
             </a>
-
-            <button type="submit"
-                    class="btn btn-primary px-4">
-                <i class="bi bi-check-circle me-1"></i>
+            <button type="submit" class="btn-scheme-save">
+                <i class="bi bi-check-circle"></i>
                 Update Certificate
             </button>
-
         </div>
 
     </form>
 
 </div>
 
-
-
-{{-- =============================================================
-    STUDENT AUTO-FILL SCRIPT
-============================================================= --}}
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
     const studentSelect = document.getElementById('student_id');
-
     const studentCode = document.getElementById('student_code');
     const studentName = document.getElementById('student_name');
     const studentClass = document.getElementById('student_class');
@@ -623,18 +826,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const studentRoll = document.getElementById('student_roll');
     const studentDob = document.getElementById('student_dob');
     const studentGender = document.getElementById('student_gender');
-
     const lastClass = document.getElementById('last_class');
     const lastDivision = document.getElementById('last_division');
 
-
     function updateStudentDetails() {
-
-        const selectedOption =
-            studentSelect.options[studentSelect.selectedIndex];
+        const selectedOption = studentSelect.options[studentSelect.selectedIndex];
 
         if (!selectedOption || !selectedOption.value) {
-
             studentCode.value = '';
             studentName.value = '';
             studentClass.value = '';
@@ -642,52 +840,23 @@ document.addEventListener('DOMContentLoaded', function () {
             studentRoll.value = '';
             studentDob.value = '';
             studentGender.value = '';
-
             return;
         }
 
+        studentCode.value = selectedOption.dataset.studentId || '';
+        studentName.value = selectedOption.dataset.name || '';
+        studentClass.value = selectedOption.dataset.class || '';
+        studentSection.value = selectedOption.dataset.section || '';
+        studentRoll.value = selectedOption.dataset.roll || '';
+        studentDob.value = selectedOption.dataset.dob || '';
+        studentGender.value = selectedOption.dataset.gender || '';
 
-        studentCode.value =
-            selectedOption.dataset.studentId || '';
-
-        studentName.value =
-            selectedOption.dataset.name || '';
-
-        studentClass.value =
-            selectedOption.dataset.class || '';
-
-        studentSection.value =
-            selectedOption.dataset.section || '';
-
-        studentRoll.value =
-            selectedOption.dataset.roll || '';
-
-        studentDob.value =
-            selectedOption.dataset.dob || '';
-
-        studentGender.value =
-            selectedOption.dataset.gender || '';
-
-
-        /*
-         * Automatically update academic information
-         * when another student is selected.
-         */
-        lastClass.value =
-            selectedOption.dataset.class || '';
-
-        lastDivision.value =
-            selectedOption.dataset.section || '';
+        lastClass.value = selectedOption.dataset.class || '';
+        lastDivision.value = selectedOption.dataset.section || '';
     }
 
-
-    studentSelect.addEventListener(
-        'change',
-        updateStudentDetails
-    );
-
+    studentSelect.addEventListener('change', updateStudentDetails);
 });
-
 </script>
 
 @endsection
