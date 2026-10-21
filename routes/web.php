@@ -148,6 +148,7 @@ use App\Http\Controllers\Admin\SportsReportController;
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Admin\BackupController;
 
+
 /*
 
 \|--------------------------------------------------------------------------
@@ -3677,217 +3678,109 @@ Route::resource('subjects', SubjectController::class)->names('subjects');
 
 
 /*
-
-\|--------------------------------------------------------------------------
-
-\| MEAL MANAGEMENT
-
-\|--------------------------------------------------------------------------
-
+|--------------------------------------------------------------------------
+| MEAL ITEMS AND STOCK
+|--------------------------------------------------------------------------
 */
 
-
-
-Route::prefix('admin/meal/items')
-
-    ->name('admin.meal.items.')
-
+Route::prefix('meal/items')
+    ->name('meal.items.')
     ->group(function () {
 
-
-
         Route::get('/', [
-
             MealItemController::class,
-
             'index'
-
         ])->name('index');
 
-
-
         Route::get('/create', [
-
             MealItemController::class,
-
             'create'
-
         ])->name('create');
 
-
-
         Route::post('/', [
-
             MealItemController::class,
-
             'store'
-
         ])->name('store');
 
-
-
         Route::get('/{mealItem}/edit', [
-
             MealItemController::class,
-
             'edit'
-
         ])->name('edit');
 
-
-
         Route::put('/{mealItem}', [
-
             MealItemController::class,
-
-     'update'
-
+            'update'
         ])->name('update');
 
-
-
         Route::delete('/{mealItem}', [
-
             MealItemController::class,
-
             'destroy'
-
         ])->name('destroy');
 
-
-
-        /*
-
-        |--------------------------------------------------------------------------
-
-        | MEAL STOCK
-
-        |--------------------------------------------------------------------------
-
-        */
-
-
-
+        // Meal Stock
         Route::get('/stock', [
-
             MealStockTransactionController::class,
-
             'index'
-
         ])->name('stock.index');
 
-
-
         Route::get('/stock/create', [
-
             MealStockTransactionController::class,
-
             'create'
-
         ])->name('stock.create');
 
-
-
         Route::post('/stock', [
-
             MealStockTransactionController::class,
-
             'store'
-
         ])->name('stock.store');
-
     });
 
 
-
-
-
 /*
-
-\|--------------------------------------------------------------------------
-
-\| MEAL MANAGEMENT MAIN MENU
-
-\|--------------------------------------------------------------------------
-
+|--------------------------------------------------------------------------
+| MEAL MANAGEMENT MAIN MENU
+|--------------------------------------------------------------------------
 */
 
-
-
-Route::get('/admin/meals', function () {
-
+Route::get('/meals', function () {
     return redirect()->route('admin.meal.items.index');
-
-})->name('admin.meals.index');
-
-
-
+})->name('meals.index');
 
 
 /*
-
-\|--------------------------------------------------------------------------
-
-\| MEAL STOCK LOGS
-
-\|--------------------------------------------------------------------------
-
+|--------------------------------------------------------------------------
+| MEAL STOCK LOGS
+|--------------------------------------------------------------------------
 */
 
-
-
-Route::prefix('admin/meal/logs')
-
-    ->name('admin.meal.logs.')
-
+Route::prefix('meal/logs')
+    ->name('meal.logs.')
     ->group(function () {
 
-        // Logs Index
         Route::get('/', [
-
             MealStockLogController::class,
-
             'index'
-
         ])->name('index');
 
-        // PDF Test
         Route::get('/meal-pdf-test', function () {
-
             return 'MEAL PDF TEST WORKS';
-
         })->name('test-pdf');
 
-        // Download Meal Logs PDF
         Route::get('/download-pdf', [
-
             MealStockLogController::class,
-
             'downloadPdf'
-
         ])->name('pdf');
 
-        // Download Meal Logs Excel
         Route::get('/excel', [
-
             MealStockLogController::class,
-
             'downloadExcel'
-
         ])->name('excel');
 
-        // View Log Details — keep this last
         Route::get('/{mealStockLog}', [
-
             MealStockLogController::class,
-
             'show'
-
         ])->name('show');
     });
 
-
-    });
 
 
 
@@ -3898,4 +3791,4 @@ Route::prefix('admin/meal/logs')
 })->name('fees.index');   
 
  });
-
+    });

@@ -479,7 +479,7 @@
                                                 </a>
                                             @endif
  
-                                            <a href="{{ route('admin.meal.items.create') }}"
+                                            <a href="{{ route('admin.meal.items.create') }}">
                                                class="diary-primary-btn">
                                                 <i class="fas fa-plus"></i>
                                                 Add Meal Item

@@ -480,45 +480,25 @@
 
 
 
-            [
-
-                'l' => 'Faculty (Teacher)',
-
-                'i' => 'fa-chalkboard-user',
-
-                'a' => [
-
-                    'admin.faculty.*',
-
-                    'admin.teachers.index',
-
-                    'admin.teachers.create',
-
-                    'admin.teachers.show',
-
-                    'admin.teachers.edit',
-
-                    'admin.teachers.assign-class.*',
-
-                    'admin.leave-applications.*',
-
-                ],
-
-                'c' => [
-
-                    ['All Faculty', 'admin.faculty.index'],
-
-                    ['Teacher Allocation', 'admin.teachers.assign-class.index'],
-
-                    ['Leave Applications', 'admin.leave-applications.index'],
-
-                ],
-
-                'p' => ['faculty.view', 'faculty.create', 'faculty.edit', 'faculty.delete'],
-
-            ],
-
-
+         [
+    'l' => 'Faculty (Teacher)',
+    'i' => 'fa-chalkboard-user',
+    'a' => [
+        'admin.teachers.*',
+        'admin.leave-applications.*',
+    ],
+    'c' => [
+        ['All Faculty', 'admin.teachers.index'],
+        ['Teacher Allocation', 'admin.teachers.assign-class.index'],
+        ['Leave Applications', 'admin.leave-applications.index'],
+    ],
+    'p' => [
+        'faculty.view',
+        'faculty.create',
+        'faculty.edit',
+        'faculty.delete',
+    ],
+],
 
             [
 
@@ -750,32 +730,19 @@
 
             ],
 
-
-
-            [
-
-                'l' => 'Meal Management',
-
-                'i' => 'fa-utensils',
-
-                'a' => [
-
-                    'admin.meal.*',
-
-                    'admin.meals.*',
-
-                ],
-
-                'c' => [
-
-                    ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
-
-                    ['Logs', 'admin.meal.logs.index'],
-
-                ],
-
-            ],
-
+[
+    'l' => 'Meal Management',
+    'i' => 'fa-utensils',
+    'a' => [
+        'admin.meal.*',
+        'admin.meals.*',
+    ],
+    'c' => [
+        ['Meal Items', 'admin.meal.items.index'],
+        ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
+        ['Logs', 'admin.meal.logs.index'],
+    ],
+],
 
 
             [
