@@ -4,25 +4,35 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Backup & Recovery</h2>
-            <p class="text-muted mb-0">Manage your school database backups.</p>
-        </div>
+    
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Backup &amp; Recovery</h2>
+        <p class="text-muted mb-0">
+            Manage your school database backups.
+        </p>
+    </div>
 
-        <form action="{{ route('backup.create') }}" method="POST"
+    <div class="d-flex flex-wrap gap-2">
+        <form action="{{ route('admin.backup.create') }}"
+              method="POST"
               onsubmit="return confirm('Create a new backup?');">
             @csrf
-            <button class="btn btn-success" type="submit">
-                <i class="fa-solid fa-database me-2"></i>Create Backup
-            </button>
 
-            <a href="{{ route('backup.restore') }}"
-   class="btn btn-outline-warning">
-    <i class="fa-solid fa-rotate-left me-2"></i>Restore Backup
-</a>
+            <button class="btn btn-success" type="submit">
+                <i class="fa-solid fa-database me-2"></i>
+                Create Backup
+            </button>
         </form>
+
+        <a href="{{ route('admin.backup.restore') }}"
+           class="btn btn-outline-warning">
+            <i class="fa-solid fa-rotate-left me-2"></i>
+            Restore Backup
+        </a>
     </div>
+</div>
+
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -70,13 +80,13 @@
                                    
 <td class="text-end">
     {{-- Download Backup --}}
-    <a href="{{ route('backup.download', ['backup' => $backup['name']]) }}"
+    <a href="{{ route('admin.backup.download', ['backup' => $backup['name']]) }}"
        class="btn btn-sm btn-outline-primary mb-1">
         <i class="fa-solid fa-download"></i> Download
     </a>
 
     {{-- Delete Backup --}}
-    <form action="{{ route('backup.destroy', ['backup' => $backup['name']]) }}"
+    <form action="{{ route('admin.backup.destroy', ['backup' => $backup['name']]) }}"
           method="POST"
           class="d-inline"
           onsubmit="return confirm('Permanently delete this backup?');">

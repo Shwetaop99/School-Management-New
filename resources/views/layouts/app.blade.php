@@ -846,16 +846,11 @@
                 ],
 
                 'c' => [
-
-                    ['School Profile', 'admin.settings.index'],
-
-                    ['User Roles & Permission', 'admin.settings.roles.index'],
-
-                    ['Security', 'admin.2fa.security'],
-
-                    ['Backup & Recovery', 'backup.index'],
-
-                ],
+    ['School Profile', 'admin.settings.index'],
+    ['User Roles & Permission', 'admin.settings.roles.index'],
+    ['Security', 'admin.2fa.security'],
+    ['Backup & Recovery', 'admin.backup.index'],
+],
 
             ],
 

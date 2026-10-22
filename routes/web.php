@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 
 
@@ -289,54 +289,32 @@ Route::prefix('admin')
             'login'
 
         ])->name('login.submit');
-
     
-/*
-|--------------------------------------------------------------------------
-| BACKUP & RECOVERY
-|--------------------------------------------------------------------------
-*/
 
-/*
-Route::get('/backup', [
-    BackupController::class,
-    'index'
-])->name('backup.index');
+// Backup & Recovery
+Route::get('/backup', [BackupController::class, 'index'])
+    ->name('backup.index');
 
-Route::post('/backup/create', [
-    BackupController::class,
-    'create'
-])->name('backup.create');
+Route::post('/backup/create', [BackupController::class, 'create'])
+    ->name('backup.create');
 
-Route::get('/backup/download/{backup}', [
-    BackupController::class,
-    'download'
-])->name('backup.download');
+Route::get('/backup/download/{backup}', [BackupController::class, 'download'])
+    ->name('backup.download');
 
-Route::delete('/backup/{backup}', [
-    BackupController::class,
-    'destroy'
-])->name('backup.destroy');
-*/
+Route::delete('/backup/{backup}', [BackupController::class, 'destroy'])
+    ->name('backup.destroy');
 
+Route::post('/backup/{backup}/validate', [BackupController::class, 'validateBackup'])
+    ->name('backup.validate');
 
+Route::get('/backup/restore', [BackupController::class, 'showRestore'])
+    ->name('backup.restore');
 
+Route::post('/backup/restore/upload', [BackupController::class, 'uploadRestore'])
+    ->name('backup.restore.upload');
 
-Route::post('/backup/{backup}/validate', [
-    BackupController::class,
-    'validateBackup',
-])->name('backup.validate');
-
-Route::get('/backup/restore', [
-    BackupController::class,
-    'showRestore',
-])->name('backup.restore');
-
-Route::post('/backup/restore/upload', [
-    BackupController::class,
-    'uploadRestore',
-])->name('backup.restore.upload');
-
+    Route::post('/backup/restore/{backup}', [BackupController::class, 'restoreBackup'])
+    ->name('backup.restore.apply');
 
 
         /*
