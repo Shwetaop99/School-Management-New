@@ -5,1576 +5,1885 @@
 
 @section('content')
 
-<div class="container-fluid py-4">
+<div class="subjects-page">
 
-    {{-- =========================================================
-         PAGE HEADER
-    ========================================================== --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    {{-- PAGE HEADER --}}
+    <div class="subjects-header">
+        <div class="subjects-header-main">
+            <a href="{{ route('admin.exams.show', $exam) }}"
+               class="subjects-back-icon"
+               title="Back to Exam"
+               aria-label="Back to Exam">
+                <i class="bi bi-arrow-left"></i>
+            </a>
 
-        <div>
+            <div class="subjects-page-icon">
+                <i class="bi bi-bookmarks"></i>
+            </div>
 
-            <div class="d-flex align-items-center gap-2 mb-2">
-
-                <a href="{{ route('admin.exams.show', $exam) }}"
-                   class="back-link"
-                   title="Back to Exam">
-
-                    <i class="bi bi-arrow-left"></i>
-
-                </a>
-
-                <span class="page-icon">
-                    <i class="bi bi-bookmarks"></i>
-                </span>
-
-                <div>
-                    <h4 class="mb-0 fw-bold">
-                        Subjects & Marks
-                    </h4>
-
-                    <div class="text-muted small mt-1">
-                        Configure subjects, marks and duration for this examination.
-                    </div>
+            <div class="subjects-heading-content">
+                <div class="subjects-title-line">
+                    <h1>Subjects &amp; Marks</h1>
+                    <span class="subjects-title-badge">
+                        Exam Setup
+                    </span>
                 </div>
 
+                
             </div>
-
-            <div class="exam-breadcrumb">
-
-                <i class="bi bi-journal-text me-1"></i>
-
-                {{ $exam->exam_name }}
-
-                <span class="mx-2">•</span>
-
-                {{ $exam->academic_year }}
-
-                @if(!empty($exam->exam_type))
-
-                    <span class="mx-2">•</span>
-
-                    {{ $exam->exam_type }}
-
-                @endif
-
-            </div>
-
         </div>
 
-
         <a href="{{ route('admin.exams.show', $exam) }}"
-           class="btn btn-outline-secondary px-3">
-
-            <i class="bi bi-arrow-left me-1"></i>
+           class="subjects-secondary-btn">
+            <i class="bi bi-arrow-left"></i>
             Back to Exam
-
         </a>
-
     </div>
 
+    {{-- BREADCRUMB --}}
+    <div class="subjects-breadcrumb">
+        <i class="bi bi-journal-text"></i>
+        <span>{{ $exam->exam_name }}</span>
 
-    {{-- =========================================================
-         SUCCESS MESSAGE
-    ========================================================== --}}
+        <span class="subjects-breadcrumb-dot">/</span>
+
+        <span>{{ $exam->academic_year }}</span>
+
+        @if(!empty($exam->exam_type))
+            <span class="subjects-breadcrumb-dot">/</span>
+            <span>{{ $exam->exam_type }}</span>
+        @endif
+    </div>
+
+    {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
-
-        <div class="custom-alert success-alert mb-4">
-
-            <div class="alert-icon success-icon">
-                <i class="bi bi-check-lg"></i>
+        <div class="subjects-alert subjects-alert-success" role="alert">
+            <div class="subjects-alert-icon">
+                <i class="bi bi-check-circle-fill"></i>
             </div>
 
-            <div class="flex-grow-1">
-
-                <div class="fw-semibold">
-                    Configuration Saved
-                </div>
-
-                <div class="small mt-1">
-                    {{ session('success') }}
-                </div>
-
+            <div class="subjects-alert-content">
+                <strong>Configuration Saved</strong>
+                <p>{{ session('success') }}</p>
             </div>
 
             <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
+                    class="subjects-alert-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+                <i class="bi bi-x-lg"></i>
             </button>
-
         </div>
-
     @endif
 
-
-    {{-- =========================================================
-         ERROR MESSAGE
-    ========================================================== --}}
+    {{-- VALIDATION ERRORS --}}
     @if($errors->any())
-
-        <div class="custom-alert danger-alert mb-4">
-
-            <div class="alert-icon danger-icon">
+        <div class="subjects-alert subjects-alert-danger" role="alert">
+            <div class="subjects-alert-icon">
                 <i class="bi bi-exclamation-triangle-fill"></i>
             </div>
 
-            <div>
+            <div class="subjects-alert-content">
+                <strong>Please correct the following errors</strong>
 
-                <div class="fw-semibold mb-1">
-                    Please correct the following errors
-                </div>
-
-                <ul class="mb-0 ps-3 small">
-
+                <ul>
                     @foreach($errors->all() as $error)
-
                         <li>{{ $error }}</li>
-
                     @endforeach
-
                 </ul>
-
             </div>
-
         </div>
-
     @endif
 
-
-    {{-- =========================================================
-         INFORMATION CARD
-    ========================================================== --}}
-    <div class="information-card mb-4">
-
-        <div class="information-icon">
+    {{-- INFORMATION CARD --}}
+    <div class="subjects-information-card">
+        <div class="subjects-information-icon">
             <i class="bi bi-info-circle-fill"></i>
         </div>
 
-        <div class="flex-grow-1">
+        <div>
+            <h3>Subjects are managed from the Classes module</h3>
 
-            <div class="fw-semibold mb-1">
-                Subjects are managed from the Classes module
-            </div>
-
-            <div class="small text-muted">
-
-                Subjects shown below are fetched automatically from
-                Class Management. You only need to configure which
-                subjects are included in this exam and set their
-                maximum marks, passing marks and duration.
-
-            </div>
-
+            <p>
+                Subjects shown below are fetched automatically from Class
+                Management. Configure which subjects are included in this
+                examination and set their maximum marks, passing marks and duration.
+            </p>
         </div>
-
     </div>
 
-
-    {{-- =========================================================
-         NO CLASSES
-    ========================================================== --}}
+    {{-- NO CLASSES SELECTED --}}
     @if($examClasses->isEmpty())
 
-        <div class="card border-0 shadow-sm empty-card">
-
-            <div class="card-body text-center py-5">
-
-                <div class="empty-icon">
-                    <i class="bi bi-mortarboard"></i>
-                </div>
-
-                <h5 class="fw-bold mt-3 mb-2">
-                    No Classes Selected
-                </h5>
-
-                <p class="text-muted mb-4">
-                    Select at least one class before configuring
-                    subjects and marks for this examination.
-                </p>
-
-                <a href="{{ route('admin.exam-classes.index', $exam) }}"
-                   class="btn btn-primary px-4">
-
-                    <i class="bi bi-mortarboard me-1"></i>
-                    Select Classes
-
-                </a>
-
+        <section class="subjects-empty-card">
+            <div class="subjects-empty-icon">
+                <i class="bi bi-mortarboard"></i>
             </div>
 
-        </div>
+            <h2>No Classes Selected</h2>
+
+            <p>
+                Select at least one class before configuring subjects and marks
+                for this examination.
+            </p>
+
+            <a href="{{ route('admin.exam-classes.index', $exam) }}"
+               class="subjects-primary-btn">
+                <i class="bi bi-mortarboard"></i>
+                Select Classes
+            </a>
+        </section>
 
     @else
 
-
-        {{-- =====================================================
-             QUICK SUMMARY
-        ====================================================== --}}
+        {{-- SUMMARY CALCULATION --}}
         @php
-
             $totalClasses = $examClasses->count();
-
             $totalAvailableSubjects = 0;
 
             foreach ($examClasses as $summaryExamClass) {
-
                 if ($summaryExamClass->schoolClass) {
-
                     $totalAvailableSubjects +=
                         ($summaryExamClass->schoolClass->subjects ?? collect())->count();
-
                 }
-
             }
-
         @endphp
 
+        {{-- SUMMARY CARDS --}}
+        <div class="subjects-summary-grid">
 
-        <div class="row g-3 mb-4">
+            <div class="subjects-summary-card">
+                <div class="subjects-summary-top forest"></div>
 
-            {{-- Classes --}}
-            <div class="col-xl-4 col-md-6">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon blue">
-                        <i class="bi bi-mortarboard"></i>
-                    </div>
-
-                    <div>
-
-                        <div class="summary-label">
-                            Selected Classes
-                        </div>
-
-                        <div class="summary-value">
-                            {{ $totalClasses }}
-                        </div>
-
-                        <div class="summary-text">
-                            Classes included in this exam
-                        </div>
-
-                    </div>
-
+                <div class="subjects-summary-icon forest">
+                    <i class="bi bi-mortarboard"></i>
                 </div>
 
+                <div class="subjects-summary-content">
+                    <span class="subjects-summary-label">Selected Classes</span>
+                    <strong>{{ $totalClasses }}</strong>
+                    <span class="subjects-summary-note">
+                        Classes included in this exam
+                    </span>
+                </div>
             </div>
 
+            <div class="subjects-summary-card">
+                <div class="subjects-summary-top blue"></div>
 
-            {{-- Subjects --}}
-            <div class="col-xl-4 col-md-6">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon purple">
-                        <i class="bi bi-book"></i>
-                    </div>
-
-                    <div>
-
-                        <div class="summary-label">
-                            Available Subjects
-                        </div>
-
-                        <div class="summary-value">
-                            {{ $totalAvailableSubjects }}
-                        </div>
-
-                        <div class="summary-text">
-                            Subjects fetched from Classes
-                        </div>
-
-                    </div>
-
+                <div class="subjects-summary-icon blue">
+                    <i class="bi bi-book"></i>
                 </div>
 
+                <div class="subjects-summary-content">
+                    <span class="subjects-summary-label">Available Subjects</span>
+                    <strong>{{ $totalAvailableSubjects }}</strong>
+                    <span class="subjects-summary-note">
+                        Subjects fetched from Classes
+                    </span>
+                </div>
             </div>
 
+            <div class="subjects-summary-card">
+                <div class="subjects-summary-top amber"></div>
 
-            {{-- Configuration --}}
-            <div class="col-xl-4 col-md-6">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon green">
-                        <i class="bi bi-sliders"></i>
-                    </div>
-
-                    <div>
-
-                        <div class="summary-label">
-                            Configuration
-                        </div>
-
-                        <div class="summary-value">
-                            Exam
-                        </div>
-
-                        <div class="summary-text">
-                            Marks & duration are exam-specific
-                        </div>
-
-                    </div>
-
+                <div class="subjects-summary-icon amber">
+                    <i class="bi bi-sliders"></i>
                 </div>
 
+                <div class="subjects-summary-content">
+                    <span class="subjects-summary-label">Configuration</span>
+                    <strong class="subjects-summary-word">Exam</strong>
+                    <span class="subjects-summary-note">
+                        Marks and duration are exam-specific
+                    </span>
+                </div>
             </div>
 
         </div>
 
-
-        {{-- =====================================================
-             FORM
-        ====================================================== --}}
+        {{-- MAIN FORM --}}
         <form method="POST"
               action="{{ route('admin.exam-subjects.store', $exam) }}"
               id="examSubjectsForm">
 
             @csrf
 
-
-            {{-- =================================================
-                 EACH CLASS
-            ================================================== --}}
+            {{-- CLASS-WISE SUBJECTS --}}
             @foreach($examClasses as $examClass)
 
                 @php
-
                     $class = $examClass->schoolClass;
-
                     $classSubjects = $class?->subjects ?? collect();
-
                     $activeSubjectCount = $classSubjects->count();
-
                 @endphp
-
 
                 @if($class)
 
-                    <div class="class-card mb-4">
+                    <section class="subjects-class-card">
 
-                        {{-- =========================================
-                             CLASS HEADER
-                        ========================================== --}}
-                        <div class="class-header">
+                        {{-- CLASS HEADER --}}
+                        <div class="subjects-class-header">
 
-                            <div class="d-flex align-items-center gap-3">
-
-                                <div class="class-icon">
+                            <div class="subjects-class-heading">
+                                <div class="subjects-class-icon">
                                     <i class="bi bi-mortarboard-fill"></i>
                                 </div>
 
                                 <div>
+                                    <div class="subjects-class-title-line">
+                                        <h2>{{ $class->class_name }}</h2>
 
-                                    <div class="d-flex flex-wrap align-items-center gap-2">
-
-                                        <h5 class="fw-bold mb-0">
-
-                                            {{ $class->class_name }}
-
-                                            @if($class->section)
-
-                                                <span class="section-label">
-                                                    Section {{ $class->section }}
-                                                </span>
-
-                                            @endif
-
-                                        </h5>
-
+                                        @if($class->section)
+                                            <span class="subjects-section-badge">
+                                                Section {{ $class->section }}
+                                            </span>
+                                        @endif
                                     </div>
 
-                                    <div class="text-muted small mt-1">
-
-                                        <i class="bi bi-book me-1"></i>
+                                    <p>
+                                        <i class="bi bi-book"></i>
 
                                         {{ $activeSubjectCount }}
-
                                         {{ Str::plural('subject', $activeSubjectCount) }}
                                         available
-
-                                    </div>
-
+                                    </p>
                                 </div>
-
                             </div>
 
-
                             @if($classSubjects->isNotEmpty())
-
                                 <button type="button"
-                                        class="btn btn-sm btn-outline-primary select-all-class"
-                                        data-class-id="{{ $class->id }}">
-
-                                    <i class="bi bi-check2-all me-1"></i>
-                                    Select All
-
+                                        class="subjects-select-all-btn"
+                                        data-class-id="{{ $class->id }}"
+                                        aria-pressed="false">
+                                    <i class="bi bi-check2-all"></i>
+                                    <span>Select All</span>
                                 </button>
-
                             @endif
 
                         </div>
 
-
-                        {{-- =========================================
-                             SUBJECTS
-                        ========================================== --}}
-                        <div class="class-body">
+                        {{-- SUBJECT TABLE OR EMPTY STATE --}}
+                        <div class="subjects-class-body">
 
                             @if($classSubjects->isEmpty())
 
-                                <div class="class-empty">
-
-                                    <div class="class-empty-icon">
+                                <div class="subjects-class-empty">
+                                    <div class="subjects-class-empty-icon">
                                         <i class="bi bi-book"></i>
                                     </div>
 
                                     <div>
-
-                                        <div class="fw-semibold">
-                                            No Active Subjects
-                                        </div>
-
-                                        <div class="small text-muted mt-1">
+                                        <strong>No Active Subjects</strong>
+                                        <p>
                                             No active subjects are currently
                                             available for this class.
-                                        </div>
-
+                                        </p>
                                     </div>
-
                                 </div>
 
                             @else
 
-                                <div class="table-responsive">
-
-                                    <table class="table subject-table align-middle mb-0">
-
+                                <div class="subjects-table-wrap">
+                                    <table class="subjects-table">
                                         <thead>
-
                                             <tr>
-
-                                                <th class="ps-4 include-column">
+                                                <th class="subjects-include-column">
                                                     Include
                                                 </th>
-
-                                                <th>
-                                                    Subject
-                                                </th>
-
-                                                <th>
-                                                    Code
-                                                </th>
-
-                                                <th class="marks-column">
-                                                    Maximum Marks
-                                                </th>
-
-                                                <th class="marks-column">
-                                                    Passing Marks
-                                                </th>
-
-                                                <th class="duration-column">
-                                                    Duration
-                                                </th>
-
+                                                <th>Subject</th>
+                                                <th>Code</th>
+                                                <th>Maximum Marks</th>
+                                                <th>Passing Marks</th>
+                                                <th>Duration</th>
                                             </tr>
-
                                         </thead>
 
-
                                         <tbody>
-
                                             @foreach($classSubjects as $subject)
 
                                                 @php
+                                                    $key = $class->id . '_' . $subject->id;
+                                                    $existing = $examSubjects[$key] ?? null;
 
-                                                    $key =
-                                                        $class->id . '_' . $subject->id;
-
-                                                    $existing =
-                                                        $examSubjects[$key] ?? null;
-
+                                                    $statusValue = old(
+                                                        'subjects.' . $key . '.status',
+                                                        $existing ? (int) $existing->status : 1
+                                                    );
                                                 @endphp
-
 
                                                 <tr class="subject-row">
 
-
-                                                    {{-- =================================
-                                                         INCLUDE
-                                                    ================================== --}}
-                                                    <td class="ps-4">
-
+                                                    {{-- INCLUDE SUBJECT --}}
+                                                    <td>
                                                         <input
                                                             type="hidden"
-                                                            name="subjects[{{ $class->id }}_{{ $subject->id }}][class_id]"
+                                                            name="subjects[{{ $key }}][class_id]"
                                                             value="{{ $class->id }}">
 
                                                         <input
                                                             type="hidden"
-                                                            name="subjects[{{ $class->id }}_{{ $subject->id }}][subject_id]"
+                                                            name="subjects[{{ $key }}][subject_id]"
                                                             value="{{ $subject->id }}">
 
                                                         <input
                                                             type="hidden"
-                                                            name="subjects[{{ $class->id }}_{{ $subject->id }}][status]"
+                                                            name="subjects[{{ $key }}][status]"
                                                             value="0">
 
-
-                                                        <div class="form-check subject-check">
-
+                                                        <label class="subjects-checkbox-wrap">
                                                             <input
-                                                                class="form-check-input subject-checkbox"
+                                                                class="subject-checkbox"
                                                                 type="checkbox"
-                                                                name="subjects[{{ $class->id }}_{{ $subject->id }}][status]"
+                                                                name="subjects[{{ $key }}][status]"
                                                                 value="1"
                                                                 data-class-id="{{ $class->id }}"
-                                                                {{ $existing
-                                                                    ? ($existing->status ? 'checked' : '')
-                                                                    : 'checked'
-                                                                }}>
+                                                                {{ (string) $statusValue === '1' ? 'checked' : '' }}
+                                                                aria-label="Include {{ $subject->subject_name }}">
 
-                                                        </div>
-
+                                                            <span class="subjects-custom-checkbox"></span>
+                                                        </label>
                                                     </td>
 
-
-                                                    {{-- =================================
-                                                         SUBJECT
-                                                    ================================== --}}
+                                                    {{-- SUBJECT NAME --}}
                                                     <td>
-
-                                                        <div class="d-flex align-items-center gap-3">
-
-                                                            <div class="subject-icon">
+                                                        <div class="subjects-name-cell">
+                                                            <div class="subjects-book-icon">
                                                                 <i class="bi bi-book"></i>
                                                             </div>
 
                                                             <div>
-
-                                                                <div class="fw-semibold subject-name">
+                                                                <strong>
                                                                     {{ $subject->subject_name }}
-                                                                </div>
+                                                                </strong>
 
-                                                                <div class="small text-muted">
-                                                                    Exam subject
-                                                                </div>
-
+                                                                <span>Exam subject</span>
                                                             </div>
-
                                                         </div>
-
                                                     </td>
 
-
-                                                    {{-- =================================
-                                                         CODE
-                                                    ================================== --}}
+                                                    {{-- SUBJECT CODE --}}
                                                     <td>
-
                                                         @if($subject->subject_code)
-
-                                                            <span class="subject-code">
-
+                                                            <span class="subjects-code">
                                                                 {{ $subject->subject_code }}
-
                                                             </span>
-
                                                         @else
-
-                                                            <span class="text-muted">
-                                                                —
-                                                            </span>
-
+                                                            <span class="subjects-dash">—</span>
                                                         @endif
-
                                                     </td>
 
-
-                                                    {{-- =================================
-                                                         MAXIMUM MARKS
-                                                    ================================== --}}
+                                                    {{-- MAXIMUM MARKS --}}
                                                     <td>
-
-                                                        <div class="mark-input">
-
-                                                            <span class="input-prefix">
+                                                        <div class="subjects-input-group">
+                                                            <span class="subjects-input-icon">
                                                                 <i class="bi bi-award"></i>
                                                             </span>
 
                                                             <input
                                                                 type="number"
-                                                                name="subjects[{{ $class->id }}_{{ $subject->id }}][maximum_marks]"
-                                                                class="form-control maximum-marks"
+                                                                name="subjects[{{ $key }}][maximum_marks]"
+                                                                class="subjects-number-input maximum-marks"
                                                                 min="1"
                                                                 max="1000"
                                                                 value="{{ old(
-                                                                    'subjects.' . $class->id . '_' . $subject->id . '.maximum_marks',
+                                                                    'subjects.' . $key . '.maximum_marks',
                                                                     $existing?->maximum_marks ?? 50
                                                                 ) }}"
-                                                                required>
-
+                                                                required
+                                                                aria-label="Maximum marks for {{ $subject->subject_name }}">
                                                         </div>
-
                                                     </td>
 
-
-                                                    {{-- =================================
-                                                         PASSING MARKS
-                                                    ================================== --}}
+                                                    {{-- PASSING MARKS --}}
                                                     <td>
-
-                                                        <div class="mark-input">
-
-                                                            <span class="input-prefix">
+                                                        <div class="subjects-input-group">
+                                                            <span class="subjects-input-icon">
                                                                 <i class="bi bi-check-circle"></i>
                                                             </span>
 
                                                             <input
                                                                 type="number"
-                                                                name="subjects[{{ $class->id }}_{{ $subject->id }}][passing_marks]"
-                                                                class="form-control passing-marks"
+                                                                name="subjects[{{ $key }}][passing_marks]"
+                                                                class="subjects-number-input passing-marks"
                                                                 min="0"
                                                                 max="1000"
                                                                 value="{{ old(
-                                                                    'subjects.' . $class->id . '_' . $subject->id . '.passing_marks',
+                                                                    'subjects.' . $key . '.passing_marks',
                                                                     $existing?->passing_marks ?? 17
                                                                 ) }}"
-                                                                required>
-
+                                                                required
+                                                                aria-label="Passing marks for {{ $subject->subject_name }}">
                                                         </div>
-
                                                     </td>
 
-
-                                                    {{-- =================================
-                                                         DURATION
-                                                    ================================== --}}
+                                                    {{-- DURATION --}}
                                                     <td>
-
-                                                        <div class="duration-input">
-
+                                                        <div class="subjects-duration-group">
                                                             <input
                                                                 type="number"
-                                                                name="subjects[{{ $class->id }}_{{ $subject->id }}][duration_minutes]"
-                                                                class="form-control"
+                                                                name="subjects[{{ $key }}][duration_minutes]"
+                                                                class="subjects-number-input duration-input"
                                                                 min="1"
                                                                 max="600"
                                                                 value="{{ old(
-                                                                    'subjects.' . $class->id . '_' . $subject->id . '.duration_minutes',
+                                                                    'subjects.' . $key . '.duration_minutes',
                                                                     $existing?->duration_minutes ?? 60
                                                                 ) }}"
-                                                                required>
+                                                                required
+                                                                aria-label="Duration in minutes for {{ $subject->subject_name }}">
 
-                                                            <span class="duration-unit">
-                                                                min
-                                                            </span>
-
+                                                            <span>min</span>
                                                         </div>
-
                                                     </td>
 
                                                 </tr>
 
                                             @endforeach
-
                                         </tbody>
-
                                     </table>
-
                                 </div>
 
                             @endif
 
                         </div>
-
-                    </div>
+                    </section>
 
                 @endif
 
             @endforeach
 
+            {{-- SAVE PANEL --}}
+            <div class="subjects-save-panel">
 
-            {{-- =================================================
-                 SAVE PANEL
-            ================================================== --}}
-            <div class="save-panel">
-
-                <div class="save-panel-info">
-
-                    <div class="save-panel-icon">
+                <div class="subjects-save-info">
+                    <div class="subjects-save-icon">
                         <i class="bi bi-shield-check"></i>
                     </div>
 
                     <div>
-
-                        <div class="fw-semibold">
-                            Exam-specific configuration
-                        </div>
-
-                        <div class="small text-muted">
+                        <strong>Exam-specific configuration</strong>
+                        <p>
                             These settings apply only to
-                            <strong>{{ $exam->exam_name }}</strong>.
-                        </div>
-
+                            <span>{{ $exam->exam_name }}</span>.
+                        </p>
                     </div>
-
                 </div>
 
-
-                <div class="d-flex flex-wrap gap-2">
-
+                <div class="subjects-save-actions">
                     <a href="{{ route('admin.exams.show', $exam) }}"
-                       class="btn btn-light border px-4">
-
-                        <i class="bi bi-x-lg me-1"></i>
+                       class="subjects-cancel-btn">
+                        <i class="bi bi-x-lg"></i>
                         Cancel
-
                     </a>
 
                     <button type="submit"
-                            class="btn btn-primary px-4"
+                            class="subjects-save-btn"
                             id="saveSubjectsButton">
-
-                        <i class="bi bi-check-circle me-1"></i>
-                        Save Subjects & Marks
-
+                        <i class="bi bi-check-circle"></i>
+                        <span>Save Subjects &amp; Marks</span>
                     </button>
-
                 </div>
 
             </div>
-
 
         </form>
 
     @endif
 
+    {{-- PAGE FOOTNOTE --}}
+    <div class="subjects-footnote">
+        <i class="bi bi-journal-check"></i>
+        <span>
+            School Diary
+            <span class="subjects-footnote-dot">·</span>
+            Examination Management
+        </span>
+    </div>
+
 </div>
 
-
-{{-- =============================================================
-     STYLES
-============================================================= --}}
 <style>
-
-    :root {
-        --primary-blue: #1677f0;
-        --primary-dark: #0f5fc4;
-        --soft-blue: #eef6ff;
-        --border-color: #e6ebf0;
-        --text-dark: #263238;
-        --muted: #6c757d;
-    }
-
-
-    /* =========================================================
-       PAGE HEADER
-    ========================================================== */
-
-    .page-icon {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-        font-size: 21px;
-    }
-
-    .back-link {
-        width: 32px;
-        height: 32px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        color: #6c757d;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-
-    .back-link:hover {
-        background: #f1f4f7;
-        color: var(--primary-blue);
-    }
-
-    .exam-breadcrumb {
-        margin-left: 78px;
-        color: #707b85;
-        font-size: 13px;
-    }
-
-
-    /* =========================================================
-       ALERTS
-    ========================================================== */
-
-    .custom-alert {
-        display: flex;
-        align-items: flex-start;
-        gap: 13px;
-        position: relative;
-        padding: 15px 50px 15px 16px;
-        border-radius: 12px;
-        border: 1px solid transparent;
-    }
-
-    .success-alert {
-        background: #f0faf4;
-        border-color: #cdebd9;
-        color: #1d6b43;
-    }
-
-    .danger-alert {
-        background: #fff5f5;
-        border-color: #f3d0d4;
-        color: #9b2c35;
-    }
-
-    .alert-icon {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-    }
-
-    .success-icon {
-        background: #dcf5e7;
-        color: #198754;
-    }
-
-    .danger-icon {
-        background: #fbe1e4;
-        color: #dc3545;
-    }
-
-
-    /* =========================================================
-       INFORMATION
-    ========================================================== */
-
-    .information-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 14px;
-        padding: 17px 19px;
-        border-radius: 13px;
-        background: #f7fbff;
-        border: 1px solid #dcecff;
-    }
-
-    .information-icon {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        background: #e5f1ff;
-        color: var(--primary-blue);
-        font-size: 18px;
-    }
-
-
-    /* =========================================================
-       SUMMARY CARDS
-    ========================================================== */
-
-    .summary-card {
-        height: 100%;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 18px;
-        background: #ffffff;
-        border: 1px solid var(--border-color);
-        border-radius: 14px;
-        box-shadow: 0 3px 12px rgba(30, 50, 70, 0.04);
-        transition: all 0.2s ease;
-    }
-
-    .summary-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(30, 50, 70, 0.08);
-    }
-
-    .summary-icon {
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        font-size: 20px;
-    }
-
-    .summary-icon.blue {
-        background: #eaf3ff;
-        color: var(--primary-blue);
-    }
-
-    .summary-icon.purple {
-        background: #f1edff;
-        color: #7257d9;
-    }
-
-    .summary-icon.green {
-        background: #eaf8f0;
-        color: #198754;
-    }
-
-    .summary-label {
-        color: #7a858f;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-    }
-
-    .summary-value {
-        color: var(--text-dark);
-        font-size: 23px;
-        font-weight: 700;
-        line-height: 1.25;
-        margin-top: 2px;
-    }
-
-    .summary-text {
-        color: #929aa3;
-        font-size: 11px;
-        margin-top: 2px;
-    }
-
-
-    /* =========================================================
-       CLASS CARD
-    ========================================================== */
-
-    .class-card {
-        overflow: hidden;
-        background: #ffffff;
-        border: 1px solid var(--border-color);
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(30, 50, 70, 0.05);
-    }
-
-    .class-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        padding: 17px 20px;
-        background: linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #f8fbff 100%
-        );
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .class-icon {
-        width: 45px;
-        height: 45px;
-        min-width: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 11px;
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-        font-size: 19px;
-    }
-
-    .section-label {
-        display: inline-flex;
-        align-items: center;
-        margin-left: 5px;
-        padding: 4px 8px;
-        border-radius: 6px;
-        background: #f0f3f7;
-        color: #68737d;
-        font-size: 11px;
-        font-weight: 600;
-        vertical-align: middle;
-    }
-
-    .class-body {
-        background: #ffffff;
-    }
-
-
-    /* =========================================================
-       SUBJECT TABLE
-    ========================================================== */
-
-    .subject-table {
-        color: var(--text-dark);
-    }
-
-    .subject-table thead th {
-        padding-top: 12px;
-        padding-bottom: 12px;
-        background: #f8fafc;
-        color: #737e88;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.35px;
-        white-space: nowrap;
-    }
-
-    .subject-table tbody td {
-        padding-top: 13px;
-        padding-bottom: 13px;
-        border-color: #edf0f3;
-    }
-
-    .subject-row {
-        transition: background-color 0.15s ease;
-    }
-
-    .subject-row:hover {
-        background: #fbfdff;
-    }
-
-    .include-column {
-        width: 90px;
-    }
-
-    .marks-column {
-        width: 180px;
-    }
-
-    .duration-column {
-        width: 160px;
-    }
-
-
-    /* =========================================================
-       CHECKBOX
-    ========================================================== */
-
-    .subject-check {
-        padding-left: 1.7rem;
-    }
-
-    .subject-check .form-check-input {
-        width: 19px;
-        height: 19px;
-        margin-top: -0.05em;
-        cursor: pointer;
-        border-color: #b9c3cc;
-    }
-
-    .subject-check .form-check-input:checked {
-        background-color: var(--primary-blue);
-        border-color: var(--primary-blue);
-    }
-
-
-    /* =========================================================
-       SUBJECT
-    ========================================================== */
-
-    .subject-icon {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9px;
-        background: #f2f6fa;
-        color: #63707c;
-    }
-
-    .subject-name {
-        color: var(--text-dark);
-        font-size: 13px;
-    }
-
-    .subject-code {
-        display: inline-flex;
-        align-items: center;
-        padding: 5px 9px;
-        border-radius: 7px;
-        background: #f4f6f8;
-        border: 1px solid #e4e8ec;
-        color: #5e6974;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.2px;
-    }
-
-
-    /* =========================================================
-       MARK INPUTS
-    ========================================================== */
-
-    .mark-input {
-        display: flex;
-        align-items: stretch;
-        max-width: 155px;
-    }
-
-    .input-prefix {
-        width: 38px;
-        min-width: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #dce2e7;
-        border-right: 0;
-        border-radius: 8px 0 0 8px;
-        background: #f8fafc;
-        color: #7a858f;
-        font-size: 13px;
-    }
-
-    .mark-input .form-control {
-        min-height: 39px;
-        border-color: #dce2e7;
-        border-radius: 0 8px 8px 0;
-        box-shadow: none;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .mark-input:focus-within .input-prefix {
-        border-color: var(--primary-blue);
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-    }
-
-    .mark-input:focus-within .form-control {
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 0.15rem rgba(22, 119, 240, 0.08);
-    }
-
-
-    /* =========================================================
-       DURATION
-    ========================================================== */
-
-    .duration-input {
-        display: flex;
-        align-items: stretch;
-        max-width: 145px;
-    }
-
-    .duration-input .form-control {
-        min-height: 39px;
-        border-color: #dce2e7;
-        border-radius: 8px 0 0 8px;
-        box-shadow: none;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .duration-unit {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 43px;
-        padding: 0 8px;
-        border: 1px solid #dce2e7;
-        border-left: 0;
-        border-radius: 0 8px 8px 0;
-        background: #f8fafc;
-        color: #737e88;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .duration-input:focus-within .form-control {
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 0.15rem rgba(22, 119, 240, 0.08);
-    }
-
-    .duration-input:focus-within .duration-unit {
-        border-color: var(--primary-blue);
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-    }
-
-
-    /* =========================================================
-       CLASS EMPTY
-    ========================================================== */
-
-    .class-empty {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 13px;
-        padding: 35px 20px;
-        color: #6c757d;
-    }
-
-    .class-empty-icon {
-        width: 45px;
-        height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 11px;
-        background: #f2f4f6;
-        color: #89939c;
-        font-size: 19px;
-    }
-
-
-    /* =========================================================
-       EMPTY STATE
-    ========================================================== */
-
-    .empty-card {
-        border-radius: 16px;
-    }
-
-    .empty-icon {
-        width: 82px;
-        height: 82px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 22px;
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-        font-size: 37px;
-    }
-
-
-    /* =========================================================
-       SAVE PANEL
-    ========================================================== */
-
-    .save-panel {
-        position: sticky;
-        bottom: 15px;
-        z-index: 20;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        padding: 16px 18px;
-        margin-top: 10px;
-        background: rgba(255, 255, 255, 0.97);
-        border: 1px solid #dfe5eb;
-        border-radius: 14px;
-        box-shadow: 0 8px 30px rgba(30, 50, 70, 0.12);
-        backdrop-filter: blur(8px);
-    }
-
-    .save-panel-info {
-        display: flex;
-        align-items: center;
+/* =========================================================
+   LOCKED SCHOOL DIARY DESIGN SYSTEM
+   Subjects & Marks
+========================================================= */
+
+.subjects-page {
+    --sd-page: #f7f6f0;
+    --sd-paper: #fffefa;
+    --sd-chalk: #f5f3e9;
+    --sd-ink: #263b35;
+    --sd-forest: #344f43;
+    --sd-forest-dark: #20352c;
+    --sd-text: #39483e;
+    --sd-muted: #7b857b;
+    --sd-line: #e5e1d5;
+    --sd-sage: #527f70;
+    --sd-blue: #426b8a;
+    --sd-amber: #a87543;
+    --sd-green: #43835d;
+    --sd-red: #b95b50;
+
+    max-width: 1650px;
+    margin: 0 auto;
+    padding: 24px;
+    color: var(--sd-text);
+    font-family: "Public Sans", Arial, sans-serif;
+}
+
+.subjects-page *,
+.subjects-page *::before,
+.subjects-page *::after {
+    box-sizing: border-box;
+}
+
+.subjects-page h1,
+.subjects-page h2,
+.subjects-page h3,
+.subjects-page p {
+    margin-top: 0;
+}
+
+.subjects-page a {
+    text-decoration: none;
+}
+
+.subjects-page button,
+.subjects-page input {
+    font: inherit;
+}
+
+.subjects-page button:focus-visible,
+.subjects-page a:focus-visible,
+.subjects-page input:focus-visible {
+    outline: 3px solid rgba(82, 127, 112, 0.35);
+    outline-offset: 3px;
+}
+
+/* HEADER */
+
+.subjects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 15px;
+}
+
+.subjects-header-main {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.subjects-back-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 35px;
+    width: 35px;
+    height: 35px;
+    border: 1px solid var(--sd-line);
+    border-radius: 10px;
+    background: var(--sd-paper);
+    color: var(--sd-ink);
+    transition: all 0.2s ease;
+}
+
+.subjects-back-icon:hover {
+    border-color: #c4d3c3;
+    background: #edf1e8;
+    color: var(--sd-forest);
+}
+
+.subjects-page-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 51px;
+    width: 51px;
+    height: 51px;
+    border: 1px solid #d8e1d7;
+    border-radius: 15px;
+    background: #e9eee5;
+    color: var(--sd-forest);
+    font-size: 23px;
+}
+
+.subjects-page-icon::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #b4c8a9;
+}
+
+.subjects-heading-content {
+    min-width: 0;
+}
+
+.subjects-title-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.subjects-title-line h1 {
+    margin: 0;
+    color: var(--sd-ink);
+    font-family: Georgia, serif;
+    font-size: clamp(24px, 3vw, 31px);
+    font-weight: 700;
+    letter-spacing: -0.6px;
+}
+
+.subjects-title-badge {
+    padding: 5px 10px;
+    border: 1px solid #d9e3d7;
+    border-radius: 30px;
+    background: #edf2e9;
+    color: var(--sd-forest);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.subjects-heading-content > p {
+    margin: 0;
+    color: var(--sd-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.subjects-secondary-btn,
+.subjects-cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 41px;
+    padding: 10px 15px;
+    border: 1px solid #d8d8ca;
+    border-radius: 10px;
+    background: var(--sd-paper);
+    color: var(--sd-ink);
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.subjects-secondary-btn:hover,
+.subjects-cancel-btn:hover {
+    border-color: #b6c5b6;
+    background: #f0f1e8;
+    color: var(--sd-forest-dark);
+}
+
+/* BREADCRUMB */
+
+.subjects-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 0 0 23px;
+    padding: 11px 14px;
+    border: 1px solid var(--sd-line);
+    border-radius: 10px;
+    background: rgba(255, 254, 250, 0.72);
+    color: var(--sd-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.subjects-breadcrumb > i {
+    color: var(--sd-sage);
+    font-size: 14px;
+}
+
+.subjects-breadcrumb-dot {
+    color: #b0b4a7;
+}
+
+/* ALERTS */
+
+.subjects-alert {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 20px;
+    padding: 16px 48px 16px 17px;
+    border: 1px solid;
+    border-radius: 13px;
+}
+
+.subjects-alert-success {
+    border-color: #d4e5d4;
+    background: #f0f6ed;
+    color: var(--sd-forest);
+}
+
+.subjects-alert-danger {
+    border-color: #eed7d0;
+    background: #fbefeb;
+    color: #93473e;
+}
+
+.subjects-alert-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(82, 127, 112, 0.11);
+    font-size: 17px;
+}
+
+.subjects-alert-danger .subjects-alert-icon {
+    background: rgba(185, 91, 80, 0.1);
+}
+
+.subjects-alert-content {
+    min-width: 0;
+}
+
+.subjects-alert-content strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.subjects-alert-content p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.subjects-alert-content ul {
+    margin: 7px 0 0;
+    padding-left: 18px;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.subjects-alert-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.subjects-alert-close:hover {
+    background: rgba(38, 59, 53, 0.07);
+    opacity: 1;
+}
+
+/* INFORMATION CARD */
+
+.subjects-information-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 23px;
+    padding: 18px 20px;
+    border: 1px solid #dce5d8;
+    border-radius: 14px;
+    background: #f0f3e9;
+}
+
+.subjects-information-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 41px;
+    width: 41px;
+    height: 41px;
+    border: 1px solid #d7e0d0;
+    border-radius: 12px;
+    background: #e3eadd;
+    color: var(--sd-forest);
+    font-size: 18px;
+}
+
+.subjects-information-card h3 {
+    margin: 1px 0 6px;
+    color: var(--sd-ink);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.subjects-information-card p {
+    margin: 0;
+    color: #657367;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* SUMMARY GRID */
+
+.subjects-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.subjects-summary-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+    min-height: 119px;
+    padding: 23px 20px 19px;
+    overflow: hidden;
+    border: 1px solid var(--sd-line);
+    border-radius: 15px;
+    background: var(--sd-paper);
+    box-shadow: 0 3px 12px rgba(38, 59, 53, 0.025);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subjects-summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(38, 59, 53, 0.07);
+}
+
+.subjects-summary-top {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    width: 44px;
+    height: 3px;
+    border-radius: 0 0 5px 5px;
+}
+
+.subjects-summary-top.forest {
+    background: var(--sd-sage);
+}
+
+.subjects-summary-top.blue {
+    background: var(--sd-blue);
+}
+
+.subjects-summary-top.amber {
+    background: var(--sd-amber);
+}
+
+.subjects-summary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    font-size: 20px;
+}
+
+.subjects-summary-icon.forest {
+    background: #e9eee5;
+    color: var(--sd-forest);
+}
+
+.subjects-summary-icon.blue {
+    background: #e9eff3;
+    color: var(--sd-blue);
+}
+
+.subjects-summary-icon.amber {
+    background: #f5ede0;
+    color: var(--sd-amber);
+}
+
+.subjects-summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.subjects-summary-label {
+    color: var(--sd-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.45px;
+    text-transform: uppercase;
+}
+
+.subjects-summary-content > strong {
+    color: var(--sd-ink);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.subjects-summary-content > strong.subjects-summary-word {
+    font-family: Georgia, serif;
+    font-size: 22px;
+}
+
+.subjects-summary-note {
+    color: var(--sd-muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+/* CLASS CARD */
+
+.subjects-class-card {
+    margin-bottom: 22px;
+    overflow: hidden;
+    border: 1px solid var(--sd-line);
+    border-radius: 16px;
+    background: var(--sd-paper);
+    box-shadow: 0 4px 16px rgba(38, 59, 53, 0.03);
+}
+
+.subjects-class-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 19px 22px;
+    border-bottom: 1px solid var(--sd-line);
+    background: linear-gradient(135deg, #fffefa 0%, #f7f7ef 100%);
+}
+
+.subjects-class-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.subjects-class-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 45px;
+    width: 45px;
+    height: 45px;
+    border: 1px solid #dce5d8;
+    border-radius: 13px;
+    background: #e9eee5;
+    color: var(--sd-forest);
+    font-size: 19px;
+}
+
+.subjects-class-title-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.subjects-class-title-line h2 {
+    margin: 0;
+    color: var(--sd-ink);
+    font-family: Georgia, serif;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.subjects-section-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border: 1px solid #e2e1d6;
+    border-radius: 7px;
+    background: #f5f3e9;
+    color: #6d786b;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.subjects-class-heading p {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0 0;
+    color: var(--sd-muted);
+    font-size: 11px;
+}
+
+.subjects-class-heading p i {
+    color: var(--sd-sage);
+}
+
+/* SELECT ALL BUTTON */
+
+.subjects-select-all-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 37px;
+    padding: 8px 12px;
+    border: 1px solid #d3dfd0;
+    border-radius: 9px;
+    background: #edf2e9;
+    color: var(--sd-forest);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.subjects-select-all-btn:hover {
+    border-color: #aebfae;
+    background: #e2ebdd;
+    color: var(--sd-forest-dark);
+}
+
+.subjects-select-all-btn i {
+    font-size: 14px;
+}
+
+/* TABLE */
+
+.subjects-class-body {
+    background: var(--sd-paper);
+}
+
+.subjects-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.subjects-table {
+    width: 100%;
+    min-width: 920px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--sd-text);
+}
+
+.subjects-table thead th {
+    padding: 15px 16px;
+    border-bottom: 1px solid var(--sd-line);
+    background: #f4f3eb;
+    color: #727e72;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.65px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.subjects-table thead th:first-child {
+    padding-left: 23px;
+}
+
+.subjects-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eeece3;
+    background: var(--sd-paper);
+    vertical-align: middle;
+    transition: background 0.15s ease;
+}
+
+.subjects-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.subjects-table tbody tr:hover td {
+    background: #f8f8f1;
+}
+
+.subjects-table tbody tr.subject-selected td {
+    background: #f0f3e9;
+}
+
+.subjects-table tbody tr.subject-selected:hover td {
+    background: #e9eee2;
+}
+
+.subjects-table tbody td:first-child {
+    padding-left: 23px;
+}
+
+.subjects-include-column {
+    width: 85px;
+}
+
+/* SUBJECT CHECKBOX */
+
+.subjects-checkbox-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    min-height: 25px;
+    cursor: pointer;
+}
+
+.subjects-checkbox-wrap input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.subjects-custom-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 19px;
+    height: 19px;
+    border: 1.5px solid #c7cbbf;
+    border-radius: 5px;
+    background: var(--sd-paper);
+    transition: all 0.15s ease;
+}
+
+.subjects-checkbox-wrap input:checked + .subjects-custom-checkbox {
+    border-color: var(--sd-forest);
+    background: var(--sd-forest);
+}
+
+.subjects-checkbox-wrap input:checked + .subjects-custom-checkbox::after {
+    content: "";
+    width: 8px;
+    height: 5px;
+    margin-top: -2px;
+    border-bottom: 2px solid #fffefa;
+    border-left: 2px solid #fffefa;
+    transform: rotate(-45deg);
+}
+
+.subjects-checkbox-wrap input:focus-visible + .subjects-custom-checkbox {
+    outline: 3px solid rgba(82, 127, 112, 0.3);
+    outline-offset: 3px;
+}
+
+/* SUBJECT NAME */
+
+.subjects-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 180px;
+}
+
+.subjects-book-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 39px;
+    width: 39px;
+    height: 39px;
+    border: 1px solid #e0e4d8;
+    border-radius: 11px;
+    background: #f0f1e8;
+    color: var(--sd-forest);
+    font-size: 17px;
+}
+
+.subjects-name-cell > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.subjects-name-cell strong {
+    color: var(--sd-ink);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.subjects-name-cell span {
+    color: var(--sd-muted);
+    font-size: 10px;
+}
+
+/* SUBJECT CODE */
+
+.subjects-code {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 9px;
+    border: 1px solid #e4e2d6;
+    border-radius: 7px;
+    background: #f7f6ef;
+    color: #637063;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.subjects-dash {
+    color: #a5a79b;
+}
+
+/* MARKS INPUTS */
+
+.subjects-input-group {
+    display: flex;
+    align-items: stretch;
+    width: 145px;
+    max-width: 100%;
+}
+
+.subjects-input-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 35px;
+    width: 35px;
+    border: 1px solid #dedfd3;
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: #f5f4ec;
+    color: var(--sd-sage);
+    font-size: 13px;
+}
+
+.subjects-number-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 39px;
+    padding: 8px 9px;
+    border: 1px solid #dedfd3;
+    background: #fffefa;
+    color: var(--sd-ink);
+    font-size: 12px;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subjects-input-group .subjects-number-input {
+    border-radius: 0 8px 8px 0;
+}
+
+.subjects-number-input:focus {
+    position: relative;
+    z-index: 1;
+    border-color: var(--sd-sage);
+    box-shadow: 0 0 0 3px rgba(82, 127, 112, 0.11);
+}
+
+.subjects-input-group:focus-within .subjects-input-icon {
+    border-color: var(--sd-sage);
+    background: #edf2e9;
+}
+
+/* DURATION */
+
+.subjects-duration-group {
+    display: flex;
+    align-items: stretch;
+    width: 125px;
+    max-width: 100%;
+}
+
+.subjects-duration-group .subjects-number-input {
+    border-radius: 8px 0 0 8px;
+}
+
+.subjects-duration-group > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 39px;
+    padding: 0 7px;
+    border: 1px solid #dedfd3;
+    border-left: 0;
+    border-radius: 0 8px 8px 0;
+    background: #f5f4ec;
+    color: var(--sd-muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* CLASS EMPTY STATE */
+
+.subjects-class-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 36px 20px;
+}
+
+.subjects-class-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 45px;
+    width: 45px;
+    height: 45px;
+    border: 1px solid #e1e4d8;
+    border-radius: 13px;
+    background: #f1f1e8;
+    color: #81927e;
+    font-size: 19px;
+}
+
+.subjects-class-empty strong {
+    color: var(--sd-ink);
+    font-size: 12px;
+}
+
+.subjects-class-empty p {
+    margin: 5px 0 0;
+    color: var(--sd-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* NO CLASSES EMPTY CARD */
+
+.subjects-empty-card {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 340px;
+    padding: 40px 22px;
+    border: 1px solid var(--sd-line);
+    border-radius: 16px;
+    background: var(--sd-paper);
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(38, 59, 53, 0.03);
+}
+
+.subjects-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 78px;
+    height: 78px;
+    margin-bottom: 19px;
+    border: 1px solid #e1e4d8;
+    border-radius: 23px;
+    background: #f1f1e8;
+    color: #81927e;
+    font-size: 31px;
+}
+
+.subjects-empty-card h2 {
+    margin: 0 0 9px;
+    color: var(--sd-ink);
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.subjects-empty-card p {
+    max-width: 480px;
+    margin: 0 0 21px;
+    color: var(--sd-muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* PRIMARY BUTTON */
+
+.subjects-primary-btn,
+.subjects-save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 43px;
+    padding: 11px 18px;
+    border: 1px solid var(--sd-forest-dark);
+    border-radius: 10px;
+    background: linear-gradient(135deg, #344f43 0%, #20352c 100%);
+    color: #fffefa;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(32, 53, 44, 0.11);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subjects-primary-btn:hover,
+.subjects-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 16px rgba(32, 53, 44, 0.18);
+    color: #fffefa;
+}
+
+/* SAVE PANEL */
+
+.subjects-save-panel {
+    position: sticky;
+    bottom: 14px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 25px;
+    padding: 17px 20px;
+    border: 1px solid #d8ded2;
+    border-radius: 15px;
+    background: rgba(255, 254, 250, 0.97);
+    box-shadow: 0 8px 26px rgba(38, 59, 53, 0.11);
+    backdrop-filter: blur(8px);
+}
+
+.subjects-save-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.subjects-save-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #dce5d8;
+    border-radius: 12px;
+    background: #e9eee5;
+    color: var(--sd-forest);
+    font-size: 18px;
+}
+
+.subjects-save-info strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--sd-ink);
+    font-size: 12px;
+}
+
+.subjects-save-info p {
+    margin: 0;
+    color: var(--sd-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.subjects-save-info p span {
+    color: var(--sd-ink);
+    font-weight: 700;
+}
+
+.subjects-save-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.subjects-cancel-btn {
+    min-height: 43px;
+    background: var(--sd-paper);
+}
+
+.subjects-save-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+}
+
+/* FOOTNOTE */
+
+.subjects-footnote {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 10px 4px;
+    color: #93988c;
+    font-size: 10px;
+    letter-spacing: 0.2px;
+}
+
+.subjects-footnote > i {
+    color: var(--sd-sage);
+    font-size: 13px;
+}
+
+.subjects-footnote-dot {
+    padding: 0 3px;
+    color: #b2b5a8;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+    .subjects-summary-grid {
         gap: 12px;
     }
 
-    .save-panel-icon {
+    .subjects-summary-card {
+        padding: 21px 15px 17px;
+        gap: 11px;
+    }
+
+    .subjects-summary-icon {
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .subjects-page {
+        padding: 15px;
+    }
+
+    .subjects-header {
+        align-items: flex-start;
+    }
+
+    .subjects-header-main {
+        align-items: flex-start;
+        gap: 9px;
+    }
+
+    .subjects-back-icon {
+        flex-basis: 31px;
+        width: 31px;
+        height: 31px;
+    }
+
+    .subjects-page-icon {
+        flex-basis: 42px;
         width: 42px;
         height: 42px;
-        min-width: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        background: #eaf8f0;
-        color: #198754;
-        font-size: 18px;
+        border-radius: 12px;
+        font-size: 19px;
     }
 
-
-    /* =========================================================
-       BUTTONS
-    ========================================================== */
-
-    .btn {
-        border-radius: 8px;
-        font-weight: 500;
+    .subjects-title-line h1 {
+        font-size: 23px;
     }
 
-    .btn-primary {
-        background-color: var(--primary-blue);
-        border-color: var(--primary-blue);
+    .subjects-heading-content > p {
+        font-size: 11px;
     }
 
-    .btn-primary:hover {
-        background-color: var(--primary-dark);
-        border-color: var(--primary-dark);
+    .subjects-header > .subjects-secondary-btn {
+        margin-left: 40px;
     }
 
-
-    /* =========================================================
-       RESPONSIVE
-    ========================================================== */
-
-    @media (max-width: 991.98px) {
-
-        .exam-breadcrumb {
-            margin-left: 0;
-        }
-
-        .save-panel {
-            position: static;
-        }
-
+    .subjects-breadcrumb {
+        margin-bottom: 18px;
+        font-size: 10px;
     }
 
-
-    @media (max-width: 767.98px) {
-
-        .container-fluid {
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-
-        .class-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .class-header .btn {
-            width: 100%;
-        }
-
-        .subject-table {
-            min-width: 900px;
-        }
-
-        .save-panel {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .save-panel-info {
-            align-items: flex-start;
-        }
-
-        .save-panel > div:last-child {
-            width: 100%;
-        }
-
-        .save-panel > div:last-child .btn {
-            flex: 1;
-        }
-
+    .subjects-information-card {
+        padding: 15px;
     }
 
+    .subjects-summary-grid {
+        grid-template-columns: 1fr;
+        gap: 11px;
+        margin-bottom: 19px;
+    }
+
+    .subjects-summary-card {
+        min-height: 96px;
+        padding: 18px;
+    }
+
+    .subjects-class-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 17px;
+    }
+
+    .subjects-class-heading {
+        align-items: flex-start;
+    }
+
+    .subjects-class-title-line h2 {
+        font-size: 17px;
+    }
+
+    .subjects-select-all-btn {
+        width: 100%;
+    }
+
+    .subjects-table {
+        min-width: 920px;
+    }
+
+    .subjects-save-panel {
+        position: static;
+        align-items: stretch;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .subjects-save-info {
+        align-items: flex-start;
+    }
+
+    .subjects-save-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .subjects-save-actions > * {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .subjects-page {
+        padding: 12px;
+    }
+
+    .subjects-title-line h1 {
+        font-size: 21px;
+    }
+
+    .subjects-title-badge {
+        font-size: 9px;
+    }
+
+    .subjects-header > .subjects-secondary-btn {
+        margin-left: 0;
+    }
+
+    .subjects-alert {
+        padding: 14px 40px 14px 12px;
+        gap: 10px;
+    }
+
+    .subjects-information-card {
+        gap: 10px;
+        padding: 13px;
+    }
+
+    .subjects-information-icon {
+        flex-basis: 35px;
+        width: 35px;
+        height: 35px;
+        font-size: 15px;
+    }
+
+    .subjects-information-card h3 {
+        line-height: 1.6;
+    }
+
+    .subjects-class-empty {
+        align-items: flex-start;
+        padding: 25px 15px;
+    }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+    .subjects-page *,
+    .subjects-page *::before,
+    .subjects-page *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
 </style>
 
-
-{{-- =============================================================
-     JAVASCRIPT
-============================================================= --}}
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
+    const page = document.querySelector('.subjects-page');
 
-    /* =========================================================
-       SELECT / UNSELECT ALL SUBJECTS FOR CLASS
-    ========================================================== */
+    if (!page) {
+        return;
+    }
 
-    document.querySelectorAll('.select-all-class')
-        .forEach(function (button) {
+    /* SELECT / UNSELECT ALL SUBJECTS FOR A CLASS */
+    page.querySelectorAll('.subjects-select-all-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const classId = this.dataset.classId;
 
-            button.addEventListener('click', function () {
+            const checkboxes = Array.from(
+                page.querySelectorAll(
+                    '.subject-checkbox[data-class-id="' + classId + '"]'
+                )
+            );
 
-                const classId = this.dataset.classId;
-
-                const checkboxes = document.querySelectorAll(
-                    '.subject-checkbox[data-class-id="' +
-                    classId +
-                    '"]'
-                );
-
-                if (!checkboxes.length) {
-                    return;
-                }
-
-                let allChecked = true;
-
-                checkboxes.forEach(function (checkbox) {
-
-                    if (!checkbox.checked) {
-                        allChecked = false;
-                    }
-
-                });
-
-
-                checkboxes.forEach(function (checkbox) {
-
-                    checkbox.checked = !allChecked;
-
-                });
-
-
-                if (allChecked) {
-
-                    this.innerHTML =
-                        '<i class="bi bi-check2-all me-1"></i> Select All';
-
-                } else {
-
-                    this.innerHTML =
-                        '<i class="bi bi-x-circle me-1"></i> Unselect All';
-
-                }
-
-            });
-
-        });
-
-
-    /* =========================================================
-       MAXIMUM MARKS / PASSING MARKS
-    ========================================================== */
-
-    document.querySelectorAll('.maximum-marks')
-        .forEach(function (maximumInput) {
-
-            maximumInput.addEventListener('input', function () {
-
-                const row = this.closest('tr');
-
-                if (!row) {
-                    return;
-                }
-
-                const passingInput =
-                    row.querySelector('.passing-marks');
-
-                if (!passingInput) {
-                    return;
-                }
-
-                const maximum =
-                    parseInt(this.value || 0);
-
-                passingInput.max = maximum;
-
-
-                if (
-                    maximum > 0 &&
-                    parseInt(passingInput.value || 0) > maximum
-                ) {
-
-                    passingInput.value = maximum;
-
-                }
-
-            });
-
-        });
-
-
-    /* =========================================================
-       INITIAL PASSING MARK LIMIT
-    ========================================================== */
-
-    document.querySelectorAll('.subject-row')
-        .forEach(function (row) {
-
-            const maximumInput =
-                row.querySelector('.maximum-marks');
-
-            const passingInput =
-                row.querySelector('.passing-marks');
-
-            if (!maximumInput || !passingInput) {
+            if (!checkboxes.length) {
                 return;
             }
 
-            const maximum =
-                parseInt(maximumInput.value || 0);
-
-            if (maximum > 0) {
-                passingInput.max = maximum;
-            }
-
-        });
-
-
-    /* =========================================================
-       CHECKBOX VISUAL STATE
-    ========================================================== */
-
-    document.querySelectorAll('.subject-checkbox')
-        .forEach(function (checkbox) {
-
-            function updateRow() {
-
-                const row =
-                    checkbox.closest('.subject-row');
-
-                if (!row) {
-                    return;
-                }
-
-                if (checkbox.checked) {
-
-                    row.classList.add('subject-selected');
-
-                } else {
-
-                    row.classList.remove('subject-selected');
-
-                }
-
-            }
-
-            checkbox.addEventListener(
-                'change',
-                updateRow
+            const shouldSelectAll = checkboxes.some(
+                checkbox => !checkbox.checked
             );
 
-            updateRow();
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = shouldSelectAll;
+                updateSubjectRow(checkbox);
+            });
 
+            this.setAttribute('aria-pressed', String(shouldSelectAll));
+
+            this.innerHTML = shouldSelectAll
+                ? '<i class="bi bi-x-circle"></i><span>Unselect All</span>'
+                : '<i class="bi bi-check2-all"></i><span>Select All</span>';
         });
+    });
 
+    /* SUBJECT ROW VISUAL STATE */
+    function updateSubjectRow(checkbox) {
+        const row = checkbox.closest('.subject-row');
 
-    /* =========================================================
-       FORM SUBMIT PROTECTION
-    ========================================================== */
+        if (row) {
+            row.classList.toggle('subject-selected', checkbox.checked);
+        }
 
-    const form =
-        document.getElementById('examSubjectsForm');
+        const classId = checkbox.dataset.classId;
+        const classButton = page.querySelector(
+            '.subjects-select-all-btn[data-class-id="' + classId + '"]'
+        );
 
-    const saveButton =
-        document.getElementById('saveSubjectsButton');
+        if (!classButton) {
+            return;
+        }
 
-    if (form && saveButton) {
+        const classCheckboxes = Array.from(
+            page.querySelectorAll(
+                '.subject-checkbox[data-class-id="' + classId + '"]'
+            )
+        );
 
-        form.addEventListener('submit', function () {
+        const allChecked = classCheckboxes.length > 0 &&
+            classCheckboxes.every(item => item.checked);
 
-            saveButton.disabled = true;
+        classButton.setAttribute('aria-pressed', String(allChecked));
 
-            saveButton.innerHTML =
-                '<span class="spinner-border spinner-border-sm me-2"></span>' +
-                'Saving...';
-
-        });
-
+        classButton.innerHTML = allChecked
+            ? '<i class="bi bi-x-circle"></i><span>Unselect All</span>'
+            : '<i class="bi bi-check2-all"></i><span>Select All</span>';
     }
 
-});
+    page.querySelectorAll('.subject-checkbox').forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            updateSubjectRow(this);
+        });
 
+        updateSubjectRow(checkbox);
+    });
+
+    /* MAXIMUM MARKS / PASSING MARKS VALIDATION */
+    page.querySelectorAll('.maximum-marks').forEach(function (maximumInput) {
+        maximumInput.addEventListener('input', function () {
+            const row = this.closest('.subject-row');
+
+            if (!row) {
+                return;
+            }
+
+            const passingInput = row.querySelector('.passing-marks');
+            const maximum = Number(this.value);
+
+            if (!passingInput) {
+                return;
+            }
+
+            if (this.value !== '' && maximum > 0) {
+                passingInput.max = String(maximum);
+
+                if (
+                    passingInput.value !== '' &&
+                    Number(passingInput.value) > maximum
+                ) {
+                    passingInput.value = String(maximum);
+                }
+            } else {
+                passingInput.removeAttribute('max');
+            }
+        });
+    });
+
+    /* INITIAL PASSING MARK LIMIT */
+    page.querySelectorAll('.subject-row').forEach(function (row) {
+        const maximumInput = row.querySelector('.maximum-marks');
+        const passingInput = row.querySelector('.passing-marks');
+
+        if (!maximumInput || !passingInput) {
+            return;
+        }
+
+        const maximum = Number(maximumInput.value);
+
+        if (maximum > 0) {
+            passingInput.max = String(maximum);
+        }
+    });
+
+    /* PREVENT PASSING MARKS FROM EXCEEDING MAXIMUM */
+    page.querySelectorAll('.passing-marks').forEach(function (passingInput) {
+        passingInput.addEventListener('input', function () {
+            const row = this.closest('.subject-row');
+            const maximumInput = row
+                ? row.querySelector('.maximum-marks')
+                : null;
+
+            if (!maximumInput || this.value === '') {
+                return;
+            }
+
+            const maximum = Number(maximumInput.value);
+
+            if (maximum > 0 && Number(this.value) > maximum) {
+                this.value = String(maximum);
+            }
+        });
+    });
+
+    /* SAVE BUTTON */
+    const form = page.querySelector('#examSubjectsForm');
+    const saveButton = page.querySelector('#saveSubjectsButton');
+
+    if (form && saveButton) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.innerHTML =
+                '<span class="spinner-border spinner-border-sm" ' +
+                'aria-hidden="true"></span>' +
+                '<span>Saving...</span>';
+        });
+    }
+});
 </script>
 
 @endsection
-

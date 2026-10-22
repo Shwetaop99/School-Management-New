@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Create Exam')
@@ -5,574 +6,966 @@
 @section('content')
 
 <style>
-    :root {
-        --primary-blue: #1677f0;
-        --primary-dark: #0f5fc4;
-        --soft-blue: #eef6ff;
-        --border-color: #e5eaf0;
-        --text-dark: #1f2937;
-        --text-muted: #6b7280;
-        --success: #198754;
-        --warning: #f59e0b;
-        --danger: #dc3545;
-    }
+/* =========================================================
+   LOCKED SCHOOL DIARY DESIGN SYSTEM
+   Create Exam
+========================================================= */
 
+.create-exam-page {
+    --ce-page: #f7f6f0;
+    --ce-paper: #fffefa;
+    --ce-cream: #f5f3e9;
+    --ce-cream-deep: #f1ead8;
+    --ce-ink: #263b35;
+    --ce-dark: #1d302b;
+    --ce-forest: #344f43;
+    --ce-green: #43835d;
+    --ce-sage: #527f70;
+    --ce-blue: #426b8a;
+    --ce-amber: #a87543;
+    --ce-red: #b95b50;
+    --ce-text: #39483e;
+    --ce-muted: #7b857b;
+    --ce-line: #e5e1d5;
+    --ce-shadow: 0 8px 26px rgba(38, 59, 53, .055);
+    --ce-radius: 16px;
+
+    max-width: 1650px;
+    margin: 0 auto;
+    padding: 24px;
+    color: var(--ce-text);
+    background: var(--ce-page);
+    border-radius: 20px;
+    font-family: "Public Sans", "Inter", sans-serif;
+}
+
+.create-exam-page *,
+.create-exam-page *::before,
+.create-exam-page *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.create-exam-page .ce-page-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+    padding: 28px 30px;
+    margin-bottom: 17px;
+    overflow: hidden;
+    background: var(--ce-paper);
+    border: 1px solid var(--ce-line);
+    border-left: 5px solid var(--ce-forest);
+    border-radius: var(--ce-radius);
+    box-shadow: var(--ce-shadow);
+}
+
+.create-exam-page .ce-page-header::after {
+    content: "";
+    position: absolute;
+    top: -115px;
+    right: 16%;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(82, 127, 112, .13);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.create-exam-page .ce-header-content {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+}
+
+.create-exam-page .ce-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+    color: var(--ce-amber);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+}
+
+.create-exam-page .ce-page-title {
+    margin: 0;
+    color: var(--ce-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(25px, 3vw, 34px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.5px;
+}
+
+.create-exam-page .ce-page-subtitle {
+    margin: 10px 0 0;
+    color: var(--ce-muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.create-exam-page .ce-header-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.create-exam-page .ce-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 11px 17px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease,
+                border-color .2s ease, transform .2s ease;
+}
+
+.create-exam-page .ce-btn:hover {
+    transform: translateY(-1px);
+}
+
+.create-exam-page .ce-btn-outline {
+    color: var(--ce-ink);
+    background: var(--ce-paper);
+    border-color: var(--ce-line);
+}
+
+.create-exam-page .ce-btn-outline:hover {
+    color: var(--ce-dark);
+    background: var(--ce-cream);
+    border-color: #c9c4b5;
+}
+
+.create-exam-page .ce-btn-primary {
+    min-height: 48px;
+    padding: 12px 22px;
+    color: var(--ce-ink);
+    background: var(--ce-cream-deep);
+    border-color: #e3dac3;
+    box-shadow: 0 4px 10px rgba(38, 59, 53, .07);
+}
+
+.create-exam-page .ce-btn-primary:hover {
+    color: var(--ce-dark);
+    background: #fff5dc;
+    border-color: #d9cba8;
+}
+
+.create-exam-page .ce-btn-primary:disabled {
+    opacity: .7;
+    cursor: wait;
+    transform: none;
+}
+
+.create-exam-page .ce-btn:focus-visible,
+.create-exam-page .ce-form-control:focus-visible,
+.create-exam-page .ce-form-select:focus-visible {
+    outline: 3px solid rgba(82, 127, 112, .25);
+    outline-offset: 2px;
+}
+
+/* =========================================================
+   BREADCRUMB
+========================================================= */
+
+.create-exam-page .ce-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 22px 4px;
+    color: var(--ce-muted);
+    font-size: 11px;
+}
+
+.create-exam-page .ce-breadcrumb i {
+    color: var(--ce-sage);
+}
+
+.create-exam-page .ce-breadcrumb-separator {
+    color: #c4c1b4;
+}
+
+/* =========================================================
+   VALIDATION ERRORS
+========================================================= */
+
+.create-exam-page .ce-error-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding: 18px 20px;
+    color: #8f4139;
+    background: #fff6f3;
+    border: 1px solid #efd1cb;
+    border-left: 4px solid var(--ce-red);
+    border-radius: 12px;
+}
+
+.create-exam-page .ce-error-icon {
+    margin-top: 2px;
+    font-size: 17px;
+}
+
+.create-exam-page .ce-error-content {
+    min-width: 0;
+}
+
+.create-exam-page .ce-error-title {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.create-exam-page .ce-error-list {
+    margin: 0;
+    padding-left: 21px;
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+/* =========================================================
+   MAIN FORM PANEL
+========================================================= */
+
+.create-exam-page .ce-panel {
+    overflow: hidden;
+    background: var(--ce-paper);
+    border: 1px solid var(--ce-line);
+    border-radius: var(--ce-radius);
+    box-shadow: var(--ce-shadow);
+}
+
+.create-exam-page .ce-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 21px 25px;
+    background: #fffdf7;
+    border-bottom: 1px solid var(--ce-line);
+}
+
+.create-exam-page .ce-panel-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    color: var(--ce-sage);
+    background: #edf2eb;
+    border: 1px solid #dce7db;
+    border-radius: 12px;
+    font-size: 18px;
+}
+
+.create-exam-page .ce-panel-heading {
+    min-width: 0;
+}
+
+.create-exam-page .ce-panel-title {
+    margin: 0;
+    color: var(--ce-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.create-exam-page .ce-panel-description {
+    margin: 5px 0 0;
+    color: var(--ce-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.create-exam-page .ce-panel-body {
+    padding: 27px 25px;
+}
+
+/* =========================================================
+   FORM SECTIONS
+========================================================= */
+
+.create-exam-page .ce-form-section {
+    margin-bottom: 29px;
+}
+
+.create-exam-page .ce-form-section:last-child {
+    margin-bottom: 0;
+}
+
+.create-exam-page .ce-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 17px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ce-line);
+}
+
+.create-exam-page .ce-section-heading i {
+    color: var(--ce-sage);
+    font-size: 16px;
+}
+
+.create-exam-page .ce-section-title {
+    margin: 0;
+    color: var(--ce-ink);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.create-exam-page .ce-section-description {
+    margin: 4px 0 0;
+    color: var(--ce-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   FORM LABELS AND INPUTS
+========================================================= */
+
+.create-exam-page .ce-field {
+    height: 100%;
+}
+
+.create-exam-page .ce-field-label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--ce-ink);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.create-exam-page .ce-required {
+    color: var(--ce-red);
+}
+
+.create-exam-page .ce-input-wrap {
+    position: relative;
+}
+
+.create-exam-page .ce-input-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    z-index: 2;
+    color: var(--ce-sage);
+    font-size: 15px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.create-exam-page .ce-form-control,
+.create-exam-page .ce-form-select {
+    display: block;
+    width: 100%;
+    min-height: 47px;
+    padding: 11px 13px;
+    color: var(--ce-ink);
+    background-color: #fffefa;
+    border: 1px solid #dcd8cb;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 550;
+    line-height: 1.5;
+    box-shadow: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.create-exam-page .ce-input-with-icon {
+    padding-left: 42px;
+}
+
+.create-exam-page .ce-form-select.ce-input-with-icon {
+    padding-right: 38px;
+}
+
+.create-exam-page .ce-form-control:hover,
+.create-exam-page .ce-form-select:hover {
+    border-color: #b9c9bb;
+}
+
+.create-exam-page .ce-form-control:focus,
+.create-exam-page .ce-form-select:focus {
+    color: var(--ce-ink);
+    background-color: var(--ce-paper);
+    border-color: var(--ce-sage);
+    box-shadow: 0 0 0 3px rgba(82, 127, 112, .12);
+    outline: none;
+}
+
+.create-exam-page .ce-form-control::placeholder {
+    color: #a1a69d;
+    opacity: 1;
+}
+
+.create-exam-page .ce-field-help {
+    display: block;
+    margin-top: 8px;
+    color: var(--ce-muted);
+    font-size: 10px;
+    line-height: 1.75;
+}
+
+.create-exam-page .ce-field-help i {
+    margin-right: 4px;
+    color: var(--ce-sage);
+}
+
+.create-exam-page .ce-form-control.is-invalid,
+.create-exam-page .ce-form-select.is-invalid {
+    border-color: var(--ce-red);
+}
+
+/* =========================================================
+   DATE PERIOD PREVIEW
+========================================================= */
+
+.create-exam-page .ce-date-preview {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    margin-top: 22px;
+    padding: 16px 18px;
+    background: #f0f5ef;
+    border: 1px solid #dbe7d8;
+    border-radius: 12px;
+}
+
+.create-exam-page .ce-date-preview.show {
+    display: flex;
+}
+
+.create-exam-page .ce-date-preview-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
+    color: var(--ce-sage);
+    background: #e0eadf;
+    border: 1px solid #d5e3d3;
+    border-radius: 11px;
+    font-size: 18px;
+}
+
+.create-exam-page .ce-date-preview-content {
+    min-width: 0;
+}
+
+.create-exam-page .ce-date-preview-label {
+    margin-bottom: 4px;
+    color: var(--ce-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.create-exam-page .ce-date-preview-value {
+    color: var(--ce-ink);
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   NEXT STEPS CARD
+========================================================= */
+
+.create-exam-page .ce-next-steps {
+    margin-top: 27px;
+    overflow: hidden;
+    background: #fcfbf6;
+    border: 1px solid var(--ce-line);
+    border-radius: 13px;
+}
+
+.create-exam-page .ce-next-steps-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 16px 19px;
+    color: var(--ce-ink);
+    background: #f5f2e7;
+    border-bottom: 1px solid var(--ce-line);
+}
+
+.create-exam-page .ce-next-steps-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    color: var(--ce-sage);
+    background: #e5ebdf;
+    border: 1px solid #d9e2d4;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.create-exam-page .ce-next-steps-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.create-exam-page .ce-next-steps-subtitle {
+    margin: 3px 0 0;
+    color: var(--ce-muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.create-exam-page .ce-next-steps-body {
+    padding: 19px;
+}
+
+.create-exam-page .ce-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.create-exam-page .ce-step-item:last-child {
+    margin-bottom: 0;
+}
+
+.create-exam-page .ce-step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    flex: 0 0 27px;
+    color: var(--ce-forest);
+    background: #e9eee4;
+    border: 1px solid #dce5d5;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.create-exam-page .ce-step-text {
+    padding-top: 4px;
+    color: var(--ce-text);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.create-exam-page .ce-step-text strong {
+    color: var(--ce-ink);
+    font-weight: 800;
+}
+
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
+
+.create-exam-page .ce-action-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--ce-line);
+}
+
+.create-exam-page .ce-action-note {
+    margin-right: auto;
+    color: var(--ce-muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.create-exam-page .ce-action-note i {
+    margin-right: 5px;
+    color: var(--ce-sage);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 991.98px) {
     .create-exam-page {
-        max-width: 1400px;
-        margin: 0 auto;
+        padding: 18px;
     }
 
-    /* PAGE HEADER */
-    .page-header {
-        background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
-        border: 1px solid var(--border-color);
-        border-radius: 18px;
-        padding: 22px 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+    .create-exam-page .ce-page-header {
+        padding: 23px;
     }
 
-    .page-title-wrap {
-        display: flex;
-        align-items: center;
-        gap: 14px;
+    .create-exam-page .ce-panel-body {
+        padding: 23px 20px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .create-exam-page {
+        padding: 13px;
+        border-radius: 13px;
     }
 
-    .page-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 23px;
-        flex-shrink: 0;
-    }
-
-    .page-title {
-        color: var(--text-dark);
-        font-size: 22px;
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 13px;
-        margin: 4px 0 0;
-    }
-
-    .back-btn {
-        border: 1px solid #d9e1ea;
-        background: #fff;
-        color: #4b5563;
-        font-weight: 600;
-        border-radius: 10px;
-        padding: 9px 15px;
-        transition: all .2s ease;
-    }
-
-    .back-btn:hover {
-        border-color: var(--primary-blue);
-        color: var(--primary-blue);
-        background: var(--soft-blue);
-    }
-
-    /* ERROR ALERT */
-    .error-card {
-        border: 0;
-        border-left: 4px solid var(--danger);
-        border-radius: 12px;
-        background: #fff5f5;
-        color: #842029;
-        box-shadow: 0 3px 12px rgba(220, 53, 69, .06);
-    }
-
-    /* MAIN CARD */
-    .exam-card {
-        background: #fff;
-        border: 1px solid var(--border-color);
-        border-radius: 18px;
-        box-shadow: 0 5px 24px rgba(15, 23, 42, 0.05);
-        overflow: hidden;
-    }
-
-    .exam-card-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid var(--border-color);
-        background: #fff;
-    }
-
-    .section-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--text-dark);
-        font-size: 17px;
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .section-title-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .section-description {
-        color: var(--text-muted);
-        font-size: 12px;
-        margin: 5px 0 0 44px;
-    }
-
-    .exam-card-body {
-        padding: 28px 24px;
-    }
-
-    /* FORM */
-    .form-section {
-        margin-bottom: 28px;
-    }
-
-    .form-section:last-child {
-        margin-bottom: 0;
-    }
-
-    .field-label {
-        display: block;
-        color: #374151;
-        font-size: 13px;
-        font-weight: 650;
-        margin-bottom: 8px;
-    }
-
-    .required-star {
-        color: var(--danger);
-    }
-
-    .input-wrap {
-        position: relative;
-    }
-
-    .input-icon {
-        position: absolute;
-        left: 13px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #8b98a9;
-        font-size: 16px;
-        z-index: 2;
-        pointer-events: none;
-    }
-
-    .form-control,
-    .form-select {
-        min-height: 46px;
-        border: 1px solid #dce3eb;
-        border-radius: 10px;
-        color: #263244;
-        font-size: 14px;
-        padding: 10px 13px;
-        box-shadow: none;
-        transition: all .2s ease;
-    }
-
-    .input-with-icon {
-        padding-left: 40px;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 3px rgba(22, 119, 240, .10);
-    }
-
-    .form-control::placeholder {
-        color: #a1aab6;
-    }
-
-    .field-help {
-        display: block;
-        margin-top: 6px;
-        color: #8993a1;
-        font-size: 11.5px;
-    }
-
-    /* DATE PREVIEW */
-    .date-preview {
-        display: none;
-        margin-top: 20px;
-        padding: 14px 16px;
-        border: 1px solid #dbeafe;
-        border-radius: 12px;
-        background: #f7fbff;
-    }
-
-    .date-preview.show {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .date-preview-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: #e7f1ff;
-        color: var(--primary-blue);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-
-    .date-preview-label {
-        color: #7b8794;
-        font-size: 11px;
-        margin-bottom: 2px;
-    }
-
-    .date-preview-value {
-        color: #253041;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    /* INFORMATION CARD */
-    .next-steps-card {
-        margin-top: 28px;
-        border: 1px solid #d9eaff;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #f5faff 0%, #ffffff 100%);
-        overflow: hidden;
-    }
-
-    .next-steps-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 15px 18px;
-        border-bottom: 1px solid #e1efff;
-        color: #165ca8;
-        font-weight: 700;
-        font-size: 13px;
-    }
-
-    .next-steps-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-        background: #e4f1ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-blue);
-    }
-
-    .next-steps-body {
-        padding: 17px 18px;
-    }
-
-    .step-item {
-        display: flex;
+    .create-exam-page .ce-page-header {
         align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 13px;
+        flex-direction: column;
+        gap: 18px;
+        padding: 21px 18px;
     }
 
-    .step-item:last-child {
-        margin-bottom: 0;
+    .create-exam-page .ce-header-actions,
+    .create-exam-page .ce-header-actions .ce-btn {
+        width: 100%;
     }
 
-    .step-number {
-        width: 25px;
-        height: 25px;
-        min-width: 25px;
-        border-radius: 50%;
-        background: #eaf3ff;
-        color: var(--primary-blue);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: 700;
+    .create-exam-page .ce-page-title {
+        font-size: 26px;
     }
 
-    .step-text {
-        color: #596575;
-        font-size: 12.5px;
-        line-height: 1.6;
-        padding-top: 2px;
+    .create-exam-page .ce-panel-header {
+        padding: 17px;
     }
 
-    /* ACTION BAR */
-    .action-bar {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 10px;
-        margin-top: 28px;
-        padding-top: 22px;
-        border-top: 1px solid var(--border-color);
+    .create-exam-page .ce-panel-body {
+        padding: 20px 16px;
     }
 
-    .btn-cancel {
-        min-height: 44px;
-        padding: 9px 18px;
-        border-radius: 10px;
-        border: 1px solid #dce2e8;
-        background: #fff;
-        color: #596575;
-        font-size: 13px;
-        font-weight: 600;
+    .create-exam-page .ce-panel-title {
+        font-size: 18px;
     }
 
-    .btn-cancel:hover {
-        background: #f8fafc;
-        color: #374151;
+    .create-exam-page .ce-action-bar {
+        align-items: stretch;
+        flex-direction: column-reverse;
     }
 
-    .btn-create {
-        min-height: 44px;
-        padding: 9px 20px;
-        border-radius: 10px;
-        border: 0;
-        background: var(--primary-blue);
-        color: #fff;
-        font-size: 13px;
-        font-weight: 650;
-        box-shadow: 0 4px 12px rgba(22, 119, 240, .20);
-        transition: all .2s ease;
+    .create-exam-page .ce-action-bar .ce-btn {
+        width: 100%;
     }
 
-    .btn-create:hover {
-        background: var(--primary-dark);
-        color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(22, 119, 240, .25);
+    .create-exam-page .ce-action-note {
+        margin: 5px 0 0;
+        text-align: center;
     }
 
-    .btn-create:disabled {
-        opacity: .75;
-        cursor: not-allowed;
-        transform: none;
+    .create-exam-page .ce-next-steps-body {
+        padding: 16px;
     }
+}
 
-    /* RESPONSIVE */
-    @media (max-width: 767.98px) {
-        .page-header {
-            padding: 18px;
-        }
-
-        .page-header-inner {
-            flex-direction: column;
-            align-items: flex-start !important;
-            gap: 15px;
-        }
-
-        .back-btn {
-            width: 100%;
-            text-align: center;
-        }
-
-        .page-title {
-            font-size: 19px;
-        }
-
-        .exam-card-body {
-            padding: 22px 16px;
-        }
-
-        .exam-card-header {
-            padding: 17px 16px;
-        }
-
-        .action-bar {
-            flex-direction: column-reverse;
-        }
-
-        .btn-cancel,
-        .btn-create {
-            width: 100%;
-        }
+@media (prefers-reduced-motion: reduce) {
+    .create-exam-page *,
+    .create-exam-page *::before,
+    .create-exam-page *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important;
     }
+}
 </style>
 
-<div class="container-fluid py-4">
-    <div class="create-exam-page">
+<div class="create-exam-page">
 
-        {{-- PAGE HEADER --}}
-        <div class="page-header">
-            <div class="page-header-inner d-flex justify-content-between align-items-center">
+    {{-- =====================================================
+        PAGE HEADER
+    ====================================================== --}}
+    <div class="ce-page-header">
 
-                <div class="page-title-wrap">
-                    <div class="page-icon">
-                        <i class="bi bi-journal-plus"></i>
-                    </div>
+        <div class="ce-header-content">
 
-                    <div>
-                        <h4 class="page-title">Create Exam</h4>
-
-                        <p class="page-subtitle">
-                            Create the basic examination information to get started.
-                        </p>
-                    </div>
-                </div>
-
-                <a href="{{ route('admin.exams.index') }}"
-                   class="btn back-btn">
-                    <i class="bi bi-arrow-left me-1"></i>
-                    Back to Exams
-                </a>
-
+            <div class="ce-eyebrow">
+                <i class="bi bi-journal-bookmark-fill"></i>
+                Examination Management
             </div>
+
+            <h1 class="ce-page-title">
+                Create Exam
+            </h1>
+
+            <p class="ce-page-subtitle">
+                Set up the examination details and dates to get started.
+            </p>
+
         </div>
 
-        {{-- VALIDATION ERRORS --}}
-        @if ($errors->any())
-            <div class="alert error-card mb-4">
-                <div class="d-flex align-items-start">
-                    <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+        <div class="ce-header-actions">
 
-                    <div>
-                        <div class="fw-semibold mb-2">
-                            Please correct the following errors:
+            <a href="{{ route('admin.exams.index') }}"
+               class="ce-btn ce-btn-outline">
+
+                <i class="bi bi-arrow-left"></i>
+                Back to Exams
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {{-- =====================================================
+        BREADCRUMB
+    ====================================================== --}}
+    <div class="ce-breadcrumb">
+
+        <i class="bi bi-house-door"></i>
+
+        <span>Examinations</span>
+
+        <span class="ce-breadcrumb-separator">/</span>
+
+        <span>Create Exam</span>
+
+    </div>
+
+
+    {{-- =====================================================
+        VALIDATION ERRORS
+    ====================================================== --}}
+    @if ($errors->any())
+
+        <div class="ce-error-card" role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill ce-error-icon"></i>
+
+            <div class="ce-error-content">
+
+                <div class="ce-error-title">
+                    Please correct the following errors
+                </div>
+
+                <ul class="ce-error-list">
+
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- =====================================================
+        MAIN FORM PANEL
+    ====================================================== --}}
+    <section class="ce-panel">
+
+        <div class="ce-panel-header">
+
+            <div class="ce-panel-icon">
+                <i class="bi bi-journal-plus"></i>
+            </div>
+
+            <div class="ce-panel-heading">
+
+                <h2 class="ce-panel-title">
+                    Exam Information
+                </h2>
+
+                <p class="ce-panel-description">
+                    Enter the basic examination details and choose the examination period.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="ce-panel-body">
+
+            <form method="POST"
+                  action="{{ route('admin.exams.store') }}"
+                  id="createExamForm">
+
+                @csrf
+
+
+                {{-- =================================================
+                    BASIC EXAM INFORMATION
+                ================================================== --}}
+                <div class="ce-form-section">
+
+                    <div class="ce-section-heading">
+
+                        <i class="bi bi-card-list"></i>
+
+                        <div>
+                            <h3 class="ce-section-title">
+                                Basic Information
+                            </h3>
+
+                            <p class="ce-section-description">
+                                Enter the academic year, exam name, type, and status.
+                            </p>
                         </div>
 
-                        <ul class="mb-0 ps-3">
-                            @foreach ($errors->all() as $error)
-                                <li class="mb-1">{{ $error }}</li>
-                            @endforeach
-                        </ul>
                     </div>
-                </div>
-            </div>
-        @endif
 
-        {{-- MAIN FORM CARD --}}
-        <div class="exam-card">
 
-            <div class="exam-card-header">
-                <h5 class="section-title">
-                    <span class="section-title-icon">
-                        <i class="bi bi-info-circle"></i>
-                    </span>
-                    Exam Information
-                </h5>
+                    <div class="row g-4">
 
-                <p class="section-description">
-                    Enter the basic details of the examination.
-                </p>
-            </div>
+                        {{-- ACADEMIC YEAR --}}
+                        <div class="col-lg-6">
 
-            <div class="exam-card-body">
+                            <div class="ce-field">
 
-                <form method="POST"
-                      action="{{ route('admin.exams.store') }}"
-                      id="createExamForm">
-
-                    @csrf
-
-                    {{-- BASIC INFORMATION --}}
-                    <div class="form-section">
-                        <div class="row g-4">
-
-                            {{-- ACADEMIC YEAR --}}
-                            <div class="col-lg-6">
-                                <label for="academic_year" class="field-label">
+                                <label for="academic_year" class="ce-field-label">
                                     Academic Year
-                                    <span class="required-star">*</span>
+                                    <span class="ce-required">*</span>
                                 </label>
 
-                                <div class="input-wrap">
-                                    <i class="bi bi-calendar3 input-icon"></i>
+                                <div class="ce-input-wrap">
+
+                                    <i class="bi bi-calendar3 ce-input-icon"></i>
 
                                     <input type="text"
                                            id="academic_year"
                                            name="academic_year"
-                                           class="form-control input-with-icon"
+                                           class="ce-form-control ce-input-with-icon"
                                            value="{{ old('academic_year', '2026-2027') }}"
                                            placeholder="2026-2027"
                                            maxlength="20"
                                            required>
+
                                 </div>
 
-                                <small class="field-help">
+                                <small class="ce-field-help">
+                                    <i class="bi bi-info-circle"></i>
                                     Example: 2026-2027
                                 </small>
+
                             </div>
 
-                            {{-- EXAM NAME --}}
-                            <div class="col-lg-6">
-                                <label for="exam_name" class="field-label">
+                        </div>
+
+
+                        {{-- EXAM NAME --}}
+                        <div class="col-lg-6">
+
+                            <div class="ce-field">
+
+                                <label for="exam_name" class="ce-field-label">
                                     Exam Name
-                                    <span class="required-star">*</span>
+                                    <span class="ce-required">*</span>
                                 </label>
 
-                                <div class="input-wrap">
-                                    <i class="bi bi-pencil-square input-icon"></i>
+                                <div class="ce-input-wrap">
+
+                                    <i class="bi bi-pencil-square ce-input-icon"></i>
 
                                     <input type="text"
                                            id="exam_name"
                                            name="exam_name"
-                                           class="form-control input-with-icon"
+                                           class="ce-form-control ce-input-with-icon"
                                            value="{{ old('exam_name') }}"
                                            placeholder="Mid Term Examination"
                                            maxlength="150"
                                            required>
+
                                 </div>
 
-                                <small class="field-help">
+                                <small class="ce-field-help">
+                                    <i class="bi bi-info-circle"></i>
                                     Enter the full name of the examination.
                                 </small>
+
                             </div>
 
-                            {{-- EXAM TYPE: TEXT INPUT INSTEAD OF DROPDOWN --}}
-                            <div class="col-lg-6">
-                                <label for="exam_type" class="field-label">
+                        </div>
+
+
+                        {{-- EXAM TYPE --}}
+                        <div class="col-lg-6">
+
+                            <div class="ce-field">
+
+                                <label for="exam_type" class="ce-field-label">
                                     Exam Type
-                                    <span class="required-star">*</span>
+                                    <span class="ce-required">*</span>
                                 </label>
 
-                                <div class="input-wrap">
-                                    <i class="bi bi-bookmark-star input-icon"></i>
+                                <div class="ce-input-wrap">
+
+                                    <i class="bi bi-bookmark-star ce-input-icon"></i>
 
                                     <input type="text"
                                            id="exam_type"
                                            name="exam_type"
-                                           class="form-control input-with-icon"
+                                           class="ce-form-control ce-input-with-icon"
                                            value="{{ old('exam_type') }}"
                                            placeholder="e.g. Unit Test 1, Mid Term, Annual"
                                            maxlength="100"
                                            required>
+
                                 </div>
 
-                                <small class="field-help">
-                                    Type any examination category you want. No dropdown selection is required.
+                                <small class="ce-field-help">
+                                    <i class="bi bi-info-circle"></i>
+                                    Enter any examination category. This is a text field, not a dropdown.
                                 </small>
+
                             </div>
 
-                            {{-- STATUS --}}
-                            <div class="col-lg-6">
-                                <label for="status" class="field-label">
+                        </div>
+
+
+                        {{-- STATUS --}}
+                        <div class="col-lg-6">
+
+                            <div class="ce-field">
+
+                                <label for="status" class="ce-field-label">
                                     Status
-                                    <span class="required-star">*</span>
+                                    <span class="ce-required">*</span>
                                 </label>
 
-                                <div class="input-wrap">
-                                    <i class="bi bi-flag input-icon"></i>
+                                <div class="ce-input-wrap">
+
+                                    <i class="bi bi-flag ce-input-icon"></i>
 
                                     <select id="status"
                                             name="status"
-                                            class="form-select input-with-icon"
+                                            class="ce-form-select ce-input-with-icon"
                                             required>
 
                                         <option value="draft"
@@ -596,107 +989,245 @@
                                         </option>
 
                                     </select>
+
                                 </div>
 
-                                <small class="field-help">
+                                <small class="ce-field-help">
+                                    <i class="bi bi-info-circle"></i>
                                     You can update the examination status later.
                                 </small>
+
                             </div>
 
                         </div>
+
                     </div>
 
-                    {{-- EXAM PERIOD --}}
-                    <div class="form-section">
-                        <div class="row g-4">
+                </div>
 
-                            {{-- START DATE --}}
-                            <div class="col-lg-6">
-                                <label for="start_date" class="field-label">
+
+                {{-- =================================================
+                    EXAMINATION PERIOD
+                ================================================== --}}
+                <div class="ce-form-section">
+
+                    <div class="ce-section-heading">
+
+                        <i class="bi bi-calendar-range"></i>
+
+                        <div>
+                            <h3 class="ce-section-title">
+                                Examination Period
+                            </h3>
+
+                            <p class="ce-section-description">
+                                Set the starting and ending dates for the examination.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row g-4">
+
+                        {{-- START DATE --}}
+                        <div class="col-lg-6">
+
+                            <div class="ce-field">
+
+                                <label for="start_date" class="ce-field-label">
                                     Start Date
-                                    <span class="required-star">*</span>
+                                    <span class="ce-required">*</span>
                                 </label>
 
-                                <div class="input-wrap">
-                                    <i class="bi bi-calendar-event input-icon"></i>
+                                <div class="ce-input-wrap">
+
+                                    <i class="bi bi-calendar-event ce-input-icon"></i>
 
                                     <input type="date"
                                            name="start_date"
                                            id="start_date"
-                                           class="form-control input-with-icon"
+                                           class="ce-form-control ce-input-with-icon"
                                            value="{{ old('start_date') }}"
                                            required>
+
                                 </div>
 
-                                <small class="field-help">
+                                <small class="ce-field-help">
+                                    <i class="bi bi-info-circle"></i>
                                     Initial date on which the examination begins.
                                 </small>
+
                             </div>
 
-                            {{-- END DATE --}}
-                            <div class="col-lg-6">
-                                <label for="end_date" class="field-label">
+                        </div>
+
+
+                        {{-- END DATE --}}
+                        <div class="col-lg-6">
+
+                            <div class="ce-field">
+
+                                <label for="end_date" class="ce-field-label">
                                     End Date
                                 </label>
 
-                                <div class="input-wrap">
-                                    <i class="bi bi-calendar-check input-icon"></i>
+                                <div class="ce-input-wrap">
+
+                                    <i class="bi bi-calendar-check ce-input-icon"></i>
 
                                     <input type="date"
                                            name="end_date"
                                            id="end_date"
-                                           class="form-control input-with-icon"
+                                           class="ce-form-control ce-input-with-icon"
                                            value="{{ old('end_date') }}">
+
                                 </div>
 
-                                <small class="field-help">
+                                <small class="ce-field-help">
+                                    <i class="bi bi-info-circle"></i>
                                     The timetable generator can extend this period when required.
                                 </small>
+
                             </div>
 
                         </div>
 
-                        {{-- DATE PREVIEW --}}
-                        <div class="date-preview" id="datePreview">
-                            <div class="date-preview-icon">
-                                <i class="bi bi-calendar-range"></i>
-                            </div>
+                    </div>
 
-                            <div>
-                                <div class="date-preview-label">
-                                    Examination Period
-                                </div>
 
-                                <div class="date-preview-value"
-                                     id="datePreviewText"></div>
-                            </div>
+                    {{-- DATE PREVIEW --}}
+                    <div class="ce-date-preview"
+                         id="datePreview"
+                         aria-live="polite">
+
+                        <div class="ce-date-preview-icon">
+                            <i class="bi bi-calendar-range"></i>
                         </div>
-                    </div>
 
-                    {{-- ACTION BAR --}}
-                    <div class="action-bar">
+                        <div class="ce-date-preview-content">
 
-                        <a href="{{ route('admin.exams.index') }}"
-                           class="btn btn-cancel">
-                            <i class="bi bi-x-circle me-1"></i>
-                            Cancel
-                        </a>
+                            <div class="ce-date-preview-label">
+                                Examination Period
+                            </div>
 
-                        <button type="submit"
-                                class="btn btn-create"
-                                id="createExamBtn">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Create Exam
-                        </button>
+                            <div class="ce-date-preview-value"
+                                 id="datePreviewText"></div>
+
+                        </div>
 
                     </div>
 
-                </form>
-            </div>
+                </div>
+
+
+                {{-- =================================================
+                    NEXT STEPS
+                ================================================== --}}
+                <div class="ce-next-steps">
+
+                    <div class="ce-next-steps-header">
+
+                        <div class="ce-next-steps-icon">
+                            <i class="bi bi-signpost-split"></i>
+                        </div>
+
+                        <div>
+
+                            <h3 class="ce-next-steps-title">
+                                What Happens Next?
+                            </h3>
+
+                            <p class="ce-next-steps-subtitle">
+                                Continue setting up your examination after creating it.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="ce-next-steps-body">
+
+                        <div class="ce-step-item">
+
+                            <div class="ce-step-number">1</div>
+
+                            <div class="ce-step-text">
+                                <strong>Create the examination.</strong>
+                                Save the basic information and examination dates.
+                            </div>
+
+                        </div>
+
+                        <div class="ce-step-item">
+
+                            <div class="ce-step-number">2</div>
+
+                            <div class="ce-step-text">
+                                <strong>Configure classes and subjects.</strong>
+                                Set up the classes and subjects associated with the examination.
+                            </div>
+
+                        </div>
+
+                        <div class="ce-step-item">
+
+                            <div class="ce-step-number">3</div>
+
+                            <div class="ce-step-text">
+                                <strong>Generate the timetable.</strong>
+                                Configure paper slots and generate the schedule using your existing timetable-generation workflow.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- =================================================
+                    ACTION BAR
+                ================================================== --}}
+                <div class="ce-action-bar">
+
+                    <div class="ce-action-note">
+                        <i class="bi bi-shield-check"></i>
+                        Review the details before creating the examination.
+                    </div>
+
+                    <a href="{{ route('admin.exams.index') }}"
+                       class="ce-btn ce-btn-outline">
+
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="ce-btn ce-btn-primary"
+                            id="createExamBtn">
+
+                        <i class="bi bi-check-circle"></i>
+                        Create Exam
+
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
-    </div>
+
+    </section>
+
 </div>
 
+
+{{-- =========================================================
+    DATE PREVIEW AND FORM SUBMISSION SCRIPT
+========================================================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -708,64 +1239,94 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('createExamForm');
     const submitButton = document.getElementById('createExamBtn');
 
+    if (!startDate || !endDate || !datePreview || !datePreviewText || !form) {
+        return;
+    }
+
     /*
     |--------------------------------------------------------------------------
-    | Format date for display
+    | Format a local date without timezone shifting
     |--------------------------------------------------------------------------
     */
+    function parseLocalDate(value) {
+
+        if (!value) {
+            return null;
+        }
+
+        const parts = value.split('-').map(Number);
+
+        if (parts.length !== 3 || parts.some(Number.isNaN)) {
+            return null;
+        }
+
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
     function formatDate(date) {
+
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
             month: 'short',
             year: 'numeric'
         });
+
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Update examination date preview
+    | Update the examination date preview
     |--------------------------------------------------------------------------
     */
     function updateDatePreview() {
 
-        if (!startDate.value) {
+        const start = parseLocalDate(startDate.value);
+        const end = parseLocalDate(endDate.value);
+
+        if (!start) {
             datePreview.classList.remove('show');
+            datePreviewText.textContent = '';
             return;
         }
 
-        const start = new Date(startDate.value + 'T00:00:00');
-
         let text = 'Starts on ' + formatDate(start);
 
-        if (endDate.value) {
-
-            const end = new Date(endDate.value + 'T00:00:00');
+        if (end) {
 
             if (end >= start) {
 
                 const difference =
-                    Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                    Math.round((end - start) / 86400000) + 1;
 
                 text =
-                    formatDate(start) +
-                    ' → ' +
-                    formatDate(end) +
-                    ' • ' +
-                    difference +
-                    (difference === 1 ? ' day' : ' days');
+                    formatDate(start)
+                    + ' → '
+                    + formatDate(end)
+                    + ' · '
+                    + difference
+                    + (difference === 1 ? ' day' : ' days');
+
+            } else {
+
+                text =
+                    formatDate(start)
+                    + ' → Please select an end date on or after the start date.';
+
             }
+
         }
 
         datePreviewText.textContent = text;
         datePreview.classList.add('show');
+
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Start date change
+    | Validate date ordering and update the minimum end date
     |--------------------------------------------------------------------------
     */
-    startDate.addEventListener('change', function () {
+    function updateDateConstraints() {
 
         if (startDate.value) {
 
@@ -776,58 +1337,84 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
         } else {
+
             endDate.removeAttribute('min');
+
         }
 
         updateDatePreview();
-    });
 
-    /*
-    |--------------------------------------------------------------------------
-    | End date change
-    |--------------------------------------------------------------------------
-    */
-    endDate.addEventListener('change', function () {
-
-        if (
-            startDate.value &&
-            endDate.value &&
-            endDate.value < startDate.value
-        ) {
-            endDate.value = startDate.value;
-        }
-
-        updateDatePreview();
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Initial date preview
-    |--------------------------------------------------------------------------
-    */
-    if (startDate.value) {
-        endDate.min = startDate.value;
-        updateDatePreview();
     }
 
+    startDate.addEventListener('change', updateDateConstraints);
+    endDate.addEventListener('change', updateDatePreview);
+
     /*
     |--------------------------------------------------------------------------
-    | Prevent duplicate form submissions
+    | Initialize preview for old input after validation redirects
     |--------------------------------------------------------------------------
     */
+    updateDateConstraints();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prevent duplicate submissions
+    |--------------------------------------------------------------------------
+    */
+    let submissionStarted = false;
+
     form.addEventListener('submit', function (event) {
+
+        if (submissionStarted) {
+            event.preventDefault();
+            return;
+        }
 
         if (!form.checkValidity()) {
             return;
         }
 
-        submitButton.disabled = true;
+        /*
+         * Extra guard in case a date is populated without normal UI interaction.
+         */
+        if (
+            startDate.value &&
+            endDate.value &&
+            endDate.value < startDate.value
+        ) {
 
-        submitButton.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2" ' +
-            'role="status" aria-hidden="true"></span>' +
-            'Creating Exam...';
+            event.preventDefault();
 
+            endDate.setCustomValidity(
+                'End date must be on or after the start date.'
+            );
+
+            endDate.reportValidity();
+            endDate.focus();
+
+            return;
+
+        }
+
+        endDate.setCustomValidity('');
+
+        submissionStarted = true;
+
+        if (submitButton) {
+
+            submitButton.disabled = true;
+
+            submitButton.innerHTML =
+                '<span class="spinner-border spinner-border-sm" '
+                + 'role="status" aria-hidden="true"></span> '
+                + 'Creating Exam...';
+
+        }
+
+    });
+
+    endDate.addEventListener('input', function () {
+        endDate.setCustomValidity('');
     });
 
 });

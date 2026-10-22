@@ -5,427 +5,379 @@
 
 @section('content')
 
-<div class="container-fluid py-4">
+<div class="exam-session-page">
 
-    {{-- =========================================================
-        PAGE HEADER
-    ========================================================== --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    {{-- PAGE HEADER --}}
+    <div class="exam-session-header">
+        <div class="header-main">
 
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="page-icon">
+            <div class="breadcrumb-line">
+                <a href="{{ route('admin.exam-sessions.index', $exam) }}">
+                    Examinations
+                </a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Edit Exam Session</span>
+            </div>
+
+            <div class="header-title-row">
+                <div class="page-icon">
                     <i class="bi bi-pencil-square"></i>
-                </span>
+                </div>
 
-                <h4 class="fw-bold mb-0">
-                    Edit Exam Session
-                </h4>
+                <div>
+                    <h1>Edit Exam Session</h1>
+                    <p>Update the examination time slot and session settings.</p>
+                </div>
             </div>
 
-            <div class="text-muted small">
-                Update the examination time slot and session settings.
-            </div>
         </div>
 
         <a href="{{ route('admin.exam-sessions.index', $exam) }}"
-           class="btn btn-outline-secondary px-3">
-            <i class="bi bi-arrow-left me-1"></i>
-            Back to Sessions
+           class="diary-btn diary-btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Sessions</span>
         </a>
-
     </div>
 
 
-    {{-- =========================================================
-        EXAM SUMMARY
-    ========================================================== --}}
-    <div class="card border-0 shadow-sm exam-summary-card mb-4">
+    {{-- EXAMINATION SUMMARY --}}
+    <div class="exam-summary">
 
-        <div class="card-body p-4">
-
-            <div class="row align-items-center g-4">
-
-                <div class="col-lg-8">
-
-                    <div class="d-flex align-items-start gap-3">
-
-                        <div class="exam-icon">
-                            <i class="bi bi-journal-text"></i>
-                        </div>
-
-                        <div>
-                            <div class="text-muted small mb-1">
-                                Examination
-                            </div>
-
-                            <h5 class="fw-bold mb-2">
-                                {{ $exam->exam_name }}
-                            </h5>
-
-                            <div class="d-flex flex-wrap gap-2">
-
-                                <span class="info-badge">
-                                    <i class="bi bi-calendar3 me-1"></i>
-                                    {{ $exam->academic_year }}
-                                </span>
-
-                                @if(!empty($exam->exam_type))
-                                    <span class="info-badge">
-                                        <i class="bi bi-bookmark me-1"></i>
-                                        {{ $exam->exam_type }}
-                                    </span>
-                                @endif
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="col-lg-4">
-
-                    <div class="configuration-box">
-                        <div class="configuration-icon">
-                            <i class="bi bi-clock-history"></i>
-                        </div>
-
-                        <div>
-                            <div class="fw-semibold">
-                                Session Time Slot
-                            </div>
-
-                            <div class="small text-muted">
-                                Update the timing used for timetable generation.
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
+        <div class="exam-summary-main">
+            <div class="exam-icon">
+                <i class="bi bi-journal-text"></i>
             </div>
 
+            <div class="exam-summary-details">
+                <span class="eyebrow">EXAMINATION DETAILS</span>
+
+                <h2>{{ $exam->exam_name }}</h2>
+
+                <div class="exam-meta">
+                    <span>
+                        <i class="bi bi-calendar3"></i>
+                        Academic Year:
+                        <strong>{{ $exam->academic_year }}</strong>
+                    </span>
+
+                    @if(!empty($exam->exam_type))
+                        <span class="meta-separator">•</span>
+                        <span>
+                            <i class="bi bi-tag"></i>
+                            {{ $exam->exam_type }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="exam-summary-side">
+            <div class="summary-side-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div>
+                <span class="summary-side-label">SESSION SETTINGS</span>
+                <strong>Session Time Slot</strong>
+                <small>Examination timetable configuration</small>
+            </div>
         </div>
 
     </div>
 
 
-    {{-- =========================================================
-        VALIDATION ERRORS
-    ========================================================== --}}
+    {{-- VALIDATION ERRORS --}}
     @if($errors->any())
+        <div class="validation-panel" role="alert">
 
-        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-start gap-3 mb-4"
-             role="alert">
-
-            <div class="alert-icon">
-                <i class="bi bi-exclamation-triangle-fill"></i>
+            <div class="validation-icon">
+                <i class="bi bi-exclamation-triangle"></i>
             </div>
 
-            <div class="flex-grow-1">
+            <div>
+                <h3>Please check the following details</h3>
 
-                <div class="fw-semibold mb-1">
-                    Please correct the following errors:
-                </div>
-
-                <ul class="mb-0 ps-3">
+                <ul>
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
-
             </div>
 
         </div>
-
     @endif
 
 
-    {{-- =========================================================
-        SESSION FORM
-    ========================================================== --}}
-    <div class="card border-0 shadow-sm session-card">
+    {{-- SESSION FORM CARD --}}
+    <div class="form-card">
 
-        <div class="card-header bg-white border-0 px-4 pt-4 pb-3">
+        <div class="form-card-header">
 
-            <div class="d-flex align-items-center gap-3">
-
-                <div class="section-icon">
-                    <i class="bi bi-clock"></i>
-                </div>
-
-                <div>
-                    <h5 class="fw-bold mb-1">
-                        Session Information
-                    </h5>
-
-                    <p class="text-muted small mb-0">
-                        Update the details of this examination session.
-                    </p>
-                </div>
-
+            <div class="section-icon">
+                <i class="bi bi-clock-history"></i>
             </div>
+
+            <div>
+                <h2>Session Information</h2>
+                <p>Update the name, timing and availability of this session.</p>
+            </div>
+
+            <span class="required-note">
+                <span>*</span> Required fields
+            </span>
 
         </div>
 
 
-        <div class="card-body px-4 pb-4">
+        <div class="form-card-body">
 
             <form method="POST"
-                  action="{{ route(
-                      'admin.exam-sessions.update',
-                      [$exam, $session]
-                  ) }}">
+                  action="{{ route('admin.exam-sessions.update', [$exam, $session]) }}">
 
                 @csrf
                 @method('PUT')
 
 
-                <div class="row g-4">
+                {{-- SESSION DETAILS --}}
+                <div class="form-section">
 
-                    {{-- =================================================
-                        SESSION NAME
-                    ================================================== --}}
-                    <div class="col-md-6">
+                    <div class="form-section-heading">
+                        <span class="section-number">01</span>
 
-                        <label class="form-label fw-semibold">
-                            Session Name
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <div class="input-group custom-input-group">
-
-                            <span class="input-group-text">
-                                <i class="bi bi-tag"></i>
-                            </span>
-
-                            <input type="text"
-                                   name="session_name"
-                                   class="form-control @error('session_name') is-invalid @enderror"
-                                   value="{{ old('session_name', $session->session_name) }}"
-                                   placeholder="Example: Morning Session"
-                                   required>
-
+                        <div>
+                            <h3>Session Details</h3>
+                            <p>Update the session name and availability status.</p>
                         </div>
-
-                        @error('session_name')
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                        <div class="form-text">
-                            Give this session a clear and recognizable name.
-                        </div>
-
                     </div>
 
 
-                    {{-- =================================================
-                        STATUS
-                    ================================================== --}}
-                    <div class="col-md-6">
+                    <div class="form-grid">
 
-                        <label class="form-label fw-semibold">
-                            Status
-                        </label>
+                        {{-- SESSION NAME --}}
+                        <div class="form-field">
 
-                        @php
-                            $currentStatus = old(
-                                'status',
-                                $session->status ? '1' : '0'
-                            );
-                        @endphp
+                            <label for="session_name" class="form-label">
+                                Session Name <span class="required">*</span>
+                            </label>
 
-                        <div class="input-group custom-input-group">
+                            <div class="input-shell">
+                                <span class="input-icon">
+                                    <i class="bi bi-tag"></i>
+                                </span>
 
-                            <span class="input-group-text">
-                                <i class="bi bi-toggle-on"></i>
-                            </span>
+                                <input
+                                    type="text"
+                                    id="session_name"
+                                    name="session_name"
+                                    class="form-control @error('session_name') is-invalid @enderror"
+                                    value="{{ old('session_name', $session->session_name) }}"
+                                    placeholder="e.g. Morning Session"
+                                    required
+                                >
+                            </div>
 
-                            <select name="status"
-                                    class="form-select @error('status') is-invalid @enderror">
-
-                                <option value="1"
-                                    {{ $currentStatus == '1' ? 'selected' : '' }}>
-                                    Active
-                                </option>
-
-                                <option value="0"
-                                    {{ $currentStatus == '0' ? 'selected' : '' }}>
-                                    Inactive
-                                </option>
-
-                            </select>
+                            @error('session_name')
+                                <div class="field-error">{{ $message }}</div>
+                            @else
+                                <div class="field-hint">
+                                    Give this session a clear and recognizable name.
+                                </div>
+                            @enderror
 
                         </div>
 
-                        @error('status')
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
-                        <div class="form-text">
-                            Only active sessions should normally be used for timetable generation.
+                        {{-- STATUS --}}
+                        <div class="form-field">
+
+                            <label for="status" class="form-label">
+                                Session Status
+                            </label>
+
+                            @php
+                                $currentStatus = old(
+                                    'status',
+                                    $session->status ? '1' : '0'
+                                );
+                            @endphp
+
+                            <div class="input-shell">
+                                <span class="input-icon">
+                                    <i class="bi bi-toggle-on"></i>
+                                </span>
+
+                                <select
+                                    id="status"
+                                    name="status"
+                                    class="form-select @error('status') is-invalid @enderror"
+                                >
+                                    <option value="1"
+                                        {{ $currentStatus == '1' ? 'selected' : '' }}>
+                                        Active
+                                    </option>
+
+                                    <option value="0"
+                                        {{ $currentStatus == '0' ? 'selected' : '' }}>
+                                        Inactive
+                                    </option>
+                                </select>
+                            </div>
+
+                            @error('status')
+                                <div class="field-error">{{ $message }}</div>
+                            @else
+                                <div class="field-hint">
+                                    Active sessions can be used for timetable generation.
+                                </div>
+                            @enderror
+
                         </div>
 
                     </div>
+                </div>
 
 
-                    {{-- =================================================
-                        START TIME
-                    ================================================== --}}
-                    <div class="col-md-6">
+                {{-- SESSION TIMING --}}
+                <div class="form-section">
 
-                        <label class="form-label fw-semibold">
-                            Start Time
-                            <span class="text-danger">*</span>
-                        </label>
+                    <div class="form-section-heading">
+                        <span class="section-number">02</span>
 
-                        <div class="input-group custom-input-group">
-
-                            <span class="input-group-text">
-                                <i class="bi bi-clock"></i>
-                            </span>
-
-                            <input type="time"
-                                   id="start_time"
-                                   name="start_time"
-                                   class="form-control @error('start_time') is-invalid @enderror"
-                                   value="{{ old(
-                                       'start_time',
-                                       \Carbon\Carbon::parse($session->start_time)->format('H:i')
-                                   ) }}"
-                                   required>
-
+                        <div>
+                            <h3>Session Timing</h3>
+                            <p>Set the examination start and end time.</p>
                         </div>
-
-                        @error('start_time')
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
                     </div>
 
 
-                    {{-- =================================================
-                        END TIME
-                    ================================================== --}}
-                    <div class="col-md-6">
+                    <div class="form-grid">
 
-                        <label class="form-label fw-semibold">
-                            End Time
-                            <span class="text-danger">*</span>
-                        </label>
+                        {{-- START TIME --}}
+                        <div class="form-field">
 
-                        <div class="input-group custom-input-group">
+                            <label for="start_time" class="form-label">
+                                Start Time <span class="required">*</span>
+                            </label>
 
-                            <span class="input-group-text">
-                                <i class="bi bi-clock-fill"></i>
-                            </span>
+                            <div class="input-shell">
+                                <span class="input-icon">
+                                    <i class="bi bi-play-circle"></i>
+                                </span>
 
-                            <input type="time"
-                                   id="end_time"
-                                   name="end_time"
-                                   class="form-control @error('end_time') is-invalid @enderror"
-                                   value="{{ old(
-                                       'end_time',
-                                       \Carbon\Carbon::parse($session->end_time)->format('H:i')
-                                   ) }}"
-                                   required>
+                                <input
+                                    type="time"
+                                    id="start_time"
+                                    name="start_time"
+                                    class="form-control @error('start_time') is-invalid @enderror"
+                                    value="{{ old(
+                                        'start_time',
+                                        \Carbon\Carbon::parse($session->start_time)->format('H:i')
+                                    ) }}"
+                                    required
+                                >
+                            </div>
+
+                            @error('start_time')
+                                <div class="field-error">{{ $message }}</div>
+                            @else
+                                <div class="field-hint">
+                                    Select when the examination session begins.
+                                </div>
+                            @enderror
 
                         </div>
 
-                        @error('end_time')
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
+                        {{-- END TIME --}}
+                        <div class="form-field">
+
+                            <label for="end_time" class="form-label">
+                                End Time <span class="required">*</span>
+                            </label>
+
+                            <div class="input-shell">
+                                <span class="input-icon">
+                                    <i class="bi bi-stop-circle"></i>
+                                </span>
+
+                                <input
+                                    type="time"
+                                    id="end_time"
+                                    name="end_time"
+                                    class="form-control @error('end_time') is-invalid @enderror"
+                                    value="{{ old(
+                                        'end_time',
+                                        \Carbon\Carbon::parse($session->end_time)->format('H:i')
+                                    ) }}"
+                                    required
+                                >
+                            </div>
+
+                            @error('end_time')
+                                <div class="field-error">{{ $message }}</div>
+                            @else
+                                <div class="field-hint">
+                                    Select when the examination session ends.
+                                </div>
+                            @enderror
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                {{-- SESSION PREVIEW --}}
+                <div class="session-preview">
+
+                    <div class="preview-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+
+                    <div class="preview-content">
+                        <strong>Session Preview</strong>
+
+                        <p id="sessionPreview" aria-live="polite">
+                            Select the start and end time to preview the session duration.
+                        </p>
+                    </div>
+
+                    <div class="duration-badge" id="durationBadge">
+                        <i class="bi bi-clock"></i>
+                        <span id="durationText">--</span>
                     </div>
 
                 </div>
 
 
-                {{-- =================================================
-                    TIME PREVIEW
-                ================================================== --}}
-                <div class="time-preview mt-4">
+                {{-- TIMETABLE NOTICE --}}
+                <div class="info-notice">
 
-                    <div class="d-flex align-items-center gap-3">
-
-                        <div class="preview-icon">
-                            <i class="bi bi-hourglass-split"></i>
-                        </div>
-
-                        <div class="flex-grow-1">
-
-                            <div class="fw-semibold">
-                                Session Preview
-                            </div>
-
-                            <div class="small text-muted"
-                                 id="sessionPreview">
-                                Select the start and end time to preview the session duration.
-                            </div>
-
-                        </div>
-
-                        <div class="duration-badge"
-                             id="durationBadge">
-                            <i class="bi bi-clock me-1"></i>
-                            <span id="durationText">--</span>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- =================================================
-                    INFORMATION NOTICE
-                ================================================== --}}
-                <div class="info-notice mt-3">
-
-                    <i class="bi bi-info-circle-fill"></i>
+                    <i class="bi bi-info-circle"></i>
 
                     <div>
-                        <strong>Timetable note:</strong>
-                        This session time will be used when generating the examination timetable.
-                        Make sure the start time is earlier than the end time.
+                        <strong>Timetable note</strong>
+                        <p>
+                            This session time will be used when generating the examination
+                            timetable. Ensure the end time is later than the start time.
+                        </p>
                     </div>
 
                 </div>
 
 
-                <hr class="my-4">
+                {{-- FORM ACTIONS --}}
+                <div class="form-actions">
 
-
-                {{-- =================================================
-                    ACTION BUTTONS
-                ================================================== --}}
-                <div class="d-flex flex-wrap justify-content-end gap-2">
-
-                    <a href="{{ route(
-                        'admin.exam-sessions.index',
-                        $exam
-                    ) }}"
-                       class="btn btn-light border px-4">
-
-                        <i class="bi bi-x-lg me-1"></i>
+                    <a href="{{ route('admin.exam-sessions.index', $exam) }}"
+                       class="diary-btn diary-btn-secondary">
+                        <i class="bi bi-x-lg"></i>
                         Cancel
-
                     </a>
 
-                    <button type="submit"
-                            class="btn btn-primary px-4">
-
-                        <i class="bi bi-check-lg me-1"></i>
+                    <button type="submit" class="diary-btn diary-btn-primary">
+                        <i class="bi bi-check2-circle"></i>
                         Update Session
-
                     </button>
 
                 </div>
@@ -433,278 +385,842 @@
             </form>
 
         </div>
+    </div>
 
+
+    {{-- PAGE FOOTER --}}
+    <div class="page-footer-note">
+        <i class="bi bi-shield-check"></i>
+        <span>
+            School Diary <span class="footer-dot">•</span>
+            Examination Management
+        </span>
     </div>
 
 </div>
 
 
-{{-- =============================================================
-    PAGE STYLES
-============================================================= --}}
+{{-- PAGE STYLES --}}
 <style>
+    .exam-session-page {
+        --page: #f7f6f0;
+        --paper: #fffefa;
+        --chalk: #f5f3e9;
+        --ink: #263b35;
+        --ink-dark: #1d302b;
+        --soft-ink: #40574a;
+        --text: #39483e;
+        --muted: #7b857b;
+        --line: #e5e1d5;
+        --sage: #527f70;
+        --sage-light: #edf2ec;
+        --danger: #b95b50;
 
-    :root {
-        --primary-blue: #1677f0;
-        --primary-dark: #0f5fc4;
-        --soft-blue: #eef6ff;
-        --border-color: #e7ebf0;
-        --text-dark: #263238;
-        --muted-text: #6c757d;
+        padding: 24px;
+        color: var(--text);
+        background: var(--page);
+        border-radius: 16px;
+        font-family: "Public Sans", sans-serif;
+    }
+
+    .exam-session-page,
+    .exam-session-page * {
+        box-sizing: border-box;
+    }
+
+    /* HEADER */
+
+    .exam-session-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .header-main {
+        min-width: 0;
+    }
+
+    .breadcrumb-line {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-bottom: 14px;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .breadcrumb-line a {
+        color: var(--soft-ink);
+        text-decoration: none;
+    }
+
+    .breadcrumb-line a:hover {
+        color: var(--ink-dark);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-line i {
+        color: #a5a99e;
+        font-size: 9px;
+    }
+
+    .header-title-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
     }
 
     .page-icon {
-        width: 42px;
-        height: 42px;
-        display: inline-flex;
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 11px;
-        background: var(--soft-blue);
-        color: var(--primary-blue);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--paper);
+        color: var(--ink);
         font-size: 20px;
     }
 
-    .exam-summary-card,
-    .session-card {
-        border-radius: 16px;
-        overflow: hidden;
+    .header-title-row h1 {
+        margin: 0;
+        color: var(--ink-dark);
+        font-family: Georgia, serif;
+        font-size: clamp(23px, 2.2vw, 30px);
+        font-weight: 700;
+        letter-spacing: -.6px;
     }
 
-    .exam-summary-card {
-        background: linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #f8fbff 100%
-        );
+    .header-title-row p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    /* BUTTONS */
+
+    .diary-btn {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 17px;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.3;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .18s ease, border-color .18s ease,
+                    color .18s ease, transform .18s ease;
+    }
+
+    .diary-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .diary-btn-secondary {
+        background: var(--paper);
+        border-color: var(--line);
+        color: var(--ink);
+    }
+
+    .diary-btn-secondary:hover {
+        background: var(--chalk);
+        border-color: #cbcfc1;
+        color: var(--ink-dark);
+    }
+
+    .diary-btn-primary {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: var(--paper);
+    }
+
+    .diary-btn-primary:hover {
+        background: var(--ink-dark);
+        border-color: var(--ink-dark);
+        color: var(--paper);
+    }
+
+    /* EXAM SUMMARY */
+
+    .exam-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px;
+        margin-bottom: 22px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+    }
+
+    .exam-summary-main {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
     }
 
     .exam-icon {
         width: 52px;
         height: 52px;
-        min-width: 52px;
-        border-radius: 14px;
+        flex: 0 0 52px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--primary-blue);
-        color: #fff;
+        border: 1px solid #d9e0d5;
+        border-radius: 13px;
+        background: var(--sage-light);
+        color: var(--ink);
         font-size: 22px;
-        box-shadow: 0 7px 18px rgba(22, 119, 240, 0.20);
     }
 
-    .info-badge {
+    .exam-summary-details {
+        min-width: 0;
+    }
+
+    .eyebrow,
+    .summary-side-label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+    }
+
+    .exam-summary-details h2 {
+        margin: 0;
+        color: var(--ink-dark);
+        font-family: Georgia, serif;
+        font-size: 21px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .exam-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 9px;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .exam-meta span {
         display: inline-flex;
         align-items: center;
-        padding: 6px 11px;
-        border-radius: 8px;
-        background: #f1f4f8;
-        color: #5f6b76;
-        font-size: 13px;
-        font-weight: 500;
+        gap: 5px;
     }
 
-    .configuration-box {
+    .exam-meta strong {
+        color: var(--text);
+        font-weight: 700;
+    }
+
+    .meta-separator {
+        color: #c5c6ba;
+    }
+
+    .exam-summary-side {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 15px;
-        border-radius: 12px;
-        background: #f8fbff;
-        border: 1px solid #dcecff;
+        min-width: 250px;
+        padding: 14px 16px;
+        background: var(--chalk);
+        border: 1px solid var(--line);
+        border-radius: 11px;
     }
 
-    .configuration-icon {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
+    .summary-side-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 10px;
-        background: #e5f1ff;
-        color: var(--primary-blue);
-        font-size: 18px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 16px;
+    }
+
+    .exam-summary-side strong {
+        display: block;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .exam-summary-side small {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    /* VALIDATION */
+
+    .validation-panel {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        margin-bottom: 22px;
+        background: #fff9f6;
+        border: 1px solid #ead4cd;
+        border-radius: 11px;
+        color: #7e4038;
+    }
+
+    .validation-icon {
+        width: 35px;
+        height: 35px;
+        flex: 0 0 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8e9e3;
+        border-radius: 9px;
+        font-size: 17px;
+    }
+
+    .validation-panel h3 {
+        margin: 2px 0 8px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .validation-panel ul {
+        padding-left: 18px;
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.8;
+    }
+
+    /* FORM CARD */
+
+    .form-card {
+        overflow: hidden;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 21px 25px;
+        border-bottom: 1px solid var(--line);
+        background: var(--paper);
     }
 
     .section-icon {
-        width: 44px;
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 11px;
-        background: var(--soft-blue);
-        color: var(--primary-blue);
-        font-size: 19px;
-    }
-
-    .session-card .card-header {
-        border-bottom: 1px solid var(--border-color) !important;
-    }
-
-    .form-label {
-        color: var(--text-dark);
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .custom-input-group {
-        border-radius: 9px;
-        overflow: hidden;
-    }
-
-    .custom-input-group .input-group-text {
-        background: #f8fafc;
-        border-color: #dfe4ea;
-        color: #6c757d;
-        min-width: 46px;
-        justify-content: center;
-    }
-
-    .custom-input-group .form-control,
-    .custom-input-group .form-select {
-        border-color: #dfe4ea;
-        min-height: 46px;
-        box-shadow: none;
-    }
-
-    .custom-input-group:focus-within .input-group-text {
-        border-color: var(--primary-blue);
-        color: var(--primary-blue);
-        background: var(--soft-blue);
-    }
-
-    .custom-input-group:focus-within .form-control,
-    .custom-input-group:focus-within .form-select {
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 0.18rem rgba(22, 119, 240, 0.10);
-    }
-
-    .form-text {
-        font-size: 12px;
-        color: #8a939d;
-        margin-top: 6px;
-    }
-
-    .time-preview {
-        padding: 16px 18px;
-        border-radius: 12px;
-        background: #f8fbff;
-        border: 1px solid #dcecff;
-    }
-
-    .preview-icon {
         width: 42px;
         height: 42px;
-        min-width: 42px;
+        flex: 0 0 42px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 10px;
-        background: #e5f1ff;
-        color: var(--primary-blue);
+        border: 1px solid #dce3d9;
+        border-radius: 11px;
+        background: var(--sage-light);
+        color: var(--ink);
         font-size: 18px;
     }
 
-    .duration-badge {
-        padding: 8px 13px;
-        border-radius: 8px;
-        background: #e8f5ee;
-        color: #198754;
+    .form-card-header h2 {
+        margin: 0;
+        color: var(--ink);
+        font-family: Georgia, serif;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .form-card-header p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .required-note {
+        margin-left: auto;
+        color: var(--muted);
+        white-space: nowrap;
+        font-size: 11px;
+    }
+
+    .required-note span,
+    .required {
+        color: var(--danger);
+    }
+
+    .form-card-body {
+        padding: 26px;
+    }
+
+    /* FORM SECTIONS */
+
+    .form-section {
+        padding-bottom: 26px;
+        margin-bottom: 25px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .form-section-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+
+    .section-number {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--chalk);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .form-section-heading h3 {
+        margin: 1px 0 5px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .form-section-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 23px 25px;
+    }
+
+    .form-field {
+        min-width: 0;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .input-shell {
+        display: flex;
+        align-items: stretch;
+        min-width: 0;
+    }
+
+    .input-icon {
+        width: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--chalk);
+        border: 1px solid var(--line);
+        border-right: 0;
+        border-radius: 9px 0 0 9px;
+        color: var(--soft-ink);
+        font-size: 15px;
+    }
+
+    .exam-session-page .form-control,
+    .exam-session-page .form-select {
+        width: 100%;
+        min-width: 0;
+        min-height: 45px;
+        padding: 10px 12px;
+        background-color: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 0 9px 9px 0;
+        color: var(--text);
+        font-family: inherit;
         font-size: 13px;
-        font-weight: 600;
+        box-shadow: none;
+        outline: none;
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .exam-session-page .form-control:focus,
+    .exam-session-page .form-select:focus {
+        border-color: var(--sage);
+        box-shadow: 0 0 0 3px rgba(82, 127, 112, .11);
+        z-index: 1;
+    }
+
+    .exam-session-page .form-control.is-invalid,
+    .exam-session-page .form-select.is-invalid {
+        border-color: var(--danger);
+    }
+
+    .field-hint {
+        margin-top: 7px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .field-error {
+        margin-top: 7px;
+        color: var(--danger);
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    /* SESSION PREVIEW */
+
+    .session-preview {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 17px;
+        margin-top: 3px;
+        background: var(--chalk);
+        border: 1px solid var(--line);
+        border-radius: 11px;
+    }
+
+    .preview-icon {
+        width: 37px;
+        height: 37px;
+        flex: 0 0 37px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 16px;
+    }
+
+    .preview-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .preview-content strong {
+        display: block;
+        margin: 1px 0 5px;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .preview-content p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .duration-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border: 1px solid #d9e0d5;
+        border-radius: 8px;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
         white-space: nowrap;
     }
+
+    .duration-badge.is-invalid {
+        border-color: #ead4cd;
+        color: var(--danger);
+        background: #fff9f6;
+    }
+
+    /* INFORMATION NOTICE */
 
     .info-notice {
         display: flex;
         align-items: flex-start;
-        gap: 10px;
-        padding: 13px 15px;
+        gap: 11px;
+        padding: 15px 16px;
+        margin-top: 13px;
+        background: var(--paper);
+        border: 1px solid var(--line);
         border-radius: 10px;
-        background: #fffaf0;
-        border: 1px solid #ffe6ad;
-        color: #765b18;
-        font-size: 13px;
-        line-height: 1.6;
     }
 
     .info-notice > i {
-        color: #e0a800;
         margin-top: 2px;
+        color: var(--soft-ink);
+        font-size: 16px;
     }
 
-    .btn-primary {
-        background-color: var(--primary-blue);
-        border-color: var(--primary-blue);
+    .info-notice strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
     }
 
-    .btn-primary:hover {
-        background-color: var(--primary-dark);
-        border-color: var(--primary-dark);
+    .info-notice p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.7;
     }
 
-    .btn {
-        border-radius: 8px;
-        font-weight: 500;
+    /* ACTIONS */
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 23px;
+        margin-top: 24px;
+        border-top: 1px solid var(--line);
     }
 
-    .alert {
-        border-radius: 12px;
-    }
+    /* FOOTER */
 
-    .alert-icon {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
+    .page-footer-note {
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 9px;
-        background: rgba(220, 53, 69, 0.10);
-        color: #dc3545;
+        gap: 8px;
+        margin-top: 20px;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .page-footer-note > i {
+        color: var(--soft-ink);
+        font-size: 14px;
+    }
+
+    .footer-dot {
+        padding: 0 3px;
+        color: #b3b5a8;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+        .exam-summary {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .exam-summary-side {
+            min-width: 0;
+        }
     }
 
     @media (max-width: 767.98px) {
-
-        .container-fluid {
-            padding-left: 15px;
-            padding-right: 15px;
+        .exam-session-page {
+            padding: 16px;
+            border-radius: 12px;
         }
 
-        .exam-summary-card .card-body,
-        .session-card .card-body {
-            padding-left: 18px !important;
-            padding-right: 18px !important;
+        .exam-session-header {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .exam-session-header > .diary-btn {
+            width: 100%;
+        }
+
+        .header-title-row {
+            align-items: flex-start;
+            gap: 11px;
+        }
+
+        .page-icon {
+            width: 41px;
+            height: 41px;
+            flex-basis: 41px;
+            font-size: 18px;
+        }
+
+        .header-title-row h1 {
+            font-size: 24px;
+        }
+
+        .header-title-row p {
+            font-size: 12px;
+        }
+
+        .exam-summary {
+            padding: 17px;
+            gap: 17px;
+        }
+
+        .exam-summary-main {
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .exam-icon {
+            width: 43px;
+            height: 43px;
+            flex-basis: 43px;
+            font-size: 19px;
+        }
+
+        .exam-summary-details h2 {
+            font-size: 18px;
+        }
+
+        .exam-meta {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .meta-separator {
+            display: none !important;
+        }
+
+        .form-card-header {
+            padding: 17px;
+            flex-wrap: wrap;
+        }
+
+        .form-card-header h2 {
+            font-size: 16px;
+        }
+
+        .required-note {
+            width: 100%;
+            margin-left: 55px;
+            margin-top: -7px;
+        }
+
+        .form-card-body {
+            padding: 18px;
+        }
+
+        .form-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 19px;
+        }
+
+        .form-section {
+            padding-bottom: 22px;
+            margin-bottom: 22px;
+        }
+
+        .session-preview {
+            align-items: flex-start;
         }
 
         .duration-badge {
-            display: none;
+            align-self: center;
         }
 
-        .time-preview {
-            padding: 14px;
+        .form-actions {
+            flex-direction: column-reverse;
         }
 
+        .form-actions .diary-btn {
+            width: 100%;
+        }
     }
 
+    @media (max-width: 420px) {
+        .duration-badge {
+            padding: 7px 8px;
+            font-size: 11px;
+        }
+
+        .session-preview {
+            gap: 9px;
+            padding: 13px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .exam-session-page *,
+        .exam-session-page *::before,
+        .exam-session-page *::after {
+            scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+        }
+    }
 </style>
 
 
-{{-- =============================================================
-    SESSION DURATION PREVIEW
-============================================================= --}}
+{{-- SESSION DURATION PREVIEW --}}
 <script>
-
     document.addEventListener('DOMContentLoaded', function () {
 
         const startInput = document.getElementById('start_time');
         const endInput = document.getElementById('end_time');
         const durationText = document.getElementById('durationText');
+        const durationBadge = document.getElementById('durationBadge');
         const sessionPreview = document.getElementById('sessionPreview');
 
+        if (!startInput || !endInput || !durationText ||
+            !durationBadge || !sessionPreview) {
+            return;
+        }
+
+        function formatTime(time) {
+            const [hour, minute] = time.split(':').map(Number);
+
+            const date = new Date();
+            date.setHours(hour, minute, 0, 0);
+
+            return date.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         function updateDuration() {
+
+            durationBadge.classList.remove('is-invalid');
 
             if (!startInput.value || !endInput.value) {
                 durationText.textContent = '--';
@@ -721,18 +1237,14 @@
             const [endHour, endMinute] =
                 endInput.value.split(':').map(Number);
 
-            const startTotal =
-                (startHour * 60) + startMinute;
-
-            const endTotal =
-                (endHour * 60) + endMinute;
-
-            const difference =
-                endTotal - startTotal;
+            const startTotal = (startHour * 60) + startMinute;
+            const endTotal = (endHour * 60) + endMinute;
+            const difference = endTotal - startTotal;
 
             if (difference <= 0) {
 
                 durationText.textContent = 'Invalid';
+                durationBadge.classList.add('is-invalid');
 
                 sessionPreview.textContent =
                     'End time must be later than the start time.';
@@ -743,57 +1255,35 @@
             const hours = Math.floor(difference / 60);
             const minutes = difference % 60;
 
-            let duration = '';
+            const parts = [];
 
             if (hours > 0) {
-                duration += hours + (hours === 1 ? ' hour' : ' hours');
+                parts.push(hours + (hours === 1 ? ' hour' : ' hours'));
             }
 
             if (minutes > 0) {
-
-                if (duration !== '') {
-                    duration += ' ';
-                }
-
-                duration += minutes + ' min';
+                parts.push(minutes + (minutes === 1 ? ' min' : ' min'));
             }
 
-            durationText.textContent = duration;
+            durationText.textContent = parts.join(' ') || '0 min';
 
             sessionPreview.textContent =
                 'This session runs from ' +
                 formatTime(startInput.value) +
                 ' to ' +
                 formatTime(endInput.value) +
+                '. Total duration: ' +
+                durationText.textContent +
                 '.';
-
         }
 
-
-        function formatTime(time) {
-
-            const [hour, minute] = time.split(':').map(Number);
-
-            const date = new Date();
-
-            date.setHours(hour);
-            date.setMinutes(minute);
-
-            return date.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-        }
-
-
+        startInput.addEventListener('input', updateDuration);
         startInput.addEventListener('change', updateDuration);
+        endInput.addEventListener('input', updateDuration);
         endInput.addEventListener('change', updateDuration);
 
         updateDuration();
-
     });
-
 </script>
 
 @endsection
