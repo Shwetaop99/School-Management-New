@@ -520,31 +520,14 @@
     <div class="d-flex align-items-center flex-wrap gap-2">
 
         {{-- DOWNLOAD EXCEL TEMPLATE --}}
-        <a href="{{ route('admin.students.import.template') }}"
-           class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold">
+        <a href="{{ route('admin.students.bulk-template') }}"
+   class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold">
             <i class="bi bi-file-earmark-excel me-2"></i>
             Download Template
         </a>
 
         {{-- IMPORT STUDENTS --}}
-        <form action="{{ route('admin.students.import') }}"
-              method="POST"
-              enctype="multipart/form-data"
-              class="d-flex align-items-center flex-wrap gap-2">
-            @csrf
-
-            <input type="file"
-                   name="file"
-                   class="form-control"
-                   accept=".xlsx,.xls,.csv"
-                   required
-                   style="max-width: 230px;">
-
-            <button type="submit"
-                    class="btn btn-success px-3 py-2 rounded-3 fw-semibold">
-                <i class="bi bi-upload me-2"></i>
-                Import Students
-            </button>
+       
 
 
 {{-- EXPORT ALL STUDENTS TO EXCEL --}}

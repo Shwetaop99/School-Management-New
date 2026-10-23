@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 
 
@@ -481,10 +481,32 @@ Route::post('/settings/security/disable', [
                 ->name('reports.students');
             Route::get('/reports/students/pdf', [StudentReportController::class, 'pdf'])
                 ->name('reports.students.pdf');
+
+                Route::get('/students/bulk-create', [
+    \App\Http\Controllers\Admin\StudentController::class,
+    'bulkCreate',
+])->name('students.bulk-create');
+
+Route::get('/students/bulk-template', [
+    \App\Http\Controllers\Admin\StudentController::class,
+    'downloadBulkTemplate',
+])->name('students.bulk-template');
+
+Route::post('/students/bulk-store', [
+    \App\Http\Controllers\Admin\StudentController::class,
+    'bulkStore',
+])->name('students.bulk-store');
+
+Route::get('/students/export', [
+    \App\Http\Controllers\Admin\StudentController::class,
+    'export',
+])->name('students.export');
+
             Route::get('/reports/students/excel', function (\Illuminate\Http\Request $request) {
                 $filters = $request->only(['search','academic_year','class','section','gender','status']);
                 return Excel::download(new StudentReportExport($filters), 'student-report.xlsx');
             })->name('reports.students.excel');
+            
 
             Route::get('/reports/staff', [StaffReportController::class, 'index'])
                 ->name('reports.staff');
@@ -2886,6 +2908,23 @@ Route::get('/reports/exams', [
 
             ])->name('caste-report.class-wise-print');
 
+            Route::get('/caste-report/pdf-download', [
+    \App\Http\Controllers\Admin\CasteReportController::class,
+    'downloadPdf',
+])->name('caste-report.pdf-download');
+
+
+Route::get('/caste-report/print', [
+    \App\Http\Controllers\Admin\CasteReportController::class,
+    'print',
+])->name('caste-report.print');
+
+Route::get('/caste-report/pdf-download', [
+    \App\Http\Controllers\Admin\CasteReportController::class,
+    'pdfDownload',
+])->name('caste-report.pdf-download');
+
+
 
 
 
@@ -3484,6 +3523,8 @@ Route::put('/students/{student}', [StudentController::class, 'update'])
 Route::delete('/students/{student}', [StudentController::class, 'destroy'])
 
     ->name('students.destroy');
+
+
 
 
 

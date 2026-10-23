@@ -94,8 +94,8 @@ public function students($class)
 
     if (!$studentId) {
         return redirect()
-            ->route('admin.bonafide.classes')
-            ->with('error', 'Please select a student first.');
+    ->route('admin.bonafide.index')
+    ->with('error', 'Please select a student first.');
     }
 
     $student = Student::where('id', $studentId)

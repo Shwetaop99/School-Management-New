@@ -1255,7 +1255,7 @@
                         bonafide certificate for official school use.
                     </p>
 
-                    <a href="{{ route('admin.bonafide.classes') }}"
+                    <a href="{{ route('admin.bonafide.index') }}"
                        class="document-button">
 
                         <span>

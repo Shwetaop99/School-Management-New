@@ -372,7 +372,7 @@
         }
     }
 
-    ```css
+    
 @media print {
     @page {
         size: A4 landscape;
@@ -578,16 +578,16 @@
         </div>
 <div class="report-actions no-print">
     <a href="{{ route('admin.caste-report.print', request()->query()) }}"
-       class="btn btn-primary">
-        <i class="bi bi-printer me-1"></i>
-        Print Report
-    </a>
+   class="btn btn-primary">
+    <i class="bi bi-printer me-1"></i>
+    Print Report
+</a>
 
-    <a href="{{ route('admin.caste-report.pdf-download', request()->query()) }}"
-       class="btn btn-danger">
-        <i class="bi bi-file-earmark-pdf me-1"></i>
-        Download PDF
-    </a>
+   <a href="{{ route('admin.caste-report.pdf-download', request()->query()) }}"
+   class="btn btn-danger">
+    <i class="bi bi-file-earmark-pdf me-1"></i>
+    Download PDF
+</a>
 </div>
     </div>
 

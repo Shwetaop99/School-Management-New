@@ -1,0 +1,247 @@
+
+@extends('layouts.app')
+
+@section('title', 'Restore Backup')
+@section('page-title', 'Backup & Recovery')
+
+@section('content')
+@php
+    $restoreEnabled = config('backup.restore_enabled') === true;
+@endphp
+
+<div class="container-fluid py-4">
+
+    {{-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Restore Backup</h2>
+            <p class="text-muted mb-0">
+                Recover your school database and uploaded files from a backup.
+            </p>
+        </div>
+
+        <a href="{{ route('admin.backup.index') }}"
+           class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i>
+            Back to Backups
+        </a>
+    </div>
+
+    {{-- Success Message --}}
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            {{ session('success') }}
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    @endif
+
+    {{-- Error Message --}}
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>
+            {{ session('error') }}
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    @endif
+
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <strong>Please check the following:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Restore Safety Notice --}}
+    @if (!$restoreEnabled)
+        <div class="alert alert-warning d-flex align-items-start gap-2">
+            <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+            <div>
+                <strong>Restore is currently disabled.</strong>
+                <p class="mb-0">
+                    To enable restoration, set
+                    <code>BACKUP_RESTORE_ENABLED=true</code>
+                    in your <code>.env</code> file and run
+                    <code>php artisan config:clear</code>.
+                    Uploading and validating backups does not restore data.
+                </p>
+            </div>
+        </div>
+    @else
+        <div class="alert alert-danger d-flex align-items-start gap-2">
+            <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+            <div>
+                <strong>Warning: restoring replaces current data.</strong>
+                <p class="mb-0">
+                    The restore process may replace database records and uploaded
+                    files. Verify the selected backup and ensure a separate,
+                    usable safety backup exists before proceeding.
+                </p>
+            </div>
+        </div>
+    @endif
+
+    {{-- Existing Backups --}}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">
+                <i class="fa-solid fa-box-archive me-2"></i>
+                Existing Backups
+            </h5>
+        </div>
+
+        <div class="card-body">
+            @forelse ($backups as $backup)
+                <div class="border rounded p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <div class="fw-semibold text-break">
+                                {{ $backup['name'] }}
+                            </div>
+
+                            <div class="text-muted small mt-1">
+                                @if (($backup['size'] ?? 0) >= 1048576)
+                                    {{ number_format($backup['size'] / 1048576, 2) }} MB
+                                @else
+                                    {{ number_format(($backup['size'] ?? 0) / 1024, 2) }} KB
+                                @endif
+
+                                <span class="mx-1">·</span>
+                                {{ $backup['date'] ?? 'Date unavailable' }}
+                            </div>
+                        </div>
+
+                        <span class="badge bg-secondary">ZIP Backup</span>
+                    </div>
+
+                    <div class="mt-3 d-flex flex-wrap gap-2">
+
+                        {{-- Validate Backup --}}
+                        <form
+                            action="{{ route('admin.backup.validate', ['backup' => $backup['name']]) }}"
+                            method="POST"
+                            class="d-inline"
+                            data-loader="Validating backup...">
+                            @csrf
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary btn-sm">
+                                <i class="fa-solid fa-shield-halved me-1"></i>
+                                Validate
+                            </button>
+                        </form>
+
+                        {{-- Restore Backup --}}
+                        <form
+                            action="{{ route('admin.backup.restore.run', ['backup' => $backup['name']]) }}"
+                            method="POST"
+                            class="d-inline"
+                            data-loader="Restoring backup..."
+                            data-backup-name="{{ $backup['name'] }}"
+                            onsubmit="return confirmRestore(this.dataset.backupName);">
+                            @csrf
+
+                            <button type="submit"
+                                    class="btn btn-warning btn-sm"
+                                    @disabled(!$restoreEnabled)>
+                                <i class="fa-solid fa-rotate-left me-1"></i>
+                                Restore This Backup
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-4">
+                    <i class="fa-solid fa-box-open fa-2x text-muted mb-3"></i>
+                    <p class="text-muted mb-0">
+                        No ZIP backups found on this server.
+                    </p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- Upload Backup --}}
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">
+                <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+                Upload a Backup
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <p class="text-muted">
+                Select a backup ZIP created by your school's Backup &amp;
+                Recovery feature. The server must validate the archive's
+                format, encryption, metadata, and database dump.
+            </p>
+
+            <form
+                action="{{ route('admin.backup.restore.upload') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                data-loader="Uploading and checking backup...">
+                @csrf
+
+                <div class="mb-3">
+                    <label for="backup_file" class="form-label fw-semibold">
+                        Backup ZIP File
+                    </label>
+
+                    <input
+                        type="file"
+                        id="backup_file"
+                        name="backup_file"
+                        class="form-control"
+                        accept=".zip,application/zip"
+                        required>
+
+                    <div class="form-text">
+                        Uploading only adds the backup after server-side
+                        validation. It does not restore the database.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-shield-halved me-1"></i>
+                    Check and Upload Backup
+                </button>
+            </form>
+
+            <div class="small text-muted mt-3">
+                After a successful upload, locate the backup in the list above
+                and validate it before considering a restoration.
+            </div>
+        </div>
+    </div>
+
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    function confirmRestore(name) {
+        const answer = window.prompt(
+            'WARNING: This operation may replace current data.\n\n' +
+            'Selected backup: ' + name + '\n\n' +
+            'Verify the backup and safety copy before proceeding.\n' +
+            'Type RESTORE to continue.'
+        );
+
+        return answer === 'RESTORE';
+    }
+</script>
+@endpush

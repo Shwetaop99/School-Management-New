@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,38 +9,45 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('result_version_details', function (Blueprint $table) {
-            $table->foreign('result_version_id')
-                ->references('id')
-                ->on('result_versions')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('result_version_details')) {
+            Schema::create('result_version_details', function (Blueprint $table) {
+                $table->id();
 
-            $table->foreign('subject_id')
-                ->references('id')
-                ->on('subjects')
-                ->nullOnDelete();
+                $table->foreignId('result_version_id')
+                    ->constrained('result_versions')
+                    ->cascadeOnDelete();
 
-            $table->index(
-                ['result_version_id', 'subject_id'],
-                'result_version_details_version_subject_index'
-            );
-        });
+                $table->foreignId('subject_id')
+                    ->nullable()
+                    ->constrained('subjects')
+                    ->nullOnDelete();
+
+                $table->string('subject_name')->nullable();
+
+                $table->decimal('max_marks', 8, 2)->default(0);
+                $table->decimal('internal_marks', 8, 2)->default(0);
+                $table->decimal('theory_marks', 8, 2)->default(0);
+                $table->decimal('practical_marks', 8, 2)->default(0);
+                $table->decimal('total_marks', 8, 2)->default(0);
+                $table->decimal('obtained_marks', 8, 2)->default(0);
+
+                $table->string('grade')->nullable();
+                $table->decimal('grade_point', 5, 2)->nullable();
+                $table->string('status')->nullable();
+                $table->text('remarks')->nullable();
+
+                $table->timestamps();
+
+                $table->index(
+                    ['result_version_id', 'subject_id'],
+                    'result_version_details_version_subject_index'
+                );
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('result_version_details', function (Blueprint $table) {
-            $table->dropForeign([
-                'result_version_id',
-            ]);
-
-            $table->dropForeign([
-                'subject_id',
-            ]);
-
-            $table->dropIndex(
-                'result_version_details_version_subject_index'
-            );
-        });
+        Schema::dropIfExists('result_version_details');
     }
 };

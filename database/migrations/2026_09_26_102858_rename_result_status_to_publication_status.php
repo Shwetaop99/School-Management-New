@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,17 +9,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $table->string('publication_status')
-                ->default('generated')
-                ->after('result_status');
-        });
+        if (!Schema::hasTable('results')) {
+            return;
+        }
+
+        if (!Schema::hasColumn('results', 'publication_status')) {
+            Schema::table('results', function (Blueprint $table) {
+                $table->string('publication_status')
+                    ->default('generated');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $table->dropColumn('publication_status');
-        });
+        // Preserve existing data; do not drop the column automatically.
     }
 };

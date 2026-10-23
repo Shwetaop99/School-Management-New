@@ -418,66 +418,42 @@
 
 
 
-            [
-
-                'l' => 'Student',
-
-                'i' => 'fa-user-graduate',
-
-                'a' => [
-
-                    'admin.students.*',
-
-                    'admin.student-profile.*',
-
-                    'admin.student-documents.*',
-
-                    'admin.id-card.*',
-
-                    'admin.student-supply-kits.*',
-
-                    'admin.supply-items.*',
-
-                    'admin.student-general-register.*',
-
-                    'admin.government-schemes.*',
-
-                    'admin.student-health.*',
-
-                ],
-
-                'c' => [
-
-                    ['All Students', 'admin.students.index'],
-
-                    ['Student Profile', 'admin.student-profile.index'],
-
-                    ['Student Documents', 'admin.student-documents.index'],
-
-                    ['Student ID', 'admin.id-card.index'],
-
-                    ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
-
-                    ['Supply Items', 'admin.supply-items.index'],
-
-                    ['Student Register', 'admin.student-general-register.index'],
-
-                    ['Government Schemes', 'admin.government-schemes.index'],
-
-                    ['Student Health', 'admin.student-health.index'],
-
-                    ['Student Report', 'admin.reports.students'],
-
-                    ['Add Student', 'admin.students.create'],
-
-                    ['Bulk Add Students', 'admin.students.bulk-create'],
-
-                ],
-
-                'p' => ['students.view', 'students.create', 'students.edit', 'students.delete'],
-
-            ],
-
+[
+    'l' => 'Student',
+    'i' => 'fa-user-graduate',
+    'a' => [
+        'admin.students.*',
+        'admin.student-profile.*',
+        'admin.student-documents.*',
+        'admin.id-card.*',
+        'admin.student-supply-kits.*',
+        'admin.supply-items.*',
+        'admin.student-general-register.*',
+        'admin.government-schemes.*',
+        'admin.student-health.*',
+        'admin.reports.students',
+    ],
+    'c' => [
+        ['All Students', 'admin.students.index'],
+        ['Student Profile', 'admin.student-profile.index'],
+        ['Student Documents', 'admin.student-documents.index'],
+        ['Student ID', 'admin.id-card.index'],
+        ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
+        ['Supply Items', 'admin.supply-items.index'],
+        ['Student Register', 'admin.student-general-register.index'],
+        ['Government Schemes', 'admin.government-schemes.index'],
+        ['Student Health', 'admin.student-health.index'],
+        ['Student Report', 'admin.reports.students'],
+        ['Add Student', 'admin.students.create'],
+        ['Bulk Add Students', 'admin.students.bulk-create'],
+    ],
+    'p' => [
+        'students.view',
+        'students.create',
+        'students.edit',
+        'students.delete',
+    ],
+],
 
 
          [

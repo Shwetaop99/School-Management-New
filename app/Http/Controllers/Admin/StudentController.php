@@ -2850,5 +2850,64 @@ public function export(Request $request)
         'all_students_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
     );
 }
+/**
+ * Download the Excel template for bulk student entry.
+ */
+public function downloadBulkTemplate()
+{
+    $headings = [
+        'first_name',
+        'middle_name',
+        'last_name',
+        'gender',
+        'date_of_birth',
+        'academic_year',
+        'class',
+        'section',
+        'admission_date',
+        'phone',
+        'email',
+        'father_name',
+        'father_phone',
+        'mother_name',
+        'mother_phone',
+        'address',
+        'city_village',
+        'district',
+        'taluka',
+        'pincode',
+    ];
 
+    $export = new class($headings) implements
+        \Maatwebsite\Excel\Concerns\FromArray,
+        \Maatwebsite\Excel\Concerns\WithHeadings
+    {
+        public function __construct(
+            private array $headings
+        ) {}
+
+        public function array(): array
+        {
+            return [];
+        }
+
+        public function headings(): array
+        {
+            return $this->headings;
+        }
+    };
+
+    return Excel::download(
+        $export,
+        'bulk_student_template.xlsx'
+    );
+}
+public function bulkCreate()
+{
+  $classes = \App\Models\SchoolClass::query()
+    ->orderBy('class_name')
+    ->get();
+
+    return view('admin.students.bulk-create', compact('classes'));
+}
 }
