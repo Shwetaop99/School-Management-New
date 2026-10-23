@@ -144,9 +144,14 @@ use App\Http\Controllers\Admin\StudentReportController;
 use App\Http\Controllers\Admin\MealReportController;
 
 use App\Http\Controllers\Admin\TransportReportController;
-use App\Http\Controllers\Admin\SportsReportController;
+
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\FeeStructureController;
+use App\Http\Controllers\Admin\StudentFeeController;
+use App\Http\Controllers\Admin\FeePaymentController;
+use App\Http\Controllers\Admin\FeeReportController;
+
 
 
 /*
@@ -517,10 +522,10 @@ Route::get('/students/export', [
             Route::get('/reports/staff/excel', [StaffReportController::class, 'excel'])
                 ->name('reports.staff.excel');
 
-           /*
+           
  // SPORTS REPORT
  // ---------------------------------------------------------
-
+/*
 Route::get('/reports/sports', [
     SportsReportController::class,
     'index'
@@ -536,6 +541,7 @@ Route::get('/reports/sports/excel', [
     'excel'
 ])->name('reports.sports.excel');
 */
+
 /*
 |--------------------------------------------------------------------------
 | ATTENDANCE MODULE
@@ -720,6 +726,72 @@ Route::get('/reports/teacher-attendance/excel', [
                     Route::put('/{transportRecord}', 'update')->name('update');
                     Route::delete('/{transportRecord}', 'destroy')->name('destroy');
                 });
+
+                
+        // Fees - Fee Structures
+        Route::get('/fees/fee-structures', [FeeStructureController::class, 'index'])
+            ->name('fees.fee-structures.index');
+
+        Route::get('/fees/fee-structures/create', [FeeStructureController::class, 'create'])
+            ->name('fees.fee-structures.create');
+
+        Route::post('/fees/fee-structures', [FeeStructureController::class, 'store'])
+            ->name('fees.fee-structures.store');
+
+        Route::get('/fees/fee-structures/{feeStructure}', [FeeStructureController::class, 'show'])
+            ->name('fees.fee-structures.show');
+
+        Route::get('/fees/fee-structures/{feeStructure}/edit', [FeeStructureController::class, 'edit'])
+            ->name('fees.fee-structures.edit');
+
+        Route::put('/fees/fee-structures/{feeStructure}', [FeeStructureController::class, 'update'])
+            ->name('fees.fee-structures.update');
+
+        Route::delete('/fees/fee-structures/{feeStructure}', [FeeStructureController::class, 'destroy'])
+            ->name('fees.fee-structures.destroy');
+
+        Route::get('/fees/classes/{classId}/sections', [FeeStructureController::class, 'sections'])
+            ->name('fees.sections');
+
+        // Fees - Student Fees
+        Route::get('/fees/student-fees', [StudentFeeController::class, 'index'])
+            ->name('fees.student-fees.index');
+
+        Route::get('/fees/student-fees/create', [StudentFeeController::class, 'create'])
+            ->name('fees.student-fees.create');
+
+        Route::post('/fees/student-fees', [StudentFeeController::class, 'store'])
+            ->name('fees.student-fees.store');
+
+        Route::get('/fees/student-fees/{studentFee}', [StudentFeeController::class, 'show'])
+            ->name('fees.student-fees.show');
+
+        Route::delete('/fees/student-fees/{studentFee}', [StudentFeeController::class, 'destroy'])
+            ->name('fees.student-fees.destroy');
+
+        // Fees - Payment History
+        Route::get('/fees/payment-history', [FeePaymentController::class, 'index'])
+            ->name('fees.payment-history.index');
+
+        Route::get('/fees/payment-history/{feePayment}', [FeePaymentController::class, 'show'])
+            ->name('fees.payment-history.show');
+
+        // Record a payment against a student fee
+        Route::get('/fees/student-fees/{studentFee}/payments/create', [FeePaymentController::class, 'create'])
+            ->name('fees.student-fees.payments.create');
+
+        Route::post('/fees/student-fees/{studentFee}/payments', [FeePaymentController::class, 'store'])
+            ->name('fees.student-fees.payments.store');
+
+            // Fees Report
+Route::get('/reports/fees', [FeeReportController::class, 'index'])
+    ->name('reports.fees');
+
+    
+Route::get('/transport/reports', [TransportReportController::class, 'index'])
+    ->name('transport.reports.student-search');
+
+
 
             // ---------------------------------------------------------
             // TRANSPORT ROUTES
@@ -1051,6 +1123,44 @@ Route::delete(
     'exams/{exam}/holidays/{holiday}',
     [ExamHolidayController::class, 'destroy']
 )->name('exam-holidays.destroy');
+
+
+        // Result Management
+        Route::get('/results', [ResultController::class, 'index'])
+            ->name('results.index');
+
+        Route::get('/results/generate', [ResultController::class, 'generate'])
+            ->name('results.generate');
+
+        Route::get('/results/class-results', [ResultController::class, 'classResults'])
+            ->name('results.class-results');
+
+        Route::get('/results/{result}/history', [ResultController::class, 'history'])
+            ->name('results.history');
+
+        Route::get('/results/{result}', [ResultController::class, 'show'])
+            ->name('results.show');
+
+            
+Route::get('/results/exam-classes', [ResultController::class, 'getExamClasses'])
+    ->name('results.exam-classes');
+
+    
+Route::get('/results/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])
+    ->name('results.bulk-whatsapp');
+
+    
+Route::get('/results/load-students', [ResultController::class, 'loadStudents'])
+    ->name('results.load-students');
+
+    
+Route::post('/results/generate-result', [ResultController::class, 'generateResult'])
+    ->name('results.generate-result');
+
+
+
+
+
 
 
 
@@ -2692,7 +2802,8 @@ Route::get('/reports/exams', [
 
             | TEACHER TIMETABLE
 
-            |--------------------------------------------------------------------------
+            |---------
+            -----------------------------------------------------------------
 
             */
 
@@ -3235,6 +3346,29 @@ Route::get('/caste-report/pdf-download', [
                 ]
 
             )->name('student-supply-kits.supply-items');
+
+
+            
+Route::get(
+    '/student-supply-kits/distribution/create',
+    [\App\Http\Controllers\Admin\StudentSupplyKitController::class, 'distributionCreate']
+)->name('student-supply-kits.distribution.create');
+
+Route::get(
+    '/student-supply-kits/distribution/students',
+    [\App\Http\Controllers\Admin\StudentSupplyKitController::class, 'distributionStudents']
+)->name('student-supply-kits.distribution.students');
+
+Route::post(
+    '/student-supply-kits/distribution/store',
+    [\App\Http\Controllers\Admin\StudentSupplyKitController::class, 'distributionStore']
+)->name('student-supply-kits.distribution.store');
+
+
+Route::get(
+    '/student-supply-kits/print-report',
+    [\App\Http\Controllers\Admin\StudentSupplyKitController::class, 'print']
+)->name('student-supply-kits.print-report');
 
 
 
@@ -3800,14 +3934,7 @@ Route::prefix('meal/logs')
         ])->name('show');
     });
 
-
-
-
-    Route::get('/fees', function () {
-
-    return 'Fees Management';
-
-})->name('fees.index');   
+  
 
  });
     });

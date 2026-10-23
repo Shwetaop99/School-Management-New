@@ -360,7 +360,7 @@
 
 
         {{-- 3. STAFF --}}
-        <a href="{{ route('reports.staff.index') }}" class="report-card">
+        <a href="{{ route('admin.reports.staff') }}" class="report-card">
 
             <div class="report-icon">
                 <i class="fas fa-users"></i>

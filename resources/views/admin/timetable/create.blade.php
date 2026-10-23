@@ -573,11 +573,7 @@
     <form action="{{ route('admin.timetable.save') }}" method="POST" id="weeklyTimetableForm">
         @csrf
 
-        <form
-            action="{{ route('admin.timetable.store') }}"
-            method="POST"
-            id="timetableForm"
-        >
+    
 
             @csrf
 

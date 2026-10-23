@@ -997,7 +997,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const url =
-            "{{ route('admin.fees.fee-structures.sections', ['classId' => '__CLASS_ID__']) }}"
+            "{{ route('admin.fees.sections', ['classId' => '__CLASS_ID__']) }}"
                 .replace(
                     '__CLASS_ID__',
                     encodeURIComponent(classId)

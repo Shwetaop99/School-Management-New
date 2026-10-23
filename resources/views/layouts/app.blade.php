@@ -544,35 +544,38 @@
 
 
 
-            [
+         [
+    'l' => 'Fees',
+    'i' => 'fa-indian-rupee-sign',
+    'a' => [
+        'admin.fees.fee-structures.*',
+        'admin.fees.student-fees.*',
+        'admin.fees.payment-history.*',
+    ],
+    'c' => [
+        ['Fee Structure', 'admin.fees.fee-structures.index'],
+        ['Student Fee', 'admin.fees.student-fees.index'],
+        ['Payment History', 'admin.fees.payment-history.index'],
+    ],
+],
 
-                'l' => 'Fees',
+[
 
-                'i' => 'fa-indian-rupee-sign',
+                'l' => 'Class',
 
-                'a' => [
+                'i' => 'fa-chalkboard',
 
-                    'admin.fees.fee-structures.*',
-
-                    'admin.fees.student-fees.*',
-
-                    'admin.fees.payment-history.*',
-
-                ],
+                'a' => ['admin.classes.*', 'admin.subjects.*'],
 
                 'c' => [
 
-                    ['Fee Structure', 'admin.fees.fee-structures.index'],
+                    ['Classes', 'admin.classes.index'],
 
-                    ['Student Fee', 'admin.fees.student-fees.index'],
-
-                    ['Payment History', 'admin.fees.payment-history.index'],
+                    ['Subjects', 'admin.subjects.index'],
 
                 ],
 
             ],
-
-
 
             [
 
@@ -600,51 +603,35 @@
 
             ],
 
-
-
             [
-
-                'l' => 'Result',
-
-                'i' => 'fa-chart-column',
-
-                'a' => ['admin.results.*'],
-
-                'c' => [
-
-                    ['Student Result', 'admin.results.index'],
-
-                    ['Grade Management', 'admin.results.generate'],
-
-                    ['Publish Result', 'admin.results.class-results'],
-
-                    ['Result History', 'admin.results.index'],
-
-                    ['Result Report', 'admin.results.class-wise-toppers'],
-
-                ],
-
-            ],
+    'l' => 'Scholarship',
+    'i' => 'fa-graduation-cap',
+    'a' => ['admin.scholarship.*'],
+    'c' => [
+        ['Merit Concession', 'admin.scholarship.merit.concession.index'],
+        ['Scholarship Exam', 'admin.scholarship.exams.index'],
+    ],
+],
 
 
 
-            [
+            
+[
+    'l' => 'Result',
+    'i' => 'fa-chart-column',
+    'a' => ['admin.results.*'],
+    'c' => [
+        ['Student Result', 'admin.results.index'],
+        ['Grade Management', 'admin.results.generate'],
+        ['Publish Result', 'admin.results.class-results'],
+        ['Result History', 'admin.results.history'],
+        ['Result Report', 'admin.reports.results.index'],
+    ],
+],
 
-                'l' => 'Notice',
 
-                'i' => 'fa-flag',
 
-                'a' => ['admin.notices.*'],
 
-                'c' => [
-
-                    ['All Notices', 'admin.notices.index'],
-
-                    ['Add Notice', 'admin.notices.create'],
-
-                ],
-
-            ],
 
 
 
@@ -677,6 +664,23 @@
         'Other' => [
 
 
+         [
+
+                'l' => 'Notice',
+
+                'i' => 'fa-flag',
+
+                'a' => ['admin.notices.*'],
+
+                'c' => [
+
+                    ['All Notices', 'admin.notices.index'],
+
+                    ['Add Notice', 'admin.notices.create'],
+
+                ],
+
+            ],
 
             [
 
@@ -771,23 +775,7 @@
 
 
 
-            [
-
-                'l' => 'Class',
-
-                'i' => 'fa-chalkboard',
-
-                'a' => ['admin.classes.*', 'admin.subjects.*'],
-
-                'c' => [
-
-                    ['Classes', 'admin.classes.index'],
-
-                    ['Subjects', 'admin.subjects.index'],
-
-                ],
-
-            ],
+            
 
 
 

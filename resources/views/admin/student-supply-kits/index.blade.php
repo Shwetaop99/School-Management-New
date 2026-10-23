@@ -519,7 +519,9 @@
             </a>
 
             <a
-    href="{{ route('admin.student-supply-kits.print', request()->query()) }}"
+    
+href="{{ route('admin.student-supply-kits.print-report', request()->query()) }}"
+
     target="_blank"
     class="btn btn-outline-secondary btn-sm"
 >
@@ -1131,7 +1133,7 @@
 
 
                         <a
-                            href="{{ route('admin.student-supply-kits.print', request()->query()) }}"
+                            href="{{ route('admin.student-supply-kits.index', request()->query()) }}"
                             target="_blank"
                             class="btn btn-outline-primary"
                         >
