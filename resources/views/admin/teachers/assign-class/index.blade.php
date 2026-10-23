@@ -6,813 +6,308 @@
 @section('content')
 
 <style>
-
-/* =========================================================
-   TEACHER ALLOCATION PAGE
-========================================================= */
-
-.teacher-allocation {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 28px;
-    background: #f4f7fb;
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.ta-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 22px;
-}
-
-.ta-title h2 {
-    margin: 0 0 6px;
-    color: #172033;
-    font-size: 28px;
-    font-weight: 800;
-}
-
-.ta-title p {
-    margin: 0;
-    color: #718096;
-    font-size: 14px;
-}
-
-.ta-btn {
-    padding: 10px 16px;
-    border-radius: 9px;
-    background: #1769d1;
-    color: #fff;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 700;
-    box-shadow: 0 5px 14px rgba(23,105,209,.18);
-    transition: .2s ease;
-}
-
-.ta-btn:hover {
-    background: #1268ca;
-    color: #fff;
-    transform: translateY(-2px);
-}
-
-
-/* =========================================================
-   STAT CARDS
-========================================================= */
-
-.ta-stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 22px;
-}
-
-.ta-stat {
-    position: relative;
-    overflow: hidden;
-
-    height: 115px;
-    min-height: 115px;
-
-    padding: 18px 20px;
-
-    border-radius: 15px;
-
-    color: #fff;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    box-shadow: 0 7px 18px rgba(15,23,42,.11);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease;
-}
-
-.ta-stat:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 25px rgba(15,23,42,.16);
-}
-
-
-/* Decorative circles */
-
-.ta-stat::before {
-    content: "";
-
-    position: absolute;
-
-    width: 110px;
-    height: 110px;
-
-    right: -35px;
-    top: -55px;
-
-    border-radius: 50%;
-
-    background: rgba(255,255,255,.10);
-}
-
-.ta-stat::after {
-    content: "";
-
-    position: absolute;
-
-    width: 60px;
-    height: 60px;
-
-    right: 15px;
-    bottom: -35px;
-
-    border-radius: 50%;
-
-    background: rgba(255,255,255,.08);
-}
-
-
-/* =========================================================
-   CARD COLORS
-========================================================= */
-
-.ta-stat.blue {
-    background: linear-gradient(
-        135deg,
-        #1769d1,
-        #237de0
-    );
-}
-
-.ta-stat.orange {
-    background: linear-gradient(
-        135deg,
-        #ed9208,
-        #f7aa25
-    );
-}
-
-.ta-stat.cyan {
-    background: linear-gradient(
-        135deg,
-        #079dbd,
-        #16b5d0
-    );
-}
-
-.ta-stat small {
-    position: relative;
-    z-index: 2;
-
-    margin-bottom: 6px;
-
-    color: rgba(255,255,255,.95);
-
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.ta-stat strong {
-    position: relative;
-    z-index: 2;
-
-    color: #fff;
-
-    font-size: 27px;
-    line-height: 1;
-
-    font-weight: 800;
-}
-
-
-/* =========================================================
-   TABLE CARD
-========================================================= */
-
-.ta-card {
-    overflow: hidden;
-
-    background: #fff;
-
-    border: 1px solid #e5ebf3;
-
-    border-radius: 16px;
-
-    box-shadow: 0 5px 20px rgba(15,23,42,.06);
-}
-
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.ta-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.ta-table th,
-.ta-table td {
-    padding: 14px 18px;
-
-    text-align: left;
-
-    border-bottom: 1px solid #edf1f6;
-}
-
-.ta-table th {
-    background: #f8fafc;
-
-    color: #374151;
-
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.ta-table td {
-    color: #4b5563;
-
-    font-size: 14px;
-}
-
-.ta-table tbody tr {
-    transition: .2s ease;
-}
-
-.ta-table tbody tr:hover {
-    background: #f8fbff;
-}
-
-
-/* =========================================================
-   TEACHER NAME
-========================================================= */
-
-.ta-teacher {
-    color: #172033 !important;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   CLASS BADGE
-========================================================= */
-
-.ta-class {
-    display: inline-block;
-
-    padding: 5px 10px;
-
-    border-radius: 7px;
-
-    background: #e7f0ff;
-
-    color: #1769d1;
-
-    font-size: 12px;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   ACTION BUTTONS
-========================================================= */
-
-.ta-actions {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-}
-
-.ta-actions form {
-    display: inline-flex !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-
-/* COMMON ACTION BUTTON */
-
-.ta-view,
-.ta-edit,
-.ta-delete {
-    width: 40px !important;
-    height: 40px !important;
-
-    min-width: 40px !important;
-    min-height: 40px !important;
-
-    padding: 0 !important;
-    margin: 0 !important;
-
-    display: inline-flex !important;
-
-    align-items: center !important;
-    justify-content: center !important;
-
-    border: none !important;
-
-    border-radius: 10px !important;
-
-    text-decoration: none !important;
-
-    cursor: pointer !important;
-
-    line-height: 1 !important;
-
-    box-shadow: none !important;
-
-    transition:
-        transform .2s ease,
-        background .2s ease,
-        color .2s ease !important;
-}
-
-
-/* =========================================================
-   VIEW
-========================================================= */
-
-.ta-view {
-    background: #eaf3ff !important;
-    color: #1477df !important;
-}
-
-.ta-view:hover {
-    background: #1477df !important;
-    color: #ffffff !important;
-
-    transform: translateY(-2px);
-}
-
-
-/* =========================================================
-   EDIT
-========================================================= */
-
-.ta-edit {
-    background: #f0edff !important;
-    color: #6c63ff !important;
-}
-
-.ta-edit:hover {
-    background: #6c63ff !important;
-    color: #ffffff !important;
-
-    transform: translateY(-2px);
-}
-
-
-/* =========================================================
-   DELETE
-========================================================= */
-
-.ta-delete {
-    background: #fff0f0 !important;
-    color: #ef2028 !important;
-}
-
-.ta-delete:hover {
-    background: #ef2028 !important;
-    color: #ffffff !important;
-
-    transform: translateY(-2px);
-}
-
-
-/* =========================================================
-   ACTION ICONS
-   INLINE SVG - NO BOOTSTRAP ICON DEPENDENCY
-========================================================= */
-
-.ta-actions svg {
-    width: 15px !important;
-    height: 15px !important;
-
-    display: block !important;
-
-    fill: none !important;
-
-    stroke: currentColor !important;
-    stroke-width: 2 !important;
-
-    stroke-linecap: round !important;
-    stroke-linejoin: round !important;
-
-    flex-shrink: 0 !important;
-}
-
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.ta-empty {
-    padding: 40px !important;
-
-    text-align: center !important;
-
-    color: #94a3b8 !important;
-
-    font-size: 13px !important;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 850px) {
-
-    .teacher-allocation {
-        padding: 18px;
+    .alloc-page{max-width:1500px;margin:0 auto}
+    .paper{background:#fff;border:1px solid var(--line);border-radius:10px}
+
+    /* ---------- Hero ---------- */
+    .alloc-hero{
+        display:grid;
+        grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+        margin-bottom:22px;
+        overflow:hidden;
+        position:relative;
+    }
+    .alloc-hero::before{
+        content:"";
+        position:absolute;
+        left:34px;top:0;bottom:0;
+        width:2px;
+        background:rgba(228,87,46,.35);
+    }
+    .alloc-hero-left{padding:26px 28px 26px 56px}
+    .alloc-hero-left h1{
+        font-family:var(--serif);
+        font-size:28px;
+        font-weight:700;
+        color:var(--ink);
+        margin:0 0 6px;
+    }
+    .alloc-hero-left p{
+        color:var(--muted);
+        margin:0 0 18px;
+        font-size:14px;
+        line-height:1.5;
+    }
+    .hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+    .btn-solid,.btn-line{
+        display:inline-flex;align-items:center;gap:8px;
+        padding:9px 16px;border-radius:8px;
+        font-size:13.5px;font-weight:500;
+        text-decoration:none;
+    }
+    .btn-solid{background:var(--ink);color:#fff;border:1px solid var(--ink)}
+    .btn-solid:hover{background:var(--ink-2);color:#fff}
+    .btn-line{background:#fff;border:1px solid #cfc8b6;color:var(--text)}
+    .btn-line:hover{border-color:var(--ink);color:var(--ink)}
+
+    .alloc-hero-right{
+        background:var(--ink);
+        color:#e9efe2;
+        padding:26px 28px;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        gap:8px;
+        background-image:radial-gradient(ellipse at 20% 0,rgba(255,255,255,.09),transparent 60%);
+    }
+    .alloc-hero-right .label{
+        font-family:var(--hand);
+        font-size:22px;
+        color:var(--chalk);
+        line-height:1;
+    }
+    .alloc-hero-right .value{
+        font-family:var(--serif);
+        font-size:26px;
+        font-weight:700;
+        color:#fff;
+        line-height:1.15;
+    }
+    .alloc-hero-right .sub{
+        font-size:13px;
+        color:#c5d0bd;
     }
 
-    .ta-header {
-        align-items: flex-start;
-        gap: 15px;
-        flex-direction: column;
+    /* ---------- KPI ---------- */
+    .kpi-grid{
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:18px;
+        margin-bottom:22px;
+    }
+    .kpi{
+        transition:transform .22s ease,box-shadow .22s ease;
+        position:relative;
+        padding:22px 22px 16px;
+        margin-top:10px;
+        border-top:4px solid var(--c);
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+    }
+    .kpi:hover{transform:translateY(-8px);box-shadow:0 16px 28px rgba(29,58,51,.16)}
+    .kpi-tab{
+        position:absolute;top:-24px;left:16px;
+        padding:3px 12px;background:var(--c);color:#fff;
+        font-size:12px;font-weight:600;border-radius:7px 7px 0 0;
+    }
+    .kpi-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .kpi-value{font-family:var(--serif);font-size:34px;font-weight:700;line-height:1;color:var(--ink)}
+    .kpi-icon{
+        width:46px;height:46px;border-radius:12px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:20px;flex-shrink:0;
+        background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c);
+    }
+    .kpi-label{padding-top:12px;border-top:1px dashed #d8d1bf;font-size:13px;color:var(--muted)}
+    .c-blue{--c:#2b5d8a}
+    .c-amber{--c:#d58a0b}
+    .c-green{--c:#3a9d6b}
+
+    /* ---------- Panel ---------- */
+    .panel{overflow:hidden;margin-bottom:22px}
+    .panel-head{
+        display:flex;justify-content:space-between;align-items:center;
+        gap:12px;padding:15px 22px;border-bottom:1px dashed #d8d1bf;flex-wrap:wrap;
+    }
+    .panel-head h3{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--ink);margin:0}
+    .panel-head span{font-size:12.5px;color:var(--muted)}
+
+    /* Table */
+    .table-wrap{width:100%;overflow-x:auto}
+    .alloc-table{
+        width:100%;min-width:900px;
+        border-collapse:collapse;
+    }
+    .alloc-table thead th{
+        padding:13px 16px;background:#f8f6f0;
+        border-bottom:1px solid #e6e0d2;
+        color:var(--muted);font-size:11px;font-weight:700;
+        text-transform:uppercase;letter-spacing:.4px;
+        white-space:nowrap;text-align:left;
+    }
+    .alloc-table tbody td{
+        padding:14px 16px;border-bottom:1px solid #f0ebe0;
+        color:var(--text);font-size:13px;vertical-align:middle;
+    }
+    .alloc-table tbody tr:hover td{background:#fffdf6}
+    .alloc-table tbody tr:last-child td{border-bottom:none}
+
+    .teacher-name{font-weight:700;color:var(--ink)}
+
+    .class-badge{
+        display:inline-flex;padding:4px 10px;border-radius:6px;
+        background:color-mix(in srgb,#2b5d8a 10%,#fff);
+        color:#2b5d8a;font-size:12px;font-weight:700;
     }
 
-    .ta-stats {
-        grid-template-columns: 1fr;
+    .actions-cell{display:flex;align-items:center;gap:7px}
+    .action-btn{
+        width:34px;height:34px;
+        display:inline-flex;align-items:center;justify-content:center;
+        border-radius:8px;border:1px solid transparent;
+        font-size:14px;text-decoration:none;cursor:pointer;
+        transition:all .15s;
     }
+    .action-view{background:color-mix(in srgb,#2b5d8a 12%,#fff);color:#2b5d8a}
+    .action-view:hover{background:#2b5d8a;color:#fff}
+    .action-edit{background:color-mix(in srgb,#7a4fb5 12%,#fff);color:#7a4fb5}
+    .action-edit:hover{background:#7a4fb5;color:#fff}
+    .action-delete{background:color-mix(in srgb,#e4572e 12%,#fff);color:#e4572e;border:none}
+    .action-delete:hover{background:#e4572e;color:#fff}
 
-    .ta-stat {
-        height: 105px;
-        min-height: 105px;
+    /* Empty */
+    .empty{padding:50px 20px;text-align:center}
+    .empty i{font-size:28px;color:var(--muted);display:block;margin-bottom:10px}
+    .empty h4{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink);margin:0 0 6px}
+    .empty p{margin:0;color:var(--muted);font-size:13px}
+
+    @media (max-width:1100px){.kpi-grid{grid-template-columns:1fr}}
+    @media (max-width:900px){
+        .alloc-hero{grid-template-columns:1fr}
+        .alloc-hero-left{padding:22px 20px 22px 44px}
+        .alloc-hero::before{left:24px}
     }
-
-    .ta-card {
-        overflow-x: auto;
-    }
-
-    .ta-table {
-        min-width: 850px;
-    }
-}
-
-
-/* =========================================================
-   MOBILE ACTION BUTTONS
-========================================================= */
-
-@media (max-width: 650px) {
-
-    .ta-title h2 {
-        font-size: 24px;
-    }
-
-    .ta-actions {
-        gap: 8px !important;
-    }
-
-    .ta-view,
-    .ta-edit,
-    .ta-delete {
-        width: 36px !important;
-        height: 36px !important;
-
-        min-width: 36px !important;
-        min-height: 36px !important;
-
-        border-radius: 9px !important;
-    }
-
-    .ta-actions svg {
-        width: 14px !important;
-        height: 14px !important;
-    }
-
-}
-
+    @media (max-width:650px){.alloc-hero-left h1{font-size:23px}}
 </style>
 
+<div class="alloc-page">
 
-<div class="teacher-allocation">
+    {{-- Hero --}}
+    <section class="paper alloc-hero">
+        <div class="alloc-hero-left">
+            <h1>Teacher Allocations</h1>
+            <p>Manage teachers allocated to classes and sections.</p>
+            <div class="hero-btns">
+                <a href="{{ route('admin.teachers.assign-class.create') }}" class="btn-solid">
+                    <i class="bi bi-person-plus-fill"></i> Allocate Teacher
+                </a>
+            </div>
+        </div>
+        <div class="alloc-hero-right">
+            <div class="label">Allocations</div>
+            <div class="value">{{ $assignments->count() }} Total</div>
+            <div class="sub">Teachers assigned to classes</div>
+        </div>
+    </section>
 
-
-    {{-- =====================================================
-         HEADER
-    ====================================================== --}}
-
-    <div class="ta-header">
-
-        <div class="ta-title">
-
-            <h2>
-                Teacher Allocations
-            </h2>
-
-            <p>
-                Manage teachers allocated to classes and sections.
-            </p>
-
+    {{-- KPI cards --}}
+    <div class="kpi-grid">
+        <div class="paper kpi c-blue">
+            <span class="kpi-tab">Allocations</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $assignments->count() }}</div>
+                <div class="kpi-icon"><i class="bi bi-diagram-3-fill"></i></div>
+            </div>
+            <div class="kpi-label">Total allocations</div>
         </div>
 
+        <div class="paper kpi c-amber">
+            <span class="kpi-tab">Teachers</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $assignments->unique('teacher_id')->count() }}</div>
+                <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+            </div>
+            <div class="kpi-label">Unique teachers</div>
+        </div>
 
-        <a
-            href="{{ route('admin.teachers.assign-class.create') }}"
-            class="ta-btn"
-        >
-            + Allocate Teacher
-        </a>
-
+        <div class="paper kpi c-green">
+            <span class="kpi-tab">Classes</span>
+            <div class="kpi-top">
+                <div class="kpi-value">{{ $assignments->unique('class_id')->count() }}</div>
+                <div class="kpi-icon"><i class="bi bi-mortarboard-fill"></i></div>
+            </div>
+            <div class="kpi-label">Classes covered</div>
+        </div>
     </div>
 
-
-
-    {{-- =====================================================
-         STATISTICS
-    ====================================================== --}}
-
-    <div class="ta-stats">
-
-
-        {{-- TOTAL ALLOCATIONS --}}
-
-        <div class="ta-stat blue">
-
-            <small>
-                Total Allocations
-            </small>
-
-            <strong>
-                {{ $assignments->count() }}
-            </strong>
-
+    {{-- Table --}}
+    <section class="paper panel">
+        <div class="panel-head">
+            <div>
+                <h3>Allocation List</h3>
+                <span>Teachers assigned to classes & sections</span>
+            </div>
         </div>
 
-
-        {{-- TEACHERS --}}
-
-        <div class="ta-stat orange">
-
-            <small>
-                Teachers
-            </small>
-
-            <strong>
-                {{ $assignments->unique('teacher_id')->count() }}
-            </strong>
-
-        </div>
-
-
-        {{-- CLASSES --}}
-
-        <div class="ta-stat cyan">
-
-            <small>
-                Classes
-            </small>
-
-            <strong>
-                {{ $assignments->unique('class_id')->count() }}
-            </strong>
-
-        </div>
-
-
-    </div>
-
-
-
-    {{-- =====================================================
-         ALLOCATION TABLE
-    ====================================================== --}}
-
-    <div class="ta-card">
-
-        <table class="ta-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>#</th>
-
-                    <th>Teacher</th>
-
-                    <th>Class</th>
-
-                    <th>Section</th>
-
-                    <th>Academic Year</th>
-
-                    <th>Actions</th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                @forelse($assignments as $assignment)
-
+        <div class="table-wrap">
+            <table class="alloc-table">
+                <thead>
                     <tr>
-
-
-                        {{-- NUMBER --}}
-
-                        <td>
-                            {{ $loop->iteration }}
-                        </td>
-
-
-
-                        {{-- TEACHER --}}
-
-                        <td class="ta-teacher">
-
-                            {{ $assignment->first_name }}
-                            {{ $assignment->last_name }}
-
-                        </td>
-
-
-
-                        {{-- CLASS --}}
-
-                        <td>
-
-                            <span class="ta-class">
-                                {{ $assignment->class_name }}
-                            </span>
-
-                        </td>
-
-
-
-                        {{-- SECTION --}}
-
-                        <td>
-                            {{ $assignment->section_name }}
-                        </td>
-
-
-
-                        {{-- ACADEMIC YEAR --}}
-
-                        <td>
-                            {{ $assignment->academic_year ?: '—' }}
-                        </td>
-
-
-
-                        {{-- ACTIONS --}}
-
-                        <td>
-
-                            <div class="ta-actions">
-
-
-                                {{-- VIEW TEACHER --}}
-
-                                <a
-                                    href="{{ route('admin.teachers.show', $assignment->teacher_id) }}"
-                                    class="ta-view"
-                                    title="View Teacher"
-                                    aria-label="View Teacher"
-                                >
-
-                                    {{-- Eye icon --}}
-
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"
-                                        />
-
-                                        <circle
-                                            cx="12"
-                                            cy="12"
-                                            r="2.5"
-                                        />
-                                    </svg>
-
-                                </a>
-
-
-
-                                {{-- EDIT ALLOCATION --}}
-
-                                <a
-                                    href="{{ route('admin.teachers.assign-class.edit', $assignment->id) }}"
-                                    class="ta-edit"
-                                    title="Edit Allocation"
-                                    aria-label="Edit Allocation"
-                                >
-
-                                    {{-- Pencil icon --}}
-
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            d="M12 20h9"
-                                        />
-
-                                        <path
-                                            d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z"
-                                        />
-                                    </svg>
-
-                                </a>
-
-
-
-                                {{-- DELETE ALLOCATION --}}
-
-                                <form
-                                    action="{{ route('admin.teachers.assign-class.destroy', $assignment->id) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Delete this teacher allocation?');"
-                                >
-
-                                    @csrf
-
-                                    @method('DELETE')
-
-                                    <button
-                                        type="submit"
-                                        class="ta-delete"
-                                        title="Delete Allocation"
-                                        aria-label="Delete Allocation"
-                                    >
-
-                                        {{-- Trash icon --}}
-
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            aria-hidden="true"
-                                        >
-                                            <path
-                                                d="M3 6h18"
-                                            />
-
-                                            <path
-                                                d="M8 6V4h8v2"
-                                            />
-
-                                            <path
-                                                d="M19 6l-1 14H6L5 6"
-                                            />
-
-                                            <path
-                                                d="M10 11v5"
-                                            />
-
-                                            <path
-                                                d="M14 11v5"
-                                            />
-                                        </svg>
-
-                                    </button>
-
-                                </form>
-
-
-                            </div>
-
-                        </td>
-
-
+                        <th>#</th>
+                        <th>Teacher</th>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Academic Year</th>
+                        <th>Actions</th>
                     </tr>
+                </thead>
+                <tbody>
+                    @forelse($assignments as $assignment)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
 
-                @empty
+                            <td class="teacher-name">
+                                {{ $assignment->first_name }} {{ $assignment->last_name }}
+                            </td>
 
-                    <tr>
+                            <td>
+                                <span class="class-badge">{{ $assignment->class_name }}</span>
+                            </td>
 
-                        <td
-                            colspan="6"
-                            class="ta-empty"
-                        >
-                            No teacher allocations found.
-                        </td>
+                            <td>{{ $assignment->section_name }}</td>
 
-                    </tr>
+                            <td>{{ $assignment->academic_year ?: '—' }}</td>
 
-                @endforelse
+                            <td>
+                                <div class="actions-cell">
+                                    <a href="{{ route('admin.teachers.show', $assignment->teacher_id) }}"
+                                       class="action-btn action-view" title="View Teacher">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
 
-            </tbody>
+                                    <a href="{{ route('admin.teachers.assign-class.edit', $assignment->id) }}"
+                                       class="action-btn action-edit" title="Edit Allocation">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
 
-        </table>
-
-    </div>
-
-
+                                    <form action="{{ route('admin.teachers.assign-class.destroy', $assignment->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Delete this teacher allocation?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="action-btn action-delete" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty">
+                                    <i class="bi bi-diagram-3"></i>
+                                    <h4>No Allocations Found</h4>
+                                    <p>No teachers have been allocated to classes yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
 
 @endsection

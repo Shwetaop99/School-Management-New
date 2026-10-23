@@ -1,6 +1,4 @@
-﻿<?php
-
-
+<?php
 
 
 
@@ -150,6 +148,7 @@ use App\Http\Controllers\Admin\SportsReportController;
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Admin\BackupController;
 
+
 /*
 
 \|--------------------------------------------------------------------------
@@ -290,43 +289,35 @@ Route::prefix('admin')
             'login'
 
         ])->name('login.submit');
-
     
-/*
-|--------------------------------------------------------------------------
-| BACKUP & RECOVERY
-|--------------------------------------------------------------------------
-*/
 
-/*
-Route::get('/backup', [
-    BackupController::class,
-    'index'
-])->name('backup.index');
+// Backup & Recovery
+Route::get('/backup', [BackupController::class, 'index'])
+    ->name('backup.index');
 
-Route::post('/backup/create', [
-    BackupController::class,
-    'create'
-])->name('backup.create');
+Route::post('/backup/create', [BackupController::class, 'create'])
+    ->name('backup.create');
 
-Route::get('/backup/download/{backup}', [
-    BackupController::class,
-    'download'
-])->name('backup.download');
+Route::get('/backup/download/{backup}', [BackupController::class, 'download'])
+    ->name('backup.download');
 
-Route::delete('/backup/{backup}', [
-    BackupController::class,
-    'destroy'
-])->name('backup.destroy');
-*/
+Route::delete('/backup/{backup}', [BackupController::class, 'destroy'])
+    ->name('backup.destroy');
 
+Route::post('/backup/{backup}/validate', [BackupController::class, 'validateBackup'])
+    ->name('backup.validate');
 
+Route::get('/backup/restore', [BackupController::class, 'showRestore'])
+    ->name('backup.restore');
 
+Route::post('/backup/restore/upload', [BackupController::class, 'uploadRestore'])
+    ->name('backup.restore.upload');
 
+    Route::post('/backup/restore/{backup}', [BackupController::class, 'restoreBackup'])
+    ->name('backup.restore.apply');
 
 
         /*
-
         |--------------------------------------------------------------------------
 
         | SPORTS MANAGEMENT
@@ -1850,6 +1841,27 @@ Route::prefix('scholarship')
 
                 });
 
+
+            Route::get('teachers/export/excel', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'exportExcel',
+])->name('teachers.export.excel');
+
+Route::get('teachers/export/pdf', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'exportPdf',
+])->name('teachers.export.pdf');
+
+Route::get('teachers/import/template', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'importTemplate',
+])->name('teachers.import.template');
+
+Route::post('teachers/import', [
+    \App\Http\Controllers\Admin\TeacherController::class,
+    'importExcel',
+])->name('teachers.import');
+
             /*
 
             |--------------------------------------------------------------------------
@@ -1867,6 +1879,77 @@ Route::prefix('scholarship')
                 TeacherController::class
 
             )->whereNumber('teacher');
+            Route::get('/timetable', [
+                TimetableController::class,
+                'index'
+            ])->name('timetable.index');
+
+            Route::get('/timetable/create', [
+                TimetableController::class,
+                'create'
+            ])->name('timetable.create');
+
+            Route::post('/timetable', [
+                TimetableController::class,
+                'store'
+            ])->name('timetable.save');
+
+            Route::get('/timetable/teacher', [
+                TimetableController::class,
+                'teacherTimetable'
+            ])->name('timetable.teacher');
+
+            Route::get('/timetable/class', [
+                TimetableController::class,
+                'classTimetable'
+            ])->name('timetable.class');
+
+            Route::get('/timetable/class/pdf', [
+                TimetableController::class,
+                'classPdf'
+            ])->name('timetable.class.pdf');
+
+         // Weekly timetable tools — place BEFORE the {timetable} routes.
+
+Route::get('/timetable/weekly/fetch', [
+    TimetableController::class,
+    'fetchWeekly',
+])->name('timetable.weekly.fetch');
+
+Route::get('/timetable/weekly/excel', [
+    TimetableController::class,
+    'exportWeekly',
+])->name('timetable.weekly.excel');
+
+Route::get('/timetable/weekly/pdf', [
+    TimetableController::class,
+    'weeklyPdf',
+])->name('timetable.weekly.pdf');
+
+Route::post('/timetable/weekly/import', [
+    TimetableController::class,
+    'importWeekly',
+])->name('timetable.weekly.import');
+
+            Route::get('/timetable/{timetable}', [
+                TimetableController::class,
+                'show'
+            ])->name('timetable.show');
+
+            Route::get('/timetable/{timetable}/edit', [
+                TimetableController::class,
+                'edit'
+            ])->name('timetable.edit');
+
+            Route::put('/timetable/{timetable}', [
+                TimetableController::class,
+                'update'
+            ])->name('timetable.update');
+
+            Route::delete('/timetable/{timetable}', [
+                TimetableController::class,
+                'destroy'
+            ])->name('timetable.destroy');
 
             /*
 
@@ -2563,6 +2646,19 @@ Route::prefix('scholarship')
                 'show'
 
             ])->name('teachers.reports.show');
+
+            Route::get('/reports/results', [
+    \App\Http\Controllers\Admin\ResultReportController::class,
+    'index',
+])->name('reports.results.index');
+
+
+
+Route::get('/reports/exams', [
+    \App\Http\Controllers\Admin\ExamReportController::class,
+    'index',
+])->name('reports.exams');
+
 
 
 
@@ -3560,217 +3656,109 @@ Route::resource('subjects', SubjectController::class)->names('subjects');
 
 
 /*
-
-\|--------------------------------------------------------------------------
-
-\| MEAL MANAGEMENT
-
-\|--------------------------------------------------------------------------
-
+|--------------------------------------------------------------------------
+| MEAL ITEMS AND STOCK
+|--------------------------------------------------------------------------
 */
 
-
-
-Route::prefix('admin/meal/items')
-
-    ->name('admin.meal.items.')
-
+Route::prefix('meal/items')
+    ->name('meal.items.')
     ->group(function () {
 
-
-
         Route::get('/', [
-
             MealItemController::class,
-
             'index'
-
         ])->name('index');
 
-
-
         Route::get('/create', [
-
             MealItemController::class,
-
             'create'
-
         ])->name('create');
 
-
-
         Route::post('/', [
-
             MealItemController::class,
-
             'store'
-
         ])->name('store');
 
-
-
         Route::get('/{mealItem}/edit', [
-
             MealItemController::class,
-
             'edit'
-
         ])->name('edit');
 
-
-
         Route::put('/{mealItem}', [
-
             MealItemController::class,
-
-     'update'
-
+            'update'
         ])->name('update');
 
-
-
         Route::delete('/{mealItem}', [
-
             MealItemController::class,
-
             'destroy'
-
         ])->name('destroy');
 
-
-
-        /*
-
-        |--------------------------------------------------------------------------
-
-        | MEAL STOCK
-
-        |--------------------------------------------------------------------------
-
-        */
-
-
-
+        // Meal Stock
         Route::get('/stock', [
-
             MealStockTransactionController::class,
-
             'index'
-
         ])->name('stock.index');
 
-
-
         Route::get('/stock/create', [
-
             MealStockTransactionController::class,
-
             'create'
-
         ])->name('stock.create');
 
-
-
         Route::post('/stock', [
-
             MealStockTransactionController::class,
-
             'store'
-
         ])->name('stock.store');
-
     });
 
 
-
-
-
 /*
-
-\|--------------------------------------------------------------------------
-
-\| MEAL MANAGEMENT MAIN MENU
-
-\|--------------------------------------------------------------------------
-
+|--------------------------------------------------------------------------
+| MEAL MANAGEMENT MAIN MENU
+|--------------------------------------------------------------------------
 */
 
-
-
-Route::get('/admin/meals', function () {
-
+Route::get('/meals', function () {
     return redirect()->route('admin.meal.items.index');
-
-})->name('admin.meals.index');
-
-
-
+})->name('meals.index');
 
 
 /*
-
-\|--------------------------------------------------------------------------
-
-\| MEAL STOCK LOGS
-
-\|--------------------------------------------------------------------------
-
+|--------------------------------------------------------------------------
+| MEAL STOCK LOGS
+|--------------------------------------------------------------------------
 */
 
-
-
-Route::prefix('admin/meal/logs')
-
-    ->name('admin.meal.logs.')
-
+Route::prefix('meal/logs')
+    ->name('meal.logs.')
     ->group(function () {
 
-        // Logs Index
         Route::get('/', [
-
             MealStockLogController::class,
-
             'index'
-
         ])->name('index');
 
-        // PDF Test
         Route::get('/meal-pdf-test', function () {
-
             return 'MEAL PDF TEST WORKS';
-
         })->name('test-pdf');
 
-        // Download Meal Logs PDF
         Route::get('/download-pdf', [
-
             MealStockLogController::class,
-
             'downloadPdf'
-
         ])->name('pdf');
 
-        // Download Meal Logs Excel
         Route::get('/excel', [
-
             MealStockLogController::class,
-
             'downloadExcel'
-
         ])->name('excel');
 
-        // View Log Details — keep this last
         Route::get('/{mealStockLog}', [
-
             MealStockLogController::class,
-
             'show'
-
         ])->name('show');
     });
 
-
-    });
 
 
 
@@ -3781,4 +3769,4 @@ Route::prefix('admin/meal/logs')
 })->name('fees.index');   
 
  });
-
+    });

@@ -4,7 +4,6 @@
 @section('page-title', 'Backup & Recovery')
 
 @section('content')
-
 <div class="backup-form-page">
     <div class="container-fluid py-4">
 
@@ -21,22 +20,29 @@
                     </div>
 
                     <h2>Backup &amp; Recovery</h2>
-
                     <p>Manage your school database backups.</p>
                 </div>
             </div>
 
             <div class="form-hero-actions">
-                <form action="{{ route('backup.create') }}"
-                      method="POST"
-                      onsubmit="return confirm('Create a new backup? This may take a moment.');">
-                    @csrf
+                <div class="hero-action-group">
+                    <form action="{{ route('backup.create') }}"
+                          method="POST"
+                          onsubmit="return confirm('Create a new backup? This may take a moment.');">
+                        @csrf
 
-                    <button type="submit" class="diary-primary-btn">
-                        <i class="fas fa-plus"></i>
-                        Create Backup
-                    </button>
-                </form>
+                        <button type="submit" class="diary-primary-btn">
+                            <i class="fas fa-plus"></i>
+                            Create Backup
+                        </button>
+                    </form>
+
+                    <a href="{{ route('admin.backup.restore') }}"
+                       class="diary-secondary-btn">
+                        <i class="fas fa-rotate-left"></i>
+                        Restore Backup
+                    </a>
+                </div>
             </div>
         </section>
 
@@ -81,7 +87,25 @@
             </div>
         @endif
 
-        {{-- MAIN CARD --}}
+        {{-- VALIDATION ERRORS --}}
+        @if($errors->any())
+            <div class="form-error-alert" role="alert">
+                <span class="error-icon">
+                    <i class="fas fa-exclamation"></i>
+                </span>
+
+                <div class="error-copy">
+                    <strong>Please check the following</strong>
+                    <ul class="mb-0 ps-3">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
+        {{-- MAIN BACKUP CARD --}}
         <section class="form-card">
 
             <div class="form-panel-header">
@@ -99,15 +123,16 @@
 
                 @if(!$backups->isEmpty())
                     <div class="backup-count">
-                        {{ $backups->count() }} {{ Str::plural('backup', $backups->count()) }}
+                        {{ $backups->count() }}
+                        {{ Str::plural('backup', $backups->count()) }}
                     </div>
                 @endif
             </div>
 
             <div class="form-body">
 
+                {{-- EMPTY STATE --}}
                 @if($backups->isEmpty())
-
                     <div class="empty-state">
                         <div class="empty-state-icon">
                             <i class="fas fa-box-archive"></i>
@@ -123,6 +148,7 @@
 
                 @else
 
+                    {{-- BACKUP TABLE --}}
                     <div class="table-wrap">
                         <table class="diary-table">
                             <thead>
@@ -138,38 +164,49 @@
                             <tbody>
                                 @foreach($backups as $backup)
                                     <tr>
+                                        {{-- FILENAME --}}
                                         <td>
                                             <div class="file-cell">
                                                 <span class="file-icon">
                                                     <i class="fas fa-file-zipper"></i>
                                                 </span>
-                                                <span class="file-name">{{ $backup['name'] }}</span>
+
+                                                <span class="file-name">
+                                                    {{ $backup['name'] }}
+                                                </span>
                                             </div>
                                         </td>
 
+                                        {{-- BACKUP TYPE --}}
                                         <td>
                                             <span class="type-badge">
                                                 {{ $backup['type'] }}
                                             </span>
                                         </td>
 
+                                        {{-- FILE SIZE --}}
                                         <td class="size-cell">
                                             {{ number_format($backup['size'] / 1024, 2) }} KB
                                         </td>
 
+                                        {{-- CREATED DATE --}}
                                         <td class="date-cell">
                                             {{ $backup['date'] }}
                                         </td>
 
+                                        {{-- ACTIONS --}}
                                         <td class="text-end">
                                             <div class="row-actions">
+
+                                                {{-- DOWNLOAD BACKUP --}}
                                                 <a href="{{ route('backup.download', ['backup' => $backup['name']]) }}"
                                                    class="diary-action-btn download-btn"
-                                                   title="Download">
+                                                   title="Download backup">
                                                     <i class="fas fa-download"></i>
                                                     Download
                                                 </a>
 
+                                                {{-- DELETE BACKUP --}}
                                                 <form action="{{ route('backup.destroy', ['backup' => $backup['name']]) }}"
                                                       method="POST"
                                                       class="d-inline"
@@ -179,11 +216,12 @@
 
                                                     <button type="submit"
                                                             class="diary-action-btn delete-btn"
-                                                            title="Delete">
+                                                            title="Delete backup">
                                                         <i class="fas fa-trash"></i>
                                                         Delete
                                                     </button>
                                                 </form>
+
                                             </div>
                                         </td>
                                     </tr>
@@ -195,7 +233,6 @@
                 @endif
 
             </div>
-
         </section>
 
     </div>
@@ -205,8 +242,8 @@
 /* =========================================================
    LOCKED SCHOOL DIARY DESIGN SYSTEM
    BACKUP & RECOVERY PAGE
-   Same tokens, cards and buttons as Security / Roles / Meal Items.
-   Every selector is scoped under .backup-form-page.
+   Warm cream, paper and forest-green design.
+   All selectors are scoped under .backup-form-page.
 ========================================================= */
 
 .backup-form-page {
@@ -251,14 +288,14 @@
     margin: 0 auto;
 }
 
+/* HERO */
+
 .backup-form-page .form-hero,
 .backup-form-page .form-card {
     border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--paper);
 }
-
-/* PAGE HEADER */
 
 .backup-form-page .form-hero {
     display: grid;
@@ -288,7 +325,11 @@
     min-width: 0;
     padding: 26px 28px 26px 56px;
     background:
-        radial-gradient(ellipse at top left, rgba(244, 240, 223, .65), transparent 65%),
+        radial-gradient(
+            ellipse at top left,
+            rgba(244, 240, 223, .65),
+            transparent 65%
+        ),
         var(--paper);
 }
 
@@ -347,19 +388,29 @@
     padding: 0 28px;
 }
 
-/* LOCKED BUTTON STYLES */
+.backup-form-page .hero-action-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: wrap;
+}
 
-.backup-form-page .diary-primary-btn {
+.backup-form-page .hero-action-group form {
+    margin: 0;
+}
+
+/* BUTTONS */
+
+.backup-form-page .diary-primary-btn,
+.backup-form-page .diary-secondary-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     min-height: 41px;
     padding: 10px 16px;
-    border: 1px solid var(--ink);
     border-radius: 7px;
-    color: #fff !important;
-    background: var(--ink);
     font-family: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -369,12 +420,31 @@
     cursor: pointer;
 }
 
+.backup-form-page .diary-primary-btn {
+    border: 1px solid var(--ink);
+    color: #fff !important;
+    background: var(--ink);
+}
+
 .backup-form-page .diary-primary-btn:hover {
     transform: translateY(-2px);
     border-color: var(--ink-hover);
     color: #fff !important;
     background: var(--ink-hover);
     box-shadow: 0 5px 13px rgba(29, 48, 43, .14);
+}
+
+.backup-form-page .diary-secondary-btn {
+    border: 1px solid #d9cfb7;
+    color: var(--ink) !important;
+    background: #f5f0e2;
+}
+
+.backup-form-page .diary-secondary-btn:hover {
+    transform: translateY(-2px);
+    border-color: #c6b58f;
+    color: var(--ink-dark) !important;
+    background: #eee5ce;
 }
 
 /* ALERTS */
@@ -461,7 +531,7 @@
     background: rgba(0, 0, 0, .04);
 }
 
-/* FORM CARD */
+/* MAIN CARD */
 
 .backup-form-page .form-card {
     overflow: hidden;
@@ -534,8 +604,6 @@
     white-space: nowrap;
 }
 
-/* FORM BODY */
-
 .backup-form-page .form-body {
     padding: 0;
 }
@@ -574,8 +642,8 @@
 }
 
 .backup-form-page .empty-state p {
-    margin: 0;
     max-width: 320px;
+    margin: 0;
     color: var(--muted);
     font-size: 13px;
     line-height: 1.6;
@@ -601,8 +669,8 @@
     font-size: 10px;
     font-weight: 800;
     letter-spacing: .6px;
-    text-transform: uppercase;
     text-align: left;
+    text-transform: uppercase;
     white-space: nowrap;
 }
 
@@ -649,7 +717,7 @@
 .backup-form-page .file-name {
     color: var(--ink);
     font-weight: 700;
-    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
 .backup-form-page .type-badge {
@@ -689,6 +757,7 @@
 .backup-form-page .diary-action-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     min-height: 32px;
     padding: 6px 11px;
@@ -710,8 +779,8 @@
 
 .backup-form-page .download-btn:hover {
     border-color: #a8d4b4;
-    background: #e0f2e6;
     color: #245c3a !important;
+    background: #e0f2e6;
 }
 
 .backup-form-page .delete-btn {
@@ -722,8 +791,8 @@
 
 .backup-form-page .delete-btn:hover {
     border-color: #e0b8ae;
-    background: #fdecea;
     color: #8f3a33 !important;
+    background: #fdecea;
 }
 
 /* TABLET */
@@ -735,6 +804,10 @@
 
     .backup-form-page .form-hero-actions {
         padding: 0 28px 24px 56px;
+    }
+
+    .backup-form-page .hero-action-group {
+        justify-content: flex-start;
     }
 }
 
@@ -776,7 +849,14 @@
         padding: 0 16px 20px 42px;
     }
 
-    .backup-form-page .form-hero-actions .diary-primary-btn {
+    .backup-form-page .hero-action-group {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .backup-form-page .hero-action-group form,
+    .backup-form-page .hero-action-group .diary-primary-btn,
+    .backup-form-page .hero-action-group .diary-secondary-btn {
         width: 100%;
     }
 
@@ -801,7 +881,6 @@
     }
 
     .backup-form-page .diary-action-btn {
-        justify-content: center;
         width: 100%;
     }
 }
@@ -831,5 +910,4 @@
     }
 }
 </style>
-
 @endsection

@@ -1,411 +1,577 @@
 @extends('layouts.app')
 
-@section('title', 'Create Timetable')
-@section('page-title', 'Create Timetable')
+@section('title', 'Create Weekly Timetable')
+@section('page-title', 'Create Weekly Timetable')
 
 @section('content')
-
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-    rel="stylesheet"
->
+@php
+    $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    $periodNumbers = range(1, 8);
+@endphp
 
 <style>
-
-/* =========================================================
-   PAGE
-========================================================= */
-
-.timetable-create-page {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 28px;
-    background: #f4f7fb;
-    min-height: calc(100vh - 80px);
-}
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.timetable-header {
-    background: linear-gradient(135deg, #147cf5, #6c63ff);
-    color: #fff;
-    padding: 28px 32px;
-    border-radius: 16px;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 25px rgba(20, 124, 245, 0.18);
-}
-
-.timetable-header h2 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-}
-
-.timetable-header p {
-    margin: 8px 0 0;
-    font-size: 14px;
-    opacity: .9;
-}
-
-/* =========================================================
-   FORM CARD
-========================================================= */
-
-.timetable-form-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, .06);
-}
-
-.form-section {
-    margin-bottom: 30px;
-}
-
-.form-section:last-child {
-    margin-bottom: 0;
-}
-
-/* =========================================================
-   SECTION TITLE
-========================================================= */
-
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #1f2937;
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.section-icon {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: #eaf3ff;
-    color: #147cf5;
-    font-size: 17px;
-}
-
-/* =========================================================
-   FORM GRID
-========================================================= */
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-/* =========================================================
-   LABEL
-========================================================= */
-
-.form-label {
-    margin-bottom: 8px;
-    color: #374151;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.required-star {
-    color: #ef4444;
-}
-
-/* =========================================================
-   INPUTS
-========================================================= */
-
-.timetable-form-input,
-.timetable-form-select,
-.form-control-custom {
-    width: 100%;
-    height: 46px;
-    padding: 0 14px;
-    box-sizing: border-box;
-    border: 1px solid #d9e2ec;
-    border-radius: 9px;
-    outline: none;
-    background: #fff;
-    color: #1f2937;
-    font-size: 14px;
-    font-family: inherit;
-    transition: .2s ease;
-}
-
-.form-control-custom {
-    height: 56px;
-    padding: 0 18px;
-    border-radius: 12px;
-}
-
-/* =========================================================
-   SELECT
-========================================================= */
-
-select.form-control-custom,
-select.timetable-form-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    cursor: pointer;
-
-    background-image:
-        linear-gradient(
-            45deg,
-            transparent 50%,
-            #172033 50%
-        ),
-        linear-gradient(
-            135deg,
-            #172033 50%,
-            transparent 50%
-        );
-
-    background-position:
-        calc(100% - 20px) 24px,
-        calc(100% - 14px) 24px;
-
-    background-size:
-        6px 6px,
-        6px 6px;
-
-    background-repeat: no-repeat;
-
-    padding-right: 45px;
-}
-
-select.timetable-form-select {
-    background-position:
-        calc(100% - 16px) 19px,
-        calc(100% - 11px) 19px;
-}
-
-/* =========================================================
-   HOVER / FOCUS
-========================================================= */
-
-.form-control-custom:hover,
-.timetable-form-input:hover,
-.timetable-form-select:hover {
-    border-color: #b8c6d9;
-}
-
-.form-control-custom:focus,
-.timetable-form-input:focus,
-.timetable-form-select:focus {
-    border-color: #147cf5;
-    box-shadow: 0 0 0 3px rgba(20, 124, 245, .10);
-}
-
-/* =========================================================
-   DISABLED
-========================================================= */
-
-.form-control-custom:disabled,
-.timetable-form-input:disabled,
-.timetable-form-select:disabled {
-    background: #f3f4f6;
-    color: #9ca3af;
-    cursor: not-allowed;
-}
-
-/* =========================================================
-   HELP
-========================================================= */
-
-.form-help,
-.time-help {
-    margin-top: 6px;
-    color: #6b7280;
-    font-size: 12px;
-}
-
-/* =========================================================
-   ERROR
-========================================================= */
-
-.error-message {
-    margin-top: 6px;
-    color: #dc2626;
-    font-size: 12px;
-}
-
-.alert-error {
-    margin-bottom: 24px;
-    padding: 14px 16px;
-    border: 1px solid #fecaca;
-    border-radius: 10px;
-    background: #fef2f2;
-    color: #b91c1c;
-}
-
-.alert-error ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-/* =========================================================
-   ACTIONS
-========================================================= */
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 10px;
-    padding-top: 24px;
-    border-top: 1px solid #e5e7eb;
-}
-
-.btn-cancel,
-.btn-save {
-    height: 44px;
-    padding: 0 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border: none;
-    border-radius: 9px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: .2s ease;
-}
-
-.btn-cancel {
-    background: #f3f4f6;
-    color: #4b5563;
-}
-
-.btn-cancel:hover {
-    background: #e5e7eb;
-    color: #374151;
-}
-
-.btn-save {
-    background: linear-gradient(
-        135deg,
-        #147cf5,
-        #6c63ff
-    );
-    color: #fff;
-    box-shadow: 0 5px 15px rgba(20, 124, 245, .20);
-}
-
-.btn-save:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 7px 18px rgba(20, 124, 245, .28);
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 768px) {
-
-    .timetable-create-page {
-        padding: 18px;
+    :root {
+        --ink: #1d3a33;
+        --ink-2: #16302a;
+        --text: #2c3e3a;
+        --muted: #6b7c75;
+        --accent: #e4572e;
+        --chalk: #e9efe2;
+        --line: #d8d1bf;
+        --serif: 'Libre Baskerville', Georgia, serif;
+        --hand: 'Caveat', cursive;
     }
 
-    .timetable-form-card {
-        padding: 20px;
+    .tt-page {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding-bottom: 28px;
+        color: var(--text);
+    }
+    .tt-page * { box-sizing: border-box; }
+
+    .paper {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
     }
 
-    .form-grid {
-        grid-template-columns: 1fr;
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+        padding: 22px 28px 22px 56px;
+        margin-bottom: 18px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::before {
+        content: "";
+        position: absolute;
+        left: 34px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(228, 87, 46, .35);
+    }
+    .hero-left .eyebrow {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 6px;
+    }
+    .hero-left h1 {
+        font-family: var(--serif);
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0 0 4px;
+    }
+    .hero-left p {
+        color: var(--muted);
+        margin: 0;
+        font-size: 13.5px;
+        line-height: 1.45;
+    }
+    .hero-btns {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
-    .form-group.full-width {
-        grid-column: auto;
+    /* ── Buttons ──────────────────────────────────────── */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid transparent;
+        font-family: inherit;
+        white-space: nowrap;
+        transition: all .15s ease;
+    }
+    .btn i { font-size: 14px; }
+
+    .btn-add, .btn-solid {
+        background: var(--ink);
+        color: #fff;
+        border-color: var(--ink);
+    }
+    .btn-add:hover, .btn-solid:hover {
+        background: var(--ink-2);
+        border-color: var(--ink-2);
+        color: #fff;
     }
 
-    .form-actions {
+    .btn-line {
+        background: #fff;
+        border: 1px solid #cfc8b6;
+        color: var(--text);
+    }
+    .btn-line:hover {
+        border-color: var(--ink);
+        color: var(--ink);
+    }
+
+    .btn-fetch {
+        background: #2b5d8a;
+        color: #fff;
+        border-color: #2b5d8a;
+    }
+    .btn-fetch:hover {
+        background: #1f4669;
+        border-color: #1f4669;
+        color: #fff;
+    }
+
+    .btn-excel {
+        background: #217346;
+        color: #fff;
+        border-color: #217346;
+    }
+    .btn-excel:hover {
+        background: #1a5c38;
+        border-color: #1a5c38;
+        color: #fff;
+    }
+
+    .btn-pdf {
+        background: #e4572e;
+        color: #fff;
+        border-color: #e4572e;
+    }
+    .btn-pdf:hover {
+        background: #c93f1a;
+        border-color: #c93f1a;
+        color: #fff;
+    }
+
+    .btn-import {
+        background: #5b7a8c;
+        color: #fff;
+        border-color: #5b7a8c;
+    }
+    .btn-import:hover {
+        background: #4a6575;
+        border-color: #4a6575;
+        color: #fff;
+    }
+
+    .btn:disabled {
+        opacity: .65;
+        cursor: wait;
+    }
+
+    /* ── Cards / sections ─────────────────────────────── */
+    .tt-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        margin-bottom: 18px;
+        overflow: hidden;
+    }
+    .tt-section {
+        padding: 22px 24px;
+    }
+    .tt-section-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .tt-section-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+        background: color-mix(in srgb, #2b5d8a 14%, #fff);
+        color: #2b5d8a;
+    }
+    .tt-section-heading h2 {
+        margin: 0 0 3px;
+        font-family: var(--serif);
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink);
+    }
+    .tt-section-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12.5px;
+    }
+
+    .tt-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 15px;
+    }
+    .tt-field {
+        display: flex;
         flex-direction: column;
+        gap: 7px;
+        min-width: 0;
     }
-
-    .btn-cancel,
-    .btn-save {
+    .tt-label {
+        font-size: 12px;
+        font-weight: 650;
+        color: #334155;
+    }
+    .tt-required { color: #dc2626; }
+    .tt-control {
         width: 100%;
+        min-width: 0;
+        height: 40px;
+        padding: 0 10px;
+        border: 1px solid #cfc8b6;
+        border-radius: 8px;
+        background: #fff;
+        color: #1e293b;
+        font-family: inherit;
+        font-size: 13px;
+        outline: none;
+    }
+    .tt-control:focus {
+        border-color: var(--ink);
+        box-shadow: 0 0 0 3px rgba(29, 58, 51, .10);
+    }
+    .tt-control:disabled {
+        background: #f4f1ea;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+    .tt-help {
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.45;
+    }
+    .tt-error {
+        color: #dc2626;
+        font-size: 11px;
     }
 
-    .timetable-header {
-        padding: 22px;
+    .tt-alert, .tt-success {
+        padding: 13px 16px;
+        margin-bottom: 16px;
+        border-radius: 10px;
+        font-size: 13px;
+    }
+    .tt-alert {
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+    .tt-success {
+        color: #166534;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+    }
+    .tt-alert ul { margin: 8px 0 0; padding-left: 20px; }
+
+    /* ── Tools card ───────────────────────────────────── */
+    .tt-tools-card {
+        padding: 20px 24px;
+        margin-bottom: 18px;
+    }
+    .tt-tools-card h2 {
+        margin: 0 0 4px;
+        font-family: var(--serif);
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .tt-tools-card > p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 12.5px;
+    }
+    .tt-weekly-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
     }
 
-    .timetable-header h2 {
-        font-size: 23px;
+    /* Hidden file input for import */
+    #weeklyExcelFile {
+        display: none;
     }
-}
 
+    .tt-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 11px 13px;
+        margin-bottom: 14px;
+        border: 1px solid #e8d9b8;
+        border-radius: 9px;
+        background: #fffdf6;
+        color: #5c5346;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+    .tt-hint i { color: var(--accent); margin-top: 1px; }
+
+    .tt-stats {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin-bottom: 17px;
+    }
+    .tt-stat {
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #faf8f3;
+        color: #5c5346;
+        font-size: 12px;
+    }
+    .tt-stat strong {
+        color: var(--ink);
+        font-family: var(--serif);
+        font-size: 14px;
+    }
+
+    /* ── Grid ─────────────────────────────────────────── */
+    .tt-grid-wrap {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+    }
+    .tt-grid {
+        width: 100%;
+        min-width: 1850px;
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+    .tt-grid th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        padding: 12px 8px;
+        background: #f4f1ea;
+        color: var(--ink);
+        border-right: 1px solid #e5dfd0;
+        border-bottom: 1px solid #e5dfd0;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        font-family: var(--serif);
+    }
+    .tt-grid th:first-child { left: 0; z-index: 5; width: 105px; }
+    .tt-grid td {
+        padding: 7px;
+        vertical-align: top;
+        border-right: 1px solid #ebe6d9;
+        border-bottom: 1px solid #ebe6d9;
+        background: #fff;
+    }
+    .tt-grid tr:last-child td { border-bottom: 0; }
+    .tt-grid .tt-day {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        width: 105px;
+        background: #faf8f3;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--ink);
+        font-family: var(--serif);
+    }
+    .tt-day-date {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 500;
+        font-family: 'Public Sans', sans-serif;
+    }
+
+    .tt-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        min-width: 190px;
+        padding: 8px;
+        border: 1px solid #e5dfd0;
+        border-radius: 9px;
+        background: #fffdf8;
+    }
+    .tt-cell:focus-within {
+        border-color: #2b5d8a;
+        box-shadow: 0 0 0 2px rgba(43, 93, 138, .12);
+    }
+    .tt-cell-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+        color: #2b5d8a;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .tt-cell .tt-control { height: 34px; padding: 0 7px; font-size: 11.5px; }
+    .tt-time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .tt-cell.tt-special {
+        background: #fff7ed;
+        border-color: #fed7aa;
+    }
+    .tt-cell.tt-special .tt-cell-title { color: #9a3412; }
+    .tt-subject-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 32px;
+        gap: 5px;
+        align-items: center;
+    }
+    .tt-add-subject {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 34px;
+        border: 1px solid #cfc8b6;
+        border-radius: 7px;
+        background: #faf8f3;
+        color: var(--ink);
+        cursor: pointer;
+    }
+    .tt-add-subject:hover { background: #f0ebe0; }
+
+    /* ── Footer ───────────────────────────────────────── */
+    .tt-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 16px 24px;
+        background: rgba(255, 255, 255, .97);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -5px 15px rgba(29, 58, 51, .04);
+    }
+    .tt-footer-note { color: var(--muted); font-size: 11px; }
+    .tt-footer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    /* ── Modal ────────────────────────────────────────── */
+    .tt-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(29, 58, 51, .45);
+    }
+    .tt-modal-backdrop.open { display: flex; }
+    .tt-modal {
+        width: min(440px, 100%);
+        padding: 20px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 20px 60px rgba(29, 58, 51, .25);
+        border: 1px solid var(--line);
+    }
+    .tt-modal h3 {
+        margin: 0 0 5px;
+        font-family: var(--serif);
+        font-size: 17px;
+        color: var(--ink);
+    }
+    .tt-modal p {
+        margin: 0 0 15px;
+        color: var(--muted);
+        font-size: 12px;
+    }
+    .tt-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 17px;
+    }
+
+    @media (max-width: 1000px) {
+        .tt-meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .hero { padding-left: 44px; }
+        .hero::before { left: 24px; }
+    }
+    @media (max-width: 600px) {
+        .hero { padding: 18px 16px 18px 40px; }
+        .hero-left h1 { font-size: 22px; }
+        .tt-meta-grid { grid-template-columns: 1fr; }
+        .tt-footer {
+            position: static;
+            padding: 16px;
+            align-items: stretch;
+            flex-direction: column;
+        }
+        .tt-footer-actions, .tt-weekly-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+    }
 </style>
 
-
-<div class="timetable-create-page">
-
-    {{-- =====================================================
-         HEADER
-    ====================================================== --}}
-
-    <div class="timetable-header">
-
-        <h2>
-            <i class="bi bi-calendar-plus me-2"></i>
-            Create Timetable
-        </h2>
-
-        <p>
-            Add a new class timetable entry
-        </p>
-
-    </div>
-
-
-    {{-- =====================================================
-         VALIDATION ERRORS
-    ====================================================== --}}
-
-    @if ($errors->any())
-
-        <div class="alert-error">
-
-            <ul>
-
-                @foreach ($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
+<div class="tt-page">
+    {{-- Hero --}}
+    <header class="paper hero">
+        <div class="hero-left">
+            <div class="eyebrow">Academic Management</div>
+            <h1>Create Weekly Timetable</h1>
+            <p>Create, fetch, export and import all 48 periods for one selected week.</p>
         </div>
+        <div class="hero-btns">
+            <a href="{{ route('admin.timetable.index') }}" class="btn btn-line">
+                <i class="bi bi-arrow-left"></i> Back to Timetable
+            </a>
+        </div>
+    </header>
 
+    @if (session('success'))
+        <div class="tt-success" role="status">
+            <i class="bi bi-check-circle"></i> {{ session('success') }}
+        </div>
     @endif
 
+    @if ($errors->any())
+        <div class="tt-alert" role="alert">
+            <strong><i class="bi bi-exclamation-triangle"></i> Please correct the following errors:</strong>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    <div class="timetable-form-card">
+    <form action="{{ route('admin.timetable.save') }}" method="POST" id="weeklyTimetableForm">
+        @csrf
 
         <form
             action="{{ route('admin.timetable.store') }}"
@@ -426,1715 +592,748 @@ select.timetable-form-select {
 
                     <div class="section-icon">
                         <i class="bi bi-clipboard-data"></i>
+        {{-- Details --}}
+        <div class="tt-card">
+            <section class="tt-section">
+                <div class="tt-section-heading">
+                    <div class="tt-section-icon"><i class="bi bi-clipboard-data"></i></div>
+                    <div>
+                        <h2>Weekly Timetable Details</h2>
+                        <p>Choose the academic year, class, section, and Monday start date.</p>
                     </div>
-
-                    Basic Information
-
                 </div>
 
+                <div class="tt-meta-grid">
+                    <div class="tt-field">
+                        <label class="tt-label" for="academic_year">Academic Year <span class="tt-required">*</span></label>
+                        <input class="tt-control" type="text" id="academic_year" name="academic_year"
+                               value="{{ old('academic_year', '2026-2027') }}" placeholder="2026-2027" required>
+                        @error('academic_year') <div class="tt-error">{{ $message }}</div> @enderror
+                    </div>
 
-                <div class="form-grid">
-
-
-                    {{-- TEACHER --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="teacher_id"
-                            class="form-label"
-                        >
-                            Teacher
-
-                            <span
-                                class="required-star"
-                                id="teacherRequired"
-                            >
-                                *
-                            </span>
-                        </label>
-
-
-                        <select
-                            name="teacher_id"
-                            id="teacher_id"
-                            class="timetable-form-select"
-                        >
-
-                            <option value="">
-                                Select Teacher
-                            </option>
-
-                            @foreach($teachers as $teacher)
-
-                                <option
-                                    value="{{ $teacher->id }}"
-                                    {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}
-                                >
-
-                                    {{ $teacher->first_name }}
-                                    {{ $teacher->last_name }}
-
-                                    @if(!empty($teacher->teacher_id))
-                                        ({{ $teacher->teacher_id }})
-                                    @endif
-
-                                </option>
-
+                    <div class="tt-field">
+                        <label class="tt-label" for="class">Class / Standard <span class="tt-required">*</span></label>
+                        <select class="tt-control" id="class" name="class" required>
+                            <option value="">Select Class</option>
+                            @foreach ($classes as $classItem)
+                                @php $classValue = $classItem->class_name ?? $classItem->name ?? ''; @endphp
+                                <option value="{{ $classValue }}" @selected(old('class') == $classValue)>{{ $classValue }}</option>
                             @endforeach
-
                         </select>
-
-
-                        @error('teacher_id')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
+                        @error('class') <div class="tt-error">{{ $message }}</div> @enderror
                     </div>
 
-
-                    {{-- ACADEMIC YEAR --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="academic_year"
-                            class="form-label"
-                        >
-                            Academic Year
-
-                            <span class="required-star">
-                                *
-                            </span>
-                        </label>
-
-
-                        <input
-                            type="text"
-                            name="academic_year"
-                            id="academic_year"
-                            class="timetable-form-input"
-                            value="{{ old('academic_year', '2026-2027') }}"
-                            placeholder="Example: 2026-2027"
-                            required
-                        >
-
-                        @error('academic_year')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- CLASS --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="class"
-                            class="form-label"
-                        >
-                            Class / Standard
-
-                            <span
-                                class="required-star"
-                                id="classRequired"
-                            >
-                                *
-                            </span>
-                        </label>
-
-
-                        <select
-                            name="class"
-                            id="class"
-                            class="form-control-custom"
-                        >
-
-                            <option value="">
-                                Select Class
-                            </option>
-
-                            @foreach($classes as $classItem)
-
-                                @php
-                                    $classValue =
-                                        $classItem->class_name
-                                        ?? $classItem->name
-                                        ?? '';
-                                @endphp
-
-                                <option
-                                    value="{{ $classValue }}"
-                                    {{ old('class') == $classValue ? 'selected' : '' }}
-                                >
-
-                                    {{ $classValue }}
-
-                                </option>
-
-                            @endforeach
-
+                    <div class="tt-field">
+                        <label class="tt-label" for="section">Section <span class="tt-required">*</span></label>
+                        <select class="tt-control" id="section" name="section" required>
+                            <option value="">Select Section</option>
                         </select>
-
-
-                        @error('class')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
+                        <div id="sectionHelp" class="tt-help">Select a class to load its sections.</div>
+                        @error('section') <div class="tt-error">{{ $message }}</div> @enderror
                     </div>
 
-
-                    {{-- SECTION --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="section"
-                            class="form-label"
-                        >
-                            Section
-
-                            <span
-                                class="required-star"
-                                id="sectionRequired"
-                            >
-                                *
-                            </span>
-                        </label>
-
-
-                        <select
-                            name="section"
-                            id="section"
-                            class="timetable-form-select"
-                            disabled
-                        >
-
-                            <option value="">
-                                Select Section
-                            </option>
-
-                        </select>
-
-
-                        <div
-                            class="form-help"
-                            id="sectionHelp"
-                        >
-                            Select a class to load available sections.
-                        </div>
-
-
-                        @error('section')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
+                    <div class="tt-field">
+                        <label class="tt-label" for="week_start_date">Week Starting (Monday) <span class="tt-required">*</span></label>
+                        <input class="tt-control" type="date" id="week_start_date" name="week_start_date"
+                               value="{{ old('week_start_date', now()->startOfWeek(\Carbon\Carbon::MONDAY)->format('Y-m-d')) }}" required>
+                        <div id="weekDateHelp" class="tt-help">Choose Monday. The dates for all six days appear below.</div>
+                        @error('week_start_date') <div class="tt-error">{{ $message }}</div> @enderror
                     </div>
-
                 </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 PERIOD INFORMATION
-            ================================================== --}}
-
-            <div class="form-section">
-
-                <div class="section-title">
-
-                    <div class="section-icon">
-                        <i class="bi bi-clock-history"></i>
-                    </div>
-
-                    Period Information
-
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    {{-- DATE --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="timetable_date"
-                            class="form-label"
-                        >
-                            Timetable Date
-
-                            <span class="required-star">
-                                *
-                            </span>
-                        </label>
-
-
-                        <input
-                            type="date"
-                            name="timetable_date"
-                            id="timetable_date"
-                            class="timetable-form-input"
-                            value="{{ old('timetable_date', date('Y-m-d')) }}"
-                            required
-                        >
-
-
-                        @error('timetable_date')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- DAY --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="day"
-                            class="form-label"
-                        >
-                            Day
-                        </label>
-
-
-                        <input
-                            type="text"
-                            name="day"
-                            id="day"
-                            class="timetable-form-input"
-                            value="{{ old('day') }}"
-                            readonly
-                        >
-
-                    </div>
-
-
-                    {{-- PERIOD NUMBER --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="period_number"
-                            class="form-label"
-                        >
-                            Period Number
-
-                            <span class="required-star">
-                                *
-                            </span>
-                        </label>
-
-
-                        <input
-                            type="number"
-                            name="period_number"
-                            id="period_number"
-                            class="timetable-form-input"
-                            value="{{ old('period_number') }}"
-                            min="1"
-                            max="15"
-                            placeholder="Example: 1"
-                            required
-                        >
-
-                        @error('period_number')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- PERIOD TYPE --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="period_type"
-                            class="form-label"
-                        >
-                            Period Type
-
-                            <span class="required-star">
-                                *
-                            </span>
-                        </label>
-
-
-                        <select
-                            name="period_type"
-                            id="period_type"
-                            class="timetable-form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Select Period Type
-                            </option>
-
-                            <option
-                                value="Regular"
-                                {{ old('period_type') == 'Regular' ? 'selected' : '' }}
-                            >
-                                Regular Class
-                            </option>
-
-                            <option
-                                value="Break"
-                                {{ old('period_type') == 'Break' ? 'selected' : '' }}
-                            >
-                                Break
-                            </option>
-
-                            <option
-                                value="Lunch"
-                                {{ old('period_type') == 'Lunch' ? 'selected' : '' }}
-                            >
-                                Lunch
-                            </option>
-
-                            <option
-                                value="Activity"
-                                {{ old('period_type') == 'Activity' ? 'selected' : '' }}
-                            >
-                                Activity
-                            </option>
-
-                        </select>
-
-                        @error('period_type')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- LECTURE TYPE --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="lecture_type"
-                            class="form-label"
-                        >
-                            Lecture Type
-                        </label>
-
-
-                        <select
-                            name="lecture_type"
-                            id="lecture_type"
-                            class="timetable-form-select"
-                        >
-
-                            <option
-                                value="regular"
-                                {{ old('lecture_type', 'regular') == 'regular' ? 'selected' : '' }}
-                            >
-                                Regular Lecture
-                            </option>
-
-                            <option
-                                value="extra"
-                                {{ old('lecture_type') == 'extra' ? 'selected' : '' }}
-                            >
-                                Extra Lecture
-                            </option>
-
-                            <option
-                                value="practical"
-                                {{ old('lecture_type') == 'practical' ? 'selected' : '' }}
-                            >
-                                Practical
-                            </option>
-
-                            <option
-                                value="activity"
-                                {{ old('lecture_type') == 'activity' ? 'selected' : '' }}
-                            >
-                                Activity
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 SUBJECT INFORMATION
-            ================================================== --}}
-
-            <div class="form-section">
-
-                <div class="section-title">
-
-                    <div class="section-icon">
-                        <i class="bi bi-book"></i>
-                    </div>
-
-                    Subject Information
-
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    {{-- SUBJECT / ACTIVITY --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="subject"
-                            class="form-label"
-                        >
-                            Subject / Activity
-
-                            <span
-                                class="required-star"
-                                id="subjectRequired"
-                            >
-                                *
-                            </span>
-                        </label>
-
-
-                        <input
-                            type="text"
-                            name="subject"
-                            id="subject"
-                            class="timetable-form-input"
-                            value="{{ old('subject') }}"
-                            placeholder="Example: Mathematics"
-                        >
-
-
-                        <select
-                            id="activitySubject"
-                            class="timetable-form-select"
-                            style="display:none;"
-                        >
-
-                            <option value="">
-                                Select Activity
-                            </option>
-
-                            <option value="PT">
-                                PT
-                            </option>
-
-                            <option value="Dance">
-                                Dance
-                            </option>
-
-                            <option value="Singing">
-                                Singing
-                            </option>
-
-                            <option value="Art & Craft">
-                                Art & Craft
-                            </option>
-
-                        </select>
-
-
-                        <div
-                            class="form-help"
-                            id="activityHelp"
-                            style="display:none;"
-                        >
-                            Select the activity for this timetable period.
-                        </div>
-
-
-                        @error('subject')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- SUBJECT TYPE --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="subject_type"
-                            class="form-label"
-                        >
-                            Subject Type
-
-                            <span
-                                class="required-star"
-                                id="subjectTypeRequired"
-                            >
-                                *
-                            </span>
-                        </label>
-
-
-                        <select
-                            name="subject_type"
-                            id="subject_type"
-                            class="timetable-form-select"
-                        >
-
-                            <option value="">
-                                Select Subject Type
-                            </option>
-
-                            <option
-                                value="Theory"
-                                {{ old('subject_type') == 'Theory' ? 'selected' : '' }}
-                            >
-                                Theory
-                            </option>
-
-                            <option
-                                value="Practical"
-                                {{ old('subject_type') == 'Practical' ? 'selected' : '' }}
-                            >
-                                Practical
-                            </option>
-
-                            <option
-                                value="Activity"
-                                {{ old('subject_type') == 'Activity' ? 'selected' : '' }}
-                            >
-                                Activity
-                            </option>
-
-                        </select>
-
-
-                        @error('subject_type')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 TIME & ROOM
-            ================================================== --}}
-
-            <div class="form-section">
-
-                <div class="section-title">
-
-                    <div class="section-icon">
-                        <i class="bi bi-stopwatch"></i>
-                    </div>
-
-                    Time & Room
-
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    {{-- START TIME --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="start_time"
-                            class="form-label"
-                        >
-                            Start Time
-
-                            <span class="required-star">
-                                *
-                            </span>
-                        </label>
-
-
-                        <input
-                            type="time"
-                            name="start_time"
-                            id="start_time"
-                            class="timetable-form-input"
-                            value="{{ old('start_time') }}"
-                            required
-                        >
-
-
-                        <div
-                            class="form-help"
-                            id="timeHelp"
-                        >
-                            Standard lecture duration is 45 minutes.
-                        </div>
-
-
-                        @error('start_time')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- END TIME --}}
-
-                    <div class="form-group">
-
-                        <label
-                            for="end_time"
-                            class="form-label"
-                        >
-                            End Time
-                        </label>
-
-
-                        <input
-                            type="time"
-                            name="end_time"
-                            id="end_time"
-                            class="timetable-form-input"
-                            value="{{ old('end_time') }}"
-                        >
-
-                        @error('end_time')
-
-                            <div class="error-message">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- ROOM --}}
-
-                    <div class="form-group full-width">
-
-                        <label
-                            for="room"
-                            class="form-label"
-                        >
-                            Room
-                        </label>
-
-
-                        <input
-                            type="text"
-                            name="room"
-                            id="room"
-                            class="timetable-form-input"
-                            value="{{ old('room') }}"
-                            placeholder="Example: Room 101"
-                        >
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
-                 ACTIONS
-            ================================================== --}}
-
-            <div class="form-actions">
-
-                <a
-                    href="{{ route('admin.timetable.index') }}"
-                    class="btn-cancel"
-                >
-                    <i class="bi bi-arrow-left"></i>
-                    Cancel
-                </a>
-
-
-                <button
-                    type="submit"
-                    class="btn-save"
-                >
-                    <i class="bi bi-check-circle"></i>
-                    Save Timetable
+            </section>
+        </div>
+
+        {{-- Tools (Save removed, Import added here) --}}
+        <section class="paper tt-tools-card">
+            <h2><i class="bi bi-tools"></i> Weekly Timetable Tools</h2>
+            <p>These tools use the academic year, class, section and week selected above.</p>
+
+            <div class="tt-weekly-actions">
+                <button type="button" class="btn btn-fetch" id="fetchWeeklyBtn">
+                    <i class="bi bi-arrow-repeat"></i> Fetch Existing Records
                 </button>
 
+                <button type="button" class="btn btn-excel" id="weeklyExcelBtn">
+                    <i class="bi bi-file-earmark-excel"></i> Export Excel
+                </button>
+
+                <button type="button" class="btn btn-pdf" id="weeklyPdfBtn">
+                    <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                </button>
+
+                {{-- Import button (replaces Save in this row) --}}
+                <input type="file" id="weeklyExcelFile" accept=".xlsx,.xls,.csv">
+                <button type="button" class="btn btn-import" id="importSubmitBtn">
+                    <i class="bi bi-upload"></i> Import and Replace Selected Week
+                </button>
             </div>
+        </section>
 
-        </form>
+        {{-- Grid --}}
+        <div class="tt-card">
+            <section class="tt-section">
+                <div class="tt-section-heading">
+                    <div class="tt-section-icon" style="background:color-mix(in srgb,#d58a0b 14%,#fff);color:#d58a0b">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </div>
+                    <div>
+                        <h2>Weekly Timetable Grid</h2>
+                        <p>Choose a subject, teacher, period type and time for each slot.</p>
+                    </div>
+                </div>
 
-    </div>
+                <div class="tt-hint">
+                    <i class="bi bi-info-circle"></i>
+                    <div><strong>Note:</strong> The grid contains Monday–Saturday and eight periods per day. Break and Lunch do not require a subject or teacher. Fetch loads saved records into the grid; it does not save changes by itself.</div>
+                </div>
 
+                <div class="tt-stats">
+                    <div class="tt-stat"><strong>6</strong> working days</div>
+                    <div class="tt-stat"><strong>8</strong> periods per day</div>
+                    <div class="tt-stat"><strong>48</strong> timetable slots</div>
+                    <div class="tt-stat">One form · One save</div>
+                </div>
+
+                <div class="tt-grid-wrap">
+                    <table class="tt-grid">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                @foreach ($periodNumbers as $periodNumber)
+                                    <th>Period {{ $periodNumber }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($weekDays as $dayIndex => $day)
+                                <tr>
+                                    <td class="tt-day">
+                                        {{ $day }}
+                                        <span class="tt-day-date day-date" data-day-index="{{ $dayIndex }}">--</span>
+                                    </td>
+
+                                    @foreach ($periodNumbers as $periodNumber)
+                                        @php
+                                            $old = old("timetable.{$day}.{$periodNumber}", []);
+                                            if (!is_array($old)) $old = [];
+                                            $prefix = "timetable[{$day}][{$periodNumber}]";
+                                            $type = $old['period_type'] ?? 'Regular';
+                                        @endphp
+                                        <td>
+                                            <div class="tt-cell {{ in_array($type, ['Break', 'Lunch'], true) ? 'tt-special' : '' }}">
+                                                <div class="tt-cell-title">
+                                                    <span>{{ $day }}</span><span>P{{ $periodNumber }}</span>
+                                                </div>
+
+                                                <select class="tt-control period-type" name="{{ $prefix }}[period_type]" required aria-label="{{ $day }} period {{ $periodNumber }} type">
+                                                    <option value="Regular" @selected($type === 'Regular')>Class</option>
+                                                    <option value="Break" @selected($type === 'Break')>Break</option>
+                                                    <option value="Lunch" @selected($type === 'Lunch')>Lunch</option>
+                                                    <option value="Activity" @selected($type === 'Activity')>Activity</option>
+                                                </select>
+
+                                                <div class="tt-subject-row">
+                                                    <select class="tt-control period-subject" name="{{ $prefix }}[subject]" aria-label="{{ $day }} period {{ $periodNumber }} subject">
+                                                        <option value="">Select Subject</option>
+                                                        @foreach (($subjects ?? []) as $subjectItem)
+                                                            @php
+                                                                $subjectName = is_string($subjectItem)
+                                                                    ? $subjectItem
+                                                                    : ($subjectItem->subject_name ?? $subjectItem->name ?? $subjectItem->subject ?? '');
+                                                            @endphp
+                                                            @if ($subjectName !== '')
+                                                                <option value="{{ $subjectName }}"
+                                                                        data-subject-name="{{ $subjectName }}"
+                                                                        data-class-id="{{ is_object($subjectItem) ? ($subjectItem->class_id ?? '') : '' }}"
+                                                                        @selected(($old['subject'] ?? '') === $subjectName)>
+                                                                    {{ $subjectName }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                        <option value="__add_subject__">+ Add subject</option>
+                                                    </select>
+                                                    <button type="button" class="tt-add-subject" title="Add a subject" aria-label="Add subject">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </div>
+
+                                                <select class="tt-control period-teacher" name="{{ $prefix }}[teacher_id]" aria-label="{{ $day }} period {{ $periodNumber }} teacher">
+                                                    <option value="">Select Teacher</option>
+                                                    @foreach ($teachers as $teacher)
+                                                        @php
+                                                            $teacherName = trim(($teacher->first_name ?? '') . ' ' . ($teacher->last_name ?? ''));
+                                                            $teacherSubjects = $teacher->subject ?? $teacher->subjects ?? $teacher->subject_names ?? [];
+                                                            if (is_string($teacherSubjects)) {
+                                                                $teacherSubjects = array_map('trim', explode(',', $teacherSubjects));
+                                                            }
+                                                            if (!is_array($teacherSubjects)) $teacherSubjects = [];
+                                                        @endphp
+                                                        <option value="{{ $teacher->id }}"
+                                                                data-subjects="{{ implode('|', $teacherSubjects) }}"
+                                                                @selected((string)($old['teacher_id'] ?? '') === (string)$teacher->id)>
+                                                            {{ $teacherName !== '' ? $teacherName : ($teacher->name ?? 'Teacher') }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                                <input type="hidden" class="period-subject-type"
+                                                       name="{{ $prefix }}[subject_type]"
+                                                       value="{{ $old['subject_type'] ?? ($type === 'Activity' ? 'Activity' : 'Theory') }}">
+
+                                                <input type="hidden" class="period-lecture-type"
+                                                       name="{{ $prefix }}[lecture_type]"
+                                                       value="{{ $old['lecture_type'] ?? ($type === 'Activity' ? 'activity' : strtolower($type)) }}">
+
+                                                <div class="tt-time-row">
+                                                    <input class="tt-control period-start" type="time"
+                                                           name="{{ $prefix }}[start_time]" value="{{ $old['start_time'] ?? '' }}"
+                                                           required aria-label="{{ $day }} period {{ $periodNumber }} start time">
+                                                    <input class="tt-control period-end" type="time"
+                                                           name="{{ $prefix }}[end_time]" value="{{ $old['end_time'] ?? '' }}"
+                                                           required aria-label="{{ $day }} period {{ $periodNumber }} end time">
+                                                </div>
+
+                                                <input class="tt-control period-room" type="text" name="{{ $prefix }}[room]"
+                                                       value="{{ $old['room'] ?? '' }}" placeholder="Room (optional)"
+                                                       maxlength="100" aria-label="{{ $day }} period {{ $periodNumber }} room">
+
+                                                <input type="hidden" name="{{ $prefix }}[day]" value="{{ $day }}">
+                                                <input type="hidden" name="{{ $prefix }}[period_number]" value="{{ $periodNumber }}">
+                                            </div>
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {{-- Save only in footer --}}
+            <footer class="tt-footer">
+                <div class="tt-footer-note">
+                    <i class="bi bi-info-circle"></i>
+                    Save submits the full 48-slot grid. Fetching does not save until you click Save Weekly Timetable.
+                </div>
+                <div class="tt-footer-actions">
+                    <a href="{{ route('admin.timetable.index') }}" class="btn btn-line">Cancel</a>
+                    <button type="submit" class="btn btn-add" id="footerSaveBtn">
+                        <i class="bi bi-check-circle"></i> Save Weekly Timetable
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </form>
+
+    {{-- Separate import form --}}
+    <form id="weeklyImportForm"
+          action="{{ route('admin.timetable.weekly.import') }}"
+          method="POST" enctype="multipart/form-data" style="display:none;">
+        @csrf
+        <input type="hidden" name="academic_year" id="import_academic_year">
+        <input type="hidden" name="class" id="import_class">
+        <input type="hidden" name="section" id="import_section">
+        <input type="hidden" name="week_start_date" id="import_week_start_date">
+        <input type="file" name="file" id="import_file_hidden" accept=".xlsx,.xls,.csv">
+    </form>
 </div>
 
+<div class="tt-modal-backdrop" id="addSubjectModal" aria-hidden="true">
+    <div class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="addSubjectTitle">
+        <h3 id="addSubjectTitle">Add subject to this period</h3>
+        <p>This adds the subject as an option in the current form only. To save it permanently, use your school's subject management page.</p>
+        <div class="tt-field">
+            <label class="tt-label" for="newSubjectName">Subject name</label>
+            <input class="tt-control" type="text" id="newSubjectName" maxlength="100" placeholder="e.g. Mathematics">
+        </div>
+        <div class="tt-modal-actions">
+            <button type="button" class="btn btn-line" id="cancelAddSubject">Cancel</button>
+            <button type="button" class="btn btn-add" id="confirmAddSubject">Add to timetable</button>
+        </div>
+    </div>
+</div>
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
-    const form = document.getElementById('timetableForm');
-
     const classSelect = document.getElementById('class');
     const sectionSelect = document.getElementById('section');
     const sectionHelp = document.getElementById('sectionHelp');
-
-    const teacherSelect = document.getElementById('teacher_id');
-
-    const periodTypeSelect = document.getElementById('period_type');
-    const lectureTypeSelect = document.getElementById('lecture_type');
-
-    const subjectInput = document.getElementById('subject');
-    const activitySubject = document.getElementById('activitySubject');
-    const activityHelp = document.getElementById('activityHelp');
-
-    const subjectTypeSelect = document.getElementById('subject_type');
-
-    const timetableDate = document.getElementById('timetable_date');
-    const dayInput = document.getElementById('day');
-
-    const startTimeInput = document.getElementById('start_time');
-    const endTimeInput = document.getElementById('end_time');
-
-    const timeHelp = document.getElementById('timeHelp');
-
-    const teacherRequired = document.getElementById('teacherRequired');
-    const classRequired = document.getElementById('classRequired');
-    const sectionRequired = document.getElementById('sectionRequired');
-    const subjectRequired = document.getElementById('subjectRequired');
-    const subjectTypeRequired = document.getElementById('subjectTypeRequired');
-
-
-    /* =========================================================
-       DATA FROM CONTROLLER
-    ========================================================= */
+    const weekStart = document.getElementById('week_start_date');
+    const weekDateHelp = document.getElementById('weekDateHelp');
+    const form = document.getElementById('weeklyTimetableForm');
+    const footerSaveBtn = document.getElementById('footerSaveBtn');
 
     const allClasses = @json($classes);
     const allSections = @json($sections);
-
     const oldSection = @json(old('section'));
-    const oldSubject = @json(old('subject'));
 
+    const weeklyFetchUrl = @json(route('admin.timetable.weekly.fetch'));
+    const weeklyExcelUrl = @json(route('admin.timetable.weekly.excel'));
+    const weeklyPdfUrl = @json(route('admin.timetable.weekly.pdf'));
 
-    /* =========================================================
-       LOAD SECTIONS
-    ========================================================= */
+    let activeSubjectSelect = null;
+
+    function getFilters() {
+        return {
+            academic_year: document.getElementById('academic_year').value.trim(),
+            class: classSelect.value,
+            section: sectionSelect.value,
+            week_start_date: weekStart.value
+        };
+    }
+
+    function validFilters(filters) {
+        if (!filters.academic_year || !filters.class || !filters.section || !filters.week_start_date) {
+            alert('Please select the academic year, class, section and week start date.');
+            return false;
+        }
+
+        const date = new Date(filters.week_start_date + 'T12:00:00');
+        if (date.getDay() !== 1) {
+            alert('Please choose a Monday as the week start date.');
+            weekStart.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    function downloadFile(url) {
+        const filters = getFilters();
+        if (!validFilters(filters)) return;
+        window.location.href = url + '?' + new URLSearchParams(filters).toString();
+    }
 
     function loadSections(className, selectedSection = '') {
-
-        sectionSelect.innerHTML =
-            '<option value="">Select Section</option>';
-
-        sectionSelect.disabled = true;
-
-        sectionHelp.textContent =
-            'Select a class to load available sections.';
-
-        sectionHelp.style.color =
-            '#6b7280';
-
+        sectionSelect.innerHTML = '<option value="">Select Section</option>';
 
         if (!className) {
+            sectionHelp.textContent = 'Select a class to load its sections.';
             return;
         }
-
 
         const selectedClass = allClasses.find(function (item) {
-
-            const classValue =
-                item.class_name ??
-                item.name ??
-                '';
-
-            return String(classValue).trim()
-                === String(className).trim();
-
+            return String(item.class_name ?? item.name ?? '').trim() === String(className).trim();
         });
-
 
         if (!selectedClass) {
-
-            sectionHelp.textContent =
-                'No matching class was found.';
-
-            sectionHelp.style.color =
-                '#dc2626';
-
+            sectionHelp.textContent = 'Could not find the selected class record.';
             return;
-
         }
 
-
-        const classSections = allSections.filter(function (section) {
-
-            return String(section.class_id)
-                === String(selectedClass.id);
-
+        const sections = allSections.filter(function (item) {
+            return String(item.class_id) === String(selectedClass.id);
         });
 
-
-        if (classSections.length === 0) {
-
-            sectionHelp.textContent =
-                'No sections available for this class.';
-
-            sectionHelp.style.color =
-                '#dc2626';
-
-            return;
-
-        }
-
-
-        sectionSelect.disabled = false;
-
-        sectionHelp.textContent =
-            'Select the section for this class.';
-
-
-        classSections.forEach(function (section) {
-
-            const option =
-                document.createElement('option');
-
-            option.value =
-                section.section_name;
-
-            option.textContent =
-                section.section_name;
-
-
-            if (
-                String(section.section_name)
-                === String(selectedSection)
-            ) {
-
-                option.selected = true;
-
-            }
-
-
+        sections.forEach(function (item) {
+            const option = document.createElement('option');
+            option.value = item.section_name;
+            option.textContent = item.section_name;
+            option.selected = String(item.section_name) === String(selectedSection);
             sectionSelect.appendChild(option);
-
         });
 
+        sectionHelp.textContent = sections.length
+            ? 'Choose the section for this class.'
+            : 'No sections are available for this class.';
     }
 
+    function formatDate(date) {
+        return new Intl.DateTimeFormat('en-IN', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        }).format(date);
+    }
 
-    /* =========================================================
-       CLASS CHANGE
-    ========================================================= */
+    function updateWeekDates() {
+        if (!weekStart.value) return;
 
-    classSelect.addEventListener('change', function () {
+        const start = new Date(weekStart.value + 'T12:00:00');
+        const monday = start.getDay() === 1;
 
-        loadSections(this.value);
+        weekDateHelp.textContent = monday
+            ? 'Monday to Saturday: ' + formatDate(start) + ' – ' +
+              formatDate(new Date(start.getTime() + 5 * 86400000))
+            : 'Please choose a Monday as the week start date.';
+        weekDateHelp.style.color = monday ? '#6b7c75' : '#dc2626';
 
-    });
+        document.querySelectorAll('.day-date').forEach(function (element) {
+            const offset = Number(element.dataset.dayIndex);
+            element.textContent = formatDate(
+                new Date(start.getTime() + offset * 86400000)
+            );
+        });
+    }
 
+    function subjectLabel(select) {
+        const option = select.options[select.selectedIndex];
+        return option ? (option.dataset.subjectName || option.textContent.trim()) : '';
+    }
 
-    /* =========================================================
-       ACTIVITY CHANGE
-    ========================================================= */
+    function filterTeachers(cell) {
+        const subjectSelect = cell.querySelector('.period-subject');
+        const teacherSelect = cell.querySelector('.period-teacher');
+        const selectedSubject = subjectLabel(subjectSelect).trim().toLowerCase();
+        const currentTeacher = teacherSelect.value;
 
-    activitySubject.addEventListener('change', function () {
+        Array.from(teacherSelect.options).forEach(function (option, index) {
+            if (index === 0) return;
 
-        subjectInput.value = this.value;
+            const mappings = (option.dataset.subjects || '')
+                .split('|').map(value => value.trim().toLowerCase()).filter(Boolean);
 
-    });
+            const shouldFilter = selectedSubject && mappings.length > 0;
+            option.hidden = Boolean(shouldFilter && !mappings.includes(selectedSubject));
+            option.disabled = option.hidden;
+        });
 
+        if (currentTeacher) {
+            const selected = teacherSelect.options[teacherSelect.selectedIndex];
+            if (selected && selected.disabled) teacherSelect.value = '';
+        }
+    }
 
-    /* =========================================================
-       PERIOD TYPE
-    ========================================================= */
+    function calculateEndTime(cell) {
+        const type = cell.querySelector('.period-type').value;
+        const start = cell.querySelector('.period-start');
+        const end = cell.querySelector('.period-end');
 
-    function toggleFields() {
+        if (!start.value) return;
 
-        const periodType =
-            periodTypeSelect.value;
+        const duration = type === 'Break' ? 15 : type === 'Lunch' ? 60 : 45;
+        const parts = start.value.split(':').map(Number);
+        const total = parts[0] * 60 + parts[1] + duration;
 
+        if (total >= 1440) {
+            end.value = '';
+            return;
+        }
 
-        /* =====================================================
-           DEFAULT STATE
-        ===================================================== */
+        end.value = String(Math.floor(total / 60)).padStart(2, '0') + ':' +
+            String(total % 60).padStart(2, '0');
+    }
 
-        teacherSelect.disabled = false;
-        classSelect.disabled = false;
+    function configureCell(cell) {
+        const type = cell.querySelector('.period-type');
+        const subject = cell.querySelector('.period-subject');
+        const teacher = cell.querySelector('.period-teacher');
+        const subjectType = cell.querySelector('.period-subject-type');
+        const lectureType = cell.querySelector('.period-lecture-type');
+        const room = cell.querySelector('.period-room');
+        const special = ['Break', 'Lunch'].includes(type.value);
+        const activity = type.value === 'Activity';
 
-        teacherSelect.setAttribute('required', 'required');
-        classSelect.setAttribute('required', 'required');
+        cell.classList.toggle('tt-special', special);
+        subject.required = !special;
+        teacher.required = !special;
 
-        subjectInput.disabled = false;
-        subjectInput.style.display = 'block';
-        subjectInput.setAttribute('required', 'required');
+        [subject, teacher, room].forEach(function (field) {
+            field.disabled = special;
+        });
 
-        activitySubject.style.display = 'none';
-        activitySubject.disabled = true;
-        activitySubject.removeAttribute('required');
-
-        activityHelp.style.display = 'none';
-
-        lectureTypeSelect.disabled = false;
-
-        /*
-         * IMPORTANT:
-         * Subject Type is NEVER disabled for Activity.
-         * This allows Laravel to receive subject_type=Activity.
-         */
-        subjectTypeSelect.disabled = false;
-        subjectTypeSelect.setAttribute('required', 'required');
-
-        teacherRequired.style.display = 'inline';
-        classRequired.style.display = 'inline';
-        sectionRequired.style.display = 'inline';
-        subjectRequired.style.display = 'inline';
-        subjectTypeRequired.style.display = 'inline';
-
-
-        if (classSelect.value) {
-            sectionSelect.disabled = false;
+        if (special) {
+            subject.value = '';
+            teacher.value = '';
+            room.value = '';
+            subjectType.value = 'Activity';
+            lectureType.value = type.value.toLowerCase();
         } else {
-            sectionSelect.disabled = true;
+            subjectType.value = activity ? 'Activity' : 'Theory';
+            lectureType.value = activity ? 'activity' : 'regular';
+            filterTeachers(cell);
         }
 
-
-        /* =====================================================
-           BREAK
-        ===================================================== */
-
-        if (periodType === 'Break') {
-
-            teacherSelect.disabled = true;
-            classSelect.disabled = true;
-            sectionSelect.disabled = true;
-
-            teacherSelect.removeAttribute('required');
-            classSelect.removeAttribute('required');
-            sectionSelect.removeAttribute('required');
-
-            subjectInput.value = 'Break';
-            subjectInput.disabled = true;
-            subjectInput.removeAttribute('required');
-
-            subjectTypeSelect.value = 'Activity';
-
-            /*
-             * Break does not need subject_type validation.
-             * Disabled is okay here because Laravel does not
-             * require it for Break.
-             */
-            subjectTypeSelect.disabled = true;
-            subjectTypeSelect.removeAttribute('required');
-
-            lectureTypeSelect.value = 'activity';
-            lectureTypeSelect.disabled = true;
-            lectureTypeSelect.removeAttribute('required');
-
-            activitySubject.style.display = 'none';
-            activitySubject.disabled = true;
-            activitySubject.removeAttribute('required');
-
-            teacherRequired.style.display = 'none';
-            classRequired.style.display = 'none';
-            sectionRequired.style.display = 'none';
-            subjectRequired.style.display = 'none';
-            subjectTypeRequired.style.display = 'none';
-
-            timeHelp.textContent =
-                'Break duration is automatically set to 15 minutes.';
-
-            return;
+        if (cell.querySelector('.period-start').value &&
+            !cell.querySelector('.period-end').value) {
+            calculateEndTime(cell);
         }
+    }
 
+    document.querySelectorAll('.tt-cell').forEach(function (cell) {
+        const type = cell.querySelector('.period-type');
+        const subject = cell.querySelector('.period-subject');
+        const start = cell.querySelector('.period-start');
+        const end = cell.querySelector('.period-end');
 
-        /* =====================================================
-           LUNCH
-        ===================================================== */
+        type.addEventListener('change', function () {
+            configureCell(cell);
+            if (start.value) calculateEndTime(cell);
+        });
 
-        if (periodType === 'Lunch') {
+        subject.addEventListener('change', function () {
+            if (subject.value === '__add_subject__') {
+                subject.value = '';
+                openSubjectModal(subject);
+                return;
+            }
+            filterTeachers(cell);
+        });
 
-            teacherSelect.disabled = true;
-            classSelect.disabled = true;
-            sectionSelect.disabled = true;
+        cell.querySelector('.tt-add-subject').addEventListener('click', function () {
+            openSubjectModal(subject);
+        });
 
-            teacherSelect.removeAttribute('required');
-            classSelect.removeAttribute('required');
-            sectionSelect.removeAttribute('required');
+        start.addEventListener('change', function () {
+            calculateEndTime(cell);
+        });
 
-            subjectInput.value = 'Lunch';
-            subjectInput.disabled = true;
-            subjectInput.removeAttribute('required');
-
-            subjectTypeSelect.value = 'Activity';
-
-            /*
-             * Lunch does not need subject_type validation.
-             */
-            subjectTypeSelect.disabled = true;
-            subjectTypeSelect.removeAttribute('required');
-
-            lectureTypeSelect.value = 'activity';
-            lectureTypeSelect.disabled = true;
-            lectureTypeSelect.removeAttribute('required');
-
-            activitySubject.style.display = 'none';
-            activitySubject.disabled = true;
-            activitySubject.removeAttribute('required');
-
-            teacherRequired.style.display = 'none';
-            classRequired.style.display = 'none';
-            sectionRequired.style.display = 'none';
-            subjectRequired.style.display = 'none';
-            subjectTypeRequired.style.display = 'none';
-
-            timeHelp.textContent =
-                'Lunch duration is automatically set to 60 minutes.';
-
-            return;
-        }
-
-
-        /* =====================================================
-           ACTIVITY
-        ===================================================== */
-
-        if (periodType === 'Activity') {
-
-            /*
-             * TEACHER
-             * Must remain visible and selectable.
-             */
-            teacherSelect.disabled = false;
-            teacherSelect.setAttribute('required', 'required');
-
-
-            /*
-             * CLASS
-             * Must remain visible and selectable.
-             */
-            classSelect.disabled = false;
-            classSelect.setAttribute('required', 'required');
-
-
-            /*
-             * SECTION
-             * Must remain available when a class is selected.
-             */
-            if (classSelect.value) {
-
-                sectionSelect.disabled = false;
-                sectionSelect.setAttribute('required', 'required');
-
+        end.addEventListener('change', function () {
+            if (start.value && end.value && end.value <= start.value) {
+                end.setCustomValidity('End time must be after start time.');
             } else {
+                end.setCustomValidity('');
+            }
+        });
 
-                sectionSelect.disabled = true;
-                sectionSelect.setAttribute('required', 'required');
+        configureCell(cell);
+    });
 
+    const modal = document.getElementById('addSubjectModal');
+    const newSubjectName = document.getElementById('newSubjectName');
+
+    function openSubjectModal(select) {
+        activeSubjectSelect = select;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        newSubjectName.value = '';
+        newSubjectName.focus();
+    }
+
+    function closeSubjectModal() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        activeSubjectSelect = null;
+    }
+
+    document.getElementById('cancelAddSubject').addEventListener('click', closeSubjectModal);
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) closeSubjectModal();
+    });
+
+    document.getElementById('confirmAddSubject').addEventListener('click', function () {
+        const name = newSubjectName.value.trim();
+
+        if (!name || !activeSubjectSelect) {
+            alert('Please enter a subject name.');
+            newSubjectName.focus();
+            return;
+        }
+
+        const normalized = name.toLowerCase();
+
+        document.querySelectorAll('.period-subject').forEach(function (select) {
+            let existing = Array.from(select.options).find(function (option) {
+                return option.value !== '__add_subject__' &&
+                    (option.dataset.subjectName || option.textContent).trim().toLowerCase() === normalized;
+            });
+
+            if (!existing) {
+                existing = new Option(name, name);
+                existing.dataset.subjectName = name;
+                const addOption = Array.from(select.options).find(option => option.value === '__add_subject__');
+                select.add(existing, addOption || null);
+            }
+        });
+
+        const chosen = Array.from(activeSubjectSelect.options).find(function (option) {
+            return option.value !== '__add_subject__' &&
+                (option.dataset.subjectName || option.textContent).trim().toLowerCase() === normalized;
+        });
+
+        if (chosen) activeSubjectSelect.value = chosen.value;
+        const cell = activeSubjectSelect.closest('.tt-cell');
+        if (cell) filterTeachers(cell);
+        closeSubjectModal();
+    });
+
+    newSubjectName.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            document.getElementById('confirmAddSubject').click();
+        } else if (event.key === 'Escape') {
+            closeSubjectModal();
+        }
+    });
+
+    async function fetchWeeklyRecords() {
+        const filters = getFilters();
+        if (!validFilters(filters)) return;
+
+        const button = document.getElementById('fetchWeeklyBtn');
+        const oldText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Fetching...';
+
+        try {
+            const response = await fetch(weeklyFetchUrl + '?' + new URLSearchParams(filters), {
+                headers: { 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Unable to fetch saved timetable records.');
             }
 
+            const records = result.records || [];
+            if (!records.length) {
+                alert('No saved records were found for this class, section and week.');
+                return;
+            }
 
-            /*
-             * ACTIVITY DROPDOWN
-             */
-            subjectInput.style.display = 'none';
-            subjectInput.disabled = false;
-            subjectInput.removeAttribute('required');
+            records.forEach(function (record) {
+                const cell = Array.from(document.querySelectorAll('.tt-cell')).find(function (candidate) {
+                    const dayField = candidate.querySelector('input[name$="[day]"]');
+                    const periodField = candidate.querySelector('input[name$="[period_number]"]');
+                    return dayField && periodField &&
+                        dayField.value === record.day &&
+                        Number(periodField.value) === Number(record.period_number);
+                });
 
-            activitySubject.style.display = 'block';
-            activitySubject.disabled = false;
-            activitySubject.setAttribute('required', 'required');
+                if (!cell) return;
 
-            activityHelp.style.display = 'block';
+                const type = cell.querySelector('.period-type');
+                const subject = cell.querySelector('.period-subject');
+                const teacher = cell.querySelector('.period-teacher');
+                const subjectType = cell.querySelector('.period-subject-type');
+                const lectureType = cell.querySelector('.period-lecture-type');
+                const start = cell.querySelector('.period-start');
+                const end = cell.querySelector('.period-end');
+                const room = cell.querySelector('.period-room');
 
+                type.value = record.period_type || 'Regular';
+                configureCell(cell);
 
-            /*
-             * SUBJECT TYPE
-             *
-             * IMPORTANT:
-             * Do NOT disable this select.
-             * Laravel must receive:
-             *
-             * subject_type = Activity
-             */
-            subjectTypeSelect.value = 'Activity';
-            subjectTypeSelect.disabled = false;
-            subjectTypeSelect.removeAttribute('required');
+                if (!['Break', 'Lunch'].includes(type.value)) {
+                    const savedSubject = record.subject == null ? '' : String(record.subject);
+                    if (savedSubject) {
+                        let option = Array.from(subject.options).find(item => item.value === savedSubject);
+                        if (!option) {
+                            option = new Option(savedSubject, savedSubject);
+                            option.dataset.subjectName = savedSubject;
+                            const addOption = Array.from(subject.options).find(item => item.value === '__add_subject__');
+                            subject.add(option, addOption || null);
+                        }
+                        subject.value = savedSubject;
+                    } else {
+                        subject.value = '';
+                    }
 
-
-            /*
-             * LECTURE TYPE
-             */
-            lectureTypeSelect.value = 'activity';
-            lectureTypeSelect.disabled = true;
-            lectureTypeSelect.removeAttribute('required');
-
-
-            teacherRequired.style.display = 'inline';
-            classRequired.style.display = 'inline';
-            sectionRequired.style.display = 'inline';
-            subjectRequired.style.display = 'inline';
-
-            /*
-             * Subject Type is automatically Activity,
-             * therefore no red star is necessary.
-             */
-            subjectTypeRequired.style.display = 'none';
-
-
-            timeHelp.textContent =
-                'Activity period: enter the start and end time.';
-
-
-            /*
-             * Restore old activity after validation error.
-             */
-            if (oldSubject) {
-
-                const activityOption =
-                    Array.from(activitySubject.options)
-                    .find(function (option) {
-
-                        return option.value === oldSubject;
-
-                    });
-
-
-                if (activityOption) {
-
-                    activitySubject.value =
-                        oldSubject;
-
+                    teacher.value = record.teacher_id == null ? '' : String(record.teacher_id);
+                    subjectType.value = record.subject_type || (type.value === 'Activity' ? 'Activity' : 'Theory');
+                    lectureType.value = record.lecture_type || (type.value === 'Activity' ? 'activity' : 'regular');
+                    filterTeachers(cell);
                 }
 
-            }
+                start.value = record.start_time || '';
+                end.value = record.end_time || '';
+                room.value = ['Break', 'Lunch'].includes(type.value) ? '' : (record.room || '');
+                configureCell(cell);
+            });
 
-
-            return;
+            alert('Saved timetable records loaded. Review the grid and click Save Weekly Timetable to submit changes.');
+        } catch (error) {
+            alert(error.message || 'An error occurred while fetching timetable records.');
+        } finally {
+            button.disabled = false;
+            button.innerHTML = oldText;
         }
-
-
-        /* =====================================================
-           REGULAR
-        ===================================================== */
-
-        teacherSelect.disabled = false;
-        classSelect.disabled = false;
-
-        teacherSelect.setAttribute('required', 'required');
-        classSelect.setAttribute('required', 'required');
-
-
-        subjectInput.style.display = 'block';
-        subjectInput.disabled = false;
-        subjectInput.setAttribute('required', 'required');
-
-
-        activitySubject.style.display = 'none';
-        activitySubject.disabled = true;
-        activitySubject.removeAttribute('required');
-        activitySubject.value = '';
-
-
-        lectureTypeSelect.disabled = false;
-
-
-        subjectTypeSelect.disabled = false;
-        subjectTypeSelect.setAttribute('required', 'required');
-
-
-        teacherRequired.style.display = 'inline';
-        classRequired.style.display = 'inline';
-        sectionRequired.style.display = 'inline';
-        subjectRequired.style.display = 'inline';
-        subjectTypeRequired.style.display = 'inline';
-
-
-        if (classSelect.value) {
-
-            sectionSelect.disabled = false;
-
-        } else {
-
-            sectionSelect.disabled = true;
-
-        }
-
-
-        if (
-            subjectInput.value === 'Break' ||
-            subjectInput.value === 'Lunch'
-        ) {
-
-            subjectInput.value = '';
-
-        }
-
     }
 
-
-    periodTypeSelect.addEventListener(
-        'change',
-        function () {
-
-            toggleFields();
-
-            calculateEndTime();
-
-        }
-    );
-
-
-    /* =========================================================
-       DATE → DAY
-    ========================================================= */
-
-    function updateDay() {
-
-        if (!timetableDate.value) {
-
-            dayInput.value = '';
-
-            return;
-
-        }
-
-
-        const date =
-            new Date(
-                timetableDate.value + 'T00:00:00'
-            );
-
-
-        const days = [
-            'Sunday',
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday',
-            'Friday',
-            'Saturday'
-        ];
-
-
-        dayInput.value =
-            days[date.getDay()];
-
-    }
-
-
-    timetableDate.addEventListener(
-        'change',
-        updateDay
-    );
-
-    updateDay();
-
-
-    /* =========================================================
-       AUTOMATIC END TIME
-    ========================================================= */
-
-    function calculateEndTime() {
-
-        const startValue =
-            startTimeInput.value;
-
-
-        if (!startValue) {
-            return;
-        }
-
-
-        const lectureType =
-            lectureTypeSelect.value;
-
-        const periodType =
-            periodTypeSelect.value;
-
-
-        const parts =
-            startValue.split(':').map(Number);
-
-
-        const hours = parts[0];
-        const minutes = parts[1];
-
-
-        let duration = null;
-        let message = '';
-
-
-        if (periodType === 'Break') {
-
-            duration = 15;
-
-            message =
-                'Break: 15 minutes automatically applied.';
-
-        }
-
-        else if (periodType === 'Lunch') {
-
-            duration = 60;
-
-            message =
-                'Lunch: 1 hour automatically applied.';
-
-        }
-
-        else if (periodType === 'Activity') {
-
-            timeHelp.textContent =
-                'Activity period: enter the start and end time.';
-
-            timeHelp.style.color =
-                '#6b7280';
-
-            return;
-
-        }
-
-        else if (lectureType === 'regular') {
-
-            duration = 45;
-
-            message =
-                'Regular lecture: 45 minutes automatically applied.';
-
-        }
-
-        else {
-
-            return;
-
-        }
-
-
-        const totalMinutes =
-            (
-                hours * 60 +
-                minutes +
-                duration
-            ) % 1440;
-
-
-        const endHours =
-            Math.floor(totalMinutes / 60);
-
-        const endMinutes =
-            totalMinutes % 60;
-
-
-        endTimeInput.value =
-            String(endHours).padStart(2, '0')
-            + ':' +
-            String(endMinutes).padStart(2, '0');
-
-
-        timeHelp.textContent =
-            message;
-
-        timeHelp.style.color =
-            '#6b7280';
-
-    }
-
-
-    startTimeInput.addEventListener(
-        'change',
-        function () {
-
-            endTimeInput.value = '';
-
-            calculateEndTime();
-
-        }
-    );
-
-
-    /* =========================================================
-       LECTURE TYPE
-    ========================================================= */
-
-    lectureTypeSelect.addEventListener(
-        'change',
-        function () {
-
-            if (
-                periodTypeSelect.value === 'Activity'
-            ) {
-
-                endTimeInput.value = '';
-
-                timeHelp.textContent =
-                    'Activity period: enter the start and end time.';
-
-                return;
-
-            }
-
-
-            if (
-                periodTypeSelect.value === 'Break' ||
-                periodTypeSelect.value === 'Lunch'
-            ) {
-
-                calculateEndTime();
-
-                return;
-
-            }
-
-
-            if (this.value === 'regular') {
-
-                calculateEndTime();
-
-            } else {
-
-                endTimeInput.value = '';
-
-                timeHelp.textContent =
-                    'Enter a custom end time for this lecture.';
-
-            }
-
-        }
-    );
-
-
-    /* =========================================================
-       END TIME VALIDATION
-    ========================================================= */
-
-    endTimeInput.addEventListener(
-        'change',
-        function () {
-
-            if (
-                !startTimeInput.value ||
-                !endTimeInput.value
-            ) {
-
-                return;
-
-            }
-
-
-            const start =
-                startTimeInput.value
-                .split(':')
-                .map(Number);
-
-
-            const end =
-                endTimeInput.value
-                .split(':')
-                .map(Number);
-
-
-            const startMinutes =
-                start[0] * 60 + start[1];
-
-
-            const endMinutes =
-                end[0] * 60 + end[1];
-
-
-            if (endMinutes <= startMinutes) {
-
-                timeHelp.textContent =
-                    'End time must be after start time.';
-
-                timeHelp.style.color =
-                    '#dc2626';
-
-                return;
-
-            }
-
-
-            const duration =
-                endMinutes - startMinutes;
-
-
-            timeHelp.textContent =
-                `Custom duration: ${duration} minutes.`;
-
-            timeHelp.style.color =
-                '#16a34a';
-
-        }
-    );
-
-
-    /* =========================================================
-       FORM SUBMIT
-    ========================================================= */
-
-    form.addEventListener('submit', function (event) {
-
-        const periodType =
-            periodTypeSelect.value;
-
-
-        /* =====================================================
-           ACTIVITY
-        ===================================================== */
-
-        if (periodType === 'Activity') {
-
-            const selectedActivity =
-                activitySubject.value;
-
-
-            if (!selectedActivity) {
-
-                event.preventDefault();
-
-                alert('Please select an activity.');
-
-                activitySubject.focus();
-
-                return;
-
-            }
-
-
-            /*
-             * Put selected activity into the real
-             * name="subject" input.
-             */
-            subjectInput.value =
-                selectedActivity;
-
-
-            /*
-             * VERY IMPORTANT:
-             * Ensure Laravel receives subject_type.
-             */
-            subjectTypeSelect.value =
-                'Activity';
-
-            subjectTypeSelect.disabled =
-                false;
-
-        }
-
-
-        /* =====================================================
-           BREAK
-        ===================================================== */
-
-        if (periodType === 'Break') {
-
-            subjectInput.value =
-                'Break';
-
-        }
-
-
-        /* =====================================================
-           LUNCH
-        ===================================================== */
-
-        if (periodType === 'Lunch') {
-
-            subjectInput.value =
-                'Lunch';
-
-        }
-
-
-        /* =====================================================
-           SUNDAY PROTECTION
-        ===================================================== */
-
-        if (dayInput.value === 'Sunday') {
-
-            event.preventDefault();
-
-            alert(
-                'Sunday timetable is not allowed.'
-            );
-
-            return;
-
-        }
-
+    document.getElementById('fetchWeeklyBtn').addEventListener('click', fetchWeeklyRecords);
+    document.getElementById('weeklyExcelBtn').addEventListener('click', function () {
+        downloadFile(weeklyExcelUrl);
+    });
+    document.getElementById('weeklyPdfBtn').addEventListener('click', function () {
+        downloadFile(weeklyPdfUrl);
     });
 
+    // ── Import: button opens file picker → auto submit ─
+    const visibleFile = document.getElementById('weeklyExcelFile');
+    const hiddenFile  = document.getElementById('import_file_hidden');
+    const importForm  = document.getElementById('weeklyImportForm');
+    const importBtn   = document.getElementById('importSubmitBtn');
 
-    /* =========================================================
-       INITIAL SECTION LOAD
-    ========================================================= */
+    if (importBtn && visibleFile && importForm && hiddenFile) {
+        importBtn.addEventListener('click', function () {
+            const filters = getFilters();
+            if (!validFilters(filters)) return;
+            visibleFile.click();
+        });
 
-    if (classSelect.value) {
+        visibleFile.addEventListener('change', function () {
+            if (!this.files || !this.files.length) return;
 
-        loadSections(
-            classSelect.value,
-            oldSection
-        );
+            if (!confirm('Importing will replace records for this selected class, section and week. Continue?')) {
+                this.value = '';
+                return;
+            }
 
+            const filters = getFilters();
+            document.getElementById('import_academic_year').value = filters.academic_year;
+            document.getElementById('import_class').value = filters.class;
+            document.getElementById('import_section').value = filters.section;
+            document.getElementById('import_week_start_date').value = filters.week_start_date;
+
+            const dt = new DataTransfer();
+            dt.items.add(this.files[0]);
+            hiddenFile.files = dt.files;
+
+            importBtn.disabled = true;
+            importBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Importing...';
+            importForm.submit();
+        });
     }
 
+    classSelect.addEventListener('change', function () {
+        loadSections(classSelect.value);
+    });
+    weekStart.addEventListener('change', updateWeekDates);
 
-    /* =========================================================
-       INITIAL FIELD STATE
-    ========================================================= */
+    function handleFormSubmit(event) {
+        const filters = getFilters();
 
-    toggleFields();
+        if (!filters.week_start_date ||
+            new Date(filters.week_start_date + 'T12:00:00').getDay() !== 1) {
+            event.preventDefault();
+            alert('The week start date must be a Monday.');
+            weekStart.focus();
+            return;
+        }
 
+        let invalidField = null;
+
+        document.querySelectorAll('.tt-cell').forEach(function (cell) {
+            if (invalidField) return;
+
+            const type = cell.querySelector('.period-type').value;
+            const subject = cell.querySelector('.period-subject');
+            const teacher = cell.querySelector('.period-teacher');
+            const start = cell.querySelector('.period-start');
+            const end = cell.querySelector('.period-end');
+
+            if (!start.value) invalidField = start;
+            else if (!end.value || end.value <= start.value) invalidField = end;
+            else if (!['Break', 'Lunch'].includes(type) && !subject.value.trim()) invalidField = subject;
+            else if (!['Break', 'Lunch'].includes(type) && !teacher.value) invalidField = teacher;
+        });
+
+        if (invalidField) {
+            event.preventDefault();
+            alert('Complete every period: subject, teacher, start time and end time. End time must be after start time.');
+            invalidField.focus();
+            return;
+        }
+
+        if (footerSaveBtn) {
+            footerSaveBtn.disabled = true;
+            footerSaveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving Weekly Timetable...';
+        }
+    }
+
+    form.addEventListener('submit', handleFormSubmit);
+
+    if (classSelect.value) loadSections(classSelect.value, oldSection);
+    updateWeekDates();
 });
-
 </script>
-
 @endsection

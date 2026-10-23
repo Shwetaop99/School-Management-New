@@ -1,0 +1,124 @@
+<?php
+
+namespace App\Imports;
+
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use Carbon\Carbon;
+use RuntimeException;
+
+class WeeklyTimetableImport implements ToCollection, WithHeadingRow
+{
+    public Collection $rows;
+
+    public function __construct()
+    {
+        $this->rows = collect();
+    }
+
+    public function collection(Collection $rows): void
+    {
+        $this->rows = collect();
+
+        foreach ($rows as $index => $row) {
+            $row = collect($row);
+
+            // Excel row number, assuming the first row contains headings.
+            $excelRow = $index + 2;
+
+            // Support common heading variations.
+            $dateKey = collect($row->keys())->first(
+                fn ($key) => in_array(
+                    strtolower(str_replace(
+                        [' ', '_', '-'],
+                        '',
+                        trim((string) $key)
+                    )),
+                    ['weekstartdate'],
+                    true
+                )
+            );
+
+            if ($dateKey === null) {
+                throw new RuntimeException(
+                    'Week Start Date column was not found. '
+                    . 'Check the Excel heading.'
+                );
+            }
+
+            $value = $row->get($dateKey);
+
+            if ($value === null || trim((string) $value) === '') {
+                throw new RuntimeException(
+                    "Excel row {$excelRow}: Week Start Date is required."
+                );
+            }
+
+            try {
+                if (is_numeric($value)) {
+                    // Convert Excel's numeric date serial.
+                    $date = Carbon::instance(
+                        ExcelDate::excelToDateTimeObject((float) $value)
+                    )->startOfDay();
+                } else {
+                    $value = trim((string) $value);
+
+                    // Parse common date formats without confusing
+                    // day-month-year with month-day-year.
+                    $date = null;
+
+                    foreach ([
+                        'd-m-Y',
+                        'd/m/Y',
+                        'Y-m-d',
+                        'Y/m/d',
+                    ] as $format) {
+                        try {
+                            $parsed = Carbon::createFromFormat(
+                                '!' . $format,
+                                $value
+                            );
+
+                            if (
+                                $parsed &&
+                                $parsed->format($format) === $value
+                            ) {
+                                $date = $parsed->startOfDay();
+                                break;
+                            }
+                        } catch (\Throwable $e) {
+                            // Try the next supported format.
+                        }
+                    }
+
+                    if (!$date) {
+                        throw new RuntimeException('Invalid date format.');
+                    }
+                }
+            } catch (\Throwable $e) {
+                throw new RuntimeException(
+                    "Excel row {$excelRow}: Invalid Week Start Date. "
+                    . 'Use DD-MM-YYYY or a valid Excel date.'
+                );
+            }
+
+            if (!$date->isMonday()) {
+                throw new RuntimeException(
+                    "Excel row {$excelRow}: Week Start Date "
+                    . $date->format('d-m-Y')
+                    . ' is not a Monday. Correct date: '
+                    . $date->copy()->startOfWeek(Carbon::MONDAY)
+                        ->format('d-m-Y')
+                    . '.'
+                );
+            }
+
+            // Store the validated date in a consistent format.
+            $row->put($dateKey, $date->format('Y-m-d'));
+
+            $this->rows->push($row);
+        }
+    }
+}

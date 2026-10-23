@@ -1,4 +1,4 @@
-```blade
+
 @extends('layouts.app')
 
 @section('title', 'Student Details')
@@ -465,4 +465,3 @@
 </style>
 
 @endsection
-```
