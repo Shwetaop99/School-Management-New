@@ -437,7 +437,7 @@
 
 
         {{-- 7. EXAM --}}
-       
+
 <a href="{{ route('admin.reports.exams') }}" class="report-card">
 
 

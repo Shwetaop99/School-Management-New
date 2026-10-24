@@ -1196,7 +1196,7 @@ Route::prefix('fees')
             'sections'
         ]
     )->name('fee-structures.sections');
-    
+
     Route::get(
     'student-fees/{studentFee}/payment',
     [FeePaymentController::class, 'create']
@@ -1269,7 +1269,7 @@ Route::post(
             |--------------------------------------------------------------------------
             */
 
-          
+
             /*
             |--------------------------------------------------------------------------
             | RESULTS MAIN MENU

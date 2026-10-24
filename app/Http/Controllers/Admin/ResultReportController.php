@@ -89,7 +89,7 @@ class ResultReportController extends Controller
             ->pluck('class');
 
         // Find the subject name when exam_subjects has a subject_id.
-        
+
 // Load subject names safely using the actual subjects table columns.
 $subjectNames = [];
 

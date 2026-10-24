@@ -21,8 +21,6 @@ class BackupController extends Controller
      * so the index route is expected to be backup.index.
      * Verify with: php artisan route:list --name=backup
      */
-
-    
 public function showRestore()
 {
     $backups = collect(File::files($this->ensureBackupDirectory()))
@@ -342,10 +340,7 @@ public function uploadRestore(Request $request)
         return redirect()
             ->route(self::INDEX_ROUTE)
             ->with('success', 'Backup deleted successfully.');
-    }
-
-    
-    /**
+    }   /**
      * Validate a backup archive without modifying the database.
      */
     public function validateBackup(string $backup)
@@ -444,15 +439,9 @@ public function uploadRestore(Request $request)
             $zip->close();
         }
     }
-
-
     // ---------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------
-
-   
-
-
 private function safeBackupPath(string $filename): string
 {
     abort_if(

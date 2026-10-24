@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeder;
 
 use App\Models\Permission;
 use App\Models\Role;
@@ -12,7 +12,7 @@ class RolePermissionSeeder extends Seeder
     {
         /*
         |--------------------------------------------------------------------------
-        | Roles
+        | Default roles
         |--------------------------------------------------------------------------
         */
 
@@ -61,89 +61,323 @@ class RolePermissionSeeder extends Seeder
             ],
         ];
 
-        foreach ($roles as $role) {
+        foreach ($roles as $roleData) {
             Role::updateOrCreate(
-                ['name' => $role['name']],
-                $role
+                ['name' => $roleData['name']],
+                $roleData
             );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Permissions
+        | Permission definition helper
         |--------------------------------------------------------------------------
         */
 
-        $permissions = [
+        $permissions = [];
 
-            // Dashboard
-            ['name' => 'dashboard.view', 'display_name' => 'View Dashboard', 'module' => 'Dashboard'],
-
-            // Students
-            ['name' => 'students.view', 'display_name' => 'View Students', 'module' => 'Students'],
-            ['name' => 'students.create', 'display_name' => 'Add Students', 'module' => 'Students'],
-            ['name' => 'students.edit', 'display_name' => 'Edit Students', 'module' => 'Students'],
-            ['name' => 'students.delete', 'display_name' => 'Delete Students', 'module' => 'Students'],
-
-            // Faculty
-            ['name' => 'faculty.view', 'display_name' => 'View Faculty', 'module' => 'Faculty'],
-            ['name' => 'faculty.create', 'display_name' => 'Add Faculty', 'module' => 'Faculty'],
-            ['name' => 'faculty.edit', 'display_name' => 'Edit Faculty', 'module' => 'Faculty'],
-            ['name' => 'faculty.delete', 'display_name' => 'Delete Faculty', 'module' => 'Faculty'],
-
-            // Other Staff
-            ['name' => 'staff.view', 'display_name' => 'View Other Staff', 'module' => 'Other Staff'],
-            ['name' => 'staff.create', 'display_name' => 'Add Other Staff', 'module' => 'Other Staff'],
-            ['name' => 'staff.edit', 'display_name' => 'Edit Other Staff', 'module' => 'Other Staff'],
-            ['name' => 'staff.delete', 'display_name' => 'Delete Other Staff', 'module' => 'Other Staff'],
-
-            // Library
-            ['name' => 'library.view', 'display_name' => 'View Library', 'module' => 'Library'],
-            ['name' => 'library.books', 'display_name' => 'Manage Books', 'module' => 'Library'],
-            ['name' => 'library.issue', 'display_name' => 'Issue Books', 'module' => 'Library'],
-            ['name' => 'library.return', 'display_name' => 'Return Books', 'module' => 'Library'],
-            ['name' => 'library.fines', 'display_name' => 'Manage Fines', 'module' => 'Library'],
-            ['name' => 'library.reports', 'display_name' => 'View Library Reports', 'module' => 'Library'],
-
-            // Notices
-            ['name' => 'notices.view', 'display_name' => 'View Notices', 'module' => 'Notices'],
-            ['name' => 'notices.create', 'display_name' => 'Create Notices', 'module' => 'Notices'],
-            ['name' => 'notices.edit', 'display_name' => 'Edit Notices', 'module' => 'Notices'],
-            ['name' => 'notices.delete', 'display_name' => 'Delete Notices', 'module' => 'Notices'],
-
-            // Attendance
-            ['name' => 'attendance.view', 'display_name' => 'View Attendance', 'module' => 'Attendance'],
-            ['name' => 'attendance.manage', 'display_name' => 'Manage Attendance', 'module' => 'Attendance'],
-
-            // Fees
-            ['name' => 'fees.view', 'display_name' => 'View Fees', 'module' => 'Fees'],
-            ['name' => 'fees.manage', 'display_name' => 'Manage Fees', 'module' => 'Fees'],
-
-            // Exams
-            ['name' => 'exams.view', 'display_name' => 'View Exams', 'module' => 'Exams'],
-            ['name' => 'exams.manage', 'display_name' => 'Manage Exams', 'module' => 'Exams'],
-
-            // Reports
-            ['name' => 'reports.view', 'display_name' => 'View Reports', 'module' => 'Reports'],
-
-            // Settings
-            ['name' => 'settings.view', 'display_name' => 'View Settings', 'module' => 'Settings'],
-            ['name' => 'roles.view', 'display_name' => 'View Roles & Permissions', 'module' => 'Settings'],
-            ['name' => 'roles.manage', 'display_name' => 'Manage Roles & Permissions', 'module' => 'Settings'],
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::updateOrCreate(
-                ['name' => $permission['name']],
-                $permission
-            );
-        }
-
+        $addPermission = function (
+            string $name,
+            string $displayName,
+            string $module,
+            ?string $description = null
+        ) use (&$permissions): void {
+            $permissions[$name] = [
+                'name' => $name,
+                'display_name' => $displayName,
+                'module' => $module,
+                'description' => $description,
+            ];
+        };
 
         /*
         |--------------------------------------------------------------------------
-        | Super Admin gets every permission
+        | Existing permissions — names preserved
+        |--------------------------------------------------------------------------
+        */
+
+        $existingPermissions = [
+            ['dashboard.view', 'View Dashboard', 'Dashboard'],
+
+            ['students.view', 'View Students', 'Students'],
+            ['students.create', 'Add Students', 'Students'],
+            ['students.edit', 'Edit Students', 'Students'],
+            ['students.delete', 'Delete Students', 'Students'],
+
+            ['faculty.view', 'View Faculty', 'Faculty'],
+            ['faculty.create', 'Add Faculty', 'Faculty'],
+            ['faculty.edit', 'Edit Faculty', 'Faculty'],
+            ['faculty.delete', 'Delete Faculty', 'Faculty'],
+
+            ['staff.view', 'View Other Staff', 'Other Staff'],
+            ['staff.create', 'Add Other Staff', 'Other Staff'],
+            ['staff.edit', 'Edit Other Staff', 'Other Staff'],
+            ['staff.delete', 'Delete Other Staff', 'Other Staff'],
+
+            ['library.view', 'View Library', 'Library'],
+            ['library.books', 'Manage Books', 'Library'],
+            ['library.issue', 'Issue Books', 'Library'],
+            ['library.return', 'Return Books', 'Library'],
+            ['library.fines', 'Manage Fines', 'Library'],
+            ['library.reports', 'View Library Reports', 'Library'],
+
+            ['notices.view', 'View Notices', 'Notices'],
+            ['notices.create', 'Create Notices', 'Notices'],
+            ['notices.edit', 'Edit Notices', 'Notices'],
+            ['notices.delete', 'Delete Notices', 'Notices'],
+
+            ['attendance.view', 'View Attendance', 'Attendance'],
+            ['attendance.manage', 'Manage Attendance', 'Attendance'],
+
+            ['fees.view', 'View Fees', 'Fees'],
+            ['fees.manage', 'Manage Fees', 'Fees'],
+
+            ['exams.view', 'View Exams', 'Exams'],
+            ['exams.manage', 'Manage Exams', 'Exams'],
+
+            ['reports.view', 'View Reports', 'Reports'],
+
+            ['settings.view', 'View Settings', 'Settings'],
+            ['roles.view', 'View Roles & Permissions', 'Settings'],
+            ['roles.manage', 'Manage Roles & Permissions', 'Settings'],
+        ];
+
+        foreach ($existingPermissions as [$name, $label, $module]) {
+            $addPermission($name, $label, $module);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Common CRUD permissions for school modules
+        |--------------------------------------------------------------------------
+        */
+
+        $crudModules = [
+            'Classes & Sections' => 'classes',
+            'Subjects' => 'subjects',
+            'Timetable' => 'timetable',
+            'Student ID Cards' => 'student-id-cards',
+            'Student Health Records' => 'student-health',
+            'Student Documents' => 'student-documents',
+            'Student Register' => 'student-register',
+            'Leaving Certificates' => 'leaving-certificates',
+            'Government Schemes' => 'government-schemes',
+            'Supply Items' => 'supply-items',
+            'Student Supply Kits' => 'supply-kits',
+            'Fee Structures' => 'fee-structures',
+            'Fee Types' => 'fee-types',
+            'Student Payments' => 'payments',
+            'Exam Sessions' => 'exam-sessions',
+            'Exam Schedules' => 'exam-schedules',
+            'Exam Results' => 'results',
+            'Transport Records' => 'transport.records',
+            'Transport Routes' => 'transport.routes',
+            'Transport Vehicles' => 'transport.vehicles',
+            'Meal Items' => 'meal.items',
+            'Meal Stock' => 'meal.stock',
+            'Sports Games & Events' => 'sports.games',
+            'Sports Achievements' => 'sports.achievements',
+            'Sports Equipment' => 'sports.equipment',
+            'Scholarship Exams' => 'scholarship.exams',
+            'Merit Concessions' => 'merit-concessions',
+            'Payroll & Salary' => 'payroll',
+            'User Management' => 'users',
+            'School Profile' => 'school-profile',
+            'Security' => 'security',
+            'Backup & Recovery' => 'backup',
+            'Location Management' => 'locations',
+        ];
+
+        $crudActions = [
+            'view' => 'View',
+            'create' => 'Add',
+            'edit' => 'Edit',
+            'delete' => 'Delete',
+        ];
+
+        foreach ($crudModules as $module => $prefix) {
+            foreach ($crudActions as $action => $label) {
+                $addPermission(
+                    "{$prefix}.{$action}",
+                    "{$label} {$module}",
+                    $module
+                );
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Student-specific actions
+        |--------------------------------------------------------------------------
+        */
+
+        $specialPermissions = [
+            // Students
+            ['students.import', 'Import Students', 'Students'],
+            ['students.export', 'Export Students', 'Students'],
+            ['students.print', 'Print Student Records', 'Students'],
+            ['students.bulk_create', 'Bulk Create Students', 'Students'],
+            ['students.documents', 'Manage Student Documents', 'Students'],
+            ['students.health', 'Manage Student Health Records', 'Students'],
+            ['students.id_cards', 'Manage Student ID Cards', 'Students'],
+            ['students.leaving_certificate', 'Manage Leaving Certificates', 'Students'],
+            ['students.bonafide', 'Manage Bonafide Certificates', 'Students'],
+            ['students.caste_report', 'View Caste Reports', 'Students'],
+            ['students.age_report', 'View Age Reports', 'Students'],
+
+            // Faculty and staff
+            ['faculty.import', 'Import Faculty', 'Faculty'],
+            ['faculty.export', 'Export Faculty', 'Faculty'],
+            ['faculty.attendance', 'Manage Faculty Attendance', 'Faculty'],
+            ['faculty.salary', 'Manage Faculty Salary', 'Faculty'],
+            ['staff.import', 'Import Other Staff', 'Other Staff'],
+            ['staff.export', 'Export Other Staff', 'Other Staff'],
+
+            // Classes, subjects and timetable
+            ['classes.assign', 'Assign Classes and Sections', 'Classes & Sections'],
+            ['subjects.assign', 'Assign Subjects', 'Subjects'],
+            ['timetable.print', 'Print Timetable', 'Timetable'],
+            ['timetable.import', 'Import Timetable', 'Timetable'],
+            ['timetable.export', 'Export Timetable', 'Timetable'],
+
+            // Attendance
+            ['attendance.students.view', 'View Student Attendance', 'Attendance'],
+            ['attendance.students.mark', 'Mark Student Attendance', 'Attendance'],
+            ['attendance.students.edit', 'Edit Student Attendance', 'Attendance'],
+            ['attendance.students.reports', 'View Student Attendance Reports', 'Attendance'],
+            ['attendance.students.print', 'Print Student Attendance', 'Attendance'],
+            ['attendance.teachers.view', 'View Teacher Attendance', 'Attendance'],
+            ['attendance.teachers.mark', 'Mark Teacher Attendance', 'Attendance'],
+            ['attendance.teachers.edit', 'Edit Teacher Attendance', 'Attendance'],
+            ['attendance.teachers.reports', 'View Teacher Attendance Reports', 'Attendance'],
+            ['attendance.export', 'Export Attendance', 'Attendance'],
+
+            // Fees and payments
+            ['fees.create', 'Create Fee Records', 'Fees'],
+            ['fees.edit', 'Edit Fee Records', 'Fees'],
+            ['fees.delete', 'Delete Fee Records', 'Fees'],
+            ['fees.collect', 'Collect Student Fees', 'Fees'],
+            ['fees.refund', 'Manage Fee Refunds', 'Fees'],
+            ['fees.receipts', 'Print Fee Receipts', 'Fees'],
+            ['fees.reports', 'View Fee Reports', 'Fees'],
+            ['payments.view_history', 'View Payment History', 'Student Payments'],
+            ['payments.print_receipt', 'Print Payment Receipts', 'Student Payments'],
+
+            // Exams and results
+            ['exams.create', 'Create Exams', 'Exams'],
+            ['exams.edit', 'Edit Exams', 'Exams'],
+            ['exams.delete', 'Delete Exams', 'Exams'],
+            ['exams.schedules', 'Manage Exam Schedules', 'Exams'],
+            ['exams.holidays', 'Manage Exam Holidays', 'Exams'],
+            ['results.view', 'View Exam Results', 'Exam Results'],
+            ['results.create', 'Enter Exam Results', 'Exam Results'],
+            ['results.edit', 'Edit Exam Results', 'Exam Results'],
+            ['results.publish', 'Publish Exam Results', 'Exam Results'],
+            ['results.print', 'Print Exam Results', 'Exam Results'],
+            ['results.notifications', 'Manage Result Notifications', 'Exam Results'],
+            ['results.reports', 'View Result Reports', 'Exam Results'],
+
+            // Library
+            ['library.books.view', 'View Books', 'Library'],
+            ['library.books.create', 'Add Books', 'Library'],
+            ['library.books.edit', 'Edit Books', 'Library'],
+            ['library.books.delete', 'Delete Books', 'Library'],
+            ['library.issues.view', 'View Book Issues', 'Library'],
+            ['library.issues.manage', 'Manage Book Issues', 'Library'],
+            ['library.returns.manage', 'Manage Book Returns', 'Library'],
+            ['library.reports.export', 'Export Library Reports', 'Library'],
+
+            // Notices and communication
+            ['notices.publish', 'Publish Notices', 'Notices'],
+            ['notices.whatsapp', 'Send Notice WhatsApp Notifications', 'Notices'],
+
+            // Transport
+            ['transport.records.print', 'Print Transport Records', 'Transport Records'],
+            ['transport.records.export', 'Export Transport Records', 'Transport Records'],
+            ['transport.reports.view', 'View Transport Reports', 'Transport Records'],
+
+            // Meal management
+            ['meal.items.stock', 'Manage Meal Item Stock', 'Meal Items'],
+            ['meal.stock.in', 'Record Meal Stock In', 'Meal Stock'],
+            ['meal.stock.out', 'Record Meal Stock Out', 'Meal Stock'],
+            ['meal.stock.logs', 'View Meal Stock Logs', 'Meal Stock'],
+            ['meal.reports.view', 'View Meal Reports', 'Meal Stock'],
+            ['meal.reports.export', 'Export Meal Reports', 'Meal Stock'],
+
+            // Sports
+            ['sports.games.manage_participants', 'Manage Event Participants', 'Sports Games & Events'],
+            ['sports.achievements.verify', 'Verify Student Achievements', 'Sports Achievements'],
+            ['sports.equipment.stock', 'Manage Sports Equipment Stock', 'Sports Equipment'],
+
+            // Scholarships
+            ['scholarship.exams.manage', 'Manage Scholarship Exams', 'Scholarship Exams'],
+            ['merit-concessions.approve', 'Approve Merit Concessions', 'Merit Concessions'],
+
+            // Payroll
+            ['payroll.view', 'View Payroll', 'Payroll & Salary'],
+            ['payroll.process', 'Process Payroll', 'Payroll & Salary'],
+            ['payroll.approve', 'Approve Payroll', 'Payroll & Salary'],
+            ['payroll.reports', 'View Payroll Reports', 'Payroll & Salary'],
+
+            // Reports
+            ['reports.students', 'View Student Reports', 'Reports'],
+            ['reports.staff', 'View Staff Reports', 'Reports'],
+            ['reports.attendance', 'View Attendance Reports', 'Reports'],
+            ['reports.exams', 'View Exam Reports', 'Reports'],
+            ['reports.results', 'View Result Reports', 'Reports'],
+            ['reports.fees', 'View Fee Reports', 'Reports'],
+            ['reports.transport', 'View Transport Reports', 'Reports'],
+            ['reports.meals', 'View Meal Reports', 'Reports'],
+            ['reports.export', 'Export Reports', 'Reports'],
+            ['reports.print', 'Print Reports', 'Reports'],
+
+            // Settings and administration
+            ['roles.create', 'Create Roles', 'Roles & Permissions'],
+            ['roles.edit', 'Edit Roles', 'Roles & Permissions'],
+            ['roles.delete', 'Delete Roles', 'Roles & Permissions'],
+            ['roles.assign', 'Assign Roles and Permissions', 'Roles & Permissions'],
+            ['users.view', 'View Users', 'User Management'],
+            ['users.create', 'Create Users', 'User Management'],
+            ['users.edit', 'Edit Users', 'User Management'],
+            ['users.delete', 'Delete Users', 'User Management'],
+            ['users.assign_roles', 'Assign User Roles', 'User Management'],
+            ['school_profile.view', 'View School Profile', 'School Profile'],
+            ['school_profile.edit', 'Edit School Profile', 'School Profile'],
+            ['security.view', 'View Security Settings', 'Security'],
+            ['security.manage', 'Manage Security Settings', 'Security'],
+            ['security.2fa.manage', 'Manage Two-Factor Authentication', 'Security'],
+            ['backup.view', 'View Backups', 'Backup & Recovery'],
+            ['backup.create', 'Create Backups', 'Backup & Recovery'],
+            ['backup.restore', 'Restore Backups', 'Backup & Recovery'],
+            ['backup.download', 'Download Backups', 'Backup & Recovery'],
+
+            // Location records
+            ['locations.view', 'View Locations', 'Location Management'],
+            ['locations.create', 'Add Locations', 'Location Management'],
+            ['locations.edit', 'Edit Locations', 'Location Management'],
+            ['locations.delete', 'Delete Locations', 'Location Management'],
+        ];
+
+        foreach ($specialPermissions as [$name, $label, $module]) {
+            $addPermission($name, $label, $module);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Save permissions without deleting existing records
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($permissions as $permissionData) {
+            Permission::updateOrCreate(
+                ['name' => $permissionData['name']],
+                $permissionData
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Super Admin receives every permission
         |--------------------------------------------------------------------------
         */
 
@@ -151,7 +385,7 @@ class RolePermissionSeeder extends Seeder
 
         if ($superAdmin) {
             $superAdmin->permissions()->sync(
-                Permission::pluck('id')->toArray()
+                Permission::pluck('id')->all()
             );
         }
     }

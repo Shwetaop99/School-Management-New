@@ -260,7 +260,7 @@ Route::prefix('admin')
 
     ->group(function () {
 
-    
+
 
 Route::get('students/bulk-create', [
     \App\Http\Controllers\Admin\BulkStudentController::class,
@@ -445,7 +445,7 @@ Route::middleware('auth')->group(function () {
                     'equipment',
                     EquipmentController::class
                 );
-            
+
 
 
         /*
@@ -489,7 +489,7 @@ Route::prefix('admin')
                 'verify'
 
             ])->name('2fa.verify');
-            
+
 
             Route::get('/settings/security', [
     TwoFactorController::class,
@@ -627,11 +627,11 @@ Route::prefix('results')
         Route::get('/{result}', [ResultController::class, 'show'])
             ->name('show');
 
-            
+
 
     });
 
-    
+
             /*
             |--------------------------------------------------------------------------
             | LOCATION API
@@ -686,7 +686,7 @@ Route::prefix('results')
             ])->name('students.class-wise.print');
 
 
-            
+
 /*
 |--------------------------------------------------------------------------
 | STUDENT EXCEL IMPORT
@@ -875,7 +875,7 @@ Route::resource(
                 'show'
             ])
 
-            
+
                 ->name('notices.show')
                 ->middleware('permission:notices.view');
 
@@ -1300,7 +1300,7 @@ Route::get('/reports/exams', [
 
             */
 
-           
+
 
 Route::get('/attendance', [
     AttendanceController::class,
@@ -1758,7 +1758,7 @@ Route::get('/caste-report/pdf/download', [
 
             )->names('supply-items');
 
-            
+
 /*
 |--------------------------------------------------------------------------
 | KIT TEMPLATES
@@ -1985,7 +1985,7 @@ Route::resource(
                 ->middleware('permission:roles.manage');
 
 
-          
+
 
 
 
@@ -2029,7 +2029,7 @@ Route::delete('/students/{student}', [StudentController::class, 'destroy'])
 
     ->name('students.destroy');
 
-   
+
 /*
 |--------------------------------------------------------------------------
 | STUDENT SUPPLY KITS
@@ -2328,7 +2328,7 @@ Route::delete('/school-leaving-certificate/{schoolLeavingCertificate}', [SchoolL
 Route::get('/school-leaving-certificate/{schoolLeavingCertificate}/print', [SchoolLeavingCertificateController::class, 'print'])
     ->name('school-leaving-certificate.print');
 
-    
+
 /*
 |--------------------------------------------------------------------------
 | FACULTY ATTENDANCE
@@ -2571,7 +2571,7 @@ Route::delete('/id-card-templates/{template}', [IdCardTemplateController::class,
             |--------------------------------------------------------------------------
             */
 
-            
+
 Route::get('/fees', function () {
     return view('admin.fees.index');
 })->name('fees.index');
@@ -2865,7 +2865,7 @@ Route::prefix('fees')
                 ->name('transport.')
                 ->group(function () {
 
-                
+
 Route::get('/reports/student-search', [
     TransportReportController::class,
     'index',
@@ -3220,7 +3220,7 @@ Route::get('/reports/vehicle/excel', [
 
     //ALL REPORTS
         // Notice
-       
+
 
 Route::get('/admin/reports', [ReportsController::class, 'index'])
     ->name('reports.index');
@@ -3365,7 +3365,7 @@ Route::get('/reports/students', [StudentReportController::class, 'index'])
 Route::get('/reports/staff/excel', [StaffReportController::class, 'excel'])
     ->name('reports.staff.excel');
 
-   
+
 Route::get('/reports/staff/pdf', [
     StaffReportController::class,
     'pdf'
@@ -3695,7 +3695,7 @@ Route::get('/result/{student}/show', [PublicResultController::class, 'show'])
 Route::get('/result/{student}/pdf', [PublicResultController::class, 'pdf'])
     ->name('result.pdf');
 
-Route::get('/result/{student}/pdf/download', 
+Route::get('/result/{student}/pdf/download',
     [PublicResultController::class, 'downloadPdf'])
     ->name('result.pdf.download');
 

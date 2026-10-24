@@ -53,7 +53,7 @@ class TimetableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    
+
 public function create()
 {
     $teachers = Teacher::where('status', 'Active')

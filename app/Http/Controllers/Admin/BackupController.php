@@ -208,7 +208,6 @@ class BackupController extends Controller
             // Some environments have produced this exact four-byte prefix before
             // the ZIP signature. Normalize only that known prefix; do not guess
             // or strip arbitrary bytes from an archive.
-            
             // Repair only the two exact unexpected prefixes observed.
             $prefixHandle = fopen($archivePath, 'rb');
 
@@ -315,8 +314,6 @@ class BackupController extends Controller
                     );
                 }
             }
-
-
             // Re-open and validate the final archive before calling it successful.
             $this->validateZipArchiveContents($archivePath);
             $success = true;
@@ -335,13 +332,10 @@ class BackupController extends Controller
         }
     }
 
-    
-public function download(string $backup): BinaryFileResponse
+    public function download(string $backup): BinaryFileResponse
 {
     $path = $this->safeBackupPath($backup);
-
     abort_unless(File::isFile($path), 404, 'Backup file not found.');
-
     // Prevent accidental output from contaminating the download.
     while (ob_get_level() > 0) {
         if (!@ob_end_clean()) {
