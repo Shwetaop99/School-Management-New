@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Teacher Salary')
@@ -6,15 +5,34 @@
 
 @section('content')
 
+@php
+    // Works whether $salaries is a paginator or a plain collection.
+    $isPaginated = $salaries instanceof \Illuminate\Pagination\AbstractPaginator;
+
+    // KPI + category numbers should use ALL records, not only the current page.
+    // If your controller passes $allSalaries, it is used; otherwise falls back to $salaries.
+    $all = isset($allSalaries)
+        ? collect($allSalaries)
+        : collect($isPaginated ? $salaries->items() : $salaries);
+
+    $staffCategories = [
+        ['key' => 'Teacher',      'label' => 'Teachers',      'icon' => 'bi-person-badge',   'desc' => 'Teaching Staff'],
+        ['key' => 'Driver',       'label' => 'Drivers',       'icon' => 'bi-truck',          'desc' => 'Transport Staff'],
+        ['key' => 'Peon',         'label' => 'Peons',         'icon' => 'bi-person-workspace','desc' => 'Support Staff'],
+        ['key' => 'Librarian',    'label' => 'Librarians',    'icon' => 'bi-book',           'desc' => 'Library Staff'],
+        ['key' => 'Accountant',   'label' => 'Accountants',   'icon' => 'bi-calculator',     'desc' => 'Accounts Staff'],
+        ['key' => 'Receptionist', 'label' => 'Receptionists', 'icon' => 'bi-headset',        'desc' => 'Front Desk Staff'],
+        ['key' => 'OtherStaff',   'label' => 'Other Staff',   'icon' => 'bi-people',         'desc' => 'Other Employees'],
+    ];
+@endphp
+
 <div class="teacher-salary-page">
     <div class="ts-container">
 
         {{-- SUCCESS MESSAGE --}}
         @if(session('success'))
             <div class="ts-alert" role="status">
-                <span class="ts-alert-icon">
-                    <i class="bi bi-check-lg"></i>
-                </span>
+                <span class="ts-alert-icon"><i class="bi bi-check-lg"></i></span>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -22,9 +40,7 @@
         {{-- HERO --}}
         <section class="ts-hero">
             <div class="ts-hero-content">
-                <div class="ts-hero-icon">
-                    <i class="bi bi-cash-coin"></i>
-                </div>
+                <div class="ts-hero-icon"><i class="bi bi-cash-coin"></i></div>
 
                 <div class="ts-hero-text">
                     <div class="ts-breadcrumb">
@@ -48,95 +64,56 @@
             </div>
 
             <div class="ts-hero-actions">
-                <div class="ts-hero-decoration">
-                    <i class="bi bi-wallet2"></i>
-                </div>
-
-                <div class="ts-handwritten">
-                    Fair Salaries. Happy Staff.
-                </div>
-
-                <p>
-                    Keep salary records accurate and payment statuses
-                    up to date every month.
-                </p>
+                <div class="ts-hero-decoration"><i class="bi bi-wallet2"></i></div>
+                <div class="ts-handwritten">Fair Salaries. Happy Staff.</div>
+                <p>Keep salary records accurate and payment statuses up to date every month.</p>
             </div>
         </section>
 
         {{-- KPI CARDS --}}
         <section class="ts-kpis">
-
             <article class="ts-kpi blue" data-tab="RECORDS">
                 <div class="ts-kpi-top">
                     <span class="ts-kpi-label">Total Salary Records</span>
-                    <span class="ts-kpi-icon">
-                        <i class="bi bi-receipt"></i>
-                    </span>
+                    <span class="ts-kpi-icon"><i class="bi bi-receipt"></i></span>
                 </div>
-
-                <div class="ts-kpi-value">
-                    {{ number_format($salaries->count()) }}
-                </div>
-
+                <div class="ts-kpi-value">{{ number_format($all->count()) }}</div>
                 <div class="ts-kpi-caption">All salary records</div>
             </article>
 
             <article class="ts-kpi amber" data-tab="PENDING">
                 <div class="ts-kpi-top">
                     <span class="ts-kpi-label">Pending Payments</span>
-                    <span class="ts-kpi-icon">
-                        <i class="bi bi-clock-history"></i>
-                    </span>
+                    <span class="ts-kpi-icon"><i class="bi bi-clock-history"></i></span>
                 </div>
-
-                <div class="ts-kpi-value">
-                    {{ number_format($salaries->where('payment_status', 'Pending')->count()) }}
-                </div>
-
+                <div class="ts-kpi-value">{{ number_format($all->where('payment_status', 'Pending')->count()) }}</div>
                 <div class="ts-kpi-caption">Salaries awaiting payment</div>
             </article>
 
             <article class="ts-kpi green" data-tab="PAID">
                 <div class="ts-kpi-top">
                     <span class="ts-kpi-label">Paid Salaries</span>
-                    <span class="ts-kpi-icon">
-                        <i class="bi bi-check-circle"></i>
-                    </span>
+                    <span class="ts-kpi-icon"><i class="bi bi-check-circle"></i></span>
                 </div>
-
-                <div class="ts-kpi-value">
-                    {{ number_format($salaries->where('payment_status', 'Paid')->count()) }}
-                </div>
-
+                <div class="ts-kpi-value">{{ number_format($all->where('payment_status', 'Paid')->count()) }}</div>
                 <div class="ts-kpi-caption">Salaries successfully paid</div>
             </article>
 
             <article class="ts-kpi red" data-tab="PAYROLL">
                 <div class="ts-kpi-top">
                     <span class="ts-kpi-label">Net Salary Value</span>
-                    <span class="ts-kpi-icon">
-                        <i class="bi bi-currency-rupee"></i>
-                    </span>
+                    <span class="ts-kpi-icon"><i class="bi bi-currency-rupee"></i></span>
                 </div>
-
-                <div class="ts-kpi-value">
-                    ₹{{ number_format((float) $salaries->sum('net_salary'), 2) }}
-                </div>
-
+                <div class="ts-kpi-value">₹{{ number_format((float) $all->sum('net_salary'), 2) }}</div>
                 <div class="ts-kpi-caption">Total net salary across records</div>
             </article>
-
         </section>
 
-        {{-- STAFF CATEGORIES AND SALARY ACTIONS --}}
+        {{-- STAFF CATEGORIES --}}
         <section class="ts-paper-panel">
-
             <div class="ts-panel-header">
                 <div class="ts-title-wrap">
-                    <div class="ts-title-icon">
-                        <i class="bi bi-people"></i>
-                    </div>
-
+                    <div class="ts-title-icon"><i class="bi bi-people"></i></div>
                     <div>
                         <h3>Staff Categories</h3>
                         <p>Generate and manage salary records by staff category</p>
@@ -156,68 +133,14 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        @php
-                            $staffCategories = [
-                                [
-                                    'key' => 'Teacher',
-                                    'label' => 'Teachers',
-                                    'icon' => 'bi-person-badge',
-                                    'desc' => 'Teaching Staff',
-                                ],
-                                [
-                                    'key' => 'Driver',
-                                    'label' => 'Drivers',
-                                    'icon' => 'bi-truck',
-                                    'desc' => 'Transport Staff',
-                                ],
-                                [
-                                    'key' => 'Peon',
-                                    'label' => 'Peons',
-                                    'icon' => 'bi-person-workspace',
-                                    'desc' => 'Support Staff',
-                                ],
-                                [
-                                    'key' => 'Librarian',
-                                    'label' => 'Librarians',
-                                    'icon' => 'bi-book',
-                                    'desc' => 'Library Staff',
-                                ],
-                                [
-                                    'key' => 'Accountant',
-                                    'label' => 'Accountants',
-                                    'icon' => 'bi-calculator',
-                                    'desc' => 'Accounts Staff',
-                                ],
-                                [
-                                    'key' => 'Receptionist',
-                                    'label' => 'Receptionists',
-                                    'icon' => 'bi-headset',
-                                    'desc' => 'Front Desk Staff',
-                                ],
-                                [
-                                    'key' => 'OtherStaff',
-                                    'label' => 'Other Staff',
-                                    'icon' => 'bi-people',
-                                    'desc' => 'Other Employees',
-                                ],
-                            ];
-                        @endphp
-
                         @foreach($staffCategories as $cat)
                             @php
-                                // Safe filter — no otherStaff relation
-                                $catSalaries = $salaries->filter(function ($salary) use ($cat) {
+                                $catSalaries = $all->filter(function ($salary) use ($cat) {
                                     if (!empty($salary->staff_type)) {
                                         return $salary->staff_type === $cat['key'];
                                     }
-
-                                    if ($cat['key'] === 'Teacher') {
-                                        return !empty($salary->teacher_id);
-                                    }
-
-                                    return false;
+                                    return $cat['key'] === 'Teacher' && !empty($salary->teacher_id);
                                 });
 
                                 $totalRecords = $catSalaries->count();
@@ -229,110 +152,67 @@
                             <tr>
                                 <td>
                                     <div class="ts-staff-type">
-                                        <div class="ts-staff-avatar">
-                                            <i class="bi {{ $cat['icon'] }}"></i>
-                                        </div>
-
-                                        <div class="ts-staff-details">
-                                            <div class="ts-staff-name">
-                                                {{ $cat['label'] }}
-                                            </div>
-                                            <div class="ts-staff-desc">
-                                                {{ $cat['desc'] }}
-                                            </div>
+                                        <div class="ts-staff-avatar"><i class="bi {{ $cat['icon'] }}"></i></div>
+                                        <div>
+                                            <div class="ts-staff-name">{{ $cat['label'] }}</div>
+                                            <div class="ts-staff-desc">{{ $cat['desc'] }}</div>
                                         </div>
                                     </div>
                                 </td>
 
-                                <td>
-                                    <span class="ts-badge">
-                                        {{ $cat['key'] }}
-                                    </span>
-                                </td>
+                                <td><span class="ts-badge">{{ $cat['key'] }}</span></td>
 
                                 <td>
                                     <div class="ts-count-cell">
-                                        <i class="bi bi-receipt"></i>
-                                        <span>{{ $totalRecords }}</span>
+                                        <i class="bi bi-receipt"></i><span>{{ $totalRecords }}</span>
                                     </div>
                                 </td>
 
                                 <td>
                                     <div class="ts-count-cell pending">
-                                        <i class="bi bi-clock-history"></i>
-                                        <span>{{ $pendingCount }}</span>
+                                        <i class="bi bi-clock-history"></i><span>{{ $pendingCount }}</span>
                                     </div>
                                 </td>
 
                                 <td>
                                     <div class="ts-count-cell paid">
-                                        <i class="bi bi-check-circle"></i>
-                                        <span>{{ $paidCount }}</span>
+                                        <i class="bi bi-check-circle"></i><span>{{ $paidCount }}</span>
                                     </div>
                                 </td>
 
                                 <td>
                                     <div class="ts-actions">
-
-                                        {{-- GENERATE (always) --}}
-                                        <a href="{{ route('admin.teachers.salary.create', ['staff_type' => $cat['key']]) }}"
-                                           class="ts-mark-btn"
-                                           title="Generate Salary">
-                                            <i class="bi bi-plus-lg"></i>
-                                            Generate
+                                        <a href="{{ route('admin.salary.create', ['staff_type' => $cat['key']]) }}"
+                                           class="ts-mark-btn" title="Generate Salary">
+                                            <i class="bi bi-plus-lg"></i> Generate
                                         </a>
 
-                                        {{-- Spacer between Generate and other actions --}}
                                         <span class="ts-actions-gap" aria-hidden="true"></span>
 
-                                        {{-- VIEW --}}
                                         @if($latestSalary)
-                                            <a href="{{ route('admin.teachers.salary.show', $latestSalary->id) }}"
-                                               class="ts-record-btn ts-view-btn"
-                                               title="View Latest Salary">
+                                            <a href="{{ route('admin.salary.show', $latestSalary->id) }}"
+                                               class="ts-record-btn ts-view-btn" title="View Latest Salary">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                        @else
-                                            <span class="ts-record-btn ts-view-btn ts-disabled"
-                                                  title="No salary record yet">
-                                                <i class="bi bi-eye"></i>
-                                            </span>
-                                        @endif
-
-                                        {{-- EDIT --}}
-                                        @if($latestSalary)
-                                            <a href="{{ route('admin.teachers.salary.edit', $latestSalary->id) }}"
-                                               class="ts-record-btn ts-edit-btn"
-                                               title="Edit Latest Salary">
+                                            <a href="{{ route('admin.salary.edit', $latestSalary->id) }}"
+                                               class="ts-record-btn ts-edit-btn" title="Edit Latest Salary">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
-                                        @else
-                                            <span class="ts-record-btn ts-edit-btn ts-disabled"
-                                                  title="No salary record yet">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </span>
-                                        @endif
-
-                                        {{-- DELETE --}}
-                                        @if($latestSalary)
-                                            <form action="{{ route('admin.teachers.salary.destroy', $latestSalary->id) }}"
+                                            <form action="{{ route('admin.salary.destroy', $latestSalary->id) }}"
                                                   method="POST"
                                                   onsubmit="return confirm('Are you sure you want to delete this salary record?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit"
-                                                        class="ts-record-btn ts-delete-btn"
+                                                <button type="submit" class="ts-record-btn ts-delete-btn"
                                                         title="Delete Latest Salary">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
                                         @else
-                                            <span class="ts-record-btn ts-delete-btn ts-disabled"
-                                                  title="No salary record yet">
-                                                <i class="bi bi-trash"></i>
-                                            </span>
+                                            <span class="ts-record-btn ts-view-btn ts-disabled" title="No salary record yet"><i class="bi bi-eye"></i></span>
+                                            <span class="ts-record-btn ts-edit-btn ts-disabled" title="No salary record yet"><i class="bi bi-pencil-square"></i></span>
+                                            <span class="ts-record-btn ts-delete-btn ts-disabled" title="No salary record yet"><i class="bi bi-trash"></i></span>
                                         @endif
-
                                     </div>
                                 </td>
                             </tr>
@@ -342,17 +222,198 @@
             </div>
 
             <div class="ts-card-footer">
-                <div>
-                    Showing <strong>{{ count($staffCategories) }}</strong>
-                    staff categories
-                </div>
-
+                <div>Showing <strong>{{ count($staffCategories) }}</strong> staff categories</div>
                 <div class="ts-footer-status">
                     <i class="bi bi-info-circle"></i>
                     View / Edit / Delete apply to the latest salary record in each category
                 </div>
             </div>
+        </section>
 
+        {{-- SALARY RECORDS --}}
+        <section class="ts-paper-panel">
+            <div class="ts-panel-header ts-panel-header-split">
+                <div class="ts-title-wrap">
+                    <div class="ts-title-icon"><i class="bi bi-journal-text"></i></div>
+                    <div>
+                        <h3>Salary Records</h3>
+                        <p>All staff salary records</p>
+                    </div>
+                </div>
+
+                <div class="ts-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="salarySearch" placeholder="Search name, ID, month..." autocomplete="off">
+                </div>
+            </div>
+
+            <div class="ts-table-wrapper">
+                <table class="ts-table" id="salaryTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Staff</th>
+                            <th>Salary Month</th>
+                            <th>Basic Salary</th>
+                            <th>Allowances</th>
+                            <th>Deductions</th>
+                            <th>Net Salary</th>
+                            <th>Status</th>
+                            <th>Payment Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($salaries as $salary)
+                            @php
+                                $staffType = $salary->staff_type ?: 'Teacher';
+                                $teacher   = $salary->teacher ?? null;
+
+                                if ($teacher) {
+                                    $displayName = trim($teacher->first_name . ' ' . $teacher->last_name);
+                                    $displayId   = $teacher->teacher_id;
+                                } else {
+                                    $displayName = $salary->staff_name ?? null;
+                                    $displayId   = null;
+                                }
+                            @endphp
+
+                            <tr>
+                                <td>
+                                    <span class="ts-number">
+                                        {{ $isPaginated ? $salaries->firstItem() + $loop->index : $loop->iteration }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="ts-person">
+                                        <div class="ts-person-avatar">
+                                            {{ $displayName ? strtoupper(substr($displayName, 0, 1)) : strtoupper(substr($staffType, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div class="ts-person-name">
+                                                @if($displayName)
+                                                    {{ $displayName }}
+                                                @elseif($staffType === 'Teacher')
+                                                    <span class="ts-muted-text">Teacher Deleted</span>
+                                                @else
+                                                    {{ $staffType }}
+                                                @endif
+                                            </div>
+                                            <div class="ts-person-id">
+                                                {{ $staffType }}@if($displayId) · ID: {{ $displayId }}@endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @if($salary->salary_month)
+                                        <span class="ts-month-badge">
+                                            <i class="bi bi-calendar3"></i>
+                                            {{ \Carbon\Carbon::parse($salary->salary_month)->format('M Y') }}
+                                        </span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+
+                                <td class="ts-money">₹{{ number_format((float) $salary->basic_salary, 2) }}</td>
+                                <td class="ts-money">₹{{ number_format((float) $salary->allowances, 2) }}</td>
+                                <td class="ts-money ts-deduction">₹{{ number_format((float) $salary->deductions, 2) }}</td>
+
+                                <td><span class="ts-net">₹{{ number_format((float) $salary->net_salary, 2) }}</span></td>
+
+                                <td>
+                                    @if($salary->payment_status === 'Paid')
+                                        <span class="ts-status paid"><span class="ts-dot"></span>Paid</span>
+                                    @else
+                                        <span class="ts-status pending"><span class="ts-dot"></span>Pending</span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    @if($salary->payment_date)
+                                        <span class="ts-pay-date">
+                                            <i class="bi bi-calendar-check"></i>
+                                            {{ \Carbon\Carbon::parse($salary->payment_date)->format('d M Y') }}
+                                        </span>
+                                    @else
+                                        <span class="ts-muted-text">—</span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <div class="ts-actions ts-actions-compact">
+                                        <a href="{{ route('admin.salary.show', $salary->id) }}"
+                                           class="ts-record-btn ts-view-btn" title="View Salary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ route('admin.salary.edit', $salary->id) }}"
+                                           class="ts-record-btn ts-edit-btn" title="Edit Salary">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form action="{{ route('admin.salary.destroy', $salary->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Are you sure you want to delete this salary record?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="ts-record-btn ts-delete-btn" title="Delete Salary">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10">
+                                    <div class="ts-empty">
+                                        <div class="ts-empty-icon"><i class="bi bi-cash-stack"></i></div>
+                                        <h4>No Salary Records Found</h4>
+                                        <p>No salary records have been created yet.</p>
+                                        <a href="{{ route('admin.salary.create') }}" class="ts-mark-btn">
+                                            <i class="bi bi-plus-lg"></i> Generate First Salary
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- PAGINATION --}}
+            @if($isPaginated && $salaries->hasPages())
+                <div class="ts-pagination">
+                    <div class="ts-pagination-info">
+                        Showing {{ $salaries->firstItem() }} to {{ $salaries->lastItem() }}
+                        of {{ $salaries->total() }} results
+                    </div>
+
+                    <div class="ts-pagination-buttons">
+                        @if($salaries->onFirstPage())
+                            <span class="ts-page disabled" aria-disabled="true">‹</span>
+                        @else
+                            <a href="{{ $salaries->previousPageUrl() }}" class="ts-page" aria-label="Previous page">‹</a>
+                        @endif
+
+                        @for($page = 1; $page <= $salaries->lastPage(); $page++)
+                            @if($page == $salaries->currentPage())
+                                <span class="ts-page active" aria-current="page">{{ $page }}</span>
+                            @else
+                                <a href="{{ $salaries->url($page) }}" class="ts-page">{{ $page }}</a>
+                            @endif
+                        @endfor
+
+                        @if($salaries->hasMorePages())
+                            <a href="{{ $salaries->nextPageUrl() }}" class="ts-page" aria-label="Next page">›</a>
+                        @else
+                            <span class="ts-page disabled" aria-disabled="true">›</span>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </section>
 
     </div>
@@ -371,867 +432,6 @@
     --ts-amber: #a87543;
     --ts-red: #b95b50;
 
-/* =========================================================
-   TEACHER SALARY PAGE
-========================================================= */
-
-.salary-container {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 28px;
-    background: #f4f7fb;
-}
-
-/* =========================================================
-   WELCOME CARD
-========================================================= */
-
-.salary-welcome-card {
-    position: relative;
-    overflow: hidden;
-    min-height: 150px;
-    padding: 30px 34px;
-    margin-bottom: 24px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, #1769d1 0%, #159cc7 100%);
-    color: #fff;
-    box-shadow: 0 12px 30px rgba(23, 105, 209, .16);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-}
-
-.salary-welcome-card::before,
-.salary-welcome-card::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.salary-welcome-card::before {
-    width: 220px;
-    height: 220px;
-    right: -60px;
-    top: -125px;
-    background: rgba(255, 255, 255, .09);
-}
-
-.salary-welcome-card::after {
-    width: 140px;
-    height: 140px;
-    right: 125px;
-    bottom: -100px;
-    background: rgba(255, 255, 255, .10);
-}
-
-.salary-welcome-content {
-    position: relative;
-    z-index: 2;
-}
-
-.salary-welcome-content h2 {
-    margin: 0 0 8px;
-    font-size: 29px;
-    line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: -.4px;
-}
-
-.salary-welcome-content p {
-    margin: 0;
-    color: rgba(255, 255, 255, .92);
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.salary-create-button {
-    position: relative;
-    z-index: 3;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 18px;
-    border: 1px solid rgba(255, 255, 255, .8);
-    border-radius: 10px;
-    background: #fff;
-    color: #1769d1 !important;
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
-    transition: all .22s ease;
-}
-
-.salary-create-button:hover {
-    transform: translateY(-2px);
-    color: #1258b5 !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, .16);
-}
-
-.salary-create-plus {
-    font-size: 18px;
-    line-height: 1;
-    font-weight: 500;
-}
-
-/* =========================================================
-   SUCCESS MESSAGE
-========================================================= */
-
-.salary-success {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-bottom: 20px;
-    padding: 13px 16px;
-    border: 1px solid #bbf7d0;
-    border-radius: 10px;
-    background: #f0fdf4;
-    color: #15803d;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-/* =========================================================
-   STATISTICS
-========================================================= */
-
-.salary-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
-}
-
-.salary-stat-card {
-    position: relative;
-    overflow: hidden;
-    min-height: 145px;
-    padding: 24px 25px;
-    border-radius: 18px;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, .10);
-    transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.salary-stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 32px rgba(15, 23, 42, .15);
-}
-
-.salary-stat-card::before,
-.salary-stat-card::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.salary-stat-card::before {
-    width: 160px;
-    height: 160px;
-    right: -55px;
-    top: -70px;
-    background: rgba(255, 255, 255, .10);
-}
-
-.salary-stat-card::after {
-    width: 85px;
-    height: 85px;
-    right: -20px;
-    bottom: -42px;
-    background: rgba(255, 255, 255, .08);
-}
-
-.salary-stat-card.blue {
-    background: linear-gradient(135deg, #1769d1, #237de0);
-}
-
-.salary-stat-card.orange {
-    background: linear-gradient(135deg, #ed9208, #f7aa25);
-}
-
-.salary-stat-card.green {
-    background: linear-gradient(135deg, #16a34a, #22c55e);
-}
-
-.salary-stat-top {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.salary-stat-number {
-    margin-bottom: 8px;
-    font-size: 32px;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -.5px;
-}
-
-.salary-stat-title {
-    color: rgba(255, 255, 255, .94);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.salary-stat-icon {
-    position: relative;
-    z-index: 2;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 13px;
-    background: rgba(255, 255, 255, .14);
-    color: rgba(255, 255, 255, .95);
-    font-size: 23px;
-    font-weight: 800;
-}
-
-/* =========================================================
-   MAIN CARD
-========================================================= */
-
-.salary-card {
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid #e5ebf3;
-    border-radius: 18px;
-    box-shadow: 0 6px 22px rgba(15, 23, 42, .055);
-}
-
-/* =========================================================
-   CARD HEADER
-========================================================= */
-
-.salary-card-header {
-    min-height: 78px;
-    padding: 17px 22px;
-    border-bottom: 1px solid #edf1f6;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.salary-card-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.salary-card-title-icon {
-    width: 34px;
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    background: #eef6ff;
-    color: #1769d1;
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.salary-card-title h3 {
-    margin: 0;
-    color: #172033;
-    font-size: 17px;
-    font-weight: 800;
-}
-
-.salary-card-subtitle {
-    margin: 5px 0 0 44px;
-    color: #7b8798;
-    font-size: 12px;
-}
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-.salary-search-box {
-    width: 330px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    border: 1px solid #e1e8f0;
-    background: #f8fafc;
-    border-radius: 10px;
-    transition: all .2s ease;
-}
-
-.salary-search-box:focus-within {
-    border-color: #8bbcf2;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(23, 105, 209, .08);
-}
-
-.salary-search-box-icon {
-    width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #94a3b8;
-    font-size: 17px;
-}
-
-.salary-search-box input {
-    width: 100%;
-    height: 100%;
-    padding: 0 12px 0 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: #334155;
-    font-size: 12px;
-}
-
-.salary-search-box input::placeholder {
-    color: #94a3b8;
-}
-
-/* =========================================================
-   TABLE WRAPPER
-========================================================= */
-
-.salary-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.salary-table {
-    width: 100%;
-    min-width: 1180px;
-    border-collapse: separate;
-    border-spacing: 0;
-    table-layout: fixed;
-}
-
-.salary-table th:nth-child(1),
-.salary-table td:nth-child(1) {
-    width: 58px;
-    text-align: center;
-}
-
-.salary-table th:nth-child(2),
-.salary-table td:nth-child(2) {
-    width: 220px;
-}
-
-.salary-table th:nth-child(3),
-.salary-table td:nth-child(3) {
-    width: 135px;
-}
-
-.salary-table th:nth-child(4),
-.salary-table td:nth-child(4),
-.salary-table th:nth-child(5),
-.salary-table td:nth-child(5),
-.salary-table th:nth-child(6),
-.salary-table td:nth-child(6) {
-    width: 125px;
-}
-
-.salary-table th:nth-child(7),
-.salary-table td:nth-child(7) {
-    width: 140px;
-}
-
-.salary-table th:nth-child(8),
-.salary-table td:nth-child(8) {
-    width: 110px;
-}
-
-.salary-table th:nth-child(9),
-.salary-table td:nth-child(9) {
-    width: 130px;
-}
-
-.salary-table th:nth-child(10),
-.salary-table td:nth-child(10) {
-    width: 145px;
-}
-
-/* =========================================================
-   TABLE HEADER
-========================================================= */
-
-.salary-table thead th {
-    padding: 14px;
-    background: #f8fafc;
-    border-top: 1px solid #edf1f6;
-    border-bottom: 1px solid #e5eaf1;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .55px;
-    white-space: nowrap;
-    text-align: left;
-}
-
-/* =========================================================
-   TABLE BODY
-========================================================= */
-
-.salary-table tbody td {
-    padding: 15px 14px;
-    background: #fff;
-    border-bottom: 1px solid #edf1f6;
-    color: #334155;
-    font-size: 12px;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.salary-table tbody tr {
-    transition: background .2s ease;
-}
-
-.salary-table tbody tr:hover td {
-    background: #f8fbff;
-}
-
-.salary-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* =========================================================
-   SERIAL NUMBER
-========================================================= */
-
-.salary-number {
-    width: 30px;
-    height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: #f1f6ff;
-    color: #1769d1;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-/* =========================================================
-   TEACHER
-========================================================= */
-
-.salary-teacher-cell {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    min-width: 0;
-}
-
-.salary-teacher-avatar {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 11px;
-    background: linear-gradient(135deg, #eaf3ff, #eef0ff);
-    color: #1769d1;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.salary-teacher-info {
-    min-width: 0;
-}
-
-.salary-teacher-name {
-    overflow: hidden;
-    color: #172033;
-    font-size: 13px;
-    font-weight: 800;
-    text-overflow: ellipsis;
-}
-
-.salary-teacher-id {
-    margin-top: 4px;
-    color: #1769d1;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .2px;
-}
-
-/* =========================================================
-   MONTH
-========================================================= */
-
-.salary-month-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 7px 10px;
-    border: 1px solid #e7edf4;
-    border-radius: 8px;
-    background: #f5f8fc;
-    color: #475467;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.salary-month-badge i {
-    color: #1769d1;
-    font-size: 11px;
-}
-
-/* =========================================================
-   MONEY
-========================================================= */
-
-.salary-money-cell {
-    color: #344054;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.salary-deduction {
-    color: #dc2626;
-    font-weight: 800;
-}
-
-/* =========================================================
-   NET SALARY
-========================================================= */
-
-.salary-net-box {
-    display: inline-flex;
-    align-items: center;
-    padding: 7px 10px;
-    border: 1px solid #d1fadf;
-    border-radius: 8px;
-    background: #f0fdf4;
-    color: #15803d;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.salary-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 7px 11px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.salary-status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.salary-status.paid {
-    background: #ecfdf3;
-    color: #15803d;
-    border: 1px solid #ccefd9;
-}
-
-.salary-status.paid .salary-status-dot {
-    background: #16a34a;
-}
-
-.salary-status.pending {
-    background: #fff7ed;
-    color: #c2410c;
-    border: 1px solid #fed7aa;
-}
-
-.salary-status.pending .salary-status-dot {
-    background: #f97316;
-}
-
-/* =========================================================
-   PAYMENT DATE
-========================================================= */
-
-.salary-payment-date {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    color: #475467;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.salary-payment-date i {
-    color: #94a3b8;
-}
-
-/* =========================================================
-   ACTIONS
-========================================================= */
-
-.salary-actions {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 7px !important;
-    white-space: nowrap;
-}
-
-.salary-actions form {
-    display: inline-flex !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.salary-actions .salary-action {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 1px solid transparent !important;
-    border-radius: 9px !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-    transition: all .2s ease;
-}
-
-.salary-actions .salary-action:hover {
-    transform: translateY(-2px);
-}
-
-.salary-actions .salary-view-action {
-    background: #eef6ff !important;
-    color: #1477df !important;
-    border-color: #d9eaff !important;
-}
-
-.salary-actions .salary-view-action:hover {
-    background: #1477df !important;
-    color: #fff !important;
-    border-color: #1477df !important;
-}
-
-.salary-actions .salary-edit-action {
-    background: #f2efff !important;
-    color: #6c63ff !important;
-    border-color: #e3defe !important;
-}
-
-.salary-actions .salary-edit-action:hover {
-    background: #6c63ff !important;
-    color: #fff !important;
-    border-color: #6c63ff !important;
-}
-
-.salary-actions .salary-delete-action {
-    background: #fff1f2 !important;
-    color: #e11d48 !important;
-    border-color: #ffe0e5 !important;
-}
-
-.salary-actions .salary-delete-action:hover {
-    background: #e11d48 !important;
-    color: #fff !important;
-    border-color: #e11d48 !important;
-}
-
-.salary-actions .salary-action svg {
-    width: 15px !important;
-    height: 15px !important;
-    display: block !important;
-    fill: none !important;
-    stroke: currentColor !important;
-    stroke-width: 2 !important;
-    stroke-linecap: round !important;
-    stroke-linejoin: round !important;
-}
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.salary-empty-state {
-    padding: 65px 20px;
-    text-align: center;
-}
-
-.salary-empty-icon {
-    width: 68px;
-    height: 68px;
-    margin: 0 auto 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 18px;
-    background: #eef5ff;
-    color: #1769d1;
-    font-size: 25px;
-    font-weight: 800;
-}
-
-.salary-empty-state h4 {
-    margin: 0 0 7px;
-    color: #172033;
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.salary-empty-state p {
-    margin: 0 0 18px;
-    color: #94a3b8;
-    font-size: 12px;
-}
-
-.salary-empty-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 15px;
-    border-radius: 8px;
-    background: #1769d1;
-    color: #fff !important;
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none !important;
-    transition: all .2s ease;
-}
-
-.salary-empty-button:hover {
-    background: #1258b5;
-    color: #fff !important;
-    transform: translateY(-2px);
-}
-
-/* =========================================================
-   CUSTOM PAGINATION
-========================================================= */
-
-.salary-pagination {
-    padding: 16px 22px;
-    border-top: 1px solid #edf1f6;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.salary-pagination-info {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.salary-pagination-buttons {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.salary-page-button {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #475569;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1;
-    text-decoration: none;
-    box-sizing: border-box;
-    transition: all .2s ease;
-}
-
-a.salary-page-button:hover {
-    background: #1769d1;
-    border-color: #1769d1;
-    color: #ffffff;
-    text-decoration: none;
-    transform: translateY(-1px);
-}
-
-.salary-page-button.active {
-    background: #1769d1;
-    border-color: #1769d1;
-    color: #ffffff;
-    cursor: default;
-}
-
-.salary-page-button.disabled {
-    background: #f8fafc;
-    border-color: #e2e8f0;
-    color: #cbd5e1;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.salary-page-arrow {
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 1;
-    margin-top: -1px;
-}
-
-@media (max-width: 650px) {
-    .salary-pagination {
-        padding: 14px 15px;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-    }
-
-    .salary-pagination-info {
-        font-size: 11px;
-    }
-
-    .salary-pagination-buttons {
-        gap: 4px;
-    }
-
-    .salary-page-button {
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
-    }
-
-    .salary-page-arrow {
-        font-size: 17px;
     min-height: calc(100vh - 70px);
     color: var(--ts-text);
     background: #f7f6f0;
@@ -1267,7 +467,6 @@ a.salary-page-button:hover {
 }
 
 /* HERO */
-
 .teacher-salary-page .ts-hero {
     display: grid;
     grid-template-columns: minmax(0, 1.55fr) minmax(290px, .85fr);
@@ -1361,7 +560,7 @@ a.salary-page-button:hover {
     justify-content: center;
     width: 40px;
     height: 40px;
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(255, 255, 255, .2);
     border-radius: 12px;
     color: #ead7aa;
     font-size: 18px;
@@ -1380,7 +579,6 @@ a.salary-page-button:hover {
 }
 
 /* SUCCESS ALERT */
-
 .teacher-salary-page .ts-alert {
     display: flex;
     align-items: center;
@@ -1405,7 +603,6 @@ a.salary-page-button:hover {
 }
 
 /* KPI CARDS */
-
 .teacher-salary-page .ts-kpis {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1426,23 +623,23 @@ a.salary-page-button:hover {
     background: var(--ts-paper);
 }
 
-.teacher-salary-page .ts-kpi.blue { --kpi-color: #426b8a; }
+.teacher-salary-page .ts-kpi.blue  { --kpi-color: #426b8a; }
 .teacher-salary-page .ts-kpi.amber { --kpi-color: #a87543; }
 .teacher-salary-page .ts-kpi.green { --kpi-color: #43835d; }
-.teacher-salary-page .ts-kpi.red { --kpi-color: #b95b50; }
+.teacher-salary-page .ts-kpi.red   { --kpi-color: #b95b50; }
 
 .teacher-salary-page .ts-kpi::before {
-    padding: 5px 10px;
-    border-radius: 6px 6px 0 0;
-    color: white;
-    background: var(--kpi-color);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: .6px;
     content: attr(data-tab);
     align-self: flex-start;
     margin-top: -34px;
     margin-bottom: -6px;
+    padding: 5px 10px;
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+    background: var(--kpi-color);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .6px;
 }
 
 .teacher-salary-page .ts-kpi-top {
@@ -1487,7 +684,6 @@ a.salary-page-button:hover {
 }
 
 /* PANEL */
-
 .teacher-salary-page .ts-paper-panel {
     overflow: hidden;
     margin-bottom: 28px;
@@ -1499,6 +695,11 @@ a.salary-page-button:hover {
     gap: 16px;
     padding: 22px 24px;
     border-bottom: 1px solid #e9e5d9;
+}
+
+.teacher-salary-page .ts-panel-header-split {
+    justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .teacher-salary-page .ts-title-wrap {
@@ -1526,8 +727,39 @@ a.salary-page-button:hover {
     font-size: 11px;
 }
 
-/* STAFF */
+/* SEARCH */
+.teacher-salary-page .ts-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 320px;
+    max-width: 100%;
+    height: 40px;
+    padding: 0 13px;
+    border: 1px solid var(--ts-line);
+    border-radius: 10px;
+    color: #8a9488;
+    background: #fbfaf5;
+}
 
+.teacher-salary-page .ts-search:focus-within {
+    border-color: #648b72;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(100, 139, 114, .12);
+}
+
+.teacher-salary-page .ts-search input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    color: var(--ts-text);
+    background: transparent;
+    font-size: 12px;
+}
+
+/* STAFF CATEGORY CELLS */
 .teacher-salary-page .ts-staff-type {
     display: flex;
     align-items: center;
@@ -1571,16 +803,10 @@ a.salary-page-button:hover {
     font-weight: 700;
 }
 
-.teacher-salary-page .ts-count-cell.pending i {
-    color: var(--ts-amber);
-}
+.teacher-salary-page .ts-count-cell.pending i { color: var(--ts-amber); }
+.teacher-salary-page .ts-count-cell.paid i    { color: var(--ts-green); }
 
-.teacher-salary-page .ts-count-cell.paid i {
-    color: var(--ts-green);
-}
-
-/* TABLE */
-
+/* TABLES */
 .teacher-salary-page .ts-table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -1623,8 +849,7 @@ a.salary-page-button:hover {
     border-bottom: none;
 }
 
-/* ACTIONS — more space between Generate and icons */
-
+/* ACTIONS */
 .teacher-salary-page .ts-actions {
     display: flex;
     align-items: center;
@@ -1634,9 +859,13 @@ a.salary-page-button:hover {
     min-width: 280px;
 }
 
+.teacher-salary-page .ts-actions-compact {
+    min-width: 0;
+}
+
 .teacher-salary-page .ts-actions-gap {
     display: inline-block;
-    width: 14px;          /* extra space between Generate and View/Edit/Delete */
+    width: 14px;
     flex-shrink: 0;
 }
 
@@ -1644,8 +873,6 @@ a.salary-page-button:hover {
     display: inline-flex;
     margin: 0;
 }
-
-/* GENERATE BUTTON */
 
 .teacher-salary-page .ts-mark-btn {
     display: inline-flex;
@@ -1656,7 +883,7 @@ a.salary-page-button:hover {
     padding: 8px 14px;
     border: 1px solid #1e3329;
     border-radius: 8px;
-    color: white;
+    color: #fff;
     background: #1e3329;
     font-size: 10px;
     font-weight: 800;
@@ -1665,11 +892,9 @@ a.salary-page-button:hover {
 }
 
 .teacher-salary-page .ts-mark-btn:hover {
-    color: white;
+    color: #fff;
     background: #2a4638;
 }
-
-/* VIEW / EDIT / DELETE — icon only for cleaner look */
 
 .teacher-salary-page .ts-record-btn {
     display: inline-flex;
@@ -1686,23 +911,9 @@ a.salary-page-button:hover {
     cursor: pointer;
 }
 
-.teacher-salary-page .ts-view-btn {
-    color: #426b8a;
-    background: #edf4f9;
-    border-color: #d7e5ef;
-}
-
-.teacher-salary-page .ts-edit-btn {
-    color: #8a682b;
-    background: #fbf3df;
-    border-color: #eee0b9;
-}
-
-.teacher-salary-page .ts-delete-btn {
-    color: #a64040;
-    background: #fbeaea;
-    border-color: #f0d0d0;
-}
+.teacher-salary-page .ts-view-btn   { color: #426b8a; background: #edf4f9; border-color: #d7e5ef; }
+.teacher-salary-page .ts-edit-btn   { color: #8a682b; background: #fbf3df; border-color: #eee0b9; }
+.teacher-salary-page .ts-delete-btn { color: #a64040; background: #fbeaea; border-color: #f0d0d0; }
 
 .teacher-salary-page .ts-record-btn:hover:not(.ts-disabled) {
     filter: brightness(.96);
@@ -1715,8 +926,217 @@ a.salary-page-button:hover {
     pointer-events: none;
 }
 
-/* FOOTER */
+/* RECORDS TABLE CELLS */
+.teacher-salary-page .ts-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    color: var(--ts-blue);
+    background: #edf4f9;
+    font-size: 11px;
+    font-weight: 800;
+}
 
+.teacher-salary-page .ts-person {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 190px;
+}
+
+.teacher-salary-page .ts-person-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e2ddcf;
+    border-radius: 11px;
+    color: var(--ts-ink);
+    background: #edf1e7;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.teacher-salary-page .ts-person-name {
+    color: #293d32;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.teacher-salary-page .ts-person-id {
+    margin-top: 3px;
+    color: var(--ts-blue);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.teacher-salary-page .ts-muted-text {
+    color: #9aa398;
+}
+
+.teacher-salary-page .ts-month-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border: 1px solid #e2ddcf;
+    border-radius: 8px;
+    color: #4d5b50;
+    background: var(--ts-chalk);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.teacher-salary-page .ts-month-badge i { color: var(--ts-blue); }
+
+.teacher-salary-page .ts-money {
+    color: #34443a;
+    font-weight: 700;
+}
+
+.teacher-salary-page .ts-deduction {
+    color: var(--ts-red);
+    font-weight: 800;
+}
+
+.teacher-salary-page .ts-net {
+    display: inline-flex;
+    padding: 6px 10px;
+    border: 1px solid #d2e5d1;
+    border-radius: 8px;
+    color: #347849;
+    background: #f1f8ef;
+    font-weight: 800;
+}
+
+.teacher-salary-page .ts-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.teacher-salary-page .ts-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.teacher-salary-page .ts-status.paid    { color: #347849; background: #f1f8ef; border: 1px solid #d2e5d1; }
+.teacher-salary-page .ts-status.paid .ts-dot    { background: var(--ts-green); }
+.teacher-salary-page .ts-status.pending { color: #8a5a2b; background: #fbf3df; border: 1px solid #eee0b9; }
+.teacher-salary-page .ts-status.pending .ts-dot { background: var(--ts-amber); }
+
+.teacher-salary-page .ts-pay-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #55645a;
+    font-weight: 600;
+}
+
+.teacher-salary-page .ts-pay-date i { color: #9aa398; }
+
+/* EMPTY STATE */
+.teacher-salary-page .ts-empty {
+    padding: 55px 20px;
+    text-align: center;
+    white-space: normal;
+}
+
+.teacher-salary-page .ts-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border: 1px solid #e2ddcf;
+    border-radius: 16px;
+    color: var(--ts-ink);
+    background: var(--ts-chalk);
+    font-size: 24px;
+}
+
+.teacher-salary-page .ts-empty h4 {
+    margin: 0 0 6px;
+    color: var(--ts-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+}
+
+.teacher-salary-page .ts-empty p {
+    margin: 0 0 18px;
+    color: var(--ts-muted);
+    font-size: 12px;
+}
+
+/* PAGINATION */
+.teacher-salary-page .ts-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px 22px;
+    border-top: 1px dashed #ddd7c9;
+    background: #f8f7f0;
+}
+
+.teacher-salary-page .ts-pagination-info {
+    color: #788277;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.teacher-salary-page .ts-pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.teacher-salary-page .ts-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid var(--ts-line);
+    border-radius: 8px;
+    color: #4d5b50;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.teacher-salary-page a.ts-page:hover {
+    color: #fff;
+    background: #1e3329;
+    border-color: #1e3329;
+}
+
+.teacher-salary-page .ts-page.active {
+    color: #fff;
+    background: #1e3329;
+    border-color: #1e3329;
+}
+
+.teacher-salary-page .ts-page.disabled {
+    color: #c3c8bf;
+    background: #f3f2ea;
+    cursor: not-allowed;
+}
+
+/* FOOTER */
 .teacher-salary-page .ts-card-footer {
     display: flex;
     align-items: center;
@@ -1730,9 +1150,7 @@ a.salary-page-button:hover {
     font-size: 10px;
 }
 
-.teacher-salary-page .ts-card-footer strong {
-    color: var(--ts-ink);
-}
+.teacher-salary-page .ts-card-footer strong { color: var(--ts-ink); }
 
 .teacher-salary-page .ts-footer-status {
     display: inline-flex;
@@ -1743,7 +1161,6 @@ a.salary-page-button:hover {
 }
 
 /* RESPONSIVE */
-
 @media (max-width: 1200px) {
     .teacher-salary-page .ts-kpis {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1752,19 +1169,12 @@ a.salary-page-button:hover {
 }
 
 @media (max-width: 900px) {
-    .teacher-salary-page .ts-hero {
-        grid-template-columns: 1fr;
-    }
-
-    .teacher-salary-page .ts-hero-content {
-        padding: 29px;
-    }
+    .teacher-salary-page .ts-hero { grid-template-columns: 1fr; }
+    .teacher-salary-page .ts-hero-content { padding: 29px; }
 }
 
 @media (max-width: 650px) {
-    .teacher-salary-page .ts-container {
-        padding: 18px 14px;
-    }
+    .teacher-salary-page .ts-container { padding: 18px 14px; }
 
     .teacher-salary-page .ts-hero-content {
         align-items: flex-start;
@@ -1772,47 +1182,21 @@ a.salary-page-button:hover {
         padding: 23px 15px;
     }
 
-    .teacher-salary-page .ts-hero-icon {
-        width: 43px;
-        height: 43px;
-        font-size: 18px;
-    }
+    .teacher-salary-page .ts-hero-icon { width: 43px; height: 43px; font-size: 18px; }
+    .teacher-salary-page .ts-hero-text h2 { font-size: 24px; }
+    .teacher-salary-page .ts-hero-actions { padding: 24px 16px; }
 
-    .teacher-salary-page .ts-hero-text h2 {
-        font-size: 24px;
-    }
+    .teacher-salary-page .ts-kpis { column-gap: 12px; row-gap: 35px; }
+    .teacher-salary-page .ts-kpi { padding: 19px 13px 15px; }
+    .teacher-salary-page .ts-kpi-icon { width: 36px; height: 36px; }
+    .teacher-salary-page .ts-kpi-value { font-size: 24px; }
 
-    .teacher-salary-page .ts-hero-actions {
-        padding: 24px 16px;
-    }
+    .teacher-salary-page .ts-panel-header { padding: 16px; }
+    .teacher-salary-page .ts-title-wrap h3 { font-size: 16px; }
+    .teacher-salary-page .ts-search { width: 100%; }
 
-    .teacher-salary-page .ts-kpis {
-        column-gap: 12px;
-        row-gap: 35px;
-    }
-
-    .teacher-salary-page .ts-kpi {
-        padding: 19px 13px 15px;
-    }
-
-    .teacher-salary-page .ts-kpi-icon {
-        width: 36px;
-        height: 36px;
-    }
-
-    .teacher-salary-page .ts-kpi-value {
-        font-size: 24px;
-    }
-
-    .teacher-salary-page .ts-panel-header {
-        padding: 16px;
-    }
-
-    .teacher-salary-page .ts-title-wrap h3 {
-        font-size: 16px;
-    }
-
-    .teacher-salary-page .ts-card-footer {
+    .teacher-salary-page .ts-card-footer,
+    .teacher-salary-page .ts-pagination {
         align-items: flex-start;
         flex-direction: column;
         padding: 14px 15px;
@@ -1820,9 +1204,7 @@ a.salary-page-button:hover {
 }
 
 @media (max-width: 400px) {
-    .teacher-salary-page .ts-kpis {
-        grid-template-columns: 1fr;
-    }
+    .teacher-salary-page .ts-kpis { grid-template-columns: 1fr; }
 }
 
 .teacher-salary-page a:focus-visible,
@@ -1841,709 +1223,21 @@ a.salary-page-button:hover {
 }
 </style>
 
-
-<div class="salary-container">
-
-    {{-- =====================================================
-         WELCOME CARD
-    ====================================================== --}}
-
-    <div class="salary-welcome-card">
-
-        <div class="salary-welcome-content">
-
-            <h2>
-                Teacher Salary 💰
-            </h2>
-
-            <p>
-                Manage teacher salaries, payments and salary records.
-            </p>
-
-        </div>
-
-        <a
-            href="{{ route('admin.teachers.salary.create') }}"
-            class="salary-create-button"
-        >
-            <span class="salary-create-plus">+</span>
-            Generate Salary
-        </a>
-
-    </div>
-
-
-    {{-- =====================================================
-         SUCCESS MESSAGE
-    ====================================================== --}}
-
-    @if(session('success'))
-
-        <div class="salary-success">
-
-            <span>✓</span>
-
-            <span>
-                {{ session('success') }}
-            </span>
-
-        </div>
-
-    @endif
-
-
-    {{-- =====================================================
-         STATISTICS
-    ====================================================== --}}
-
-    <div class="salary-stats-grid">
-
-        {{-- TOTAL --}}
-        <div class="salary-stat-card blue">
-
-            <div class="salary-stat-top">
-
-                <div>
-
-                    <div class="salary-stat-number">
-                        {{ number_format($totalSalaries ?? $salaries->total()) }}
-                    </div>
-
-                    <div class="salary-stat-title">
-                        Total Salary Records
-                    </div>
-
-                </div>
-
-                <span class="salary-stat-icon">
-                    ₹
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- PENDING --}}
-        <div class="salary-stat-card orange">
-
-            <div class="salary-stat-top">
-
-                <div>
-
-                    <div class="salary-stat-number">
-                        {{ number_format($pendingSalaries ?? 0) }}
-                    </div>
-
-                    <div class="salary-stat-title">
-                        Pending Payments
-                    </div>
-
-                </div>
-
-                <span class="salary-stat-icon">
-                    ₹
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- PAID --}}
-        <div class="salary-stat-card green">
-
-            <div class="salary-stat-top">
-
-                <div>
-
-                    <div class="salary-stat-number">
-                        {{ number_format($paidSalaries ?? 0) }}
-                    </div>
-
-                    <div class="salary-stat-title">
-                        Paid Salaries
-                    </div>
-
-                </div>
-
-                <span class="salary-stat-icon">
-                    ✓
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         SALARY RECORDS CARD
-    ====================================================== --}}
-
-    <div class="salary-card">
-
-        {{-- CARD HEADER --}}
-
-        <div class="salary-card-header">
-
-            <div>
-
-                <div class="salary-card-title">
-
-                    <span class="salary-card-title-icon">
-                        ₹
-                    </span>
-
-                    <h3>
-                        Salary Records
-                    </h3>
-
-                </div>
-
-                <div class="salary-card-subtitle">
-                    All teacher salary records
-                </div>
-
-            </div>
-
-
-            {{-- SEARCH --}}
-
-            <div class="salary-search-box">
-
-                <span class="salary-search-box-icon">
-                    ⌕
-                </span>
-
-                <input
-                    type="text"
-                    id="salarySearch"
-                    placeholder="Search teacher, ID, month..."
-                    autocomplete="off"
-                >
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             TABLE
-        ================================================== --}}
-
-        <div class="salary-table-wrapper">
-
-            <table
-                class="salary-table"
-                id="salaryTable"
-            >
-
-                <thead>
-
-                    <tr>
-
-                        <th>#</th>
-
-                        <th>Teacher</th>
-
-                        <th>Salary Month</th>
-
-                        <th>Basic Salary</th>
-
-                        <th>Allowances</th>
-
-                        <th>Deductions</th>
-
-                        <th>Net Salary</th>
-
-                        <th>Status</th>
-
-                        <th>Payment Date</th>
-
-                        <th>Actions</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    @forelse($salaries as $salary)
-
-                        <tr>
-
-                            {{-- NUMBER --}}
-
-                            <td>
-
-                                <span class="salary-number">
-
-                                    {{ $salaries->firstItem() + $loop->index }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- TEACHER --}}
-
-                            <td>
-
-                                @if($salary->teacher)
-
-                                    <div class="salary-teacher-cell">
-
-                                        <div class="salary-teacher-avatar">
-
-                                            {{ strtoupper(
-                                                substr(
-                                                    $salary->teacher->first_name,
-                                                    0,
-                                                    1
-                                                )
-                                            ) }}
-
-                                        </div>
-
-                                        <div class="salary-teacher-info">
-
-                                            <div class="salary-teacher-name">
-
-                                                {{ $salary->teacher->first_name }}
-
-                                                {{ $salary->teacher->last_name }}
-
-                                            </div>
-
-                                            <div class="salary-teacher-id">
-
-                                                ID:
-                                                {{ $salary->teacher->teacher_id }}
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                @else
-
-                                    <span style="color:#94a3b8;">
-                                        Teacher Deleted
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- SALARY MONTH --}}
-
-                            <td>
-
-                                @if($salary->salary_month)
-
-                                    <span class="salary-month-badge">
-
-                                        <i class="fas fa-calendar-alt"></i>
-
-                                        {{ \Carbon\Carbon::parse(
-                                            $salary->salary_month
-                                        )->format('M Y') }}
-
-                                    </span>
-
-                                @else
-
-                                    —
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- BASIC SALARY --}}
-
-                            <td>
-
-                                <span class="salary-money-cell">
-
-                                    ₹{{ number_format(
-                                        (float) $salary->basic_salary,
-                                        2
-                                    ) }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- ALLOWANCES --}}
-
-                            <td>
-
-                                <span class="salary-money-cell">
-
-                                    ₹{{ number_format(
-                                        (float) $salary->allowances,
-                                        2
-                                    ) }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- DEDUCTIONS --}}
-
-                            <td>
-
-                                <span class="salary-deduction">
-
-                                    ₹{{ number_format(
-                                        (float) $salary->deductions,
-                                        2
-                                    ) }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- NET SALARY --}}
-
-                            <td>
-
-                                <span class="salary-net-box">
-
-                                    ₹{{ number_format(
-                                        (float) $salary->net_salary,
-                                        2
-                                    ) }}
-
-                                </span>
-
-                            </td>
-
-
-                            {{-- STATUS --}}
-
-                            <td>
-
-                                @if($salary->payment_status === 'Paid')
-
-                                    <span class="salary-status paid">
-
-                                        <span class="salary-status-dot"></span>
-
-                                        Paid
-
-                                    </span>
-
-                                @else
-
-                                    <span class="salary-status pending">
-
-                                        <span class="salary-status-dot"></span>
-
-                                        Pending
-
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- PAYMENT DATE --}}
-
-                            <td>
-
-                                @if($salary->payment_date)
-
-                                    <span class="salary-payment-date">
-
-                                        <i class="fas fa-calendar-check"></i>
-
-                                        {{ \Carbon\Carbon::parse(
-                                            $salary->payment_date
-                                        )->format('d M Y') }}
-
-                                    </span>
-
-                                @else
-
-                                    <span style="color:#94a3b8;">
-                                        —
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- ACTIONS --}}
-
-                            <td>
-
-                                <div class="salary-actions">
-
-                                    {{-- VIEW --}}
-
-                                    <a
-                                        href="{{ route(
-                                            'admin.teachers.salary.show',
-                                            $salary->id
-                                        ) }}"
-                                        class="salary-action salary-view-action"
-                                        title="View Salary"
-                                        aria-label="View Salary"
-                                    >
-
-                                        <svg viewBox="0 0 24 24">
-
-                                            <path d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z"></path>
-
-                                            <circle
-                                                cx="12"
-                                                cy="12"
-                                                r="3"
-                                            ></circle>
-
-                                        </svg>
-
-                                    </a>
-
-
-                                    {{-- EDIT --}}
-
-                                    <a
-                                        href="{{ route(
-                                            'admin.teachers.salary.edit',
-                                            $salary->id
-                                        ) }}"
-                                        class="salary-action salary-edit-action"
-                                        title="Edit Salary"
-                                        aria-label="Edit Salary"
-                                    >
-
-                                        <svg viewBox="0 0 24 24">
-
-                                            <path d="M4 16.5V20h3.5L18.81 8.69l-3.5-3.5L4 16.5Z"></path>
-
-                                            <path d="M14.81 5.19l3.5 3.5"></path>
-
-                                        </svg>
-
-                                    </a>
-
-
-                                    {{-- DELETE --}}
-
-                                    <form
-                                        action="{{ route(
-                                            'admin.teachers.salary.destroy',
-                                            $salary->id
-                                        ) }}"
-                                        method="POST"
-                                        onsubmit="return confirm(
-                                            'Are you sure you want to delete this salary record?'
-                                        );"
-                                    >
-
-                                        @csrf
-
-                                        @method('DELETE')
-
-                                        <button
-                                            type="submit"
-                                            class="salary-action salary-delete-action"
-                                            title="Delete Salary"
-                                            aria-label="Delete Salary"
-                                        >
-
-                                            <svg viewBox="0 0 24 24">
-
-                                                <path d="M4 7h16"></path>
-
-                                                <path d="M9 7V4h6v3"></path>
-
-                                                <path d="M7 7l1 13h8l1-13"></path>
-
-                                                <path d="M10 11v5"></path>
-
-                                                <path d="M14 11v5"></path>
-
-                                            </svg>
-
-                                        </button>
-
-                                    </form>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-
-                            <td colspan="10">
-
-                                <div class="salary-empty-state">
-
-                                    <div class="salary-empty-icon">
-                                        ₹
-                                    </div>
-
-                                    <h4>
-                                        No Salary Records Found
-                                    </h4>
-
-                                    <p>
-                                        No teacher salary records have been created yet.
-                                    </p>
-
-                                    <a
-                                        href="{{ route('admin.teachers.salary.create') }}"
-                                        class="salary-empty-button"
-                                    >
-                                        + Generate First Salary
-                                    </a>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        {{-- =================================================
-             PAGINATION
-        ================================================== --}}
-
-        @if($salaries->hasPages())
-
-            <div class="salary-pagination">
-
-                <div class="salary-pagination-info">
-                    Showing
-                    {{ $salaries->firstItem() }}
-                    to
-                    {{ $salaries->lastItem() }}
-                    of
-                    {{ $salaries->total() }}
-                    results
-                </div>
-
-                <div class="salary-pagination-buttons">
-
-                    @if($salaries->onFirstPage())
-                        <span class="salary-page-button disabled" aria-disabled="true">
-                            <span class="salary-page-arrow">‹</span>
-                        </span>
-                    @else
-                        <a
-                            href="{{ $salaries->previousPageUrl() }}"
-                            class="salary-page-button"
-                            aria-label="Previous page"
-                        >
-                            <span class="salary-page-arrow">‹</span>
-                        </a>
-                    @endif
-
-                    @for($page = 1; $page <= $salaries->lastPage(); $page++)
-                        @if($page == $salaries->currentPage())
-                            <span class="salary-page-button active" aria-current="page">
-                                {{ $page }}
-                            </span>
-                        @else
-                            <a
-                                href="{{ $salaries->url($page) }}"
-                                class="salary-page-button"
-                            >
-                                {{ $page }}
-                            </a>
-                        @endif
-                    @endfor
-
-                    @if($salaries->hasMorePages())
-                        <a
-                            href="{{ $salaries->nextPageUrl() }}"
-                            class="salary-page-button"
-                            aria-label="Next page"
-                        >
-                            <span class="salary-page-arrow">›</span>
-                        </a>
-                    @else
-                        <span class="salary-page-button disabled" aria-disabled="true">
-                            <span class="salary-page-arrow">›</span>
-                        </span>
-                    @endif
-
-                </div>
-
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     SEARCH SCRIPT
-========================================================= --}}
-
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
     const searchInput = document.getElementById('salarySearch');
     const table = document.getElementById('salaryTable');
 
-    if (!searchInput || !table) {
-        return;
-    }
+    if (!searchInput || !table) return;
 
     searchInput.addEventListener('input', function () {
+        const term = this.value.toLowerCase().trim();
 
-        const searchValue = this.value
-            .toLowerCase()
-            .trim();
-
-        const rows = table.querySelectorAll('tbody tr');
-
-        rows.forEach(function (row) {
-
-            const rowText = row.textContent
-                .toLowerCase();
-
-            row.style.display =
-                rowText.includes(searchValue)
-                    ? ''
-                    : 'none';
-
+        table.querySelectorAll('tbody tr').forEach(function (row) {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
         });
-
     });
-
 });
-
 </script>
 
 @endsection

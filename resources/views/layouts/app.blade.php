@@ -710,6 +710,13 @@
 
             ],
 
+            [
+    'l' => 'Payroll',
+    'i' => 'fa-money-check-dollar',
+    'a' => ['admin.salary.*'],
+    'r' => 'admin.salary.index',
+],
+
 [
     'l' => 'Meal Management',
     'i' => 'fa-utensils',
@@ -725,17 +732,6 @@
 ],
 
 
-            [
-
-                'l' => 'Payroll',
-
-                'i' => 'fa-money-check-dollar',
-
-                'a' => ['admin.teachers.salary.*'],
-
-                'r' => 'admin.teachers.salary.index',
-
-            ],
 
 
 
