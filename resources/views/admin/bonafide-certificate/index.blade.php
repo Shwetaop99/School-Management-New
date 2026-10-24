@@ -1,1504 +1,1897 @@
 @extends('layouts.app')
 
+@section('title', 'Bonafide Certificates | Admin')
+@section('page-title', 'Bonafide Certificates')
+
 @section('content')
 
-<div class="bonafide-page py-4">
+@php
+    $totalCertificates = $certificates->total();
 
+    $activeCertificates = $certificates->getCollection()
+        ->where('status', 'active')
+        ->count();
 
-<div class="container-fluid">
+    $inactiveCertificates = $certificates->getCollection()
+        ->where('status', 'inactive')
+        ->count();
 
-    {{-- ===================================================== --}}
-    {{-- PAGE HEADER --}}
-    {{-- ===================================================== --}}
+    $hasFilters = !empty($search);
+@endphp
 
-    <div class="page-header mb-4">
+<div class="bonafide-page">
+    <div class="container-fluid py-4">
 
-        <div>
-
-            <div class="d-flex align-items-center gap-2 mb-2">
-
-                <span class="header-icon">
-                    <i class="bi bi-patch-check-fill"></i>
-                </span>
-
-                <span class="text-primary fw-semibold small text-uppercase">
-                    Certificate Management
-                </span>
-
+        {{-- SUCCESS / ERROR ALERTS --}}
+        @if(session('success'))
+            <div class="health-alert" role="status">
+                <span class="success-icon"><i class="fas fa-check"></i></span>
+                <span>{{ session('success') }}</span>
             </div>
+        @endif
 
-            <h2 class="fw-bold mb-1">
-                Bonafide Certificates
-            </h2>
+        @if(session('error'))
+            <div class="health-alert health-alert-error" role="alert">
+                <span class="success-icon error-icon"><i class="fas fa-exclamation"></i></span>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
 
-            <p class="text-muted mb-0">
-                Manage, issue and maintain student bonafide certificates.
-            </p>
-
-        </div>
-
-
-        <a href="{{ route('admin.bonafide.create') }}"
-           class="btn btn-primary create-btn">
-
-            <i class="bi bi-plus-circle-fill me-2"></i>
-
-            Create Certificate
-
-        </a>
-
-    </div>
-
-
-    {{-- ===================================================== --}}
-    {{-- ALERTS --}}
-    {{-- ===================================================== --}}
-
-    @if(session('success'))
-
-        <div class="alert alert-success custom-alert alert-dismissible fade show">
-
-            <div class="d-flex align-items-center">
-
-                <div class="alert-icon success-icon">
-                    <i class="bi bi-check-lg"></i>
+        {{-- HERO --}}
+        <section class="health-hero">
+            <div class="health-hero-content">
+                <div class="health-hero-icon">
+                    <i class="fas fa-certificate"></i>
                 </div>
 
-                <div>
+                <div class="health-hero-text">
+                    <div class="health-breadcrumb">
+                        <span>Certificate Management</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Bonafide Certificates</span>
+                    </div>
 
-                    <strong>Success</strong>
+                    <h2>Bonafide Certificates</h2>
 
+                    <p>
+                        Manage, issue and maintain student bonafide certificates
+                        from one place.
+                    </p>
+
+                    <div class="health-hero-note">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Official Student Documentation</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="health-hero-actions">
+                <div class="hero-decoration">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+
+                <div class="hero-handwritten">Verified. Trusted. Official.</div>
+
+                <p>
+                    Issue clean, consistent bonafide certificates
+                    whenever students need them.
+                </p>
+
+                <a href="{{ route('admin.bonafide.create') }}"
+                   class="diary-primary-btn">
+                    <i class="fas fa-plus"></i>
+                    Create Certificate
+                </a>
+            </div>
+        </section>
+
+        {{-- KPI CARDS --}}
+        <section class="health-kpis">
+
+            <article class="health-kpi blue">
+                <div class="kpi-top">
+                    <span class="kpi-label">Total Certificates</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-folder-open"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">{{ number_format($totalCertificates) }}</div>
+                <div class="kpi-caption">All certificates matching your filters</div>
+            </article>
+
+            <article class="health-kpi green">
+                <div class="kpi-top">
+                    <span class="kpi-label">Active Certificates</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">{{ number_format($activeCertificates) }}</div>
+                <div class="kpi-caption">Currently active on this page</div>
+            </article>
+
+            <article class="health-kpi orange">
+                <div class="kpi-top">
+                    <span class="kpi-label">Inactive Certificates</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-pause-circle"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">{{ number_format($inactiveCertificates) }}</div>
+                <div class="kpi-caption">Inactive on this page</div>
+            </article>
+
+            <article class="health-kpi red">
+                <div class="kpi-top">
+                    <span class="kpi-label">Page Records</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-list"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">{{ number_format($certificates->count()) }}</div>
+                <div class="kpi-caption">Shown on the current page</div>
+            </article>
+
+        </section>
+
+        {{-- MAIN PANEL --}}
+        <section class="health-paper-panel">
+
+            <div class="health-panel-header">
+                <div class="panel-title-wrap">
+                    <div class="panel-title-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
                     <div>
-                        {{ session('success') }}
+                        <h3>Certificate Records</h3>
+                        <p>Search, view and manage bonafide certificates.</p>
                     </div>
-
                 </div>
 
+                <div class="health-record-count">
+                    <i class="fas fa-folder-open"></i>
+                    <strong>{{ number_format($certificates->total()) }}</strong>
+                    Certificates
+                </div>
             </div>
 
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
+            {{-- SEARCH AND FILTERS --}}
+            <form action="{{ route('admin.bonafide.index') }}"
+                  method="GET"
+                  class="health-filter-panel">
 
-        </div>
-
-    @endif
-
-
-    @if(session('error'))
-
-        <div class="alert alert-danger custom-alert alert-dismissible fade show">
-
-            <div class="d-flex align-items-center">
-
-                <div class="alert-icon danger-icon">
-                    <i class="bi bi-exclamation-lg"></i>
-                </div>
-
-                <div>
-
-                    <strong>Error</strong>
-
+                <div class="filter-heading">
+                    <div class="filter-heading-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
                     <div>
-                        {{ session('error') }}
+                        <h4>Find Certificates</h4>
+                        <p>Search by certificate number, student name or student ID.</p>
                     </div>
-
                 </div>
 
-            </div>
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
-        </div>
-
-    @endif
-
-
-    {{-- ===================================================== --}}
-    {{-- SUMMARY CARDS --}}
-    {{-- ===================================================== --}}
-
-    @php
-
-        $totalCertificates = $certificates->total();
-
-        $activeCertificates = $certificates->getCollection()
-            ->where('status', 'active')
-            ->count();
-
-        $inactiveCertificates = $certificates->getCollection()
-            ->where('status', 'inactive')
-            ->count();
-
-    @endphp
-
-
-    <div class="row g-3 mb-4">
-
-
-        {{-- Total --}}
-        <div class="col-xl-4 col-md-6">
-
-            <div class="summary-card">
-
-                <div class="summary-icon total-icon">
-                    <i class="bi bi-files"></i>
-                </div>
-
-                <div class="summary-content">
-
-                    <span>
-                        Total Certificates
-                    </span>
-
-                    <strong>
-                        {{ $totalCertificates }}
-                    </strong>
-
-                </div>
-
-                <div class="summary-arrow">
-                    <i class="bi bi-file-earmark-check"></i>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Active --}}
-        <div class="col-xl-4 col-md-6">
-
-            <div class="summary-card">
-
-                <div class="summary-icon active-icon">
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
-
-                <div class="summary-content">
-
-                    <span>
-                        Active Certificates
-                    </span>
-
-                    <strong>
-                        {{ $activeCertificates }}
-                    </strong>
-
-                </div>
-
-                <div class="summary-arrow">
-                    <i class="bi bi-arrow-up-right"></i>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Inactive --}}
-        <div class="col-xl-4 col-md-6">
-
-            <div class="summary-card">
-
-                <div class="summary-icon inactive-icon">
-                    <i class="bi bi-pause-circle-fill"></i>
-                </div>
-
-                <div class="summary-content">
-
-                    <span>
-                        Inactive Certificates
-                    </span>
-
-                    <strong>
-                        {{ $inactiveCertificates }}
-                    </strong>
-
-                </div>
-
-                <div class="summary-arrow">
-                    <i class="bi bi-dash-circle"></i>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- ===================================================== --}}
-    {{-- MAIN CARD --}}
-    {{-- ===================================================== --}}
-
-    <div class="certificate-card">
-
-
-        {{-- ================================================= --}}
-        {{-- SEARCH HEADER --}}
-        {{-- ================================================= --}}
-
-        <div class="search-header">
-
-            <div>
-
-                <div class="d-flex align-items-center gap-2 mb-1">
-
-                    <div class="search-title-icon">
-                        <i class="bi bi-search"></i>
-                    </div>
-
-                    <h5 class="fw-bold mb-0">
-                        Search Certificates
-                    </h5>
-
-                </div>
-
-                <small class="text-muted">
-                    Search by certificate number, student name or student ID.
-                </small>
-
-            </div>
-
-
-            @if(!empty($search))
-
-                <span class="search-result-badge">
-
-                    <i class="bi bi-funnel-fill me-1"></i>
-
-                    Search active
-
-                </span>
-
-            @endif
-
-        </div>
-
-
-        <div class="search-body">
-
-            <form method="GET"
-                  action="{{ route('admin.bonafide.index') }}">
-
-                <div class="row g-3 align-items-end">
-
-
-                    {{-- Search --}}
-                    <div class="col-lg-8">
-
-                        <label for="search"
-                               class="form-label fw-semibold">
-
-                            Search
-
-                        </label>
-
-                        <div class="search-input-wrapper">
-
-                            <i class="bi bi-search"></i>
-
-                            <input type="text"
+                <div class="health-filter-grid bonafide-filter-grid">
+
+                    <div class="diary-filter-group search-group">
+                        <label for="search">Search Certificate</label>
+                        <div class="diary-search-input">
+                            <i class="fas fa-search"></i>
+                            <input id="search"
+                                   type="text"
                                    name="search"
-                                   id="search"
                                    value="{{ $search ?? '' }}"
-                                   class="form-control ps-5"
-                                   placeholder="Certificate number, student name or student ID...">
-
-                            @if(!empty($search))
-
-                                <a href="{{ route('admin.bonafide.index') }}"
-                                   class="clear-search">
-
-                                    <i class="bi bi-x-circle-fill"></i>
-
-                                </a>
-
-                            @endif
-
+                                   placeholder="Certificate number, student name or student ID..."
+                                   autocomplete="off">
                         </div>
-
                     </div>
 
-
-                    {{-- Search Button --}}
-                    <div class="col-lg-2 col-md-6">
-
-                        <button type="submit"
-                                class="btn btn-primary w-100 search-btn">
-
-                            <i class="bi bi-search me-1"></i>
-
-                            Search
-
+                    <div class="diary-filter-actions">
+                        <button type="submit" class="diary-apply-btn">
+                            <i class="fas fa-filter"></i> Search
                         </button>
 
-                    </div>
-
-
-                    {{-- Clear --}}
-                    <div class="col-lg-2 col-md-6">
-
-                        @if(!empty($search))
-
-                            <a href="{{ route('admin.bonafide.index') }}"
-                               class="btn btn-light border w-100 clear-btn">
-
-                                <i class="bi bi-arrow-counterclockwise me-1"></i>
-
-                                Clear
-
-                            </a>
-
-                        @else
-
-                            <button type="button"
-                                    class="btn btn-light border w-100 clear-btn"
-                                    disabled>
-
-                                <i class="bi bi-file-earmark-text me-1"></i>
-
-                                All Certificates
-
-                            </button>
-
-                        @endif
-
+                        <a href="{{ route('admin.bonafide.index') }}"
+                           class="diary-reset-btn"
+                           title="Reset">
+                            <i class="fas fa-rotate-left"></i> Reset
+                        </a>
                     </div>
 
                 </div>
-
             </form>
 
-        </div>
+            {{-- ACTIVE FILTERS --}}
+            @if($hasFilters)
+                <div class="health-active-filters">
+                    <div class="active-filter-items">
+                        <span class="active-filter-label">
+                            <i class="fas fa-filter"></i> Active filters
+                        </span>
 
+                        <span class="filter-chip">
+                            <i class="fas fa-search"></i>
+                            {{ $search }}
+                        </span>
+                    </div>
 
-        {{-- ================================================= --}}
-        {{-- TABLE HEADER --}}
-        {{-- ================================================= --}}
-
-        <div class="table-topbar">
-
-            <div>
-
-                <h6 class="fw-bold mb-1">
-                    Certificate Records
-                </h6>
-
-                <small class="text-muted">
-
-                    @if($certificates->total() > 0)
-
-                        {{ $certificates->total() }}
-                        certificate{{ $certificates->total() != 1 ? 's' : '' }}
-                        found
-
-                    @else
-
-                        No records available
-
-                    @endif
-
-                </small>
-
-            </div>
-
-
-            @if(!empty($search))
-
-                <div class="filter-info">
-
-                    <i class="bi bi-search me-1"></i>
-
-                    Results for:
-                    <strong>"{{ $search }}"</strong>
-
+                    <span class="filter-result-count">
+                        {{ number_format($certificates->total()) }} result(s)
+                    </span>
                 </div>
-
             @endif
 
-        </div>
-
-
-        {{-- ================================================= --}}
-        {{-- TABLE --}}
-        {{-- ================================================= --}}
-
-        <div class="table-container">
-
+            {{-- RECORDS TABLE --}}
             @if($certificates->count())
 
-                <div class="table-responsive">
-
-                    <table class="table certificate-table align-middle mb-0">
-
+                <div class="health-table-wrapper">
+                    <table class="health-table">
                         <thead>
-
                             <tr>
-
-                                <th class="ps-4">
-                                    #
-                                </th>
-
-                                <th>
-                                    Certificate
-                                </th>
-
-                                <th>
-                                    Student
-                                </th>
-
-                                <th>
-                                    Student ID
-                                </th>
-
-                                <th>
-                                    Class
-                                </th>
-
-                                <th>
-                                    Issue Date
-                                </th>
-
-                                <th>
-                                    Reason
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th class="text-center pe-4">
-                                    Actions
-                                </th>
-
+                                <th>#</th>
+                                <th>Certificate</th>
+                                <th>Student</th>
+                                <th>Student ID</th>
+                                <th>Class</th>
+                                <th>Issue Date</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th class="actions-heading">Actions</th>
                             </tr>
-
                         </thead>
 
-
                         <tbody>
+                            @foreach($certificates as $certificate)
 
-                        @foreach($certificates as $certificate)
+                                @php
+                                    $student = $certificate->student;
 
-                            @php
+                                    $studentName = $student
+                                        ? trim(
+                                            ($student->first_name ?? '') . ' ' .
+                                            ($student->middle_name ?? '') . ' ' .
+                                            ($student->last_name ?? '')
+                                        )
+                                        : 'Student not found';
 
-                                $student = $certificate->student;
+                                    $initial = $student
+                                        ? strtoupper(substr($student->first_name ?? 'S', 0, 1))
+                                        : '?';
+                                @endphp
 
-                                $studentName = $student
-                                    ? trim(
-                                        ($student->first_name ?? '') . ' ' .
-                                        ($student->middle_name ?? '') . ' ' .
-                                        ($student->last_name ?? '')
-                                    )
-                                    : 'Student not found';
+                                <tr>
 
-                                $initials = '';
-
-                                if ($student) {
-
-                                    $initials =
-                                        strtoupper(substr($student->first_name ?? '', 0, 1)) .
-                                        strtoupper(substr($student->last_name ?? '', 0, 1));
-
-                                }
-
-                            @endphp
-
-
-                            <tr>
-
-
-                                {{-- Number --}}
-                                <td class="ps-4">
-
-                                    <span class="row-number">
-
-                                        {{ $certificates->firstItem() + $loop->index }}
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- Certificate --}}
-                                <td>
-
-                                    <div class="certificate-info">
-
-                                        <div class="certificate-mini-icon">
-
-                                            <i class="bi bi-file-earmark-check-fill"></i>
-
-                                        </div>
-
-                                        <div>
-
-                                            <div class="certificate-number">
-                                                {{ $certificate->certificate_no }}
-                                            </div>
-
-                                            <small class="text-muted">
-                                                Bonafide Certificate
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Student --}}
-                                <td>
-
-                                    <div class="student-info">
-
-                                        <div class="student-avatar">
-
-                                            {{ $initials ?: '?' }}
-
-                                        </div>
-
-                                        <div>
-
-                                            <div class="student-name">
-
-                                                {{ $studentName }}
-
-                                            </div>
-
-                                            @if($student && $student->gender)
-
-                                                <small class="text-muted">
-
-                                                    {{ $student->gender }}
-
-                                                </small>
-
-                                            @endif
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Student ID --}}
-                                <td>
-
-                                    <span class="student-id">
-
-                                        {{ $student->student_id ?? '—' }}
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- Class --}}
-                                <td>
-
-                                    @if($student)
-
-                                        <span class="class-badge">
-
-                                            {{ $student->class ?? '—' }}
-
-                                            @if(!empty($student->section))
-                                                / {{ $student->section }}
-                                            @endif
-
+                                    <td>
+                                        <span class="health-row-number">
+                                            {{ ($certificates->firstItem() ?? 0) + $loop->index }}
                                         </span>
+                                    </td>
 
-                                    @else
+                                    {{-- Certificate --}}
+                                    <td>
+                                        <div class="student-info">
+                                            <div class="student-avatar cert-avatar">
+                                                <i class="fas fa-file-signature"></i>
+                                            </div>
+                                            <div class="student-details">
+                                                <div class="student-name">
+                                                    {{ $certificate->certificate_no }}
+                                                </div>
+                                                <div class="student-id">
+                                                    <i class="fas fa-certificate"></i>
+                                                    Bonafide Certificate
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
 
-                                        <span class="text-muted">
-                                            —
-                                        </span>
+                                    {{-- Student --}}
+                                    <td>
+                                        <div class="student-info">
+                                            <div class="student-avatar">
+                                                {{ $initial }}
+                                            </div>
+                                            <div class="student-details">
+                                                <div class="student-name">
+                                                    {{ $studentName }}
+                                                </div>
+                                                @if($student && $student->gender)
+                                                    <div class="student-id">
+                                                        {{ $student->gender }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
 
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Issue Date --}}
-                                <td>
-
-                                    @if($certificate->issue_date)
-
-                                        <div class="date-info">
-
-                                            <i class="bi bi-calendar3"></i>
-
-                                            <span>
-
-                                                {{ $certificate->issue_date->format('d M Y') }}
-
+                                    {{-- Student ID --}}
+                                    <td>
+                                        @if($student && $student->student_id)
+                                            <span class="health-chip section-chip">
+                                                {{ $student->student_id }}
                                             </span>
+                                        @else
+                                            <span class="diary-muted">—</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Class --}}
+                                    <td>
+                                        @if($student && (!empty($student->class) || !empty($student->section)))
+                                            <span class="health-chip class-chip">
+                                                {{ $student->class ?? '—' }}
+                                                @if(!empty($student->section))
+                                                    / {{ $student->section }}
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span class="diary-muted">—</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Issue Date --}}
+                                    <td>
+                                        @if($certificate->issue_date)
+                                            <div class="health-date">
+                                                <div class="date-primary">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                    {{ $certificate->issue_date->format('d M Y') }}
+                                                </div>
+                                                <div class="date-caption">Issue Date</div>
+                                            </div>
+                                        @else
+                                            <span class="diary-muted">—</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Reason --}}
+                                    <td>
+                                        @if($certificate->reason)
+                                            <span class="health-measure reason-text"
+                                                  title="{{ $certificate->reason }}">
+                                                {{ \Illuminate\Support\Str::limit($certificate->reason, 42) }}
+                                            </span>
+                                        @else
+                                            <span class="diary-muted">—</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Status --}}
+                                    <td>
+                                        @if($certificate->status === 'active')
+                                            <span class="health-status good">
+                                                <i class="fas fa-circle-check"></i>
+                                                Active
+                                            </span>
+                                        @else
+                                            <span class="health-status unknown">
+                                                <i class="fas fa-circle-minus"></i>
+                                                Inactive
+                                            </span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Actions --}}
+                                    <td>
+                                        <div class="health-actions">
+
+                                            <a href="{{ route('admin.bonafide.show', $certificate->id) }}"
+                                               class="health-action-btn view"
+                                               title="View Certificate"
+                                               aria-label="View certificate">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
+                                            <a href="{{ route('admin.bonafide.edit', $certificate->id) }}"
+                                               class="health-action-btn edit"
+                                               title="Edit Certificate"
+                                               aria-label="Edit certificate">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+
+                                            <form method="POST"
+                                                  action="{{ route('admin.bonafide.destroy', $certificate->id) }}"
+                                                  onsubmit="return confirm('Are you sure you want to delete this certificate?');"
+                                                  style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="health-action-btn delete"
+                                                        title="Delete Certificate"
+                                                        aria-label="Delete certificate">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
 
                                         </div>
+                                    </td>
 
-                                    @else
+                                </tr>
 
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Reason --}}
-                                <td class="reason-column">
-
-                                    @if($certificate->reason)
-
-                                        <span class="reason-text"
-                                              title="{{ $certificate->reason }}">
-
-                                            {{ \Illuminate\Support\Str::limit($certificate->reason, 42) }}
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Status --}}
-                                <td>
-
-                                    @if($certificate->status === 'active')
-
-                                        <span class="status-badge active-status">
-
-                                            <i class="bi bi-circle-fill"></i>
-
-                                            Active
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="status-badge inactive-status">
-
-                                            <i class="bi bi-circle-fill"></i>
-
-                                            Inactive
-
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Actions --}}
-                                <td class="pe-4">
-
-                                    <div class="action-buttons">
-
-
-                                        {{-- View --}}
-                                        <a href="{{ route('admin.bonafide.show', $certificate->id) }}"
-                                           class="action-btn view-action"
-                                           title="View Certificate">
-
-                                            <i class="bi bi-eye"></i>
-
-                                        </a>
-
-
-                                        {{-- Edit --}}
-                                        <a href="{{ route('admin.bonafide.edit', $certificate->id) }}"
-                                           class="action-btn edit-action"
-                                           title="Edit Certificate">
-
-                                            <i class="bi bi-pencil-square"></i>
-
-                                        </a>
-
-
-                                        {{-- Delete --}}
-                                        <form method="POST"
-                                              action="{{ route('admin.bonafide.destroy', $certificate->id) }}"
-                                              onsubmit="return confirm('Are you sure you want to delete this certificate?');">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="action-btn delete-action"
-                                                    title="Delete Certificate">
-
-                                                <i class="bi bi-trash3"></i>
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        @endforeach
-
+                            @endforeach
                         </tbody>
-
                     </table>
-
                 </div>
 
+                {{-- PAGINATION --}}
+                @if($certificates->hasPages())
+                    <div class="health-pagination">
+                        <div class="pagination-info">
+                            Showing <strong>{{ $certificates->firstItem() }}</strong>
+                            to <strong>{{ $certificates->lastItem() }}</strong>
+                            of <strong>{{ $certificates->total() }}</strong> certificates
+                        </div>
+
+                        <div class="pagination-links">
+                            {{ $certificates->withQueryString()->links() }}
+                        </div>
+                    </div>
+                @endif
+
+                {{-- FOOTER --}}
+                <div class="health-card-footer">
+                    <div>
+                        Showing <strong>{{ $certificates->count() }}</strong>
+                        certificate(s) on this page
+                    </div>
+                    <div class="footer-status">
+                        <i class="fas fa-circle-check"></i>
+                        Data loaded successfully
+                    </div>
+                </div>
 
             @else
 
-
-                {{-- ================================================= --}}
                 {{-- EMPTY STATE --}}
-                {{-- ================================================= --}}
-
-                <div class="empty-state">
-
-                    <div class="empty-icon">
-
-                        <i class="bi bi-file-earmark-x"></i>
-
+                <div class="health-empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-file-alt"></i>
                     </div>
 
-                    <h5 class="fw-bold mb-2">
-                        No Bonafide Certificates Found
-                    </h5>
-
-                    <p class="text-muted mb-4">
-
-                        @if(!empty($search))
-
-                            No certificates matched your search criteria.
-
+                    <h4>No Bonafide Certificates Found</h4>
+                    <p>
+                        @if($hasFilters)
+                            No certificates match your search.
+                            Try adjusting the search or clear the filters.
                         @else
-
                             No bonafide certificates have been created yet.
-
+                            Create the first one to get started.
                         @endif
-
                     </p>
 
-
-                    @if(!empty($search))
-
-                        <a href="{{ route('admin.bonafide.index') }}"
-                           class="btn btn-outline-secondary">
-
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>
-
-                            Clear Search
-
-                        </a>
-
-                    @else
+                    <div class="empty-state-actions">
+                        @if($hasFilters)
+                            <a href="{{ route('admin.bonafide.index') }}"
+                               class="diary-primary-btn">
+                                <i class="fas fa-rotate-left"></i> Clear Search
+                            </a>
+                        @endif
 
                         <a href="{{ route('admin.bonafide.create') }}"
-                           class="btn btn-primary">
-
-                            <i class="bi bi-plus-circle-fill me-1"></i>
-
-                            Create First Certificate
-
+                           class="diary-primary-btn">
+                            <i class="fas fa-plus"></i> Create Certificate
                         </a>
-
-                    @endif
-
+                    </div>
                 </div>
 
             @endif
-
-        </div>
-
-
-        {{-- ================================================= --}}
-        {{-- PAGINATION --}}
-        {{-- ================================================= --}}
-
-        @if($certificates->hasPages())
-
-            <div class="pagination-footer">
-
-                <div class="pagination-info">
-
-                    Showing
-
-                    <strong>
-                        {{ $certificates->firstItem() }}
-                    </strong>
-
-                    to
-
-                    <strong>
-                        {{ $certificates->lastItem() }}
-                    </strong>
-
-                    of
-
-                    <strong>
-                        {{ $certificates->total() }}
-                    </strong>
-
-                    certificates
-
-                </div>
-
-
-                <div class="pagination-wrapper">
-
-                    {{ $certificates->links() }}
-
-                </div>
-
-            </div>
-
-        @endif
-
-
+        </section>
     </div>
-
 </div>
-
-
-</div>
-
-{{-- ============================================================= --}}
-{{-- PAGE CSS --}}
-{{-- ============================================================= --}}
 
 <style>
+/* ==========================================================
+   BONAFIDE CERTIFICATES — SCHOOL DIARY DESIGN SYSTEM
+   Same tokens, surfaces, components & responsive rules
+   as Student Health Records
+========================================================== */
 
-    .bonafide-page {
-        background: #f5f7fb;
-        min-height: calc(100vh - 70px);
+.bonafide-page {
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --ink-soft: #40574a;
+    --text: #39483e;
+    --muted: #7b857b;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --chalk: #f5f3e9;
+    --sage: #527f70;
+    --blue: #426b8a;
+    --amber: #a87543;
+    --green: #43835d;
+    --red: #b95b50;
+
+    min-height: calc(100vh - 70px);
+    color: var(--text);
+    background: #f7f6f0;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 13px;
+}
+
+.bonafide-page *,
+.bonafide-page *::before,
+.bonafide-page *::after {
+    box-sizing: border-box;
+}
+
+.bonafide-page a,
+.bonafide-page button {
+    transition: color .2s ease, background .2s ease,
+        border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.bonafide-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
+    padding-right: 24px;
+    padding-left: 24px;
+}
+
+.health-hero,
+.health-paper-panel {
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: var(--paper);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
+}
+
+/* HERO */
+
+.health-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(290px, .85fr);
+    overflow: hidden;
+    margin-bottom: 36px;
+}
+
+.health-hero::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 28px;
+    width: 2px;
+    background: #dfb4a5;
+    content: "";
+}
+
+.health-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 21px;
+    min-width: 0;
+    padding: 35px 30px 35px 51px;
+}
+
+.health-hero-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border: 1px solid #e2ddcf;
+    border-radius: 16px;
+    color: var(--ink);
+    background: var(--chalk);
+    box-shadow: 0 3px 10px rgba(38, 59, 53, .04);
+    font-size: 25px;
+}
+
+.health-hero-text {
+    min-width: 0;
+}
+
+.health-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 11px;
+    color: #858d80;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+.health-breadcrumb i {
+    color: #b1a895;
+    font-size: 9px;
+}
+
+.health-hero-text h2 {
+    margin: 0 0 11px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: clamp(26px, 2.2vw, 34px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.7px;
+}
+
+.health-hero-text p {
+    max-width: 540px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.health-hero-note {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    color: #477858;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .15px;
+}
+
+.health-hero-note i {
+    font-size: 13px;
+}
+
+.health-hero-actions {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 245px;
+    padding: 30px 25px;
+    overflow: hidden;
+    color: #e8eee4;
+    background: linear-gradient(145deg, #344f43 0%, #20352c 100%);
+    text-align: center;
+}
+
+.health-hero-actions::before,
+.health-hero-actions::after {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+
+.health-hero-actions::before {
+    top: -115px;
+    right: -60px;
+}
+
+.health-hero-actions::after {
+    bottom: -140px;
+    left: -70px;
+}
+
+.hero-decoration {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 12px;
+    color: #ead7aa;
+    background: rgba(255, 255, 255, .07);
+    font-size: 16px;
+}
+
+.hero-handwritten {
+    position: relative;
+    z-index: 1;
+    color: #f0e5c9;
+    font-family: var(--hand, cursive);
+    font-size: 23px;
+    line-height: 1.4;
+}
+
+.health-hero-actions p {
+    position: relative;
+    z-index: 1;
+    max-width: 300px;
+    margin: 0;
+    color: #cbd5cb;
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+.diary-primary-btn {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    padding: 11px 17px;
+    border: 1px solid var(--ink);
+    border-radius: 9px;
+    color: #fff;
+    background: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.health-hero-actions .diary-primary-btn {
+    border-color: #e8e0c9;
+    color: var(--ink);
+    background: #f1ead8;
+}
+
+.diary-primary-btn:hover {
+    transform: translateY(-2px);
+    border-color: #456854;
+    color: #fff;
+    background: #456854;
+    box-shadow: 0 6px 15px rgba(29, 48, 43, .13);
+}
+
+.health-hero-actions .diary-primary-btn:hover {
+    border-color: #fff5dc;
+    color: var(--ink);
+    background: #fff5dc;
+}
+
+/* ALERTS */
+
+.health-alert {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border: 1px solid #d2e5d1;
+    border-radius: 11px;
+    color: #347849;
+    background: #f1f8ef;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.health-alert-error {
+    border-color: #eed6cf;
+    color: #b95b50;
+    background: #fff1ed;
+}
+
+.success-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 31px;
+    width: 31px;
+    height: 31px;
+    border-radius: 9px;
+    color: #347849;
+    background: #deeedb;
+}
+
+.error-icon {
+    color: #b95b50;
+    background: #f8e4df;
+}
+
+/* KPI CARDS */
+
+.health-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin: 36px 0 29px;
+}
+
+.health-kpi {
+    --kpi-color: #426b8a;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
+    padding: 22px 21px 18px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--kpi-color);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
+}
+
+.health-kpi.blue { --kpi-color: #426b8a; }
+.health-kpi.green { --kpi-color: #43835d; }
+.health-kpi.orange { --kpi-color: #a87543; }
+.health-kpi.red { --kpi-color: #b95b50; }
+
+.health-kpi::before {
+    position: absolute;
+    top: -24px;
+    left: 17px;
+    padding: 5px 10px;
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+    background: var(--kpi-color);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .6px;
+}
+
+.health-kpi.blue::before { content: "TOTAL"; }
+.health-kpi.green::before { content: "ACTIVE"; }
+.health-kpi.orange::before { content: "INACTIVE"; }
+.health-kpi.red::before { content: "PAGE"; }
+
+.health-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(38, 59, 53, .07);
+}
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.kpi-label {
+    color: #758176;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.health-kpi .kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #e8e5da;
+    border-radius: 12px;
+    color: var(--kpi-color);
+    background: #f7f6ef;
+    font-size: 17px;
+}
+
+.kpi-value {
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 35px;
+    font-weight: 700;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.kpi-caption {
+    padding-top: 13px;
+    border-top: 1px dashed #e1dccf;
+    color: #818a7e;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+/* MAIN PANEL */
+
+.health-paper-panel {
+    overflow: hidden;
+}
+
+.health-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e9e5d9;
+    background: #fffefa;
+}
+
+.panel-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.panel-title-icon,
+.filter-heading-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #e0e3d7;
+    border-radius: 12px;
+    color: var(--ink);
+    background: #f1f2e8;
+    font-size: 16px;
+}
+
+.panel-title-wrap h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, serif);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.25px;
+}
+
+.panel-title-wrap p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.health-record-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 35px;
+    padding: 8px 12px;
+    border: 1px solid #e4e0d4;
+    border-radius: 9px;
+    color: #6d786d;
+    background: #f8f7f0;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.health-record-count i,
+.health-record-count strong {
+    color: var(--ink);
+}
+
+/* FILTER PANEL */
+
+.health-filter-panel {
+    margin: 0;
+    padding: 23px 24px;
+    border-bottom: 1px solid var(--line);
+    background: #faf9f3;
+}
+
+.filter-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 19px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed #ddd8ca;
+}
+
+.filter-heading-icon {
+    color: #527f70;
+    background: #edf2e9;
+}
+
+.filter-heading h4 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, serif);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.filter-heading p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.health-filter-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(140px, .8fr) minmax(140px, .8fr) minmax(140px, .8fr)
+        minmax(220px, 1.8fr) auto;
+    align-items: end;
+    gap: 16px;
+}
+
+/* Bonafide only has search → simpler grid */
+.bonafide-filter-grid {
+    grid-template-columns: minmax(280px, 1fr) auto;
+}
+
+.diary-filter-group {
+    min-width: 0;
+}
+
+.diary-filter-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #526358;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.diary-control,
+.diary-search-input {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    border: 1px solid #dedfd3;
+    border-radius: 9px;
+    outline: none;
+    color: var(--text);
+    background: #fffefa;
+    font-family: inherit;
+    font-size: 12px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.diary-control {
+    padding: 0 12px;
+    cursor: pointer;
+}
+
+.diary-control:hover,
+.diary-search-input:hover {
+    border-color: #bdcabb;
+}
+
+.diary-control:focus,
+.diary-search-input:focus-within {
+    border-color: #739780;
+    box-shadow: 0 0 0 3px rgba(67, 131, 93, .1);
+}
+
+.diary-search-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 13px;
+}
+
+.diary-search-input > i {
+    flex: 0 0 auto;
+    color: #829083;
+    font-size: 13px;
+}
+
+.diary-search-input input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    color: var(--text);
+    background: transparent;
+    font: inherit;
+}
+
+.diary-search-input input::placeholder {
+    color: #9a9f93;
+}
+
+.diary-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.diary-apply-btn,
+.diary-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 15px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.diary-apply-btn {
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
+}
+
+.diary-apply-btn:hover {
+    transform: translateY(-1px);
+    border-color: #426652;
+    color: #fff;
+    background: #426652;
+    box-shadow: 0 4px 10px rgba(38, 59, 53, .12);
+}
+
+.diary-reset-btn {
+    border-color: #deded2;
+    color: #5d6b60;
+    background: #fffefa;
+}
+
+.diary-reset-btn:hover {
+    border-color: #b5c4b0;
+    color: var(--ink);
+    background: #f0f3e9;
+}
+
+/* ACTIVE FILTERS */
+
+.health-active-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 24px;
+    border-bottom: 1px solid #eeece3;
+    background: #fffefa;
+}
+
+.active-filter-items {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+
+.active-filter-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 3px;
+    color: #758075;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+
+.active-filter-label i {
+    color: var(--green);
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 260px;
+    padding: 6px 10px;
+    overflow-wrap: anywhere;
+    border: 1px solid #e7dfc9;
+    border-radius: 7px;
+    color: #765e32;
+    background: #faf5e8;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.filter-chip i {
+    color: var(--amber);
+}
+
+.filter-result-count {
+    color: #788277;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* RECORDS TABLE */
+
+.health-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.health-table {
+    width: 100%;
+    min-width: 1150px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.health-table thead th {
+    padding: 15px 14px;
+    border-bottom: 1px solid #e2e0d5;
+    color: #637166;
+    background: #f1f2e9;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .65px;
+    white-space: nowrap;
+}
+
+.health-table tbody td {
+    padding: 15px 14px;
+    border-bottom: 1px solid #efede5;
+    color: var(--text);
+    font-size: 11px;
+    vertical-align: middle;
+}
+
+.health-table tbody tr {
+    background: #fffefa;
+    transition: background .18s ease;
+}
+
+.health-table tbody tr:hover {
+    background: #f8f8f1;
+}
+
+.health-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.health-table .actions-heading {
+    text-align: right;
+}
+
+.health-row-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    border: 1px solid #e3e1d6;
+    border-radius: 9px;
+    color: #68776a;
+    background: #f5f4ec;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* STUDENT / CERT INFO */
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 180px;
+}
+
+.student-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border: 1px solid #dce3d8;
+    border-radius: 12px;
+    color: var(--ink);
+    background: #edf1e7;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.student-avatar.cert-avatar {
+    color: var(--blue);
+    background: #edf4f8;
+    border-color: #d9e2e9;
+    font-size: 15px;
+}
+
+.student-details {
+    min-width: 0;
+}
+
+.student-name {
+    max-width: 210px;
+    overflow: hidden;
+    color: #293d32;
+    font-size: 11px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.student-id {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    color: #828c7f;
+    font-size: 10px;
+}
+
+.student-id i {
+    color: var(--amber);
+}
+
+/* CHIPS */
+
+.health-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.health-chip.class-chip {
+    border-color: #dce4d8;
+    color: #477858;
+    background: #edf6e9;
+}
+
+.health-chip.section-chip {
+    border-color: #d9e2e9;
+    color: #426b8a;
+    background: #edf4f8;
+}
+
+/* DATES AND MEASUREMENTS */
+
+.health-date {
+    min-width: 105px;
+}
+
+.date-primary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #34443a;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.date-primary i {
+    color: var(--blue);
+}
+
+.date-caption {
+    margin-top: 5px;
+    color: #879083;
+    font-size: 9px;
+}
+
+.health-measure {
+    color: #34443a;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.reason-text {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    font-weight: 600;
+    color: #5d6b60;
+}
+
+.diary-muted {
+    color: #929a8e;
+    font-size: 12px;
+}
+
+/* HEALTH STATUS */
+
+.health-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.health-status.good {
+    border-color: #d4e5d0;
+    color: #347849;
+    background: #edf6e9;
+}
+
+.health-status.attention {
+    border-color: #e7dfc9;
+    color: #765e32;
+    background: #faf5e8;
+}
+
+.health-status.referred {
+    border-color: #eed6cf;
+    color: #b95b50;
+    background: #fff1ed;
+}
+
+.health-status.unknown {
+    border-color: #e4e0d4;
+    color: #7b857b;
+    background: #f8f7f0;
+}
+
+/* ACTION BUTTONS */
+
+.health-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.health-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid #e2e1d7;
+    border-radius: 9px;
+    color: #657369;
+    background: #fffefa;
+    font-size: 11px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.health-action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.health-action-btn.view:hover {
+    border-color: #cbdce5;
+    color: #426b8a;
+    background: #edf4f8;
+}
+
+.health-action-btn.edit:hover {
+    border-color: #ead7b9;
+    color: #a87543;
+    background: #faf3e6;
+}
+
+.health-action-btn.delete {
+    border-color: #eed6cf;
+    color: #b95b50;
+    background: #fff1ed;
+}
+
+.health-action-btn.delete:hover {
+    border-color: #e0b8ae;
+    color: #fff;
+    background: #b95b50;
+}
+
+/* PAGINATION */
+
+.health-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 17px 22px;
+    border-top: 1px solid #eae6da;
+    background: #fffefa;
+}
+
+.pagination-info {
+    color: #7b857b;
+    font-size: 10px;
+}
+
+.pagination-info strong {
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.pagination-links {
+    min-width: 0;
+}
+
+.pagination-links nav {
+    margin: 0;
+}
+
+.pagination-links .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 0;
+}
+
+.pagination-links .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px !important;
+    color: var(--ink);
+    background: var(--paper);
+    font-size: 11px;
+    box-shadow: none;
+}
+
+.pagination-links .page-link:hover {
+    border-color: #b5c5b0;
+    color: #43835d;
+    background: #f2f4e9;
+}
+
+.pagination-links .page-item.active .page-link {
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
+}
+
+.pagination-links .page-item.disabled .page-link {
+    color: #a9aea5;
+    background: #f7f6f0;
+}
+
+/* FOOTER */
+
+.health-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 55px;
+    padding: 13px 22px;
+    border-top: 1px dashed #ddd7c9;
+    color: #788277;
+    background: #f8f7f0;
+    font-size: 10px;
+}
+
+.health-card-footer strong {
+    color: var(--ink);
+}
+
+.footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #68776a;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.footer-status i {
+    color: #43835d;
+}
+
+/* EMPTY STATE */
+
+.health-empty-state {
+    padding: 65px 20px;
+    text-align: center;
+}
+
+.empty-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 19px;
+    border: 1px solid #e3decc;
+    border-radius: 19px;
+    color: var(--ink);
+    background: var(--chalk);
+    box-shadow: 0 5px 13px rgba(38, 59, 53, .04);
+    font-size: 27px;
+}
+
+.health-empty-state h4 {
+    margin: 0 0 10px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, serif);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.health-empty-state p {
+    max-width: 450px;
+    margin: 0 auto 21px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+.empty-state-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* TABLET */
+
+@media (max-width: 1200px) {
+    .health-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-
-    /* ================= HEADER ================= */
-
-    .page-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
+    .health-filter-grid,
+    .bonafide-filter-grid {
+        grid-template-columns: 1fr;
     }
 
-    .header-icon {
-        width: 38px;
-        height: 38px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        background: rgba(13, 110, 253, .10);
-        color: #0d6efd;
+    .diary-filter-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 900px) {
+    .health-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .health-hero-actions {
+        min-height: 220px;
+    }
+
+    .health-hero-content {
+        padding-top: 29px;
+        padding-bottom: 29px;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+    .bonafide-page .container-fluid {
+        padding: 18px 14px !important;
+    }
+
+    .health-hero {
+        margin-bottom: 34px;
+        border-radius: 12px;
+    }
+
+    .health-hero::before {
+        left: 18px;
+    }
+
+    .health-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 23px 15px 23px 32px;
+    }
+
+    .health-hero-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        border-radius: 11px;
         font-size: 18px;
     }
 
-    .page-header h2 {
-        letter-spacing: -.5px;
+    .health-breadcrumb {
+        gap: 6px;
+        font-size: 8px;
+        letter-spacing: .55px;
     }
 
-    .create-btn {
-        border-radius: 10px;
-        padding: 11px 20px;
-        font-weight: 600;
-        box-shadow: 0 5px 15px rgba(13, 110, 253, .16);
+    .health-hero-text h2 {
+        font-size: 24px;
     }
 
-
-    /* ================= ALERT ================= */
-
-    .custom-alert {
-        border: 0;
-        border-radius: 12px;
-        padding: 15px 18px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, .04);
+    .health-hero-text p {
+        font-size: 11px;
     }
 
-    .alert-icon {
+    .health-hero-note {
+        align-items: flex-start;
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .health-hero-actions {
+        min-height: 205px;
+        padding: 24px 16px;
+    }
+
+    .hero-handwritten {
+        font-size: 21px;
+    }
+
+    .health-kpis {
+        gap: 15px;
+        margin-top: 31px;
+    }
+
+    .health-kpi {
+        gap: 12px;
+        padding: 19px 15px 15px;
+        border-radius: 11px;
+    }
+
+    .health-kpi .kpi-icon {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 15px;
+    }
+
+    .kpi-value {
+        font-size: 29px;
+    }
+
+    .kpi-caption {
+        font-size: 9px;
+    }
+
+    .health-panel-header {
+        align-items: flex-start;
+        padding: 16px;
+    }
+
+    .panel-title-wrap {
+        gap: 10px;
+    }
+
+    .panel-title-icon {
+        flex-basis: 36px;
         width: 36px;
         height: 36px;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 12px;
-        flex-shrink: 0;
     }
 
-    .success-icon {
-        background: rgba(25, 135, 84, .12);
-        color: #198754;
-    }
-
-    .danger-icon {
-        background: rgba(220, 53, 69, .12);
-        color: #dc3545;
-    }
-
-
-    /* ================= SUMMARY CARDS ================= */
-
-    .summary-card {
-        background: #fff;
-        border: 1px solid #e8ebf0;
-        border-radius: 14px;
-        padding: 18px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        min-height: 92px;
-        box-shadow: 0 6px 20px rgba(31, 41, 55, .04);
-        transition: all .2s ease;
-    }
-
-    .summary-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(31, 41, 55, .07);
-    }
-
-    .summary-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 13px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 21px;
-        flex-shrink: 0;
-    }
-
-    .total-icon {
-        background: rgba(13, 110, 253, .10);
-        color: #0d6efd;
-    }
-
-    .active-icon {
-        background: rgba(25, 135, 84, .10);
-        color: #198754;
-    }
-
-    .inactive-icon {
-        background: rgba(108, 117, 125, .10);
-        color: #6c757d;
-    }
-
-    .summary-content {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-
-    .summary-content span {
-        font-size: 12px;
-        color: #667085;
-        margin-bottom: 3px;
-    }
-
-    .summary-content strong {
-        font-size: 23px;
-        line-height: 1;
-        color: #1d2939;
-    }
-
-    .summary-arrow {
-        color: #98a2b3;
+    .panel-title-wrap h3 {
         font-size: 16px;
     }
 
-
-    /* ================= MAIN CARD ================= */
-
-    .certificate-card {
-        background: #fff;
-        border: 1px solid #e8ebf0;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 10px 35px rgba(31, 41, 55, .06);
+    .panel-title-wrap p {
+        font-size: 10px;
     }
 
-
-    /* ================= SEARCH ================= */
-
-    .search-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #edf0f4;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
+    .health-record-count {
+        gap: 5px;
+        padding: 7px 8px;
+        font-size: 9px;
     }
 
-    .search-title-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(13, 110, 253, .09);
-        color: #0d6efd;
+    .health-filter-panel {
+        padding: 17px 15px;
     }
 
-    .search-result-badge {
-        background: #eef5ff;
-        color: #0d6efd;
-        border: 1px solid #dce9ff;
-        border-radius: 50px;
-        padding: 7px 12px;
-        font-size: 12px;
-        font-weight: 600;
+    .filter-heading {
+        align-items: flex-start;
+        gap: 10px;
     }
 
-    .search-body {
-        padding: 20px 24px;
-        background: #fafbfc;
-        border-bottom: 1px solid #edf0f4;
+    .filter-heading-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
     }
 
-    .search-input-wrapper {
-        position: relative;
+    .filter-heading h4 {
+        font-size: 16px;
     }
 
-    .search-input-wrapper > i {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #98a2b3;
-        z-index: 5;
+    .health-filter-grid,
+    .bonafide-filter-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
     }
 
-    .search-input-wrapper .form-control {
-        min-height: 46px;
-        border-radius: 9px;
-        border-color: #dfe4ea;
+    .diary-filter-actions > * {
+        flex: 1;
     }
 
-    .search-input-wrapper .form-control:focus {
-        border-color: #86b7fe;
-        box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .08);
+    .health-active-filters {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px 15px;
     }
 
-    .clear-search {
-        position: absolute;
-        right: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #98a2b3;
-        text-decoration: none;
-        z-index: 5;
+    .filter-result-count {
+        white-space: normal;
     }
 
-    .clear-search:hover {
-        color: #dc3545;
+    .health-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 15px;
     }
 
-    .search-btn,
-    .clear-btn {
-        min-height: 46px;
-        border-radius: 9px;
-        font-weight: 600;
+    .pagination-links {
+        max-width: 100%;
+        overflow-x: auto;
     }
 
-
-    /* ================= TABLE TOPBAR ================= */
-
-    .table-topbar {
-        padding: 18px 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        border-bottom: 1px solid #edf0f4;
+    .health-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 15px;
     }
 
-    .filter-info {
-        font-size: 12px;
-        color: #667085;
-        background: #f8f9fb;
-        border: 1px solid #e8ebf0;
-        padding: 7px 11px;
-        border-radius: 8px;
+    .health-empty-state {
+        padding: 48px 17px;
+    }
+}
+
+@media (max-width: 400px) {
+    .health-kpis {
+        grid-template-columns: 1fr;
     }
 
+    .health-panel-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
 
-    /* ================= TABLE ================= */
+    .health-record-count {
+        margin-left: 46px;
+    }
 
-    .table-container {
+    .diary-filter-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .diary-apply-btn,
+    .diary-reset-btn {
         width: 100%;
     }
 
-    .certificate-table {
-        min-width: 1150px;
+    .active-filter-items {
+        align-items: flex-start;
     }
 
-    .certificate-table thead th {
-        background: #f8f9fb;
-        color: #667085;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-        padding: 14px 12px;
-        border-bottom: 1px solid #e8ebf0;
-        white-space: nowrap;
+    .filter-chip {
+        max-width: 100%;
     }
+}
 
-    .certificate-table tbody td {
-        padding: 15px 12px;
-        border-bottom: 1px solid #f0f2f5;
-        font-size: 13px;
-        color: #344054;
+/* ACCESSIBILITY */
+
+.bonafide-page a:focus-visible,
+.bonafide-page button:focus-visible,
+.bonafide-page input:focus-visible,
+.bonafide-page select:focus-visible {
+    outline: 2px solid #648b72;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bonafide-page *,
+    .bonafide-page *::before,
+    .bonafide-page *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
     }
-
-    .certificate-table tbody tr {
-        transition: background-color .15s ease;
-    }
-
-    .certificate-table tbody tr:hover {
-        background: #fbfcff;
-    }
-
-    .certificate-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-
-    /* Row number */
-
-    .row-number {
-        color: #98a2b3;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-
-    /* Certificate */
-
-    .certificate-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .certificate-mini-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: rgba(13, 110, 253, .09);
-        color: #0d6efd;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .certificate-number {
-        color: #0d6efd;
-        font-weight: 700;
-        font-size: 13px;
-    }
-
-
-    /* Student */
-
-    .student-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 190px;
-    }
-
-    .student-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: #eef3f8;
-        color: #475467;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: 700;
-        flex-shrink: 0;
-    }
-
-    .student-name {
-        color: #344054;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-
-    /* Student ID */
-
-    .student-id {
-        font-family: monospace;
-        background: #f8f9fb;
-        border: 1px solid #edf0f4;
-        padding: 5px 8px;
-        border-radius: 6px;
-        font-size: 12px;
-    }
-
-
-    /* Class */
-
-    .class-badge {
-        background: #f8f9fb;
-        border: 1px solid #e8ebf0;
-        color: #475467;
-        padding: 5px 9px;
-        border-radius: 7px;
-        font-size: 12px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-
-    /* Date */
-
-    .date-info {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        white-space: nowrap;
-    }
-
-    .date-info i {
-        color: #98a2b3;
-    }
-
-
-    /* Reason */
-
-    .reason-column {
-        min-width: 210px;
-        max-width: 250px;
-    }
-
-    .reason-text {
-        display: block;
-        color: #667085;
-        line-height: 1.5;
-        cursor: default;
-    }
-
-
-    /* Status */
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 6px 10px;
-        border-radius: 50px;
-        font-size: 11px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .status-badge i {
-        font-size: 6px;
-    }
-
-    .active-status {
-        background: #ecfdf3;
-        color: #027a48;
-        border: 1px solid #d1fadf;
-    }
-
-    .inactive-status {
-        background: #f2f4f7;
-        color: #667085;
-        border: 1px solid #e4e7ec;
-    }
-
-
-    /* ================= ACTIONS ================= */
-
-    .action-buttons {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-    }
-
-    .action-buttons form {
-        margin: 0;
-    }
-
-    .action-btn {
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        border: 1px solid transparent;
-        background: #fff;
-        transition: all .15s ease;
-        font-size: 14px;
-    }
-
-    .view-action {
-        color: #0d6efd;
-        border-color: #d9e7ff;
-        background: #f5f9ff;
-    }
-
-    .view-action:hover {
-        background: #0d6efd;
-        color: #fff;
-    }
-
-    .edit-action {
-        color: #b78103;
-        border-color: #f4dfaa;
-        background: #fffaf0;
-    }
-
-    .edit-action:hover {
-        background: #f0ad00;
-        color: #fff;
-    }
-
-    .delete-action {
-        color: #dc3545;
-        border-color: #f3c5ca;
-        background: #fff6f7;
-    }
-
-    .delete-action:hover {
-        background: #dc3545;
-        color: #fff;
-    }
-
-
-    /* ================= EMPTY STATE ================= */
-
-    .empty-state {
-        padding: 70px 20px;
-        text-align: center;
-    }
-
-    .empty-icon {
-        width: 76px;
-        height: 76px;
-        margin: 0 auto 18px;
-        border-radius: 20px;
-        background: #f5f7fa;
-        color: #98a2b3;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-    }
-
-    .empty-state p {
-        max-width: 430px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-
-    /* ================= PAGINATION ================= */
-
-    .pagination-footer {
-        padding: 18px 24px;
-        border-top: 1px solid #edf0f4;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .pagination-info {
-        color: #667085;
-        font-size: 12px;
-    }
-
-    .pagination-wrapper .pagination {
-        margin-bottom: 0;
-    }
-
-    .pagination-wrapper .page-link {
-        border-radius: 7px;
-        margin-left: 4px;
-        border-color: #e4e7ec;
-        color: #475467;
-    }
-
-    .pagination-wrapper .page-item.active .page-link {
-        background: #0d6efd;
-        border-color: #0d6efd;
-        color: #fff;
-    }
-
-
-    /* ================= RESPONSIVE ================= */
-
-    @media (max-width: 767.98px) {
-
-        .page-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .create-btn {
-            width: 100%;
-        }
-
-        .summary-card {
-            min-height: 82px;
-        }
-
-        .search-header {
-            align-items: flex-start;
-            flex-direction: column;
-            padding: 18px;
-        }
-
-        .search-body {
-            padding: 18px;
-        }
-
-        .table-topbar {
-            align-items: flex-start;
-            flex-direction: column;
-            padding: 16px 18px;
-        }
-
-        .pagination-footer {
-            padding: 18px;
-        }
-
-    }
-
+}
 </style>
 
 @endsection

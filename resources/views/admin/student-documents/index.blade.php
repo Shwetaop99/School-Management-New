@@ -1,1254 +1,147 @@
 @extends('layouts.app')
 
+@section('title', 'Document Center | Admin')
+@section('page-title', 'Document Center')
+
 @section('content')
 
-<style>
-
-/* =========================================================
-   DOCUMENT CENTER PAGE
-========================================================= */
-
-.documents-page {
-    background:
-        radial-gradient(circle at 5% 10%, rgba(59,115,209,.035), transparent 25%),
-        radial-gradient(circle at 95% 20%, rgba(19,161,200,.035), transparent 25%),
-        #f6f8fc;
-
-    min-height: calc(100vh - 70px);
-    padding: 28px;
-}
-
-
-/* =========================================================
-   WELCOME HERO
-========================================================= */
-
-.documents-welcome {
-    position: relative;
-    overflow: hidden;
-
-    min-height: 175px;
-    padding: 30px 34px;
-    margin-bottom: 24px;
-
-    border-radius: 22px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #1557c0 0%,
-            #087fca 48%,
-            #13a1c8 100%
-        );
-
-    color: #fff;
-
-    box-shadow:
-        0 14px 35px rgba(21,87,192,.17);
-}
-
-.documents-welcome::after {
-    content: "";
-
-    position: absolute;
-
-    width: 330px;
-    height: 330px;
-
-    right: -110px;
-    top: -190px;
-
-    border-radius: 50%;
-
-    border: 1px solid rgba(255,255,255,.08);
-}
-
-.documents-welcome-content {
-    position: relative;
-    z-index: 5;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 25px;
-}
-
-.documents-welcome-left {
-    display: flex;
-    align-items: center;
-
-    gap: 20px;
-}
-
-.documents-welcome-icon {
-    width: 66px;
-    height: 66px;
-    min-width: 66px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 18px;
-
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.22);
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.18),
-        0 8px 20px rgba(0,0,0,.08);
-
-    font-size: 28px;
-
-    backdrop-filter: blur(8px);
-
-    transition:
-        transform .25s ease,
-        background .25s ease;
-}
-
-.documents-welcome:hover .documents-welcome-icon {
-    transform: translateY(-3px) rotate(-2deg);
-    background: rgba(255,255,255,.19);
-}
-
-.documents-welcome h2 {
-    margin: 0 0 7px;
-
-    font-size: 29px;
-    font-weight: 800;
-
-    letter-spacing: -.5px;
-}
-
-.documents-welcome p {
-    margin: 0;
-
-    color: rgba(255,255,255,.90);
-
-    font-size: 14px;
-}
-
-.welcome-badge {
-    display: inline-flex;
-    align-items: center;
-
-    gap: 7px;
-
-    margin-top: 14px;
-    padding: 7px 13px;
-
-    border-radius: 20px;
-
-    background: rgba(255,255,255,.13);
-    border: 1px solid rgba(255,255,255,.16);
-
-    color: rgba(255,255,255,.95);
-
-    font-size: 11px;
-    font-weight: 700;
-
-    backdrop-filter: blur(5px);
-}
-
-.welcome-badge i {
-    font-size: 13px;
-}
-
-
-/* =========================================================
-   WELCOME DECORATIONS
-========================================================= */
-
-.documents-welcome-decoration {
-    position: absolute;
-
-    border-radius: 50%;
-
-    background: rgba(255,255,255,.07);
-
-    pointer-events: none;
-}
-
-.welcome-circle-one {
-    width: 250px;
-    height: 250px;
-
-    right: -75px;
-    top: -150px;
-}
-
-.welcome-circle-two {
-    width: 180px;
-    height: 180px;
-
-    right: 150px;
-    bottom: -135px;
-}
-
-.welcome-circle-three {
-    width: 80px;
-    height: 80px;
-
-    right: 60px;
-    bottom: 20px;
-
-    background: rgba(255,255,255,.05);
-}
-
-
-/* =========================================================
-   WELCOME SIDE CARD
-========================================================= */
-
-.welcome-side-card {
-    position: relative;
-    z-index: 5;
-
-    min-width: 205px;
-
-    padding: 15px 18px;
-
-    border-radius: 15px;
-
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.16);
-
-    backdrop-filter: blur(8px);
-
-    transition:
-        transform .25s ease,
-        background .25s ease;
-}
-
-.welcome-side-card:hover {
-    transform: translateY(-3px);
-    background: rgba(255,255,255,.16);
-}
-
-.welcome-side-label {
-    display: block;
-
-    color: rgba(255,255,255,.70);
-
-    font-size: 10px;
-    font-weight: 700;
-
-    text-transform: uppercase;
-    letter-spacing: .8px;
-
-    margin-bottom: 4px;
-}
-
-.welcome-side-title {
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
-
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.welcome-side-title i {
-    font-size: 17px;
-}
-
-
-/* =========================================================
-   QUICK STAT CARDS
-========================================================= */
-
-.document-stat-card {
-    position: relative;
-    overflow: hidden;
-
-    min-height: 112px;
-
-    padding: 20px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 15px;
-
-    background: rgba(255,255,255,.96);
-
-    border: 1px solid #e8edf4;
-    border-radius: 17px;
-
-    box-shadow:
-        0 5px 18px rgba(31,41,55,.045);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease,
-        border-color .25s ease;
-}
-
-.document-stat-card:hover {
-    transform: translateY(-5px);
-
-    box-shadow:
-        0 14px 30px rgba(31,41,55,.09);
-
-    border-color: #dce5f0;
-}
-
-.document-stat-card::after {
-    content: "";
-
-    position: absolute;
-
-    width: 85px;
-    height: 85px;
-
-    right: -30px;
-    bottom: -35px;
-
-    border-radius: 50%;
-
-    background: rgba(59,115,209,.045);
-
-    transition:
-        transform .3s ease;
-}
-
-.document-stat-card:hover::after {
-    transform: scale(1.2);
-}
-
-.document-stat-icon {
-    position: relative;
-    z-index: 2;
-
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 14px;
-
-    font-size: 22px;
-
-    transition:
-        transform .25s ease;
-}
-
-.document-stat-card:hover .document-stat-icon {
-    transform: scale(1.08);
-}
-
-.stat-blue .document-stat-icon {
-    background: #eaf1ff;
-    color: #3972ce;
-}
-
-.stat-green .document-stat-icon {
-    background: #eaf7f1;
-    color: #3c9674;
-}
-
-.stat-orange .document-stat-icon {
-    background: #fff4e7;
-    color: #c9863d;
-}
-
-.stat-purple .document-stat-icon {
-    background: #f2efff;
-    color: #7565bd;
-}
-
-.document-stat-content {
-    position: relative;
-    z-index: 2;
-}
-
-.document-stat-number {
-    color: #26364a;
-
-    font-size: 25px;
-    line-height: 1.1;
-
-    font-weight: 800;
-}
-
-.document-stat-label {
-    margin-top: 5px;
-
-    color: #7b8794;
-
-    font-size: 12px;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   SECTION HEADER
-========================================================= */
-
-.documents-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-top: 28px;
-    margin-bottom: 16px;
-}
-
-.documents-section-title {
-    display: flex;
-    align-items: center;
-
-    gap: 11px;
-}
-
-.documents-section-title-icon {
-    width: 38px;
-    height: 38px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 10px;
-
-    background: #eaf1ff;
-    color: #3b73d1;
-
-    font-size: 17px;
-}
-
-.documents-section-title h4 {
-    margin: 0;
-
-    color: #26364a;
-
-    font-size: 18px;
-    font-weight: 750;
-}
-
-.documents-section-title p {
-    margin: 2px 0 0;
-
-    color: #8a95a3;
-
-    font-size: 11px;
-}
-
-.documents-count {
-    padding: 6px 11px;
-
-    border-radius: 20px;
-
-    background: #fff;
-
-    border: 1px solid #e3e9f1;
-
-    color: #6e7c8f;
-
-    font-size: 11px;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   DOCUMENT CARDS
-========================================================= */
-
-.document-card {
-    position: relative;
-    overflow: hidden;
-
-    background: #fff;
-
-    border: 1px solid #e6ebf2;
-    border-radius: 19px;
-
-    padding: 24px;
-
-    min-height: 305px;
-    height: 100%;
-
-    box-shadow:
-        0 5px 18px rgba(31,41,55,.045);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease,
-        border-color .25s ease;
-}
-
-.document-card:hover {
-    transform: translateY(-7px);
-
-    border-color: #d7e1ee;
-
-    box-shadow:
-        0 16px 34px rgba(31,41,55,.10);
-}
-
-.document-card::before {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    top: 0;
-
-    width: 100%;
-    height: 4px;
-
-    background: #dbe8ff;
-
-    transition: height .25s ease;
-}
-
-.document-card:hover::before {
-    height: 5px;
-}
-
-.document-card::after {
-    content: "";
-
-    position: absolute;
-
-    width: 120px;
-    height: 120px;
-
-    right: -55px;
-    bottom: -65px;
-
-    border-radius: 50%;
-
-    background: rgba(59,115,209,.035);
-
-    transition:
-        transform .3s ease;
-}
-
-.document-card:hover::after {
-    transform: scale(1.15);
-}
-
-.document-card-inner {
-    position: relative;
-    z-index: 2;
-
-    height: 100%;
-
-    display: flex;
-    flex-direction: column;
-}
-
-
-/* =========================================================
-   DOCUMENT ICON
-========================================================= */
-
-.document-icon {
-    width: 58px;
-    height: 58px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 16px;
-
-    margin-bottom: 17px;
-
-    font-size: 25px;
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease;
-}
-
-.document-card:hover .document-icon {
-    transform: scale(1.07);
-
-    box-shadow:
-        0 8px 18px rgba(0,0,0,.06);
-}
-
-
-/* =========================================================
-   LABEL
-========================================================= */
-
-.document-label {
-    display: inline-flex;
-    align-items: center;
-
-    width: fit-content;
-
-    gap: 5px;
-
-    padding: 5px 10px;
-
-    margin-bottom: 11px;
-
-    border-radius: 20px;
-
-    background: #f3f6fa;
-
-    color: #738094;
-
-    font-size: 10px;
-    font-weight: 700;
-
-    text-transform: uppercase;
-    letter-spacing: .3px;
-}
-
-.document-label i {
-    font-size: 11px;
-}
-
-
-/* =========================================================
-   DOCUMENT TEXT
-========================================================= */
-
-.document-card h5 {
-    margin-bottom: 8px;
-
-    color: #2d3b4f;
-
-    font-size: 17px;
-    font-weight: 750;
-}
-
-.document-card p {
-    min-height: 45px;
-
-    margin-bottom: 20px;
-
-    color: #7b8794;
-
-    font-size: 12.5px;
-    line-height: 1.65;
-}
-
-
-/* =========================================================
-   DOCUMENT BUTTON
-========================================================= */
-
-.document-button {
-    position: relative;
-    z-index: 3;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    width: 100%;
-    height: 43px;
-
-    padding: 0 15px;
-
-    margin-top: auto;
-
-    border-radius: 10px;
-
-    background: #f3f6fa;
-
-    border: 1px solid #e1e8f0;
-
-    color: #45627f;
-
-    text-decoration: none;
-
-    font-size: 12.5px;
-    font-weight: 700;
-
-    transition:
-        all .2s ease;
-}
-
-.document-button:hover {
-    background: #e8f0ff;
-
-    border-color: #d2e0f7;
-
-    color: #3569b7;
-}
-
-.document-button i {
-    font-size: 15px;
-
-    transition:
-        transform .2s ease;
-}
-
-.document-button:hover i {
-    transform: translateX(4px);
-}
-
-
-/* =========================================================
-   BONAFIDE
-========================================================= */
-
-.bonafide .document-icon {
-    background: #edf7f3;
-    color: #3d9273;
-}
-
-.bonafide::before {
-    background: #d8eee5;
-}
-
-.bonafide:hover {
-    border-color: #d5e9e0;
-}
-
-.bonafide .document-button:hover {
-    background: #edf8f3;
-    border-color: #d5eade;
-    color: #398468;
-}
-
-
-/* =========================================================
-   LEAVING
-========================================================= */
-
-.leaving .document-icon {
-    background: #fff5e9;
-    color: #c8873e;
-}
-
-.leaving::before {
-    background: #f7e4c8;
-}
-
-.leaving:hover {
-    border-color: #f0dfc8;
-}
-
-.leaving .document-button:hover {
-    background: #fff8ef;
-    border-color: #f1dfc7;
-    color: #b87834;
-}
-
-
-/* =========================================================
-   CASTE REPORT
-========================================================= */
-
-.caste-report .document-icon {
-    background: #f2efff;
-    color: #7565bd;
-}
-
-.caste-report::before {
-    background: #e1dcf7;
-}
-
-.caste-report:hover {
-    border-color: #dfdaf2;
-}
-
-.caste-report .document-button:hover {
-    background: #f5f2ff;
-    border-color: #dfd9f5;
-    color: #6959ae;
-}
-
-
-/* =========================================================
-   AGE
-========================================================= */
-
-.age .document-icon {
-    background: #edf5ff;
-    color: #4d83bd;
-}
-
-.age::before {
-    background: #d8e8f8;
-}
-
-.age:hover {
-    border-color: #d7e5f2;
-}
-
-.age .document-button:hover {
-    background: #edf5ff;
-    border-color: #d7e6f6;
-    color: #4275aa;
-}
-
-
-/* =========================================================
-   DISABLED
-========================================================= */
-
-.document-button.disabled {
-    cursor: not-allowed;
-    opacity: .60;
-}
-
-.document-button.disabled:hover {
-    background: #f3f6fa;
-    border-color: #e1e8f0;
-    color: #45627f;
-}
-
-.document-button.disabled:hover i {
-    transform: none;
-}
-
-
-/* =========================================================
-   INFORMATION CARD
-========================================================= */
-
-.document-info-card {
-    margin-top: 25px;
-
-    padding: 20px 22px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 15px;
-
-    background: #fff;
-
-    border: 1px solid #e7ecf3;
-    border-radius: 15px;
-
-    box-shadow:
-        0 4px 15px rgba(31,41,55,.035);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease;
-}
-
-.document-info-card:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 9px 22px rgba(31,41,55,.065);
-}
-
-.document-info-icon {
-    width: 42px;
-    height: 42px;
-    min-width: 42px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 11px;
-
-    background: #edf4ff;
-    color: #4b7fd0;
-
-    font-size: 18px;
-}
-
-.document-info-card h6 {
-    margin: 0 0 3px;
-
-    color: #334155;
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.document-info-card p {
-    margin: 0;
-
-    color: #8792a1;
-
-    font-size: 11px;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media(max-width: 991px) {
-
-    .documents-page {
-        padding: 22px;
-    }
-
-    .documents-welcome {
-        padding: 27px;
-    }
-
-    .welcome-side-card {
-        display: none;
-    }
-}
-
-
-@media(max-width: 767px) {
-
-    .documents-page {
-        padding: 17px;
-    }
-
-    .documents-welcome {
-        min-height: auto;
-        padding: 25px;
-    }
-
-    .documents-welcome-left {
-        align-items: flex-start;
-    }
-
-    .documents-welcome-icon {
-        width: 55px;
-        height: 55px;
-        min-width: 55px;
-
-        font-size: 23px;
-    }
-
-    .documents-welcome h2 {
-        font-size: 23px;
-    }
-
-    .documents-welcome p {
-        font-size: 12px;
-    }
-
-    .document-card {
-        min-height: auto;
-    }
-}
-
-
-@media(max-width: 575px) {
-
-    .documents-page {
-        padding: 12px;
-    }
-
-    .documents-welcome {
-        padding: 21px;
-        border-radius: 17px;
-    }
-
-    .documents-welcome-left {
-        gap: 13px;
-    }
-
-    .documents-welcome-icon {
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-
-        border-radius: 13px;
-
-        font-size: 20px;
-    }
-
-    .documents-welcome h2 {
-        font-size: 20px;
-    }
-
-    .documents-welcome p {
-        font-size: 11px;
-    }
-
-    .welcome-badge {
-        font-size: 9px;
-    }
-
-    .document-stat-card {
-        min-height: 95px;
-        padding: 16px;
-    }
-
-    .document-stat-icon {
-        width: 45px;
-        height: 45px;
-        min-width: 45px;
-
-        border-radius: 12px;
-
-        font-size: 19px;
-    }
-
-    .document-stat-number {
-        font-size: 22px;
-    }
-
-    .documents-section-header {
-        align-items: flex-start;
-    }
-
-    .documents-count {
-        display: none;
-    }
-
-    .document-card {
-        padding: 21px;
-    }
-
-    .document-info-card {
-        align-items: flex-start;
-    }
-}
-
-</style>
-
-
 <div class="documents-page">
+    <div class="container-fluid py-4">
 
-
-    {{-- =====================================================
-         WELCOME HERO
-    ====================================================== --}}
-
-    <div class="documents-welcome">
-
-        <div class="documents-welcome-content">
-
-            <div class="documents-welcome-left">
-
-                <div class="documents-welcome-icon">
-                    <i class="bi bi-folder2-open"></i>
+        {{-- HERO --}}
+        <section class="documents-hero">
+            <div class="documents-hero-content">
+                <div class="documents-hero-icon">
+                    <i class="fas fa-folder-open"></i>
                 </div>
 
-                <div>
+                <div class="documents-hero-text">
+                    <div class="documents-breadcrumb">
+                        <span>Student Management</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Document Center</span>
+                    </div>
 
-                    <h2>
-                        Student Document Center
-                    </h2>
+                    <h2>Student Document Center</h2>
 
                     <p>
-                        Manage certificates, reports and official student documents
-                        from one place.
+                        Manage certificates, reports and official student
+                        documents from one place.
                     </p>
 
-                    <span class="welcome-badge">
-                        <i class="bi bi-shield-check"></i>
-                        Official School Documents
-                    </span>
-
+                    <div class="documents-hero-note">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Official School Documents &amp; Records</span>
+                    </div>
                 </div>
-
             </div>
 
-
-            <div class="welcome-side-card">
-
-                <span class="welcome-side-label">
-                    Document Management
-                </span>
-
-                <div class="welcome-side-title">
-
-                    <i class="bi bi-file-earmark-check"></i>
-
-                    Ready to generate
-
+            <div class="documents-hero-actions">
+                <div class="hero-decoration">
+                    <i class="fas fa-file-circle-check"></i>
                 </div>
 
-            </div>
-
-        </div>
-
-
-        <div class="documents-welcome-decoration welcome-circle-one"></div>
-        <div class="documents-welcome-decoration welcome-circle-two"></div>
-        <div class="documents-welcome-decoration welcome-circle-three"></div>
-
-    </div>
-
-
-    {{-- =====================================================
-         QUICK STATISTICS
-    ====================================================== --}}
-
-    <div class="row g-3">
-
-        {{-- Available --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-
-            <div class="document-stat-card stat-blue">
-
-                <div class="document-stat-icon">
-                    <i class="bi bi-files"></i>
-                </div>
-
-                <div class="document-stat-content">
-
-                    <div class="document-stat-number">
-                        4
-                    </div>
-
-                    <div class="document-stat-label">
-                        Document Modules
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Certificate --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-
-            <div class="document-stat-card stat-green">
-
-                <div class="document-stat-icon">
-                    <i class="bi bi-patch-check"></i>
-                </div>
-
-                <div class="document-stat-content">
-
-                    <div class="document-stat-number">
-                        2
-                    </div>
-
-                    <div class="document-stat-label">
-                        Certificate Types
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Reports --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-
-            <div class="document-stat-card stat-orange">
-
-                <div class="document-stat-icon">
-                    <i class="bi bi-bar-chart"></i>
-                </div>
-
-                <div class="document-stat-content">
-
-                    <div class="document-stat-number">
-                        2
-                    </div>
-
-                    <div class="document-stat-label">
-                        Report Types
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Print --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-
-            <div class="document-stat-card stat-purple">
-
-                <div class="document-stat-icon">
-                    <i class="bi bi-printer"></i>
-                </div>
-
-                <div class="document-stat-content">
-
-                    <div class="document-stat-number">
-                        A4
-                    </div>
-
-                    <div class="document-stat-label">
-                        Print Ready
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         DOCUMENT SECTION HEADER
-    ====================================================== --}}
-
-    <div class="documents-section-header">
-
-        <div class="documents-section-title">
-
-            <div class="documents-section-title-icon">
-                <i class="bi bi-grid-1x2"></i>
-            </div>
-
-            <div>
-
-                <h4>
-                    Document Services
-                </h4>
+                <div class="hero-handwritten">Ready to generate.</div>
 
                 <p>
-                    Select a service to manage student documents
+                    Every document matters. Search a student, generate the
+                    certificate and prepare it for printing.
                 </p>
 
+                <a href="#documentServices" class="diary-primary-btn">
+                    <i class="fas fa-th-large"></i>
+                    View Services
+                </a>
+            </div>
+        </section>
+
+        {{-- KPI CARDS --}}
+        <section class="documents-kpis">
+
+            <article class="documents-kpi blue">
+                <div class="kpi-top">
+                    <span class="kpi-label">Document Modules</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-copy"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">4</div>
+                <div class="kpi-caption">Available document services</div>
+            </article>
+
+            <article class="documents-kpi green">
+                <div class="kpi-top">
+                    <span class="kpi-label">Certificate Types</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-certificate"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">2</div>
+                <div class="kpi-caption">Bonafide and leaving certificates</div>
+            </article>
+
+            <article class="documents-kpi orange">
+                <div class="kpi-top">
+                    <span class="kpi-label">Report Types</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">2</div>
+                <div class="kpi-caption">Caste and age reports</div>
+            </article>
+
+            <article class="documents-kpi red">
+                <div class="kpi-top">
+                    <span class="kpi-label">Print Format</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-print"></i>
+                    </span>
+                </div>
+                <div class="kpi-value">A4</div>
+                <div class="kpi-caption">Documents are print ready</div>
+            </article>
+
+        </section>
+
+        {{-- MAIN PANEL --}}
+        <section class="documents-paper-panel" id="documentServices">
+
+            <div class="documents-panel-header">
+                <div class="panel-title-wrap">
+                    <div class="panel-title-icon">
+                        <i class="fas fa-th-large"></i>
+                    </div>
+                    <div>
+                        <h3>Document Services</h3>
+                        <p>Select a service to manage student documents.</p>
+                    </div>
+                </div>
+
+                <div class="documents-record-count">
+                    <i class="fas fa-folder-open"></i>
+                    <strong>4</strong>
+                    Services
+                </div>
             </div>
 
-        </div>
+            {{-- SERVICE CARDS --}}
+            <div class="documents-grid">
 
+                {{-- BONAFIDE CERTIFICATE --}}
+                <article class="document-card green">
+                    <div class="document-card-top">
+                        <span class="document-icon">
+                            <i class="fas fa-id-card"></i>
+                        </span>
 
-        <span class="documents-count">
-            4 Services
-        </span>
-
-    </div>
-
-
-    {{-- =====================================================
-         DOCUMENT CARDS
-    ====================================================== --}}
-
-    <div class="row g-4">
-
-
-        {{-- =================================================
-             BONAFIDE CERTIFICATE
-        ================================================== --}}
-
-        <div class="col-xl-3 col-lg-6 col-md-6">
-
-            <div class="document-card bonafide">
-
-                <div class="document-card-inner">
-
-                    <div class="document-icon">
-                        <i class="bi bi-file-earmark-person"></i>
+                        <span class="document-label">
+                            <i class="fas fa-certificate"></i>
+                            Certificate
+                        </span>
                     </div>
 
-                    <span class="document-label">
-                        <i class="bi bi-patch-check"></i>
-                        Certificate
-                    </span>
-
-                    <h5>
-                        Bonafide Certificate
-                    </h5>
+                    <h5>Bonafide Certificate</h5>
 
                     <p>
                         Search a student and generate a professional
@@ -1257,44 +150,25 @@
 
                     <a href="{{ route('admin.bonafide.index') }}"
                        class="document-button">
+                        <span>Open Bonafide</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
 
-                        <span>
-                            Open Bonafide
+                {{-- LEAVING CERTIFICATE --}}
+                <article class="document-card orange">
+                    <div class="document-card-top">
+                        <span class="document-icon">
+                            <i class="fas fa-file-alt"></i>
                         </span>
 
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             LEAVING CERTIFICATE
-        ================================================== --}}
-
-        <div class="col-xl-3 col-lg-6 col-md-6">
-
-            <div class="document-card leaving">
-
-                <div class="document-card-inner">
-
-                    <div class="document-icon">
-                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="document-label">
+                            <i class="fas fa-file-signature"></i>
+                            Certificate
+                        </span>
                     </div>
 
-                    <span class="document-label">
-                        <i class="bi bi-file-text"></i>
-                        Certificate
-                    </span>
-
-                    <h5>
-                        Leaving Certificate
-                    </h5>
+                    <h5>Leaving Certificate</h5>
 
                     <p>
                         Search a student and create an official
@@ -1303,130 +177,924 @@
 
                     <a href="{{ route('admin.school-leaving-certificate.index') }}"
                        class="document-button">
+                        <span>Create Certificate</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
 
-                        <span>
-                            Create Certificate
+                {{-- CASTE REPORT --}}
+                <article class="document-card blue">
+                    <div class="document-card-top">
+                        <span class="document-icon">
+                            <i class="fas fa-chart-pie"></i>
                         </span>
 
-                        <i class="bi bi-arrow-right"></i>
+                        <span class="document-label">
+                            <i class="fas fa-chart-bar"></i>
+                            Report
+                        </span>
+                    </div>
 
+                    <h5>Caste Report</h5>
+
+                    <p>
+                        View class-wise caste, boys and girls
+                        summary for active students.
+                    </p>
+
+                    <a href="{{ route('admin.caste-report.index') }}"
+                       class="document-button">
+                        <span>View Report</span>
+                        <i class="fas fa-arrow-right"></i>
                     </a>
+                </article>
 
-                </div>
+                {{-- AGE REPORT --}}
+                <article class="document-card sage">
+                    <div class="document-card-top">
+                        <span class="document-icon">
+                            <i class="far fa-calendar-alt"></i>
+                        </span>
+
+                        <span class="document-label">
+                            <i class="fas fa-users"></i>
+                            Report
+                        </span>
+                    </div>
+
+                    <h5>Age Report</h5>
+
+                    <p>
+                        Generate class-wise student age report
+                        using date of birth.
+                    </p>
+
+                    <a href="{{ route('admin.age-report.index') }}"
+                       class="document-button">
+                        <span>View Report</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
 
             </div>
 
-        </div>
-
-
-{{-- =================================================
-     CASTE / CATEGORY REPORT
-================================================== --}}
-<div class="col-xl-3 col-lg-6 col-md-6">
-    <div class="document-card caste-report">
-        <div class="document-card-inner">
-            <div class="document-icon">
-                <i class="bi bi-bar-chart-fill"></i>
-            </div>
-
-            <span class="document-label">
-                <i class="bi bi-pie-chart"></i>
-                Report
-            </span>
-
-            <h5>Caste Report</h5>
-
-            <p>
-                View class-wise caste, boys and girls
-                summary for active students.
-            </p>
-
-            <a href="{{ route('admin.caste-report.index') }}"
-               class="document-button">
-                <span>View Report</span>
-                <i class="bi bi-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
-
-
-
-{{-- =================================================
-     AGE REPORT
-================================================== --}}
-
-<div class="col-xl-3 col-lg-6 col-md-6">
-
-    <div class="document-card age">
-
-        <div class="document-card-inner">
-
-            <div class="document-icon">
-                <i class="bi bi-calendar3"></i>
-            </div>
-
-            <span class="document-label">
-                <i class="bi bi-people"></i>
-                Report
-            </span>
-
-            <h5>
-                Age Report
-            </h5>
-
-            <p>
-                Generate class-wise student age report
-                using date of birth.
-            </p>
-
-            <a href="{{ route('admin.age-report.index') }}"
-               class="document-button">
-
-                <span>
-                    View Report
+            {{-- INFORMATION BAR --}}
+            <div class="documents-info-bar">
+                <span class="documents-info-icon">
+                    <i class="fas fa-info-circle"></i>
                 </span>
 
-                <i class="bi bi-arrow-right"></i>
+                <div>
+                    <h6>Document Management</h6>
+                    <p>
+                        Use the available services above to search students,
+                        generate official documents and prepare them for printing.
+                    </p>
+                </div>
+            </div>
 
-            </a>
+            {{-- FOOTER --}}
+            <div class="documents-card-footer">
+                <div>
+                    Showing <strong>4</strong> document service(s)
+                </div>
+                <div class="footer-status">
+                    <i class="fas fa-circle-check"></i>
+                    All services available
+                </div>
+            </div>
 
-        </div>
-
+        </section>
     </div>
-
 </div>
 
+<style>
+/* ==========================================================
+   DOCUMENT CENTER — SCHOOL DIARY DESIGN SYSTEM
+   Premium editorial dashboard | Responsive | Accessible
+========================================================== */
 
-    </div>
+.documents-page {
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --ink-soft: #40574a;
+    --text: #39483e;
+    --muted: #7b857b;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --chalk: #f5f3e9;
+    --sage: #527f70;
+    --blue: #426b8a;
+    --amber: #a87543;
+    --green: #43835d;
+    --red: #b95b50;
 
+    min-height: calc(100vh - 70px);
+    color: var(--text);
+    background: #f7f6f0;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 13px;
+}
 
-    {{-- =====================================================
-         INFORMATION BAR
-    ====================================================== --}}
+.documents-page *,
+.documents-page *::before,
+.documents-page *::after {
+    box-sizing: border-box;
+}
 
-    <div class="document-info-card">
+.documents-page a,
+.documents-page button {
+    transition: color .2s ease, background .2s ease,
+        border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
 
-        <div class="document-info-icon">
-            <i class="bi bi-info-circle"></i>
-        </div>
+.documents-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
+    padding-right: 24px;
+    padding-left: 24px;
+}
 
-        <div>
+.documents-hero,
+.documents-paper-panel {
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: var(--paper);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
+}
 
-            <h6>
-                Document Management
-            </h6>
+/* HERO */
 
-            <p>
-                Use the available services above to search students,
-                generate official documents and prepare them for printing.
-            </p>
+.documents-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(290px, .85fr);
+    overflow: hidden;
+    margin-bottom: 36px;
+}
 
-        </div>
+.documents-hero::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 28px;
+    width: 2px;
+    background: #dfb4a5;
+    content: "";
+}
 
-    </div>
+.documents-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 21px;
+    min-width: 0;
+    padding: 35px 30px 35px 51px;
+}
 
+.documents-hero-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border: 1px solid #e2ddcf;
+    border-radius: 16px;
+    color: var(--ink);
+    background: var(--chalk);
+    box-shadow: 0 3px 10px rgba(38, 59, 53, .04);
+    font-size: 25px;
+}
 
-</div>
+.documents-hero-text {
+    min-width: 0;
+}
+
+.documents-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 11px;
+    color: #858d80;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+.documents-breadcrumb i {
+    color: #b1a895;
+    font-size: 9px;
+}
+
+.documents-hero-text h2 {
+    margin: 0 0 11px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: clamp(26px, 2.2vw, 34px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.7px;
+}
+
+.documents-hero-text p {
+    max-width: 540px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.documents-hero-note {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    color: #477858;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .15px;
+}
+
+.documents-hero-note i {
+    font-size: 13px;
+}
+
+.documents-hero-actions {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 245px;
+    padding: 30px 25px;
+    overflow: hidden;
+    color: #e8eee4;
+    background: linear-gradient(145deg, #344f43 0%, #20352c 100%);
+    text-align: center;
+}
+
+.documents-hero-actions::before,
+.documents-hero-actions::after {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+
+.documents-hero-actions::before {
+    top: -115px;
+    right: -60px;
+}
+
+.documents-hero-actions::after {
+    bottom: -140px;
+    left: -70px;
+}
+
+.hero-decoration {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 12px;
+    color: #ead7aa;
+    background: rgba(255, 255, 255, .07);
+    font-size: 16px;
+}
+
+.hero-handwritten {
+    position: relative;
+    z-index: 1;
+    color: #f0e5c9;
+    font-family: var(--hand, cursive);
+    font-size: 23px;
+    line-height: 1.4;
+}
+
+.documents-hero-actions p {
+    position: relative;
+    z-index: 1;
+    max-width: 300px;
+    margin: 0;
+    color: #cbd5cb;
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+.diary-primary-btn {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    padding: 11px 17px;
+    border: 1px solid var(--ink);
+    border-radius: 9px;
+    color: #fff;
+    background: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.documents-hero-actions .diary-primary-btn {
+    border-color: #e8e0c9;
+    color: var(--ink);
+    background: #f1ead8;
+}
+
+.diary-primary-btn:hover {
+    transform: translateY(-2px);
+    border-color: #456854;
+    color: #fff;
+    background: #456854;
+    box-shadow: 0 6px 15px rgba(29, 48, 43, .13);
+}
+
+.documents-hero-actions .diary-primary-btn:hover {
+    border-color: #fff5dc;
+    color: var(--ink);
+    background: #fff5dc;
+}
+
+/* KPI CARDS */
+
+.documents-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin: 36px 0 29px;
+}
+
+.documents-kpi,
+.document-card {
+    --kpi-color: #426b8a;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--kpi-color);
+    background: var(--paper);
+}
+
+.documents-kpi.blue,
+.document-card.blue { --kpi-color: #426b8a; }
+.documents-kpi.green,
+.document-card.green { --kpi-color: #43835d; }
+.documents-kpi.orange,
+.document-card.orange { --kpi-color: #a87543; }
+.documents-kpi.red,
+.document-card.red { --kpi-color: #b95b50; }
+.document-card.sage { --kpi-color: #527f70; }
+
+.documents-kpi {
+    gap: 15px;
+    padding: 22px 21px 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
+}
+
+.documents-kpi::before {
+    position: absolute;
+    top: -24px;
+    left: 17px;
+    padding: 5px 10px;
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+    background: var(--kpi-color);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .6px;
+}
+
+.documents-kpi.blue::before { content: "MODULES"; }
+.documents-kpi.green::before { content: "CERTIFICATES"; }
+.documents-kpi.orange::before { content: "REPORTS"; }
+.documents-kpi.red::before { content: "PRINT"; }
+
+.documents-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(38, 59, 53, .07);
+}
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.kpi-label {
+    color: #758176;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.documents-kpi .kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #e8e5da;
+    border-radius: 12px;
+    color: var(--kpi-color);
+    background: #f7f6ef;
+    font-size: 17px;
+}
+
+.kpi-value {
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 35px;
+    font-weight: 700;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.kpi-caption {
+    padding-top: 13px;
+    border-top: 1px dashed #e1dccf;
+    color: #818a7e;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+/* MAIN PANEL */
+
+.documents-paper-panel {
+    overflow: hidden;
+}
+
+.documents-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e9e5d9;
+    background: #fffefa;
+}
+
+.panel-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.panel-title-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #e0e3d7;
+    border-radius: 12px;
+    color: var(--ink);
+    background: #f1f2e8;
+    font-size: 16px;
+}
+
+.panel-title-wrap h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, serif);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.25px;
+}
+
+.panel-title-wrap p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.documents-record-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 35px;
+    padding: 8px 12px;
+    border: 1px solid #e4e0d4;
+    border-radius: 9px;
+    color: #6d786d;
+    background: #f8f7f0;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.documents-record-count i,
+.documents-record-count strong {
+    color: var(--ink);
+}
+
+/* SERVICE CARDS */
+
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    padding: 36px 24px 28px;
+    background: #faf9f3;
+}
+
+.document-card {
+    gap: 0;
+    padding: 22px 21px 21px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
+}
+
+.document-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(38, 59, 53, .07);
+}
+
+.document-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 17px;
+}
+
+.document-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #e8e5da;
+    border-radius: 12px;
+    color: var(--kpi-color);
+    background: #f7f6ef;
+    font-size: 17px;
+}
+
+.document-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid #e7dfc9;
+    border-radius: 7px;
+    color: #765e32;
+    background: #faf5e8;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.document-label i {
+    color: var(--amber);
+}
+
+.document-card h5 {
+    margin: 0 0 9px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, serif);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.25px;
+}
+
+.document-card p {
+    min-height: 66px;
+    margin: 0 0 19px;
+    padding-bottom: 13px;
+    border-bottom: 1px dashed #e1dccf;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+.document-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 9px;
+    width: 100%;
+    min-height: 44px;
+    margin-top: auto;
+    padding: 0 15px;
+    border: 1px solid #deded2;
+    border-radius: 9px;
+    color: #5d6b60;
+    background: #fffefa;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.document-button i {
+    font-size: 12px;
+}
+
+.document-button:hover {
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
+    box-shadow: 0 4px 10px rgba(38, 59, 53, .12);
+}
+
+.document-button:hover i {
+    transform: translateX(3px);
+}
+
+/* INFORMATION BAR */
+
+.documents-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 19px 24px;
+    border-top: 1px solid var(--line);
+    background: #fffefa;
+}
+
+.documents-info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #dce4d8;
+    border-radius: 12px;
+    color: var(--sage);
+    background: #edf2e9;
+    font-size: 16px;
+}
+
+.documents-info-bar h6 {
+    margin: 0 0 4px;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, serif);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.documents-info-bar p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* FOOTER */
+
+.documents-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 55px;
+    padding: 13px 22px;
+    border-top: 1px dashed #ddd7c9;
+    color: #788277;
+    background: #f8f7f0;
+    font-size: 10px;
+}
+
+.documents-card-footer strong {
+    color: var(--ink);
+}
+
+.footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #68776a;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.footer-status i {
+    color: #43835d;
+}
+
+/* TABLET */
+
+@media (max-width: 1200px) {
+    .documents-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .documents-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .documents-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .documents-hero-actions {
+        min-height: 220px;
+    }
+
+    .documents-hero-content {
+        padding-top: 29px;
+        padding-bottom: 29px;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+    .documents-page .container-fluid {
+        padding: 18px 14px !important;
+    }
+
+    .documents-hero {
+        margin-bottom: 34px;
+        border-radius: 12px;
+    }
+
+    .documents-hero::before {
+        left: 18px;
+    }
+
+    .documents-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 23px 15px 23px 32px;
+    }
+
+    .documents-hero-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        border-radius: 11px;
+        font-size: 18px;
+    }
+
+    .documents-breadcrumb {
+        gap: 6px;
+        font-size: 8px;
+        letter-spacing: .55px;
+    }
+
+    .documents-hero-text h2 {
+        font-size: 24px;
+    }
+
+    .documents-hero-text p {
+        font-size: 11px;
+    }
+
+    .documents-hero-note {
+        align-items: flex-start;
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .documents-hero-actions {
+        min-height: 205px;
+        padding: 24px 16px;
+    }
+
+    .hero-handwritten {
+        font-size: 21px;
+    }
+
+    .documents-kpis {
+        gap: 15px;
+        margin-top: 31px;
+    }
+
+    .documents-kpi {
+        gap: 12px;
+        padding: 19px 15px 15px;
+        border-radius: 11px;
+    }
+
+    .documents-kpi .kpi-icon {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 15px;
+    }
+
+    .kpi-value {
+        font-size: 29px;
+    }
+
+    .kpi-caption {
+        font-size: 9px;
+    }
+
+    .documents-panel-header {
+        align-items: flex-start;
+        padding: 16px;
+    }
+
+    .panel-title-wrap {
+        gap: 10px;
+    }
+
+    .panel-title-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .panel-title-wrap h3 {
+        font-size: 16px;
+    }
+
+    .panel-title-wrap p {
+        font-size: 10px;
+    }
+
+    .documents-record-count {
+        gap: 5px;
+        padding: 7px 8px;
+        font-size: 9px;
+    }
+
+    .documents-grid {
+        grid-template-columns: 1fr;
+        gap: 34px;
+        padding: 34px 15px 22px;
+    }
+
+    .document-card p {
+        min-height: 0;
+    }
+
+    .documents-info-bar {
+        align-items: flex-start;
+        padding: 16px 15px;
+    }
+
+    .documents-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 15px;
+    }
+}
+
+@media (max-width: 400px) {
+    .documents-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .documents-panel-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .documents-record-count {
+        margin-left: 46px;
+    }
+}
+
+/* ACCESSIBILITY */
+
+.documents-page a:focus-visible,
+.documents-page button:focus-visible {
+    outline: 2px solid #648b72;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .documents-page *,
+    .documents-page *::before,
+    .documents-page *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}
+</style>
 
 @endsection

@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
+@section('title', 'Student Registration | Admin')
+
 @section('content')
 
+<div class="student-create-page">
 <div class="container-fluid py-4">
 
 
@@ -1384,243 +1387,560 @@
 
 
 </div>
+</div>
 
 {{-- =============================================================
-STYLES
+STYLES — SCHOOL DIARY DESIGN SYSTEM (same as Transport Records)
 ============================================================= --}}
 
 <style>
 
-.student-registration-card {
-    background:#fff;
-    border:1px solid #e7eaf0;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:0 8px 30px rgba(0,0,0,.05);
+/* ==========================================================
+   STUDENT REGISTRATION — SCHOOL DIARY DESIGN SYSTEM
+   Scoped to .student-create-page so nothing leaks to other pages
+========================================================== */
+
+.student-create-page {
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --ink-soft: #40574a;
+    --text: #39483e;
+    --muted: #6b756a;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --chalk: #f5f3e9;
+    --sage: #527f70;
+    --blue: #426b8a;
+    --amber: #a87543;
+    --green: #43835d;
+    --green-dark: #347849;
+    --red: #b95b50;
+
+    min-height: calc(100vh - 70px);
+    color: var(--text);
+    background: #f7f6f0;
+    font-family: 'Public Sans', 'Inter', sans-serif;
+    font-size: 13px;
 }
 
+.student-create-page *,
+.student-create-page *::before,
+.student-create-page *::after {
+    box-sizing: border-box;
+}
+
+.student-create-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
+    padding-right: 24px;
+    padding-left: 24px;
+}
+
+/* ---------- PAGE HEADER ---------- */
+
+.student-create-page h3 {
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: clamp(22px, 2vw, 28px);
+    font-weight: 700;
+    letter-spacing: -.5px;
+}
+
+.student-create-page h3 .text-primary,
+.student-create-page .text-primary {
+    color: var(--green) !important;
+}
+
+.student-create-page .text-muted {
+    color: var(--muted) !important;
+}
+
+.student-create-page .text-danger {
+    color: var(--red) !important;
+}
+
+.student-create-page small,
+.student-create-page .small {
+    font-size: 11px;
+}
+
+/* ---------- BUTTONS ---------- */
+
+.student-create-page .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 0 17px;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    transition: color .2s ease, background .2s ease,
+        border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.student-create-page .btn i {
+    margin: 0 !important;
+}
+
+.student-create-page .btn-primary {
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
+}
+
+.student-create-page .btn-primary:hover,
+.student-create-page .btn-primary:focus {
+    transform: translateY(-1px);
+    border-color: #456854;
+    color: #fff;
+    background: #456854;
+    box-shadow: 0 6px 15px rgba(29, 48, 43, .13);
+}
+
+.student-create-page .btn-success {
+    border-color: var(--green);
+    color: #fff;
+    background: var(--green);
+    box-shadow: 0 3px 8px rgba(67, 131, 93, .15);
+}
+
+.student-create-page .btn-success:hover,
+.student-create-page .btn-success:focus {
+    transform: translateY(-1px);
+    border-color: var(--green-dark);
+    color: #fff;
+    background: var(--green-dark);
+    box-shadow: 0 6px 15px rgba(52, 120, 73, .2);
+}
+
+.student-create-page .btn-outline-secondary,
+.student-create-page .btn-light {
+    border-color: #deded2;
+    color: #5d6b60;
+    background: var(--paper);
+}
+
+.student-create-page .btn-outline-secondary:hover,
+.student-create-page .btn-outline-secondary:focus,
+.student-create-page .btn-light:hover,
+.student-create-page .btn-light:focus {
+    border-color: #b5c4b0;
+    color: var(--ink);
+    background: #f0f3e9;
+}
+
+/* ---------- ALERTS ---------- */
+
+.student-create-page .alert {
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.student-create-page .alert-success {
+    border: 1px solid #d2e5d1;
+    color: var(--green-dark);
+    background: #f1f8ef;
+}
+
+.student-create-page .alert-danger {
+    border: 1px solid #eed6cf;
+    color: var(--red);
+    background: #fff1ed;
+}
+
+.student-create-page .alert-danger li {
+    font-weight: 600;
+}
+
+/* ---------- MAIN CARD ---------- */
+
+.student-registration-card {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: var(--paper);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
+}
+
+/* ---------- TABS ---------- */
+
 .registration-tabs {
-    display:flex;
-    background:#f8f9fc;
-    border-bottom:1px solid #e5e7eb;
-    overflow-x:auto;
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+    background: #f1f2e9;
+    -webkit-overflow-scrolling: touch;
 }
 
 .registration-tab {
-    flex:1;
-    min-width:190px;
-    border:0;
-    background:transparent;
-    padding:18px 16px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    text-align:left;
-    transition:.2s ease;
-    color:#64748b;
-    border-bottom:3px solid transparent;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 12px;
+    min-width: 190px;
+    padding: 18px 16px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    color: #637166;
+    background: transparent;
+    font-family: inherit;
+    text-align: left;
+    transition: color .2s ease, background .2s ease, border-color .2s ease;
 }
 
 .registration-tab:hover {
-    background:#f1f5f9;
+    background: #f6f6ee;
 }
 
 .registration-tab.active {
-    color:#0d6efd;
-    background:#fff;
-    border-bottom-color:#0d6efd;
+    border-bottom-color: var(--green);
+    color: var(--ink);
+    background: var(--paper);
 }
 
 .registration-tab .tab-number {
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    background:#e9eef7;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:700;
-    flex-shrink:0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #e0e3d7;
+    border-radius: 10px;
+    color: var(--ink);
+    background: #edf1e7;
+    font-size: 13px;
+    font-weight: 800;
 }
 
 .registration-tab.active .tab-number {
-    background:#0d6efd;
-    color:#fff;
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
 }
 
 .registration-tab strong {
-    display:block;
-    font-size:14px;
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .registration-tab small {
-    display:block;
-    margin-top:2px;
-    font-size:11px;
-    color:#94a3b8;
+    display: block;
+    margin-top: 2px;
+    color: #758176;
+    font-size: 10px;
 }
 
+/* ---------- BODY ---------- */
+
 .registration-body {
-    padding:30px;
+    padding: 30px;
 }
 
 .tab-content-section {
-    display:none;
+    display: none;
 }
 
 .tab-content-section.active {
-    display:block;
+    display: block;
 }
 
 .section-heading {
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin-bottom:28px;
-    padding-bottom:18px;
-    border-bottom:1px solid #eef0f4;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px dashed #ddd8ca;
 }
 
 .section-icon {
-    width:44px;
-    height:44px;
-    border-radius:12px;
-    background:#eef5ff;
-    color:#0d6efd;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #e0e3d7;
+    border-radius: 12px;
+    color: var(--ink);
+    background: #f1f2e8;
+    font-size: 18px;
 }
 
 .section-heading h5 {
-    margin:0;
-    font-weight:700;
-    color:#1e293b;
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.25px;
 }
 
 .section-heading p {
-    margin:3px 0 0;
-    color:#94a3b8;
-    font-size:13px;
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
 }
 
-.form-label {
-    color:#334155;
-    font-size:13px;
-    font-weight:600;
-    margin-bottom:7px;
+/* ---------- FORM FIELDS ---------- */
+
+.student-create-page .form-label {
+    margin-bottom: 7px;
+    color: #526358;
+    font-size: 11px;
+    font-weight: 800;
 }
 
-.form-control,
-.form-select {
-    min-height:43px;
-    border-color:#dfe3e8;
-    border-radius:8px;
-    font-size:14px;
+.student-create-page .form-control,
+.student-create-page .form-select {
+    min-height: 44px;
+    border: 1px solid #dedfd3;
+    border-radius: 9px;
+    outline: none;
+    color: var(--text);
+    background-color: var(--paper);
+    font-family: inherit;
+    font-size: 13px;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
-.form-control:focus,
-.form-select:focus {
-    border-color:#86b7fe;
-    box-shadow:0 0 0 .2rem rgba(13,110,253,.10);
+.student-create-page textarea.form-control {
+    min-height: 100px;
+    line-height: 1.6;
 }
 
-textarea.form-control {
-    min-height:100px;
+.student-create-page .form-control::placeholder {
+    color: #8a9086;
 }
+
+.student-create-page .form-control:hover,
+.student-create-page .form-select:hover {
+    border-color: #bdcabb;
+}
+
+.student-create-page .form-control:focus,
+.student-create-page .form-select:focus {
+    border-color: #739780;
+    background-color: var(--paper);
+    box-shadow: 0 0 0 3px rgba(67, 131, 93, .1);
+}
+
+.student-create-page .form-control[readonly],
+.student-create-page .form-control:disabled,
+.student-create-page .form-select:disabled {
+    color: #69766d;
+    background-color: var(--chalk);
+    cursor: not-allowed;
+}
+
+.student-create-page .form-control[readonly] {
+    cursor: default;
+}
+
+.student-create-page .form-control.is-invalid,
+.student-create-page .form-select.is-invalid {
+    border-color: var(--red);
+    background-color: #fff8f5;
+}
+
+.student-create-page .form-control.is-invalid:focus,
+.student-create-page .form-select.is-invalid:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(185, 91, 80, .1);
+}
+
+.student-create-page input[type="file"].form-control {
+    padding-top: 10px;
+    font-size: 12px;
+}
+
+/* ---------- PHOTO UPLOAD ---------- */
 
 .photo-upload-box {
-    padding:15px;
-    border:1px dashed #cbd5e1;
-    border-radius:12px;
-    background:#f8fafc;
+    padding: 15px;
+    border: 1px dashed #ddd8ca;
+    border-radius: 12px;
+    background: #faf9f3;
 }
 
 .image-preview-container {
-    height:230px;
-    border-radius:10px;
-    background:#eef2f7;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 230px;
+    overflow: hidden;
+    border: 1px solid #e3e1d6;
+    border-radius: 10px;
+    background: var(--chalk);
 }
 
 .image-preview-container img {
-    width:100%;
-    height:100%;
-    object-fit:cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .image-placeholder {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    color:#94a3b8;
-    gap:8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #829083;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .image-placeholder i {
-    font-size:48px;
+    font-size: 48px;
 }
 
+/* ---------- PARENT CARDS ---------- */
+
 .parent-card {
-    border:1px solid #e5e7eb;
-    border-radius:12px;
-    padding:20px;
-    background:#fafbfc;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #faf9f3;
 }
 
 .parent-card h6 {
-    font-weight:700;
-    color:#334155;
-    margin-bottom:18px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed #ddd8ca;
+    color: var(--ink);
+    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-size: 15px;
+    font-weight: 700;
 }
 
+.parent-card h6 i {
+    color: var(--green);
+}
+
+/* ---------- FOOTER ---------- */
+
 .registration-footer {
-    display:flex;
-    align-items:center;
-    padding:18px 30px;
-    border-top:1px solid #e5e7eb;
-    background:#fafbfc;
+    display: flex;
+    align-items: center;
+    padding: 18px 30px;
+    border-top: 1px dashed #ddd7c9;
+    background: #f8f7f0;
 }
 
 .registration-footer .btn {
-    min-width:110px;
-    border-radius:8px;
+    min-width: 110px;
 }
+
+/* ---------- LOADING / LOCATION ---------- */
 
 #districtLoading,
 #talukaLoading,
 #locationLoading {
-    font-size:12px;
+    color: var(--green) !important;
+    font-size: 11px;
 }
 
 .location-loaded {
-    background:#f8fff9;
+    background: #f1f8ef;
 }
 
-@media(max-width:768px) {
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1200px) {
+    .registration-body {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .student-create-page .container-fluid {
+        padding: 18px 14px !important;
+    }
 
     .registration-body {
-        padding:20px;
+        padding: 20px 16px;
     }
 
     .registration-tabs {
-        flex-direction:column;
+        flex-direction: column;
     }
 
     .registration-tab {
-        width:100%;
-        min-width:0;
+        width: 100%;
+        min-width: 0;
+        border-bottom: 1px solid var(--line);
+        border-left: 3px solid transparent;
+    }
+
+    .registration-tab.active {
+        border-bottom-color: var(--line);
+        border-left-color: var(--green);
     }
 
     .registration-footer {
-        padding:15px;
+        padding: 15px;
     }
 
+    /* Prevent iOS zoom on input focus */
+    .student-create-page .form-control,
+    .student-create-page .form-select {
+        font-size: 16px;
+    }
+
+    .section-heading h5 {
+        font-size: 17px;
+    }
+}
+
+@media (max-width: 480px) {
+    .registration-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .registration-footer > .ms-auto {
+        flex-direction: column-reverse;
+        margin-left: 0 !important;
+    }
+
+    .registration-footer .btn {
+        width: 100%;
+    }
+}
+
+/* ---------- ACCESSIBILITY ---------- */
+
+.student-create-page a:focus-visible,
+.student-create-page button:focus-visible,
+.student-create-page input:focus-visible,
+.student-create-page select:focus-visible,
+.student-create-page textarea:focus-visible {
+    outline: 2px solid #648b72;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .student-create-page *,
+    .student-create-page *::before,
+    .student-create-page *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 </style>
@@ -1663,20 +1983,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (previousBtn) {
             previousBtn.style.display =
-                currentTab === 0 ? 'none' : 'inline-block';
+                currentTab === 0 ? 'none' : 'inline-flex';
         }
 
         if (nextBtn) {
             nextBtn.style.display =
                 currentTab === tabs.length - 1
                     ? 'none'
-                    : 'inline-block';
+                    : 'inline-flex';
         }
 
         if (submitBtn) {
             submitBtn.style.display =
                 currentTab === tabs.length - 1
-                    ? 'inline-block'
+                    ? 'inline-flex'
                     : 'none';
         }
 
@@ -2541,7 +2861,7 @@ async function loadDistricts(
         );
 
 
-        districtSelect.innerHTML =
+       districtSelect.innerHTML =
             '<option value="">Unable to load districts</option>';
 
         districtSelect.disabled = false;
