@@ -431,7 +431,7 @@
         'admin.student-general-register.*',
         'admin.government-schemes.*',
         'admin.student-health.*',
-        'admin.reports.students',
+      
     ],
     'c' => [
         ['All Students', 'admin.students.index'],
@@ -443,7 +443,7 @@
         ['Student Register', 'admin.student-general-register.index'],
         ['Government Schemes', 'admin.government-schemes.index'],
         ['Student Health', 'admin.student-health.index'],
-        ['Student Report', 'admin.reports.students'],
+       
         ['Add Student', 'admin.students.create'],
         ['Bulk Add Students', 'admin.students.bulk-create'],
     ],

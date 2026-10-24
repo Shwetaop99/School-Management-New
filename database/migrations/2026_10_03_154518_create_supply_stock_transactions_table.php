@@ -9,6 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('supply_stock_transactions', function (Blueprint $table) {
+            if (Schema::hasTable('supply_stock_transactions')) {
+    return;
+}
             $table->id();
 
             $table->foreignId('supply_item_id')

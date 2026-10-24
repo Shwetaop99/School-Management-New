@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -6,47 +7,41 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-{
-    Schema::create('student_supply_kits', function (Blueprint $table) {
-        $table->id();
+    {
+        if (Schema::hasTable('student_supply_kits')) {
+            return;
+        }
 
-        $table->foreignId('student_id')
-            ->constrained('students')
-            ->cascadeOnDelete();
+        Schema::create('student_supply_kits', function (Blueprint $table) {
+            $table->id();
 
-        $table->foreignId('kit_template_id')
-            ->nullable()
-            ->constrained('kit_templates')
-            ->nullOnDelete();
+            $table->foreignId('student_id')
+                ->constrained('students')
+                ->cascadeOnDelete();
 
-        $table->string('academic_year')->nullable();
+            $table->foreignId('kit_template_id')
+                ->constrained('kit_templates')
+                ->restrictOnDelete();
 
-        $table->date('issue_date')->nullable();
+            $table->string('academic_year', 20);
+            $table->date('distribution_date')->nullable();
 
-        $table->enum('status', [
-            'pending',
-            'issued',
-            'partially_issued',
-            'cancelled'
-        ])->default('pending');
+            $table->enum('status', [
+                'pending',
+                'issued',
+                'cancelled',
+            ])->default('pending');
 
-        $table->text('remarks')->nullable();
+            $table->text('remarks')->nullable();
+            $table->timestamps();
 
-        $table->unsignedBigInteger('issued_by')->nullable();
+            $table->index(['academic_year', 'status']);
+        });
+    }
 
-        $table->timestamps();
-    });
-}
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('student_supply_kits');
+        // Preserve existing data.
     }
 };

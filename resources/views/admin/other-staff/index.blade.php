@@ -115,9 +115,7 @@
             <h1>Other staff</h1>
             <p>Manage librarians, accountants, receptionists, drivers and other staff members.</p>
         </div>
-        <a href="{{ route('admin.other-staff.create') }}" class="si-add">
-            <i class="bi bi-person-plus-fill"></i> Add staff
-        </a>
+        
     </div>
 
     {{-- Stats --}}

@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,6 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('kit_template_items')) {
+            return;
+        }
+
         Schema::create('kit_template_items', function (Blueprint $table) {
             $table->id();
 
@@ -19,22 +24,20 @@ return new class extends Migration
                 ->constrained('supply_items')
                 ->restrictOnDelete();
 
-            $table->unsignedInteger('quantity')
-                ->default(1);
-
+            $table->unsignedInteger('quantity')->default(1);
             $table->text('remarks')->nullable();
 
             $table->timestamps();
 
             $table->unique([
                 'kit_template_id',
-                'supply_item_id'
+                'supply_item_id',
             ]);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('kit_template_items');
+        // Preserve existing data. Do not drop the table here.
     }
 };

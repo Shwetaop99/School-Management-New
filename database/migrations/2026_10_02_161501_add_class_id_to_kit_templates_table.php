@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,10 +9,16 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (
+            !Schema::hasTable('kit_templates') ||
+            Schema::hasColumn('kit_templates', 'class_id')
+        ) {
+            return;
+        }
+
         Schema::table('kit_templates', function (Blueprint $table) {
             $table->foreignId('class_id')
                 ->nullable()
-                ->after('scheme_id')
                 ->constrained('school_classes')
                 ->nullOnDelete();
         });
@@ -19,12 +26,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('kit_templates', function (Blueprint $table) {
-            $table->dropForeign([
-                'class_id',
-            ]);
-
-            $table->dropColumn('class_id');
-        });
+        // Preserve the existing database structure and data.
     }
 };

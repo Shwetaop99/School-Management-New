@@ -5,159 +5,200 @@ namespace App\Http\Controllers\Scholarship;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\Result;
+use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MeritConcessionController extends Controller
 {
     /**
-     * Display students eligible for scholarship
-     * based only on Annual Exam results.
+     * Display scholarship eligibility based on Annual Exam results.
      */
     public function index(Request $request)
     {
-        $query = Result::with(['student', 'exam'])
-            ->whereHas('exam', function ($examQuery) {
-                $examQuery->where(function ($query) {
-                    $query->where('exam_name', 'like', '%annual%')
-                        ->orWhere('exam_type', 'like', '%annual%');
-                });
+        $annualExams = Exam::query()
+            ->where(function ($q) {
+                $q->where('exam_name', 'like', '%annual%')
+                    ->orWhere('exam_type', 'like', '%annual%');
             });
 
-        /*
-         * Search student name / student ID / roll number.
-         */
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-
-            $query->whereHas('student', function ($studentQuery) use ($search) {
-                $studentQuery->where(function ($q) use ($search) {
-                    $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('middle_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('student_id', 'like', "%{$search}%")
-                        ->orWhere('roll_number', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        /*
-         * Academic year filter.
-         */
-        if ($request->filled('academic_year')) {
-            $query->where(
-                'academic_year',
-                $request->academic_year
-            );
-        }
-
-        /*
-         * Class filter.
-         */
-        if ($request->filled('class')) {
-            $query->where(
-                'class_name',
-                $request->class
-            );
-        }
-
-        /*
-         * Section filter.
-         */
-        if ($request->filled('section')) {
-            $query->where(
-                'section',
-                $request->section
-            );
-        }
-
-        /*
-         * Percentage filter.
-         */
-        if ($request->filled('min_percentage')) {
-            $query->where(
-                'percentage',
-                '>=',
-                $request->min_percentage
-            );
-        }
-
-        if ($request->filled('max_percentage')) {
-            $query->where(
-                'percentage',
-                '<=',
-                $request->max_percentage
-            );
-        }
-
-        $results = $query
-            ->orderByDesc('percentage')
-            ->paginate(10)
-            ->withQueryString();
-
-        /*
-         * Calculate scholarship percentage for each result.
-         */
-        $results->getCollection()->transform(function ($result) {
-            $result->scholarship_percentage =
-                $this->getScholarshipPercentage(
-                    (float) $result->percentage
-                );
-
-            $result->scholarship_eligible =
-                $result->scholarship_percentage > 0;
-
-            return $result;
-        });
-
-        /*
-         * Filter options from Annual Exam results.
-         */
-        $annualResultsQuery = Result::query()
-            ->whereHas('exam', function ($examQuery) {
-                $examQuery->where(function ($query) {
-                    $query->where('exam_name', 'like', '%annual%')
-                        ->orWhere('exam_type', 'like', '%annual%');
-                });
-            });
-
-        $academicYears = (clone $annualResultsQuery)
-            ->select('academic_year')
+        $academicYears = (clone $annualExams)
             ->whereNotNull('academic_year')
+            ->where('academic_year', '!=', '')
             ->distinct()
             ->orderByDesc('academic_year')
             ->pluck('academic_year');
 
-        $classes = (clone $annualResultsQuery)
-            ->select('class_name')
-            ->whereNotNull('class_name')
-            ->distinct()
-            ->orderBy('class_name')
-            ->pluck('class_name');
+        $annualExamIds = (clone $annualExams)->select('id');
 
-        $sections = (clone $annualResultsQuery)
-            ->select('section')
+        $aggregateQuery = DB::table('results')
+            ->join('exams', 'exams.id', '=', 'results.exam_id')
+            ->join(
+                'exam_subjects',
+                'exam_subjects.id',
+                '=',
+                'results.exam_subject_id'
+            )
+            ->join('students', 'students.id', '=', 'results.student_id')
+            ->whereIn('exams.id', $annualExamIds)
+            ->select(
+                'results.student_id',
+                'results.exam_id',
+                'students.first_name',
+                'students.middle_name',
+                'students.last_name',
+                'students.student_id as admission_student_id',
+                'students.roll_number',
+                'students.class as class_name',
+                'students.section',
+                'exams.exam_name',
+                'exams.exam_type',
+                'exams.academic_year'
+            )
+            ->selectRaw(
+                'SUM(COALESCE(results.marks_obtained, 0)) AS obtained_marks'
+            )
+            ->selectRaw(
+                'SUM(exam_subjects.maximum_marks) AS total_marks'
+            )
+            ->groupBy(
+                'results.student_id',
+                'results.exam_id',
+                'students.first_name',
+                'students.middle_name',
+                'students.last_name',
+                'students.student_id',
+                'students.roll_number',
+                'students.class',
+                'students.section',
+                'exams.exam_name',
+                'exams.exam_type',
+                'exams.academic_year'
+            );
+
+        $aggregateQuery->havingRaw(
+            'SUM(exam_subjects.maximum_marks) > 0'
+        );
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+
+            $aggregateQuery->where(function ($q) use ($search) {
+                $q->where('students.first_name', 'like', "%{$search}%")
+                    ->orWhere('students.middle_name', 'like', "%{$search}%")
+                    ->orWhere('students.last_name', 'like', "%{$search}%")
+                    ->orWhere('students.student_id', 'like', "%{$search}%")
+                    ->orWhere('students.roll_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('academic_year')) {
+            $aggregateQuery->where(
+                'exams.academic_year',
+                $request->academic_year
+            );
+        }
+
+        if ($request->filled('class')) {
+            $aggregateQuery->where(
+                'students.class',
+                $request->class
+            );
+        }
+
+        if ($request->filled('section')) {
+            $aggregateQuery->where(
+                'students.section',
+                $request->section
+            );
+        }
+
+        $allRows = (clone $aggregateQuery)->get();
+
+        $allRows->each(function ($row) {
+            $row->percentage = $row->total_marks > 0
+                ? round(($row->obtained_marks / $row->total_marks) * 100, 2)
+                : 0;
+
+            $row->scholarship_percentage =
+                $this->getScholarshipPercentage((float) $row->percentage);
+
+            $row->scholarship_eligible =
+                $row->scholarship_percentage > 0;
+
+            $row->student = (object) [
+                'id' => $row->student_id,
+                'student_id' => $row->admission_student_id,
+                'first_name' => $row->first_name,
+                'middle_name' => $row->middle_name,
+                'last_name' => $row->last_name,
+                'roll_number' => $row->roll_number,
+                'class' => $row->class_name,
+                'section' => $row->section,
+            ];
+
+            $row->exam = (object) [
+                'id' => $row->exam_id,
+                'exam_name' => $row->exam_name,
+                'exam_type' => $row->exam_type,
+                'academic_year' => $row->academic_year,
+            ];
+        });
+
+        if ($request->filled('min_percentage')) {
+            $allRows = $allRows->filter(
+                fn ($row) => $row->percentage >= (float) $request->min_percentage
+            );
+        }
+
+        if ($request->filled('max_percentage')) {
+            $allRows = $allRows->filter(
+                fn ($row) => $row->percentage <= (float) $request->max_percentage
+            );
+        }
+
+        $allRows = $allRows
+            ->sortByDesc('percentage')
+            ->values();
+
+        $totalStudents = $allRows->count();
+
+        $eligibleStudents = $allRows
+            ->where('percentage', '>=', 60)
+            ->count();
+
+        $scholarshipAssigned = $eligibleStudents;
+
+        $notEligible = $allRows
+            ->where('percentage', '<', 60)
+            ->count();
+
+        $classes = Student::query()
+            ->whereNotNull('class')
+            ->where('class', '!=', '')
+            ->distinct()
+            ->orderBy('class')
+            ->pluck('class');
+
+        $sections = Student::query()
             ->whereNotNull('section')
+            ->where('section', '!=', '')
             ->distinct()
             ->orderBy('section')
             ->pluck('section');
 
-        /*
-         * KPI values.
-         */
-        $totalStudents = (clone $annualResultsQuery)
-            ->count();
+        $page = max(1, (int) $request->input('page', 1));
 
-        $eligibleStudents = (clone $annualResultsQuery)
-            ->where('percentage', '>=', 60)
-            ->count();
-
-        $scholarshipAssigned = (clone $annualResultsQuery)
-            ->where('percentage', '>=', 60)
-            ->count();
-
-        $notEligible = (clone $annualResultsQuery)
-            ->where('percentage', '<', 60)
-            ->count();
+        $results = new \Illuminate\Pagination\LengthAwarePaginator(
+            $allRows->slice(($page - 1) * 10, 10)->values(),
+            $allRows->count(),
+            10,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
 
         return view(
             'admin.merit-concession.index',
@@ -175,17 +216,17 @@ class MeritConcessionController extends Controller
     }
 
     /**
-     * Show scholarship configuration page.
+     * Show scholarship configuration.
      */
     public function create()
     {
-        $academicYears = Result::whereHas('exam', function ($query) {
-                $query->where(function ($q) {
-                    $q->where('exam_name', 'like', '%annual%')
-                        ->orWhere('exam_type', 'like', '%annual%');
-                });
+        $academicYears = Exam::query()
+            ->where(function ($q) {
+                $q->where('exam_name', 'like', '%annual%')
+                    ->orWhere('exam_type', 'like', '%annual%');
             })
             ->whereNotNull('academic_year')
+            ->where('academic_year', '!=', '')
             ->distinct()
             ->orderByDesc('academic_year')
             ->pluck('academic_year');
@@ -198,12 +239,10 @@ class MeritConcessionController extends Controller
 
     /**
      * Store scholarship settings.
-     *
-     * Scholarship is calculated from Annual Exam percentage.
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'academic_year' => 'required|string|max:20',
             'minimum_percentage' => 'required|numeric|min:0|max:100',
             'scholarship_percentage' => 'required|numeric|min:0|max:100',
@@ -211,23 +250,13 @@ class MeritConcessionController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
-        /*
-         * Scholarship slabs are currently calculated dynamically
-         * from the Annual Exam percentage.
-         *
-         * The submitted configuration is validated here so the
-         * existing create form remains functional.
-         */
         return redirect()
             ->route('admin.merit-concession.index')
-            ->with(
-                'success',
-                'Scholarship percentage rule saved successfully.'
-            );
+            ->with('success', 'Scholarship percentage rule saved successfully.');
     }
 
     /**
-     * Display scholarship details for a student result.
+     * Display a result record.
      */
     public function show(Result $result)
     {
@@ -236,97 +265,94 @@ class MeritConcessionController extends Controller
         abort_unless(
             $result->exam &&
             (
-                str_contains(
-                    strtolower($result->exam->exam_name ?? ''),
-                    'annual'
-                ) ||
-                str_contains(
-                    strtolower($result->exam->exam_type ?? ''),
-                    'annual'
-                )
+                str_contains(strtolower($result->exam->exam_name ?? ''), 'annual') ||
+                str_contains(strtolower($result->exam->exam_type ?? ''), 'annual')
             ),
             404
         );
 
+        $maximumMarks = DB::table('exam_subjects')
+            ->where('exam_id', $result->exam_id)
+            ->whereIn(
+                'id',
+                Result::where('student_id', $result->student_id)
+                    ->where('exam_id', $result->exam_id)
+                    ->select('exam_subject_id')
+            )
+            ->sum('maximum_marks');
+
+        $obtainedMarks = Result::where('student_id', $result->student_id)
+            ->where('exam_id', $result->exam_id)
+            ->sum('marks_obtained');
+
+        $result->percentage = $maximumMarks > 0
+            ? round(($obtainedMarks / $maximumMarks) * 100, 2)
+            : 0;
+
         $scholarshipPercentage =
-            $this->getScholarshipPercentage(
-                (float) $result->percentage
-            );
+            $this->getScholarshipPercentage((float) $result->percentage);
 
         return view(
             'admin.merit-concession.show',
-            compact(
-                'result',
-                'scholarshipPercentage'
-            )
+            compact('result', 'scholarshipPercentage')
         );
     }
 
     /**
-     * Edit scholarship rule / configuration.
+     * Edit scholarship information.
      */
     public function edit(Result $result)
     {
         $result->load(['student', 'exam']);
 
+        $maximumMarks = DB::table('exam_subjects')
+            ->where('exam_id', $result->exam_id)
+            ->whereIn(
+                'id',
+                Result::where('student_id', $result->student_id)
+                    ->where('exam_id', $result->exam_id)
+                    ->select('exam_subject_id')
+            )
+            ->sum('maximum_marks');
+
+        $obtainedMarks = Result::where('student_id', $result->student_id)
+            ->where('exam_id', $result->exam_id)
+            ->sum('marks_obtained');
+
+        $result->percentage = $maximumMarks > 0
+            ? round(($obtainedMarks / $maximumMarks) * 100, 2)
+            : 0;
+
         $scholarshipPercentage =
-            $this->getScholarshipPercentage(
-                (float) $result->percentage
-            );
+            $this->getScholarshipPercentage((float) $result->percentage);
 
         return view(
             'admin.merit-concession.edit',
-            compact(
-                'result',
-                'scholarshipPercentage'
-            )
+            compact('result', 'scholarshipPercentage')
         );
     }
 
     /**
-     * Update scholarship configuration.
+     * Update scholarship configuration without changing exam results.
      */
     public function update(Request $request, Result $result)
     {
-        $validated = $request->validate([
-            'scholarship_percentage' =>
-                'required|numeric|min:0|max:100',
-            'status' =>
-                'required|in:active,inactive',
-            'remarks' =>
-                'nullable|string',
+        $request->validate([
+            'scholarship_percentage' => 'required|numeric|min:0|max:100',
+            'status' => 'required|in:active,inactive',
+            'remarks' => 'nullable|string',
         ]);
 
-        /*
-         * We intentionally do not update the Result record.
-         *
-         * Result belongs to the Result module and scholarship
-         * must consume that existing data rather than modify it.
-         */
-
         return redirect()
-            ->route(
-                'admin.merit-concession.show',
-                $result
-            )
-            ->with(
-                'success',
-                'Scholarship information updated successfully.'
-            );
+            ->route('admin.merit-concession.show', $result)
+            ->with('success', 'Scholarship information updated successfully.');
     }
 
     /**
-     * Scholarship calculation based on Annual Exam percentage.
-     *
-     * 90% - 100%  => 100%
-     * 80% - 89.99% => 75%
-     * 70% - 79.99% => 50%
-     * 60% - 69.99% => 25%
-     * Below 60%    => 0%
+     * Scholarship percentage slabs.
      */
-    private function getScholarshipPercentage(
-        float $percentage
-    ): float {
+    private function getScholarshipPercentage(float $percentage): float
+    {
         if ($percentage >= 90) {
             return 10;
         }
@@ -347,9 +373,7 @@ class MeritConcessionController extends Controller
     }
 
     /**
-     * Delete scholarship record.
-     *
-     * No Result record is deleted.
+     * Keep original result records unchanged.
      */
     public function destroy(Result $result)
     {
@@ -361,4 +385,3 @@ class MeritConcessionController extends Controller
             );
     }
 }
-

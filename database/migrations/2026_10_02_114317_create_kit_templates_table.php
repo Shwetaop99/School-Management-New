@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,6 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('kit_templates')) {
+            return;
+        }
+
         Schema::create('kit_templates', function (Blueprint $table) {
             $table->id();
 
@@ -16,12 +21,9 @@ return new class extends Migration
                 ->constrained('government_schemes')
                 ->nullOnDelete();
 
-            $table->string('kit_name');
-
+            $table->string('kit_name')->nullable();
             $table->string('class')->nullable();
-
-            $table->string('academic_year');
-
+            $table->string('academic_year')->nullable();
             $table->text('description')->nullable();
 
             $table->enum('status', ['active', 'inactive'])
@@ -35,6 +37,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('kit_templates');
+        // Preserve existing data. Do not drop the table here.
     }
 };
