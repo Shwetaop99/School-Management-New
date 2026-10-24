@@ -1,1204 +1,1261 @@
 @extends('layouts.app')
 
-@section('title', 'Student Attendance')
+@section('title', 'Student Attendance | Admin')
 @section('page-title', 'Student Attendance')
 
 @section('content')
 
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
->
-
-<style>
-    /* =========================================================
-       GLOBAL
-    ========================================================= */
-
-    * {
-        box-sizing: border-box;
-    }
-
-    .attendance-page {
-        min-height: calc(100vh - 80px);
-        padding: 28px;
-        background: #f4f7fb;
-    }
-
-    /* =========================================================
-       HEADER
-    ========================================================= */
-
-    .attendance-header {
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 25px;
-        padding: 30px 32px;
-        border-radius: 20px;
-        background: linear-gradient(
-            135deg,
-            #1769d1 0%,
-            #159cc7 52%,
-            #6c63ff 100%
-        );
-        color: #ffffff;
-        box-shadow: 0 12px 30px rgba(23, 105, 209, 0.18);
-    }
-
-    .attendance-header::before {
-        content: "";
-        position: absolute;
-        width: 230px;
-        height: 230px;
-        right: -80px;
-        top: -120px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .attendance-header::after {
-        content: "";
-        position: absolute;
-        width: 160px;
-        height: 160px;
-        right: 180px;
-        bottom: -110px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    .attendance-header-content {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 25px;
-    }
-
-    .attendance-header-left {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-    }
-
-    .attendance-header-icon {
-        width: 62px;
-        height: 62px;
-        min-width: 62px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 17px;
-        background: rgba(255, 255, 255, 0.17);
-        border: 1px solid rgba(255, 255, 255, 0.20);
-        font-size: 29px;
-        backdrop-filter: blur(8px);
-    }
-
-    .attendance-header-text h2 {
-        margin: 0 0 7px;
-        font-size: 27px;
-        font-weight: 800;
-        letter-spacing: -0.4px;
-    }
-
-    .attendance-header-text p {
-        max-width: 720px;
-        margin: 0;
-        color: rgba(255, 255, 255, 0.88);
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .attendance-month {
-        position: relative;
-        z-index: 2;
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        padding: 11px 16px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 800;
-        white-space: nowrap;
-        backdrop-filter: blur(8px);
-    }
-
-    /* =========================================================
-       STATISTICS
-    ========================================================= */
-
-    .attendance-stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
-        margin-bottom: 26px;
-    }
-
-    .stat-card {
-        position: relative;
-        overflow: hidden;
-        min-height: 145px;
-        padding: 21px;
-        border: none;
-        border-radius: 17px;
-        color: #ffffff;
-        box-shadow: 0 8px 22px rgba(20, 50, 90, 0.10);
-        transition:
-            transform 0.25s ease,
-            box-shadow 0.25s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(20, 50, 90, 0.15);
-    }
-
-    .stat-card::before {
-        content: "";
-        position: absolute;
-        width: 65px;
-        height: 65px;
-        right: 42px;
-        top: -32px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    .stat-card::after {
-        content: "";
-        position: absolute;
-        width: 105px;
-        height: 105px;
-        right: -30px;
-        bottom: -45px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.10);
-    }
-
-    .stat-card.blue {
-        background: linear-gradient(
-            135deg,
-            #1769d1,
-            #237de0
-        );
-    }
-
-    .stat-card.orange {
-        background: linear-gradient(
-            135deg,
-            #ed9208,
-            #f7aa25
-        );
-    }
-
-    .stat-card.cyan {
-        background: linear-gradient(
-            135deg,
-            #079dbd,
-            #16b5d0
-        );
-    }
-
-    .stat-card.red {
-        background: linear-gradient(
-            135deg,
-            #e94d47,
-            #f75d56
-        );
-    }
-
-    .stat-content {
-        position: relative;
-        z-index: 2;
-    }
-
-    .stat-top {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.17);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #ffffff;
-        font-size: 21px;
-        backdrop-filter: blur(5px);
-    }
-
-    .stat-small {
-        padding: 5px 9px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.15);
-        color: rgba(255, 255, 255, 0.94);
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    .stat-number {
-        margin-top: 15px;
-        color: #ffffff;
-        font-size: 29px;
-        font-weight: 800;
-        line-height: 1;
-    }
-
-    .stat-label {
-        display: block;
-        margin-top: 8px;
-        color: rgba(255, 255, 255, 0.91);
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    /* =========================================================
-       MAIN CARD
-    ========================================================= */
-
-    .classes-card {
-        overflow: hidden;
-        background: #ffffff;
-        border: 1px solid #e4e9f1;
-        border-radius: 18px;
-        box-shadow: 0 7px 24px rgba(20, 50, 90, 0.07);
-    }
-
-    .classes-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        padding: 22px 25px;
-        border-bottom: 1px solid #edf1f6;
-    }
-
-    .classes-heading {
-        display: flex;
-        align-items: center;
-        gap: 13px;
-    }
-
-    .classes-heading-icon {
-        width: 46px;
-        height: 46px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 13px;
-        background: #eaf3ff;
-        color: #1769d1;
-        font-size: 20px;
-    }
-
-    .classes-heading-text h3 {
-        margin: 0 0 4px;
-        color: #172033;
-        font-size: 18px;
-        font-weight: 800;
-    }
-
-    .classes-heading-text p {
-        margin: 0;
-        color: #8994a5;
-        font-size: 12px;
-    }
-
-    .class-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 9px 14px;
-        border-radius: 10px;
-        background: #f0f7ff;
-        color: #1769d1;
-        font-size: 12px;
-        font-weight: 800;
-        white-space: nowrap;
-    }
-
-    /* =========================================================
-       TABLE
-    ========================================================= */
-
-    .table-container {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .classes-table {
-        width: 100%;
-        min-width: 1180px;
-        margin: 0;
-        border-collapse: collapse;
-    }
-
-    .classes-table thead th {
-        padding: 15px 18px;
-        background: #f8fafc;
-        border-bottom: 1px solid #e5ebf3;
-        color: #6c7789;
-        font-size: 10px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.55px;
-        white-space: nowrap;
-    }
-
-    .classes-table tbody td {
-        padding: 17px 18px;
-        border-bottom: 1px solid #edf1f6;
-        color: #273449;
-        font-size: 13px;
-        vertical-align: middle;
-    }
-
-    .classes-table tbody tr {
-        transition: background 0.2s ease;
-    }
-
-    .classes-table tbody tr:hover {
-        background: #f9fbff;
-    }
-
-    .classes-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* =========================================================
-       CLASS
-    ========================================================= */
-
-    .class-info {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-    }
-
-    .class-icon {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 11px;
-        background: linear-gradient(
-            135deg,
-            #e9f3ff,
-            #eef8ff
-        );
-        color: #1769d1;
-        font-size: 18px;
-    }
-
-    .class-name {
-        display: block;
-        color: #182337;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    /* =========================================================
-       ACADEMIC YEAR
-    ========================================================= */
-
-    .academic-year-cell {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 8px 11px;
-        border-radius: 9px;
-        background: #f5f7ff;
-        color: #5965c9;
-        font-size: 12px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .academic-year-cell i {
-        font-size: 13px;
-    }
-
-    /* =========================================================
-       SECTION
-    ========================================================= */
-
-    .section-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 38px;
-        padding: 7px 11px;
-        border-radius: 8px;
-        background: #f0efff;
-        color: #6258e8;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    /* =========================================================
-       STUDENTS
-    ========================================================= */
-
-    .student-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        color: #344054;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .student-count i {
-        color: #1769d1;
-        font-size: 16px;
-    }
-
-    /* =========================================================
-       ATTENDANCE
-    ========================================================= */
-
-    .attendance-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .attendance-count i {
-        font-size: 15px;
-    }
-
-    .present-count {
-        color: #16a34a;
-    }
-
-    .absent-count {
-        color: #e94d47;
-    }
-
-    .attendance-label {
-        display: block;
-        margin-top: 3px;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 600;
-    }
-
-    /* =========================================================
-       TEACHER
-    ========================================================= */
-
-    .teacher-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .teacher-avatar {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: linear-gradient(
-            135deg,
-            #1769d1,
-            #6c63ff
-        );
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .teacher-name {
-        max-width: 180px;
-        color: #344054;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .not-assigned {
-        color: #94a3b8;
-        font-style: italic;
-    }
-
-    /* =========================================================
-       ACTION BUTTON
-    ========================================================= */
-
-    .mark-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        padding: 9px 14px;
-        border: none;
-        border-radius: 9px;
-        background: linear-gradient(
-            135deg,
-            #1769d1,
-            #159cc7
-        );
-        color: #ffffff;
-        font-size: 11px;
-        font-weight: 800;
-        text-decoration: none;
-        white-space: nowrap;
-        box-shadow: 0 5px 13px rgba(23, 105, 209, 0.17);
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-    .mark-btn:hover {
-        color: #ffffff;
-        transform: translateY(-1px);
-        box-shadow: 0 7px 17px rgba(23, 105, 209, 0.25);
-    }
-
-    /* =========================================================
-       EMPTY STATE
-    ========================================================= */
-
-    .empty-state {
-        padding: 70px 25px;
-        text-align: center;
-    }
-
-    .empty-icon {
-        width: 76px;
-        height: 76px;
-        margin: 0 auto 17px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 20px;
-        background: #eef5ff;
-        color: #1769d1;
-        font-size: 31px;
-    }
-
-    .empty-state h4 {
-        margin: 0 0 7px;
-        color: #263247;
-        font-size: 17px;
-        font-weight: 800;
-    }
-
-    .empty-state p {
-        margin: 0;
-        color: #8b95a5;
-        font-size: 13px;
-    }
-
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
-
-    @media (max-width: 1200px) {
-        .attendance-stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 992px) {
-        .attendance-page {
-            padding: 20px;
-        }
-
-        .attendance-header-content {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .attendance-month {
-            align-self: flex-start;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .attendance-page {
-            padding: 14px;
-        }
-
-        .attendance-header {
-            padding: 22px 19px;
-            border-radius: 16px;
-        }
-
-        .attendance-header-left {
-            align-items: flex-start;
-            gap: 13px;
-        }
-
-        .attendance-header-icon {
-            width: 50px;
-            height: 50px;
-            min-width: 50px;
-            border-radius: 13px;
-            font-size: 23px;
-        }
-
-        .attendance-header-text h2 {
-            font-size: 21px;
-        }
-
-        .attendance-header-text p {
-            font-size: 12px;
-        }
-
-        .attendance-stats {
-            grid-template-columns: 1fr;
-            gap: 14px;
-        }
-
-        .stat-card {
-            min-height: 130px;
-        }
-
-        .classes-header {
-            align-items: flex-start;
-            flex-direction: column;
-            padding: 18px;
-        }
-
-        .classes-heading-text h3 {
-            font-size: 16px;
-        }
-
-        .classes-table {
-            min-width: 1180px;
-        }
-    }
-</style>
-
-
-{{-- =========================================================
-     PAGE
-========================================================= --}}
+@php
+    $totalClasses   = $classCards->count();
+    $monthLabel     = \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y');
+@endphp
 
 <div class="attendance-page">
+    <div class="container-fluid py-4">
 
-    {{-- =====================================================
-         HEADER
-    ====================================================== --}}
+        {{-- FLASH MESSAGES --}}
+        @if(session('success'))
+            <div class="attendance-success-alert" role="status">
+                <span class="success-icon">
+                    <i class="fas fa-check"></i>
+                </span>
+                <span>{{ session('success') }}</span>
+                <button type="button" class="alert-close"
+                        aria-label="Close alert"
+                        onclick="this.parentElement.remove();">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        @endif
 
-    <section class="attendance-header">
+        @if(session('error'))
+            <div class="attendance-error-alert" role="alert">
+                <span class="error-icon">
+                    <i class="fas fa-exclamation"></i>
+                </span>
+                <span>{{ session('error') }}</span>
+                <button type="button" class="alert-close"
+                        aria-label="Close alert"
+                        onclick="this.parentElement.remove();">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        @endif
 
-        <div class="attendance-header-content">
-
-            <div class="attendance-header-left">
-
-                <div class="attendance-header-icon">
-                    <i class="bi bi-calendar-check-fill"></i>
+        {{-- SCHOOL DIARY HERO --}}
+        <section class="attendance-hero">
+            <div class="attendance-hero-content">
+                <div class="attendance-hero-icon">
+                    <i class="fas fa-calendar-check"></i>
                 </div>
 
-                <div class="attendance-header-text">
+                <div class="attendance-hero-text">
+                    <div class="attendance-breadcrumb">
+                        ADMIN <span>/</span> ATTENDANCE
+                    </div>
 
-                    <h2>
-                        Student Attendance
-                    </h2>
+                    <h2>Student Attendance</h2>
 
                     <p>
                         Manage daily student attendance by class and section.
-                        View total present and absent students and mark attendance efficiently.
+                        View present and absent students and mark attendance
+                        efficiently.
                     </p>
 
+                    <div class="attendance-hero-note">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Daily Attendance Register</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attendance-hero-actions">
+                <div class="hero-handwritten">Mark. Track. Improve.</div>
+
+                <p>
+                    Choose a class and section below to open
+                    its attendance sheet.
+                </p>
+
+                <div class="month-pill">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ $monthLabel }}
+                </div>
+            </div>
+        </section>
+
+        {{-- KPI CARDS --}}
+        <section class="attendance-kpis">
+
+            <article class="attendance-kpi blue">
+                <div class="kpi-top">
+                    <span class="kpi-label">Classes &amp; Sections</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </span>
                 </div>
 
-            </div>
+                <div class="kpi-value">{{ $totalClasses }}</div>
 
-            <div class="attendance-month">
+                <div class="kpi-caption">
+                    <i class="fas fa-layer-group"></i>
+                    Total classes &amp; sections
+                </div>
+            </article>
 
-                <i class="bi bi-calendar3"></i>
+            <article class="attendance-kpi amber">
+                <div class="kpi-top">
+                    <span class="kpi-label">Total Students</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-users"></i>
+                    </span>
+                </div>
 
-                {{ \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y') }}
+                <div class="kpi-value">{{ $totalStudents }}</div>
 
-            </div>
+                <div class="kpi-caption">
+                    <i class="fas fa-user-graduate"></i>
+                    All active students
+                </div>
+            </article>
 
-        </div>
+            <article class="attendance-kpi green">
+                <div class="kpi-top">
+                    <span class="kpi-label">Students Present</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-user-check"></i>
+                    </span>
+                </div>
 
-    </section>
+                <div class="kpi-value">{{ $totalPresent }}</div>
 
+                <div class="kpi-caption">
+                    <i class="fas fa-check"></i>
+                    Total students present
+                </div>
+            </article>
 
-    {{-- =====================================================
-         DASHBOARD STATISTICS
-    ====================================================== --}}
+            <article class="attendance-kpi red">
+                <div class="kpi-top">
+                    <span class="kpi-label">Students Absent</span>
+                    <span class="kpi-icon">
+                        <i class="fas fa-user-xmark"></i>
+                    </span>
+                </div>
 
-    <section class="attendance-stats">
+                <div class="kpi-value">{{ $totalAbsent }}</div>
 
-        {{-- TOTAL CLASSES --}}
+                <div class="kpi-caption">
+                    <i class="fas fa-user-slash"></i>
+                    Total students absent
+                </div>
+            </article>
 
-        <div class="stat-card blue">
+        </section>
 
-            <div class="stat-content">
+        {{-- CLASSES TABLE --}}
+        <section class="attendance-table-card">
 
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-mortarboard-fill"></i>
+            <div class="attendance-panel-header">
+                <div class="panel-title-wrap">
+                    <div class="panel-title-icon">
+                        <i class="fas fa-list-ul"></i>
                     </div>
 
-                    <span class="stat-small">
-                        Academic
-                    </span>
-
-                </div>
-
-                <div class="stat-number">
-                    {{ $classCards->count() }}
-                </div>
-
-                <span class="stat-label">
-                    Total Classes & Sections
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- TOTAL STUDENTS --}}
-
-        <div class="stat-card orange">
-
-            <div class="stat-content">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-people-fill"></i>
+                    <div>
+                        <div class="section-eyebrow">CLASS REGISTER</div>
+                        <h3>Classes &amp; Sections</h3>
+                        <p>Select a class and section to manage student attendance.</p>
                     </div>
-
-                    <span class="stat-small">
-                        All Students
-                    </span>
-
                 </div>
 
-                <div class="stat-number">
-                    {{ $totalStudents }}
+                <div class="attendance-record-count">
+                    <i class="fas fa-folder-open"></i>
+                    <strong>{{ $totalClasses }}</strong>
+                    {{ $totalClasses == 1 ? 'Class' : 'Classes' }}
                 </div>
-
-                <span class="stat-label">
-                    Total Students
-                </span>
-
             </div>
 
-        </div>
-
-
-        {{-- ALL PRESENT STUDENTS --}}
-
-        <div class="stat-card cyan">
-
-            <div class="stat-content">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-person-check-fill"></i>
-                    </div>
-
-                    <span class="stat-small">
-                        Attendance
-                    </span>
-
-                </div>
-
-                <div class="stat-number">
-                    {{ $totalPresent }}
-                </div>
-
-                <span class="stat-label">
-                    Total Students Present
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- ALL ABSENT STUDENTS --}}
-
-        <div class="stat-card red">
-
-            <div class="stat-content">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-person-x-fill"></i>
-                    </div>
-
-                    <span class="stat-small">
-                        Attendance
-                    </span>
-
-                </div>
-
-                <div class="stat-number">
-                    {{ $totalAbsent }}
-                </div>
-
-                <span class="stat-label">
-                    Total Students Absent
-                </span>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    {{-- =====================================================
-         CLASSES & SECTIONS
-    ====================================================== --}}
-
-    <section class="classes-card">
-
-        {{-- CARD HEADER --}}
-
-        <div class="classes-header">
-
-            <div class="classes-heading">
-
-                <div class="classes-heading-icon">
-                    <i class="bi bi-grid-3x3-gap-fill"></i>
-                </div>
-
-                <div class="classes-heading-text">
-
-                    <h3>
-                        Classes & Sections
-                    </h3>
-
-                    <p>
-                        Select a class and section to manage student attendance
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="class-count">
-
-                <i class="bi bi-layers-fill"></i>
-
-                {{ $classCards->count() }} Classes
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             TABLE
-        ================================================== --}}
-
-        @if($classCards->count())
-
-            <div class="table-container">
-
-                <table class="classes-table">
-
+            <div class="attendance-table-wrapper">
+                <table class="attendance-table">
                     <thead>
-
                         <tr>
-
-                            <th>
-                                Class
-                            </th>
-
-                            <th>
-                                Academic Year
-                            </th>
-
-                            <th>
-                                Section
-                            </th>
-
-                            <th>
-                                Students
-                            </th>
-
-                            <th>
-                                Present
-                            </th>
-
-                            <th>
-                                Absent
-                            </th>
-
-                            <th>
-                                Class Teacher
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
+                            <th scope="col">#</th>
+                            <th scope="col">Class</th>
+                            <th scope="col">Academic Year</th>
+                            <th scope="col">Section</th>
+                            <th scope="col">Students</th>
+                            <th scope="col">Present</th>
+                            <th scope="col">Absent</th>
+                            <th scope="col">Class Teacher</th>
+                            <th scope="col" class="actions-heading">Action</th>
                         </tr>
-
                     </thead>
 
                     <tbody>
-
-                        @foreach($classCards as $card)
-
+                        @forelse($classCards as $card)
                             @php
-
-                                $teacherName = trim(
-                                    $card->class_teacher ?? 'Not Assigned'
-                                );
-
-                                $teacherWords = preg_split(
-                                    '/\s+/',
-                                    $teacherName
-                                );
+                                $teacherName = trim($card->class_teacher ?? '');
+                                $hasTeacher  = $teacherName !== '';
 
                                 $initials = '';
-
-                                foreach (
-                                    array_slice($teacherWords, 0, 2)
-                                    as $word
-                                ) {
-
-                                    if (!empty($word)) {
-
-                                        $initials .= strtoupper(
-                                            substr($word, 0, 1)
-                                        );
-
+                                if ($hasTeacher) {
+                                    foreach (array_slice(preg_split('/\s+/', $teacherName), 0, 2) as $word) {
+                                        $initials .= strtoupper(substr($word, 0, 1));
                                     }
-
                                 }
-
-                                if (!$initials) {
-                                    $initials = 'NA';
-                                }
-
+                                $initials = $initials ?: 'NA';
                             @endphp
 
                             <tr>
-
-                                {{-- CLASS --}}
-
                                 <td>
-
-                                    <div class="class-info">
-
-                                        <div class="class-icon">
-                                            <i class="bi bi-mortarboard-fill"></i>
-                                        </div>
-
-                                        <span class="class-name">
-                                            {{ $card->class ?? '-' }}
-                                        </span>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- ACADEMIC YEAR --}}
-
-                                <td>
-
-                                    <span class="academic-year-cell">
-
-                                        <i class="bi bi-calendar3"></i>
-
-                                        {{ $card->academic_year ?? '-' }}
-
+                                    <span class="record-number">
+                                        {{ $loop->iteration }}
                                     </span>
-
                                 </td>
 
-
-                                {{-- SECTION --}}
+                                <td>
+                                    <div class="class-info">
+                                        <div class="class-mini-icon">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <div class="class-details">
+                                            <div class="class-name">
+                                                {{ $card->class ?? '-' }}
+                                            </div>
+                                            <div class="class-description">
+                                                Section {{ $card->section ?? '-' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
 
                                 <td>
+                                    <span class="year-badge">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        {{ $card->academic_year ?? '-' }}
+                                    </span>
+                                </td>
 
-                                    <span class="section-badge">
+                                <td>
+                                    <span class="count-badge">
                                         {{ $card->section ?? '-' }}
                                     </span>
-
                                 </td>
 
-
-                                {{-- STUDENTS --}}
-
                                 <td>
-
-                                    <span class="student-count">
-
-                                        <i class="bi bi-people-fill"></i>
-
-                                        {{ $card->student_count ?? 0 }}
-
-                                    </span>
-
+                                    <div class="student-value">
+                                        <i class="fas fa-users"></i>
+                                        <strong>{{ $card->student_count ?? 0 }}</strong>
+                                    </div>
                                 </td>
 
-
-                                {{-- PRESENT --}}
-
                                 <td>
-
-                                    <div class="attendance-count present-count">
-
-                                        <i class="bi bi-check-circle-fill"></i>
-
+                                    <span class="attendance-badge present">
+                                        <i class="fas fa-circle-check"></i>
                                         {{ $card->present_count ?? 0 }}
-
-                                    </div>
-
-                                    <span class="attendance-label">
-                                        Present
                                     </span>
-
                                 </td>
 
-
-                                {{-- ABSENT --}}
-
                                 <td>
-
-                                    <div class="attendance-count absent-count">
-
-                                        <i class="bi bi-x-circle-fill"></i>
-
+                                    <span class="attendance-badge absent">
+                                        <i class="fas fa-circle-xmark"></i>
                                         {{ $card->absent_count ?? 0 }}
-
-                                    </div>
-
-                                    <span class="attendance-label">
-                                        Absent
                                     </span>
-
                                 </td>
 
-
-                                {{-- CLASS TEACHER --}}
-
                                 <td>
-
-                                    @if(
-                                        !empty($card->class_teacher) &&
-                                        trim($card->class_teacher) !== ''
-                                    )
-
-                                        <div class="teacher-info">
-
-                                            <div class="teacher-avatar">
-                                                {{ $initials }}
-                                            </div>
-
-                                            <span class="teacher-name">
-                                                {{ $teacherName }}
-                                            </span>
-
+                                    <div class="teacher-info">
+                                        <div class="teacher-avatar {{ $hasTeacher ? '' : 'empty' }}">
+                                            {{ $initials }}
                                         </div>
-
-                                    @else
-
-                                        <div class="teacher-info">
-
-                                            <div class="teacher-avatar">
-                                                NA
-                                            </div>
-
-                                            <span class="teacher-name not-assigned">
-                                                Not Assigned
-                                            </span>
-
-                                        </div>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- ACTION --}}
-
-                                <td>
-
-                                    <a
-                                        href="{{ route('admin.attendance.student.sheet', [
-                                            'academic_year' => $card->academic_year,
-                                            'class' => $card->class,
-                                            'section' => $card->section,
-                                            'month' => $month
-                                        ]) }}"
-                                        class="mark-btn"
-                                    >
-
-                                        <i class="bi bi-pencil-square"></i>
-
-                                        <span>
-                                            Mark Attendance
+                                        <span class="teacher-name {{ $hasTeacher ? '' : 'not-assigned' }}">
+                                            {{ $hasTeacher ? $teacherName : 'Not Assigned' }}
                                         </span>
-
-                                    </a>
-
+                                    </div>
                                 </td>
 
+                                <td>
+                                    <div class="attendance-actions">
+                                        <a href="{{ route('admin.attendance.student.sheet', [
+                                                'academic_year' => $card->academic_year,
+                                                'class'         => $card->class,
+                                                'section'       => $card->section,
+                                                'month'         => $month,
+                                            ]) }}"
+                                           class="diary-primary-btn compact-btn"
+                                           aria-label="Mark attendance for {{ $card->class }} {{ $card->section }}">
+                                            <i class="fas fa-pen-to-square"></i>
+                                            Mark Attendance
+                                        </a>
+                                    </div>
+                                </td>
                             </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9">
+                                    <div class="attendance-empty-state">
+                                        <div class="empty-state-icon">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
 
-                        @endforeach
+                                        <h4>No Classes Found</h4>
 
+                                        <p>
+                                            No active students or class sections are
+                                            currently available for attendance.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
-
                 </table>
-
             </div>
 
-        @else
+            {{-- FOOTER --}}
+            @if($totalClasses > 0)
+                <div class="attendance-card-footer">
+                    <div>
+                        Showing
+                        <strong>{{ $totalClasses }}</strong>
+                        class(es) for
+                        <strong>{{ $monthLabel }}</strong>
+                    </div>
 
-            {{-- =================================================
-                 EMPTY STATE
-            ================================================== --}}
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    <i class="bi bi-mortarboard"></i>
+                    <div class="footer-status">
+                        <i class="fas fa-circle-check"></i>
+                        Class register loaded successfully
+                    </div>
                 </div>
+            @endif
 
-                <h4>
-                    No Classes Found
-                </h4>
+        </section>
 
-                <p>
-                    No active students or class sections are currently
-                    available for attendance.
-                </p>
-
-            </div>
-
-        @endif
-
-    </section>
-
+    </div>
 </div>
+
+<style>
+/* =========================================================
+   LOCKED SCHOOL DIARY DESIGN SYSTEM
+   STUDENT ATTENDANCE — INDEX PAGE
+   Same tokens, cards, buttons and layout as Roles / Notices / Library.
+   Every selector is scoped under .attendance-page.
+========================================================= */
+
+.attendance-page {
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --ink-hover: #456854;
+    --text: #34423d;
+    --muted: #78827a;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --paper-bg: #f7f6f0;
+    --chalk: #f4f0df;
+    --blue: #2b5d8a;
+    --amber: #a87543;
+    --green: #3a8060;
+    --red: #bd5148;
+    --cyan: #527f79;
+    --serif: Georgia, "Times New Roman", serif;
+    --hand: "Segoe Print", "Comic Sans MS", cursive;
+
+    min-height: calc(100vh - 70px);
+    color: var(--text);
+    background: var(--paper-bg);
+    font-family: "Public Sans", Inter, Arial, sans-serif;
+}
+
+.attendance-page *,
+.attendance-page *::before,
+.attendance-page *::after {
+    box-sizing: border-box;
+}
+
+.attendance-page a,
+.attendance-page button {
+    transition: color .18s ease, background .18s ease,
+        border-color .18s ease, transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.attendance-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
+}
+
+.attendance-page .attendance-hero,
+.attendance-page .attendance-table-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+}
+
+/* HERO */
+
+.attendance-page .attendance-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(270px, 1fr);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .045);
+}
+
+.attendance-page .attendance-hero::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 34px;
+    width: 2px;
+    background: rgba(189, 81, 72, .35);
+}
+
+.attendance-page .attendance-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    min-width: 0;
+    padding: 29px 28px 29px 56px;
+    background:
+        radial-gradient(ellipse at top left, rgba(244, 240, 223, .65), transparent 65%),
+        var(--paper);
+}
+
+.attendance-page .attendance-hero-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    border: 1px solid #e6dfce;
+    border-radius: 12px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 22px;
+}
+
+.attendance-page .attendance-hero-text {
+    min-width: 0;
+}
+
+.attendance-page .attendance-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+    color: var(--amber);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+}
+
+.attendance-page .attendance-breadcrumb span {
+    color: #b8b09e;
+}
+
+.attendance-page .attendance-hero-text h2 {
+    margin: 0 0 7px;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 29px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.45px;
+}
+
+.attendance-page .attendance-hero-text p {
+    max-width: 540px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.75;
+}
+
+.attendance-page .attendance-hero-note {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 13px;
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.attendance-page .attendance-hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 245px;
+    padding: 25px;
+    color: #e9efe2;
+    background:
+        radial-gradient(ellipse at 20% 0, rgba(255,255,255,.09), transparent 60%),
+        linear-gradient(135deg, #344f43 0%, #20352c 100%);
+    text-align: center;
+}
+
+.attendance-page .hero-handwritten {
+    color: var(--chalk);
+    font-family: var(--hand);
+    font-size: 23px;
+    line-height: 1.3;
+}
+
+.attendance-page .attendance-hero-actions p {
+    max-width: 300px;
+    margin: 0;
+    color: #d2dccf;
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.attendance-page .month-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px 16px;
+    border: 1px solid #f1ead8;
+    border-radius: 7px;
+    color: var(--ink);
+    background: #f1ead8;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* BUTTONS */
+
+.attendance-page .diary-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px 16px;
+    border: 1px solid var(--ink);
+    border-radius: 7px;
+    color: #fff !important;
+    background: var(--ink);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none !important;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.attendance-page .diary-primary-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--ink-hover);
+    color: #fff !important;
+    background: var(--ink-hover);
+    box-shadow: 0 5px 13px rgba(29, 48, 43, .14);
+}
+
+.attendance-page .diary-primary-btn.compact-btn {
+    min-height: 34px;
+    padding: 7px 12px;
+    font-size: 11px;
+}
+
+/* ALERTS */
+
+.attendance-page .attendance-success-alert,
+.attendance-page .attendance-error-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.attendance-page .attendance-success-alert {
+    border: 1px solid #cfe3d1;
+    color: #347849;
+    background: #f1f8ef;
+}
+
+.attendance-page .attendance-error-alert {
+    align-items: flex-start;
+    border: 1px solid #f0d5ce;
+    color: #a84840;
+    background: #fff4ef;
+}
+
+.attendance-page .success-icon,
+.attendance-page .error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 27px;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+}
+
+.attendance-page .success-icon { background: #dcefd9; }
+.attendance-page .error-icon { background: #fbe0d8; }
+
+.attendance-page .alert-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    margin-left: auto;
+    border: 0;
+    border-radius: 6px;
+    color: #68746a;
+    background: transparent;
+    cursor: pointer;
+}
+
+.attendance-page .alert-close:hover {
+    color: var(--ink);
+    background: #e5efdf;
+}
+
+/* KPI CARDS */
+
+.attendance-page .attendance-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin: 34px 0 25px;
+}
+
+.attendance-page .attendance-kpi {
+    --kpi-color: var(--blue);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    padding: 22px 20px 16px;
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--kpi-color);
+    border-radius: 9px;
+    background: var(--paper);
+    box-shadow: 0 4px 13px rgba(38, 59, 53, .045);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.attendance-page .attendance-kpi::before {
+    position: absolute;
+    top: -25px;
+    left: 15px;
+    padding: 5px 12px 4px;
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+    background: var(--kpi-color);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .25px;
+}
+
+.attendance-page .attendance-kpi.blue  { --kpi-color: #2b5d8a; }
+.attendance-page .attendance-kpi.amber { --kpi-color: #a87543; }
+.attendance-page .attendance-kpi.green { --kpi-color: #3a8060; }
+.attendance-page .attendance-kpi.red   { --kpi-color: #bd5148; }
+
+.attendance-page .attendance-kpi.blue::before  { content: "Classes"; }
+.attendance-page .attendance-kpi.amber::before { content: "Students"; }
+.attendance-page .attendance-kpi.green::before { content: "Present"; }
+.attendance-page .attendance-kpi.red::before   { content: "Absent"; }
+
+.attendance-page .attendance-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(38, 59, 53, .09);
+}
+
+.attendance-page .kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.attendance-page .kpi-label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.attendance-page .attendance-kpi .kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid color-mix(in srgb, var(--kpi-color) 14%, white);
+    border-radius: 10px;
+    color: var(--kpi-color);
+    background: color-mix(in srgb, var(--kpi-color) 10%, white);
+    font-size: 17px;
+}
+
+.attendance-page .kpi-value {
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 35px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.attendance-page .kpi-caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 35px;
+    padding-top: 11px;
+    border-top: 1px dashed #d8d1bf;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.attendance-page .kpi-caption i {
+    flex: 0 0 auto;
+    color: var(--kpi-color);
+}
+
+/* RECORDS PANEL */
+
+.attendance-page .attendance-table-card {
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 17px rgba(38, 59, 53, .04);
+}
+
+.attendance-page .attendance-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 21px;
+    border-bottom: 1px dashed #d8d1bf;
+    background: var(--paper);
+}
+
+.attendance-page .panel-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.attendance-page .panel-title-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e3e2d5;
+    border-radius: 9px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 14px;
+}
+
+.attendance-page .section-eyebrow {
+    margin-bottom: 4px;
+    color: var(--amber);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.attendance-page .panel-title-wrap h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.attendance-page .panel-title-wrap p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.attendance-page .attendance-record-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 31px;
+    padding: 6px 11px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    color: var(--muted);
+    background: #faf9f4;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.attendance-page .attendance-record-count i,
+.attendance-page .attendance-record-count strong {
+    color: var(--ink);
+}
+
+/* TABLE */
+
+.attendance-page .attendance-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.attendance-page .attendance-table {
+    width: 100%;
+    min-width: 1180px;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.attendance-page .attendance-table thead th {
+    padding: 13px 14px;
+    border-bottom: 1px solid #e5e3d8;
+    color: #727a70;
+    background: #f5f3e9;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .45px;
+    white-space: nowrap;
+}
+
+.attendance-page .attendance-table tbody td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #eeece3;
+    color: var(--text);
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.attendance-page .attendance-table tbody tr {
+    transition: background .18s ease;
+}
+
+.attendance-page .attendance-table tbody tr:hover {
+    background: #faf9f2;
+}
+
+.attendance-page .attendance-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.attendance-page .attendance-table .actions-heading {
+    text-align: right;
+}
+
+.attendance-page .record-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 31px;
+    height: 31px;
+    border: 1px solid #e7e4d8;
+    border-radius: 7px;
+    color: #667269;
+    background: #f5f3e9;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* CLASS CELL */
+
+.attendance-page .class-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 180px;
+}
+
+.attendance-page .class-mini-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e6dfce;
+    border-radius: 9px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 15px;
+}
+
+.attendance-page .class-details {
+    min-width: 0;
+}
+
+.attendance-page .class-name {
+    max-width: 220px;
+    overflow: hidden;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attendance-page .class-description {
+    margin-top: 4px;
+    color: #858e82;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* OTHER CELLS */
+
+.attendance-page .year-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 28px;
+    padding: 0 10px;
+    border: 1px solid #e6dfce;
+    border-radius: 7px;
+    color: var(--amber);
+    background: #fcf7e9;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.attendance-page .count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 28px;
+    padding: 0 9px;
+    border: 1px solid #d7e2e9;
+    border-radius: 7px;
+    color: var(--blue);
+    background: #f0f5f8;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.attendance-page .student-value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 7px;
+}
+
+.attendance-page .student-value i {
+    color: var(--blue);
+    font-size: 12px;
+}
+
+.attendance-page .student-value strong {
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* ATTENDANCE BADGES */
+
+.attendance-page .attendance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.attendance-page .attendance-badge.present {
+    border: 1px solid #cfe5d3;
+    color: #347849;
+    background: #edf7ed;
+}
+
+.attendance-page .attendance-badge.absent {
+    border: 1px solid #f0d5ce;
+    color: #bd5148;
+    background: #fff1ed;
+}
+
+/* TEACHER */
+
+.attendance-page .teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.attendance-page .teacher-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e6dfce;
+    border-radius: 50%;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.attendance-page .teacher-avatar.empty {
+    color: #858e82;
+    background: #f5f3e9;
+}
+
+.attendance-page .teacher-name {
+    max-width: 180px;
+    overflow: hidden;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attendance-page .teacher-name.not-assigned {
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 600;
+}
+
+/* ACTION */
+
+.attendance-page .attendance-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+/* EMPTY STATE */
+
+.attendance-page .attendance-empty-state {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.attendance-page .empty-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    border: 1px solid #e5dfcc;
+    border-radius: 14px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 27px;
+}
+
+.attendance-page .attendance-empty-state h4 {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.attendance-page .attendance-empty-state p {
+    max-width: 450px;
+    margin: 0 auto;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* FOOTER */
+
+.attendance-page .attendance-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 53px;
+    padding: 12px 20px;
+    border-top: 1px dashed #d8d1bf;
+    color: var(--muted);
+    background: #faf9f4;
+    font-size: 11px;
+}
+
+.attendance-page .attendance-card-footer strong {
+    color: var(--ink);
+}
+
+.attendance-page .footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #68766d;
+    font-size: 10px;
+}
+
+.attendance-page .footer-status i {
+    color: var(--green);
+}
+
+/* TABLET */
+
+@media (max-width: 1100px) {
+    .attendance-page .attendance-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .attendance-page .attendance-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .attendance-page .attendance-hero-actions {
+        min-height: 165px;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+    .attendance-page .container-fluid {
+        padding-top: 18px !important;
+        padding-bottom: 18px !important;
+    }
+
+    .attendance-page .attendance-hero::before {
+        left: 22px;
+    }
+
+    .attendance-page .attendance-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 22px 16px 22px 42px;
+    }
+
+    .attendance-page .attendance-hero-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        border-radius: 9px;
+        font-size: 18px;
+    }
+
+    .attendance-page .attendance-hero-text h2 {
+        font-size: 23px;
+    }
+
+    .attendance-page .attendance-hero-text p {
+        font-size: 12px;
+    }
+
+    .attendance-page .attendance-hero-note {
+        align-items: flex-start;
+        font-size: 10px;
+    }
+
+    .attendance-page .attendance-hero-actions {
+        min-height: 155px;
+        padding: 20px;
+    }
+
+    .attendance-page .attendance-kpis {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .attendance-page .attendance-kpi {
+        padding: 20px 16px 15px;
+    }
+
+    .attendance-page .kpi-value {
+        font-size: 30px;
+    }
+
+    .attendance-page .attendance-panel-header {
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .attendance-page .panel-title-wrap h3 {
+        font-size: 16px;
+    }
+
+    .attendance-page .attendance-record-count {
+        gap: 5px;
+        padding: 5px 7px;
+    }
+
+    .attendance-page .attendance-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px 15px;
+    }
+}
+
+@media (max-width: 400px) {
+    .attendance-page .attendance-panel-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .attendance-page .panel-title-icon {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+    }
+}
+
+/* ACCESSIBILITY */
+
+.attendance-page :focus-visible {
+    outline: 3px solid rgba(82, 127, 121, .45);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .attendance-page *,
+    .attendance-page *::before,
+    .attendance-page *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}
+</style>
 
 @endsection
