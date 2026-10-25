@@ -6,167 +6,110 @@
 @section('content')
 
 @php
-    $totalLibrarians    = $librarians->total();
-    $activeLibrarians   = $librarians->getCollection()->where('status', 'Active')->count();
-    $inactiveLibrarians = $librarians->getCollection()->where('status', 'Inactive')->count();
+    $totalLibrarians = $librarians->total();
+
+    // Pass $activeLibrariansTotal / $inactiveLibrariansTotal from the controller for counts across
+    // all pages. Without them these two cards count only the librarians on the current page.
+    $pageItems          = $librarians->getCollection();
+    $activeLibrarians   = $activeLibrariansTotal   ?? $pageItems->where('status', 'Active')->count();
+    $inactiveLibrarians = $inactiveLibrariansTotal ?? $pageItems->where('status', 'Inactive')->count();
 @endphp
 
 <div class="librarians-page">
-    <div class="container-fluid py-4">
+    <div class="lib-container">
 
-        
-    </div>
-
-
-    {{-- Statistics --}}
-    <div class="row g-4 mb-4">
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="stat-icon bg-primary-subtle text-primary">
-                        <i class="fas fa-users"></i>
-                    </div>
-
-                    <div class="ms-3">
-                        <div class="text-muted small">Total Librarians</div>
-                        <h3 class="fw-bold mb-0">
-                            {{ $librarians->total() }}
-                        </h3>
-                    </div>
-                </div>
         {{-- FLASH MESSAGES --}}
         @if(session('success'))
-            <div class="librarians-success-alert" role="status">
-                <span class="success-icon">
-                    <i class="fas fa-check"></i>
-                </span>
-                <span>{{ session('success') }}</span>
-                <button type="button" class="alert-close"
-                        aria-label="Close alert"
+            <div class="lib-alert success" role="status">
+                <span class="alert-icon"><i class="bi bi-check-lg"></i></span>
+                <span class="alert-text">{{ session('success') }}</span>
+                <button type="button" class="alert-close" aria-label="Close alert"
                         onclick="this.parentElement.remove();">
-                    <i class="fas fa-times"></i>
+                    <i class="bi bi-x-lg"></i>
                 </button>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="librarians-error-alert" role="alert">
-                <span class="error-icon">
-                    <i class="fas fa-exclamation"></i>
-                </span>
-                <span>{{ session('error') }}</span>
-                <button type="button" class="alert-close"
-                        aria-label="Close alert"
+            <div class="lib-alert error" role="alert">
+                <span class="alert-icon"><i class="bi bi-exclamation-lg"></i></span>
+                <span class="alert-text">{{ session('error') }}</span>
+                <button type="button" class="alert-close" aria-label="Close alert"
                         onclick="this.parentElement.remove();">
-                    <i class="fas fa-times"></i>
+                    <i class="bi bi-x-lg"></i>
                 </button>
             </div>
         @endif
 
-        {{-- SCHOOL DIARY HERO --}}
-        <section class="librarians-hero">
-            <div class="librarians-hero-content">
-                <div class="librarians-hero-icon">
-                    <i class="fas fa-book-reader"></i>
-                </div>
+        {{-- HERO --}}
+        <section class="lib-hero">
+            <div class="lib-hero-content">
+                <div class="lib-hero-icon"><i class="bi bi-book-half"></i></div>
 
-                <div class="librarians-hero-text">
-                    <div class="librarians-breadcrumb">
-                        LIBRARY <span>/</span> LIBRARIANS
-                    </div>
+                <div class="lib-hero-text">
+                    <div class="lib-breadcrumb">LIBRARY <span>/</span> LIBRARIANS</div>
 
                     <h2>Librarians</h2>
 
-                    <p>
-                        View and manage all librarians who look after
-                        the school library.
-                    </p>
+                    <p>View and manage all librarians who look after the school library.</p>
 
-                    <div class="librarians-hero-note">
-                        <i class="fas fa-shield-alt"></i>
+                    <div class="lib-hero-note">
+                        <i class="bi bi-shield-check"></i>
                         <span>Added through Other Staff</span>
                     </div>
                 </div>
             </div>
 
-            <div class="librarians-hero-actions">
-                <div class="hero-handwritten">Organise. Assist. Inspire.</div>
+            <div class="lib-hero-actions">
+                <div class="lib-handwritten">Organise. Assist. Inspire.</div>
 
-                <p>
-                    Add a staff member with the designation
-                    Librarian to see them here.
-                </p>
+                <p>Add a staff member with the designation Librarian to see them here.</p>
 
-                <a href="{{ route('admin.other-staff.create') }}"
-                   class="diary-primary-btn hero-primary-btn">
-                    <i class="fas fa-plus"></i>
+                <a href="{{ route('admin.other-staff.create') }}" class="lib-btn lib-btn-light">
+                    <i class="bi bi-plus-lg"></i>
                     Add Librarian
                 </a>
             </div>
         </section>
 
         {{-- KPI CARDS --}}
-        <section class="librarians-kpis">
+        <section class="lib-kpis">
 
-            <article class="librarians-kpi blue">
+            <article class="lib-kpi blue" data-tab="TOTAL">
                 <div class="kpi-top">
                     <span class="kpi-label">Total Librarians</span>
-                    <span class="kpi-icon">
-                        <i class="fas fa-users"></i>
-                    </span>
+                    <span class="kpi-icon"><i class="bi bi-people"></i></span>
                 </div>
-
-                <div class="kpi-value">{{ $totalLibrarians }}</div>
-
-                <div class="kpi-caption">
-                    <i class="fas fa-layer-group"></i>
-                    Registered librarians
-                </div>
+                <div class="kpi-value">{{ number_format($totalLibrarians) }}</div>
+                <div class="kpi-caption"><i class="bi bi-layers"></i> Registered librarians</div>
             </article>
 
-            <article class="librarians-kpi green">
+            <article class="lib-kpi green" data-tab="ACTIVE">
                 <div class="kpi-top">
                     <span class="kpi-label">Active Librarians</span>
-                    <span class="kpi-icon">
-                        <i class="fas fa-user-check"></i>
-                    </span>
+                    <span class="kpi-icon"><i class="bi bi-person-check"></i></span>
                 </div>
-
-                <div class="kpi-value">{{ $activeLibrarians }}</div>
-
-                <div class="kpi-caption">
-                    <i class="fas fa-check"></i>
-                    Currently active
-                </div>
+                <div class="kpi-value">{{ number_format($activeLibrarians) }}</div>
+                <div class="kpi-caption"><i class="bi bi-check-lg"></i> Currently active</div>
             </article>
 
-            <article class="librarians-kpi red">
+            <article class="lib-kpi red" data-tab="INACTIVE">
                 <div class="kpi-top">
                     <span class="kpi-label">Inactive Librarians</span>
-                    <span class="kpi-icon">
-                        <i class="fas fa-user-slash"></i>
-                    </span>
+                    <span class="kpi-icon"><i class="bi bi-person-slash"></i></span>
                 </div>
-
-                <div class="kpi-value">{{ $inactiveLibrarians }}</div>
-
-                <div class="kpi-caption">
-                    <i class="fas fa-ban"></i>
-                    Currently inactive
-                </div>
+                <div class="kpi-value">{{ number_format($inactiveLibrarians) }}</div>
+                <div class="kpi-caption"><i class="bi bi-slash-circle"></i> Currently inactive</div>
             </article>
 
         </section>
 
         {{-- LIBRARIANS TABLE --}}
-        <section class="librarians-table-card">
+        <section class="lib-card">
 
-            <div class="librarians-panel-header">
+            <div class="lib-panel-header">
                 <div class="panel-title-wrap">
-                    <div class="panel-title-icon">
-                        <i class="fas fa-list-ul"></i>
-                    </div>
+                    <div class="panel-title-icon"><i class="bi bi-list-ul"></i></div>
 
                     <div>
                         <div class="section-eyebrow">STAFF REGISTER</div>
@@ -175,15 +118,15 @@
                     </div>
                 </div>
 
-                <div class="librarians-record-count">
-                    <i class="fas fa-folder-open"></i>
-                    <strong>{{ $totalLibrarians }}</strong>
+                <div class="lib-record-count">
+                    <i class="bi bi-folder2-open"></i>
+                    <strong>{{ number_format($totalLibrarians) }}</strong>
                     {{ $totalLibrarians == 1 ? 'Librarian' : 'Librarians' }}
                 </div>
             </div>
 
-            <div class="librarians-table-wrapper">
-                <table class="librarians-table">
+            <div class="lib-table-wrap">
+                <table class="lib-table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -192,89 +135,79 @@
                             <th scope="col">Phone</th>
                             <th scope="col">Department</th>
                             <th scope="col">Status</th>
-                            <th scope="col" class="actions-heading">Action</th>
+                            <th scope="col" class="text-end">Action</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         @forelse($librarians as $librarian)
-                            @php
-                                $isActive = $librarian->status === 'Active';
-                            @endphp
+                            @php $isActive = $librarian->status === 'Active'; @endphp
 
                             <tr>
-                                <td>
+                                <td data-label="#" class="cell-no">
                                     <span class="record-number">
                                         {{ $librarians->firstItem() + $loop->index }}
                                     </span>
                                 </td>
 
-                                <td>
-                                    <div class="librarian-info">
-                                        <div class="librarian-avatar">
+                                <td data-label="Librarian" class="cell-person">
+                                    <div class="lib-person">
+                                        <div class="lib-avatar">
+                                            <i class="bi bi-person-fill"></i>
                                             @if($librarian->profile_photo)
                                                 <img src="{{ asset('storage/' . $librarian->profile_photo) }}"
                                                      alt="{{ $librarian->name }}"
-                                                     loading="lazy">
-                                            @else
-                                                <i class="fas fa-user"></i>
+                                                     loading="lazy"
+                                                     onerror="this.remove();">
                                             @endif
                                         </div>
 
-                                        <div class="librarian-details">
-                                            <div class="librarian-name">
-                                                {{ $librarian->name }}
-                                            </div>
-                                            <div class="librarian-description">
-                                                {{ $librarian->designation ?: 'Librarian' }}
-                                            </div>
+                                        <div class="lib-person-details">
+                                            <div class="lib-name">{{ $librarian->name }}</div>
+                                            <div class="lib-sub">{{ $librarian->designation ?: 'Librarian' }}</div>
                                         </div>
                                     </div>
                                 </td>
 
-                                <td>
-                                    <span class="count-badge">
-                                        {{ $librarian->staff_id }}
+                                <td data-label="Staff ID">
+                                    <span class="id-badge">{{ $librarian->staff_id }}</span>
+                                </td>
+
+                                <td data-label="Phone">
+                                    <span class="text-value {{ $librarian->phone ? '' : 'muted' }}">
+                                        {{ $librarian->phone ?: '—' }}
                                     </span>
                                 </td>
 
-                                <td>
-                                    <div class="text-value {{ $librarian->phone ? '' : 'muted' }}">
-                                        {{ $librarian->phone ?? '—' }}
-                                    </div>
+                                <td data-label="Department">
+                                    <span class="text-value {{ $librarian->department ? '' : 'muted' }}">
+                                        {{ $librarian->department ?: '—' }}
+                                    </span>
                                 </td>
 
-                                <td>
-                                    <div class="text-value {{ $librarian->department ? '' : 'muted' }}">
-                                        {{ $librarian->department ?? '—' }}
-                                    </div>
-                                </td>
-
-                                <td>
+                                <td data-label="Status">
                                     <span class="status-badge {{ $isActive ? 'active' : 'inactive' }}">
                                         <span class="status-dot"></span>
                                         {{ $isActive ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
 
-                                <td>
-                                    <div class="librarians-actions">
+                                <td data-label="Action" class="cell-actions">
+                                    <div class="lib-actions">
                                         <a href="{{ route('admin.library.librarian.show', $librarian) }}"
-                                           class="diary-primary-btn compact-btn"
+                                           class="lib-btn lib-btn-dark lib-btn-sm"
                                            aria-label="View profile of {{ $librarian->name }}">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="bi bi-eye"></i>
                                             View Profile
                                         </a>
                                     </div>
                                 </td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr class="empty-row">
                                 <td colspan="7">
-                                    <div class="librarians-empty-state">
-                                        <div class="empty-state-icon">
-                                            <i class="fas fa-user-tie"></i>
-                                        </div>
+                                    <div class="lib-empty">
+                                        <div class="empty-icon"><i class="bi bi-person-badge"></i></div>
 
                                         <h4>No Librarians Found</h4>
 
@@ -283,13 +216,10 @@
                                             designation <strong>Librarian</strong>.
                                         </p>
 
-                                        <div class="empty-state-actions">
-                                            <a href="{{ route('admin.other-staff.create') }}"
-                                               class="diary-primary-btn">
-                                                <i class="fas fa-plus"></i>
-                                                Add Librarian
-                                            </a>
-                                        </div>
+                                        <a href="{{ route('admin.other-staff.create') }}" class="lib-btn lib-btn-dark">
+                                            <i class="bi bi-plus-lg"></i>
+                                            Add Librarian
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -299,24 +229,24 @@
             </div>
 
             {{-- FOOTER --}}
-            <div class="librarians-card-footer">
+            <div class="lib-card-footer">
                 <div>
                     Showing
                     <strong>{{ $librarians->firstItem() ?? 0 }}</strong>
                     to
                     <strong>{{ $librarians->lastItem() ?? 0 }}</strong>
                     of
-                    <strong>{{ $librarians->total() }}</strong>
+                    <strong>{{ number_format($librarians->total()) }}</strong>
                     librarian(s)
                 </div>
 
                 @if($librarians->hasPages())
-                    <div class="librarians-pagination">
-                        {{ $librarians->withQueryString()->links() }}
+                    <div class="lib-pagination">
+                        {{ $librarians->withQueryString()->links('pagination::bootstrap-5') }}
                     </div>
                 @else
                     <div class="footer-status">
-                        <i class="fas fa-circle-check"></i>
+                        <i class="bi bi-check-circle-fill"></i>
                         Staff register loaded successfully
                     </div>
                 @endif
@@ -328,13 +258,6 @@
 </div>
 
 <style>
-/* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM
-   LIBRARY LIBRARIANS — INDEX PAGE
-   Same tokens, cards, buttons and layout as Roles / Notices / Library.
-   Every selector is scoped under .librarians-page.
-========================================================= */
-
 .librarians-page {
     --ink: #263b35;
     --ink-dark: #1d302b;
@@ -343,61 +266,54 @@
     --muted: #78827a;
     --line: #e5e1d5;
     --paper: #fffefa;
-    --paper-bg: #f7f6f0;
     --chalk: #f4f0df;
-    --blue: #2b5d8a;
     --amber: #a87543;
     --green: #3a8060;
-    --red: #bd5148;
-    --cyan: #527f79;
-    --serif: Georgia, "Times New Roman", serif;
-    --hand: "Segoe Print", "Comic Sans MS", cursive;
+    --serif: var(--serif-font, Georgia, "Times New Roman", serif);
+    --hand: var(--hand-font, "Caveat", "Segoe Print", cursive);
 
     min-height: calc(100vh - 70px);
     color: var(--text);
-    background: var(--paper-bg);
+    background: #f7f6f0;
     font-family: "Public Sans", Inter, Arial, sans-serif;
+    font-size: 13px;
 }
 
 .librarians-page *,
 .librarians-page *::before,
-.librarians-page *::after {
-    box-sizing: border-box;
-}
+.librarians-page *::after { box-sizing: border-box; }
 
 .librarians-page a,
 .librarians-page button {
-    transition: color .18s ease, background .18s ease,
-        border-color .18s ease, transform .18s ease,
-        box-shadow .18s ease;
+    transition: color .18s ease, background .18s ease, border-color .18s ease,
+                transform .18s ease, box-shadow .18s ease;
 }
 
-.librarians-page .container-fluid {
+.librarians-page .lib-container {
     width: 100%;
     max-width: 1650px;
     margin: 0 auto;
+    padding: 24px;
 }
 
-.librarians-page .librarians-hero,
-.librarians-page .librarians-table-card {
+.librarians-page .lib-hero,
+.librarians-page .lib-card {
     border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--paper);
 }
 
 /* HERO */
-
-.librarians-page .librarians-hero {
+.librarians-page .lib-hero {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(270px, 1fr);
-    position: relative;
     overflow: hidden;
     margin-bottom: 30px;
-    border-radius: 10px;
     box-shadow: 0 5px 18px rgba(38, 59, 53, .045);
 }
 
-.librarians-page .librarians-hero::before {
+.librarians-page .lib-hero::before {
     content: "";
     position: absolute;
     z-index: 1;
@@ -408,18 +324,16 @@
     background: rgba(189, 81, 72, .35);
 }
 
-.librarians-page .librarians-hero-content {
+.librarians-page .lib-hero-content {
     display: flex;
     align-items: center;
     gap: 17px;
     min-width: 0;
     padding: 29px 28px 29px 56px;
-    background:
-        radial-gradient(ellipse at top left, rgba(244, 240, 223, .65), transparent 65%),
-        var(--paper);
+    background: radial-gradient(ellipse at top left, rgba(244, 240, 223, .65), transparent 65%), var(--paper);
 }
 
-.librarians-page .librarians-hero-icon {
+.librarians-page .lib-hero-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -433,11 +347,9 @@
     font-size: 22px;
 }
 
-.librarians-page .librarians-hero-text {
-    min-width: 0;
-}
+.librarians-page .lib-hero-text { min-width: 0; }
 
-.librarians-page .librarians-breadcrumb {
+.librarians-page .lib-breadcrumb {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -448,21 +360,18 @@
     letter-spacing: 1.3px;
 }
 
-.librarians-page .librarians-breadcrumb span {
-    color: #b8b09e;
-}
+.librarians-page .lib-breadcrumb span { color: #b8b09e; }
 
-.librarians-page .librarians-hero-text h2 {
+.librarians-page .lib-hero-text h2 {
     margin: 0 0 7px;
     color: var(--ink);
     font-family: var(--serif);
-    font-size: 29px;
+    font-size: clamp(24px, 2.2vw, 29px);
     font-weight: 700;
     line-height: 1.2;
-    letter-spacing: -.45px;
 }
 
-.librarians-page .librarians-hero-text p {
+.librarians-page .lib-hero-text p {
     max-width: 540px;
     margin: 0;
     color: var(--muted);
@@ -470,7 +379,7 @@
     line-height: 1.75;
 }
 
-.librarians-page .librarians-hero-note {
+.librarians-page .lib-hero-note {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -481,7 +390,7 @@
     font-weight: 700;
 }
 
-.librarians-page .librarians-hero-actions {
+.librarians-page .lib-hero-actions {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -490,20 +399,19 @@
     min-height: 245px;
     padding: 25px;
     color: #e9efe2;
-    background:
-        radial-gradient(ellipse at 20% 0, rgba(255,255,255,.09), transparent 60%),
-        linear-gradient(135deg, #344f43 0%, #20352c 100%);
+    background: radial-gradient(ellipse at 20% 0, rgba(255, 255, 255, .09), transparent 60%),
+                linear-gradient(135deg, #344f43 0%, #20352c 100%);
     text-align: center;
 }
 
-.librarians-page .hero-handwritten {
+.librarians-page .lib-handwritten {
     color: var(--chalk);
     font-family: var(--hand);
     font-size: 23px;
     line-height: 1.3;
 }
 
-.librarians-page .librarians-hero-actions p {
+.librarians-page .lib-hero-actions p {
     max-width: 300px;
     margin: 0;
     color: #d2dccf;
@@ -512,57 +420,45 @@
 }
 
 /* BUTTONS */
-
-.librarians-page .diary-primary-btn {
+.librarians-page .lib-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     min-height: 40px;
     padding: 10px 16px;
-    border: 1px solid var(--ink);
+    border: 1px solid transparent;
     border-radius: 7px;
-    color: #fff !important;
-    background: var(--ink);
     font-family: inherit;
     font-size: 12px;
     font-weight: 700;
     line-height: 1.2;
-    text-decoration: none !important;
+    text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
 }
 
-.librarians-page .diary-primary-btn:hover {
+.librarians-page .lib-btn-dark { border-color: var(--ink); color: #fff; background: var(--ink); }
+.librarians-page .lib-btn-dark:hover {
     transform: translateY(-2px);
     border-color: var(--ink-hover);
-    color: #fff !important;
+    color: #fff;
     background: var(--ink-hover);
     box-shadow: 0 5px 13px rgba(29, 48, 43, .14);
 }
 
-.librarians-page .diary-primary-btn.compact-btn {
-    min-height: 34px;
-    padding: 7px 12px;
-    font-size: 11px;
-}
-
-.librarians-page .librarians-hero-actions .hero-primary-btn {
-    border-color: #f1ead8;
-    color: var(--ink) !important;
-    background: #f1ead8;
-}
-
-.librarians-page .librarians-hero-actions .hero-primary-btn:hover {
+.librarians-page .lib-btn-light { border-color: #f1ead8; color: var(--ink); background: #f1ead8; }
+.librarians-page .lib-btn-light:hover {
+    transform: translateY(-2px);
     border-color: #fff8e8;
-    color: var(--ink-dark) !important;
+    color: var(--ink-dark);
     background: #fff8e8;
 }
 
-/* ALERTS */
+.librarians-page .lib-btn-sm { min-height: 34px; padding: 7px 12px; font-size: 11px; }
 
-.librarians-page .librarians-success-alert,
-.librarians-page .librarians-error-alert {
+/* ALERTS */
+.librarians-page .lib-alert {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -573,21 +469,10 @@
     font-weight: 700;
 }
 
-.librarians-page .librarians-success-alert {
-    border: 1px solid #cfe3d1;
-    color: #347849;
-    background: #f1f8ef;
-}
+.librarians-page .lib-alert.success { border: 1px solid #cfe3d1; color: #347849; background: #f1f8ef; }
+.librarians-page .lib-alert.error   { border: 1px solid #f0d5ce; color: #a84840; background: #fff4ef; }
 
-.librarians-page .librarians-error-alert {
-    align-items: flex-start;
-    border: 1px solid #f0d5ce;
-    color: #a84840;
-    background: #fff4ef;
-}
-
-.librarians-page .success-icon,
-.librarians-page .error-icon {
+.librarians-page .alert-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -597,8 +482,10 @@
     border-radius: 50%;
 }
 
-.librarians-page .success-icon { background: #dcefd9; }
-.librarians-page .error-icon { background: #fbe0d8; }
+.librarians-page .lib-alert.success .alert-icon { background: #dcefd9; }
+.librarians-page .lib-alert.error .alert-icon   { background: #fbe0d8; }
+
+.librarians-page .alert-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
 .librarians-page .alert-close {
     display: inline-flex;
@@ -615,23 +502,18 @@
     cursor: pointer;
 }
 
-.librarians-page .alert-close:hover {
-    color: var(--ink);
-    background: #e5efdf;
-}
+.librarians-page .alert-close:hover { color: var(--ink); background: rgba(0, 0, 0, .05); }
 
 /* KPI CARDS */
-
-.librarians-page .librarians-kpis {
+.librarians-page .lib-kpis {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
     margin: 34px 0 25px;
 }
 
-.librarians-page .librarians-kpi {
-    --kpi-color: var(--blue);
-
+.librarians-page .lib-kpi {
+    --kpi-color: #2b5d8a;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -643,10 +525,14 @@
     border-radius: 9px;
     background: var(--paper);
     box-shadow: 0 4px 13px rgba(38, 59, 53, .045);
-    transition: transform .2s ease, box-shadow .2s ease;
 }
 
-.librarians-page .librarians-kpi::before {
+.librarians-page .lib-kpi.blue  { --kpi-color: #2b5d8a; }
+.librarians-page .lib-kpi.green { --kpi-color: #3a8060; }
+.librarians-page .lib-kpi.red   { --kpi-color: #bd5148; }
+
+.librarians-page .lib-kpi::before {
+    content: attr(data-tab);
     position: absolute;
     top: -25px;
     left: 15px;
@@ -656,18 +542,10 @@
     background: var(--kpi-color);
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .25px;
+    letter-spacing: .4px;
 }
 
-.librarians-page .librarians-kpi.blue  { --kpi-color: #2b5d8a; }
-.librarians-page .librarians-kpi.green { --kpi-color: #3a8060; }
-.librarians-page .librarians-kpi.red   { --kpi-color: #bd5148; }
-
-.librarians-page .librarians-kpi.blue::before  { content: "Total"; }
-.librarians-page .librarians-kpi.green::before { content: "Active"; }
-.librarians-page .librarians-kpi.red::before   { content: "Inactive"; }
-
-.librarians-page .librarians-kpi:hover {
+.librarians-page .lib-kpi:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 22px rgba(38, 59, 53, .09);
 }
@@ -679,78 +557,60 @@
     gap: 12px;
 }
 
-.librarians-page .kpi-label {
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.5;
-}
+.librarians-page .kpi-label { color: var(--muted); font-size: 11px; font-weight: 700; }
 
-.librarians-page .librarians-kpi .kpi-icon {
+.librarians-page .kpi-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     flex: 0 0 43px;
     width: 43px;
     height: 43px;
-    border: 1px solid color-mix(in srgb, var(--kpi-color) 14%, white);
     border-radius: 10px;
     color: var(--kpi-color);
     background: color-mix(in srgb, var(--kpi-color) 10%, white);
+    border: 1px solid color-mix(in srgb, var(--kpi-color) 14%, white);
     font-size: 17px;
 }
 
 .librarians-page .kpi-value {
     color: var(--ink);
     font-family: var(--serif);
-    font-size: 35px;
+    font-size: clamp(28px, 2.4vw, 35px);
     font-weight: 700;
     line-height: 1.1;
     font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
 }
 
 .librarians-page .kpi-caption {
     display: flex;
     align-items: center;
     gap: 8px;
-    min-height: 35px;
     padding-top: 11px;
     border-top: 1px dashed #d8d1bf;
     color: var(--muted);
     font-size: 11px;
-    line-height: 1.6;
 }
 
-.librarians-page .kpi-caption i {
-    flex: 0 0 auto;
-    color: var(--kpi-color);
-}
+.librarians-page .kpi-caption i { color: var(--kpi-color); }
 
-/* RECORDS PANEL */
-
-.librarians-page .librarians-table-card {
+/* RECORDS CARD */
+.librarians-page .lib-card {
     overflow: hidden;
     margin-bottom: 24px;
     box-shadow: 0 5px 17px rgba(38, 59, 53, .04);
 }
 
-.librarians-page .librarians-panel-header {
+.librarians-page .lib-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
     padding: 18px 21px;
     border-bottom: 1px dashed #d8d1bf;
-    background: var(--paper);
 }
 
-.librarians-page .panel-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-}
+.librarians-page .panel-title-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
 .librarians-page .panel-title-icon {
     display: flex;
@@ -763,7 +623,7 @@
     border-radius: 9px;
     color: var(--ink);
     background: var(--chalk);
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .librarians-page .section-eyebrow {
@@ -782,17 +642,11 @@
     font-weight: 700;
 }
 
-.librarians-page .panel-title-wrap p {
-    margin: 5px 0 0;
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1.6;
-}
+.librarians-page .panel-title-wrap p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
 
-.librarians-page .librarians-record-count {
+.librarians-page .lib-record-count {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 7px;
     min-height: 31px;
     padding: 6px 11px;
@@ -800,74 +654,50 @@
     border-radius: 20px;
     color: var(--muted);
     background: #faf9f4;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
 }
 
-.librarians-page .librarians-record-count i,
-.librarians-page .librarians-record-count strong {
-    color: var(--ink);
-}
+.librarians-page .lib-record-count i,
+.librarians-page .lib-record-count strong { color: var(--ink); }
 
 /* TABLE */
+.librarians-page .lib-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-.librarians-page .librarians-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
+.librarians-page .lib-table { width: 100%; min-width: 900px; margin: 0; border-collapse: collapse; }
 
-.librarians-page .librarians-table {
-    width: 100%;
-    min-width: 950px;
-    margin: 0;
-    border-collapse: collapse;
-}
-
-.librarians-page .librarians-table thead th {
+.librarians-page .lib-table thead th {
     padding: 13px 14px;
     border-bottom: 1px solid #e5e3d8;
     color: #727a70;
     background: #f5f3e9;
     font-size: 10px;
     font-weight: 800;
+    letter-spacing: .45px;
     text-align: left;
     text-transform: uppercase;
-    letter-spacing: .45px;
     white-space: nowrap;
 }
 
-.librarians-page .librarians-table tbody td {
+.librarians-page .lib-table tbody td {
     padding: 13px 14px;
     border-bottom: 1px solid #eeece3;
-    color: var(--text);
     font-size: 12px;
     vertical-align: middle;
 }
 
-.librarians-page .librarians-table tbody tr {
-    transition: background .18s ease;
-}
-
-.librarians-page .librarians-table tbody tr:hover {
-    background: #faf9f2;
-}
-
-.librarians-page .librarians-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.librarians-page .librarians-table .actions-heading {
-    text-align: right;
-}
+.librarians-page .lib-table tbody tr:hover td { background: #faf9f2; }
+.librarians-page .lib-table tbody tr:last-child td { border-bottom: 0; }
+.librarians-page .text-end { text-align: right !important; }
 
 .librarians-page .record-number {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 31px;
+    min-width: 31px;
     height: 31px;
+    padding: 0 6px;
     border: 1px solid #e7e4d8;
     border-radius: 7px;
     color: #667269;
@@ -876,16 +706,10 @@
     font-weight: 800;
 }
 
-/* LIBRARIAN CELL */
+.librarians-page .lib-person { display: flex; align-items: center; gap: 12px; min-width: 230px; }
 
-.librarians-page .librarian-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 240px;
-}
-
-.librarians-page .librarian-avatar {
+.librarians-page .lib-avatar {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -895,126 +719,73 @@
     overflow: hidden;
     border: 1px solid #e6dfce;
     border-radius: 50%;
-    color: var(--ink);
+    color: #9aa398;
     background: var(--chalk);
-    font-size: 16px;
+    font-size: 18px;
 }
 
-.librarians-page .librarian-avatar img {
+.librarians-page .lib-avatar img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.librarians-page .librarian-details {
-    min-width: 0;
-}
+.librarians-page .lib-person-details { min-width: 0; }
 
-.librarians-page .librarian-name {
+.librarians-page .lib-name {
     max-width: 240px;
     overflow: hidden;
     color: var(--ink);
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 800;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.librarians-page .librarian-description {
-    max-width: 260px;
-    margin-top: 4px;
-    color: #858e82;
-    font-size: 10px;
-    line-height: 1.4;
-}
+.librarians-page .lib-sub { margin-top: 3px; color: #858e82; font-size: 10.5px; }
 
-/* OTHER CELLS */
-
-.librarians-page .count-badge {
+.librarians-page .id-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 32px;
-    height: 28px;
-    padding: 0 9px;
+    min-height: 28px;
+    padding: 0 10px;
     border: 1px solid #d7e2e9;
     border-radius: 7px;
-    color: var(--blue);
+    color: #2b5d8a;
     background: #f0f5f8;
     font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
 }
 
-.librarians-page .text-value {
-    color: var(--ink);
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.librarians-page .text-value.muted {
-    color: var(--muted);
-    font-weight: 600;
-}
-
-/* STATUS BADGES */
+.librarians-page .text-value { color: var(--ink); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.librarians-page .text-value.muted { color: var(--muted); font-weight: 600; }
 
 .librarians-page .status-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 9px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
     border-radius: 20px;
-    font-size: 10px;
+    font-size: 10.5px;
     font-weight: 800;
     white-space: nowrap;
 }
 
-.librarians-page .status-dot {
-    width: 6px;
-    height: 6px;
-    flex: 0 0 6px;
-    border-radius: 50%;
-}
+.librarians-page .status-dot { flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.librarians-page .status-badge.active   { border-color: #cfe5d3; color: #347849; background: #edf7ed; }
+.librarians-page .status-badge.inactive { border-color: #f0d5ce; color: #bd5148; background: #fff1ed; }
 
-.librarians-page .status-badge.active {
-    border: 1px solid #cfe5d3;
-    color: #347849;
-    background: #edf7ed;
-}
-
-.librarians-page .status-badge.active .status-dot {
-    background: #3a8060;
-}
-
-.librarians-page .status-badge.inactive {
-    border: 1px solid #f0d5ce;
-    color: #bd5148;
-    background: #fff1ed;
-}
-
-.librarians-page .status-badge.inactive .status-dot {
-    background: #bd5148;
-}
-
-/* ACTIONS */
-
-.librarians-page .librarians-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-}
+.librarians-page .lib-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
 
 /* EMPTY STATE */
+.librarians-page .lib-empty { padding: 56px 20px; text-align: center; }
 
-.librarians-page .librarians-empty-state {
-    padding: 60px 20px;
-    text-align: center;
-}
-
-.librarians-page .empty-state-icon {
+.librarians-page .empty-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1028,7 +799,7 @@
     font-size: 27px;
 }
 
-.librarians-page .librarians-empty-state h4 {
+.librarians-page .lib-empty h4 {
     margin: 0 0 8px;
     color: var(--ink);
     font-family: var(--serif);
@@ -1036,7 +807,7 @@
     font-weight: 700;
 }
 
-.librarians-page .librarians-empty-state p {
+.librarians-page .lib-empty p {
     max-width: 450px;
     margin: 0 auto 18px;
     color: var(--muted);
@@ -1044,21 +815,10 @@
     line-height: 1.8;
 }
 
-.librarians-page .librarians-empty-state p strong {
-    color: var(--ink);
-}
+.librarians-page .lib-empty p strong { color: var(--ink); }
 
-.librarians-page .empty-state-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 9px;
-}
-
-/* FOOTER */
-
-.librarians-page .librarians-card-footer {
+/* FOOTER + PAGINATION */
+.librarians-page .lib-card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1072,38 +832,16 @@
     font-size: 11px;
 }
 
-.librarians-page .librarians-card-footer strong {
-    color: var(--ink);
-}
+.librarians-page .lib-card-footer strong { color: var(--ink); }
 
-.librarians-page .footer-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #68766d;
-    font-size: 10px;
-}
+.librarians-page .footer-status { display: inline-flex; align-items: center; gap: 6px; color: #68766d; font-size: 10.5px; }
+.librarians-page .footer-status i { color: var(--green); }
 
-.librarians-page .footer-status i {
-    color: var(--green);
-}
+.librarians-page .lib-pagination nav > div:first-child { display: none; }
+.librarians-page .lib-pagination nav { margin: 0; }
+.librarians-page .lib-pagination .pagination { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
 
-/* PAGINATION (Laravel / Bootstrap) */
-
-.librarians-page .librarians-pagination nav > div:first-child {
-    display: none;
-}
-
-.librarians-page .librarians-pagination .pagination {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin: 0;
-}
-
-.librarians-page .librarians-pagination .page-link,
-.librarians-page .librarians-pagination .pagination span,
-.librarians-page .librarians-pagination .pagination a {
+.librarians-page .lib-pagination .page-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1111,166 +849,109 @@
     height: 32px;
     padding: 0 9px;
     border: 1px solid #dedfd4;
-    border-radius: 7px;
+    border-radius: 7px !important;
     color: #68746a;
     background: #fffefa;
     font-size: 11px;
     font-weight: 700;
-    text-decoration: none !important;
+    box-shadow: none;
+    text-decoration: none;
 }
 
-.librarians-page .librarians-pagination .page-item.active .page-link,
-.librarians-page .librarians-pagination .pagination [aria-current="page"] span {
-    border-color: var(--ink);
-    color: #fff;
-    background: var(--ink);
-}
+.librarians-page .lib-pagination .page-link:hover { border-color: var(--ink-hover); color: var(--ink); background: #faf9f4; }
+.librarians-page .lib-pagination .page-item.active .page-link { border-color: var(--ink); color: #fff; background: var(--ink); }
+.librarians-page .lib-pagination .page-item.disabled .page-link { opacity: .5; }
 
-.librarians-page .librarians-pagination .page-item.disabled .page-link {
-    opacity: .5;
-}
-
-.librarians-page .librarians-pagination .page-link:hover {
-    border-color: var(--ink-hover);
-    color: var(--ink);
-    background: #faf9f4;
-}
-
-/* TABLET */
-
+/* RESPONSIVE */
 @media (max-width: 1100px) {
-    .librarians-page .librarians-kpis {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    .librarians-page .lib-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 34px; }
 }
 
 @media (max-width: 900px) {
-    .librarians-page .librarians-hero {
-        grid-template-columns: 1fr;
-    }
-
-    .librarians-page .librarians-hero-actions {
-        min-height: 165px;
-    }
+    .librarians-page .lib-hero { grid-template-columns: 1fr; }
+    .librarians-page .lib-hero-actions { min-height: 165px; }
 }
 
-/* MOBILE */
+@media (max-width: 700px) {
+    .librarians-page .lib-container { padding: 16px 12px; }
 
-@media (max-width: 650px) {
-    .librarians-page .container-fluid {
-        padding-top: 18px !important;
-        padding-bottom: 18px !important;
+    .librarians-page .lib-hero::before { left: 22px; }
+
+    .librarians-page .lib-hero-content { align-items: flex-start; gap: 12px; padding: 22px 16px 22px 42px; }
+
+    .librarians-page .lib-hero-icon { flex-basis: 43px; width: 43px; height: 43px; border-radius: 9px; font-size: 18px; }
+    .librarians-page .lib-hero-text p { font-size: 12px; }
+    .librarians-page .lib-hero-actions { min-height: 155px; padding: 20px; }
+
+    .librarians-page .lib-kpis { grid-template-columns: 1fr; gap: 32px; margin-top: 30px; }
+
+    .librarians-page .lib-panel-header { align-items: flex-start; flex-wrap: wrap; padding: 15px; }
+    .librarians-page .panel-title-wrap h3 { font-size: 16px; }
+
+    /* table -> cards */
+    .librarians-page .lib-table-wrap { overflow: visible; padding: 12px; background: #faf9f4; }
+
+    .librarians-page .lib-table,
+    .librarians-page .lib-table tbody,
+    .librarians-page .lib-table tr,
+    .librarians-page .lib-table td { display: block; width: 100%; min-width: 0; }
+
+    .librarians-page .lib-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+    .librarians-page .lib-table tbody tr {
+        margin-bottom: 12px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--paper);
     }
 
-    .librarians-page .librarians-hero::before {
-        left: 22px;
+    .librarians-page .lib-table tbody tr:last-child { margin-bottom: 0; }
+    .librarians-page .lib-table tbody tr:hover td { background: transparent; }
+
+    .librarians-page .lib-table tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 10px 14px;
+        border-bottom: 1px solid #f0ece0;
+        text-align: right;
     }
 
-    .librarians-page .librarians-hero-content {
-        align-items: flex-start;
-        gap: 12px;
-        padding: 22px 16px 22px 42px;
-    }
-
-    .librarians-page .librarians-hero-icon {
-        flex-basis: 43px;
-        width: 43px;
-        height: 43px;
-        border-radius: 9px;
-        font-size: 18px;
-    }
-
-    .librarians-page .librarians-hero-text h2 {
-        font-size: 23px;
-    }
-
-    .librarians-page .librarians-hero-text p {
-        font-size: 12px;
-    }
-
-    .librarians-page .librarians-hero-note {
-        align-items: flex-start;
+    .librarians-page .lib-table tbody td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        color: #68766d;
         font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .6px;
+        text-transform: uppercase;
+        text-align: left;
     }
 
-    .librarians-page .librarians-hero-actions {
-        min-height: 155px;
-        padding: 20px;
-    }
+    .librarians-page .lib-table tbody td.cell-no { display: none; }
 
-    .librarians-page .librarians-kpis {
-        grid-template-columns: 1fr;
-        gap: 15px;
-        margin-top: 30px;
-    }
+    .librarians-page .lib-table tbody td.cell-person { display: block; padding: 14px; background: #f5f3e9; text-align: left; }
+    .librarians-page .lib-table tbody td.cell-person::before { display: none; }
+    .librarians-page .lib-person { min-width: 0; }
 
-    .librarians-page .librarians-kpi {
-        padding: 20px 16px 15px;
-    }
+    .librarians-page .lib-table tbody td.cell-actions { display: block; padding: 12px 14px; border-bottom: 0; }
+    .librarians-page .lib-table tbody td.cell-actions::before { display: none; }
+    .librarians-page .lib-actions .lib-btn { width: 100%; min-height: 38px; }
 
-    .librarians-page .kpi-value {
-        font-size: 30px;
-    }
+    .librarians-page .lib-table tbody tr.empty-row td { display: block; padding: 0; border: 0; }
+    .librarians-page .lib-table tbody tr.empty-row td::before { display: none; }
 
-    .librarians-page .librarians-panel-header {
-        align-items: flex-start;
-        padding: 15px;
-    }
-
-    .librarians-page .panel-title-wrap h3 {
-        font-size: 16px;
-    }
-
-    .librarians-page .librarians-record-count {
-        gap: 5px;
-        padding: 5px 7px;
-    }
-
-    .librarians-page .librarians-card-footer {
-        align-items: flex-start;
-        flex-direction: column;
-        padding: 13px 15px;
-    }
+    .librarians-page .lib-card-footer { align-items: flex-start; flex-direction: column; padding: 13px 15px; }
 }
 
-@media (max-width: 400px) {
-    .librarians-page .librarians-panel-header {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .librarians-page .panel-title-icon {
-        flex-basis: 34px;
-        width: 34px;
-        height: 34px;
-    }
-
-    .librarians-page .empty-state-actions {
-        align-items: stretch;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .librarians-page .empty-state-actions > a {
-        width: 100%;
-    }
-}
-
-/* ACCESSIBILITY */
-
-.librarians-page :focus-visible {
-    outline: 3px solid rgba(82, 127, 121, .45);
-    outline-offset: 3px;
-}
+.librarians-page :focus-visible { outline: 3px solid rgba(82, 127, 121, .45); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
     .librarians-page *,
     .librarians-page *::before,
-    .librarians-page *::after {
-        scroll-behavior: auto !important;
-        animation: none !important;
-        transition: none !important;
-    }
+    .librarians-page *::after { animation: none !important; transition: none !important; }
 }
 </style>
 
