@@ -782,16 +782,14 @@
 
 
             [
-
-                'l' => 'Scholarship',
-
-                'i' => 'fa-graduation-cap',
-
-                'a' => ['admin.scholarship.*'],
-
-                'r' => 'admin.scholarship.index',
-
-            ],
+    'l' => 'Scholarship',
+    'i' => 'fa-graduation-cap',
+    'a' => ['admin.scholarship.*'],
+    'c' => [
+        ['Merit Concession', 'admin.scholarship.merit.concession.index'],
+        ['Scholarship Exam', 'admin.scholarship.exams.index'],
+    ],
+],
 
 
 
@@ -845,9 +843,10 @@
 
                 ],
 
-                'c' => [
+              'c' => [
     ['School Profile', 'admin.settings.index'],
     ['User Roles & Permission', 'admin.settings.roles.index'],
+    ['User Assign', 'admin.settings.users.index'],
     ['Security', 'admin.2fa.security'],
     ['Backup & Recovery', 'admin.backup.index'],
 ],

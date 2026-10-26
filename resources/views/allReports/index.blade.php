@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Reports')
 @section('page-title', 'Reports')
@@ -360,7 +360,7 @@
 
 
         {{-- 3. STAFF --}}
-        <a href="{{ route('reports.staff.index') }}" class="report-card">
+        <a href="{{ route('admin.reports.staff') }}" class="report-card">
 
             <div class="report-icon">
                 <i class="fas fa-users"></i>
@@ -412,7 +412,7 @@
 
 
         {{-- 6. FEES --}}
-       <a href="{{ route('admin.reports.fees') }}" class="report-card">
+       <a href="{{ route('admin.fees.student-fees.index') }}" class="report-card">
             <div class="report-icon">
                 <i class="fas fa-indian-rupee-sign"></i>
             </div>
@@ -677,3 +677,4 @@
 </div>
 
 @endsection
+

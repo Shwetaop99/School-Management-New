@@ -14,26 +14,149 @@ class TransportRecordController extends Controller
 {
     /**
      * Display transport records.
+     *
+     * Supports:
+     * - Search
+     * - Active / inactive status filter
+     * - Pagination
      */
-    public function index()
+    public function index(Request $request)
     {
-        $transportRecords = TransportRecord::with('student')
-            ->latest()
-            ->paginate(10);
+        /*
+         * ---------------------------------------------------------
+         * GET SEARCH AND STATUS FILTER
+         * ---------------------------------------------------------
+         */
+        $search = trim((string) $request->input('search', ''));
+
+        $status = trim((string) $request->input('status', ''));
 
         /*
-         * Blade view also uses $records.
-         * Keep it as the same paginator object.
+         * ---------------------------------------------------------
+         * BUILD TRANSPORT RECORD QUERY
+         * ---------------------------------------------------------
+         */
+        $query = TransportRecord::with('student');
+
+        /*
+         * ---------------------------------------------------------
+         * SEARCH
+         *
+         * Search works on:
+         * - Student ID
+         * - Student first name
+         * - Student middle name
+         * - Student last name
+         * - Full student name
+         * - Route
+         * - Vehicle
+         * - Pickup point
+         * - Drop point
+         * ---------------------------------------------------------
+         */
+        if ($search !== '') {
+            $searchValue = '%' . $search . '%';
+
+            $query->where(function ($transportQuery) use ($searchValue) {
+
+                /*
+                 * Transport record fields.
+                 */
+                $transportQuery
+                    ->where('route', 'like', $searchValue)
+                    ->orWhere('vehicle', 'like', $searchValue)
+                    ->orWhere('pickup_point', 'like', $searchValue)
+                    ->orWhere('drop_point', 'like', $searchValue)
+
+                    /*
+                     * Student fields.
+                     */
+                    ->orWhereHas('student', function ($studentQuery) use ($searchValue) {
+
+                        $studentQuery
+                            ->where('student_id', 'like', $searchValue)
+                            ->orWhere('first_name', 'like', $searchValue)
+                            ->orWhere('middle_name', 'like', $searchValue)
+                            ->orWhere('last_name', 'like', $searchValue)
+
+                            /*
+                             * Search complete student name.
+                             *
+                             * Example:
+                             * "Rahul Patil"
+                             */
+                            ->orWhereRaw(
+                                "CONCAT_WS(
+                                    ' ',
+                                    first_name,
+                                    middle_name,
+                                    last_name
+                                ) LIKE ?",
+                                [$searchValue]
+                            );
+                    });
+            });
+        }
+
+        /*
+         * ---------------------------------------------------------
+         * STATUS FILTER
+         *
+         * Allowed:
+         * - active
+         * - inactive
+         * ---------------------------------------------------------
+         */
+        if (
+            $status !== ''
+            && in_array($status, ['active', 'inactive'], true)
+        ) {
+            $query->where(
+                'transport_status',
+                $status
+            );
+        }
+
+        /*
+         * ---------------------------------------------------------
+         * GET PAGINATED RECORDS
+         *
+         * withQueryString() is important because it keeps:
+         * - search
+         * - status
+         *
+         * when changing pages.
+         * ---------------------------------------------------------
+         */
+        $transportRecords = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        /*
+         * ---------------------------------------------------------
+         * BLADE USES $records
+         *
+         * Keep both variables pointing to the same paginator.
+         * ---------------------------------------------------------
          */
         $records = $transportRecords;
 
         /*
-         * Total number of transport records.
+         * ---------------------------------------------------------
+         * TOTAL NUMBER OF RECORDS
+         *
+         * This respects the current search/filter.
+         * ---------------------------------------------------------
          */
         $totalRecords = $transportRecords->total();
 
         /*
-         * Total active records.
+         * ---------------------------------------------------------
+         * TOTAL ACTIVE RECORDS
+         *
+         * This is the overall active count.
+         * ---------------------------------------------------------
          */
         $activeRecords = TransportRecord::where(
             'transport_status',
@@ -41,20 +164,29 @@ class TransportRecordController extends Controller
         )->count();
 
         /*
-         * Total records having an assigned student.
+         * ---------------------------------------------------------
+         * TOTAL RECORDS HAVING AN ASSIGNED STUDENT
+         * ---------------------------------------------------------
          */
         $assignedStudents = TransportRecord::whereNotNull(
             'student_id'
         )->count();
 
         /*
-         * Total inactive records.
+         * ---------------------------------------------------------
+         * TOTAL INACTIVE RECORDS
+         * ---------------------------------------------------------
          */
         $inactiveRecords = TransportRecord::where(
             'transport_status',
             'inactive'
         )->count();
 
+        /*
+         * ---------------------------------------------------------
+         * RETURN VIEW
+         * ---------------------------------------------------------
+         */
         return view(
             'admin.transport.records.index',
             compact(
@@ -118,10 +250,10 @@ class TransportRecordController extends Controller
          *
          * Supports:
          *
-         *     Class 1
-         *     class 1
-         *     CLASS 1
-         *     1
+         * Class 1
+         * class 1
+         * CLASS 1
+         * 1
          */
         $className = trim(
             (string) $schoolClass->class_name
@@ -143,7 +275,9 @@ class TransportRecordController extends Controller
         );
 
         /*
-         * Create possible class values.
+         * ---------------------------------------------------------
+         * CREATE POSSIBLE CLASS VALUES
+         * ---------------------------------------------------------
          */
         $classValues = array_values(
             array_unique(
@@ -174,6 +308,7 @@ class TransportRecordController extends Controller
         ) {
             return Student::query()
                 ->where(function ($query) use ($classValues) {
+
                     foreach (
                         $classValues as $index => $classValue
                     ) {
@@ -191,6 +326,7 @@ class TransportRecordController extends Controller
                     }
                 })
                 ->where(function ($query) use ($section) {
+
                     /*
                      * If selected class has no section,
                      * accept NULL or empty student section.
@@ -213,9 +349,9 @@ class TransportRecordController extends Controller
         /*
          * ---------------------------------------------------------
          * GET STUDENTS
-         * ---------------------------------------------------------
          *
          * Academic year is intentionally NOT required.
+         * ---------------------------------------------------------
          */
         $students = $buildStudentQuery()
             ->orderBy('first_name')
@@ -235,6 +371,7 @@ class TransportRecordController extends Controller
                 'address',
             ])
             ->map(function ($student) {
+
                 /*
                  * Build complete student name.
                  */
@@ -392,11 +529,42 @@ class TransportRecordController extends Controller
     public function show(
         TransportRecord $transportRecord
     ) {
+        /*
+         * Load the student relationship.
+         */
         $transportRecord->load('student');
 
+        /*
+         * Get school settings.
+         */
+        $school = DB::table('school_settings')->first();
+
+        /*
+         * Get school name from School Settings.
+         */
+        $schoolName = $school?->school_name
+            ?: 'Gurukul Vidyalaya';
+
+        /*
+         * Get school logo.
+         *
+         * The school_settings table uses "logo".
+         */
+        $schoolLogo = $school?->logo
+            ?: asset('images/gurukullogo.png');
+
+        /*
+         * Pass all variables required by
+         * the transport record show Blade.
+         */
         return view(
             'admin.transport.records.show',
-            compact('transportRecord')
+            [
+                'transportRecord' => $transportRecord,
+                'school' => $school,
+                'schoolName' => $schoolName,
+                'schoolLogo' => $schoolLogo,
+            ]
         );
     }
 
@@ -510,7 +678,6 @@ class TransportRecordController extends Controller
         $transportRecord->load('student');
 
         /*
-         * FIX:
          * The edit Blade uses $students.
          *
          * Load all students required by the edit form

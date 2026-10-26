@@ -26,7 +26,7 @@
 
             <div class="form-hero-actions">
                 <div class="hero-action-group">
-                    <form action="{{ route('backup.create') }}"
+                    <form action="{{ route('admin.backup.create') }}"
                           method="POST"
                           onsubmit="return confirm('Create a new backup? This may take a moment.');">
                         @csrf
@@ -199,7 +199,7 @@
                                             <div class="row-actions">
 
                                                 {{-- DOWNLOAD BACKUP --}}
-                                                <a href="{{ route('backup.download', ['backup' => $backup['name']]) }}"
+                                                <a href="{{ route('admin.backup.download', ['backup' => $backup['name']]) }}"
                                                    class="diary-action-btn download-btn"
                                                    title="Download backup">
                                                     <i class="fas fa-download"></i>
@@ -207,7 +207,7 @@
                                                 </a>
 
                                                 {{-- DELETE BACKUP --}}
-                                                <form action="{{ route('backup.destroy', ['backup' => $backup['name']]) }}"
+                                                <form action="{{ route('admin.backup.destroy', ['backup' => $backup['name']]) }}"
                                                       method="POST"
                                                       class="d-inline"
                                                       onsubmit="return confirm('Permanently delete this backup? This cannot be undone.');">
@@ -911,3 +911,4 @@
 }
 </style>
 @endsection
+

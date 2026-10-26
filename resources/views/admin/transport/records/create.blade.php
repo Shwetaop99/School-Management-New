@@ -2000,7 +2000,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error('Unable to load students.');
             }
 
-            const data = await response.json();
+           const responseText = await response.text();
+const data = JSON.parse(responseText.replace(/^\uFEFF/, '').trim());
+
 
             students = Array.isArray(data.students)
                 ? data.students
