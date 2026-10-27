@@ -426,8 +426,8 @@
         'admin.student-profile.*',
         'admin.student-documents.*',
         'admin.id-card.*',
-        'admin.student-supply-kits.*',
-        'admin.supply-items.*',
+        
+       
         'admin.student-general-register.*',
         'admin.government-schemes.*',
         'admin.student-health.*',
@@ -439,13 +439,10 @@
         ['Student Documents', 'admin.student-documents.index'],
         ['Student ID', 'admin.id-card.index'],
         ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
-        ['Supply Items', 'admin.supply-items.index'],
+    
         ['Student Register', 'admin.student-general-register.index'],
         ['Government Schemes', 'admin.government-schemes.index'],
         ['Student Health', 'admin.student-health.index'],
-       
-        ['Add Student', 'admin.students.create'],
-        ['Bulk Add Students', 'admin.students.bulk-create'],
     ],
     'p' => [
         'students.view',
@@ -621,10 +618,10 @@
     'i' => 'fa-chart-column',
     'a' => ['admin.results.*'],
     'c' => [
-        ['Student Result', 'admin.results.index'],
-        ['Grade Management', 'admin.results.generate'],
+        ['Result Dashboard', 'admin.results.index'],
+        ['Enter Marks', 'admin.results.generate'],
         ['Publish Result', 'admin.results.class-results'],
-        ['Result History', 'admin.results.history'],
+        ['Top Three', 'admin.results.history'],
         ['Result Report', 'admin.reports.results.index'],
     ],
 ],
