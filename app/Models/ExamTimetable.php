@@ -31,13 +31,11 @@ class ExamTimetable extends Model
     /**
      * Attribute casting.
      */
-    protected $casts = [
-        'exam_date' => 'date',
-        'maximum_marks' => 'integer',
-        'duration_minutes' => 'integer',
-        'status' => 'boolean',
-    ];
-
+   protected $casts = [
+    'exam_date' => 'date',
+    'maximum_marks' => 'integer',
+    'duration_minutes' => 'integer',
+];
     /**
      * Exam.
      */

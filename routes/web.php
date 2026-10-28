@@ -1125,6 +1125,45 @@ Route::delete(
 )->name('exam-holidays.destroy');
 
 
+
+Route::prefix('exams/{exam}/exam-schedules')
+    ->name('exam-schedules.')
+    ->controller(ExamScheduleController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+
+        Route::get('/generate', 'generateForm')
+            ->name('generate.form');
+
+        Route::post('/generate', 'generate')
+            ->name('generate');
+
+        // Existing print and PDF
+        Route::get('/print', 'print')->name('print');
+
+        Route::get('/pdf', 'pdf')->name('pdf');
+
+        // Bulk print and PDF
+        Route::get('/bulk-print', 'bulkPrint')
+            ->name('bulk-print');
+
+        Route::get('/bulk-pdf', 'bulkPdf')
+            ->name('bulk-pdf');
+
+        // Edit, update and delete
+        Route::get('/{timetable}/edit', 'edit')
+            ->name('edit');
+
+        Route::put('/{timetable}', 'update')
+            ->name('update');
+
+        Route::delete('/{timetable}', 'destroy')
+            ->name('destroy');
+    });
+
+
+
+
         // Result Management
         Route::get('/results', [ResultController::class, 'index'])
             ->name('results.index');
@@ -1156,11 +1195,6 @@ Route::get('/results/load-students', [ResultController::class, 'loadStudents'])
     
 Route::post('/results/generate-result', [ResultController::class, 'generateResult'])
     ->name('results.generate-result');
-
-
-
-
-
 
 
 
@@ -1493,11 +1527,9 @@ Route::prefix('scholarship')
 
 
 
-            Route::prefix('bonafide-certificate')
-
-                ->name('bonafide.')
-
-                ->group(function () {
+           Route::prefix('bonafide-certificate')
+    ->name('bonafide-certificate.')
+    ->group(function () {
 
 
 
@@ -1568,6 +1600,16 @@ Route::prefix('scholarship')
                         'destroy'
 
                     ])->name('destroy');
+
+                    Route::get('/classes', [
+    BonafideCertificateController::class,
+    'classes'
+])->name('classes');
+
+Route::get('/students/{class}', [
+    BonafideCertificateController::class,
+    'students'
+])->name('students');
 
                 });
 
@@ -1993,6 +2035,11 @@ Route::post('teachers/import', [
     \App\Http\Controllers\Admin\TeacherController::class,
     'importExcel',
 ])->name('teachers.import');
+
+Route::post('/students/import', [
+    \App\Http\Controllers\Admin\StudentController::class,
+    'import',
+])->name('students.import');
 
             /*
 

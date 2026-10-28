@@ -612,23 +612,23 @@
 
 
 
-            
+   
+
+
 [
-    'l' => 'Result',
+    'l' => 'Results',
     'i' => 'fa-chart-column',
-    'a' => ['admin.results.*'],
+    'a' => [
+        'admin.results.*',
+        'admin.reports.results.*',
+    ],
     'c' => [
         ['Result Dashboard', 'admin.results.index'],
         ['Enter Marks', 'admin.results.generate'],
-        ['Publish Result', 'admin.results.class-results'],
-        ['Top Three', 'admin.results.history'],
-        ['Result Report', 'admin.reports.results.index'],
+        ['Publish Results', 'admin.results.class-results'],
+
     ],
 ],
-
-
-
-
 
 
 

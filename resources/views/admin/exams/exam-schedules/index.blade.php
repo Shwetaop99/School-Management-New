@@ -778,6 +778,112 @@
         animation-iteration-count: 1 !important;
     }
 }
+
+
+/* Compact examination timetable */
+.et-compact-panel {
+    overflow: visible;
+}
+
+.et-compact-table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.et-compact-table th {
+    padding: 10px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.et-compact-table td {
+    padding: 9px;
+    font-size: 12px;
+    line-height: 1.35;
+    vertical-align: middle;
+}
+
+.et-compact-table tbody tr {
+    height: auto;
+}
+
+.et-compact-table .et-compact-primary {
+    display: block;
+    font-weight: 600;
+    color: #292929;
+}
+
+.et-compact-table .et-compact-muted {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    color: #777;
+}
+
+.et-compact-table .et-compact-status {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.et-compact-table .et-compact-status.is-active {
+    color: #176b3a;
+    background: #e7f5ec;
+}
+
+.et-compact-table .et-compact-status.is-inactive {
+    color: #777;
+    background: #eeeeee;
+}
+
+.et-compact-table .et-action-toggle {
+    width: 28px;
+    height: 28px;
+}
+
+.et-compact-table .et-compact-empty {
+    padding: 24px;
+    text-align: center;
+    color: #777;
+}
+
+@media print {
+    .et-compact-table {
+        min-width: 0 !important;
+        width: 100% !important;
+        table-layout: fixed;
+        font-size: 9px;
+    }
+
+    .et-compact-table th,
+    .et-compact-table td {
+        padding: 5px 3px !important;
+        font-size: 8px !important;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+
+    .et-compact-table .et-action-cell {
+        display: none !important;
+    }
+
+    .et-compact-table .et-compact-muted {
+        font-size: 7px !important;
+    }
+
+    .et-compact-table .et-compact-status {
+        padding: 2px 3px;
+        font-size: 7px !important;
+    }
+}
+
 </style>
 
 
@@ -817,6 +923,15 @@
 
         <div class="et-header-actions">
 
+        {{-- Back Button --}}
+<a
+    href="{{ route('admin.exams.index', ['exam' => $exam->id]) }}"
+    class="et-btn et-btn-secondary"
+>
+    <i class="bi bi-arrow-left"></i>
+    Back
+</a>
+
             <a
                 href="{{ route('admin.exam-schedules.generate.form', $exam) }}"
                 class="et-btn et-btn-primary"
@@ -844,6 +959,19 @@
                     <i class="bi bi-file-earmark-pdf"></i>
                     PDF
                 </a>
+
+                <a href="{{ route('admin.exam-schedules.bulk-print', $exam) }}"
+   target="_blank"
+   class="btn btn-outline-primary">
+    <i class="bi bi-printer"></i>
+    Bulk Print Timetable
+</a>
+
+<a href="{{ route('admin.exam-schedules.bulk-pdf', $exam) }}"
+   class="btn btn-outline-danger">
+    <i class="bi bi-file-earmark-pdf"></i>
+    Download Bulk PDF
+</a>
 
             @endif
 
@@ -983,355 +1111,153 @@
 
     @else
 
-        {{-- =================================================
-            GENERATED TIMETABLE
-        ================================================== --}}
-        <section class="et-panel">
+       {{-- =================================================
+    GENERATED TIMETABLE - COMPACT TABLE
+================================================== --}}
+<section class="et-panel et-compact-panel">
 
-            <div class="et-panel-header">
+    <div class="et-panel-header">
+        <div class="et-panel-heading">
+            <span class="et-panel-icon et-icon-green">
+                <i class="bi bi-calendar2-week"></i>
+            </span>
 
-                <div class="et-panel-heading">
-
-                    <span class="et-panel-icon et-icon-green">
-                        <i class="bi bi-calendar2-week"></i>
-                    </span>
-
-                    <div>
-
-                        <h2 class="et-panel-title">
-                            Generated Examination Timetable
-                        </h2>
-
-                        <p class="et-panel-description">
-                            Ordered by date, time and class.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <span class="et-count">
-                    <i class="bi bi-files"></i>
-                    {{ $timetables->count() }} Papers
-                </span>
-
+            <div>
+                <h2 class="et-panel-title">Generated Examination Timetable</h2>
+                <p class="et-panel-description">Ordered by date, time and class.</p>
             </div>
-
-
-            <div class="et-panel-body et-no-padding">
-
-                <div class="et-table-wrap">
-
-                    <table class="et-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>#</th>
-
-                                <th>Date</th>
-
-                                <th>Time</th>
-
-                                <th>Class</th>
-
-                                <th>Subject</th>
-
-                                <th>Maximum Marks</th>
-
-                                <th>Duration</th>
-
-                                <th>Teacher</th>
-
-                                <th>Status</th>
-
-                                <th style="text-align: right; padding-right: 22px;">
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            @foreach($timetables as $index => $schedule)
-
-                                <tr>
-
-                                    {{-- Number --}}
-                                    <td>
-
-                                        <span class="et-number">
-                                            {{ $index + 1 }}
-                                        </span>
-
-                                    </td>
-
-
-                                    {{-- Date --}}
-                                    <td>
-
-                                        @if($schedule->exam_date)
-
-                                            <div class="et-date">
-                                                {{ $schedule->exam_date->format('d M Y') }}
-                                            </div>
-
-                                            <div class="et-table-muted">
-                                                <i class="bi bi-calendar-week me-1"></i>
-                                                {{ $schedule->exam_date->format('l') }}
-                                            </div>
-
-                                        @else
-
-                                            <span class="et-table-muted">-</span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Time --}}
-                                    <td>
-
-                                        @if($schedule->start_time && $schedule->end_time)
-
-                                            <div class="et-time">
-                                                <i class="bi bi-clock"></i>
-
-                                                {{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }}
-
-                                                <span>–</span>
-
-                                                {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
-                                            </div>
-
-                                        @else
-
-                                            <span class="et-table-muted">-</span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Class --}}
-                                    <td>
-
-                                        <span class="et-class-chip">
-
-                                            <i class="bi bi-mortarboard"></i>
-
-                                            {{ $schedule->schoolClass->class_name ?? '-' }}
-
-                                            @if(!empty($schedule->schoolClass->section))
-                                                - {{ $schedule->schoolClass->section }}
-                                            @endif
-
-                                        </span>
-
-                                    </td>
-
-
-                                    {{-- Subject --}}
-                                    <td>
-
-                                        <div class="et-subject">
-                                            {{ $schedule->examSubject->subject->subject_name ?? '-' }}
-                                        </div>
-
-                                        @if(!empty($schedule->examSubject->subject->subject_code))
-
-                                            <div class="et-table-muted">
-                                                Code:
-                                                {{ $schedule->examSubject->subject->subject_code }}
-                                            </div>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Maximum Marks --}}
-                                    <td>
-
-                                        <span class="et-mark-chip">
-                                            <i class="bi bi-award"></i>
-                                            {{ $schedule->maximum_marks ?? '-' }}
-                                        </span>
-
-                                    </td>
-
-
-                                    {{-- Duration --}}
-                                    <td>
-
-                                        @if($schedule->duration_minutes)
-
-                                            <span class="et-duration">
-                                                <i class="bi bi-hourglass-split me-1"></i>
-                                                {{ $schedule->duration_minutes }} min
-                                            </span>
-
-                                        @else
-
-                                            <span class="et-table-muted">-</span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Teacher --}}
-                                    <td>
-
-                                        @if($schedule->teacher)
-
-                                            <div class="et-teacher">
-
-                                                <span class="et-teacher-avatar">
-                                                    <i class="bi bi-person"></i>
-                                                </span>
-
-                                                <span class="et-teacher-name">
-
-                                                    {{ trim(
-                                                        ($schedule->teacher->first_name ?? '') .
-                                                        ' ' .
-                                                        ($schedule->teacher->last_name ?? '')
-                                                    ) }}
-
-                                                </span>
-
-                                            </div>
-
-                                        @else
-
-                                            <span class="et-unassigned">
-                                                <i class="bi bi-person-dash me-1"></i>
-                                                Not Assigned
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Status --}}
-                                    <td>
-
-                                        @if($schedule->status)
-
-                                            <span class="et-status">
-                                                Active
-                                            </span>
-
-                                        @else
-
-                                            <span class="et-status et-status-inactive">
-                                                Inactive
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Action --}}
-                                    <td class="et-action-cell">
-
-                                        <div class="dropdown et-dropdown">
-
-                                            <button
-                                                class="et-action-toggle"
-                                                type="button"
-                                                data-bs-toggle="dropdown"
-                                                data-bs-boundary="viewport"
-                                                aria-expanded="false"
-                                                aria-label="Actions for timetable entry {{ $index + 1 }}"
-                                            >
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </button>
-
-
-                                            <ul class="dropdown-menu dropdown-menu-end">
-
-                                                <li>
-
-                                                    <a
-                                                        class="dropdown-item"
-                                                        href="{{ route(
-                                                            'admin.exam-schedules.edit',
-                                                            [
-                                                                'exam' => $exam->id,
-                                                                'schedule' => $schedule->id
-                                                            ]
-                                                        ) }}"
-                                                    >
-                                                        <i class="bi bi-pencil"></i>
-                                                        Edit
-                                                    </a>
-
-                                                </li>
-
-
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
-
-
-                                                <li>
-
-                                                    <form
-                                                        action="{{ route(
-                                                            'admin.exam-schedules.destroy',
-                                                            [
-                                                                'exam' => $exam->id,
-                                                                'schedule' => $schedule->id
-                                                            ]
-                                                        ) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('Delete this timetable entry?');"
-                                                    >
-
-                                                        @csrf
-                                                        @method('DELETE')
-
-                                                        <button
-                                                            type="submit"
-                                                            class="dropdown-item et-delete-item"
-                                                        >
-                                                            <i class="bi bi-trash"></i>
-                                                            Delete
-                                                        </button>
-
-                                                    </form>
-
-                                                </li>
-
-                                            </ul>
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            @endforeach
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </section>
-
+        </div>
+
+        <span class="et-count">
+            {{ $timetables->count() }} Papers
+        </span>
+    </div>
+
+    <div class="et-panel-body et-no-padding">
+        <div class="et-table-wrap">
+
+        
+
+@php
+    $groupedTimetables = $timetables->groupBy(function ($schedule) {
+        return implode('|', [
+            $schedule->exam_date
+                ? \Carbon\Carbon::parse($schedule->exam_date)->format('Y-m-d')
+                : '',
+            $schedule->start_time
+                ? \Carbon\Carbon::parse($schedule->start_time)->format('H:i')
+                : '',
+            $schedule->end_time
+                ? \Carbon\Carbon::parse($schedule->end_time)->format('H:i')
+                : '',
+            $schedule->examSubject?->subject?->subject_name ?? '',
+            $schedule->maximum_marks ?? '',
+            $schedule->duration_minutes ?? '',
+        ]);
+    });
+@endphp
+
+
+            <table class="et-table et-compact-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th>Max Marks</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+
+                
+
+<tbody>
+    @forelse($groupedTimetables as $group)
+        @php
+            $first = $group->first();
+
+            $classRows = $group
+                ->sortBy(function ($schedule) {
+                    return (int) ($schedule->schoolClass->class_name ?? 0);
+                })
+                ->unique('class_id')
+                ->values();
+
+            $classNames = $classRows->map(function ($schedule) {
+                $name = $schedule->schoolClass->class_name ?? '-';
+                $section = $schedule->schoolClass->section ?? '';
+
+                return 'Class ' . $name
+                    . ($section !== '' ? ' - ' . $section : '');
+            });
+
+            // Display a range when class names are consecutive numbers.
+            $numericClasses = $classRows->map(function ($schedule) {
+                return (int) ($schedule->schoolClass->class_name ?? 0);
+            })->values();
+
+            $isNumericRange = $numericClasses->isNotEmpty()
+                && $numericClasses->every(fn ($number) => $number > 0)
+                && $numericClasses->count() ===
+                    ($numericClasses->last() - $numericClasses->first() + 1)
+                && $classRows->every(fn ($schedule) =>
+                    empty($schedule->schoolClass->section)
+                );
+
+            $classLabel = $isNumericRange
+                ? 'Class ' . $numericClasses->first()
+                    . ' to Class ' . $numericClasses->last()
+                : $classNames->implode(', ');
+        @endphp
+
+        <tr>
+            <td>{{ $loop->iteration }}</td>
+
+            <td>
+                {{ $first->exam_date
+                    ? \Carbon\Carbon::parse($first->exam_date)->format('d M Y')
+                    : '-' }}
+            </td>
+
+            <td>
+                <strong>
+                    {{ $first->examSubject->subject->subject_name ?? '-' }}
+                </strong>
+            </td>
+
+            <td>{{ $classLabel }}</td>
+
+            <td>
+                @if($first->start_time && $first->end_time)
+                    {{ \Carbon\Carbon::parse($first->start_time)->format('h:i A') }}
+                    –
+                    {{ \Carbon\Carbon::parse($first->end_time)->format('h:i A') }}
+                @else
+                    -
+                @endif
+            </td>
+
+            <td>{{ $first->maximum_marks ?? '-' }}</td>
+
+            <td>
+                {{ $first->duration_minutes
+                    ? $first->duration_minutes . ' min'
+                    : '-' }}
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="7" class="text-center">No timetable entries found.</td>
+        </tr>
+    @endforelse
+</tbody>
+
+            </table>
+        </div>
+    </div>
+</section>
     @endif
 
 </div>

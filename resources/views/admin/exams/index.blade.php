@@ -325,12 +325,12 @@
                                     <td>
                                         <div class="exam-actions">
 
-                                            <a href="{{ route('admin.exams.show', $exam) }}"
-                                               class="exam-action-btn view"
-                                               title="View Exam"
-                                               aria-label="View Exam">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
+                                            <a href="{{ route('admin.exam-schedules.index', $exam) }}"
+   class="exam-action-btn view"
+   title="View Exam Timetable"
+   aria-label="View Exam Timetable">
+    <i class="bi bi-eye"></i>
+</a>
 
                                             <a href="{{ route('admin.exams.edit', $exam) }}"
                                                class="exam-action-btn edit"
