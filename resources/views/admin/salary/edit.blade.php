@@ -396,7 +396,7 @@
         {{-- Back to Salary List --}}
 
         <a
-            href="{{ route('admin.teachers.salary.index') }}"
+            href="{{ route('admin.salary.index') }}"
             class="salary-back-btn"
         >
             <i class="fas fa-arrow-left"></i>
@@ -414,7 +414,7 @@
 
 
     <form
-        action="{{ route('admin.teachers.salary.update', $teacherSalary->id) }}"
+        action="{{ route('admin.salary.update', $teacherSalary->id) }}"
         method="POST"
         id="salaryEditForm"
     >
@@ -934,7 +934,7 @@
             <div class="salary-actions">
 
                 <a
-                    href="{{ route('admin.teachers.salary.index') }}"
+                    href="{{ route('admin.salary.index') }}"
                     class="salary-btn salary-cancel"
                 >
                     <i class="fas fa-times"></i>
