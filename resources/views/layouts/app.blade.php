@@ -707,13 +707,12 @@
 
             ],
 
-            [
+    [
     'l' => 'Payroll',
     'i' => 'fa-money-check-dollar',
     'a' => ['admin.salary.*'],
     'r' => 'admin.salary.index',
 ],
-
 [
     'l' => 'Meal Management',
     'i' => 'fa-utensils',

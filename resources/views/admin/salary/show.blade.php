@@ -1,9 +1,62 @@
 @extends('layouts.app')
 
-@section('title', 'View Teacher Salary')
+@section('title', 'View Salary')
 @section('page-title', 'Salary Details')
 
 @section('content')
+
+@php
+    /*
+    |--------------------------------------------------------------------------
+    | Works for every staff type (Teacher, Driver, Peon, Librarian, ...)
+    |--------------------------------------------------------------------------
+    */
+    $staffTypeLabels = [
+        'Teacher'      => 'Teacher',
+        'Driver'       => 'Driver',
+        'Peon'         => 'Peon',
+        'Librarian'    => 'Librarian',
+        'Accountant'   => 'Accountant',
+        'Receptionist' => 'Receptionist',
+        'OtherStaff'   => 'Other Staff',
+    ];
+
+    $isTeacher = $teacherSalary->staff_type === 'Teacher'
+        || (empty($teacherSalary->staff_type) && $teacherSalary->teacher_id);
+
+    $typeKey   = $isTeacher ? 'Teacher' : ($teacherSalary->staff_type ?: 'OtherStaff');
+    $typeLabel = $staffTypeLabels[$typeKey] ?? $typeKey;
+
+    $person = $isTeacher ? $teacherSalary->teacher : $teacherSalary->otherStaff;
+
+    $personName = $isTeacher
+        ? trim(($person->first_name ?? '') . ' ' . ($person->last_name ?? ''))
+        : trim($person->name ?? '');
+    $personName = $personName !== '' ? $personName : 'N/A';
+
+    $personCode  = $isTeacher ? ($person->teacher_id ?? null) : ($person->staff_id ?? null);
+    $personEmail = $person->email ?? null;
+    $personPhone = $person->phone ?? null;
+    $personImage = $isTeacher
+        ? ($person->profile_image ?? null)
+        : ($person->photo ?? $person->profile_image ?? null);
+    $designation = $isTeacher ? 'Teacher' : ($person->designation ?? $typeLabel);
+
+    // Safe month formatting ("2026-10" -> "October 2026")
+    $formatMonth = function ($value, $format = 'F Y') {
+        try {
+            return \Carbon\Carbon::createFromFormat('!Y-m', $value)->format($format);
+        } catch (\Throwable $e) {
+            try {
+                return \Carbon\Carbon::parse($value)->format($format);
+            } catch (\Throwable $e2) {
+                return $value ?: 'N/A';
+            }
+        }
+    };
+
+    $salaryOptions = $salaryOptions ?? collect();
+@endphp
 
 <style>
 /* =========================================================
@@ -87,6 +140,7 @@
     border: 1px solid #e7ebf2;
     box-shadow: 0 4px 18px rgba(20, 45, 80, .06);
     overflow: hidden;
+    margin-bottom: 18px;
 }
 
 .salary-card-header {
@@ -94,6 +148,9 @@
     border-bottom: 1px solid #edf0f5;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .salary-card-title {
@@ -118,6 +175,17 @@
     border-radius: 8px;
     background: #eef5ff;
     color: #147cf5;
+}
+
+.type-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 20px;
+    background: #f0eaf8;
+    color: #5b4a8a;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .salary-content {
@@ -147,6 +215,108 @@
 .section-title i {
     color: #147cf5;
 }
+
+/* =========================================================
+   FINDER (department dropdown + search + record dropdown)
+========================================================= */
+
+.finder-body {
+    padding: 18px 20px;
+}
+
+.finder-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1.6fr;
+    gap: 12px;
+}
+
+.finder-field label {
+    display: block;
+    margin-bottom: 6px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.finder-control {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #dbe2ec;
+    border-radius: 8px;
+    background: #fff;
+    color: #273247;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.finder-control:focus {
+    border-color: #147cf5;
+    box-shadow: 0 0 0 3px rgba(20, 124, 245, .12);
+}
+
+.finder-search-wrap {
+    position: relative;
+}
+
+.finder-search-wrap i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.finder-search-wrap .finder-control {
+    padding-left: 34px;
+}
+
+.finder-hint {
+    margin-top: 10px;
+    color: #8a94a6;
+    font-size: 11px;
+}
+
+.finder-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.finder-stat {
+    padding: 11px 13px;
+    border: 1px solid #e8edf4;
+    border-radius: 8px;
+    background: #f8fbff;
+}
+
+.finder-stat-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #7d8798;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.finder-stat-value {
+    color: #172033;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.finder-stat.pending .finder-stat-value { color: #b45309; }
+.finder-stat.paid .finder-stat-value { color: #15803d; }
+
+/* =========================================================
+   STAFF BOX
+========================================================= */
 
 .teacher-box {
     display: flex;
@@ -633,6 +803,12 @@
     .teacher-contact {
         display: none;
     }
+    .finder-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .finder-grid .finder-field:last-child {
+        grid-column: 1 / -1;
+    }
 }
 
 @media (max-width: 700px) {
@@ -647,10 +823,15 @@
         width: 100%;
     }
     .salary-grid,
-    .payment-grid {
+    .payment-grid,
+    .finder-grid {
         grid-template-columns: 1fr;
     }
-    .salary-content {
+    .finder-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .salary-content,
+    .finder-body {
         padding: 14px;
     }
     .receipt-overlay {
@@ -715,20 +896,86 @@
     <div class="salary-header">
         <div class="salary-header-left">
             <h2>Salary Details</h2>
-            <p>View teacher salary and payment information</p>
+            <p>View salary and payment information department wise</p>
         </div>
 
         <div class="salary-header-actions">
-            <a href="{{ route('admin.teachers.salary.index') }}" class="salary-btn btn-back">
+            <a href="{{ route('admin.salary.index') }}" class="salary-btn btn-back">
                 <i class="fas fa-arrow-left"></i>
                 Back
             </a>
 
-            <a href="{{ route('admin.teachers.salary.edit', ['salary' => $teacherSalary->id]) }}"
-   class="salary-btn btn-edit">
-    <i class="fas fa-edit"></i>
-    Edit
-</a>
+            <a href="{{ route('admin.salary.edit', ['salary' => $teacherSalary->id]) }}"
+               class="salary-btn btn-edit">
+                <i class="fas fa-edit"></i>
+                Edit
+            </a>
+        </div>
+    </div>
+
+    {{-- FIND A SALARY RECORD --}}
+    <div class="salary-card">
+        <div class="salary-card-header">
+            <div class="salary-card-title">
+                <span><i class="fas fa-search"></i></span>
+                <h3>Find Salary Record</h3>
+            </div>
+        </div>
+
+        <div class="finder-body">
+            <div class="finder-grid">
+
+                <div class="finder-field">
+                    <label for="finderDepartment">Department</label>
+                    <select id="finderDepartment" class="finder-control">
+                        <option value="">All Departments</option>
+                        @foreach($staffTypeLabels as $key => $label)
+                            <option value="{{ $key }}" {{ $typeKey === $key ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="finder-field">
+                    <label for="finderSearch">Search</label>
+                    <div class="finder-search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="search"
+                               id="finderSearch"
+                               class="finder-control"
+                               placeholder="Name, staff ID, month or status"
+                               autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="finder-field">
+                    <label for="finderRecord">Salary Record</label>
+                    <select id="finderRecord" class="finder-control"></select>
+                </div>
+
+            </div>
+
+            <div class="finder-hint" id="finderHint"></div>
+
+            <div class="finder-stats">
+                <div class="finder-stat">
+                    <span class="finder-stat-label">Records</span>
+                    <span class="finder-stat-value" id="statRecords">0</span>
+                </div>
+                <div class="finder-stat pending">
+                    <span class="finder-stat-label">Pending</span>
+                    <span class="finder-stat-value" id="statPending">0</span>
+                </div>
+                <div class="finder-stat paid">
+                    <span class="finder-stat-label">Paid</span>
+                    <span class="finder-stat-value" id="statPaid">0</span>
+                </div>
+                <div class="finder-stat">
+                    <span class="finder-stat-label">Net Salary Total</span>
+                    <span class="finder-stat-value" id="statNet">₹0.00</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -737,46 +984,48 @@
         <div class="salary-card-header">
             <div class="salary-card-title">
                 <span><i class="fas fa-money-check-alt"></i></span>
-                <h3>Teacher Salary Information</h3>
+                <h3>{{ $typeLabel }} Salary Information</h3>
             </div>
+
+            <span class="type-chip">{{ $typeLabel }}</span>
         </div>
 
         <div class="salary-content">
 
-            {{-- TEACHER --}}
+            {{-- STAFF --}}
             <div class="salary-section">
                 <div class="section-title">
                     <i class="fas fa-user"></i>
-                    Teacher Information
+                    {{ $typeLabel }} Information
                 </div>
 
                 <div class="teacher-box">
-                    @if($teacherSalary->teacher && $teacherSalary->teacher->profile_image)
-                        <img src="{{ $teacherSalary->teacher->profile_image }}" class="teacher-image" alt="Teacher">
+                    @if($personImage)
+                        <img src="{{ $personImage }}" class="teacher-image" alt="{{ $typeLabel }}">
                     @else
                         <div class="teacher-placeholder">
-                            {{ strtoupper(substr($teacherSalary->teacher->first_name ?? 'T', 0, 1)) }}
+                            {{ strtoupper(substr($personName, 0, 1)) }}
                         </div>
                     @endif
 
                     <div>
-                        <div class="teacher-name">
-                            {{ $teacherSalary->teacher->first_name ?? '' }}
-                            {{ $teacherSalary->teacher->last_name ?? '' }}
-                        </div>
+                        <div class="teacher-name">{{ $personName }}</div>
                         <div class="teacher-id">
-                            Teacher ID: {{ $teacherSalary->teacher->teacher_id ?? 'N/A' }}
+                            {{ $typeLabel }} ID: {{ $personCode ?: 'N/A' }}
+                            @if(!$isTeacher && $designation)
+                                &nbsp;•&nbsp; {{ $designation }}
+                            @endif
                         </div>
                     </div>
 
                     <div class="teacher-contact">
                         <div class="contact-item">
                             <i class="fas fa-envelope"></i>
-                            {{ $teacherSalary->teacher->email ?? 'N/A' }}
+                            {{ $personEmail ?: 'N/A' }}
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-phone"></i>
-                            {{ $teacherSalary->teacher->phone ?? 'N/A' }}
+                            {{ $personPhone ?: 'N/A' }}
                         </div>
                     </div>
                 </div>
@@ -793,7 +1042,7 @@
                     <div class="salary-item">
                         <div class="salary-label">Salary Month</div>
                         <div class="salary-value">
-                            {{ \Carbon\Carbon::parse($teacherSalary->salary_month)->format('F Y') }}
+                            {{ $formatMonth($teacherSalary->salary_month) }}
                         </div>
                     </div>
 
@@ -930,7 +1179,7 @@
             </div>
             <div class="receipt-meta-item">
                 <span class="receipt-meta-label">Salary Period</span>
-                <span class="receipt-meta-value">{{ \Carbon\Carbon::parse($teacherSalary->salary_month)->format('F Y') }}</span>
+                <span class="receipt-meta-value">{{ $formatMonth($teacherSalary->salary_month) }}</span>
             </div>
             <div class="receipt-meta-item">
                 <span class="receipt-meta-label">Issue Date</span>
@@ -943,15 +1192,21 @@
             <table class="receipt-info-table">
                 <tr>
                     <td>Employee Name</td>
-                    <td>{{ $teacherSalary->teacher->first_name ?? '' }} {{ $teacherSalary->teacher->last_name ?? '' }}</td>
-                    <td>Teacher ID</td>
-                    <td>{{ $teacherSalary->teacher->teacher_id ?? 'N/A' }}</td>
+                    <td>{{ $personName }}</td>
+                    <td>{{ $typeLabel }} ID</td>
+                    <td>{{ $personCode ?: 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td>Department</td>
+                    <td>{{ $typeLabel }}</td>
+                    <td>Designation</td>
+                    <td>{{ $designation ?: 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td>{{ $teacherSalary->teacher->email ?? 'N/A' }}</td>
+                    <td>{{ $personEmail ?: 'N/A' }}</td>
                     <td>Phone</td>
-                    <td>{{ $teacherSalary->teacher->phone ?? 'N/A' }}</td>
+                    <td>{{ $personPhone ?: 'N/A' }}</td>
                 </tr>
             </table>
         </div>
@@ -1056,6 +1311,9 @@
 </div>
 
 <script>
+/* =========================================================
+   RECEIPT
+========================================================= */
 function generateReceipt() {
     document.getElementById('salaryReceipt').style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -1072,9 +1330,12 @@ function closeReceipt() {
 
 function shareReceipt() {
     const receiptNumber = 'SAL-{{ str_pad($teacherSalary->id, 5, '0', STR_PAD_LEFT) }}';
-    const teacherName = @json(trim(($teacherSalary->teacher->first_name ?? '') . ' ' . ($teacherSalary->teacher->last_name ?? '')));
+    const staffName = @json($personName);
+    const department = @json($typeLabel);
     const amount = '₹{{ number_format((float) $teacherSalary->net_salary, 2) }}';
-    const text = 'Salary Receipt ' + receiptNumber + '\nTeacher: ' + teacherName + '\nNet Salary: ' + amount;
+    const text = 'Salary Receipt ' + receiptNumber +
+        '\n' + department + ': ' + staffName +
+        '\nNet Salary: ' + amount;
 
     if (navigator.share) {
         navigator.share({ title: 'Salary Receipt', text: text });
@@ -1090,6 +1351,148 @@ window.addEventListener('afterprint', function () {
     document.getElementById('salaryReceipt').style.display = 'none';
     document.body.style.overflow = '';
 });
+
+/* =========================================================
+   FINDER: department dropdown + search + record dropdown
+========================================================= */
+(function () {
+    const records = @json($salaryOptions);
+    const currentId = {{ (int) $teacherSalary->id }};
+
+    const deptSelect = document.getElementById('finderDepartment');
+    const searchInput = document.getElementById('finderSearch');
+    const recordSelect = document.getElementById('finderRecord');
+    const hint = document.getElementById('finderHint');
+
+    const statRecords = document.getElementById('statRecords');
+    const statPending = document.getElementById('statPending');
+    const statPaid = document.getElementById('statPaid');
+    const statNet = document.getElementById('statNet');
+
+    const typeNames = @json($staffTypeLabels);
+
+    function money(value) {
+        return '₹' + Number(value || 0).toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function sameStatus(value, status) {
+        return String(value || '').toLowerCase() === status;
+    }
+
+    // Show record counts inside the department dropdown
+    function labelDepartments() {
+        Array.from(deptSelect.options).forEach(function (option) {
+            const count = option.value === ''
+                ? records.length
+                : records.filter(r => r.type === option.value).length;
+
+            const base = option.value === ''
+                ? 'All Departments'
+                : (typeNames[option.value] || option.value);
+
+            option.textContent = base + ' (' + count + ')';
+        });
+    }
+
+    function departmentRecords() {
+        const dept = deptSelect.value;
+        return dept ? records.filter(r => r.type === dept) : records;
+    }
+
+    function updateStats(list) {
+        statRecords.textContent = list.length;
+        statPending.textContent = list.filter(r => sameStatus(r.status, 'pending')).length;
+        statPaid.textContent = list.filter(r => sameStatus(r.status, 'paid')).length;
+        statNet.textContent = money(list.reduce((sum, r) => sum + Number(r.net || 0), 0));
+    }
+
+    function matchesSearch(record, term) {
+        if (!term) {
+            return true;
+        }
+
+        const haystack = [
+            record.name,
+            record.code,
+            record.month,
+            record.month_label,
+            record.status,
+            typeNames[record.type] || record.type,
+            '#SAL-' + String(record.id).padStart(5, '0')
+        ].join(' ').toLowerCase();
+
+        return haystack.indexOf(term) !== -1;
+    }
+
+    function render() {
+        const deptList = departmentRecords();
+        const term = searchInput.value.trim().toLowerCase();
+        const filtered = deptList.filter(r => matchesSearch(r, term));
+
+        updateStats(deptList);
+
+        recordSelect.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = filtered.length
+            ? 'Select a salary record (' + filtered.length + ' found)'
+            : 'No salary records found';
+        recordSelect.appendChild(placeholder);
+
+        filtered.forEach(function (record) {
+            const option = document.createElement('option');
+            option.value = record.url;
+
+            let text = record.name;
+            if (record.code) {
+                text += ' (' + record.code + ')';
+            }
+            text += ' — ' + record.month_label + ' — ' + record.status;
+
+            option.textContent = text;
+
+            if (record.id === currentId) {
+                option.selected = true;
+            }
+
+            recordSelect.appendChild(option);
+        });
+
+        const dept = deptSelect.value ? (typeNames[deptSelect.value] || deptSelect.value) : 'all departments';
+        hint.textContent = 'Showing ' + filtered.length + ' of ' + deptList.length +
+            ' salary record(s) for ' + dept + '. Pick one to open it.';
+    }
+
+    recordSelect.addEventListener('change', function () {
+        if (recordSelect.value) {
+            window.location.href = recordSelect.value;
+        }
+    });
+
+    deptSelect.addEventListener('change', render);
+    searchInput.addEventListener('input', render);
+
+    // Press Enter in the search box to open the first match
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter') {
+            return;
+        }
+
+        event.preventDefault();
+
+        const first = Array.from(recordSelect.options).find(o => o.value !== '');
+        if (first) {
+            window.location.href = first.value;
+        }
+    });
+
+    labelDepartments();
+    render();
+})();
 </script>
 
 @endsection

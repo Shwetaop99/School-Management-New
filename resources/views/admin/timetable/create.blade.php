@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Create Weekly Timetable')
 @section('page-title', 'Create Weekly Timetable')
@@ -8,12 +8,16 @@
 @php
     $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-    // Build the option lists once; the rows are created by the script below.
     $subjectNames = collect($subjects ?? [])
         ->map(fn ($s) => is_string($s) ? $s : ($s->subject_name ?? $s->name ?? $s->subject ?? ''))
         ->filter()
         ->unique()
         ->values();
+
+    $subjectRecords = collect($subjects ?? [])->map(fn ($s) => [
+        'subject_name' => $s->subject_name ?? $s->name ?? '',
+        'class_id'     => $s->class_id ?? null,
+    ])->filter(fn ($s) => $s['class_id'] !== null && $s['subject_name'] !== '')->values();
 
     $teacherList = collect($teachers)->map(function ($t) {
         $name = trim(($t->first_name ?? '') . ' ' . ($t->last_name ?? ''));
@@ -258,7 +262,7 @@
                             <option value="">Select class</option>
                             @foreach ($classes as $classItem)
                                 @php $classValue = $classItem->class_name ?? $classItem->name ?? ''; @endphp
-                                <option value="{{ $classValue }}" @selected(old('class') == $classValue)>{{ $classValue }}</option>
+                                <option value="{{ $classValue }}" data-class-id="{{ $classItem->id ?? '' }}" @selected(old('class') == $classValue)>{{ $classValue }}</option>
                             @endforeach
                         </select>
                         @error('class') <div class="tt-error">{{ $message }}</div> @enderror
@@ -306,7 +310,7 @@
                     <span class="tt-step-no">2</span>
                     <div>
                         <h2>Build the days</h2>
-                        <p>Start with a quick layout for the days you choose, then adjust any day exactly how you want it.</p>
+                        <p>Start with a quick layout for the days you choose, then adjust any day exactly how you want it. Mon–Fri default ≈ 11:00–17:00, Saturday early morning shorter day.</p>
                     </div>
                 </div>
 
@@ -331,13 +335,13 @@
 
                             <div class="tt-field">
                                 <label class="tt-label" for="setupEnd">First lecture ends</label>
-                                <input class="tt-control" type="time" id="setupEnd">
+                                <input class="tt-control" type="time" id="setupEnd" value="11:40">
                             </div>
                         </div>
 
                         <p class="tt-help" style="margin:8px 0 0">
                             The length of the first lecture is used for every other lecture.
-                            For example 11:00 to 11:30 makes every lecture 30 minutes. You can change any block's minutes afterwards.
+                            For example 11:00 to 11:40 makes every lecture 40 minutes. You can change any block's minutes afterwards.
                         </p>
 
                         <div class="tt-label" style="margin:18px 0 8px">Breaks</div>
@@ -352,7 +356,8 @@
                         <div class="tt-days">
                             @foreach ($weekDays as $day)
                                 <label class="tt-check">
-                                    <input type="checkbox" class="apply-day" value="{{ $day }}" checked>
+                                    <input type="checkbox" class="apply-day" value="{{ $day }}"
+                                           @if($day !== 'Saturday') checked @endif>
                                     {{ substr($day, 0, 3) }}
                                 </label>
                             @endforeach
@@ -373,6 +378,7 @@
 
                         <p class="tt-hint">
                             Applying replaces the layout and times of the selected days; subjects and teachers on lectures are kept.
+                            Tip: uncheck Saturday here and apply a separate early-morning layout for it.
                         </p>
                     </div>
                 </details>
@@ -416,6 +422,7 @@
                     Set the first period's start time and each block's minutes; the other times follow automatically.
                     Use the buttons on a row to move it, add a lecture or break below it, or remove it.
                     Choosing <strong>Break</strong> or <strong>Lunch</strong> blocks the subject, teacher and room.
+                    All six days are fully independent — change any day without affecting the others.
                 </p>
             </section>
 
@@ -433,7 +440,7 @@
         </div>
     </form>
 
-    {{-- Import form (kept outside the main form: forms cannot be nested) --}}
+    {{-- Import form (kept outside the main form) --}}
     <form id="weeklyImportForm" action="{{ route('admin.timetable.weekly.import') }}"
           method="POST" enctype="multipart/form-data" hidden>
         @csrf
@@ -457,12 +464,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const form          = $('weeklyTimetableForm');
     const saveBtn       = $('saveBtn');
 
-    const allClasses   = @json($classes);
-    const allSections  = @json($sections);
-    const oldSection   = @json(old('section'));
-    const oldTimetable = @json(old('timetable', []));
-    const subjectNames = @json($subjectNames);
-    const teacherList  = @json($teacherList);
+    const allClasses     = @json($classes);
+    const allSections    = @json($sections);
+    const oldSection     = @json(old('section'));
+    const oldTimetable   = @json(old('timetable', []));
+    const subjectRecords = @json($subjectRecords);
+    const teacherList    = @json($teacherList);
 
     const urls = {
         fetch: @json(route('admin.timetable.weekly.fetch')),
@@ -470,13 +477,31 @@ document.addEventListener('DOMContentLoaded', function () {
         pdf:   @json(route('admin.timetable.weekly.pdf')),
     };
 
-    const DEFAULT_LECTURES = 8;
     const SPECIAL = ['Break', 'Lunch'];
     const isSpecial = (type) => SPECIAL.includes(type);
 
-    // Lengths in minutes. Class stays 0 (unknown) until the admin enters the first lecture's
-    // start and end time, so nothing is guessed. Break and Lunch follow the break rows below.
-    const durations = { Break: 10, Lunch: 30, Class: 0 };
+    const durations = { Break: 10, Lunch: 30, Class: 40 };
+
+    const WEEKDAY_DEFAULT = {
+        start: '11:00',
+        lectureMinutes: 40,
+        lectures: 8,
+        breaks: [
+            { after: 2, type: 'Break', minutes: 10 },
+            { after: 4, type: 'Lunch', minutes: 30 },
+            { after: 6, type: 'Break', minutes: 10 }
+        ]
+    };
+
+    const SATURDAY_DEFAULT = {
+        start: '07:20',
+        lectureMinutes: 40,
+        lectures: 6,
+        breaks: [
+            { after: 2, type: 'Break', minutes: 10 },
+            { after: 4, type: 'Break', minutes: 10 }
+        ]
+    };
 
     const tabs   = Array.from(document.querySelectorAll('.tt-tab'));
     const panels = Array.from(document.querySelectorAll('.tt-day-panel'));
@@ -490,6 +515,7 @@ document.addEventListener('DOMContentLoaded', function () {
         String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
 
     const toMinutes = (value) => {
+        if (!value) return 0;
         const [hh, mm] = value.split(':').map(Number);
         return hh * 60 + mm;
     };
@@ -499,7 +525,29 @@ document.addEventListener('DOMContentLoaded', function () {
         return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM');
     };
 
-    const subjectOptions = subjectNames.map(function (name) {
+    function getSubjectOptions() {
+        const className   = String(classSelect.value || '').trim().toLowerCase();
+        const sectionName = String(sectionSelect.value || '').trim().toLowerCase();
+
+        const selectedClass = allSections.find(function (s) {
+            return String(s.class_name || '').trim().toLowerCase() === className
+                && String(s.section_name || '').trim().toLowerCase() === sectionName;
+        });
+
+        if (!selectedClass) return '';
+
+        return subjectRecords
+            .filter(s => Number(s.class_id) === Number(selectedClass.id))
+            .map(s => '<option value="' + esc(s.subject_name) + '">' + esc(s.subject_name) + '</option>')
+            .join('');
+    }
+
+    const activityNames = [
+        'Sports', 'Yoga', 'Dance', 'Music',
+        'Art and Craft', 'Library', 'Computer Lab', 'Other Activity'
+    ];
+
+    const activityOptions = activityNames.map(function (name) {
         return '<option value="' + esc(name) + '">' + esc(name) + '</option>';
     }).join('');
 
@@ -544,7 +592,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const sections = allSections.filter(s => String(s.class_id) === String(cls.id));
+        const sections = allSections.filter(s => String(s.class_name ?? '').trim().toLowerCase() === String(className).trim().toLowerCase());
         sections.forEach(function (s) {
             const option = new Option(s.section_name, s.section_name);
             option.selected = String(s.section_name) === String(selected);
@@ -618,7 +666,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<div class="tt-col tt-col-type" data-label="Type"><select class="tt-control period-type" data-f="period_type">' +
                     '<option value="Regular">Class</option><option value="Activity">Activity</option>' +
                     '<option value="Break">Break</option><option value="Lunch">Lunch</option></select></div>' +
-                '<div class="tt-col tt-col-subject" data-label="Subject"><select class="tt-control period-subject" data-f="subject"><option value="">Select subject</option>' + subjectOptions + '</select></div>' +
+                '<div class="tt-col tt-col-subject" data-label="Subject"><select class="tt-control period-subject" data-f="subject"><option value="">Select subject</option>' + getSubjectOptions() + '</select></div>' +
                 '<div class="tt-col tt-col-teacher" data-label="Teacher"><select class="tt-control period-teacher" data-f="teacher_id"><option value="">Select teacher</option>' + teacherOptions + '</select></div>' +
                 '<div class="tt-col tt-col-min" data-label="Minutes"><input class="tt-control period-minutes" type="number" min="5" max="240" step="1" placeholder="min" aria-label="Minutes"></div>' +
                 '<div class="tt-col tt-col-start" data-label="Start"><input class="tt-control period-start" type="time" data-f="start_time"></div>' +
@@ -638,8 +686,6 @@ document.addEventListener('DOMContentLoaded', function () {
             '</div>';
     }
 
-    // Field names and labels depend on the row's position, so they are rewritten whenever the
-    // layout changes. period_number is the row's position in the day (breaks included).
     function renumber(panel) {
         const day  = panel.dataset.day;
         const rows = Array.from(panel.querySelectorAll('.tt-slot'));
@@ -660,12 +706,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 const name = el.dataset.f;
                 el.name = 'timetable[' + day + '][' + position + '][' + name + ']';
 
-                if (name === 'day') el.value = day;
-                if (name === 'period_number') el.value = position;
-                if (ariaNames[name]) el.setAttribute('aria-label', day + ' ' + label + ' ' + ariaNames[name]);
+                if (name === 'day') {
+                    el.value = day;
+                }
+
+                // period_number is only for teaching periods (Breaks/Lunch = 0)
+                if (name === 'period_number') {
+                    el.value = special ? 0 : lectureNo;
+                }
+
+                if (ariaNames[name]) {
+                    el.setAttribute('aria-label', day + ' ' + label + ' ' + ariaNames[name]);
+                }
             });
 
-            // Only the first row's start time is typed; every other time follows from it.
             fields(slot).start.readOnly = index > 0;
             slot.querySelector('.js-up').disabled     = index === 0;
             slot.querySelector('.js-down').disabled   = index === rows.length - 1;
@@ -675,6 +729,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function filterTeachers(slot) {
         const f = fields(slot);
+
+        if (f.type.value === 'Activity') {
+            Array.from(f.teacher.options).forEach(function (option, index) {
+                if (index === 0) return;
+                option.hidden = false;
+                option.disabled = false;
+            });
+            return;
+        }
+
         const chosen = f.subject.value.trim().toLowerCase();
 
         Array.from(f.teacher.options).forEach(function (option, index) {
@@ -688,7 +752,41 @@ document.addEventListener('DOMContentLoaded', function () {
         if (f.teacher.value && selected && selected.disabled) f.teacher.value = '';
     }
 
-    // Break and Lunch need no subject, teacher or room: block them and say so.
+    function refreshAllSubjectDropdowns() {
+        document.querySelectorAll('.tt-slot').forEach(function (slot) {
+            const f = fields(slot);
+            const previousSubject = f.subject.value;
+            const previousTeacher = f.teacher.value;
+            const special = isSpecial(f.type.value);
+            const activity = f.type.value === 'Activity';
+
+            f.subject.innerHTML =
+                '<option value="">' +
+                (special ? 'Not needed' : (activity ? 'Select activity' : 'Select subject')) +
+                '</option>' +
+                (special ? '' : (activity ? activityOptions : getSubjectOptions()));
+
+            const subjectStillValid = previousSubject &&
+                Array.from(f.subject.options).some(function (option) {
+                    return option.value === previousSubject;
+                });
+
+            f.subject.value = subjectStillValid ? previousSubject : '';
+
+            if (!subjectStillValid) {
+                f.teacher.value = '';
+            } else {
+                f.teacher.value = previousTeacher;
+            }
+
+            if (!special) {
+                filterTeachers(slot);
+            } else {
+                f.teacher.value = '';
+            }
+        });
+    }
+
     function configureSlot(slot) {
         const f        = fields(slot);
         const special  = isSpecial(f.type.value);
@@ -697,8 +795,23 @@ document.addEventListener('DOMContentLoaded', function () {
         slot.classList.toggle('tt-special', special);
         slot.dataset.special = special ? '1' : '0';
 
+        const currentSubject = f.subject.value;
+
+        f.subject.innerHTML =
+            '<option value="">' +
+            (special ? 'Not needed' : (activity ? 'Select activity' : 'Select subject')) +
+            '</option>' +
+            (activity ? activityOptions : getSubjectOptions());
+
+        if (currentSubject && Array.from(f.subject.options).some(function (option) {
+            return option.value === currentSubject;
+        })) {
+            f.subject.value = currentSubject;
+        }
+
         [f.subject, f.teacher, f.room].forEach(function (el) { el.disabled = special; });
-        f.subject.options[0].textContent = special ? 'Not needed' : 'Select subject';
+        f.subject.options[0].textContent =
+            special ? 'Not needed' : (activity ? 'Select activity' : 'Select subject');
         f.teacher.options[0].textContent = special ? 'Not needed' : 'Select teacher';
         f.room.placeholder = special ? 'Not needed' : 'Optional';
 
@@ -707,7 +820,7 @@ document.addEventListener('DOMContentLoaded', function () {
             f.teacher.value = '';
             f.room.value = '';
             f.subjectType.value = 'Activity';
-            f.lectureType.value = f.type.value.toLowerCase();
+            f.lectureType.value = 'activity';
         } else {
             f.subjectType.value = activity ? 'Activity' : 'Theory';
             f.lectureType.value = activity ? 'activity' : 'regular';
@@ -723,7 +836,6 @@ document.addEventListener('DOMContentLoaded', function () {
         select.value = value;
     }
 
-    // Minutes between a row's start and end time (0 if either is missing).
     function minutesBetween(slot) {
         const f = fields(slot);
         return f.start.value && f.end.value && f.end.value > f.start.value
@@ -731,7 +843,6 @@ document.addEventListener('DOMContentLoaded', function () {
             : 0;
     }
 
-    // One place that fills a row. Used by "Load saved", "Copy to all days", the layout generator and form restore.
     function writeSlot(slot, data) {
         const f = fields(slot);
 
@@ -744,15 +855,22 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!special) {
             setSubject(f.subject, data.subject);
             f.teacher.value = data.teacher_id == null ? '' : String(data.teacher_id);
-            if (data.subject_type) f.subjectType.value = data.subject_type;
-            if (data.lecture_type) f.lectureType.value = data.lecture_type;
+            if (data.subject_type != null) f.subjectType.value = data.subject_type;
+            if (data.lecture_type != null) {
+                const savedType = String(data.lecture_type).trim().toLowerCase();
+                f.lectureType.value = ['regular', 'extra', 'practical', 'activity'].includes(savedType)
+                    ? savedType
+                    : (f.type.value === 'Activity' ? 'activity' : 'regular');
+            }
             filterTeachers(slot);
         }
 
         f.start.value = data.start_time ? String(data.start_time).slice(0, 5) : '';
         f.end.value   = data.end_time ? String(data.end_time).slice(0, 5) : '';
         f.room.value  = special ? '' : (data.room || '');
-        f.minutes.value = minutesBetween(slot) || '';
+        f.minutes.value = data.minutes != null && data.minutes !== ''
+            ? data.minutes
+            : (minutesBetween(slot) || '');
     }
 
     function readSlot(slot) {
@@ -761,8 +879,11 @@ document.addEventListener('DOMContentLoaded', function () {
             period_type: f.type.value,
             subject: f.subject.value,
             teacher_id: f.teacher.value,
+            subject_type: f.subjectType.value,
+            lecture_type: f.lectureType.value,
             start_time: f.start.value,
             end_time: f.end.value,
+            minutes: f.minutes.value,
             room: f.room.value,
         };
     }
@@ -777,24 +898,20 @@ document.addEventListener('DOMContentLoaded', function () {
         return value > 0 ? value : 0;
     };
 
-    // How long a new block of this type should be.
     function defaultMinutes(panel, type) {
         if (isSpecial(type)) return durations[type] || 10;
         if (durations.Class) return durations.Class;
 
         const first = lectureRows(panel).map(rowMinutes).find(Boolean);
-        return first || 0;
+        return first || 40;
     }
 
-    // Times always run in sequence: the first row's start time is typed, and every row then starts
-    // when the one before it ends. Each row keeps its own minutes, so moving, adding or removing
-    // a block just shifts everything after it.
     function rechain(panel) {
         const rows = Array.from(panel.querySelectorAll('.tt-slot'));
         if (!rows.length) return;
 
         const first = fields(rows[0]);
-        if (!first.start.value) return;                      // nothing to build from yet
+        if (!first.start.value) return;
 
         let clock = toMinutes(first.start.value);
 
@@ -851,7 +968,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const wasSpecial = slot.dataset.special === '1';
             configureSlot(slot);
 
-            // Changing between a lecture and a break resets the length to that type's usual one.
             if (wasSpecial !== isSpecial(f.type.value)) {
                 f.minutes.value = defaultMinutes(panel, f.type.value) || f.minutes.value;
             }
@@ -862,6 +978,7 @@ document.addEventListener('DOMContentLoaded', function () {
         f.subject.addEventListener('change', function () { filterTeachers(slot); });
         f.start.addEventListener('change', function () { rechain(panel); });
         f.minutes.addEventListener('change', function () { rechain(panel); });
+        f.minutes.addEventListener('input', function () { rechain(panel); });
 
         slot.querySelector('.js-up').addEventListener('click', function () {
             const previous = slot.previousElementSibling;
@@ -891,7 +1008,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return slot;
     }
 
-    // Rebuilds one day from a list of row data.
     function renderDay(panel, rows) {
         const body = panel.querySelector('.tt-body');
         body.innerHTML = '';
@@ -903,6 +1019,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         renumber(panel);
+        rechain(panel);
     }
 
     /* ---------- Copy one day to all days ---------- */
@@ -942,9 +1059,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return html;
     }
 
-    // Break places depend on how many lectures there are.
     function refreshPlaceOptions() {
-        const count = lectureCount() || DEFAULT_LECTURES;
+        const count = lectureCount() || 8;
 
         breakList.querySelectorAll('.brk-after').forEach(function (select) {
             const previous = Number(select.value) || 1;
@@ -957,7 +1073,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const row = document.createElement('div');
         row.className = 'tt-break-row';
         row.innerHTML =
-            '<select class="tt-control brk-after" aria-label="Break placement">' + placeOptionsHtml(lectureCount() || DEFAULT_LECTURES) + '</select>' +
+            '<select class="tt-control brk-after" aria-label="Break placement">' + placeOptionsHtml(lectureCount() || 8) + '</select>' +
             '<select class="tt-control brk-type" aria-label="Break type">' +
                 '<option value="Break">Break</option><option value="Lunch">Lunch</option></select>' +
             '<input class="tt-control brk-mins" type="number" min="5" max="180" aria-label="Break minutes">' +
@@ -973,15 +1089,14 @@ document.addEventListener('DOMContentLoaded', function () {
             updatePreview();
         });
 
-        // Suggest a sensible length when the type changes.
         row.querySelector('.brk-type').addEventListener('change', function () {
             row.querySelector('.brk-mins').value = this.value === 'Lunch' ? 30 : 10;
+            updatePreview();
         });
 
         breakList.appendChild(row);
     }
 
-    // The first break row of each type decides how long that type is when a row is changed by hand.
     function syncBreakDurations() {
         const seen = {};
 
@@ -996,8 +1111,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Lays out one day: the chosen number of lectures, each as long as the first lecture,
-    // with the breaks placed after the lectures the admin picked.
     function buildPlan() {
         const count = lectureCount();
 
@@ -1112,7 +1225,6 @@ document.addEventListener('DOMContentLoaded', function () {
         durations.Class = plan.length;
 
         panels.filter(panel => chosen.includes(panel.dataset.day)).forEach(function (panel) {
-            // Keep what is already chosen on the lectures, in order.
             const kept = lectureRows(panel).map(readSlot);
             let lecture = 0;
 
@@ -1123,6 +1235,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 data.start_time = toTime(item.start);
                 data.end_time   = toTime(item.end);
+                data.minutes    = item.end - item.start;
                 return data;
             });
 
@@ -1138,7 +1251,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     $('applySetupBtn').addEventListener('click', applySetup);
 
-    // Example starting point: two small breaks and one lunch.
+    // Default breaks
     addBreakRow(2, 'Break', 10);
     addBreakRow(4, 'Lunch', 30);
     addBreakRow(6, 'Break', 10);
@@ -1152,12 +1265,46 @@ document.addEventListener('DOMContentLoaded', function () {
     breakList.addEventListener('change', updatePreview);
     updatePreview();
 
+    /* ---------- Build default layout for a day ---------- */
+    function buildDefaultRows(dayName) {
+        const cfg = (dayName === 'Saturday') ? SATURDAY_DEFAULT : WEEKDAY_DEFAULT;
+        const startMin = toMinutes(cfg.start);
+        const length   = cfg.lectureMinutes;
+        const breaks   = {};
+
+        cfg.breaks.forEach(b => { breaks[b.after] = b; });
+
+        const rows = [];
+        let clock = startMin;
+
+        for (let n = 1; n <= cfg.lectures; n++) {
+            rows.push({
+                period_type: 'Regular',
+                start_time: toTime(clock),
+                end_time: toTime(clock + length),
+                minutes: length
+            });
+            clock += length;
+
+            if (breaks[n]) {
+                rows.push({
+                    period_type: breaks[n].type,
+                    start_time: toTime(clock),
+                    end_time: toTime(clock + breaks[n].minutes),
+                    minutes: breaks[n].minutes
+                });
+                clock += breaks[n].minutes;
+            }
+        }
+
+        return rows;
+    }
+
     /* ---------- Build the days on page load ---------- */
     panels.forEach(function (panel) {
         const saved = oldTimetable && oldTimetable[panel.dataset.day];
         let rows = [];
 
-        // After a failed save, restore exactly what was submitted.
         if (saved && typeof saved === 'object') {
             rows = Object.keys(saved).map(Number).sort((a, b) => a - b).map(function (key) {
                 return saved[key] || {};
@@ -1165,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!rows.length) {
-            rows = Array.from({ length: DEFAULT_LECTURES }, function () { return { period_type: 'Regular' }; });
+            rows = buildDefaultRows(panel.dataset.day);
         }
 
         renderDay(panel, rows);
@@ -1302,12 +1449,174 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* ---------- Init ---------- */
-    classSelect.addEventListener('change', function () { loadSections(classSelect.value); });
+    classSelect.addEventListener('change', function () {
+        const previousSection = sectionSelect.value;
+        loadSections(classSelect.value, previousSection);
+        refreshAllSubjectDropdowns();
+    });
+
+    sectionSelect.addEventListener('change', function () {
+        refreshAllSubjectDropdowns();
+    });
+
     weekStart.addEventListener('change', updateWeekDates);
 
     if (classSelect.value) loadSections(classSelect.value, oldSection);
     updateWeekDates();
+
+    // ---------- Local draft ----------
+    const DRAFT_KEY = 'weeklyTimetableDraft:v1:' + window.location.pathname;
+    let draftSaveTimer = null;
+
+    function collectTimetableDraft() {
+        return {
+            version: 1,
+            filters: {
+                academic_year: $('academic_year')?.value ?? '',
+                class: classSelect.value,
+                section: sectionSelect.value,
+                week_start_date: weekStart.value
+            },
+            days: panels.map(function (panel) {
+                return {
+                    day: panel.dataset.day,
+                    rows: readDay(panel)
+                };
+            }),
+            setup: {
+                count: setupCount.value,
+                start: setupStart.value,
+                end: setupEnd.value,
+                breaks: Array.from(breakList.querySelectorAll('.tt-break-row')).map(function (row) {
+                    return {
+                        after: row.querySelector('.brk-after').value,
+                        type: row.querySelector('.brk-type').value,
+                        minutes: row.querySelector('.brk-mins').value
+                    };
+                })
+            }
+        };
+    }
+
+    function saveTimetableDraft() {
+        try {
+            window.localStorage.setItem(DRAFT_KEY, JSON.stringify(collectTimetableDraft()));
+        } catch (error) {
+            // Ignore storage errors
+        }
+    }
+
+    function scheduleDraftSave() {
+        if (draftSaveTimer !== null) {
+            clearTimeout(draftSaveTimer);
+        }
+
+        draftSaveTimer = setTimeout(function () {
+            saveTimetableDraft();
+            draftSaveTimer = null;
+        }, 250);
+    }
+
+    function restoreTimetableDraft() {
+        let draft;
+
+        try {
+            const raw = window.localStorage.getItem(DRAFT_KEY);
+            if (!raw) return;
+
+            draft = JSON.parse(raw);
+        } catch (error) {
+            return;
+        }
+
+        if (!draft || draft.version !== 1 || !draft.filters || !Array.isArray(draft.days)) {
+            return;
+        }
+
+        const hasServerOldRows =
+            oldTimetable &&
+            typeof oldTimetable === 'object' &&
+            Object.keys(oldTimetable).length > 0;
+
+        if (hasServerOldRows) {
+            scheduleDraftSave();
+            return;
+        }
+
+        const filters = draft.filters;
+
+        if ($('academic_year')) {
+            $('academic_year').value = filters.academic_year || $('academic_year').value;
+        }
+
+        classSelect.value = filters.class || '';
+
+        if (classSelect.value) {
+            loadSections(classSelect.value, filters.section || '');
+        } else {
+            loadSections('', '');
+        }
+
+        weekStart.value = filters.week_start_date || weekStart.value;
+
+        if (draft.setup) {
+            setupCount.value = draft.setup.count || setupCount.value;
+            setupStart.value = draft.setup.start || '';
+            setupEnd.value = draft.setup.end || '';
+
+            breakList.innerHTML = '';
+
+            (Array.isArray(draft.setup.breaks) ? draft.setup.breaks : []).forEach(function (item) {
+                addBreakRow(
+                    Number(item.after) || 1,
+                    item.type === 'Lunch' ? 'Lunch' : 'Break',
+                    Number(item.minutes) || (item.type === 'Lunch' ? 30 : 10)
+                );
+            });
+
+            refreshPlaceOptions();
+            updatePreview();
+        }
+
+        draft.days.forEach(function (savedDay) {
+            if (!savedDay || !Array.isArray(savedDay.rows)) return;
+
+            const panel = panels.find(function (item) {
+                return item.dataset.day === savedDay.day;
+            });
+
+            if (panel && savedDay.rows.length) {
+                renderDay(panel, savedDay.rows);
+            }
+        });
+
+        updateWeekDates();
+        scheduleDraftSave();
+    }
+
+    form.addEventListener('input', scheduleDraftSave);
+    form.addEventListener('change', scheduleDraftSave);
+
+    [setupCount, setupStart, setupEnd].forEach(function (element) {
+        element.addEventListener('input', scheduleDraftSave);
+        element.addEventListener('change', scheduleDraftSave);
+    });
+
+    breakList.addEventListener('input', scheduleDraftSave);
+    breakList.addEventListener('change', scheduleDraftSave);
+
+    const draftObserver = new MutationObserver(scheduleDraftSave);
+
+    panels.forEach(function (panel) {
+        const body = panel.querySelector('.tt-body');
+        if (body) {
+            draftObserver.observe(body, { childList: true, subtree: true });
+        }
+    });
+
+    draftObserver.observe(breakList, { childList: true, subtree: true });
+
+    restoreTimetableDraft();
 });
 </script>
-
 @endsection

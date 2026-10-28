@@ -3,87 +3,60 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeacherSalary extends Model
 {
     protected $fillable = [
+        'staff_type',
         'teacher_id',
+        'other_staff_id',
         'salary_month',
-
-        // Salary
         'basic_salary',
         'allowances',
         'deductions',
-        'gross_salary',
+        'deduction_rate',
         'net_salary',
-
-        // Attendance
-        'working_days',
-        'present_days',
-        'absent_days',
-        'half_days',
-        'leave_days',
-
-        // Attendance Payroll
-        'attendance_allowance',
-        'attendance_deduction',
-
-        // Overtime
-        'overtime_hours',
-        'overtime_amount',
-
-        // Payment
         'payment_status',
         'payment_date',
-        'payment_method',
-        'transaction_reference',
-        'disbursed_at',
-
-        // Remarks / Receipts
         'remarks',
-        'payslip_number',
-        'receipt_number',
     ];
 
     protected $casts = [
-        'salary_month' => 'date',
-
-        'payment_date' => 'date',
-
-        'disbursed_at' => 'datetime',
-
-        // Salary
-        'basic_salary' => 'decimal:2',
-        'allowances' => 'decimal:2',
-        'deductions' => 'decimal:2',
-        'gross_salary' => 'decimal:2',
-        'net_salary' => 'decimal:2',
-
-        // Attendance
-        'working_days' => 'integer',
-        'present_days' => 'integer',
-        'absent_days' => 'integer',
-        'half_days' => 'integer',
-        'leave_days' => 'integer',
-
-        // Attendance Payroll
-        'attendance_allowance' => 'decimal:2',
-        'attendance_deduction' => 'decimal:2',
-
-        // Overtime
-        'overtime_hours' => 'decimal:2',
-        'overtime_amount' => 'decimal:2',
+        'basic_salary'   => 'float',
+        'allowances'     => 'float',
+        'deductions'     => 'float',
+        'deduction_rate' => 'float',
+        'net_salary'     => 'float',
+        'payment_date'   => 'date',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | TEACHER RELATIONSHIP
-    |--------------------------------------------------------------------------
-    */
-
-    public function teacher()
+    /**
+     * Salary belongs to one teacher (only when staff_type = Teacher).
+     */
+    public function teacher(): BelongsTo
     {
         return $this->belongsTo(Teacher::class);
     }
-}
 
+    /**
+     * Salary belongs to one non-teaching staff member
+     * (Driver, Peon, Librarian, Accountant, Receptionist, OtherStaff).
+     */
+    public function otherStaff(): BelongsTo
+    {
+        return $this->belongsTo(OtherStaff::class, 'other_staff_id');
+    }
+
+    /**
+     * Staff name for any staff type: $salary->staff_name
+     */
+    public function getStaffNameAttribute(): string
+    {
+        if ($this->staff_type === 'Teacher' || (empty($this->staff_type) && $this->teacher_id)) {
+            return trim(($this->teacher->first_name ?? '') . ' ' . ($this->teacher->last_name ?? '')) ?: '-';
+        }
+
+        return $this->otherStaff->name ?? '-';
+    }
+}

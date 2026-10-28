@@ -2,50 +2,46 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('teacher_salaries', function (Blueprint $table) {
-    $table->id();
+        Schema::table('teacher_salaries', function (Blueprint $table) {
+            if (!Schema::hasColumn('teacher_salaries', 'staff_type')) {
+                $table->string('staff_type', 30)->nullable()->after('id');
+            }
 
-    $table->foreignId('teacher_id')
-          ->constrained('teachers')
-          ->cascadeOnDelete();
+            if (!Schema::hasColumn('teacher_salaries', 'other_staff_id')) {
+                $table->unsignedBigInteger('other_staff_id')->nullable()->after('teacher_id');
+            }
+        });
 
-    $table->string('salary_month');
+        // Non-teaching staff have no teacher_id, so it must allow NULL.
+        // (Laravel 10+ supports ->change() natively. On older versions install doctrine/dbal.)
+        Schema::table('teacher_salaries', function (Blueprint $table) {
+            $table->unsignedBigInteger('teacher_id')->nullable()->change();
+        });
 
-    $table->decimal('basic_salary', 10, 2)->default(0);
-
-    $table->decimal('allowances', 10, 2)->default(0);
-
-    $table->decimal('deductions', 10, 2)->default(0);
-
-    $table->decimal('net_salary', 10, 2)->default(0);
-
-    $table->enum('payment_status', [
-        'Pending',
-        'Paid'
-    ])->default('Pending');
-
-    $table->date('payment_date')->nullable();
-
-    $table->text('remarks')->nullable();
-
-    $table->timestamps();
-});
+        // Back-fill old rows: anything with a teacher_id is a Teacher salary.
+        DB::table('teacher_salaries')
+            ->whereNull('staff_type')
+            ->whereNotNull('teacher_id')
+            ->update(['staff_type' => 'Teacher']);
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('teacher_salaries');
+        Schema::table('teacher_salaries', function (Blueprint $table) {
+            if (Schema::hasColumn('teacher_salaries', 'other_staff_id')) {
+                $table->dropColumn('other_staff_id');
+            }
+
+            if (Schema::hasColumn('teacher_salaries', 'staff_type')) {
+                $table->dropColumn('staff_type');
+            }
+        });
     }
 };

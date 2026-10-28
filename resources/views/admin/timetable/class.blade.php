@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Class Timetable')
@@ -91,6 +92,8 @@
         font-size:11px;font-weight:700;text-decoration:none;
         border:1px solid transparent;
     }
+    .dl-edit{background:var(--ink);color:#fff}
+    .dl-edit:hover{background:var(--ink-2);color:#fff}
     .dl-pdf{background:color-mix(in srgb,#e4572e 12%,#fff);color:#e4572e}
     .dl-pdf:hover{background:#e4572e;color:#fff}
     .dl-excel{background:color-mix(in srgb,#3a9d6b 12%,#fff);color:#3a9d6b}
@@ -215,6 +218,12 @@
         <p>View the weekly timetable for a selected class and section.</p>
     </section>
 
+    @if (session('success'))
+        <div style="margin-bottom:16px;padding:12px 16px;border:1px solid #cfe5d3;border-radius:10px;background:#edf7ed;color:#2f6b45;font-size:13px">
+            <i class="bi bi-check-circle"></i> {{ session('success') }}
+        </div>
+    @endif
+
     {{-- Selection --}}
     <section class="paper select-card">
         <h3>Select Class & Section</h3>
@@ -268,6 +277,12 @@
                         <p>Weekly Class Timetable</p>
                     </div>
                     <div class="download-actions">
+                        <a href="{{ route('admin.timetable.create', [
+                            'class' => request('class'),
+                            'section' => request('section')
+                        ]) }}" class="dl-btn dl-edit">
+                            <i class="bi bi-pencil-square"></i> Edit Timetable
+                        </a>
                         <a href="{{ route('admin.timetable.class.pdf', [
                             'class' => request('class'),
                             'section' => request('section')
