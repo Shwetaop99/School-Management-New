@@ -396,424 +396,344 @@
 
     $menu = [
 
-
-
-        'Main' => [
-
-
-
-            [
-
-                'l' => 'Dashboard',
-
-                'i' => 'fa-gauge-high',
-
-                'a' => ['admin.dashboard'],
-
-                'r' => 'admin.dashboard',
-
-                'p' => ['dashboard.view'],
-
-            ],
-
-
-
-[
-    'l' => 'Student',
-    'i' => 'fa-user-graduate',
-    'a' => [
-        'admin.students.*',
-        'admin.student-profile.*',
-        'admin.student-documents.*',
-        'admin.id-card.*',
-        
-       
-        'admin.student-general-register.*',
-        'admin.government-schemes.*',
-        'admin.student-health.*',
-      
-    ],
-    'c' => [
-        ['All Students', 'admin.students.index'],
-        ['Student Profile', 'admin.student-profile.index'],
-        ['Student Documents', 'admin.student-documents.index'],
-        ['Student ID', 'admin.id-card.index'],
-        ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
-    
-        ['Student Register', 'admin.student-general-register.index'],
-        ['Government Schemes', 'admin.government-schemes.index'],
-        ['Student Health', 'admin.student-health.index'],
-    ],
-    'p' => [
-        'students.view',
-        'students.create',
-        'students.edit',
-        'students.delete',
-    ],
-],
-
-
-         [
-    'l' => 'Faculty (Teacher)',
-    'i' => 'fa-chalkboard-user',
-    'a' => [
-        'admin.teachers.*',
-        'admin.leave-applications.*',
-    ],
-    'c' => [
-        ['All Faculty', 'admin.teachers.index'],
-        ['Teacher Allocation', 'admin.teachers.assign-class.index'],
-        ['Leave Applications', 'admin.leave-applications.index'],
-    ],
-    'p' => [
-        'faculty.view',
-        'faculty.create',
-        'faculty.edit',
-        'faculty.delete',
-    ],
-],
-
-            [
-
-                'l' => 'Other Staff',
-
-                'i' => 'fa-users',
-
-                'a' => ['admin.other-staff.*'],
-
-                'c' => [
-
-                    ['All Staff', 'admin.other-staff.index'],
-
-                    ['Add Staff', 'admin.other-staff.create'],
-
-                ],
-
-            ],
-
-
-
-            [
-
-                'l' => 'Time Table',
-
-                'i' => 'fa-table-cells',
-
-                'a' => ['admin.timetable.*'],
-
-                'c' => [
-
-                    ['Class Timetable', 'admin.timetable.class'],
-
-                    ['Teacher Timetable', 'admin.timetable.teacher'],
-
-                    ['Create Timetable', 'admin.timetable.create'],
-
-                ],
-
-            ],
-
-
-
-            [
-
-                'l' => 'Attendance',
-
-                'i' => 'fa-check',
-
-                'a' => [
-
-                    'admin.attendance.*',
-
-                    'admin.teachers.attendance.*',
-
-                ],
-
-                'c' => [
-
-                    ['Student Attendance', 'admin.attendance.index'],
-
-                    ['Faculty Attendance', 'admin.teachers.attendance.index'],
-
-                ],
-
-            ],
-
-
-
-         [
-    'l' => 'Fees',
-    'i' => 'fa-indian-rupee-sign',
-    'a' => [
-        'admin.fees.fee-structures.*',
-        'admin.fees.student-fees.*',
-        'admin.fees.payment-history.*',
-    ],
-    'c' => [
-        ['Fee Structure', 'admin.fees.fee-structures.index'],
-        ['Student Fee', 'admin.fees.student-fees.index'],
-        ['Payment History', 'admin.fees.payment-history.index'],
-    ],
-],
-
-[
-
-                'l' => 'Class',
-
-                'i' => 'fa-chalkboard',
-
-                'a' => ['admin.classes.*', 'admin.subjects.*'],
-
-                'c' => [
-
-                    ['Classes', 'admin.classes.index'],
-
-                    ['Subjects', 'admin.subjects.index'],
-
-                ],
-
-            ],
-
-            [
-
-                'l' => 'Exam',
-
-                'i' => 'fa-file-lines',
-
-                'a' => [
-
-                    'admin.exams.*',
-
-                    'admin.exam-classes.*',
-
-                    'admin.exam-subjects.*',
-
-                    'admin.exam-sessions.*',
-
-                    'admin.exam-holidays.*',
-
-                    'admin.exam-schedules.*',
-
-                ],
-
-                'r' => 'admin.exams.index',
-
-            ],
-
-            [
-    'l' => 'Scholarship',
-    'i' => 'fa-graduation-cap',
-    'a' => ['admin.scholarship.*'],
-    'c' => [
-        ['Merit Concession', 'admin.scholarship.merit.concession.index'],
-        ['Scholarship Exam', 'admin.scholarship.exams.index'],
-    ],
-],
-
-
-
-            
-[
-    'l' => 'Result',
-    'i' => 'fa-chart-column',
-    'a' => ['admin.results.*'],
-    'c' => [
-        ['Result Dashboard', 'admin.results.index'],
-        ['Enter Marks', 'admin.results.generate'],
-        ['Publish Result', 'admin.results.class-results'],
-        ['Top Three', 'admin.results.history'],
-        ['Result Report', 'admin.reports.results.index'],
-    ],
-],
-
-
-
-
-
-
-
-            [
-
-                'l' => 'Library',
-
-                'i' => 'fa-book',
-
-                'a' => ['admin.library.*'],
-
-                'c' => [
-
-                    ['Total Books', 'admin.library.books.index'],
-
-                    ['Issues / Returns / Fine', 'admin.library.issues.index'],
-
-                    ['Librarian', 'admin.library.librarian.index'],
-
-                    ['Reports', 'admin.library.reports.index'],
-
-                ],
-
-            ],
-
+    'Main' => [
+
+        [
+            'l' => 'Dashboard',
+            'i' => 'fa-gauge-high',
+            'a' => ['admin.dashboard'],
+            'r' => 'admin.dashboard',
+            'p' => ['dashboard.view'],
         ],
 
-
-
-        'Other' => [
-
-
-         [
-
-                'l' => 'Notice',
-
-                'i' => 'fa-flag',
-
-                'a' => ['admin.notices.*'],
-
-                'c' => [
-
-                    ['All Notices', 'admin.notices.index'],
-
-                    ['Add Notice', 'admin.notices.create'],
-
-                ],
-
+        [
+            'l' => 'Student',
+            'i' => 'fa-user-graduate',
+            'a' => [
+                'admin.students.*',
+                'admin.student-profile.*',
+                'admin.student-documents.*',
+                'admin.id-card.*',
+                'admin.student-general-register.*',
+                'admin.government-schemes.*',
+                'admin.student-health.*',
             ],
-
-            [
-
-                'l' => 'Transport',
-
-                'i' => 'fa-bus',
-
-                'a' => [
-
-                    'admin.transport.records.*',
-
-                    'admin.transport.routes.*',
-
-                    'admin.transport.vehicles.*',
-
-                ],
-
-                'c' => [
-
-                    ['Transport Records', 'admin.transport.records.index'],
-
-                    ['Routes', 'admin.transport.routes.index'],
-
-                    ['Vehicles', 'admin.transport.vehicles.index'],
-
-                ],
-
+            'c' => [
+                ['All Students', 'admin.students.index'],
+                ['Student Profile', 'admin.student-profile.index'],
+                ['Student Documents', 'admin.student-documents.index'],
+                ['Student ID', 'admin.id-card.index'],
+                ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
+                ['Student Register', 'admin.student-general-register.index'],
+                ['Government Schemes', 'admin.government-schemes.index'],
+                ['Student Health', 'admin.student-health.index'],
             ],
-
-    [
-    'l' => 'Payroll',
-    'i' => 'fa-money-check-dollar',
-    'a' => ['admin.salary.*'],
-    'r' => 'admin.salary.index',
-],
-[
-    'l' => 'Meal Management',
-    'i' => 'fa-utensils',
-    'a' => [
-        'admin.meal.*',
-        'admin.meals.*',
-    ],
-    'c' => [
-        ['Meal Items', 'admin.meal.items.index'],
-        ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
-        ['Logs', 'admin.meal.logs.index'],
-    ],
-],
-
-
-
-
-
-            [
-
-                'l' => 'Sports',
-
-                'i' => 'fa-futbol',
-
-                'a' => ['admin.sports.*'],
-
-                'c' => [
-
-                    ['Games / Events', 'admin.sports.games.index'],
-
-                    ['Achievements', 'admin.sports.achievements.index'],
-
-                    ['Sports Equipments', 'admin.sports.equipment.index'],
-
-                ],
-
+            'p' => [
+                'students.view',
+                'students.create',
+                'students.edit',
+                'students.delete',
             ],
-
-
-
-            [
-
-                'l' => 'Scholarship',
-
-                'i' => 'fa-graduation-cap',
-
-                'a' => ['admin.scholarship.*'],
-
-                'r' => 'admin.scholarship.index',
-
-            ],
-
-
-
-            
-
-
-
-            [
-
-                'l' => 'Reports',
-
-                'i' => 'fa-chart-pie',
-
-                'a' => ['admin.reports.*'],
-
-                'r' => 'admin.reports.index',
-
-            ],
-
-
-
-            [
-
-                'l' => 'Settings',
-
-                'i' => 'fa-gear',
-
-                'a' => [
-
-                    'admin.settings.*',
-
-                    'backup.*',
-
-                    'admin.2fa.*',
-
-                ],
-
-                'c' => [
-    ['School Profile', 'admin.settings.index'],
-    ['User Roles & Permission', 'admin.settings.roles.index'],
-    ['Add User', 'admin.settings.users.index'],
-    ['Security', 'admin.2fa.security'],
-    ['Backup & Recovery', 'admin.backup.index'],
-],
-
-            ],
-
         ],
 
-    ];
+        [
+            'l' => 'Faculty (Teacher)',
+            'i' => 'fa-chalkboard-user',
+            'a' => [
+                'admin.teachers.*',
+                'admin.leave-applications.*',
+            ],
+            'c' => [
+                ['All Faculty', 'admin.teachers.index'],
+                ['Teacher Allocation', 'admin.teachers.assign-class.index'],
+                ['Leave Applications', 'admin.leave-applications.index'],
+            ],
+            'p' => [
+                'faculty.view',
+                'faculty.create',
+                'faculty.edit',
+                'faculty.delete',
+            ],
+        ],
+
+        [
+            'l' => 'Other Staff',
+            'i' => 'fa-users',
+            'a' => ['admin.other-staff.*'],
+            'c' => [
+                ['All Staff', 'admin.other-staff.index'],
+                ['Add Staff', 'admin.other-staff.create'],
+            ],
+            'p' => [
+                'staff.view',
+                'staff.create',
+                'staff.edit',
+                'staff.delete',
+            ],
+        ],
+
+        [
+            'l' => 'Time Table',
+            'i' => 'fa-table-cells',
+            'a' => ['admin.timetable.*'],
+            'c' => [
+                ['Class Timetable', 'admin.timetable.class'],
+                ['Teacher Timetable', 'admin.timetable.teacher'],
+                ['Create Timetable', 'admin.timetable.create'],
+            ],
+            'p' => [
+                'timetable.view',
+                'timetable.create',
+                'timetable.edit',
+            ],
+        ],
+
+        [
+            'l' => 'Attendance',
+            'i' => 'fa-check',
+            'a' => [
+                'admin.attendance.*',
+                'admin.teachers.attendance.*',
+            ],
+            'c' => [
+                ['Student Attendance', 'admin.attendance.index'],
+                ['Faculty Attendance', 'admin.teachers.attendance.index'],
+            ],
+            'p' => [
+                'attendance.view',
+                'attendance.create',
+                'attendance.edit',
+            ],
+        ],
+
+        [
+            'l' => 'Fees',
+            'i' => 'fa-indian-rupee-sign',
+            'a' => [
+                'admin.fees.fee-structures.*',
+                'admin.fees.student-fees.*',
+                'admin.fees.payment-history.*',
+            ],
+            'c' => [
+                ['Fee Structure', 'admin.fees.fee-structures.index'],
+                ['Student Fee', 'admin.fees.student-fees.index'],
+                ['Payment History', 'admin.fees.payment-history.index'],
+            ],
+            'p' => [
+                'fees.view',
+                'fees.create',
+                'fees.edit',
+                'fees.delete',
+            ],
+        ],
+
+        [
+            'l' => 'Class',
+            'i' => 'fa-chalkboard',
+            'a' => ['admin.classes.*', 'admin.subjects.*'],
+            'c' => [
+                ['Classes', 'admin.classes.index'],
+                ['Subjects', 'admin.subjects.index'],
+            ],
+            'p' => [
+                'classes.view',
+                'classes.create',
+                'classes.edit',
+                'classes.delete',
+            ],
+        ],
+
+        [
+            'l' => 'Exam',
+            'i' => 'fa-file-lines',
+            'a' => [
+                'admin.exams.*',
+                'admin.exam-classes.*',
+                'admin.exam-subjects.*',
+                'admin.exam-sessions.*',
+                'admin.exam-holidays.*',
+                'admin.exam-schedules.*',
+            ],
+            'r' => 'admin.exams.index',
+            'p' => [
+                'exams.view',
+                'exams.create',
+                'exams.edit',
+                'exams.delete',
+            ],
+        ],
+
+        [
+            'l' => 'Scholarship',
+            'i' => 'fa-graduation-cap',
+            'a' => ['admin.scholarship.*'],
+            'c' => [
+                ['Merit Concession', 'admin.scholarship.merit.concession.index'],
+                ['Scholarship Exam', 'admin.scholarship.exams.index'],
+            ],
+            'p' => [
+                'scholarship.view',
+                'scholarship.create',
+                'scholarship.edit',
+            ],
+        ],
+
+        [
+            'l' => 'Result',
+            'i' => 'fa-chart-column',
+            'a' => ['admin.results.*'],
+            'c' => [
+                ['Result Dashboard', 'admin.results.index'],
+                ['Enter Marks', 'admin.results.generate'],
+                ['Publish Result', 'admin.results.class-results'],
+                ['Top Three', 'admin.results.history'],
+                ['Result Report', 'admin.reports.results.index'],
+            ],
+            'p' => [
+                'results.view',
+                'results.create',
+                'results.edit',
+            ],
+        ],
+
+        [
+            'l' => 'Library',
+            'i' => 'fa-book',
+            'a' => ['admin.library.*'],
+            'c' => [
+                ['Total Books', 'admin.library.books.index'],
+                ['Issues / Returns / Fine', 'admin.library.issues.index'],
+                ['Librarian', 'admin.library.librarian.index'],
+                ['Reports', 'admin.library.reports.index'],
+            ],
+            'p' => [
+                'library.view',
+                'library.create',
+                'library.edit',
+                'library.delete',
+            ],
+        ],
+    ],
+
+    'Other' => [
+
+        [
+            'l' => 'Notice',
+            'i' => 'fa-flag',
+            'a' => ['admin.notices.*'],
+            'c' => [
+                ['All Notices', 'admin.notices.index'],
+                ['Add Notice', 'admin.notices.create'],
+            ],
+            'p' => [
+                'notices.view',
+                'notices.create',
+                'notices.edit',
+                'notices.delete',
+            ],
+        ],
+
+        [
+            'l' => 'Transport',
+            'i' => 'fa-bus',
+            'a' => [
+                'admin.transport.records.*',
+                'admin.transport.routes.*',
+                'admin.transport.vehicles.*',
+            ],
+            'c' => [
+                ['Transport Records', 'admin.transport.records.index'],
+                ['Routes', 'admin.transport.routes.index'],
+                ['Vehicles', 'admin.transport.vehicles.index'],
+            ],
+            'p' => [
+                'transport.view',
+                'transport.create',
+                'transport.edit',
+                'transport.delete',
+            ],
+        ],
+
+        [
+            'l' => 'Payroll',
+            'i' => 'fa-money-check-dollar',
+            'a' => ['admin.salary.*'],
+            'r' => 'admin.salary.index',
+            'p' => [
+                'payroll.view',
+                'payroll.create',
+                'payroll.edit',
+            ],
+        ],
+
+        [
+            'l' => 'Meal Management',
+            'i' => 'fa-utensils',
+            'a' => [
+                'admin.meal.*',
+                'admin.meals.*',
+            ],
+            'c' => [
+                ['Meal Items', 'admin.meal.items.index'],
+                ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
+                ['Logs', 'admin.meal.logs.index'],
+            ],
+            'p' => [
+                'meals.view',
+                'meals.create',
+                'meals.edit',
+            ],
+        ],
+
+        [
+            'l' => 'Sports',
+            'i' => 'fa-futbol',
+            'a' => ['admin.sports.*'],
+            'c' => [
+                ['Games / Events', 'admin.sports.games.index'],
+                ['Achievements', 'admin.sports.achievements.index'],
+                ['Sports Equipments', 'admin.sports.equipment.index'],
+            ],
+            'p' => [
+                'sports.view',
+                'sports.create',
+                'sports.edit',
+            ],
+        ],
+
+        [
+            'l' => 'Reports',
+            'i' => 'fa-chart-pie',
+            'a' => ['admin.reports.*'],
+            'r' => 'admin.reports.index',
+            'p' => [
+                'reports.view',
+            ],
+        ],
+
+        [
+            'l' => 'Settings',
+            'i' => 'fa-gear',
+            'a' => [
+                'admin.settings.*',
+                'backup.*',
+                'admin.2fa.*',
+            ],
+            'c' => [
+                ['School Profile', 'admin.settings.index'],
+                ['User Roles & Permission', 'admin.settings.roles.index'],
+                ['Add User', 'admin.settings.users.index'],
+                ['Security', 'admin.2fa.security'],
+                ['Backup & Recovery', 'admin.backup.index'],
+            ],
+            'p' => [
+                'settings.view',
+                'settings.edit',
+            ],
+        ],
+    ],
+];
+
 
 @endphp
 
