@@ -26,7 +26,14 @@ class StudentController extends Controller
 
     public function index(Request $request)
     {
-        $query = Student::query();
+        $schoolId = auth()->user()->school_id;
+
+if (!$schoolId) {
+    abort(403, 'Your account is not assigned to a school.');
+}
+
+$query = Student::query()
+    ->where('school_id', $schoolId);
 
         if ($request->filled('search')) {
 
@@ -67,11 +74,12 @@ class StudentController extends Controller
         }
 
         $academicYears = Student::query()
-            ->whereNotNull('academic_year')
-            ->where('academic_year', '!=', '')
-            ->distinct()
-            ->orderByDesc('academic_year')
-            ->pluck('academic_year');
+    ->where('school_id', $schoolId)
+    ->whereNotNull('academic_year')
+    ->where('academic_year', '!=', '')
+    ->distinct()
+    ->orderByDesc('academic_year')
+    ->pluck('academic_year');
 
         /*
         |--------------------------------------------------------------------------
@@ -107,28 +115,23 @@ class StudentController extends Controller
             ->values()
             ->toArray();
 
-        $totalStudents = Student::count();
+        $totalStudents = Student::where('school_id', $schoolId)->count();
 
-        $totalActiveStudents = Student::where(
-            'status',
-            'active'
-        )->count();
+        $totalActiveStudents = Student::where('school_id', $schoolId)
+    ->where('status', 'active')
+    ->count();
 
-        $totalInactiveStudents = Student::where(
-            'status',
-            '!=',
-            'active'
-        )->count();
+$totalInactiveStudents = Student::where('school_id', $schoolId)
+    ->where('status', '!=', 'active')
+    ->count();
 
-        $totalMaleStudents = Student::where(
-            'gender',
-            'Male'
-        )->count();
+$totalMaleStudents = Student::where('school_id', $schoolId)
+    ->where('gender', 'Male')
+    ->count();
 
-        $totalFemaleStudents = Student::where(
-            'gender',
-            'Female'
-        )->count();
+$totalFemaleStudents = Student::where('school_id', $schoolId)
+    ->where('gender', 'Female')
+    ->count();
 
         $students = $query
             ->orderByDesc('id')
@@ -217,6 +220,14 @@ public function create()
 public function store(Request $request)
 {
     $validated = $this->validateStudent($request);
+
+    $schoolId = auth()->user()->school_id;
+
+if (!$schoolId) {
+    abort(403, 'Your account is not assigned to a school.');
+}
+
+$validated['school_id'] = $schoolId;
 
     DB::beginTransaction();
 

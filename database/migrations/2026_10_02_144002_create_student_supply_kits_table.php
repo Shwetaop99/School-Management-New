@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,23 +9,26 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // The September migration already creates this table.
+        // Keep the existing table and its data intact.
+        if (Schema::hasTable('student_supply_kits')) {
+            return;
+        }
+
         Schema::create('student_supply_kits', function (Blueprint $table) {
             $table->id();
 
-            // Student receiving the kit
             $table->foreignId('student_id')
                 ->constrained('students')
                 ->cascadeOnDelete();
 
-            // Kit template assigned to the student
             $table->foreignId('kit_template_id')
                 ->constrained('kit_templates')
                 ->restrictOnDelete();
 
             $table->string('academic_year', 20);
 
-            $table->date('distribution_date')
-                ->nullable();
+            $table->date('distribution_date')->nullable();
 
             $table->enum('status', [
                 'pending',
@@ -32,20 +36,15 @@ return new class extends Migration
                 'cancelled',
             ])->default('pending');
 
-            $table->text('remarks')
-                ->nullable();
-
+            $table->text('remarks')->nullable();
             $table->timestamps();
 
-            $table->index([
-                'academic_year',
-                'status',
-            ]);
+            $table->index(['academic_year', 'status']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('student_supply_kits');
+        // Preserve the existing table.
     }
 };

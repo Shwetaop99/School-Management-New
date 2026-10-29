@@ -38,11 +38,18 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    // Existing guard for the school portal — keep unchanged.
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
     ],
+
+    // Dedicated guard for the Super Admin portal.
+    'super_admin' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------

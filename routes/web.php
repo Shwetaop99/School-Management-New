@@ -151,6 +151,10 @@ use App\Http\Controllers\Admin\FeeStructureController;
 use App\Http\Controllers\Admin\StudentFeeController;
 use App\Http\Controllers\Admin\FeePaymentController;
 use App\Http\Controllers\Admin\FeeReportController;
+use App\Http\Controllers\SuperAdmin\Auth\SuperAdminLoginController;
+
+use App\Http\Middleware\EnsureSuperAdmin;
+
 
 
 
@@ -278,22 +282,14 @@ Route::prefix('admin')
 
 
         Route::get('/login', [
+    \App\Http\Controllers\Admin\Auth\LoginController::class,
+    'showLogin',
+])->name('login');
 
-            LoginController::class,
-
-            'showLogin'
-
-        ])->name('login');
-
-
-
-        Route::post('/login', [
-
-            LoginController::class,
-
-            'login'
-
-        ])->name('login.submit');
+Route::post('/login', [
+    \App\Http\Controllers\Admin\Auth\LoginController::class,
+    'login',
+])->name('login.submit');
     
 
 // Backup & Recovery
@@ -3937,4 +3933,260 @@ Route::prefix('meal/logs')
   
 
  });
+    });
+
+
+  
+
+/*
+|--------------------------------------------------------------------------
+| PORTAL SELECTION HOMEPAGE
+|--------------------------------------------------------------------------
+*/
+
+Route::view('/', 'portal-selection')->name('portal.selection');
+
+
+
+use App\Http\Controllers\SuperAdmin\Auth\SuperAdminSecurityController;
+use App\Http\Controllers\SuperAdmin\Auth\SuperAdminTwoFactorController;
+use App\Http\Middleware\EnsureSuperAdminTwoFactor;
+use App\Http\Controllers\SuperAdmin\SchoolRegistryController;
+use App\Http\Controllers\SuperAdmin\SchoolAdminController;
+use App\Http\Controllers\SuperAdmin\SubscriptionController;
+use App\Http\Controllers\SuperAdmin\SubscriptionPlanController;
+
+Route::middleware('auth:super_admin')->group(function () {
+    Route::get('/settings/security', [
+        SuperAdminSecurityController::class,
+        'security',
+    ])->name('security');
+
+    Route::post('/settings/security/enable', [
+        SuperAdminSecurityController::class,
+        'enable',
+    ])->middleware('throttle:5,1')->name('security.enable');
+
+    Route::post('/settings/security/disable', [
+        SuperAdminSecurityController::class,
+        'disable',
+    ])->middleware('throttle:5,1')->name('security.disable');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| SUPER ADMIN PORTAL AUTHENTICATION
+|--------------------------------------------------------------------------
+*/
+
+
+
+ 
+Route::prefix('control-panel')
+    ->name('super-admin.')
+    ->group(function () {
+
+        // Super Admin login
+        Route::get('/login', [
+            SuperAdminLoginController::class,
+            'showLogin',
+        ])->name('login');
+
+        Route::post('/login', [
+            SuperAdminLoginController::class,
+            'login',
+        ])->middleware('throttle:10,1')
+          ->name('login.submit');
+
+        // All authenticated Super Admin routes
+        Route::middleware(EnsureSuperAdmin::class)->group(function () {
+
+            Route::post('/logout', [
+                SuperAdminLoginController::class,
+                'logout',
+            ])->name('logout');
+
+            // Security settings: accessible before 2FA is enabled
+            Route::get('/settings/security', [
+                SuperAdminSecurityController::class,
+                'security',
+            ])->name('security');
+
+            Route::post('/settings/security/enable', [
+                SuperAdminSecurityController::class,
+                'enable',
+            ])->middleware('throttle:5,1')
+              ->name('security.enable');
+
+            Route::post('/settings/security/disable', [
+                SuperAdminSecurityController::class,
+                'disable',
+            ])->middleware('throttle:5,1')
+              ->name('security.disable');
+
+            // Two-factor authentication challenge
+            Route::get('/2fa/challenge', [
+                SuperAdminTwoFactorController::class,
+                'challenge',
+            ])->name('2fa.challenge');
+
+            Route::post('/2fa/verify', [
+                SuperAdminTwoFactorController::class,
+                'verify',
+            ])->middleware('throttle:5,1')
+              ->name('2fa.verify');
+
+              Route::get('/subscriptions/{subscription}', [
+    SubscriptionController::class,
+    'show',
+])->whereNumber('subscription')
+  ->name('subscriptions.show');
+
+Route::get('/subscriptions/{subscription}/edit', [
+    SubscriptionController::class,
+    'edit',
+])->whereNumber('subscription')
+  ->name('subscriptions.edit');
+
+  Route::put('/subscriptions/{subscription}', [
+    SubscriptionController::class,
+    'update',
+])->whereNumber('subscription')
+  ->name('subscriptions.update');
+
+            // Dashboard requires completed 2FA
+            Route::get('/dashboard', function () {
+                return view('super-admin.dashboard');
+            })->middleware(EnsureSuperAdminTwoFactor::class)
+              ->name('dashboard');
+
+            // Routes requiring completed 2FA
+            Route::middleware(EnsureSuperAdminTwoFactor::class)
+                ->group(function () {
+
+                    // School Registry
+                    Route::prefix('schools')
+                        ->name('schools.')
+                        ->group(function () {
+
+                            Route::get('/', [
+                                SchoolRegistryController::class,
+                                'index',
+                            ])->name('index');
+
+                            Route::get('/create', [
+                                SchoolRegistryController::class,
+                                'create',
+                            ])->name('create');
+
+                            Route::post('/', [
+                                SchoolRegistryController::class,
+                                'store',
+                            ])->middleware('throttle:5,1')
+                              ->name('store');
+
+                            // School administrator management
+                            Route::get('/admin/create', [
+                                SchoolAdminController::class,
+                                'create',
+                            ])->name('admin.create');
+
+                            Route::post('/admin', [
+                                SchoolAdminController::class,
+                                'store',
+                            ])->middleware('throttle:5,1')
+                              ->name('admin.store');
+
+                            Route::get('/{school}/edit', [
+                                SchoolRegistryController::class,
+                                'edit',
+                            ])->whereNumber('school')
+                              ->name('edit');
+
+                            Route::get('/{school}', [
+                                SchoolRegistryController::class,
+                                'show',
+                            ])->whereNumber('school')
+                              ->name('show');
+
+                            Route::put('/{school}', [
+                                SchoolRegistryController::class,
+                                'update',
+                            ])->whereNumber('school')
+                              ->name('update');
+
+                            Route::patch('/{school}/status', [
+                                SchoolRegistryController::class,
+                                'updateStatus',
+                            ])->whereNumber('school')
+                              ->name('status');
+                        });
+
+                   
+                    // Subscription Management
+                    Route::get('/subscriptions', [
+                        SubscriptionController::class,
+                        'index',
+                    ])->name('subscriptions.index');
+
+                    Route::get('/subscriptions/assign', [
+                        SubscriptionController::class,
+                        'create',
+                    ])->name('subscriptions.assign');
+
+                    Route::post('/subscriptions/assign', [
+                        SubscriptionController::class,
+                        'storeAssignment',
+                    ])->middleware('throttle:10,1')
+                      ->name('subscriptions.assign.store');
+
+                    // Record an offline payment
+                    Route::get(
+                        '/subscriptions/{subscription}/payments/create',
+                        [SubscriptionController::class, 'createPayment']
+                    )->whereNumber('subscription')
+                     ->name('subscriptions.payments.create');
+
+                    Route::post(
+                        '/subscriptions/{subscription}/payments',
+                        [SubscriptionController::class, 'storePayment']
+                    )->whereNumber('subscription')
+                     ->middleware('throttle:10,1')
+                     ->name('subscriptions.payments.store');
+
+                    // Confirm payment and activate subscription
+                    Route::post(
+                        '/subscriptions/{subscription}/payments/{payment}/confirm',
+                        [SubscriptionController::class, 'confirmPayment']
+                    )->whereNumber('subscription')
+                     ->whereNumber('payment')
+                     ->middleware('throttle:10,1')
+                     ->name('subscriptions.payments.confirm');
+
+                    // Subscription Plan Management
+                    Route::prefix('subscription-plans')
+                        ->name('subscription-plans.')
+                        ->group(function () {
+
+                            Route::get('/', [
+                                SubscriptionPlanController::class,
+                                'index',
+                            ])->name('index');
+
+                            Route::get('/{subscriptionPlan}/edit', [
+                                SubscriptionPlanController::class,
+                                'edit',
+                            ])->whereNumber('subscriptionPlan')
+                              ->name('edit');
+
+                            Route::put('/{subscriptionPlan}', [
+                                SubscriptionPlanController::class,
+                                'update',
+                            ])->whereNumber('subscriptionPlan')
+                              ->middleware('throttle:10,1')
+                              ->name('update');
+                        });
+                });
+        });
     });

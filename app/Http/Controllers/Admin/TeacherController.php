@@ -27,11 +27,13 @@ class TeacherController extends Controller
 
     public function index()
     {
-        $teachers = Teacher::latest()->get();
+        $schoolId = $this->schoolId();
+        $schoolTeachers = Teacher::where('school_id', $schoolId);
 
-        $totalTeachers = Teacher::count();
-        $activeTeachers = Teacher::where('status', 'Active')->count();
-        $inactiveTeachers = Teacher::where('status', 'Inactive')->count();
+        $teachers = (clone $schoolTeachers)->latest()->get();
+        $totalTeachers = (clone $schoolTeachers)->count();
+        $activeTeachers = (clone $schoolTeachers)->where('status', 'Active')->count();
+        $inactiveTeachers = (clone $schoolTeachers)->where('status', 'Inactive')->count();
 
         return view('admin.teachers.index', compact(
             'teachers',
@@ -81,6 +83,7 @@ class TeacherController extends Controller
         ]);
 
         $teacher = new Teacher();
+        $teacher->school_id = $this->schoolId();
 
         $teacher->first_name = $validated['first_name'];
         $teacher->last_name = $validated['last_name'];
@@ -129,6 +132,7 @@ class TeacherController extends Controller
 
     public function show(Teacher $teacher)
     {
+        $this->ensureTeacherBelongsToSchool($teacher);
         return view('admin.teachers.show', compact('teacher'));
     }
 
@@ -140,6 +144,7 @@ class TeacherController extends Controller
 
     public function edit(Teacher $teacher)
     {
+        $this->ensureTeacherBelongsToSchool($teacher);
         return view('admin.teachers.edit', compact('teacher'));
     }
 
@@ -151,6 +156,8 @@ class TeacherController extends Controller
 
     public function update(Request $request, Teacher $teacher)
     {
+        $this->ensureTeacherBelongsToSchool($teacher);
+
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -221,6 +228,7 @@ class TeacherController extends Controller
 
     public function destroy(Teacher $teacher)
     {
+        $this->ensureTeacherBelongsToSchool($teacher);
         $teacher->delete();
 
         return redirect()
@@ -236,10 +244,10 @@ class TeacherController extends Controller
 
     public function exportExcel()
     {
-        return Excel::download(
-            new TeachersExport(),
-            'teachers.xlsx'
-        );
+        // Temporarily block this endpoint until TeachersExport is updated to
+        // query only the authenticated school's teachers. This prevents a
+        // school admin from exporting another school's records.
+        abort(503, 'Teacher Excel export is temporarily unavailable while school-level access is being secured.');
     }
 
     /*
@@ -250,7 +258,9 @@ class TeacherController extends Controller
 
     public function exportPdf()
     {
-        $teachers = Teacher::orderBy('first_name')->get();
+        $teachers = Teacher::where('school_id', $this->schoolId())
+            ->orderBy('first_name')
+            ->get();
 
         $pdf = Pdf::loadView(
             'admin.teachers.pdf',
@@ -279,6 +289,30 @@ class TeacherController extends Controller
     | NORMALIZE GENDER
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Return the authenticated school admin's school ID.
+     * School dashboard accounts without a school assignment must not access this module.
+     */
+    private function schoolId(): int
+    {
+        $schoolId = auth()->user()?->school_id;
+
+        abort_if(!$schoolId, 403, 'Your account is not assigned to a school.');
+
+        return (int) $schoolId;
+    }
+
+    /**
+     * Prevent changing or viewing a teacher owned by another school.
+     */
+    private function ensureTeacherBelongsToSchool(Teacher $teacher): void
+    {
+        abort_unless(
+            (int) $teacher->school_id === $this->schoolId(),
+            404
+        );
+    }
 
     private function normalizeGender($value): ?string
     {
@@ -578,7 +612,9 @@ class TeacherController extends Controller
                 }
 
                 // Check duplicate email before inserting.
-                if (Teacher::where('email', $row['email'])->exists()) {
+                if (Teacher::where('school_id', $this->schoolId())
+                    ->where('email', $row['email'])
+                    ->exists()) {
                     $errors[] =
                         "Excel row {$rowNumber}: Email {$row['email']} already exists.";
 
@@ -586,8 +622,11 @@ class TeacherController extends Controller
                 }
 
                 // Insert the teacher and generated ID together.
-                DB::transaction(function () use ($row) {
+                $schoolId = $this->schoolId();
+
+                DB::transaction(function () use ($row, $schoolId) {
                     $teacher = new Teacher();
+                    $teacher->school_id = $schoolId;
 
                     $teacher->first_name = $row['first_name'];
                     $teacher->last_name = $row['last_name'];
