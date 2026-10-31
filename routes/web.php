@@ -1164,37 +1164,73 @@ Route::prefix('exams/{exam}/exam-schedules')
 
 
 
-        // Result Management
+        
+        // ---------------------------------------------------------
+        // RESULT MANAGEMENT
+        // ---------------------------------------------------------
+
+        // Results dashboard
         Route::get('/results', [ResultController::class, 'index'])
             ->name('results.index');
 
-        Route::get('/results/generate', [ResultController::class, 'generate'])
-            ->name('results.generate');
+        // Enter marks page - register before dynamic result routes
+        Route::get('/results/marks', [ResultController::class, 'marks'])
+            ->name('results.marks');
+
+        // Load subjects for the selected exam and class
+        Route::get('/results/load-subjects', [ResultController::class, 'loadSubjects'])
+            ->name('results.load-subjects');
+
+        // Save marks
+        Route::post('/results/save-marks', [ResultController::class, 'saveMarks'])
+            ->name('results.save-marks');
+
+        // Exam and class information
+        Route::get('/results/exam-classes', [ResultController::class, 'getExamClasses'])
+            ->name('results.exam-classes');
 
         Route::get('/results/class-results', [ResultController::class, 'classResults'])
             ->name('results.class-results');
 
+        Route::get('/results/load-students', [ResultController::class, 'loadStudents'])
+            ->name('results.load-students');
+
+        // Generate and publish results
+        Route::get('/results/generate', [ResultController::class, 'generate'])
+            ->name('results.generate');
+
+        Route::post('/results/generate-result', [ResultController::class, 'generateResult'])
+            ->name('results.generate-result');
+
+        // WhatsApp
+        Route::get('/results/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])
+            ->name('results.bulk-whatsapp');
+
+        // Dynamic routes must come after static routes
         Route::get('/results/{result}/history', [ResultController::class, 'history'])
+            ->whereNumber('result')
             ->name('results.history');
 
         Route::get('/results/{result}', [ResultController::class, 'show'])
+            ->whereNumber('result')
             ->name('results.show');
 
-            
-Route::get('/results/exam-classes', [ResultController::class, 'getExamClasses'])
-    ->name('results.exam-classes');
+            // Results - Enter and Save Marks
+Route::get('results/marks', [ResultController::class, 'marks'])
+    ->name('results.marks');
 
-    
-Route::get('/results/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])
-    ->name('results.bulk-whatsapp');
+Route::post('results/save-marks', [ResultController::class, 'saveMarks'])
+    ->name('results.save-marks');
 
-    
-Route::get('/results/load-students', [ResultController::class, 'loadStudents'])
-    ->name('results.load-students');
+Route::get('results/load-classes', [ResultController::class, 'loadClasses'])
+    ->name('results.load-classes');
 
-    
-Route::post('/results/generate-result', [ResultController::class, 'generateResult'])
-    ->name('results.generate-result');
+Route::get('results/load-sections', [ResultController::class, 'loadSections'])
+    ->name('results.load-sections');
+
+Route::get('results/load-subjects', [ResultController::class, 'loadSubjects'])
+    ->name('results.load-subjects');
+
 
 
 
@@ -1515,105 +1551,75 @@ Route::prefix('scholarship')
 
 
 
-            /*
+           /*
+|--------------------------------------------------------------------------
+| BONAFIDE CERTIFICATE
+|--------------------------------------------------------------------------
+*/
 
-            |--------------------------------------------------------------------------
-
-            | BONAFIDE CERTIFICATE
-
-            |--------------------------------------------------------------------------
-
-            */
-
-
-
-           Route::prefix('bonafide-certificate')
+Route::prefix('bonafide-certificate')
     ->name('bonafide-certificate.')
     ->group(function () {
 
+        // Bonafide index
+        Route::get('/', [
+            BonafideCertificateController::class,
+            'index'
+        ])->name('index');
 
+        // Class cards page - must be before /{bonafide}
+        Route::get('/classes', [
+            BonafideCertificateController::class,
+            'classes'
+        ])->name('classes');
 
-                    Route::get('/', [
+        // Students of selected class
+        Route::get('/students/{class}', [
+            BonafideCertificateController::class,
+            'students'
+        ])->name('students');
 
-                        BonafideCertificateController::class,
+        // Create bonafide
+        Route::get('/create', [
+            BonafideCertificateController::class,
+            'create'
+        ])->name('create');
 
-                        'index'
+        Route::post('/', [
+            BonafideCertificateController::class,
+            'store'
+        ])->name('store');
 
-                    ])->name('index');
+        // Edit bonafide
+        Route::get('/{bonafide}/edit', [
+            BonafideCertificateController::class,
+            'edit'
+        ])->name('edit');
 
+        // Update bonafide
+        Route::put('/{bonafide}', [
+            BonafideCertificateController::class,
+            'update'
+        ])->name('update');
 
+        // Delete bonafide
+        Route::delete('/{bonafide}', [
+            BonafideCertificateController::class,
+            'destroy'
+        ])->name('destroy');
 
-                    Route::get('/create', [
+        // Show bonafide - keep this last
+        Route::get('/{bonafide}', [
+            BonafideCertificateController::class,
+            'show'
+        ])->name('show');
 
-                        BonafideCertificateController::class,
-
-                        'create'
-
-                    ])->name('create');
-
-
-
-                    Route::post('/', [
-
-                        BonafideCertificateController::class,
-
-                        'store'
-
-                    ])->name('store');
-
-
-
-                    Route::get('/{bonafide}/edit', [
-
-                        BonafideCertificateController::class,
-
-                        'edit'
-
-                    ])->name('edit');
-
-
-
-                    Route::get('/{bonafide}', [
-
-                        BonafideCertificateController::class,
-
-                        'show'
-
-                    ])->name('show');
-
-
-
-                    Route::put('/{bonafide}', [
-
-                        BonafideCertificateController::class,
-
-                        'update'
-
-                    ])->name('update');
-
-
-
-                    Route::delete('/{bonafide}', [
-
-                        BonafideCertificateController::class,
-
-                        'destroy'
-
-                    ])->name('destroy');
-
-                    Route::get('/classes', [
+        Route::get('/{bonafide}/print', [
     BonafideCertificateController::class,
-    'classes'
-])->name('classes');
+    'print'
+])->name('print');
 
-Route::get('/students/{class}', [
-    BonafideCertificateController::class,
-    'students'
-])->name('students');
-
-                });
-
-
+    });
 
 
 
@@ -2522,23 +2528,11 @@ Route::post('/timetable/weekly/import', [
 
 
 
-            Route::get('/age-report', [
+           Route::get('/admin/age-report', [AgeReportController::class, 'index'])
+    ->name('admin.age-report.index');
 
-                AgeReportController::class,
-
-                'index'
-
-            ])->name('age-report.index');
-
-
-
-            Route::get('/age-report/print', [
-
-                AgeReportController::class,
-
-                'print'
-
-            ])->name('age-report.print');
+Route::get('/admin/age-report/print', [AgeReportController::class, 'print'])
+    ->name('admin.age-report.print');
 
 
 
@@ -3395,7 +3389,10 @@ Route::get('/caste-report/pdf-download', [
             )->name('student-supply-kits.supply-items');
 
 
-            
+    Route::get(
+    '/student-supply-kits/history',
+    [StudentSupplyKitController::class, 'history']
+)->name('student-supply-kits.history');        
 Route::get(
     '/student-supply-kits/distribution/create',
     [\App\Http\Controllers\Admin\StudentSupplyKitController::class, 'distributionCreate']
@@ -3418,7 +3415,22 @@ Route::get(
 )->name('student-supply-kits.print-report');
 
 
+//supply stock
 
+Route::get('/supply-stocks', [SupplyStockController::class, 'index'])
+    ->name('supply-stocks.index');
+
+Route::post('/supply-stocks/receive', [SupplyStockController::class, 'receive'])
+    ->name('supply-stocks.receive');
+
+Route::post('/supply-stocks/adjust', [SupplyStockController::class, 'adjust'])
+    ->name('supply-stocks.adjust');
+
+Route::get('/supply-stocks/history/{supplyItemId}', [SupplyStockController::class, 'history'])
+    ->name('supply-stocks.history');
+
+    Route::get('/supply-stocks/print', [SupplyStockController::class, 'print'])
+    ->name('supply-stocks.print');
 
 
             /*

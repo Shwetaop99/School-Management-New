@@ -297,1929 +297,1929 @@
 
 <div class="container-fluid health-form-page">
 
-    {{-- =========================================================
+    {{-- =========================================================
 
-         PAGE HEADER
+         PAGE HEADER
 
-    ========================================================== --}}
+    ========================================================== --}}
 
-    <div class="page-header">
+    <div class="page-header">
 
-        <h2>
+        <h2>
 
-            <i class="fas fa-heart-pulse me-2"></i>
+            <i class="fas fa-heart-pulse me-2"></i>
 
-            Annual Health Checkup
+            Annual Health Checkup
 
-        </h2>
+        </h2>
 
-        <p>
+        <p>
 
-            Record the student's yearly health examination details.
+            Record the student's yearly health examination details.
 
-        </p>
+        </p>
 
-    </div>
+    </div>
 
-    {{-- =========================================================
+    {{-- =========================================================
 
-         VALIDATION ERRORS
+         VALIDATION ERRORS
 
-    ========================================================== --}}
+    ========================================================== --}}
 
-    @if($errors->any())
+    @if($errors->any())
 
-        <div class="alert alert-danger rounded-3">
+        <div class="alert alert-danger rounded-3">
 
-            <strong>
+            <strong>
 
-                Please correct the following errors:
+                Please correct the following errors:
 
-            </strong>
+            </strong>
 
-            <ul class="mb-0 mt-2">
+            <ul class="mb-0 mt-2">
 
-                @foreach($errors->all() as $error)
+                @foreach($errors->all() as $error)
 
-                    <li>{{ $error }}</li>
+                    <li>{{ $error }}</li>
 
-                @endforeach
+                @endforeach
 
-            </ul>
+            </ul>
 
-        </div>
+        </div>
 
-    @endif
+    @endif
 
-    {{-- =========================================================
+    {{-- =========================================================
 
-         STUDENT INFORMATION
+         STUDENT INFORMATION
 
-    ========================================================== --}}
+    ========================================================== --}}
 
-    <div class="student-card">
+    <div class="student-card">
 
-        <div class="student-profile">
+        <div class="student-profile">
 
-            @if(!empty($student->profile_image))
+            @if(!empty($student->profile_image))
 
-                <img
+                <img
 
-                    src="{{ $student->profile_image }}"
+                    src="{{ $student->profile_image }}"
 
-                    alt="{{ $student->first_name }}"
+                    alt="{{ $student->first_name }}"
 
-                    class="student-photo"
+                    class="student-photo"
 
-                >
+                >
 
-            @else
+            @else
 
-                <div class="student-placeholder">
+                <div class="student-placeholder">
 
-                    {{ strtoupper(substr($student->first_name ?? 'S', 0, 1)) }}
+                    {{ strtoupper(substr($student->first_name ?? 'S', 0, 1)) }}
 
-                </div>
+                </div>
 
-            @endif
+            @endif
 
-            <div>
+            <div>
 
-                <div class="student-name">
+                <div class="student-name">
 
-                    {{ trim(
+                    {{ trim(
 
-                        ($student->first_name ?? '') . ' ' .
+                        ($student->first_name ?? '') . ' ' .
 
-                        ($student->middle_name ?? '') . ' ' .
+                        ($student->middle_name ?? '') . ' ' .
 
-                        ($student->last_name ?? '')
+                        ($student->last_name ?? '')
 
-                    ) }}
+                    ) }}
 
-                </div>
+                </div>
 
-                <div class="student-id">
+                <div class="student-id">
 
-                    Student ID: {{ $student->student_id }}
+                    Student ID: {{ $student->student_id }}
 
-                </div>
+                </div>
 
-                <div class="student-meta">
+                <div class="student-meta">
 
-                    <span class="meta-badge">
+                    <span class="meta-badge">
 
-                        Class {{ $student->class }}
+                        Class {{ $student->class }}
 
-                    </span>
+                    </span>
 
-                    <span class="meta-badge">
+                    <span class="meta-badge">
 
-                        Section {{ $student->section }}
+                        Section {{ $student->section }}
 
-                    </span>
+                    </span>
 
-                    <span class="meta-badge">
+                    <span class="meta-badge">
 
-                        Roll No. {{ $student->roll_number ?? '-' }}
+                        Roll No. {{ $student->roll_number ?? '-' }}
 
-                    </span>
+                    </span>
 
-                    <span class="meta-badge">
+                    <span class="meta-badge">
 
-                        DOB:
+                        DOB:
 
-                        {{ $student->date_of_birth?->format('d M Y') ?? '-' }}
+                        {{ $student->date_of_birth?->format('d M Y') ?? '-' }}
 
-                    </span>
+                    </span>
 
-                    <span class="meta-badge">
+                    <span class="meta-badge">
 
-                        Gender: {{ $student->gender ?? '-' }}
+                        Gender: {{ $student->gender ?? '-' }}
 
-                    </span>
+                    </span>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-    </div>
+    </div>
 
-    {{-- =========================================================
+    {{-- =========================================================
 
-         FORM
+         FORM
 
-    ========================================================== --}}
+    ========================================================== --}}
 
-    <form
+    <form
 
-        method="POST"
+        method="POST"
 
-        action="{{ route('admin.student-health.store', $student) }}"
+        action="{{ route('admin.student-health.store', $student) }}"
 
-    >
+    >
 
-        @csrf
+        @csrf
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             1. CHECKUP INFORMATION
+             1. CHECKUP INFORMATION
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-calendar-check"></i>
+                    <i class="fas fa-calendar-check"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Checkup Information
+                    Checkup Information
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Academic Year
+                            Academic Year
 
-                            <span class="required">*</span>
+                            <span class="required">*</span>
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="academic_year"
+                            name="academic_year"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('academic_year', date('Y') . '-' . (date('Y') + 1)) }}"
+                            value="{{ old('academic_year', date('Y') . '-' . (date('Y') + 1)) }}"
 
-                            placeholder="2026-2027"
+                            placeholder="2026-2027"
 
-                            required
+                            required
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Checkup Date
+                            Checkup Date
 
-                            <span class="required">*</span>
+                            <span class="required">*</span>
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="date"
+                            type="date"
 
-                            name="checkup_date"
+                            name="checkup_date"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('checkup_date', date('Y-m-d')) }}"
+                            value="{{ old('checkup_date', date('Y-m-d')) }}"
 
-                            required
+                            required
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Checkup Type
+                            Checkup Type
 
-                        </label>
+                        </label>
 
-                        <select
+                        <select
 
-                            name="checkup_type"
+                            name="checkup_type"
 
-                            class="form-select"
+                            class="form-select"
 
-                        >
+                        >
 
-                            <option value="">Select Type</option>
+                            <option value="">Select Type</option>
 
-                            <option value="Annual Health Checkup"
+                            <option value="Annual Health Checkup"
 
-                                {{ old('checkup_type') == 'Annual Health Checkup' ? 'selected' : '' }}>
+                                {{ old('checkup_type') == 'Annual Health Checkup' ? 'selected' : '' }}>
 
-                                Annual Health Checkup
+                                Annual Health Checkup
 
-                            </option>
+                            </option>
 
-                            <option value="General Checkup"
+                            <option value="General Checkup"
 
-                                {{ old('checkup_type') == 'General Checkup' ? 'selected' : '' }}>
+                                {{ old('checkup_type') == 'General Checkup' ? 'selected' : '' }}>
 
-                                General Checkup
+                                General Checkup
 
-                            </option>
+                            </option>
 
-                            <option value="Follow-up"
+                            <option value="Follow-up"
 
-                                {{ old('checkup_type') == 'Follow-up' ? 'selected' : '' }}>
+                                {{ old('checkup_type') == 'Follow-up' ? 'selected' : '' }}>
 
-                                Follow-up
+                                Follow-up
 
-                            </option>
+                            </option>
 
-                            <option value="Other"
+                            <option value="Other"
 
-                                {{ old('checkup_type') == 'Other' ? 'selected' : '' }}>
+                                {{ old('checkup_type') == 'Other' ? 'selected' : '' }}>
 
-                                Other
+                                Other
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Doctor / Medical Officer
+                            Doctor / Medical Officer
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="doctor_name"
+                            name="doctor_name"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('doctor_name') }}"
+                            value="{{ old('doctor_name') }}"
 
-                            placeholder="Enter doctor name"
+                            placeholder="Enter doctor name"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-6 col-md-6">
+                    <div class="col-lg-6 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Health Center / Hospital
+                            Health Center / Hospital
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="health_center"
+                            name="health_center"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('health_center') }}"
+                            value="{{ old('health_center') }}"
 
-                            placeholder="Enter health center"
+                            placeholder="Enter health center"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-6 col-md-6">
+                    <div class="col-lg-6 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Conducted By
+                            Conducted By
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="conducted_by"
+                            name="conducted_by"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('conducted_by') }}"
+                            value="{{ old('conducted_by') }}"
 
-                            placeholder="Doctor / Nurse / Health Worker"
+                            placeholder="Doctor / Nurse / Health Worker"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             2. PHYSICAL MEASUREMENTS
+             2. PHYSICAL MEASUREMENTS
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-ruler-vertical"></i>
+                    <i class="fas fa-ruler-vertical"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Physical Measurements
+                    Physical Measurements
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Height (cm)
+                            Height (cm)
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="number"
+                            type="number"
 
-                            step="0.01"
+                            step="0.01"
 
-                            min="0"
+                            min="0"
 
-                            name="height"
+                            name="height"
 
-                            id="height"
+                            id="height"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('height') }}"
+                            value="{{ old('height') }}"
 
-                            placeholder="e.g. 125.50"
+                            placeholder="e.g. 125.50"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Weight (kg)
+                            Weight (kg)
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="number"
+                            type="number"
 
-                            step="0.01"
+                            step="0.01"
 
-                            min="0"
+                            min="0"
 
-                            name="weight"
+                            name="weight"
 
-                            id="weight"
+                            id="weight"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('weight') }}"
+                            value="{{ old('weight') }}"
 
-                            placeholder="e.g. 25.50"
+                            placeholder="e.g. 25.50"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            BMI
+                            BMI
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="number"
+                            type="number"
 
-                            step="0.01"
+                            step="0.01"
 
-                            name="bmi"
+                            name="bmi"
 
-                            id="bmi"
+                            id="bmi"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('bmi') }}"
+                            value="{{ old('bmi') }}"
 
-                            placeholder="Enter BMI"
+                            placeholder="Enter BMI"
 
-                        >
+                        >
 
-                        <div class="calculated-note">
+                        <div class="calculated-note">
 
-                            BMI can be entered/verified by the health professional.
+                            BMI can be entered/verified by the health professional.
 
-                        </div>
+                        </div>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Pulse Rate (bpm)
+                            Pulse Rate (bpm)
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="number"
+                            type="number"
 
-                            min="0"
+                            min="0"
 
-                            name="pulse_rate"
+                            name="pulse_rate"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('pulse_rate') }}"
+                            value="{{ old('pulse_rate') }}"
 
-                            placeholder="e.g. 80"
+                            placeholder="e.g. 80"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-6 col-md-6">
+                    <div class="col-lg-6 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Blood Pressure
+                            Blood Pressure
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="blood_pressure"
+                            name="blood_pressure"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('blood_pressure') }}"
+                            value="{{ old('blood_pressure') }}"
 
-                            placeholder="e.g. 110/70"
+                            placeholder="e.g. 110/70"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-6 col-md-6">
+                    <div class="col-lg-6 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Temperature (°C)
+                            Temperature (°C)
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="number"
+                            type="number"
 
-                            step="0.1"
+                            step="0.1"
 
-                            name="temperature"
+                            name="temperature"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('temperature') }}"
+                            value="{{ old('temperature') }}"
 
-                            placeholder="e.g. 36.8"
+                            placeholder="e.g. 36.8"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             3. VISION
+             3. VISION
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-eye"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Vision Examination
+                    Vision Examination
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Right Eye - Distance Vision
+                            Right Eye - Distance Vision
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="vision_right"
+                            name="vision_right"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('vision_right') }}"
+                            value="{{ old('vision_right') }}"
 
-                            placeholder="e.g. 6/6"
+                            placeholder="e.g. 6/6"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Left Eye - Distance Vision
+                            Left Eye - Distance Vision
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="vision_left"
+                            name="vision_left"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('vision_left') }}"
+                            value="{{ old('vision_left') }}"
 
-                            placeholder="e.g. 6/6"
+                            placeholder="e.g. 6/6"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Right Eye - Near Vision
+                            Right Eye - Near Vision
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="near_vision_right"
+                            name="near_vision_right"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('near_vision_right') }}"
+                            value="{{ old('near_vision_right') }}"
 
-                            placeholder="Enter result"
+                            placeholder="Enter result"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Left Eye - Near Vision
+                            Left Eye - Near Vision
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="near_vision_left"
+                            name="near_vision_left"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('near_vision_left') }}"
+                            value="{{ old('near_vision_left') }}"
 
-                            placeholder="Enter result"
+                            placeholder="Enter result"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-4 col-md-6">
 
-                        <label class="form-label d-block">
+                        <label class="form-label d-block">
 
-                            Uses Spectacles
+                            Uses Spectacles
 
-                        </label>
+                        </label>
 
-                        <div class="form-check form-check-inline mt-2">
+                        <div class="form-check form-check-inline mt-2">
 
-                            <input
+                            <input
 
-                                class="form-check-input"
+                                class="form-check-input"
 
-                                type="radio"
+                                type="radio"
 
-                                name="uses_spectacles"
+                                name="uses_spectacles"
 
-                                id="spectacles_yes"
+                                id="spectacles_yes"
 
-                                value="1"
+                                value="1"
 
-                                {{ old('uses_spectacles') == '1' ? 'checked' : '' }}
+                                {{ old('uses_spectacles') == '1' ? 'checked' : '' }}
 
-                            >
+                            >
 
-                            <label
+                            <label
 
-                                class="form-check-label"
+                                class="form-check-label"
 
-                                for="spectacles_yes"
+                                for="spectacles_yes"
 
-                            >
+                            >
 
-                                Yes
+                                Yes
 
-                            </label>
+                            </label>
 
-                        </div>
+                        </div>
 
-                        <div class="form-check form-check-inline mt-2">
+                        <div class="form-check form-check-inline mt-2">
 
-                            <input
+                            <input
 
-                                class="form-check-input"
+                                class="form-check-input"
 
-                                type="radio"
+                                type="radio"
 
-                                name="uses_spectacles"
+                                name="uses_spectacles"
 
-                                id="spectacles_no"
+                                id="spectacles_no"
 
-                                value="0"
+                                value="0"
 
-                                {{ old('uses_spectacles') === '0' ? 'checked' : '' }}
+                                {{ old('uses_spectacles') === '0' ? 'checked' : '' }}
 
-                            >
+                            >
 
-                            <label
+                            <label
 
-                                class="form-check-label"
+                                class="form-check-label"
 
-                                for="spectacles_no"
+                                for="spectacles_no"
 
-                            >
+                            >
 
-                                No
+                                No
 
-                            </label>
+                            </label>
 
-                        </div>
+                        </div>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-8 col-md-6">
+                    <div class="col-lg-8 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Spectacle Power
+                            Spectacle Power
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="spectacle_power"
+                            name="spectacle_power"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('spectacle_power') }}"
+                            value="{{ old('spectacle_power') }}"
 
-                            placeholder="Enter spectacle power if applicable"
+                            placeholder="Enter spectacle power if applicable"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             4. DENTAL
+             4. DENTAL
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-tooth"></i>
+                    <i class="fas fa-tooth"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Dental Examination
+                    Dental Examination
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Dental Status
+                            Dental Status
 
-                        </label>
+                        </label>
 
-                        <select name="dental_status" class="form-select">
+                        <select name="dental_status" class="form-select">
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="Normal" {{ old('dental_status') == 'Normal' ? 'selected' : '' }}>
+                            <option value="Normal" {{ old('dental_status') == 'Normal' ? 'selected' : '' }}>
 
-                                Normal
+                                Normal
 
-                            </option>
+                            </option>
 
-                            <option value="Needs Attention" {{ old('dental_status') == 'Needs Attention' ? 'selected' : '' }}>
+                            <option value="Needs Attention" {{ old('dental_status') == 'Needs Attention' ? 'selected' : '' }}>
 
-                                Needs Attention
+                                Needs Attention
 
-                            </option>
+                            </option>
 
-                            <option value="Requires Treatment" {{ old('dental_status') == 'Requires Treatment' ? 'selected' : '' }}>
+                            <option value="Requires Treatment" {{ old('dental_status') == 'Requires Treatment' ? 'selected' : '' }}>
 
-                                Requires Treatment
+                                Requires Treatment
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Dental Caries
+                            Dental Caries
 
-                        </label>
+                        </label>
 
-                        <select name="dental_caries" class="form-select">
+                        <select name="dental_caries" class="form-select">
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="No" {{ old('dental_caries') == 'No' ? 'selected' : '' }}>
+                            <option value="No" {{ old('dental_caries') == 'No' ? 'selected' : '' }}>
 
-                                No
+                                No
 
-                            </option>
+                            </option>
 
-                            <option value="Yes" {{ old('dental_caries') == 'Yes' ? 'selected' : '' }}>
+                            <option value="Yes" {{ old('dental_caries') == 'Yes' ? 'selected' : '' }}>
 
-                                Yes
+                                Yes
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Gum Problem
+                            Gum Problem
 
-                        </label>
+                        </label>
 
-                        <select name="gum_problem" class="form-select">
+                        <select name="gum_problem" class="form-select">
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="No" {{ old('gum_problem') == 'No' ? 'selected' : '' }}>
+                            <option value="No" {{ old('gum_problem') == 'No' ? 'selected' : '' }}>
 
-                                No
+                                No
 
-                            </option>
+                            </option>
 
-                            <option value="Yes" {{ old('gum_problem') == 'Yes' ? 'selected' : '' }}>
+                            <option value="Yes" {{ old('gum_problem') == 'Yes' ? 'selected' : '' }}>
 
-                                Yes
+                                Yes
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Oral Hygiene
+                            Oral Hygiene
 
-                        </label>
+                        </label>
 
-                        <select name="oral_hygiene" class="form-select">
+                        <select name="oral_hygiene" class="form-select">
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="Good" {{ old('oral_hygiene') == 'Good' ? 'selected' : '' }}>
+                            <option value="Good" {{ old('oral_hygiene') == 'Good' ? 'selected' : '' }}>
 
-                                Good
+                                Good
 
-                            </option>
+                            </option>
 
-                            <option value="Average" {{ old('oral_hygiene') == 'Average' ? 'selected' : '' }}>
+                            <option value="Average" {{ old('oral_hygiene') == 'Average' ? 'selected' : '' }}>
 
-                                Average
+                                Average
 
-                            </option>
+                            </option>
 
-                            <option value="Needs Improvement" {{ old('oral_hygiene') == 'Needs Improvement' ? 'selected' : '' }}>
+                            <option value="Needs Improvement" {{ old('oral_hygiene') == 'Needs Improvement' ? 'selected' : '' }}>
 
-                                Needs Improvement
+                                Needs Improvement
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             5. ENT
+             5. ENT
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-ear-listen"></i>
+                    <i class="fas fa-ear-listen"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    ENT Examination
+                    ENT Examination
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Right Ear
+                            Right Ear
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="right_ear"
+                            name="right_ear"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('right_ear') }}"
+                            value="{{ old('right_ear') }}"
 
-                            placeholder="Enter finding"
+                            placeholder="Enter finding"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Left Ear
+                            Left Ear
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="left_ear"
+                            name="left_ear"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('left_ear') }}"
+                            value="{{ old('left_ear') }}"
 
-                            placeholder="Enter finding"
+                            placeholder="Enter finding"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Hearing Problem
+                            Hearing Problem
 
-                        </label>
+                        </label>
 
-                        <select name="hearing_problem" class="form-select">
+                        <select name="hearing_problem" class="form-select">
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="No" {{ old('hearing_problem') == 'No' ? 'selected' : '' }}>
+                            <option value="No" {{ old('hearing_problem') == 'No' ? 'selected' : '' }}>
 
-                                No
+                                No
 
-                            </option>
+                            </option>
 
-                            <option value="Yes" {{ old('hearing_problem') == 'Yes' ? 'selected' : '' }}>
+                            <option value="Yes" {{ old('hearing_problem') == 'Yes' ? 'selected' : '' }}>
 
-                                Yes
+                                Yes
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Nose Status
+                            Nose Status
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="nose_status"
+                            name="nose_status"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('nose_status') }}"
+                            value="{{ old('nose_status') }}"
 
-                            placeholder="Enter finding"
+                            placeholder="Enter finding"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-6">
+                    <div class="col-lg-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Throat Status
+                            Throat Status
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="throat_status"
+                            name="throat_status"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('throat_status') }}"
+                            value="{{ old('throat_status') }}"
 
-                            placeholder="Enter finding"
+                            placeholder="Enter finding"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             6. GENERAL HEALTH
+             6. GENERAL HEALTH
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-stethoscope"></i>
+                    <i class="fas fa-stethoscope"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    General Health Examination
+                    General Health Examination
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    @php
+                    @php
 
-                        $healthSelects = [
+                        $healthSelects = [
 
-                            'general_health' => 'General Health',
+                            'general_health' => 'General Health',
 
-                            'skin_status' => 'Skin',
+                            'skin_status' => 'Skin',
 
-                            'respiratory_status' => 'Respiratory System',
+                            'respiratory_status' => 'Respiratory System',
 
-                            'heart_status' => 'Heart',
+                            'heart_status' => 'Heart',
 
-                            'abdomen_status' => 'Abdomen',
+                            'abdomen_status' => 'Abdomen',
 
-                            'musculoskeletal_status' => 'Musculoskeletal',
+                            'musculoskeletal_status' => 'Musculoskeletal',
 
-                        ];
+                        ];
 
-                    @endphp
+                    @endphp
 
-                    @foreach($healthSelects as $field => $label)
+                    @foreach($healthSelects as $field => $label)
 
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-4 col-md-6">
 
-                            <label class="form-label">
+                            <label class="form-label">
 
-                                {{ $label }}
+                                {{ $label }}
 
-                            </label>
+                            </label>
 
-                            <select
+                            <select
 
-                                name="{{ $field }}"
+                                name="{{ $field }}"
 
-                                class="form-select"
+                                class="form-select"
 
-                            >
+                            >
 
-                                <option value="">Select</option>
+                                <option value="">Select</option>
 
-                                <option
+                                <option
 
-                                    value="Normal"
+                                    value="Normal"
 
-                                    {{ old($field) == 'Normal' ? 'selected' : '' }}
+                                    {{ old($field) == 'Normal' ? 'selected' : '' }}
 
-                                >
+                                >
 
-                                    Normal
+                                    Normal
 
-                                </option>
+                                </option>
 
-                                <option
+                                <option
 
-                                    value="Needs Attention"
+                                    value="Needs Attention"
 
-                                    {{ old($field) == 'Needs Attention' ? 'selected' : '' }}
+                                    {{ old($field) == 'Needs Attention' ? 'selected' : '' }}
 
-                                >
+                                >
 
-                                    Needs Attention
+                                    Needs Attention
 
-                                </option>
+                                </option>
 
-                                <option
+                                <option
 
-                                    value="Requires Medical Attention"
+                                    value="Requires Medical Attention"
 
-                                    {{ old($field) == 'Requires Medical Attention' ? 'selected' : '' }}
+                                    {{ old($field) == 'Requires Medical Attention' ? 'selected' : '' }}
 
-                                >
+                                >
 
-                                    Requires Medical Attention
+                                    Requires Medical Attention
 
-                                </option>
+                                </option>
 
-                            </select>
+                            </select>
 
-                        </div>
+                        </div>
 
-                    @endforeach
+                    @endforeach
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             7. NUTRITION
+             7. NUTRITION
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-apple-whole"></i>
+                    <i class="fas fa-apple-whole"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Nutrition & Anemia Screening
+                    Nutrition & Anemia Screening
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-6">
+                    <div class="col-lg-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Nutritional Status
+                            Nutritional Status
 
-                        </label>
+                        </label>
 
-                        <select
+                        <select
 
-                            name="nutritional_status"
+                            name="nutritional_status"
 
-                            class="form-select"
+                            class="form-select"
 
-                        >
+                        >
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="Normal" {{ old('nutritional_status') == 'Normal' ? 'selected' : '' }}>
+                            <option value="Normal" {{ old('nutritional_status') == 'Normal' ? 'selected' : '' }}>
 
-                                Normal
+                                Normal
 
-                            </option>
+                            </option>
 
-                            <option value="Needs Attention" {{ old('nutritional_status') == 'Needs Attention' ? 'selected' : '' }}>
+                            <option value="Needs Attention" {{ old('nutritional_status') == 'Needs Attention' ? 'selected' : '' }}>
 
-                                Needs Attention
+                                Needs Attention
 
-                            </option>
+                            </option>
 
-                            <option value="Malnutrition Suspected" {{ old('nutritional_status') == 'Malnutrition Suspected' ? 'selected' : '' }}>
+                            <option value="Malnutrition Suspected" {{ old('nutritional_status') == 'Malnutrition Suspected' ? 'selected' : '' }}>
 
-                                Malnutrition Suspected
+                                Malnutrition Suspected
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-6">
+                    <div class="col-lg-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Anemia Screening
+                            Anemia Screening
 
-                        </label>
+                        </label>
 
-                        <select
+                        <select
 
-                            name="anemia_screening"
+                            name="anemia_screening"
 
-                            class="form-select"
+                            class="form-select"
 
-                        >
+                        >
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="Normal" {{ old('anemia_screening') == 'Normal' ? 'selected' : '' }}>
+                            <option value="Normal" {{ old('anemia_screening') == 'Normal' ? 'selected' : '' }}>
 
-                                Normal
+                                Normal
 
-                            </option>
+                            </option>
 
-                            <option value="Suspected" {{ old('anemia_screening') == 'Suspected' ? 'selected' : '' }}>
+                            <option value="Suspected" {{ old('anemia_screening') == 'Suspected' ? 'selected' : '' }}>
 
-                                Suspected
+                                Suspected
 
-                            </option>
+                            </option>
 
-                            <option value="Confirmed" {{ old('anemia_screening') == 'Confirmed' ? 'selected' : '' }}>
+                            <option value="Confirmed" {{ old('anemia_screening') == 'Confirmed' ? 'selected' : '' }}>
 
-                                Confirmed
+                                Confirmed
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             8. MEDICAL HISTORY
+             8. MEDICAL HISTORY
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-file-medical"></i>
+                    <i class="fas fa-file-medical"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Medical History
+                    Medical History
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Known Health Condition
+                            Known Health Condition
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="known_health_condition"
+                            name="known_health_condition"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Enter known condition, if any"
+                            placeholder="Enter known condition, if any"
 
-                        >{{ old('known_health_condition') }}</textarea>
+                        >{{ old('known_health_condition') }}</textarea>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Allergy
+                            Allergy
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="allergy"
+                            name="allergy"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Enter allergy information"
+                            placeholder="Enter allergy information"
 
-                        >{{ old('allergy') }}</textarea>
+                        >{{ old('allergy') }}</textarea>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Current Medication
+                            Current Medication
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="current_medication"
+                            name="current_medication"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Enter current medication"
+                            placeholder="Enter current medication"
 
-                        >{{ old('current_medication') }}</textarea>
+                        >{{ old('current_medication') }}</textarea>
 
-                    </div>
+                    </div>
 
-                    <div class="col-12">
+                    <div class="col-12">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Medical History / Additional Information
+                            Medical History / Additional Information
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="medical_history"
+                            name="medical_history"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Enter relevant medical history"
+                            placeholder="Enter relevant medical history"
 
-                        >{{ old('medical_history') }}</textarea>
+                        >{{ old('medical_history') }}</textarea>
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             9. REFERRAL & FOLLOW-UP
+             9. REFERRAL & FOLLOW-UP
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-hospital"></i>
+                    <i class="fas fa-hospital"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Referral & Follow-up
+                    Referral & Follow-up
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
 
-                        <label class="form-label d-block">
+                        <label class="form-label d-block">
 
-                            Referral Required
+                            Referral Required
 
-                        </label>
+                        </label>
 
-                        <div class="form-check form-check-inline mt-2">
+                        <div class="form-check form-check-inline mt-2">
 
-                            <input
+                            <input
 
-                                class="form-check-input"
+                                class="form-check-input"
 
-                                type="radio"
+                                type="radio"
 
-                                name="referral_required"
+                                name="referral_required"
 
-                                value="1"
+                                value="1"
 
-                                id="referral_yes"
+                                id="referral_yes"
 
-                                {{ old('referral_required') == '1' ? 'checked' : '' }}
+                                {{ old('referral_required') == '1' ? 'checked' : '' }}
 
-                            >
+                            >
 
-                            <label
+                            <label
 
-                                class="form-check-label"
+                                class="form-check-label"
 
-                                for="referral_yes"
+                                for="referral_yes"
 
-                            >
+                            >
 
-                                Yes
+                                Yes
 
-                            </label>
+                            </label>
 
-                        </div>
+                        </div>
 
-                        <div class="form-check form-check-inline mt-2">
+                        <div class="form-check form-check-inline mt-2">
 
-                            <input
+                            <input
 
-                                class="form-check-input"
+                                class="form-check-input"
 
-                                type="radio"
+                                type="radio"
 
-                                name="referral_required"
+                                name="referral_required"
 
-                                value="0"
+                                value="0"
 
-                                id="referral_no"
+                                id="referral_no"
 
-                                {{ old('referral_required') === '0' ? 'checked' : '' }}
+                                {{ old('referral_required') === '0' ? 'checked' : '' }}
 
-                            >
+                            >
 
-                            <label
+                            <label
 
-                                class="form-check-label"
+                                class="form-check-label"
 
-                                for="referral_no"
+                                for="referral_no"
 
-                            >
+                            >
 
-                                No
+                                No
 
-                            </label>
+                            </label>
 
-                        </div>
+                        </div>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-5 col-md-6">
+                    <div class="col-lg-5 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Referred To
+                            Referred To
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="referral_to"
+                            name="referral_to"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('referral_to') }}"
+                            value="{{ old('referral_to') }}"
 
-                            placeholder="Hospital / Specialist / Health Center"
+                            placeholder="Hospital / Specialist / Health Center"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-4 col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Referral Date
+                            Referral Date
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="date"
+                            type="date"
 
-                            name="referral_date"
+                            name="referral_date"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('referral_date') }}"
+                            value="{{ old('referral_date') }}"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-12">
+                    <div class="col-12">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Treatment Advised
+                            Treatment Advised
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="treatment_advised"
+                            name="treatment_advised"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Enter treatment or advice provided"
+                            placeholder="Enter treatment or advice provided"
 
-                        >{{ old('treatment_advised') }}</textarea>
+                        >{{ old('treatment_advised') }}</textarea>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Follow-up Date
+                            Follow-up Date
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="date"
+                            type="date"
 
-                            name="follow_up_date"
+                            name="follow_up_date"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('follow_up_date') }}"
+                            value="{{ old('follow_up_date') }}"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Follow-up Status
+                            Follow-up Status
 
-                        </label>
+                        </label>
 
-                        <select
+                        <select
 
-                            name="follow_up_status"
+                            name="follow_up_status"
 
-                            class="form-select"
+                            class="form-select"
 
-                        >
+                        >
 
-                            <option value="">Select</option>
+                            <option value="">Select</option>
 
-                            <option value="Pending" {{ old('follow_up_status') == 'Pending' ? 'selected' : '' }}>
+                            <option value="Pending" {{ old('follow_up_status') == 'Pending' ? 'selected' : '' }}>
 
-                                Pending
+                                Pending
 
-                            </option>
+                            </option>
 
-                            <option value="Completed" {{ old('follow_up_status') == 'Completed' ? 'selected' : '' }}>
+                            <option value="Completed" {{ old('follow_up_status') == 'Completed' ? 'selected' : '' }}>
 
-                                Completed
+                                Completed
 
-                            </option>
+                            </option>
 
-                            <option value="Not Required" {{ old('follow_up_status') == 'Not Required' ? 'selected' : '' }}>
+                            <option value="Not Required" {{ old('follow_up_status') == 'Not Required' ? 'selected' : '' }}>
 
-                                Not Required
+                                Not Required
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Follow-up Remarks
+                            Follow-up Remarks
 
-                        </label>
+                        </label>
 
-                        <input
+                        <input
 
-                            type="text"
+                            type="text"
 
-                            name="follow_up_remarks"
+                            name="follow_up_remarks"
 
-                            class="form-control"
+                            class="form-control"
 
-                            value="{{ old('follow_up_remarks') }}"
+                            value="{{ old('follow_up_remarks') }}"
 
-                            placeholder="Enter remarks"
+                            placeholder="Enter remarks"
 
-                        >
+                        >
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             10. FINAL ASSESSMENT
+             10. FINAL ASSESSMENT
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-card">
+        <div class="form-card">
 
-            <div class="form-card-header">
+            <div class="form-card-header">
 
-                <div class="section-icon">
+                <div class="section-icon">
 
-                    <i class="fas fa-clipboard-check"></i>
+                    <i class="fas fa-clipboard-check"></i>
 
-                </div>
+                </div>
 
-                <h5>
+                <h5>
 
-                    Final Assessment & Remarks
+                    Final Assessment & Remarks
 
-                </h5>
+                </h5>
 
-            </div>
+            </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body">
 
-                <div class="row g-3">
+                <div class="row g-3">
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Overall Health Status
+                            Overall Health Status
 
-                        </label>
+                        </label>
 
-                        <select
+                        <select
 
-                            name="overall_health_status"
+                            name="overall_health_status"
 
-                            class="form-select"
+                            class="form-select"
 
-                        >
+                        >
 
-                            <option value="">Select Status</option>
+                            <option value="">Select Status</option>
 
-                            <option
+                            <option
 
-                                value="Healthy"
+                                value="Healthy"
 
-                                {{ old('overall_health_status') == 'Healthy' ? 'selected' : '' }}
+                                {{ old('overall_health_status') == 'Healthy' ? 'selected' : '' }}
 
-                            >
+                            >
 
-                                Healthy
+                                Healthy
 
-                            </option>
+                            </option>
 
-                            <option
+                            <option
 
-                                value="Needs Attention"
+                                value="Needs Attention"
 
-                                {{ old('overall_health_status') == 'Needs Attention' ? 'selected' : '' }}
+                                {{ old('overall_health_status') == 'Needs Attention' ? 'selected' : '' }}
 
-                            >
+                            >
 
-                                Needs Attention
+                                Needs Attention
 
-                            </option>
+                            </option>
 
-                            <option
+                            <option
 
-                                value="Requires Medical Attention"
+                                value="Requires Medical Attention"
 
-                                {{ old('overall_health_status') == 'Requires Medical Attention' ? 'selected' : '' }}
+                                {{ old('overall_health_status') == 'Requires Medical Attention' ? 'selected' : '' }}
 
-                            >
+                            >
 
-                                Requires Medical Attention
+                                Requires Medical Attention
 
-                            </option>
+                            </option>
 
-                        </select>
+                        </select>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Doctor Remarks
+                            Doctor Remarks
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="doctor_remarks"
+                            name="doctor_remarks"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Doctor / medical officer remarks"
+                            placeholder="Doctor / medical officer remarks"
 
-                        >{{ old('doctor_remarks') }}</textarea>
+                        >{{ old('doctor_remarks') }}</textarea>
 
-                    </div>
+                    </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Teacher Remarks
+                            Teacher Remarks
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="teacher_remarks"
+                            name="teacher_remarks"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Teacher remarks"
+                            placeholder="Teacher remarks"
 
-                        >{{ old('teacher_remarks') }}</textarea>
+                        >{{ old('teacher_remarks') }}</textarea>
 
-                    </div>
+                    </div>
 
-                    <div class="col-12">
+                    <div class="col-12">
 
-                        <label class="form-label">
+                        <label class="form-label">
 
-                            Parent Remarks
+                            Parent Remarks
 
-                        </label>
+                        </label>
 
-                        <textarea
+                        <textarea
 
-                            name="parent_remarks"
+                            name="parent_remarks"
 
-                            class="form-control"
+                            class="form-control"
 
-                            placeholder="Parent / guardian remarks"
+                            placeholder="Parent / guardian remarks"
 
-                        >{{ old('parent_remarks') }}</textarea>
+                        >{{ old('parent_remarks') }}</textarea>
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-        </div>
+        </div>
 
-        {{-- =====================================================
+        {{-- =====================================================
 
-             ACTIONS
+             ACTIONS
 
-        ====================================================== --}}
+        ====================================================== --}}
 
-        <div class="form-actions">
+        <div class="form-actions">
 
-            <a
+            <a
 
-                href="{{ route('admin.student-health.index') }}"
+                href="{{ route('admin.student-health.index') }}"
 
-                class="btn btn-outline-secondary btn-cancel"
+                class="btn btn-outline-secondary btn-cancel"
 
-            >
+            >
 
-                <i class="fas fa-arrow-left me-1"></i>
+                <i class="fas fa-arrow-left me-1"></i>
 
-                Cancel
+                Cancel
 
-            </a>
+            </a>
 
-            <button
+            <button
 
-                type="submit"
+                type="submit"
 
-                class="btn btn-success btn-save"
+                class="btn btn-success btn-save"
 
-            >
+            >
 
-                <i class="fas fa-save me-1"></i>
+                <i class="fas fa-save me-1"></i>
 
-                Save Health Record
+                Save Health Record
 
-            </button>
+            </button>
 
-        </div>
+        </div>
 
-    </form>
+    </form>
 
 </div>
 

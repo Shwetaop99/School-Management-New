@@ -1,4 +1,4 @@
-@extends('layouts.app')
+```@extends('layouts.app')
 
 @section('title', 'Exam Management | Admin')
 @section('page-title', 'Exam Management')
@@ -10,31 +10,26 @@
     $draftExams = $exams->where('status', 'draft')->count();
     $scheduledExams = $exams->where('status', 'scheduled')->count();
     $completedExams = $exams->where('status', 'completed')->count();
+    $cancelledExams = $exams->where('status', 'cancelled')->count();
 @endphp
 
 <div class="exam-page">
     <div class="container-fluid py-4">
 
-        {{-- SUCCESS MESSAGE --}}
+        {{-- ALERTS --}}
         @if(session('success'))
-            <div class="exam-success-alert" role="status">
-                <span class="exam-alert-icon">
-                    <i class="bi bi-check-lg"></i>
-                </span>
+            <div class="exam-alert exam-alert-success">
+                <i class="bi bi-check-circle-fill"></i>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
 
-        {{-- VALIDATION ERRORS --}}
         @if($errors->any())
-            <div class="exam-error-alert" role="alert">
-                <span class="exam-alert-icon danger">
-                    <i class="bi bi-exclamation-lg"></i>
-                </span>
-
+            <div class="exam-alert exam-alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i>
                 <div>
-                    <strong>Please correct the following</strong>
-                    <ul class="mb-0 mt-1 ps-3">
+                    <strong>Please correct the following errors:</strong>
+                    <ul class="mb-0 mt-2">
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -43,12 +38,12 @@
             </div>
         @endif
 
-        {{-- SCHOOL DIARY HERO --}}
+        {{-- HERO --}}
         <section class="exam-hero">
-
             <div class="exam-hero-content">
+
                 <div class="exam-hero-icon">
-                    <i class="bi bi-journal-bookmark"></i>
+                    <i class="bi bi-journal-bookmark-fill"></i>
                 </div>
 
                 <div class="exam-hero-text">
@@ -60,123 +55,103 @@
                     <h2>Examination Management</h2>
 
                     <p>
-                        Organise examinations, academic years, exam types
-                        and schedules from one structured academic workspace.
+                        Manage examinations, academic years, exam types,
+                        subjects and examination schedules from one place.
                     </p>
 
                     <div class="exam-hero-note">
                         <i class="bi bi-shield-check"></i>
-                        <span>Academic Assessment &amp; Examination Records</span>
+                        Academic Assessment &amp; Examination Records
                     </div>
                 </div>
             </div>
 
             <div class="exam-hero-actions">
-                <div class="exam-hero-decoration decoration-one"></div>
-                <div class="exam-hero-decoration decoration-two"></div>
+                <div class="exam-decoration decoration-one"></div>
+                <div class="exam-decoration decoration-two"></div>
 
-                <div class="exam-handwritten">Prepare. Perform. Progress.</div>
+                <div class="exam-handwritten">
+                    Prepare. Perform. Progress.
+                </div>
 
                 <p>
-                    Plan examinations, coordinate academic sessions
-                    and maintain organised assessment records.
+                    Organise your academic calendar and keep
+                    every examination on track.
                 </p>
 
                 <a href="{{ route('admin.exams.create') }}"
                    class="exam-primary-btn">
                     <i class="bi bi-plus-lg"></i>
-                    Create Exam
-                    <i class="bi bi-arrow-right button-arrow"></i>
+                    Create New Exam
+                    <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
-
         </section>
 
-        {{-- DYNAMIC STATISTICS --}}
+        {{-- STATISTICS --}}
         <section class="exam-kpis">
 
-            {{-- TOTAL --}}
             <article class="exam-kpi blue">
                 <div class="kpi-top">
-                    <span class="kpi-label">Total Exams</span>
-                    <span class="kpi-icon">
+                    <span>Total Examinations</span>
+                    <div class="kpi-icon">
                         <i class="bi bi-journal-text"></i>
-                    </span>
+                    </div>
                 </div>
-
                 <div class="kpi-value">{{ $totalExams }}</div>
-
                 <div class="kpi-caption">
-                    <span class="kpi-caption-icon">
-                        <i class="bi bi-folder2-open"></i>
-                    </span>
+                    <i class="bi bi-folder2-open"></i>
                     All registered examinations
                 </div>
             </article>
 
-            {{-- DRAFT --}}
             <article class="exam-kpi orange">
                 <div class="kpi-top">
-                    <span class="kpi-label">Draft Exams</span>
-                    <span class="kpi-icon">
+                    <span>Draft Examinations</span>
+                    <div class="kpi-icon">
                         <i class="bi bi-file-earmark-text"></i>
-                    </span>
+                    </div>
                 </div>
-
                 <div class="kpi-value">{{ $draftExams }}</div>
-
                 <div class="kpi-caption">
-                    <span class="kpi-caption-icon">
-                        <i class="bi bi-pencil-square"></i>
-                    </span>
-                    Examinations being configured
+                    <i class="bi bi-pencil-square"></i>
+                    Examinations in preparation
                 </div>
             </article>
 
-            {{-- SCHEDULED --}}
             <article class="exam-kpi green">
                 <div class="kpi-top">
-                    <span class="kpi-label">Scheduled Exams</span>
-                    <span class="kpi-icon">
+                    <span>Scheduled Exams</span>
+                    <div class="kpi-icon">
                         <i class="bi bi-calendar-check"></i>
-                    </span>
+                    </div>
                 </div>
-
                 <div class="kpi-value">{{ $scheduledExams }}</div>
-
                 <div class="kpi-caption">
-                    <span class="kpi-caption-icon">
-                        <i class="bi bi-clock-history"></i>
-                    </span>
-                    Examinations scheduled
+                    <i class="bi bi-clock-history"></i>
+                    Upcoming examinations
                 </div>
             </article>
 
-            {{-- COMPLETED --}}
             <article class="exam-kpi teal">
                 <div class="kpi-top">
-                    <span class="kpi-label">Completed Exams</span>
-                    <span class="kpi-icon">
+                    <span>Completed Exams</span>
+                    <div class="kpi-icon">
                         <i class="bi bi-check2-circle"></i>
-                    </span>
+                    </div>
                 </div>
-
                 <div class="kpi-value">{{ $completedExams }}</div>
-
                 <div class="kpi-caption">
-                    <span class="kpi-caption-icon">
-                        <i class="bi bi-patch-check"></i>
-                    </span>
-                    Completed examinations
+                    <i class="bi bi-patch-check"></i>
+                    Successfully completed
                 </div>
             </article>
 
         </section>
 
-        {{-- MAIN PAPER PANEL --}}
+        {{-- EXAMINATION RECORDS --}}
         <section class="exam-paper-panel">
 
-            {{-- PANEL HEADER --}}
             <div class="exam-panel-header">
 
                 <div class="exam-panel-title-wrap">
@@ -184,7 +159,7 @@
                         <i class="bi bi-list-check"></i>
                     </div>
 
-                    <div class="exam-panel-title-content">
+                    <div>
                         <span class="exam-panel-eyebrow">
                             ACADEMIC RECORDS
                         </span>
@@ -192,16 +167,14 @@
                         <h3>Examination List</h3>
 
                         <p>
-                            View and manage examinations, types and schedules.
+                            View and manage all registered examinations.
                         </p>
                     </div>
                 </div>
 
                 <div class="exam-record-count">
                     <i class="bi bi-folder2-open"></i>
-
                     <strong>{{ $totalExams }}</strong>
-
                     {{ $totalExams === 1 ? 'Exam' : 'Exams' }}
                 </div>
 
@@ -212,15 +185,16 @@
 
                 <div class="exam-table-wrapper">
                     <table class="exam-table">
+
                         <thead>
                             <tr>
-                                <th class="number-column">#</th>
+                                <th width="65">#</th>
                                 <th>Examination</th>
                                 <th>Academic Year</th>
-                                <th>Type</th>
+                                <th>Exam Type</th>
                                 <th>Exam Period</th>
                                 <th>Status</th>
-                                <th class="actions-heading">Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
 
@@ -228,7 +202,9 @@
                             @foreach($exams as $exam)
 
                                 @php
-                                    $statusClass = match($exam->status) {
+                                    $status = $exam->status ?? 'draft';
+
+                                    $statusClass = match($status) {
                                         'draft' => 'status-draft',
                                         'scheduled' => 'status-scheduled',
                                         'completed' => 'status-completed',
@@ -236,7 +212,7 @@
                                         default => 'status-draft',
                                     };
 
-                                    $statusIcon = match($exam->status) {
+                                    $statusIcon = match($status) {
                                         'draft' => 'bi-file-earmark',
                                         'scheduled' => 'bi-calendar-check',
                                         'completed' => 'bi-check-circle',
@@ -246,14 +222,12 @@
                                 @endphp
 
                                 <tr>
-                                    {{-- NUMBER --}}
                                     <td>
                                         <span class="exam-row-number">
                                             {{ $loop->iteration }}
                                         </span>
                                     </td>
 
-                                    {{-- EXAMINATION DETAILS --}}
                                     <td>
                                         <div class="exam-info">
                                             <div class="exam-avatar">
@@ -267,13 +241,12 @@
 
                                                 <div class="exam-subtitle">
                                                     <i class="bi bi-hash"></i>
-                                                    Exam ID: {{ $exam->id }}
+                                                    ID: {{ $exam->id }}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
 
-                                    {{-- ACADEMIC YEAR --}}
                                     <td>
                                         @if($exam->academic_year)
                                             <span class="exam-year-badge">
@@ -281,11 +254,10 @@
                                                 {{ $exam->academic_year }}
                                             </span>
                                         @else
-                                            <span class="exam-muted">—</span>
+                                            <span class="exam-muted">Not assigned</span>
                                         @endif
                                     </td>
 
-                                    {{-- TYPE --}}
                                     <td>
                                         @if($exam->exam_type)
                                             <span class="exam-type-badge">
@@ -293,11 +265,10 @@
                                                 {{ $exam->exam_type }}
                                             </span>
                                         @else
-                                            <span class="exam-muted">—</span>
+                                            <span class="exam-muted">Not assigned</span>
                                         @endif
                                     </td>
 
-                                    {{-- EXAM PERIOD --}}
                                     <td>
                                         <div class="exam-period">
                                             <div class="exam-period-start">
@@ -307,50 +278,50 @@
 
                                             <div class="exam-period-end">
                                                 <i class="bi bi-arrow-right"></i>
-                                                {{ $exam->end_date?->format('d M Y') ?? 'End date not set' }}
+                                                {{ $exam->end_date?->format('d M Y') ?? 'Not set' }}
                                             </div>
                                         </div>
                                     </td>
 
-                                    {{-- STATUS --}}
                                     <td>
                                         <span class="exam-status-badge {{ $statusClass }}">
                                             <span class="status-dot"></span>
                                             <i class="bi {{ $statusIcon }}"></i>
-                                            {{ ucfirst($exam->status ?? 'draft') }}
+                                            {{ ucfirst($status) }}
                                         </span>
                                     </td>
 
-                                    {{-- ACTIONS --}}
                                     <td>
                                         <div class="exam-actions">
 
+                                            {{-- VIEW TIMETABLE --}}
                                             <a href="{{ route('admin.exam-schedules.index', $exam) }}"
-   class="exam-action-btn view"
-   title="View Exam Timetable"
-   aria-label="View Exam Timetable">
-    <i class="bi bi-eye"></i>
-</a>
+                                               class="exam-action-btn view"
+                                               title="View Exam Timetable"
+                                               aria-label="View Exam Timetable">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
 
+                                            {{-- EDIT --}}
                                             <a href="{{ route('admin.exams.edit', $exam) }}"
                                                class="exam-action-btn edit"
-                                               title="Edit Exam"
-                                               aria-label="Edit Exam">
+                                               title="Edit Examination"
+                                               aria-label="Edit Examination">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <form
-                                                method="POST"
-                                                action="{{ route('admin.exams.destroy', $exam) }}"
-                                                onsubmit="return confirm('Are you sure you want to delete this exam? All related exam setup and timetable data will also be removed.');"
-                                            >
+                                            {{-- DELETE --}}
+                                            <form method="POST"
+                                                  action="{{ route('admin.exams.destroy', $exam) }}"
+                                                  onsubmit="return confirm('Are you sure you want to delete this examination? Related examination setup and timetable data may also be removed.');">
+
                                                 @csrf
                                                 @method('DELETE')
 
                                                 <button type="submit"
                                                         class="exam-action-btn delete"
-                                                        title="Delete Exam"
-                                                        aria-label="Delete Exam">
+                                                        title="Delete Examination"
+                                                        aria-label="Delete Examination">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
@@ -361,22 +332,22 @@
 
                             @endforeach
                         </tbody>
+
                     </table>
                 </div>
 
-                {{-- TABLE FOOTER --}}
+                {{-- FOOTER --}}
                 <div class="exam-card-footer">
-                    <div class="exam-footer-records">
+                    <span>
                         <i class="bi bi-file-earmark-text"></i>
-                        Showing
-                        <strong>{{ $totalExams }}</strong>
-                        {{ $totalExams === 1 ? 'exam' : 'exams' }}
-                    </div>
+                        Showing <strong>{{ $totalExams }}</strong>
+                        {{ $totalExams === 1 ? 'examination' : 'examinations' }}
+                    </span>
 
-                    <div class="exam-footer-status">
-                        <i class="bi bi-check-circle"></i>
-                        Examination records loaded successfully
-                    </div>
+                    <span class="exam-footer-status">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Examination records loaded
+                    </span>
                 </div>
 
             @else
@@ -392,19 +363,19 @@
                         ACADEMIC DIRECTORY
                     </span>
 
-                    <h4>No Exams Found</h4>
+                    <h4>No Examinations Found</h4>
 
                     <p>
-                        No examinations have been registered yet.
-                        Create your first exam to organise academic sessions,
-                        subjects and examination timetables.
+                        You haven't registered any examinations yet.
+                        Start by creating your first examination and
+                        organising its academic schedule.
                     </p>
 
                     <a href="{{ route('admin.exams.create') }}"
                        class="exam-primary-btn">
                         <i class="bi bi-plus-lg"></i>
                         Create First Exam
-                        <i class="bi bi-arrow-right button-arrow"></i>
+                        <i class="bi bi-arrow-right"></i>
                     </a>
 
                 </div>
@@ -413,7 +384,7 @@
 
         </section>
 
-        {{-- PAGE FOOTNOTE --}}
+        {{-- FOOTNOTE --}}
         <div class="exam-page-footnote">
             <span>
                 <i class="bi bi-book-half"></i>
@@ -429,11 +400,9 @@
 </div>
 
 <style>
-/* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM
-   EXAM MANAGEMENT
-   Warm paper • Forest green • Cream • Earthy accents
-========================================================= */
+/* =====================================================
+   SCHOOL DIARY - EXAM MANAGEMENT
+===================================================== */
 
 .exam-page {
     --ink: #263b35;
@@ -445,7 +414,6 @@
     --paper: #fffefa;
     --paper-bg: #f7f6f0;
     --chalk: #f4f0df;
-    --cream: #f1ead8;
     --wood: #a87543;
     --blue: #2b5d8a;
     --teal: #527f79;
@@ -465,99 +433,121 @@
     box-sizing: border-box;
 }
 
+.exam-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: auto;
+    padding-right: 24px;
+    padding-left: 24px;
+}
+
 .exam-page a,
 .exam-page button {
     transition: all .2s ease;
 }
 
-.exam-page .container-fluid {
-    width: 100%;
-    max-width: 1650px;
-    margin: 0 auto;
-    padding-right: 24px;
-    padding-left: 24px;
+/* ALERTS */
+
+.exam-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 14px 17px;
+    border: 1px solid;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
-/* =========================================================
-   HERO
-========================================================= */
+.exam-alert > i {
+    font-size: 17px;
+}
 
-.exam-page .exam-hero {
+.exam-alert-success {
+    border-color: #cfe4d2;
+    color: #347849;
+    background: #f2f8ef;
+}
+
+.exam-alert-danger {
+    border-color: #ebd2ca;
+    color: #a34038;
+    background: #fff4f0;
+}
+
+.exam-alert ul {
+    padding-left: 17px;
+    font-weight: 400;
+    line-height: 1.8;
+}
+
+/* HERO */
+
+.exam-hero {
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(290px, .85fr);
-    position: relative;
     overflow: hidden;
+    position: relative;
     margin-bottom: 38px;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 11px;
     background: var(--paper);
-    box-shadow: 0 5px 18px rgba(38, 59, 53, .045);
+    box-shadow: 0 5px 18px rgba(38,59,53,.045);
 }
 
-.exam-page .exam-hero::before {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 32px;
-    width: 2px;
-    background: rgba(184, 91, 62, .30);
-    content: "";
-}
-
-.exam-page .exam-hero-content {
+.exam-hero-content {
     display: flex;
     align-items: center;
-    gap: 19px;
-    min-width: 0;
-    padding: 32px 28px 32px 55px;
+    gap: 20px;
+    padding: 35px 30px 35px 42px;
 }
 
-.exam-page .exam-hero-icon {
+.exam-hero-icon {
     display: flex;
-    flex: 0 0 56px;
+    flex: 0 0 58px;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
+    width: 58px;
+    height: 58px;
     border: 1px solid #e6dfce;
-    border-radius: 12px;
+    border-radius: 13px;
     color: var(--ink);
     background: var(--chalk);
-    font-size: 22px;
+    font-size: 23px;
 }
 
-.exam-page .exam-hero-text {
+.exam-hero-text {
     min-width: 0;
 }
 
-.exam-page .exam-eyebrow {
+.exam-eyebrow,
+.exam-panel-eyebrow {
     display: block;
     margin-bottom: 9px;
     color: var(--wood);
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: 1.1px;
+    letter-spacing: 1px;
 }
 
-.exam-page .exam-hero-text h2 {
-    margin: 0 0 9px;
+.exam-hero-text h2 {
+    margin: 0 0 10px;
     color: var(--ink);
-    font-family: var(--serif, Georgia, "Times New Roman", serif);
-    font-size: 30px;
+    font-family: Georgia,serif;
+    font-size: clamp(23px, 2.2vw, 31px);
     font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -.5px;
 }
 
-.exam-page .exam-hero-text p {
-    max-width: 510px;
+.exam-hero-text p {
+    max-width: 530px;
     margin: 0;
     color: var(--muted);
     font-size: 13px;
     line-height: 1.8;
 }
 
-.exam-page .exam-hero-note {
+.exam-hero-note {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -567,54 +557,52 @@
     font-weight: 700;
 }
 
-/* Hero action panel */
-
-.exam-page .exam-hero-actions {
+.exam-hero-actions {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 13px;
+    gap: 12px;
     min-height: 215px;
     overflow: hidden;
     padding: 28px;
     color: #e9efe2;
-    background: linear-gradient(135deg, #344f43 0%, #263b35 55%, #20352c 100%);
+    background: linear-gradient(135deg,#344f43,#263b35 60%,#20352c);
     text-align: center;
 }
 
-.exam-page .exam-hero-decoration {
+.exam-decoration {
     position: absolute;
     width: 180px;
     height: 180px;
-    border: 1px solid rgba(241, 234, 216, .13);
+    border: 1px solid rgba(241,234,216,.13);
     border-radius: 50%;
     pointer-events: none;
 }
 
-.exam-page .decoration-one {
+.decoration-one {
     top: -110px;
     right: -55px;
 }
 
-.exam-page .decoration-two {
+.decoration-two {
     right: -65px;
     bottom: -130px;
     width: 230px;
     height: 230px;
 }
 
-.exam-page .exam-handwritten {
+.exam-handwritten {
     position: relative;
     z-index: 1;
-    color: var(--cream);
-    font-family: var(--hand, cursive);
+    color: var(--chalk);
+    font-family: cursive;
     font-size: 25px;
     font-weight: 600;
 }
 
-.exam-page .exam-hero-actions p {
+.exam-hero-actions p {
     position: relative;
     z-index: 1;
     max-width: 290px;
@@ -624,365 +612,232 @@
     line-height: 1.8;
 }
 
-/* =========================================================
-   PRIMARY BUTTON
-========================================================= */
+/* BUTTON */
 
-.exam-page .exam-primary-btn {
+.exam-primary-btn {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
-    min-height: 41px;
-    padding: 10px 16px;
+    min-height: 42px;
+    padding: 10px 17px;
     border: 1px solid var(--ink);
     border-radius: 8px;
-    color: var(--paper);
+    color: white;
     background: var(--ink);
-    font-family: inherit;
     font-size: 12px;
     font-weight: 700;
     text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
 }
 
-.exam-page .exam-primary-btn:hover {
+.exam-primary-btn:hover {
     transform: translateY(-2px);
     border-color: var(--ink-hover);
-    color: var(--paper);
+    color: white;
     background: var(--ink-hover);
-    box-shadow: 0 6px 15px rgba(29, 48, 43, .14);
+    box-shadow: 0 6px 15px rgba(29,48,43,.14);
 }
 
-.exam-page .exam-hero-actions .exam-primary-btn {
-    position: relative;
-    z-index: 1;
-    margin-top: 2px;
+.exam-hero-actions .exam-primary-btn {
+    margin-top: 3px;
     border-color: var(--cream);
     color: var(--ink);
     background: var(--cream);
 }
 
-.exam-page .exam-hero-actions .exam-primary-btn:hover {
-    border-color: var(--paper);
-    color: var(--ink-dark);
-    background: var(--paper);
+.exam-hero-actions .exam-primary-btn:hover {
+    border-color: white;
+    color: var(--ink);
+    background: white;
 }
 
-.exam-page .button-arrow {
-    margin-left: 3px;
-    font-size: 10px;
-}
+/* KPI CARDS */
 
-/* =========================================================
-   ALERTS
-========================================================= */
-
-.exam-page .exam-success-alert,
-.exam-page .exam-error-alert {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    margin-bottom: 20px;
-    padding: 13px 16px;
-    border: 1px solid;
-    border-radius: 9px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.exam-page .exam-success-alert {
-    border-color: #cfe4d2;
-    color: #347849;
-    background: #f2f8ef;
-}
-
-.exam-page .exam-error-alert {
-    align-items: flex-start;
-    border-color: #ebd2ca;
-    color: #a34038;
-    background: #fff4f0;
-}
-
-.exam-page .exam-alert-icon {
-    display: flex;
-    flex: 0 0 28px;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    color: #347849;
-    background: #dceedd;
-}
-
-.exam-page .exam-alert-icon.danger {
-    color: var(--red);
-    background: #f9e2dc;
-}
-
-.exam-page .exam-error-alert ul {
-    font-size: 11px;
-    font-weight: 400;
-    line-height: 1.8;
-}
-
-/* =========================================================
-   KPI CARDS — MATCHING LOCKED CLASSES DESIGN
-========================================================= */
-
-.exam-page .exam-kpis {
+.exam-kpis {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4,minmax(0,1fr));
     gap: 20px;
-    margin: 40px 0 27px;
+    margin: 40px 0 28px;
 }
 
-.exam-page .exam-kpi {
+.exam-kpi {
     --kpi-color: var(--blue);
     --kpi-tint: #edf3f8;
     --kpi-border: #d7e2e9;
 
-    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 17px;
+    gap: 16px;
     min-width: 0;
-    min-height: 190px;
-    overflow: visible;
-    padding: 23px 21px 17px;
+    min-height: 175px;
+    padding: 22px 20px 17px;
     border: 1px solid var(--line);
     border-top: 3px solid var(--kpi-color);
-    border-radius: 9px;
+    border-radius: 10px;
     background: var(--paper);
-    box-shadow: 0 4px 13px rgba(38, 59, 53, .045);
-    transition: transform .22s ease, box-shadow .22s ease;
+    box-shadow: 0 4px 13px rgba(38,59,53,.045);
+    transition: transform .2s ease,box-shadow .2s ease;
 }
 
-.exam-page .exam-kpi::before {
-    position: absolute;
-    top: -24px;
-    left: 16px;
-    display: flex;
-    align-items: center;
-    min-height: 24px;
-    padding: 5px 12px 4px;
-    border-radius: 6px 6px 0 0;
-    color: #fffefa;
-    background: var(--kpi-color);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-    content: "ACADEMIC";
+.exam-kpi:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(38,59,53,.09);
 }
 
-.exam-page .exam-kpi.blue {
+.exam-kpi.blue {
     --kpi-color: #2b5d8a;
     --kpi-tint: #edf3f8;
     --kpi-border: #d7e2e9;
 }
 
-.exam-page .exam-kpi.blue::before {
-    content: "DIRECTORY";
-}
-
-.exam-page .exam-kpi.orange {
+.exam-kpi.orange {
     --kpi-color: #a87543;
     --kpi-tint: #faf3e6;
     --kpi-border: #e8dcc5;
 }
 
-.exam-page .exam-kpi.orange::before {
-    content: "IN PREPARATION";
-}
-
-.exam-page .exam-kpi.green {
+.exam-kpi.green {
     --kpi-color: #3a8961;
     --kpi-tint: #edf6ed;
     --kpi-border: #d0e5d2;
 }
 
-.exam-page .exam-kpi.green::before {
-    content: "SCHEDULED";
-}
-
-.exam-page .exam-kpi.teal {
+.exam-kpi.teal {
     --kpi-color: #527f79;
     --kpi-tint: #edf5f2;
     --kpi-border: #d0e3dc;
 }
 
-.exam-page .exam-kpi.teal::before {
-    content: "COMPLETED";
-}
-
-.exam-page .exam-kpi:hover {
-    transform: translateY(-4px);
-    border-color: var(--kpi-border);
-    box-shadow: 0 12px 25px rgba(38, 59, 53, .09);
-}
-
-.exam-page .kpi-top {
+.kpi-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-}
-
-.exam-page .kpi-label {
+    gap: 10px;
     color: #68756b;
     font-size: 12px;
     font-weight: 700;
-    line-height: 1.5;
 }
 
-.exam-page .kpi-icon {
+.kpi-icon {
     display: flex;
-    flex: 0 0 46px;
+    flex: 0 0 43px;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    height: 46px;
+    width: 43px;
+    height: 43px;
     border: 1px solid var(--kpi-border);
-    border-radius: 11px;
+    border-radius: 10px;
     color: var(--kpi-color);
     background: var(--kpi-tint);
     font-size: 18px;
 }
 
-.exam-page .kpi-value {
-    margin-top: 1px;
+.kpi-value {
     color: var(--ink);
-    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-family: Georgia,serif;
     font-size: 39px;
     font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -.6px;
-    overflow-wrap: anywhere;
+    line-height: 1;
 }
 
-.exam-page .kpi-caption {
+.kpi-caption {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
-    min-height: 32px;
     margin-top: auto;
     padding-top: 12px;
     border-top: 1px dashed #ded8c9;
     color: var(--muted);
     font-size: 10px;
-    line-height: 1.7;
 }
 
-.exam-page .kpi-caption-icon {
-    flex: 0 0 auto;
-    padding-top: 2px;
+.kpi-caption i {
     color: var(--kpi-color);
-    font-size: 11px;
 }
 
-/* =========================================================
-   MAIN PAPER PANEL
-========================================================= */
+/* MAIN PANEL */
 
-.exam-page .exam-paper-panel {
+.exam-paper-panel {
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--paper);
-    box-shadow: 0 5px 18px rgba(38, 59, 53, .045);
+    box-shadow: 0 5px 18px rgba(38,59,53,.045);
 }
 
-.exam-page .exam-panel-header {
+.exam-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 19px 22px;
+    gap: 15px;
+    padding: 20px 22px;
     border-bottom: 1px dashed #dcd6c7;
-    background: var(--paper);
 }
 
-.exam-page .exam-panel-title-wrap {
+.exam-panel-title-wrap {
     display: flex;
     align-items: center;
     gap: 13px;
-    min-width: 0;
 }
 
-.exam-page .exam-panel-title-icon {
+.exam-panel-title-icon {
     display: flex;
-    flex: 0 0 42px;
+    flex: 0 0 43px;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
+    width: 43px;
+    height: 43px;
     border: 1px solid #d9e3dd;
     border-radius: 10px;
     color: var(--ink);
     background: #f0f2e9;
-    font-size: 15px;
+    font-size: 16px;
 }
 
-.exam-page .exam-panel-title-content h3 {
+.exam-panel-title-content h3,
+.exam-panel-header h3 {
     margin: 0;
     color: var(--ink);
-    font-family: var(--serif, Georgia, "Times New Roman", serif);
-    font-size: 19px;
+    font-family: Georgia,serif;
+    font-size: 20px;
     font-weight: 700;
 }
 
-.exam-page .exam-panel-title-content p {
+.exam-panel-header p {
     margin: 5px 0 0;
     color: var(--muted);
     font-size: 11px;
-    line-height: 1.6;
 }
 
-.exam-page .exam-panel-eyebrow {
-    display: block;
-    margin-bottom: 4px;
-    color: var(--wood);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
-
-.exam-page .exam-record-count {
+.exam-record-count {
     display: inline-flex;
-    flex: 0 0 auto;
     align-items: center;
-    justify-content: center;
     gap: 7px;
-    min-height: 32px;
-    padding: 7px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 20px;
     color: var(--muted);
     background: #faf9f4;
     font-size: 11px;
-    font-weight: 700;
     white-space: nowrap;
 }
 
-.exam-page .exam-record-count i,
-.exam-page .exam-record-count strong {
+.exam-record-count i,
+.exam-record-count strong {
     color: var(--ink);
 }
 
-/* =========================================================
-   EXAM TABLE
-========================================================= */
+/* TABLE */
 
-.exam-page .exam-table-wrapper {
+.exam-table-wrapper {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.exam-page .exam-table {
+.exam-table {
     width: 100%;
     min-width: 1000px;
     margin: 0;
@@ -990,25 +845,20 @@
     border-spacing: 0;
 }
 
-.exam-page .exam-table thead th {
+.exam-table thead th {
     padding: 14px 15px;
     border-bottom: 1px solid #e5e1d5;
     color: #707a70;
     background: #f5f3e9;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .5px;
+    letter-spacing: .4px;
     text-align: left;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
-.exam-page .exam-table thead th:first-child,
-.exam-page .exam-table tbody td:first-child {
-    padding-left: 20px;
-}
-
-.exam-page .exam-table tbody td {
+.exam-table tbody td {
     padding: 14px 15px;
     border-bottom: 1px solid #eeece3;
     color: var(--text);
@@ -1016,27 +866,20 @@
     vertical-align: middle;
 }
 
-.exam-page .exam-table tbody tr {
+.exam-table tbody tr {
     background: var(--paper);
-    transition: background-color .18s ease;
+    transition: background .2s ease;
 }
 
-.exam-page .exam-table tbody tr:hover {
+.exam-table tbody tr:hover {
     background: #faf9f2;
 }
 
-.exam-page .exam-table tbody tr:last-child td {
-    border-bottom: none;
+.exam-table tbody tr:last-child td {
+    border-bottom: 0;
 }
 
-.exam-page .exam-table .actions-heading {
-    padding-right: 20px;
-    text-align: right;
-}
-
-/* Row number */
-
-.exam-page .exam-row-number {
+.exam-row-number {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1050,16 +893,14 @@
     font-weight: 800;
 }
 
-/* Examination details */
-
-.exam-page .exam-info {
+.exam-info {
     display: flex;
     align-items: center;
     gap: 11px;
-    min-width: 200px;
+    min-width: 190px;
 }
 
-.exam-page .exam-avatar {
+.exam-avatar {
     display: flex;
     flex: 0 0 39px;
     align-items: center;
@@ -1070,38 +911,23 @@
     border-radius: 10px;
     color: var(--ink);
     background: #f0f2e9;
-    font-size: 14px;
+    font-size: 15px;
 }
 
-.exam-page .exam-details {
-    min-width: 0;
-}
-
-.exam-page .exam-name {
-    max-width: 240px;
-    overflow-wrap: anywhere;
+.exam-name {
     color: var(--ink);
     font-size: 12px;
     font-weight: 800;
 }
 
-.exam-page .exam-subtitle {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+.exam-subtitle {
     margin-top: 5px;
     color: #858b7f;
     font-size: 10px;
 }
 
-.exam-page .exam-subtitle i {
-    color: var(--wood);
-}
-
-/* Academic year and type */
-
-.exam-page .exam-year-badge,
-.exam-page .exam-type-badge {
+.exam-year-badge,
+.exam-type-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1113,55 +939,53 @@
     white-space: nowrap;
 }
 
-.exam-page .exam-year-badge {
+.exam-year-badge {
     border-color: #e7dec8;
     color: #876326;
     background: #faf5e8;
 }
 
-.exam-page .exam-type-badge {
+.exam-type-badge {
     border-color: #d5e0e7;
     color: var(--blue);
     background: #f0f5f8;
 }
 
-.exam-page .exam-muted {
+.exam-muted {
     color: #91988d;
-    font-size: 12px;
+    font-size: 11px;
 }
 
-/* Exam period */
-
-.exam-page .exam-period {
-    min-width: 145px;
+.exam-period {
+    min-width: 140px;
     white-space: nowrap;
 }
 
-.exam-page .exam-period-start {
+.exam-period-start {
     margin-bottom: 5px;
     color: var(--ink);
     font-size: 11px;
     font-weight: 700;
 }
 
-.exam-page .exam-period-start i {
+.exam-period-start i {
     margin-right: 4px;
     color: var(--wood);
 }
 
-.exam-page .exam-period-end {
+.exam-period-end {
     color: var(--muted);
     font-size: 10px;
 }
 
-.exam-page .exam-period-end i {
+.exam-period-end i {
     margin-right: 4px;
     color: var(--teal);
 }
 
-/* Status badges */
+/* STATUS */
 
-.exam-page .exam-status-badge {
+.exam-status-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1173,149 +997,129 @@
     white-space: nowrap;
 }
 
-.exam-page .status-dot {
-    flex: 0 0 6px;
+.status-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
 }
 
-.exam-page .status-draft {
+.status-draft {
     border-color: #e1ded3;
     color: #68746a;
     background: #f5f3e9;
 }
 
-.exam-page .status-draft .status-dot {
+.status-draft .status-dot {
     background: #899187;
 }
 
-.exam-page .status-scheduled {
+.status-scheduled {
     border-color: #d5e0e7;
     color: var(--blue);
     background: #f0f5f8;
 }
 
-.exam-page .status-scheduled .status-dot {
+.status-scheduled .status-dot {
     background: var(--blue);
 }
 
-.exam-page .status-completed {
+.status-completed {
     border-color: #cfe3d2;
     color: #347849;
     background: #eff7ed;
 }
 
-.exam-page .status-completed .status-dot {
+.status-completed .status-dot {
     background: var(--green);
 }
 
-.exam-page .status-cancelled {
+.status-cancelled {
     border-color: #ebd2ca;
     color: var(--red);
     background: #fff2ee;
 }
 
-.exam-page .status-cancelled .status-dot {
+.status-cancelled .status-dot {
     background: var(--red);
 }
 
-/* =========================================================
-   ACTION BUTTONS
-========================================================= */
+/* ACTIONS */
 
-.exam-page .exam-actions {
+.exam-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 7px;
 }
 
-.exam-page .exam-actions form {
+.exam-actions form {
     display: inline-flex;
     margin: 0;
 }
 
-.exam-page .exam-action-btn {
+.exam-action-btn {
     display: inline-flex;
-    flex: 0 0 33px;
     align-items: center;
     justify-content: center;
-    width: 33px;
-    height: 33px;
+    width: 34px;
+    height: 34px;
     padding: 0;
     border: 1px solid #e1ded3;
     border-radius: 8px;
     color: #68746a;
     background: #fffefa;
-    font-family: inherit;
-    font-size: 11px;
-    line-height: 1;
+    font-size: 12px;
     text-decoration: none;
     cursor: pointer;
 }
 
-.exam-page .exam-action-btn:hover {
+.exam-action-btn:hover {
     transform: translateY(-2px);
 }
 
-.exam-page .exam-action-btn.view:hover {
+.exam-action-btn.view:hover {
     border-color: #c4d6df;
     color: var(--blue);
     background: #f0f5f8;
 }
 
-.exam-page .exam-action-btn.edit:hover {
+.exam-action-btn.edit:hover {
     border-color: #e7d4ae;
     color: #a87528;
     background: #faf4e6;
 }
 
-.exam-page .exam-action-btn.delete:hover {
+.exam-action-btn.delete:hover {
     border-color: #edcbc4;
     color: var(--red);
     background: #fff1ed;
 }
 
-.exam-page .exam-primary-btn:focus-visible,
-.exam-page .exam-action-btn:focus-visible {
-    outline: 3px solid rgba(82, 127, 121, .35);
+.exam-action-btn:focus-visible,
+.exam-primary-btn:focus-visible {
+    outline: 3px solid rgba(82,127,121,.35);
     outline-offset: 3px;
 }
 
-/* =========================================================
-   TABLE FOOTER
-========================================================= */
+/* FOOTER */
 
-.exam-page .exam-card-footer {
+.exam-card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
-    min-height: 52px;
-    padding: 13px 20px;
+    gap: 12px;
+    padding: 14px 20px;
     border-top: 1px dashed #dcd6c7;
     color: var(--muted);
     background: #faf9f4;
     font-size: 11px;
 }
 
-.exam-page .exam-card-footer strong {
+.exam-card-footer strong {
     color: var(--ink);
 }
 
-.exam-page .exam-footer-records {
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.exam-page .exam-footer-records > i {
-    color: var(--wood);
-}
-
-.exam-page .exam-footer-status {
+.exam-footer-status {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -1323,22 +1127,18 @@
     font-size: 10px;
 }
 
-.exam-page .exam-footer-status i {
+.exam-footer-status i {
     color: var(--green);
 }
 
-/* =========================================================
-   EMPTY STATE
-========================================================= */
+/* EMPTY STATE */
 
-.exam-page .exam-empty-state {
-    position: relative;
-    overflow: hidden;
-    padding: 62px 22px 66px;
+.exam-empty-state {
+    padding: 60px 22px;
     text-align: center;
 }
 
-.exam-page .exam-empty-icon {
+.exam-empty-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1352,24 +1152,24 @@
     font-size: 26px;
 }
 
-.exam-page .exam-empty-eyebrow {
+.exam-empty-eyebrow {
     display: block;
     margin-bottom: 8px;
     color: var(--wood);
     font-size: 9px;
     font-weight: 800;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
 }
 
-.exam-page .exam-empty-state h4 {
+.exam-empty-state h4 {
     margin: 0 0 9px;
     color: var(--ink);
-    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-family: Georgia,serif;
     font-size: 23px;
     font-weight: 700;
 }
 
-.exam-page .exam-empty-state p {
+.exam-empty-state p {
     max-width: 440px;
     margin: 0 auto 21px;
     color: var(--muted);
@@ -1377,24 +1177,21 @@
     line-height: 1.8;
 }
 
-/* =========================================================
-   PAGE FOOTNOTE
-========================================================= */
+/* PAGE FOOTNOTE */
 
-.exam-page .exam-page-footnote {
+.exam-page-footnote {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
-    padding: 19px 10px 5px;
+    padding: 20px 10px 5px;
     color: #8a9185;
     font-size: 9px;
     font-weight: 600;
-    letter-spacing: .3px;
 }
 
-.exam-page .exam-page-footnote > span:first-child {
+.exam-page-footnote span:first-child {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1403,219 +1200,185 @@
     letter-spacing: 1px;
 }
 
-.exam-page .exam-page-footnote > span:first-child i {
+.exam-page-footnote span:first-child i {
     color: var(--wood);
 }
 
-.exam-page .exam-footnote-divider {
+.exam-footnote-divider {
     width: 4px;
     height: 4px;
     border-radius: 50%;
     background: #b4ad9b;
 }
 
-/* =========================================================
-   RESPONSIVE — TABLET
-========================================================= */
+/* RESPONSIVE */
 
-@media (max-width: 1200px) {
-    .exam-page .exam-kpis {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+@media(max-width:1200px) {
+    .exam-kpis {
+        grid-template-columns: repeat(2,minmax(0,1fr));
         gap: 28px 18px;
-    }
-
-    .exam-page .exam-hero {
-        grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
     }
 }
 
-@media (max-width: 900px) {
-    .exam-page .exam-hero {
+@media(max-width:900px) {
+    .exam-hero {
         grid-template-columns: 1fr;
     }
 
-    .exam-page .exam-hero-actions {
+    .exam-hero-actions {
         min-height: 175px;
     }
 }
 
-/* =========================================================
-   RESPONSIVE — MOBILE
-========================================================= */
-
-@media (max-width: 650px) {
+@media(max-width:650px) {
     .exam-page .container-fluid {
         padding: 18px 13px !important;
     }
 
-    .exam-page .exam-hero {
+    .exam-hero {
         margin-bottom: 32px;
     }
 
-    .exam-page .exam-hero::before {
-        left: 20px;
-    }
-
-    .exam-page .exam-hero-content {
+    .exam-hero-content {
         align-items: flex-start;
         gap: 12px;
-        padding: 23px 14px 23px 37px;
+        padding: 23px 16px;
     }
 
-    .exam-page .exam-hero-icon {
+    .exam-hero-icon {
         flex-basis: 43px;
         width: 43px;
         height: 43px;
         font-size: 18px;
     }
 
-    .exam-page .exam-hero-text h2 {
-        font-size: 24px;
+    .exam-hero-text h2 {
+        font-size: 23px;
     }
 
-    .exam-page .exam-hero-text p {
+    .exam-hero-text p {
         font-size: 12px;
     }
 
-    .exam-page .exam-eyebrow {
+    .exam-eyebrow {
         font-size: 9px;
-        letter-spacing: .6px;
     }
 
-    .exam-page .exam-hero-note {
-        align-items: flex-start;
-        font-size: 10px;
-    }
-
-    .exam-page .exam-hero-actions {
+    .exam-hero-actions {
         min-height: 165px;
         padding: 22px 17px;
     }
 
-    .exam-page .exam-handwritten {
+    .exam-handwritten {
         font-size: 23px;
     }
 
-    .exam-page .exam-kpis {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .exam-kpis {
+        grid-template-columns: repeat(2,minmax(0,1fr));
         gap: 27px 12px;
         margin-top: 34px;
         margin-bottom: 23px;
     }
 
-    .exam-page .exam-kpi {
-        gap: 14px;
-        min-height: 175px;
-        padding: 19px 14px 14px;
+    .exam-kpi {
+        gap: 13px;
+        min-height: 165px;
+        padding: 17px 13px 14px;
     }
 
-    .exam-page .exam-kpi::before {
-        left: 11px;
-        font-size: 8px;
+    .kpi-top {
+        align-items: flex-start;
+        font-size: 10px;
     }
 
-    .exam-page .kpi-label {
-        font-size: 11px;
-    }
-
-    .exam-page .kpi-icon {
+    .kpi-icon {
         flex-basis: 35px;
         width: 35px;
         height: 35px;
-        border-radius: 9px;
         font-size: 14px;
     }
 
-    .exam-page .kpi-value {
+    .kpi-value {
         font-size: 32px;
     }
 
-    .exam-page .kpi-caption {
+    .kpi-caption {
         font-size: 9px;
         line-height: 1.6;
     }
 
-    .exam-page .exam-panel-header {
+    .exam-panel-header {
         align-items: flex-start;
         gap: 10px;
         padding: 15px 13px;
     }
 
-    .exam-page .exam-panel-title-wrap {
+    .exam-panel-title-wrap {
         gap: 9px;
     }
 
-    .exam-page .exam-panel-title-icon {
+    .exam-panel-title-icon {
         flex-basis: 36px;
         width: 36px;
         height: 36px;
-        font-size: 13px;
     }
 
-    .exam-page .exam-panel-title-content h3 {
+    .exam-panel-header h3 {
         font-size: 17px;
     }
 
-    .exam-page .exam-panel-title-content p {
+    .exam-panel-header p {
         font-size: 10px;
+        line-height: 1.6;
     }
 
-    .exam-page .exam-record-count {
+    .exam-record-count {
         gap: 5px;
         padding: 6px 8px;
         font-size: 10px;
     }
 
-    .exam-page .exam-table {
+    .exam-table {
         min-width: 1000px;
     }
 
-    .exam-page .exam-card-footer {
+    .exam-card-footer {
         align-items: flex-start;
         flex-direction: column;
         gap: 9px;
         padding: 13px 15px;
     }
 
-    .exam-page .exam-empty-state {
-        padding: 48px 17px 52px;
+    .exam-empty-state {
+        padding: 48px 17px;
     }
 }
 
-@media (max-width: 380px) {
-    .exam-page .exam-kpis {
+@media(max-width:380px) {
+    .exam-kpis {
         grid-template-columns: 1fr;
-        gap: 27px;
     }
 
-    .exam-page .exam-kpi {
-        min-height: 165px;
-        padding: 20px 18px 16px;
+    .exam-kpi {
+        min-height: 155px;
+        padding: 19px 17px;
     }
 
-    .exam-page .kpi-value {
-        font-size: 35px;
-    }
-
-    .exam-page .exam-panel-header {
+    .exam-panel-header {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .exam-page .exam-record-count {
+    .exam-record-count {
         align-self: flex-start;
     }
 
-    .exam-page .exam-hero-text h2 {
-        font-size: 22px;
+    .exam-hero-text h2 {
+        font-size: 21px;
     }
 }
 
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
+@media(prefers-reduced-motion:reduce) {
     .exam-page *,
     .exam-page *::before,
     .exam-page *::after {

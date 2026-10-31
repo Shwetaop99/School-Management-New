@@ -836,6 +836,189 @@ $academicYearVariants = array_values(
         );
 }
 
+
+public function history(Request $request)
+{
+    $search = trim((string) $request->input('search', ''));
+    $academicYear = trim((string) $request->input('academic_year', ''));
+    $selectedClass = trim((string) $request->input('class', ''));
+    $status = (string) $request->input('status', '');
+
+    // Treat 2026-2027 and 2026-27 as the same academic year.
+    $normalizeYear = static function ($year) {
+        $digits = preg_replace('/\D+/', '', (string) $year);
+
+        if (strlen($digits) === 8) {
+            return substr($digits, 0, 4) . '-' . substr($digits, 6, 2);
+        }
+
+        if (strlen($digits) === 6) {
+            return substr($digits, 0, 4) . '-' . substr($digits, 4, 2);
+        }
+
+        return strtolower(trim((string) $year));
+    };
+
+    $yearVariants = static function ($year) use ($normalizeYear) {
+        $normalized = $normalizeYear($year);
+
+        if (preg_match('/^(\d{4})-(\d{2})$/', $normalized, $matches)) {
+            return [
+                $matches[1] . '-' . $matches[2],
+                $matches[1] . '-20' . $matches[2],
+            ];
+        }
+
+        return [$year];
+    };
+
+    /*
+     * REAL distribution records only.
+     * Pending records are included, but cancelled records are not
+     * treated as active distributions.
+     */
+    $recordsQuery = StudentSupplyKit::query()
+        ->with(['student', 'kitTemplate.scheme'])
+        ->whereIn('status', ['issued', 'pending']);
+
+    if ($academicYear !== '') {
+        $recordsQuery->whereIn(
+            'academic_year',
+            $yearVariants($academicYear)
+        );
+    }
+
+    if ($selectedClass !== '') {
+        $recordsQuery->whereHas('student', function ($query) use ($selectedClass) {
+            $query->where('admission_class', $selectedClass);
+        });
+    }
+
+    if ($search !== '') {
+        $recordsQuery->whereHas('student', function ($query) use ($search) {
+            $query->where(function ($nameQuery) use ($search) {
+                $nameQuery
+                    ->where('student_id', 'like', "%{$search}%")
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('middle_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        });
+    }
+
+    $issuedQuery = (clone $recordsQuery)->where('status', 'issued');
+    $pendingRecordsQuery = (clone $recordsQuery)->where('status', 'pending');
+
+    $issuedKits = $issuedQuery
+        ->orderByDesc('distribution_date')
+        ->orderByDesc('id')
+        ->paginate(10, ['*'], 'issued_page')
+        ->withQueryString();
+
+    $pendingKits = $pendingRecordsQuery
+        ->orderByDesc('distribution_date')
+        ->orderByDesc('id')
+        ->paginate(10, ['*'], 'pending_page')
+        ->withQueryString();
+
+    /*
+     * Find eligible active students who have no issued or pending
+     * kit record for their relevant academic year.
+     *
+     * These students are displayed as pending only. No database
+     * records or stock transactions are created here.
+     */
+    $studentsQuery = Student::query()
+        ->where('status', 'active');
+
+    if ($academicYear !== '') {
+        $studentsQuery->whereIn(
+            'academic_year',
+            $yearVariants($academicYear)
+        );
+    }
+
+    if ($selectedClass !== '') {
+        $studentsQuery->where('admission_class', $selectedClass);
+    }
+
+    if ($search !== '') {
+        $studentsQuery->where(function ($query) use ($search) {
+            $query
+                ->where('student_id', 'like', "%{$search}%")
+                ->orWhere('first_name', 'like', "%{$search}%")
+                ->orWhere('middle_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%");
+        });
+    }
+
+    $students = $studentsQuery
+        ->orderBy('admission_class')
+        ->orderBy('first_name')
+        ->get();
+
+    $existingRecords = StudentSupplyKit::query()
+        ->whereIn('status', ['issued', 'pending'])
+        ->get(['student_id', 'academic_year', 'status'])
+        ->groupBy('student_id');
+
+    $pendingStudents = $students
+        ->filter(function ($student) use (
+            $existingRecords,
+            $normalizeYear
+        ) {
+            $studentYear = $normalizeYear($student->academic_year);
+
+            $matchingRecord = ($existingRecords->get($student->id) ?? collect())
+                ->contains(function ($record) use ($studentYear, $normalizeYear) {
+                    return $normalizeYear($record->academic_year) === $studentYear;
+                });
+
+            return !$matchingRecord;
+        })
+        ->values();
+
+    // When filtering for Issued, do not display pending entries.
+    if ($status === 'issued') {
+        $pendingKits = $pendingKits->setCollection(collect());
+        $pendingStudents = collect();
+    }
+
+    // When filtering for Pending, do not display issued entries.
+    if ($status === 'pending') {
+        $issuedKits = $issuedKits->setCollection(collect());
+    }
+
+    $academicYears = Student::query()
+        ->whereNotNull('academic_year')
+        ->where('academic_year', '!=', '')
+        ->distinct()
+        ->orderByDesc('academic_year')
+        ->pluck('academic_year');
+
+    $classes = Student::query()
+        ->whereNotNull('admission_class')
+        ->where('admission_class', '!=', '')
+        ->distinct()
+        ->orderBy('admission_class')
+        ->pluck('admission_class')
+        ->sort(fn ($a, $b) => strnatcasecmp((string) $a, (string) $b))
+        ->values();
+
+    return view('admin.student-supply-kits.history', compact(
+        'issuedKits',
+        'pendingKits',
+        'pendingStudents',
+        'academicYears',
+        'classes',
+        'search',
+        'academicYear',
+        'selectedClass',
+        'status'
+    ));
+}
+
+
     /*
     |--------------------------------------------------------------------------
     | SHOW
@@ -2281,6 +2464,13 @@ if (preg_match('/^(\d{4})-(\d{4})$/', $academicYear, $matches)) {
 $academicYearVariants = array_values(
     array_unique($academicYearVariants)
 );
+\Log::info('Supply kit distribution submitted', [
+    'academic_year' => $validated['academic_year'],
+    'class' => $validated['class'],
+    'section' => $validated['section'] ?? null,
+    'student_ids' => $validated['student_ids'],
+    'kit_template_id' => $validated['kit_template_id'],
+]);
 
 $studentsQuery = Student::query()
     ->where('status', 'active')
@@ -2325,233 +2515,187 @@ if (
 |--------------------------------------------------------------------------
 */
 
+
 $createdCount = 0;
 $skippedCount = 0;
 
-DB::transaction(function () use (
-    $validated,
-    $kitTemplate,
-    $students,
-    &$createdCount,
-    &$skippedCount
-) {
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROCESS EACH STUDENT
-    |--------------------------------------------------------------------------
-    */
-
-    foreach ($students as $student) {
-
+try {
+    DB::transaction(function () use (
+        $validated,
+        $kitTemplate,
+        $students,
+        &$createdCount,
+        &$skippedCount
+    ) {
         /*
-        |--------------------------------------------------------------------------
-        | DUPLICATE PREVENTION
-        |--------------------------------------------------------------------------
-        */
+         * Lock and load the selected students' existing distributions.
+         * Skip students who have already received this year's kit.
+         */
+        $eligibleStudents = collect();
 
-       $alreadyIssued = StudentSupplyKit::query()
+        foreach ($students as $student) {
+            $selectedYearDigits = preg_replace(
+    '/\D+/',
+    '',
+    (string) $validated['academic_year']
+);
+
+$selectedYear = strlen($selectedYearDigits) === 8
+    ? substr($selectedYearDigits, 0, 4) . '-' . substr($selectedYearDigits, 6, 2)
+    : (strlen($selectedYearDigits) === 6
+        ? substr($selectedYearDigits, 0, 4) . '-' . substr($selectedYearDigits, 4, 2)
+        : $validated['academic_year']);
+
+$alreadyIssued = StudentSupplyKit::query()
     ->where('student_id', $student->id)
-    ->where('academic_year', $validated['academic_year'])
     ->whereIn('status', ['pending', 'issued'])
-    ->exists();
+    ->get(['academic_year'])
+    ->contains(function ($record) use ($selectedYear) {
+        $digits = preg_replace('/\D+/', '', (string) $record->academic_year);
 
-        if ($alreadyIssued) {
-            $skippedCount++;
-            continue;
-        }
+        $recordYear = strlen($digits) === 8
+            ? substr($digits, 0, 4) . '-' . substr($digits, 6, 2)
+            : (strlen($digits) === 6
+                ? substr($digits, 0, 4) . '-' . substr($digits, 4, 2)
+                : $record->academic_year);
 
-        /*
-        |--------------------------------------------------------------------------
-        | CHECK STOCK BEFORE CREATING THE STUDENT KIT
-        |--------------------------------------------------------------------------
-        */
+        return $recordYear === $selectedYear;
+    });
 
-        foreach ($kitTemplate->items as $templateItem) {
-
-            $requiredQuantity =
-                (int) $templateItem->quantity;
-
-            if ($requiredQuantity <= 0) {
+            if ($alreadyIssued) {
+                $skippedCount++;
                 continue;
             }
 
-            $stock = SupplyStock::where(
-                'supply_item_id',
-                $templateItem->supply_item_id
-            )
-                ->where(
-                    'academic_year',
-                    $validated['academic_year']
-                )
-                ->lockForUpdate()
-                ->first();
+            $eligibleStudents->push($student);
+        }
 
-            if (!$stock) {
-
-                $itemName =
-                    $templateItem->supplyItem?->item_name
-                    ?? 'Selected supply item';
-
-                throw new \RuntimeException(
-                    $itemName
-                    . ': stock record not found for academic year '
-                    . $validated['academic_year']
-                    . '. Please receive stock first.'
-                );
-            }
-
-            if (
-                $requiredQuantity >
-                $stock->quantity
-            ) {
-
-                $itemName =
-                    $templateItem->supplyItem?->item_name
-                    ?? 'Selected supply item';
-
-                throw new \RuntimeException(
-                    $itemName
-                    . ': insufficient stock. Required '
-                    . $requiredQuantity
-                    . ', available '
-                    . $stock->quantity
-                    . '.'
-                );
-            }
+        if ($eligibleStudents->isEmpty()) {
+            return;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | CREATE STUDENT SUPPLY KIT
-        |--------------------------------------------------------------------------
-        */
-
-        $studentSupplyKit =
-            StudentSupplyKit::create([
-                'student_id' =>
-                    $student->id,
-
-                'kit_template_id' =>
-                    $kitTemplate->id,
-
-                'academic_year' =>
-                    $validated['academic_year'],
-
-                'distribution_date' =>
-                    $validated['distribution_date'],
-
-                'status' =>
-                    'issued',
-
-                'remarks' =>
-                    $validated['remarks'] ?? null,
-            ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE ITEMS + DEDUCT STOCK
-        |--------------------------------------------------------------------------
-        */
+         * Calculate the TOTAL quantity required for all eligible students.
+         * Group by supply item so duplicate template entries are counted.
+         */
+        $requiredByItem = [];
 
         foreach ($kitTemplate->items as $templateItem) {
-
-            $quantity =
-                (int) $templateItem->quantity;
+            $quantity = (int) $templateItem->quantity;
 
             if ($quantity <= 0) {
                 continue;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE STUDENT KIT ITEM
-            |--------------------------------------------------------------------------
-            */
+            $itemId = (int) $templateItem->supply_item_id;
 
-            StudentSupplyKitItem::create([
-                'student_supply_kit_id' =>
-                    $studentSupplyKit->id,
-
-                'supply_item_id' =>
-                    $templateItem->supply_item_id,
-
-                'quantity' =>
-                    $quantity,
-
-                'issued_quantity' =>
-                    $quantity,
-
-                'remarks' =>
-                    $templateItem->remarks,
-            ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | LOCK STOCK
-            |--------------------------------------------------------------------------
-            */
-
-            $stock = SupplyStock::where(
-                'supply_item_id',
-                $templateItem->supply_item_id
-            )
-                ->where(
-                    'academic_year',
-                    $validated['academic_year']
-                )
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            /*
-            |--------------------------------------------------------------------------
-            | DEDUCT STOCK
-            |--------------------------------------------------------------------------
-            */
-
-            $stock->quantity -= $quantity;
-
-            $stock->save();
-
-            /*
-            |--------------------------------------------------------------------------
-            | STOCK TRANSACTION
-            |--------------------------------------------------------------------------
-            */
-
-            SupplyStockTransaction::create([
-                'supply_item_id' =>
-                    $templateItem->supply_item_id,
-
-                'academic_year' =>
-                    $validated['academic_year'],
-
-                'transaction_type' =>
-                    'issue',
-
-                'quantity' =>
-                    $quantity,
-
-                'balance_quantity' =>
-                    $stock->quantity,
-
-                'reference_type' =>
-                    'student_supply_kit',
-
-                'reference_id' =>
-                    $studentSupplyKit->id,
-
-                'remarks' =>
-                    'Issued through class-wise student supply kit distribution.',
-
-                'created_by' =>
-                    auth()->id(),
-            ]);
+            $requiredByItem[$itemId] =
+                ($requiredByItem[$itemId] ?? 0) + $quantity;
         }
 
-        $createdCount++;
-    }
-});
+        /*
+         * Validate all stock before creating any distribution records.
+         */
+        $lockedStocks = [];
+
+        foreach ($requiredByItem as $itemId => $quantityPerStudent) {
+            $requiredTotal =
+                $quantityPerStudent * $eligibleStudents->count();
+
+            $stock = SupplyStock::query()
+                ->where('supply_item_id', $itemId)
+                ->where('academic_year', $validated['academic_year'])
+                ->lockForUpdate()
+                ->first();
+
+            $itemName = $kitTemplate->items
+                ->firstWhere('supply_item_id', $itemId)
+                ?->supplyItem
+                ?->item_name ?? 'Selected supply item';
+
+            if (!$stock) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'student_ids' => "{$itemName}: no stock record exists for academic year "
+                        . $validated['academic_year']
+                        . '. Please receive stock first.',
+                ]);
+            }
+
+            if ((float) $stock->quantity < $requiredTotal) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'student_ids' => "{$itemName}: insufficient stock. Required: "
+                        . $requiredTotal
+                        . ', Available: '
+                        . $stock->quantity
+                        . '. Please receive more stock before distributing the kits.',
+                ]);
+            }
+
+            $lockedStocks[$itemId] = $stock;
+        }
+
+        /*
+         * Stock is sufficient for all eligible students.
+         * Create the kits and deduct stock.
+         */
+        foreach ($eligibleStudents as $student) {
+            $studentSupplyKit = StudentSupplyKit::create([
+                'student_id' => $student->id,
+                'kit_template_id' => $kitTemplate->id,
+                'academic_year' => $validated['academic_year'],
+                'distribution_date' => $validated['distribution_date'],
+                'status' => 'issued',
+                'remarks' => $validated['remarks'] ?? null,
+            ]);
+
+            foreach ($kitTemplate->items as $templateItem) {
+                $quantity = (int) $templateItem->quantity;
+
+                if ($quantity <= 0) {
+                    continue;
+                }
+
+                StudentSupplyKitItem::create([
+                    'student_supply_kit_id' => $studentSupplyKit->id,
+                    'supply_item_id' => $templateItem->supply_item_id,
+                    'quantity' => $quantity,
+                    'issued_quantity' => $quantity,
+                    'remarks' => $templateItem->remarks,
+                ]);
+
+                $itemId = (int) $templateItem->supply_item_id;
+                $stock = $lockedStocks[$itemId];
+
+                $stock->quantity -= $quantity;
+                $stock->save();
+
+                SupplyStockTransaction::create([
+                    'supply_item_id' => $itemId,
+                    'academic_year' => $validated['academic_year'],
+                    'transaction_type' => 'issue',
+                    'quantity' => $quantity,
+                    'balance_quantity' => $stock->quantity,
+                    'reference_type' => 'student_supply_kit',
+                    'reference_id' => $studentSupplyKit->id,
+                    'remarks' => 'Issued through class-wise student supply kit distribution.',
+                    'created_by' => auth()->id(),
+                ]);
+            }
+
+            $createdCount++;
+        }
+    }, 3);
+} catch (\Illuminate\Validation\ValidationException $e) {
+    throw $e;
+} catch (\RuntimeException $e) {
+    report($e);
+
+    return back()
+        ->withInput()
+        ->withErrors([
+            'student_ids' => 'The distribution could not be completed because of a stock or database error. Please check the stock and try again.',
+        ]);
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -2580,5 +2724,7 @@ return redirect()
     );
 
 }
+
+
 
 }

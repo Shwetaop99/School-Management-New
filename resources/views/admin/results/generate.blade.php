@@ -4,1970 +4,1379 @@
 @section('title', 'Generate Result')
 
 @section('content')
-
 <style>
-    /* =========================================================
-       Generate Result Page
-    ========================================================= */
+    
+.result-page {
+    --rp-page: #f7f6f0;
+    --rp-paper: #fffefa;
+    --rp-ink: #263b35;
+    --rp-forest: #344f43;
+    --rp-forest-dark: #263d32;
+    --rp-wood: #a87543;
+    --rp-sage: #e8eee6;
+    --rp-border: #e5e0d4;
+    --rp-muted: #77796f;
+    color: var(--rp-ink);
+    padding: 24px;
+    background: var(--rp-page);
+    border-radius: 16px;
+    font-family: Inter, "Segoe UI", sans-serif;
+}
 
+.result-page .page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.result-page .heading-title,
+.result-page .panel-heading-main {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.result-page .heading-icon,
+.result-page .section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    background: var(--rp-sage);
+    color: var(--rp-forest);
+    font-size: 21px;
+    border: 1px solid #dce5da;
+}
+
+.result-page .page-title {
+    margin: 0 0 7px;
+    color: var(--rp-forest-dark);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: -.4px;
+}
+
+.result-page .page-subtitle {
+    margin: 0;
+    color: var(--rp-muted);
+    font-size: .9rem;
+    line-height: 1.6;
+}
+
+.result-page .panel {
+    background: var(--rp-paper);
+    border: 1px solid var(--rp-border);
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 18px rgba(48, 56, 43, .045);
+    overflow: hidden;
+}
+
+.result-page .panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 20px 24px;
+    background: #fbfaf5;
+    border-bottom: 1px solid var(--rp-border);
+}
+
+.result-page .panel-heading .section-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    border-radius: 11px;
+}
+
+.result-page .panel-title {
+    margin: 0 0 5px;
+    color: var(--rp-forest-dark);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.18rem;
+    font-weight: 700;
+}
+
+.result-page .panel-description {
+    color: var(--rp-muted);
+    font-size: .83rem;
+    margin: 0;
+}
+
+.result-page .panel-body {
+    padding: 25px 24px;
+}
+
+.result-page .form-label {
+    display: flex;
+    align-items: center;
+    color: var(--rp-ink);
+    font-size: .88rem;
+    font-weight: 650;
+    margin-bottom: 10px;
+}
+
+.result-page .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    margin-right: 9px;
+    border-radius: 9px;
+    background: var(--rp-sage);
+    color: var(--rp-forest);
+    border: 1px solid #dce5da;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.result-page .form-select {
+    min-height: 46px;
+    border: 1px solid #dcd9ce;
+    border-radius: 10px;
+    background-color: #fffefa;
+    color: var(--rp-ink);
+    font-size: .9rem;
+    box-shadow: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.result-page .form-select:focus {
+    border-color: var(--rp-wood);
+    box-shadow: 0 0 0 .2rem rgba(168, 117, 67, .13);
+}
+
+.result-page .form-select:disabled {
+    background-color: #f0efe8;
+    cursor: not-allowed;
+}
+
+.result-page .field-help {
+    display: block;
+    margin-top: 8px;
+    color: var(--rp-muted);
+    font-size: .78rem;
+    line-height: 1.6;
+}
+
+.result-page .workflow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 27px;
+    padding: 15px 17px;
+    border: 1px solid var(--rp-border);
+    border-radius: 12px;
+    background: #fbfaf5;
+}
+
+.result-page .workflow-step {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    color: #8a897e;
+    font-size: .79rem;
+    font-weight: 650;
+}
+
+.result-page .workflow-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background: #d4d1c7;
+}
+
+.result-page .workflow-step.active {
+    color: var(--rp-forest);
+}
+
+.result-page .workflow-step.active .workflow-dot {
+    background: var(--rp-forest);
+    box-shadow: 0 0 0 4px #e8eee6;
+}
+
+.result-page .workflow-line {
+    height: 1px;
+    min-width: 15px;
+    flex: 1;
+    margin: 0 13px;
+    background: #dcd9ce;
+}
+
+.result-page .selection-summary {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 17px;
+    background: #f0f4ec;
+    border: 1px solid #dce5d7;
+    border-radius: 12px;
+}
+
+.result-page .summary-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 39px;
+    height: 39px;
+    flex-shrink: 0;
+    background: #dfe9dc;
+    color: var(--rp-forest);
+    border-radius: 10px;
+}
+
+.result-page .selection-label {
+    font-size: .75rem;
+    color: var(--rp-muted);
+    margin-bottom: 4px;
+}
+
+.result-page .selection-value {
+    color: var(--rp-forest-dark);
+    font-size: .91rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.result-page .action-area {
+    border-top: 1px solid #ebe7dc;
+    margin-top: 25px;
+    padding-top: 20px;
+}
+
+.result-page .btn {
+    border-radius: 9px;
+    font-size: .86rem;
+    font-weight: 650;
+    padding: 10px 16px;
+    transition: background .2s, border-color .2s, transform .2s;
+}
+
+.result-page .btn-primary {
+    color: #fff;
+    background: var(--rp-forest);
+    border-color: var(--rp-forest);
+}
+
+.result-page .btn-primary:hover {
+    color: #fff;
+    background: var(--rp-forest-dark);
+    border-color: var(--rp-forest-dark);
+}
+
+.result-page .btn-success {
+    color: #fff;
+    background: var(--rp-wood);
+    border-color: var(--rp-wood);
+}
+
+.result-page .btn-success:hover {
+    color: #fff;
+    background: #8f6036;
+    border-color: #8f6036;
+}
+
+.result-page .btn:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.result-page .status-alert {
+    border-radius: 11px;
+    font-size: .88rem;
+}
+
+.result-page .loading-alert {
+    color: var(--rp-forest);
+    background: #edf3e9;
+    border: 1px solid #d9e5d4;
+}
+
+.result-page .student-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 13px;
+    border: 1px solid #dce5d7;
+    border-radius: 10px;
+    background: #f0f4ec;
+    color: var(--rp-forest);
+    font-size: .81rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.result-page .table-responsive {
+    width: 100%;
+}
+
+.result-page .table {
+    margin-bottom: 0;
+    font-size: .86rem;
+    vertical-align: middle;
+    color: var(--rp-ink);
+}
+
+.result-page .table thead th {
+    padding: 15px 16px;
+    background: #f0efe7;
+    color: #596258;
+    border-bottom: 1px solid #dfdbcf;
+    font-size: .73rem;
+    font-weight: 750;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.result-page .table tbody td {
+    padding: 14px 16px;
+    border-color: #eeeadf;
+}
+
+.result-page .table tbody tr {
+    transition: background .15s;
+}
+
+.result-page .table tbody tr:hover {
+    background: #f8f7f0;
+}
+
+.result-page .student-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    margin-right: 11px;
+    border-radius: 11px;
+    background: #e8eee6;
+    color: var(--rp-forest);
+    border: 1px solid #dce5da;
+    font-size: .82rem;
+    font-weight: 750;
+}
+
+.result-page .student-name {
+    color: var(--rp-forest-dark);
+    font-weight: 700;
+}
+
+.result-page .student-id {
+    color: var(--rp-wood);
+    font-weight: 700;
+    font-size: .83rem;
+}
+
+.result-page .roll-badge {
+    display: inline-block;
+    padding: 6px 9px;
+    background: #f0efe8;
+    color: #555b50;
+    border: 1px solid #e4e0d5;
+    border-radius: 7px;
+    font-size: .78rem;
+    font-weight: 650;
+}
+
+.result-page .marks-badge {
+    display: inline-block;
+    padding: 6px 9px;
+    background: #e9f3e6;
+    color: #376342;
+    border: 1px solid #d3e5ce;
+    border-radius: 8px;
+    font-size: .75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.result-page .generate-student-btn {
+    padding: 7px 11px;
+    font-size: .79rem;
+    white-space: nowrap;
+}
+
+.result-page .empty-state {
+    padding: 48px 20px;
+    text-align: center;
+}
+
+.result-page .empty-state-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    border-radius: 17px;
+    background: #f0efe8;
+    color: var(--rp-forest);
+    font-size: 1.7rem;
+}
+
+.result-page .empty-state h6 {
+    color: var(--rp-forest-dark);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.05rem;
+}
+
+.result-page .table-footer {
+    padding: 17px 24px;
+    background: #fbfaf5;
+    border-top: 1px solid var(--rp-border);
+}
+
+.result-page .table-footer small {
+    line-height: 1.7;
+}
+
+.result-page .badge.bg-light {
+    background: #f3f1e9 !important;
+    color: #53594f !important;
+    border-color: #e3dfd3 !important;
+}
+
+.result-page .badge.bg-secondary-subtle {
+    background: #f0efe8 !important;
+    color: #68695f !important;
+    border-color: #e1ddd1 !important;
+}
+
+@media (max-width: 991.98px) {
     .result-page {
-        --primary: #1677f0;
-        --primary-dark: #0d5dcc;
-        --soft-blue: #eef6ff;
-        --border: #e8edf3;
-        --text-dark: #1f2937;
-        --text-muted: #6b7280;
-        --success: #198754;
-        --warning: #f59e0b;
-        --danger: #dc3545;
+        padding: 19px;
     }
 
-    .result-page .page-hero {
-        background: linear-gradient(135deg, #1677f0 0%, #0d5dcc 100%);
-        border-radius: 18px;
-        padding: 24px 26px;
-        color: #fff;
-        box-shadow: 0 10px 30px rgba(22, 119, 240, 0.15);
-    }
-
-    .result-page .page-hero h4 {
-        font-size: 1.35rem;
-    }
-
-    .result-page .page-hero .hero-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.16);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.35rem;
-    }
-
-    .result-page .hero-subtitle {
-        color: rgba(255, 255, 255, 0.82);
-        font-size: 0.9rem;
-    }
-
-    .result-page .hero-back {
-        color: #fff;
-        border-color: rgba(255, 255, 255, 0.45);
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .result-page .hero-back:hover {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.16);
-        border-color: rgba(255, 255, 255, 0.65);
-    }
-
-    .result-page .main-card {
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 6px 22px rgba(15, 23, 42, 0.05);
-    }
-
-    .result-page .card-header-custom {
-        background: #fff;
-        border-bottom: 1px solid var(--border);
-        padding: 18px 20px;
-    }
-
-    .result-page .card-header-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 11px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--soft-blue);
-        color: var(--primary);
-        font-size: 1.05rem;
-    }
-
-    .result-page .step-number {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: var(--soft-blue);
-        color: var(--primary);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.85rem;
-        margin-right: 9px;
-        flex-shrink: 0;
-    }
-
-    .result-page .form-label {
-        color: var(--text-dark);
-        font-size: 0.88rem;
-        margin-bottom: 8px;
-    }
-
-    .result-page .form-select {
-        min-height: 48px;
-        border-radius: 10px;
-        border-color: #dce3eb;
-        font-size: 0.92rem;
-        padding-left: 14px;
-        transition: all 0.2s ease;
-    }
-
-    .result-page .form-select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 0.2rem rgba(22, 119, 240, 0.12);
-    }
-
-    .result-page .form-select:disabled {
-        background-color: #f7f9fc;
-        cursor: not-allowed;
-    }
-
-    .result-page .selection-summary {
-        background: linear-gradient(
-            135deg,
-            #f0f7ff,
-            #f8fbff
-        );
-        border: 1px solid #d9eaff;
-        border-radius: 12px;
-        padding: 13px 16px;
-    }
-
-    .result-page .selection-summary .summary-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        background: #fff;
-        color: var(--primary);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 3px 10px rgba(22, 119, 240, 0.08);
-    }
-
-    .result-page .action-area {
-        border-top: 1px solid var(--border);
-        padding-top: 18px;
-    }
-
-    .result-page .btn {
-        border-radius: 10px;
-        font-weight: 600;
-        padding: 10px 17px;
-    }
-
-    .result-page .btn-primary {
-        background: var(--primary);
-        border-color: var(--primary);
-    }
-
-    .result-page .btn-primary:hover {
-        background: var(--primary-dark);
-        border-color: var(--primary-dark);
-    }
-
-    .result-page .students-header {
-        padding: 18px 20px;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .result-page .student-count {
-        background: var(--soft-blue);
-        color: var(--primary);
-        border: 1px solid #d8eaff;
-        padding: 8px 12px;
-        border-radius: 9px;
-        font-size: 0.78rem;
-        font-weight: 700;
-    }
-
-    .result-page .table {
-        font-size: 0.9rem;
-    }
-
-    .result-page .table thead th {
-        background: #f8fafc;
-        color: #64748b;
-        font-size: 0.76rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        font-weight: 700;
-        padding: 14px 15px;
-        border-bottom: 1px solid var(--border);
-        white-space: nowrap;
-    }
-
-    .result-page .table tbody td {
-        padding: 15px;
-        border-color: #edf1f5;
-    }
-
-    .result-page .table tbody tr {
-        transition: background 0.15s ease;
-    }
-
-    .result-page .table tbody tr:hover {
-        background: #f9fbff;
-    }
-
-    .result-page .student-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: var(--soft-blue);
-        color: var(--primary);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        margin-right: 9px;
-        flex-shrink: 0;
-    }
-
-    .result-page .student-id {
-        color: var(--primary);
-        font-weight: 700;
-        font-size: 0.84rem;
-    }
-
-    .result-page .student-name {
-        color: var(--text-dark);
-        font-weight: 600;
-    }
-
-    .result-page .roll-badge {
-        background: #f3f4f6;
-        color: #4b5563;
-        border-radius: 7px;
-        padding: 5px 9px;
-        font-size: 0.78rem;
-        font-weight: 600;
-    }
-
-    .result-page .marks-badge {
-        background: #ecfdf3;
-        color: #15803d;
-        border: 1px solid #ccefd9;
-        border-radius: 8px;
-        padding: 6px 9px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .result-page .generate-student-btn {
-        white-space: nowrap;
-        padding: 7px 12px;
-        font-size: 0.8rem;
-    }
-
-    .result-page .empty-state {
-        padding: 65px 20px;
-    }
-
-    .result-page .empty-state-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 18px;
-        background: #f1f5f9;
-        color: #94a3b8;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.7rem;
-    }
-
-    .result-page .table-footer {
-        background: #fff;
-        border-top: 1px solid var(--border);
-        padding: 17px 20px;
-    }
-
-    .result-page .info-alert,
-    .result-page .loading-alert,
-    .result-page .error-alert {
-        border-radius: 11px;
-        border: 1px solid transparent;
-    }
-
-    .result-page .loading-alert {
-        background: #f0f7ff;
-        border-color: #d8eaff;
-        color: #1456a8;
+    .result-page .workflow {
+        flex-wrap: wrap;
+        gap: 12px;
     }
 
     .result-page .workflow-line {
-        height: 1px;
-        background: #dce5ef;
-        flex: 1;
-        min-width: 20px;
-        margin: 0 8px;
+        display: none;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .result-page {
+        padding: 14px;
+        border-radius: 12px;
     }
 
-    .result-page .workflow-item {
-        display: flex;
-        align-items: center;
-        color: #64748b;
-        font-size: 0.75rem;
-        font-weight: 600;
+    .result-page .page-heading {
+        align-items: flex-start;
     }
 
-    .result-page .workflow-dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: #cbd5e1;
-        margin-right: 6px;
+    .result-page .page-title {
+        font-size: 1.5rem;
     }
 
-    .result-page .workflow-item.active {
-        color: var(--primary);
+    .result-page .heading-actions {
+        width: 100%;
     }
 
-    .result-page .workflow-item.active .workflow-dot {
-        background: var(--primary);
+    .result-page .heading-actions .btn {
+        width: 100%;
     }
 
-    @media (max-width: 767.98px) {
-
-        .result-page .page-hero {
-            padding: 20px;
-            border-radius: 14px;
-        }
-
-        .result-page .page-hero .hero-actions {
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .result-page .page-hero .hero-actions .btn {
-            width: 100%;
-        }
-
-        .result-page .card-header-custom,
-        .result-page .students-header {
-            padding: 16px;
-        }
-
-        .result-page .table-footer {
-            padding: 16px;
-        }
-
-        .result-page .table-footer .footer-content {
-            flex-direction: column;
-            align-items: stretch !important;
-            gap: 12px;
-        }
-
-        .result-page .table-footer .footer-content .btn {
-            width: 100%;
-        }
-
-        .result-page .workflow-line {
-            display: none;
-        }
-
-        .result-page .workflow {
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+    .result-page .panel-heading,
+    .result-page .panel-body,
+    .result-page .table-footer {
+        padding: 16px;
     }
+
+    .result-page .panel-heading-main {
+        gap: 11px;
+    }
+
+    .result-page .workflow {
+        padding: 13px;
+    }
+
+    .result-page .workflow-step {
+        font-size: .76rem;
+    }
+
+    .result-page .footer-content {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .result-page .footer-content .btn {
+        width: 100%;
+    }
+
+    .result-page .table {
+        min-width: 900px;
+    }
+}
+
 </style>
-
 
 <div class="container-fluid py-4 result-page">
 
-    {{-- =========================================================
-         PAGE HEADER
-    ========================================================== --}}
-    <div class="page-hero mb-4">
-
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-
-            <div class="d-flex align-items-center gap-3">
-
-                <div class="hero-icon">
-                    <i class="bi bi-file-earmark-check"></i>
-                </div>
-
-                <div>
-
-                    <h4 class="fw-bold mb-1">
-                        Generate Result
-                    </h4>
-
-                    <div class="hero-subtitle">
-                        Select examination, class and section
-                        to generate student results.
-                    </div>
-
-                </div>
-
+    {{-- PAGE HEADING --}}
+    <div class="page-heading">
+        <div class="heading-title">
+            <div class="heading-icon">
+                <i class="bi bi-file-earmark-check"></i>
             </div>
 
-
-            <div class="hero-actions">
-
-                <a href="{{ route('admin.results.index') }}"
-                   class="btn btn-outline-light hero-back">
-
-                    <i class="bi bi-arrow-left me-1"></i>
-
-                    Back to Results
-
-                </a>
-
+            <div>
+                <h4 class="page-title">Generate Result</h4>
+                <p class="page-subtitle">
+                    Select an examination, class and section to generate student results.
+                </p>
             </div>
-
         </div>
 
+        <div class="heading-actions">
+            <a href="{{ route('admin.results.index') }}"
+               class="btn btn-primary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Results
+            </a>
+        </div>
     </div>
 
-
-    {{-- =========================================================
-         FLASH MESSAGES
-    ========================================================== --}}
-
+    {{-- FLASH MESSAGES --}}
     @if(session('success'))
-
-        <div class="alert alert-success alert-dismissible fade show
-                    shadow-sm rounded-3 mb-4">
-
+        <div class="alert alert-success alert-dismissible fade show status-alert shadow-sm">
             <i class="bi bi-check-circle-fill me-2"></i>
-
             {{ session('success') }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
+            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                    aria-label="Close"></button>
         </div>
-
     @endif
-
 
     @if(session('error'))
-
-        <div class="alert alert-danger alert-dismissible fade show
-                    shadow-sm rounded-3 mb-4">
-
+        <div class="alert alert-danger alert-dismissible fade show status-alert shadow-sm">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
-
             {{ session('error') }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
+            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                    aria-label="Close"></button>
         </div>
-
     @endif
 
-
-    {{-- =========================================================
-         SELECTION CARD
-    ========================================================== --}}
-    <div class="main-card mb-4">
-
-        <div class="card-header-custom">
-
-            <div class="d-flex align-items-center gap-3">
-
-                <div class="card-header-icon">
+    {{-- SELECTION PANEL --}}
+    <div class="panel">
+        <div class="panel-heading">
+            <div class="panel-heading-main">
+                <div class="section-icon">
                     <i class="bi bi-funnel"></i>
                 </div>
-
                 <div>
-
-                    <h5 class="fw-bold mb-1">
-                        Result Selection
-                    </h5>
-
-                    <small class="text-muted">
-                        Choose the examination and class
-                        before loading students.
-                    </small>
-
+                    <h5 class="panel-title">Result Selection</h5>
+                    <p class="panel-description">
+                        Choose the examination, class and section.
+                    </p>
                 </div>
-
             </div>
-
         </div>
 
-
-        <div class="p-4">
-
-            {{-- Workflow --}}
-            <div class="workflow d-flex align-items-center mb-4">
-
-                <div class="workflow-item active">
-                    <span class="workflow-dot"></span>
-                    Examination
+        <div class="panel-body">
+            <div class="workflow">
+                <div class="workflow-step active">
+                    <span class="workflow-dot"></span> Examination
                 </div>
-
                 <div class="workflow-line"></div>
-
-                <div class="workflow-item active">
-                    <span class="workflow-dot"></span>
-                    Class
+                <div class="workflow-step active">
+                    <span class="workflow-dot"></span> Class
                 </div>
-
                 <div class="workflow-line"></div>
-
-                <div class="workflow-item active">
-                    <span class="workflow-dot"></span>
-                    Section
+                <div class="workflow-step active">
+                    <span class="workflow-dot"></span> Section
                 </div>
-
                 <div class="workflow-line"></div>
-
-                <div class="workflow-item">
-                    <span class="workflow-dot"></span>
-                    Students
+                <div class="workflow-step">
+                    <span class="workflow-dot"></span> Students
                 </div>
-
             </div>
-
 
             <div class="row g-4">
-
-                {{-- Examination --}}
                 <div class="col-lg-4">
-
-                    <label for="exam_id"
-                           class="form-label fw-bold">
-
-                        <span class="step-number">
-                            1
-                        </span>
-
-                        Examination
-
+                    <label for="exam_id" class="form-label">
+                        <span class="step-number">1</span> Examination
                     </label>
 
-                    <select id="exam_id"
-                            class="form-select">
-
-                        <option value="">
-                            Select Examination
-                        </option>
-
+                    <select id="exam_id" class="form-select">
+                        <option value="">Select Examination</option>
                         @foreach($exams ?? [] as $exam)
-
                             <option value="{{ $exam->id }}">
-
                                 {{ $exam->exam_name }}
-
                                 @if($exam->academic_year)
-
                                     - {{ $exam->academic_year }}
-
                                 @endif
-
                             </option>
-
                         @endforeach
-
                     </select>
 
-                    <small class="text-muted d-block mt-2">
-                        Select the examination for which
-                        results need to be generated.
+                    <small class="field-help">
+                        Choose the examination for which results are required.
                     </small>
-
                 </div>
 
-
-                {{-- Class --}}
                 <div class="col-lg-4">
-
-                    <label for="class_id"
-                           class="form-label fw-bold">
-
-                        <span class="step-number">
-                            2
-                        </span>
-
-                        Class
-
+                    <label for="class_id" class="form-label">
+                        <span class="step-number">2</span> Class
                     </label>
 
-                    <select id="class_id"
-                            class="form-select"
-                            disabled>
-
-                        <option value="">
-                            Select Class
-                        </option>
-
+                    <select id="class_id" class="form-select" disabled>
+                        <option value="">Select Class</option>
                     </select>
 
-                    <small class="text-muted d-block mt-2">
-                        Classes are loaded from the selected examination.
+                    <small class="field-help">
+                        Only classes assigned to the selected examination will appear.
                     </small>
-
                 </div>
 
-
-                {{-- Section --}}
                 <div class="col-lg-4">
-
-                    <label for="section"
-                           class="form-label fw-bold">
-
-                        <span class="step-number">
-                            3
-                        </span>
-
-                        Section
-
+                    <label for="section" class="form-label">
+                        <span class="step-number">3</span> Section
                     </label>
 
-                    <select id="section"
-                            class="form-select"
-                            disabled>
-
-                        <option value="">
-                            Select Section
-                        </option>
-
+                    <select id="section" class="form-select" disabled>
+                        <option value="">Select Section</option>
                     </select>
 
-                    <small class="text-muted d-block mt-2">
-                        Select the section to load its students.
+                    <small class="field-help">
+                        Select a section to load its students.
                     </small>
-
                 </div>
-
             </div>
 
-
-            {{-- Selection Information --}}
-            <div id="selectionInfo"
-                 class="selection-summary mt-4 d-none">
-
-                <div class="d-flex align-items-center gap-3">
-
-                    <div class="summary-icon">
-                        <i class="bi bi-info-circle"></i>
-                    </div>
-
-                    <div>
-
-                        <div class="small text-muted mb-1">
-                            Current Selection
-                        </div>
-
-                        <div id="selectionInfoText"
-                             class="fw-semibold text-dark">
-                        </div>
-
-                    </div>
-
+            <div id="selectionInfo" class="selection-summary mt-4 d-none">
+                <div class="summary-icon">
+                    <i class="bi bi-info-circle"></i>
                 </div>
-
+                <div>
+                    <div class="selection-label">Current Selection</div>
+                    <div id="selectionInfoText" class="selection-value"></div>
+                </div>
             </div>
 
-
-            {{-- Loading --}}
             <div id="loadingMessage"
-                 class="alert loading-alert mt-4 mb-0 d-none">
-
-                <span class="spinner-border spinner-border-sm me-2"></span>
-
-                <span id="loadingText">
-                    Loading...
-                </span>
-
+                 class="alert loading-alert status-alert mt-4 mb-0 d-none"
+                 role="status">
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                <span id="loadingText">Loading...</span>
             </div>
 
-
-            {{-- Error --}}
             <div id="errorMessage"
-                 class="alert alert-danger error-alert mt-4 mb-0 d-none">
-
+                 class="alert alert-danger status-alert mt-4 mb-0 d-none"
+                 role="alert">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-
                 <span id="errorText"></span>
-
             </div>
 
-
-            {{-- Load Students --}}
-            <div class="action-area mt-4">
-
-                <button type="button"
-                        id="loadStudentsBtn"
-                        class="btn btn-primary"
-                        disabled>
-
+            <div class="action-area">
+                <button type="button" id="loadStudentsBtn"
+                        class="btn btn-primary" disabled>
                     <i class="bi bi-people-fill me-1"></i>
-
                     Load Students
-
                 </button>
-
             </div>
-
         </div>
-
     </div>
 
-
-    {{-- =========================================================
-         STUDENTS CARD
-    ========================================================== --}}
-    <div class="main-card">
-
-        <div class="students-header">
-
-            <div class="d-flex flex-wrap
-                        justify-content-between
-                        align-items-center gap-3">
-
-                <div class="d-flex align-items-center gap-3">
-
-                    <div class="card-header-icon">
-
-                        <i class="bi bi-people-fill"></i>
-
-                    </div>
-
-                    <div>
-
-                        <h5 class="mb-1 fw-bold">
-                            Students
-                        </h5>
-
-                        <small class="text-muted">
-                            Generate the result individually
-                            or generate results for all students.
-                        </small>
-
-                    </div>
-
+    {{-- STUDENTS PANEL --}}
+    <div class="panel">
+        <div class="panel-heading">
+            <div class="panel-heading-main">
+                <div class="section-icon">
+                    <i class="bi bi-people-fill"></i>
                 </div>
-
-
-                <span id="studentCount"
-                      class="student-count">
-
-                    <i class="bi bi-people me-1"></i>
-
-                    0 Students
-
-                </span>
-
+                <div>
+                    <h5 class="panel-title">Students</h5>
+                    <p class="panel-description">
+                        Generate results individually or for the selected class and section.
+                    </p>
+                </div>
             </div>
 
+            <span id="studentCount" class="student-count">
+                <i class="bi bi-people"></i>
+                0 Students
+            </span>
         </div>
-
 
         <div class="table-responsive">
-
-            <table class="table table-hover align-middle mb-0">
-
+            <table class="table table-hover align-middle">
                 <thead>
-
                     <tr>
-
-                        <th style="width:65px;">
-                            #
-                        </th>
-
-                        <th>
-                            Student
-                        </th>
-
-                        <th>
-                            Student ID
-                        </th>
-
-                        <th>
-                            Roll No.
-                        </th>
-
-                        <th>
-                            Class
-                        </th>
-
-                        <th>
-                            Section
-                        </th>
-
-                        <th>
-                            Marks Status
-                        </th>
-
-                        <th class="text-end"
-                            style="width:150px;">
-
-                            Action
-
-                        </th>
-
+                        <th style="width:60px;">#</th>
+                        <th>Student</th>
+                        <th>Student ID</th>
+                        <th>Roll No.</th>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Marks Status</th>
+                        <th class="text-end" style="width:140px;">Action</th>
                     </tr>
-
                 </thead>
 
-
                 <tbody id="studentsTableBody">
-
                     <tr>
-
                         <td colspan="8">
-
-                            <div class="empty-state text-center">
-
-                                <div class="empty-state-icon mb-3">
-
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
                                     <i class="bi bi-people"></i>
-
                                 </div>
-
-                                <h6 class="fw-bold text-dark">
-                                    No Students Loaded
-                                </h6>
-
+                                <h6 class="fw-bold">No Students Loaded</h6>
                                 <p class="text-muted mb-0">
-                                    Select examination, class and section,
-                                    then click <strong>Load Students</strong>.
+                                    Select an examination, class and section, then click
+                                    <strong>Load Students</strong>.
                                 </p>
-
                             </div>
-
                         </td>
-
                     </tr>
-
                 </tbody>
-
             </table>
-
         </div>
 
-
-        {{-- Footer --}}
         <div class="table-footer">
+            <div class="footer-content d-flex justify-content-between align-items-center gap-3">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle text-primary me-1"></i>
+                    Generate results only after confirming the selected examination and class.
+                </small>
 
-            <div class="footer-content
-                        d-flex
-                        justify-content-between
-                        align-items-center
-                        gap-3">
-
-                <div class="d-flex align-items-center gap-2">
-
-                    <i class="bi bi-info-circle text-primary"></i>
-
-                    <small class="text-muted">
-
-                        Use <strong>Generate</strong> to create
-                        an individual student's result.
-
-                    </small>
-
-                </div>
-
-
-                <button type="button"
-                        id="generateResultBtn"
-                        class="btn btn-success"
-                        disabled>
-
+                <button type="button" id="generateResultBtn"
+                        class="btn btn-success" disabled>
                     <i class="bi bi-file-earmark-check me-1"></i>
-
                     Generate All Results
-
                 </button>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
 
-    const examSelect =
-        document.getElementById('exam_id');
-
-    const classSelect =
-        document.getElementById('class_id');
-
-    const sectionSelect =
-        document.getElementById('section');
-
-    const loadStudentsBtn =
-        document.getElementById('loadStudentsBtn');
-
-    const generateResultBtn =
-        document.getElementById('generateResultBtn');
-
-    const studentsTableBody =
-        document.getElementById('studentsTableBody');
-
-    const studentCount =
-        document.getElementById('studentCount');
-
-    const selectionInfo =
-        document.getElementById('selectionInfo');
-
-    const selectionInfoText =
-        document.getElementById('selectionInfoText');
-
-    const loadingMessage =
-        document.getElementById('loadingMessage');
-
-    const loadingText =
-        document.getElementById('loadingText');
-
-    const errorMessage =
-        document.getElementById('errorMessage');
-
-    const errorText =
-        document.getElementById('errorText');
-
+    const examSelect = document.getElementById('exam_id');
+    const classSelect = document.getElementById('class_id');
+    const sectionSelect = document.getElementById('section');
+    const loadStudentsBtn = document.getElementById('loadStudentsBtn');
+    const generateResultBtn = document.getElementById('generateResultBtn');
+    const studentsTableBody = document.getElementById('studentsTableBody');
+    const studentCount = document.getElementById('studentCount');
+    const selectionInfo = document.getElementById('selectionInfo');
+    const selectionInfoText = document.getElementById('selectionInfoText');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const loadingText = document.getElementById('loadingText');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
 
     let examClasses = [];
-
     let selectedExamClassId = null;
+    let requestVersion = 0;
+    let classRequestVersion = 0;
+    let loadedStudents = [];
 
-
-    /* =========================================================
-       Utility
-    ========================================================== */
+    const urls = {
+        examClasses: @json(route('admin.results.exam-classes')),
+        loadStudents: @json(route('admin.results.load-students')),
+        generateResult: @json(route('admin.results.generate-result'))
+    };
 
     function showLoading(message = 'Loading...') {
-
         loadingText.textContent = message;
-
         loadingMessage.classList.remove('d-none');
-
     }
-
 
     function hideLoading() {
-
         loadingMessage.classList.add('d-none');
-
     }
-
 
     function showError(message) {
-
         errorText.textContent = message;
-
         errorMessage.classList.remove('d-none');
-
     }
-
 
     function hideError() {
-
         errorMessage.classList.add('d-none');
-
+        errorText.textContent = '';
     }
-
-
-    function updateSelectionInfo() {
-
-        const examText =
-            examSelect.options[
-                examSelect.selectedIndex
-            ]?.text || '';
-
-        const classText =
-            classSelect.options[
-                classSelect.selectedIndex
-            ]?.text || '';
-
-        const sectionText =
-            sectionSelect.options[
-                sectionSelect.selectedIndex
-            ]?.text || '';
-
-
-        if (
-            examSelect.value &&
-            classSelect.value &&
-            sectionSelect.value
-        ) {
-
-            selectionInfoText.textContent =
-                `${examText} | ${classText} | Section ${sectionText}`;
-
-            selectionInfo.classList.remove('d-none');
-
-        } else {
-
-            selectionInfo.classList.add('d-none');
-
-        }
-
-    }
-
 
     function escapeHtml(value) {
-
         return String(value ?? '')
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
-
     }
 
-
-    function addHiddenInput(
-        form,
-        name,
-        value
-    ) {
-
-        const input =
-            document.createElement('input');
-
+    function addHiddenInput(form, name, value) {
+        const input = document.createElement('input');
         input.type = 'hidden';
-
         input.name = name;
-
         input.value = value ?? '';
-
         form.appendChild(input);
-
     }
 
-
-    /* =========================================================
-       Load Examination Classes
-    ========================================================== */
-
-    async function loadClasses() {
-
-        const examId =
-            examSelect.value;
-
-        classSelect.innerHTML =
-            '<option value="">Select Class</option>';
-
-        sectionSelect.innerHTML =
-            '<option value="">Select Section</option>';
-
-        classSelect.disabled = true;
-
-        sectionSelect.disabled = true;
-
-        loadStudentsBtn.disabled = true;
-
+    function resetStudents(message = 'Select an examination, class and section, then click Load Students.') {
+        loadedStudents = [];
+        studentCount.innerHTML = '<i class="bi bi-people"></i> 0 Students';
         generateResultBtn.disabled = true;
-
-        selectedExamClassId = null;
-
-        examClasses = [];
-
-        hideError();
-
-        if (!examId) {
-
-            return;
-
-        }
-
-
-        showLoading('Loading classes...');
-
-
-        try {
-
-            const url =
-                `{{ route('admin.results.exam-classes') }}` +
-                `?exam_id=${encodeURIComponent(examId)}`;
-
-
-            const response =
-                await fetch(url, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok || !data.success) {
-
-                throw new Error(
-                    data.message ||
-                    'Unable to load classes.'
-                );
-
-            }
-
-
-            examClasses =
-                data.classes || [];
-
-
-            const uniqueClasses =
-                new Map();
-
-
-            examClasses.forEach(function (item) {
-
-                if (
-                    !uniqueClasses.has(
-                        String(item.class_id)
-                    )
-                ) {
-
-                    uniqueClasses.set(
-                        String(item.class_id),
-                        item
-                    );
-
-                }
-
-            });
-
-
-            uniqueClasses.forEach(function (item) {
-
-                const option =
-                    document.createElement('option');
-
-                option.value =
-                    item.class_id;
-
-                option.textContent =
-                    item.class_name;
-
-                classSelect.appendChild(option);
-
-            });
-
-
-            classSelect.disabled =
-                examClasses.length === 0;
-
-
-            if (examClasses.length === 0) {
-
-                showError(
-                    'No classes are assigned to this examination.'
-                );
-
-            }
-
-        } catch (error) {
-
-            showError(
-                error.message ||
-                'Unable to load classes.'
-            );
-
-        } finally {
-
-            hideLoading();
-
-        }
-
-    }
-
-
-    /* =========================================================
-       Load Sections
-    ========================================================== */
-
-    function loadSections() {
-
-        const classId =
-            classSelect.value;
-
-
-        sectionSelect.innerHTML =
-            '<option value="">Select Section</option>';
-
-        sectionSelect.disabled = true;
-
-        loadStudentsBtn.disabled = true;
-
-        generateResultBtn.disabled = true;
-
-        selectedExamClassId = null;
-
-
-        if (!classId) {
-
-            updateSelectionInfo();
-
-            return;
-
-        }
-
-
-        const matchingClasses =
-            examClasses.filter(function (item) {
-
-                return String(item.class_id) ===
-                    String(classId);
-
-            });
-
-
-        matchingClasses.forEach(function (item) {
-
-            const option =
-                document.createElement('option');
-
-            option.value =
-                item.section;
-
-            option.textContent =
-                item.section;
-
-            option.dataset.examClassId =
-                item.exam_class_id;
-
-            sectionSelect.appendChild(option);
-
-        });
-
-
-        sectionSelect.disabled =
-            matchingClasses.length === 0;
-
-
-        if (matchingClasses.length === 0) {
-
-            showError(
-                'No section is assigned to this class for the selected examination.'
-            );
-
-        }
-
-
-        updateSelectionInfo();
-
-    }
-
-
-    /* =========================================================
-       Section Change
-    ========================================================== */
-
-    function handleSectionChange() {
-
-        const selectedOption =
-            sectionSelect.options[
-                sectionSelect.selectedIndex
-            ];
-
-
-        selectedExamClassId =
-            selectedOption?.dataset.examClassId ||
-            null;
-
-
-        loadStudentsBtn.disabled =
-            !(
-                examSelect.value &&
-                classSelect.value &&
-                sectionSelect.value &&
-                selectedExamClassId
-            );
-
-
-        generateResultBtn.disabled =
-            true;
-
-
-        updateSelectionInfo();
-
-    }
-
-
-    /* =========================================================
-       Load Students
-    ========================================================== */
-
-    async function loadStudents() {
-
-        const examId =
-            examSelect.value;
-
-        const classId =
-            classSelect.value;
-
-        const section =
-            sectionSelect.value;
-
-        const examClassId =
-            selectedExamClassId;
-
-
-        if (
-            !examId ||
-            !classId ||
-            !section ||
-            !examClassId
-        ) {
-
-            showError(
-                'Please select examination, class and section.'
-            );
-
-            return;
-
-        }
-
-
-        hideError();
-
-        showLoading('Loading students...');
-
 
         studentsTableBody.innerHTML = `
             <tr>
-                <td colspan="8"
-                    class="text-center py-5">
-
-                    <span class="spinner-border text-primary"></span>
-
-                    <div class="mt-3 text-muted">
-                        Loading students...
+                <td colspan="8">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h6 class="fw-bold">No Students Loaded</h6>
+                        <p class="text-muted mb-0">${escapeHtml(message)}</p>
                     </div>
-
                 </td>
-            </tr>
-        `;
+            </tr>`;
+    }
 
+    function updateSelectionInfo() {
+        if (examSelect.value && classSelect.value && sectionSelect.value) {
+            const examText =
+                examSelect.options[examSelect.selectedIndex]?.text.trim() || '';
+
+            const classText =
+                classSelect.options[classSelect.selectedIndex]?.text.trim() || '';
+
+            const sectionText =
+                sectionSelect.options[sectionSelect.selectedIndex]?.text.trim() || '';
+
+            selectionInfoText.textContent =
+                `${examText} | ${classText} | Section ${sectionText}`;
+
+            selectionInfo.classList.remove('d-none');
+        } else {
+            selectionInfo.classList.add('d-none');
+            selectionInfoText.textContent = '';
+        }
+    }
+
+    async function fetchJson(url, options = {}) {
+        const response = await fetch(url, {
+            credentials: 'same-origin',
+            ...options,
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(options.headers || {})
+            }
+        });
+
+        let raw = await response.text();
+
+        // Remove a UTF-8 BOM and leading whitespace.
+        raw = raw.replace(/^\uFEFF/, '').trim();
+
+        let data;
 
         try {
+            data = JSON.parse(raw);
+        } catch (error) {
+            console.error('Invalid JSON response:', {
+                url,
+                status: response.status,
+                responsePreview: raw.slice(0, 500)
+            });
 
-            const url =
-                `{{ route('admin.results.load-students') }}` +
-                `?exam_id=${encodeURIComponent(examId)}` +
-                `&exam_class_id=${encodeURIComponent(examClassId)}` +
-                `&class_id=${encodeURIComponent(classId)}` +
-                `&section=${encodeURIComponent(section)}`;
-
-
-            const response =
-                await fetch(url, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok || !data.success) {
-
+            if (response.status === 401 || response.status === 419) {
                 throw new Error(
-                    data.message ||
-                    'Unable to load students.'
+                    'Your session may have expired. Refresh the page and try again.'
                 );
-
             }
 
+            throw new Error(
+                'The server returned an invalid response. Check the Laravel controller and Network response.'
+            );
+        }
 
-            const students =
-                data.students || [];
+        if (!response.ok) {
+            throw new Error(
+                data.message || `Request failed (${response.status}).`
+            );
+        }
 
+        if (data.success === false) {
+            throw new Error(data.message || 'The request could not be completed.');
+        }
+
+        return data;
+    }
+
+    function setPlaceholder(select, label) {
+        select.replaceChildren(new Option(label, ''));
+    }
+
+    async function loadClasses() {
+        const version = ++classRequestVersion;
+        ++requestVersion;
+
+        const examId = examSelect.value;
+
+        setPlaceholder(classSelect, 'Select Class');
+        setPlaceholder(sectionSelect, 'Select Section');
+
+        classSelect.disabled = true;
+        sectionSelect.disabled = true;
+        loadStudentsBtn.disabled = true;
+
+        selectedExamClassId = null;
+        examClasses = [];
+
+        hideError();
+        resetStudents();
+        updateSelectionInfo();
+
+        if (!examId) {
+            hideLoading();
+            return;
+        }
+
+        showLoading('Loading classes...');
+
+        try {
+            const url = new URL(urls.examClasses, window.location.origin);
+            url.searchParams.set('exam_id', examId);
+
+            console.log('Loading classes for examination:', {
+                exam_id: examId
+            });
+
+            // Important: do not reference examClassId, classId, or section here.
+            const data = await fetchJson(url.toString());
+
+            if (version !== classRequestVersion) return;
+
+            console.log('Exam classes API response:', data);
+
+            examClasses = Array.isArray(data.classes)
+                ? data.classes
+                : [];
+
+            const uniqueClasses = new Map();
+
+            examClasses.forEach(item => {
+                if (
+                    item.class_id != null &&
+                    !uniqueClasses.has(String(item.class_id))
+                ) {
+                    uniqueClasses.set(String(item.class_id), item);
+                }
+            });
+
+            uniqueClasses.forEach(item => {
+                classSelect.add(
+                    new Option(
+                        item.class_name ?? 'Unnamed Class',
+                        String(item.class_id)
+                    )
+                );
+            });
+
+            classSelect.disabled = uniqueClasses.size === 0;
+
+            if (uniqueClasses.size === 0) {
+                showError('No classes are assigned to this examination.');
+            }
+        } catch (error) {
+            if (version === classRequestVersion) {
+                console.error('Load classes error:', error);
+                showError(error.message || 'Unable to load classes.');
+            }
+        } finally {
+            if (version === classRequestVersion) {
+                hideLoading();
+            }
+        }
+    }
+
+    function loadSections() {
+        ++requestVersion;
+
+        setPlaceholder(sectionSelect, 'Select Section');
+        sectionSelect.disabled = true;
+        loadStudentsBtn.disabled = true;
+        selectedExamClassId = null;
+
+        hideError();
+        resetStudents();
+
+        const classId = classSelect.value;
+
+        if (!classId) {
+            updateSelectionInfo();
+            return;
+        }
+
+        const matchingClasses = examClasses.filter(
+            item => String(item.class_id) === String(classId)
+        );
+
+        const seenSections = new Set();
+
+        matchingClasses.forEach(item => {
+            const section = String(item.section ?? '').trim();
+
+            if (!section || seenSections.has(section)) return;
+
+            seenSections.add(section);
+
+            const option = new Option(section, section);
+
+            // This value must be returned by the exam-classes endpoint.
+            option.dataset.examClassId = item.exam_class_id ?? '';
+
+            sectionSelect.add(option);
+        });
+
+        sectionSelect.disabled = seenSections.size === 0;
+
+        if (seenSections.size === 0) {
+            showError(
+                'No sections are assigned to this class for the selected examination.'
+            );
+        }
+
+        updateSelectionInfo();
+    }
+
+    function handleSectionChange() {
+        ++requestVersion;
+
+        const option = sectionSelect.options[sectionSelect.selectedIndex];
+
+        selectedExamClassId = option?.dataset.examClassId || null;
+
+        loadStudentsBtn.disabled = !(
+            examSelect.value &&
+            classSelect.value &&
+            sectionSelect.value &&
+            selectedExamClassId
+        );
+
+        hideError();
+        resetStudents();
+        updateSelectionInfo();
+
+        if (
+            sectionSelect.value &&
+            !selectedExamClassId
+        ) {
+            showError(
+                'The selected section has no exam-class ID. Check the exam-classes API response for exam_class_id.'
+            );
+        }
+    }
+
+    async function loadStudents() {
+        const examId = examSelect.value;
+        const classId = classSelect.value;
+        const section = sectionSelect.value;
+        const examClassId = selectedExamClassId;
+        const version = ++requestVersion;
+
+        if (!examId || !classId || !section || !examClassId) {
+            showError('Please select an examination, class and section.');
+            return;
+        }
+
+        hideError();
+        resetStudents();
+        showLoading('Loading students...');
+        loadStudentsBtn.disabled = true;
+
+        studentsTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-5">
+                    <span class="spinner-border spinner-border-sm text-primary"></span>
+                    <div class="mt-2 text-muted">Loading students...</div>
+                </td>
+            </tr>`;
+
+        const params = {
+            exam_id: examId,
+            exam_class_id: examClassId,
+            class_id: classId,
+            section: section
+        };
+
+        console.log('Loading students with:', params);
+
+        try {
+            const url = new URL(urls.loadStudents, window.location.origin);
+
+            Object.entries(params).forEach(([key, value]) => {
+                url.searchParams.set(key, value);
+            });
+
+            const data = await fetchJson(url.toString());
+
+            if (version !== requestVersion) return;
+
+            console.log('Students API response:', data);
+
+            if (!Array.isArray(data.students)) {
+                console.error('Expected data.students to be an array:', data);
+
+                throw new Error(
+                    'The server response does not contain a valid students array.'
+                );
+            }
+
+            loadedStudents = data.students;
 
             studentCount.innerHTML =
-                `<i class="bi bi-people me-1"></i>
-                 ${students.length}
-                 Student${students.length === 1 ? '' : 's'}`;
+                `<i class="bi bi-people"></i> ${loadedStudents.length} Student${loadedStudents.length === 1 ? '' : 's'}`;
 
-
-            if (students.length === 0) {
-
+            if (loadedStudents.length === 0) {
                 studentsTableBody.innerHTML = `
                     <tr>
                         <td colspan="8">
-
-                            <div class="empty-state text-center">
-
-                                <div class="empty-state-icon mb-3">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
                                     <i class="bi bi-person-x"></i>
                                 </div>
-
-                                <h6 class="fw-bold text-dark">
-                                    No Active Students Found
-                                </h6>
-
+                                <h6 class="fw-bold">No Students Found</h6>
                                 <p class="text-muted mb-0">
-                                    No active students were found
-                                    for this class and section.
+                                    No students were returned for this class and section.
                                 </p>
-
                             </div>
-
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
 
                 generateResultBtn.disabled = true;
-
                 return;
-
             }
 
+            studentsTableBody.replaceChildren();
 
-            studentsTableBody.innerHTML = '';
+            loadedStudents.forEach((student, index) => {
+                const fullName = [
+                    student.first_name,
+                    student.middle_name,
+                    student.last_name
+                ]
+                    .filter(value =>
+                        value !== null &&
+                        value !== undefined &&
+                        String(value).trim() !== ''
+                    )
+                    .join(' ')
+                    .trim() || 'Unnamed Student';
 
-
-            students.forEach(function (student, index) {
-
-                const fullName =
-                    [
-                        student.first_name,
-                        student.middle_name,
-                        student.last_name
-                    ]
+                const initials = fullName
+                    .split(/\s+/)
                     .filter(Boolean)
-                    .join(' ');
+                    .slice(0, 2)
+                    .map(part => part.charAt(0))
+                    .join('')
+                    .toUpperCase() || 'S';
 
-
-                const initials =
-                    fullName
-                        .split(' ')
-                        .filter(Boolean)
-                        .slice(0, 2)
-                        .map(
-                            name => name.charAt(0)
-                        )
-                        .join('')
-                        .toUpperCase() || 'S';
-
-
-                const row =
-                    document.createElement('tr');
-
+                const row = document.createElement('tr');
 
                 row.innerHTML = `
-
-                    <td class="text-muted fw-semibold">
-                        ${index + 1}
-                    </td>
-
-
+                    <td class="text-muted">${index + 1}</td>
                     <td>
-
                         <div class="d-flex align-items-center">
-
-                            <div class="student-avatar">
-                                ${escapeHtml(initials)}
-                            </div>
-
+                            <div class="student-avatar">${escapeHtml(initials)}</div>
                             <div>
-
-                                <div class="student-name">
-                                    ${escapeHtml(
-                                        fullName || '-'
-                                    )}
-                                </div>
-
-                                <div class="small text-muted">
-                                    Student
-                                </div>
-
+                                <div class="student-name">${escapeHtml(fullName)}</div>
+                                <small class="text-muted">Student</small>
                             </div>
-
                         </div>
-
                     </td>
-
-
                     <td>
-
                         <span class="student-id">
-
-                            ${escapeHtml(
-                                student.student_id || '-'
-                            )}
-
+                            ${escapeHtml(student.student_id ?? '-')}
                         </span>
-
                     </td>
-
-
                     <td>
-
                         <span class="roll-badge">
-
-                            ${escapeHtml(
-                                student.roll_number || '-'
-                            )}
-
+                            ${escapeHtml(student.roll_number ?? '-')}
                         </span>
-
                     </td>
-
-
+                    <td>${escapeHtml(student.class ?? '-')}</td>
                     <td>
-
-                        ${escapeHtml(
-                            student.class || '-'
-                        )}
-
-                    </td>
-
-
-                    <td>
-
                         <span class="badge bg-light text-dark border">
-
-                            ${escapeHtml(
-                                student.section || '-'
-                            )}
-
+                            ${escapeHtml(student.section ?? '-')}
                         </span>
-
                     </td>
-
-
                     <td>
-
-                        <span class="marks-badge">
-
-                            <i class="bi bi-check-circle-fill me-1"></i>
-
-                            Marks Available
-
+                        <span class="badge bg-secondary-subtle text-secondary border">
+                            Check marks
                         </span>
-
                     </td>
-
-
                     <td class="text-end">
-
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-primary
-                                   generate-student-btn"
-                            data-student-id="${student.id}"
-                            data-student-name="${escapeHtml(fullName)}"
-                        >
-
+                        <button type="button"
+                                class="btn btn-sm btn-primary generate-student-btn"
+                                data-student-id="${escapeHtml(student.id ?? '')}"
+                                data-student-name="${escapeHtml(fullName)}">
                             <i class="bi bi-file-earmark-check me-1"></i>
-
                             Generate
-
                         </button>
-
-                    </td>
-
-                `;
-
+                    </td>`;
 
                 studentsTableBody.appendChild(row);
-
             });
-
 
             generateResultBtn.disabled = false;
 
-
         } catch (error) {
+            if (version !== requestVersion) return;
+
+            console.error('Load students error:', error);
+
+            loadedStudents = [];
 
             studentsTableBody.innerHTML = `
                 <tr>
                     <td colspan="8">
-
-                        <div class="empty-state text-center">
-
-                            <div class="empty-state-icon mb-3
-                                        text-danger bg-danger-subtle">
-
+                        <div class="empty-state">
+                            <div class="empty-state-icon text-danger">
                                 <i class="bi bi-exclamation-triangle"></i>
-
                             </div>
-
-                            <h6 class="fw-bold text-danger">
-                                Unable to Load Students
-                            </h6>
-
+                            <h6 class="fw-bold text-danger">Unable to Load Students</h6>
                             <p class="text-muted mb-0">
-                                ${escapeHtml(
-                                    error.message ||
-                                    'Unable to load students.'
-                                )}
+                                ${escapeHtml(error.message || 'Unable to load students.')}
                             </p>
-
                         </div>
-
                     </td>
-                </tr>
-            `;
-
+                </tr>`;
 
             studentCount.innerHTML =
-                '<i class="bi bi-people me-1"></i> 0 Students';
+                '<i class="bi bi-people"></i> 0 Students';
 
-
-            generateResultBtn.disabled =
-                true;
-
-
-            showError(
-                error.message ||
-                'Unable to load students.'
-            );
+            generateResultBtn.disabled = true;
+            showError(error.message || 'Unable to load students.');
 
         } finally {
-
-            hideLoading();
-
-        }
-
-    }
-
-
-    /* =========================================================
-       Generate Individual Student Result
-    ========================================================== */
-
-    function generateStudentResult(
-        studentId,
-        studentName,
-        button
-    ) {
-
-        const examId =
-            examSelect.value;
-
-        const classId =
-            classSelect.value;
-
-        const section =
-            sectionSelect.value;
-
-        const examClassId =
-            selectedExamClassId;
-
-
-        if (
-            !examId ||
-            !classId ||
-            !section ||
-            !examClassId ||
-            !studentId
-        ) {
-
-            showError(
-                'Required examination, class, section or student information is missing.'
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !confirm(
-                'Generate result for ' +
-                studentName +
-                '?'
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        button.disabled = true;
-
-        button.innerHTML = `
-            <span class="spinner-border
-                         spinner-border-sm me-1"></span>
-            Generating...
-        `;
-
-
-        showLoading(
-            'Generating result for ' +
-            studentName +
-            '...'
-        );
-
-
-        const form =
-            document.createElement('form');
-
-        form.method =
-            'POST';
-
-        form.action =
-            `{{ route('admin.results.generate-result') }}`;
-
-
-        addHiddenInput(
-            form,
-            '_token',
-            '{{ csrf_token() }}'
-        );
-
-
-        addHiddenInput(
-            form,
-            'exam_id',
-            examId
-        );
-
-
-        addHiddenInput(
-            form,
-            'exam_class_id',
-            examClassId
-        );
-
-
-        addHiddenInput(
-            form,
-            'class_id',
-            classId
-        );
-
-
-        addHiddenInput(
-            form,
-            'section',
-            section
-        );
-
-
-        addHiddenInput(
-            form,
-            'student_id',
-            studentId
-        );
-
-
-        document.body.appendChild(form);
-
-        form.submit();
-
-    }
-
-
-    /* =========================================================
-       Generate All Results
-    ========================================================== */
-
-    function generateResult() {
-
-        const examId =
-            examSelect.value;
-
-        const classId =
-            classSelect.value;
-
-        const section =
-            sectionSelect.value;
-
-        const examClassId =
-            selectedExamClassId;
-
-
-        if (
-            !examId ||
-            !classId ||
-            !section ||
-            !examClassId
-        ) {
-
-            showError(
-                'Please select examination, class and section.'
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !confirm(
-                'Generate results for all students in this class and section?'
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        generateResultBtn.disabled =
-            true;
-
-
-        generateResultBtn.innerHTML = `
-            <span class="spinner-border
-                         spinner-border-sm me-1"></span>
-            Generating...
-        `;
-
-
-        const form =
-            document.createElement('form');
-
-        form.method =
-            'POST';
-
-        form.action =
-            `{{ route('admin.results.generate-result') }}`;
-
-
-        addHiddenInput(
-            form,
-            '_token',
-            '{{ csrf_token() }}'
-        );
-
-
-        addHiddenInput(
-            form,
-            'exam_id',
-            examId
-        );
-
-
-        addHiddenInput(
-            form,
-            'exam_class_id',
-            examClassId
-        );
-
-
-        addHiddenInput(
-            form,
-            'class_id',
-            classId
-        );
-
-
-        addHiddenInput(
-            form,
-            'section',
-            section
-        );
-
-
-        document.body.appendChild(form);
-
-        form.submit();
-
-    }
-
-
-    /* =========================================================
-       Events
-    ========================================================== */
-
-    examSelect.addEventListener(
-        'change',
-        loadClasses
-    );
-
-
-    classSelect.addEventListener(
-        'change',
-        loadSections
-    );
-
-
-    sectionSelect.addEventListener(
-        'change',
-        handleSectionChange
-    );
-
-
-    loadStudentsBtn.addEventListener(
-        'click',
-        loadStudents
-    );
-
-
-    generateResultBtn.addEventListener(
-        'click',
-        generateResult
-    );
-
-
-    /* =========================================================
-       Dynamic Student Generate Buttons
-    ========================================================== */
-
-    studentsTableBody.addEventListener(
-        'click',
-        function (event) {
-
-            const button =
-                event.target.closest(
-                    '.generate-student-btn'
+            if (version === requestVersion) {
+                loadStudentsBtn.disabled = !(
+                    examSelect.value &&
+                    classSelect.value &&
+                    sectionSelect.value &&
+                    selectedExamClassId
                 );
 
-
-            if (!button) {
-
-                return;
-
+                hideLoading();
             }
-
-
-            const studentId =
-                button.dataset.studentId;
-
-
-            const studentName =
-                button.dataset.studentName ||
-                'this student';
-
-
-            generateStudentResult(
-                studentId,
-                studentName,
-                button
-            );
-
         }
-    );
-
-
-    /* =========================================================
-       Initial Load
-    ========================================================== */
-
-    if (examSelect.value) {
-
-        loadClasses();
-
     }
 
-});
+    function submitGeneration(studentId = null, studentName = null, button = null) {
+        const examId = examSelect.value;
+        const classId = classSelect.value;
+        const section = sectionSelect.value;
+        const examClassId = selectedExamClassId;
 
+        if (!examId || !classId || !section || !examClassId) {
+            showError('Please select an examination, class and section.');
+            return;
+        }
+
+        if (
+            studentId &&
+            !loadedStudents.some(
+                student => String(student.id) === String(studentId)
+            )
+        ) {
+            showError(
+                'The selected student is no longer in the loaded list. Load students again.'
+            );
+            return;
+        }
+
+        if (!studentId && loadedStudents.length === 0) {
+            showError('Load students before generating results.');
+            return;
+        }
+
+        const confirmation = studentId
+            ? `Generate result for ${studentName || 'this student'}?`
+            : `Generate results for all ${loadedStudents.length} loaded students in this class and section?`;
+
+        if (!confirm(confirmation)) return;
+
+        if (button) {
+            button.disabled = true;
+            button.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+        } else {
+            generateResultBtn.disabled = true;
+            generateResultBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+        }
+
+        showLoading(
+            studentId
+                ? `Generating result for ${studentName || 'student'}...`
+                : 'Submitting result generation request...'
+        );
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = urls.generateResult;
+
+        addHiddenInput(form, '_token', @json(csrf_token()));
+        addHiddenInput(form, 'exam_id', examId);
+        addHiddenInput(form, 'exam_class_id', examClassId);
+        addHiddenInput(form, 'class_id', classId);
+        addHiddenInput(form, 'section', section);
+
+        if (studentId) {
+            addHiddenInput(form, 'student_id', studentId);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    examSelect.addEventListener('change', loadClasses);
+    classSelect.addEventListener('change', loadSections);
+    sectionSelect.addEventListener('change', handleSectionChange);
+    loadStudentsBtn.addEventListener('click', loadStudents);
+
+    generateResultBtn.addEventListener('click', function () {
+        submitGeneration();
+    });
+
+    studentsTableBody.addEventListener('click', function (event) {
+        const button = event.target.closest('.generate-student-btn');
+
+        if (!button) return;
+
+        submitGeneration(
+            button.dataset.studentId,
+            button.dataset.studentName || 'this student',
+            button
+        );
+    });
+
+    updateSelectionInfo();
+
+    // Load classes automatically if an examination is already selected.
+    if (examSelect.value) {
+        loadClasses();
+    }
+});
 </script>
 
 @endsection

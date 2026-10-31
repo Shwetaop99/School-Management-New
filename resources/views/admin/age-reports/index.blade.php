@@ -21,6 +21,7 @@
         return strtolower(trim(preg_replace('/^class\s*/i', '', (string) $value)));
     };
 
+    // Show only the selected class column when a class filter is applied.
     $tableClasses = $selectedClass !== ''
         ? $classes->filter(function ($class) use ($normalizeClass, $selectedClass) {
             return $normalizeClass($class) === $normalizeClass($selectedClass);
@@ -30,8 +31,8 @@
     $reportLookup = [];
 
     foreach ($report as $row) {
-        $ageKey = trim((string) $row->age_group);
-        $classKey = $normalizeClass($row->class);
+        $ageKey = trim((string) ($row->age_group ?? ''));
+        $classKey = $normalizeClass($row->class ?? '');
         $reportLookup[$ageKey][$classKey] = $row;
     }
 
@@ -50,7 +51,10 @@
     $displayGirls = 0;
 
     foreach ($report as $row) {
-        if ($selectedClass !== '' && $normalizeClass($row->class) !== $normalizeClass($selectedClass)) {
+        if (
+            $selectedClass !== '' &&
+            $normalizeClass($row->class ?? '') !== $normalizeClass($selectedClass)
+        ) {
             continue;
         }
 
@@ -85,15 +89,14 @@
     $schoolAddress = $getSchoolValue(['address', 'school_address']);
     $schoolPhone = $getSchoolValue(['phone', 'phone_number', 'mobile', 'contact_number']);
 
-    $hasFilters = $selectedAcademicYear || $selectedClass || $selectedSection || $selectedGender || request('age_as_on');
+    $hasFilters = $selectedAcademicYear
+        || $selectedClass
+        || $selectedSection
+        || $selectedGender
+        || request('age_as_on');
 @endphp
 
 <style>
-    /* =========================================================
-       SCHOOL DIARY DESIGN SYSTEM — AGE REPORT
-       LOCKED VERSION
-    ========================================================= */
-
     .age-report-page {
         width: 100%;
         min-height: calc(100vh - 60px);
@@ -110,7 +113,7 @@
         box-sizing: border-box;
     }
 
-    /* ---------- PAGE HEADER ---------- */
+    /* PAGE HEADER */
     .report-header-card {
         position: relative;
         overflow: hidden;
@@ -208,7 +211,7 @@
         flex-wrap: wrap;
     }
 
-    /* ---------- BUTTONS ---------- */
+    /* BUTTONS */
     .btn-scheme-print,
     .btn-scheme-apply,
     .btn-scheme-reset {
@@ -226,6 +229,7 @@
         text-decoration: none;
         border: 1px solid transparent;
         transition: all .18s ease;
+        white-space: nowrap;
     }
 
     .btn-scheme-print,
@@ -257,7 +261,7 @@
         border-color: #c5c0b0;
     }
 
-    /* ---------- FILTER CARD ---------- */
+    /* FILTER AND REPORT CARDS */
     .filter-card,
     .report-card,
     .summary-card {
@@ -361,7 +365,7 @@
         min-height: 40px;
     }
 
-    /* ---------- SUMMARY CARDS ---------- */
+    /* SUMMARY CARDS */
     .summary-card {
         padding: 18px 20px;
         height: 100%;
@@ -403,7 +407,7 @@
         box-shadow: 0 2px 5px rgba(52, 119, 90, .07);
     }
 
-    /* ---------- REPORT CARD ---------- */
+    /* REPORT TABLE */
     .report-card {
         overflow: hidden;
         margin-bottom: 18px;
@@ -507,7 +511,7 @@
         border-color: #2d6a50 !important;
     }
 
-    /* ---------- EMPTY STATE ---------- */
+    /* EMPTY STATE */
     .empty-report {
         padding: 56px 24px;
         text-align: center;
@@ -541,12 +545,15 @@
         line-height: 1.5;
     }
 
-    /* PRINT-ONLY REPORT HEADER */
     .print-report-header {
         display: none;
     }
 
-    /* ---------- RESPONSIVE ---------- */
+    .summary-cards-print {
+        display: none;
+    }
+
+    /* RESPONSIVE */
     @media (max-width: 991px) {
         .report-header-content {
             flex-direction: column;
@@ -581,8 +588,9 @@
             padding: 16px;
         }
 
-        .btn-scheme-print {
-            width: 100%;
+        .report-actions .btn-scheme-print,
+        .report-actions .btn-scheme-reset {
+            flex: 1;
         }
     }
 
@@ -596,11 +604,7 @@
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PRINT ONLY THE REPORT
-    |--------------------------------------------------------------------------
-    */
+    /* PRINT ONLY THE REPORT */
     @media print {
         @page {
             size: A4 landscape;
@@ -789,7 +793,7 @@
 
 <div class="age-report-page">
 
-    {{-- ===================== PAGE HEADER ===================== --}}
+    {{-- PAGE HEADER --}}
     <div class="report-header-card no-print">
         <div class="report-header-content">
             <div>
@@ -805,21 +809,33 @@
                     </div>
                     <div>
                         <h1 class="report-title">Age Report</h1>
-                        <p class="report-subtitle">Age-group-wise boys and girls summary</p>
+                        <p class="report-subtitle">
+                            Age-group-wise boys and girls summary
+                        </p>
                     </div>
                 </div>
             </div>
 
+            {{-- ACTION BUTTONS --}}
             <div class="report-actions">
-                <button type="button" class="btn-scheme-print" onclick="printAgeReport()">
-                    <i class="bi bi-printer-fill"></i>
-                    Print Report
-                </button>
+                <a href="{{ route('admin.student-documents.index') }}"
+                   class="btn-scheme-reset">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Documents
+                </a>
+
+                <a href="{{ route('admin.age-report.print', request()->query()) }}"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="btn-scheme-print">
+    <i class="bi bi-printer-fill"></i>
+    Print Report
+</a>
             </div>
         </div>
     </div>
 
-    {{-- ===================== FILTER CARD ===================== --}}
+    {{-- FILTER CARD --}}
     <div class="filter-card no-print">
         <div class="filter-card-header">
             <h5>
@@ -835,12 +851,14 @@
         <div class="filter-card-body">
             <form method="GET" action="{{ route('admin.age-report.index') }}">
                 <div class="row g-3">
+
                     <div class="col-xl-2 col-lg-4 col-md-6">
                         <label class="filter-label">Academic Year</label>
                         <select name="academic_year" class="filter-control">
                             <option value="">All Academic Years</option>
                             @foreach($academicYears as $year)
-                                <option value="{{ $year }}" @selected((string) $selectedAcademicYear === (string) $year)>
+                                <option value="{{ $year }}"
+                                    @selected((string) $selectedAcademicYear === (string) $year)>
                                     {{ $year }}
                                 </option>
                             @endforeach
@@ -852,7 +870,8 @@
                         <select name="class" class="filter-control">
                             <option value="">All Classes</option>
                             @foreach($classes as $class)
-                                <option value="{{ $class }}" @selected((string) $selectedClass === (string) $class)>
+                                <option value="{{ $class }}"
+                                    @selected((string) $selectedClass === (string) $class)>
                                     {{ $class }}
                                 </option>
                             @endforeach
@@ -864,7 +883,8 @@
                         <select name="section" class="filter-control">
                             <option value="">All Sections</option>
                             @foreach($sections as $section)
-                                <option value="{{ $section }}" @selected((string) $selectedSection === (string) $section)>
+                                <option value="{{ $section }}"
+                                    @selected((string) $selectedSection === (string) $section)>
                                     {{ $section }}
                                 </option>
                             @endforeach
@@ -875,8 +895,14 @@
                         <label class="filter-label">Gender</label>
                         <select name="gender" class="filter-control">
                             <option value="">All Genders</option>
-                            <option value="Male" @selected(strtolower((string) $selectedGender) === 'male')>Male</option>
-                            <option value="Female" @selected(strtolower((string) $selectedGender) === 'female')>Female</option>
+                            <option value="Male"
+                                @selected(strtolower((string) $selectedGender) === 'male')>
+                                Male
+                            </option>
+                            <option value="Female"
+                                @selected(strtolower((string) $selectedGender) === 'female')>
+                                Female
+                            </option>
                         </select>
                     </div>
 
@@ -896,19 +922,22 @@
                                 <i class="bi bi-search"></i>
                                 Apply
                             </button>
+
                             <a href="{{ route('admin.age-report.index') }}"
                                class="btn-scheme-reset"
-                               title="Reset Filters">
+                               title="Reset Filters"
+                               aria-label="Reset Filters">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </a>
                         </div>
                     </div>
+
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- Everything inside this element is the only content printed. --}}
+    {{-- ONLY THIS AREA IS PRINTED --}}
     <div id="age-report-print-area">
 
         <div class="print-report-header">
@@ -922,7 +951,9 @@
                 <p>Phone: {{ $schoolPhone }}</p>
             @endif
 
-            <h3 style="font-size:14px; margin:10px 0 3px;">STUDENT AGE REPORT</h3>
+            <h3 style="font-size:14px; margin:10px 0 3px;">
+                STUDENT AGE REPORT
+            </h3>
 
             <p>
                 Academic Year:
@@ -944,7 +975,7 @@
             @endif
         </div>
 
-        {{-- Print summary cards --}}
+        {{-- PRINT SUMMARY CARDS --}}
         <div class="summary-cards-print row g-3 mb-4">
             <div class="col-md-4">
                 <div class="summary-card">
@@ -952,12 +983,14 @@
                     <div class="summary-value">{{ $displayTotal }}</div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="summary-card">
                     <div class="summary-label">Boys</div>
                     <div class="summary-value">{{ $displayBoys }}</div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="summary-card">
                     <div class="summary-label">Girls</div>
@@ -966,7 +999,7 @@
             </div>
         </div>
 
-        {{-- Screen summary cards --}}
+        {{-- SCREEN SUMMARY CARDS --}}
         <div class="row g-3 mb-4 no-print">
             <div class="col-xl-4 col-md-4">
                 <div class="summary-card">
@@ -975,10 +1008,13 @@
                             <div class="summary-label">Total Students</div>
                             <div class="summary-value">{{ $displayTotal }}</div>
                         </div>
-                        <div class="summary-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="summary-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-xl-4 col-md-4">
                 <div class="summary-card">
                     <div class="d-flex justify-content-between align-items-center">
@@ -986,10 +1022,13 @@
                             <div class="summary-label">Boys</div>
                             <div class="summary-value">{{ $displayBoys }}</div>
                         </div>
-                        <div class="summary-icon"><i class="bi bi-person-fill"></i></div>
+                        <div class="summary-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-xl-4 col-md-4">
                 <div class="summary-card">
                     <div class="d-flex justify-content-between align-items-center">
@@ -997,7 +1036,9 @@
                             <div class="summary-label">Girls</div>
                             <div class="summary-value">{{ $displayGirls }}</div>
                         </div>
-                        <div class="summary-icon"><i class="bi bi-person-heart"></i></div>
+                        <div class="summary-icon">
+                            <i class="bi bi-person-heart"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1010,6 +1051,7 @@
                     <i class="bi bi-table"></i>
                     Age Group Summary
                 </h5>
+
                 <span class="report-meta">
                     Age As On:
                     <strong>{{ \Carbon\Carbon::parse($ageAsOn)->format('d-m-Y') }}</strong>
@@ -1024,12 +1066,15 @@
                             <tr>
                                 <th>Age Group</th>
                                 <th>Gender</th>
+
                                 @foreach($tableClasses as $class)
                                     <th>{{ $class }}</th>
                                 @endforeach
+
                                 <th>Total</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             @foreach($ageGroups as $ageGroup)
                                 @php
@@ -1066,35 +1111,44 @@
                                     <td class="age-group-cell" rowspan="3">
                                         <span class="age-group-badge">{{ $ageGroup }}</span>
                                     </td>
+
                                     <td class="gender-boys">Boys</td>
+
                                     @foreach($tableClasses as $class)
                                         <td>{{ $classData[$class]['boys'] }}</td>
                                     @endforeach
+
                                     <td class="total-cell">{{ $ageBoys }}</td>
                                 </tr>
 
                                 <tr>
                                     <td class="gender-girls">Girls</td>
+
                                     @foreach($tableClasses as $class)
                                         <td>{{ $classData[$class]['girls'] }}</td>
                                     @endforeach
+
                                     <td class="total-cell">{{ $ageGirls }}</td>
                                 </tr>
 
                                 <tr class="age-total-row">
                                     <td class="gender-total">Total</td>
+
                                     @foreach($tableClasses as $class)
                                         <td>{{ $classData[$class]['total'] }}</td>
                                     @endforeach
+
                                     <td class="total-cell">{{ $ageTotal }}</td>
                                 </tr>
                             @endforeach
 
                             <tr class="grand-total-row">
                                 <td colspan="2">Grand Total</td>
+
                                 @foreach($tableClasses as $class)
                                     <td>{{ $grandClassTotals[$class]['total'] }}</td>
                                 @endforeach
+
                                 <td>{{ $displayTotal }}</td>
                             </tr>
                         </tbody>
@@ -1106,6 +1160,7 @@
                     <div class="empty-report-icon">
                         <i class="bi bi-calendar-x"></i>
                     </div>
+
                     <h6>No Age Report Data Found</h6>
                     <p>No students match the selected filters.</p>
                 </div>
@@ -1115,9 +1170,9 @@
 </div>
 
 <script>
-function printAgeReport() {
-    window.print();
-}
+    function printAgeReport() {
+        window.print();
+    }
 </script>
 
 @endsection

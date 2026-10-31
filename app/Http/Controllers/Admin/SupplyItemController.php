@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\SupplyItem;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\Student;
+use App\Models\SupplyStock;
 
 class SupplyItemController extends Controller
 {
@@ -16,57 +18,54 @@ class SupplyItemController extends Controller
 
 public function index(Request $request)
 {
-    // Dashboard counts: all supply items.
+    $query = SupplyItem::with('stock');
+
+    // Search by item name or item code
+    if ($request->filled('search')) {
+        $search = trim($request->search);
+
+        $query->where(function ($q) use ($search) {
+            $q->where('item_name', 'like', "%{$search}%")
+              ->orWhere('item_code', 'like', "%{$search}%");
+        });
+    }
+
+    // Filter by status
+    if ($request->filled('status') &&
+        in_array($request->status, ['active', 'inactive'], true)) {
+        $query->where('status', $request->status);
+    }
+
+    $supplyItems = $query
+        ->orderBy('item_name')
+        ->paginate(10)
+        ->withQueryString();
+
     $totalItems = SupplyItem::count();
 
     $activeItems = SupplyItem::where('status', 'active')->count();
 
     $inactiveItems = SupplyItem::where('status', 'inactive')->count();
 
-    $lowStockItems = SupplyItem::where('status', 'active')
-    ->whereColumn('quantity_in_stock', '<=', 'minimum_stock')
-    ->count();
+    $totalStock = SupplyStock::sum('quantity');
 
-    $totalStock = SupplyItem::sum('quantity_in_stock');
+    $lowStockCount = SupplyStock::whereColumn(
+        'quantity',
+        '<=',
+        'minimum_quantity'
+    )
+        ->where('status', true)
+        ->count();
 
-    $categories = collect();
-
-    // Listing query with search and status filters.
-    $query = SupplyItem::query();
-
-    if ($request->filled('search')) {
-        $search = $request->search;
-
-        $query->where(function ($q) use ($search) {
-            $q->where('item_name', 'like', "%{$search}%")
-                ->orWhere('item_code', 'like', "%{$search}%")
-                ->orWhere('unit', 'like', "%{$search}%");
-        });
-    }
-
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-
-    $supplyItems = $query
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
-
-    
-return view('admin.supply-items.index', compact(
-    'supplyItems',
-    'totalItems',
-    'activeItems',
-    'inactiveItems',
-    'lowStockItems',
-    'totalStock',
-    'categories'
-));
-
+    return view('admin.supply-items.index', compact(
+        'supplyItems',
+        'totalItems',
+        'activeItems',
+        'inactiveItems',
+        'totalStock',
+        'lowStockCount'
+    ));
 }
-
-
 
     /**
      * Show the form for creating a new supply item.

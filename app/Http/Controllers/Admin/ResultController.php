@@ -105,15 +105,16 @@ class ResultController extends Controller
             ->values();
 
         $classes = $examClasses
-            ->map(function ($examClass) {
-                return [
-                    'id' => $examClass->class_id,
-                    'name' => $examClass->schoolClass->class_name,
-                    'section' => $examClass->schoolClass->section,
-                    'academic_year' => $examClass->schoolClass->academic_year,
-                ];
-            })
-            ->values();
+    ->map(function ($examClass) {
+        return [
+            'exam_class_id' => $examClass->id,
+            'class_id' => $examClass->schoolClass->id,
+            'class_name' => $examClass->schoolClass->class_name,
+            'section' => $examClass->schoolClass->section,
+            'academic_year' => $examClass->schoolClass->academic_year,
+        ];
+    })
+    ->values();
 
         return response()->json([
             'success' => true,
@@ -126,26 +127,8 @@ class ResultController extends Controller
         ]);
     }
 
-    /**
-     * Load classes assigned to selected examination.
-     *
-     * AJAX endpoint:
-     * GET /admin/results/exam-classes?exam_id=4
-     */
+//load classes
 
-/**
- * Load classes assigned to selected examination.
- *
- * AJAX endpoint:
- * GET /admin/results/exam-classes?exam_id=4
- *
- * Returns dynamic:
- * - student count
- * - generated count
- * - verified count
- * - approved count
- * - published count
- */
 public function getExamClasses(Request $request)
 {
     $validated = $request->validate([
@@ -187,31 +170,13 @@ public function getExamClasses(Request $request)
 
             $schoolClass = $examClass->schoolClass;
 
-            /*
-             * ----------------------------------------------------
-             * Students belonging to this school class
-             *
-             * Your students.class may store values such as:
-             * 1, 2, 3 ... 12
-             *
-             * while school_classes.class_name may be:
-             * Class 1, Class 2, etc.
-             * ----------------------------------------------------
-             */
+    
 
             $className = trim(
                 (string) ($schoolClass->class_name ?? '')
             );
 
-            /*
-             * Extract numeric class value.
-             *
-             * Examples:
-             * "Class 1" -> 1
-             * "Class 8" -> 8
-             * "8th"     -> 8
-             * "10"      -> 10
-             */
+            
             preg_match(
                 '/\d+/',
                 $className,
@@ -240,12 +205,7 @@ public function getExamClasses(Request $request)
                 );
             }
 
-            /*
-             * Academic year matching.
-             *
-             * Only apply it when the school class actually
-             * contains an academic year.
-             */
+            
             if (
                 !empty($schoolClass->academic_year)
             ) {
@@ -263,25 +223,7 @@ public function getExamClasses(Request $request)
 
             $studentCount = $studentIds->count();
 
-            /*
-             * ----------------------------------------------------
-             * Dynamic Result counts
-             * ----------------------------------------------------
-             *
-             * IMPORTANT:
-             *
-             * publication_status is the workflow field:
-             *
-             * generated
-             * verified
-             * approved
-             * published
-             *
-             * We count results belonging to:
-             *
-             * - selected examination
-             * - students of this class/section
-             */
+            
             $resultQuery = Result::query()
                 ->where('exam_id', $examId)
                 ->whereIn('student_id', $studentIds);
@@ -369,721 +311,567 @@ public function getExamClasses(Request $request)
     ]);
 }
 
+/**
+ * Load students for selected exam, class and section.
+ */
+public function loadStudents(Request $request)
+{
+    $validated = $request->validate([
+        'exam_id' => [
+            'required',
+            'integer',
+            'exists:exams,id',
+        ],
+        'class_id' => [
+            'required',
+            'integer',
+            'exists:school_classes,id',
+        ],
+        'section' => [
+            'nullable',
+            'string',
+            'max:50',
+        ],
+        'exam_class_id' => [
+            'nullable',
+            'integer',
+            'exists:exam_classes,id',
+        ],
+    ]);
 
-    /**
-     * Load students for selected exam/class/section.
-     */
-    public function loadStudents(Request $request)
-    {
-        $validated = $request->validate([
-            'exam_id' => [
-                'required',
-                'integer',
-                'exists:exams,id',
-            ],
-            'class_id' => [
-                'required',
-                'integer',
-                'exists:school_classes,id',
-            ],
-            'section' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-        ]);
+    $exam = Exam::findOrFail($validated['exam_id']);
 
-        $exam = Exam::findOrFail($validated['exam_id']);
+    $schoolClass = SchoolClass::findOrFail(
+        $validated['class_id']
+    );
 
-        $schoolClass = SchoolClass::findOrFail(
-            $validated['class_id']
+    // Verify that this class is assigned to the selected exam.
+    $examClassQuery = ExamClass::where(
+        'exam_id',
+        $exam->id
+    )->where(
+        'class_id',
+        $schoolClass->id
+    );
+
+    if (!empty($validated['exam_class_id'])) {
+        $examClassQuery->where(
+            'id',
+            $validated['exam_class_id']
         );
-
-        /*
-         * Make sure this class is assigned to the selected exam.
-         */
-        $examClass = ExamClass::where('exam_id', $exam->id)
-            ->where('class_id', $schoolClass->id)
-            ->first();
-
-        if (!$examClass) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This class is not assigned to the selected exam.',
-                'students' => [],
-            ], 422);
-        }
-
-        /*
-         * Convert:
-         *
-         * school_classes.class_name = Class 1
-         * students.class            = 1
-         *
-         * to:
-         *
-         * 1
-         */
-        $studentClass = preg_replace(
-            '/^Class\s+/i',
-            '',
-            trim((string) $schoolClass->class_name)
-        );
-
-        /*
-         * Use requested section.
-         * If no section was supplied, use class section.
-         */
-        $section = !empty($validated['section'])
-            ? trim($validated['section'])
-            : trim((string) $schoolClass->section);
-
-        $students = Student::query()
-            ->where('class', $studentClass)
-            ->when(
-                $section !== '',
-                function ($query) use ($section) {
-                    $query->where('section', $section);
-                }
-            )
-            ->where('academic_year', $exam->academic_year)
-            ->where('status', 'active')
-            ->orderByRaw(
-                'CAST(NULLIF(roll_number, "") AS UNSIGNED)'
-            )
-            ->orderBy('first_name')
-            ->orderBy('middle_name')
-            ->orderBy('last_name')
-            ->get([
-                'id',
-                'student_id',
-                'roll_number',
-                'first_name',
-                'middle_name',
-                'last_name',
-                'class',
-                'section',
-                'academic_year',
-                'status',
-            ]);
-
-        /*
-         * Add full name for AJAX response.
-         */
-        $students->each(function ($student) {
-            $student->full_name = collect([
-                $student->first_name,
-                $student->middle_name,
-                $student->last_name,
-            ])
-                ->filter(function ($value) {
-                    return filled($value);
-                })
-                ->implode(' ');
-        });
-
-        return response()->json([
-            'success' => true,
-            'exam' => [
-                'id' => $exam->id,
-                'name' => $exam->exam_name,
-                'academic_year' => $exam->academic_year,
-            ],
-            'class' => [
-                'id' => $schoolClass->id,
-                'name' => $schoolClass->class_name,
-                'section' => $section,
-            ],
-            'students' => $students,
-        ]);
     }
+
+    $examClass = $examClassQuery->first();
+
+    if (!$examClass) {
+        return response()->json([
+            'success' => false,
+            'message' => 'This class is not assigned to the selected exam.',
+            'students' => [],
+        ], 422);
+    }
+
+    $section = trim(
+        (string) (
+            $validated['section']
+            ?? $schoolClass->section
+            ?? ''
+        )
+    );
+
+    // Support both "Class 1" and "1" in the students table.
+    $className = trim((string) $schoolClass->class_name);
+
+    $classNumber = preg_replace(
+        '/^Class\s*/i',
+        '',
+        $className
+    );
+
+    $classNumber = trim($classNumber);
+
+    // Prefer the class's academic year, falling back to the exam year.
+    $academicYear = $schoolClass->academic_year
+        ?: $exam->academic_year;
+
+    $studentsQuery = Student::query()
+        ->whereIn('class', array_unique([
+            $className,
+            $classNumber,
+        ]));
+
+    if ($section !== '') {
+        $studentsQuery->where('section', $section);
+    }
+
+    if (!empty($academicYear)) {
+        $studentsQuery->where(
+            'academic_year',
+            $academicYear
+        );
+    }
+
+    $students = $studentsQuery
+        ->where('status', 'active')
+        ->orderByRaw(
+            'CASE
+                WHEN roll_number IS NULL OR roll_number = "" THEN 1
+                ELSE 0
+            END'
+        )
+        ->orderBy('roll_number')
+        ->orderBy('first_name')
+        ->orderBy('middle_name')
+        ->orderBy('last_name')
+        ->get([
+            'id',
+            'student_id',
+            'roll_number',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'class',
+            'section',
+            'academic_year',
+            'status',
+        ]);
+
+    $students->each(function ($student) {
+        $student->full_name = collect([
+            $student->first_name,
+            $student->middle_name,
+            $student->last_name,
+        ])
+            ->filter(fn ($value) => filled($value))
+            ->implode(' ');
+    });
+
+    return response()->json([
+        'success' => true,
+        'exam' => [
+            'id' => $exam->id,
+            'name' => $exam->exam_name,
+            'academic_year' => $exam->academic_year,
+        ],
+        'class' => [
+            'id' => $schoolClass->id,
+            'name' => $schoolClass->class_name,
+            'section' => $section,
+            'academic_year' => $academicYear,
+        ],
+        'students' => $students,
+        'debug' => [
+            'class_values_checked' => [
+                $className,
+                $classNumber,
+            ],
+            'section' => $section,
+            'academic_year' => $academicYear,
+            'student_count' => $students->count(),
+        ],
+    ]);
+}
 
     /**
      * Show Enter Marks page.
      */
     public function marks(Request $request)
-    {
-        /*
-         * 1. Load exams.
-         */
-        $exams = Exam::query()
-            ->orderByDesc('id')
-            ->get();
+{
+    $exams = Exam::orderBy('id', 'desc')->get();
 
-        /*
-         * 2. No exam selected.
-         */
-        if (!$request->filled('exam_id')) {
-            return view('admin.results.marks', [
-                'exams' => $exams,
-                'exam' => null,
-                'examClasses' => collect(),
-                'examClass' => null,
-                'examSubject' => null,
-                'students' => collect(),
-                'section' => null,
-                'sections' => collect(),
-                'selectionMode' => true,
-            ]);
-        }
+    $classes = collect();
+    $sections = collect();
+    $subjects = collect();
+    $students = collect();
+    $existingMarks = collect();
 
-        /*
-         * 3. Selected exam.
-         */
-        $exam = Exam::findOrFail($request->exam_id);
+    $selectedExam = null;
+    $selectedClass = null;
+    $selectedSection = null;
+    $selectedSubject = null;
+    $examSubject = null;
 
-        /*
-         * 4. Classes assigned to exam.
-         */
-        $examClasses = ExamClass::with('schoolClass')
-            ->where('exam_id', $exam->id)
+    if ($request->filled('exam_id')) {
+        $selectedExam = Exam::find($request->exam_id);
+    }
+
+    if ($request->filled('exam_id') && $selectedExam) {
+
+        $classes = ExamSubject::where('exam_id', $request->exam_id)
+            ->with('schoolClass')
+            ->select('class_id')
+            ->distinct()
             ->get()
-            ->filter(function ($examClass) {
-                return $examClass->schoolClass !== null;
-            })
+            ->pluck('schoolClass')
+            ->filter()
             ->values();
+    }
 
-        /*
-         * 5. Load sections.
-         */
-        $selectedClassId = $request->class_id;
+    if ($request->filled('class_id') && $selectedExam) {
 
-        $sections = collect();
+        $selectedClass = SchoolClass::find($request->class_id);
 
-        if ($selectedClassId) {
-            $selectedExamClass = $examClasses->firstWhere(
-                'class_id',
-                (int) $selectedClassId
-            );
+        $sections = Student::where('class_name', $selectedClass->class_name ?? '')
+            ->whereNotNull('section')
+            ->distinct()
+            ->orderBy('section')
+            ->pluck('section');
+    }
 
-            if (
-                $selectedExamClass &&
-                $selectedExamClass->schoolClass
-            ) {
-                $className = $selectedExamClass
-                    ->schoolClass
-                    ->class_name;
-
-                $sections = SchoolClass::query()
-                    ->where('class_name', $className)
-                    ->where('academic_year', $exam->academic_year)
-                    ->where('status', true)
-                    ->whereNotNull('section')
-                    ->where('section', '!=', '')
-                    ->orderBy('section')
-                    ->pluck('section')
-                    ->unique()
-                    ->values();
-            }
-        }
-
-        /*
-         * 6. Selection not complete.
-         */
-        if (
-            !$request->filled('class_id') ||
-            !$request->filled('section') ||
-            !$request->filled('subject_id')
-        ) {
-            return view('admin.results.marks', [
-                'exams' => $exams,
-                'exam' => $exam,
-                'examClasses' => $examClasses,
-                'examClass' => null,
-                'examSubject' => null,
-                'students' => collect(),
-                'section' => $request->section,
-                'sections' => $sections,
-                'selectionMode' => true,
-            ]);
-        }
-
-        /*
-         * 7. Validate selection.
-         */
-        $validated = $request->validate([
-            'exam_id' => [
-                'required',
-                'integer',
-                'exists:exams,id',
-            ],
-            'class_id' => [
-                'required',
-                'integer',
-                'exists:school_classes,id',
-            ],
-            'section' => [
-                'required',
-                'string',
-                'max:50',
-            ],
-            'subject_id' => [
-                'required',
-                'integer',
-                'exists:subjects,id',
-            ],
-        ]);
-
-        /*
-         * 8. Get exam class.
-         */
-        $examClass = ExamClass::with('schoolClass')
-            ->where('exam_id', $exam->id)
-            ->where('class_id', $validated['class_id'])
-            ->firstOrFail();
-
-        /*
-         * 9. Verify section.
-         */
-        $sectionExists = SchoolClass::query()
-            ->where('id', $validated['class_id'])
-            ->where(
-                'class_name',
-                $examClass->schoolClass->class_name
-            )
-            ->where('section', $validated['section'])
-            ->where(
-                'academic_year',
-                $exam->academic_year
-            )
-            ->where('status', true)
-            ->exists();
-
-        if (!$sectionExists) {
-            abort(
-                404,
-                'Selected section does not belong to the selected class.'
-            );
-        }
-
-        /*
-         * 10. Get subject.
-         */
-        $examSubject = ExamSubject::with('subject')
-            ->where('exam_id', $exam->id)
-            ->where('class_id', $validated['class_id'])
-            ->where('subject_id', $validated['subject_id'])
-            ->where('status', true)
-            ->firstOrFail();
-
-        /*
-         * 11. Convert class name.
-         */
-        $className = $examClass->schoolClass->class_name ?? '';
-
-        $studentClassName = preg_replace(
-            '/^Class\s+/i',
-            '',
-            trim($className)
-        );
-
-        /*
-         * 12. Load students.
-         */
-        $students = Student::query()
-            ->where('class', $studentClassName)
-            ->where('section', $validated['section'])
-            ->where('academic_year', $exam->academic_year)
-            ->where('status', 'active')
-            ->orderByRaw(
-                '
-                CASE
-                    WHEN roll_number IS NULL OR roll_number = "" THEN 1
-                    ELSE 0
-                END
-                '
-            )
-            ->orderBy('roll_number')
-            ->orderBy('first_name')
-            ->orderBy('middle_name')
-            ->orderBy('last_name')
+    if (
+        $request->filled('exam_id') &&
+        $request->filled('class_id') &&
+        $selectedExam &&
+        $selectedClass
+    ) {
+        $subjects = ExamSubject::where('exam_id', $request->exam_id)
+            ->where('class_id', $request->class_id)
+            ->with('subject')
             ->get();
 
-        /*
-         * 13. Attach full name.
-         */
-        $students->each(function ($student) {
-            $student->full_name = collect([
-                $student->first_name,
-                $student->middle_name,
-                $student->last_name,
-            ])
-                ->filter(function ($value) {
-                    return filled($value);
-                })
-                ->implode(' ');
-        });
+        if ($request->filled('subject_id')) {
+            $examSubject = ExamSubject::where('exam_id', $request->exam_id)
+                ->where('class_id', $request->class_id)
+                ->where('subject_id', $request->subject_id)
+                ->first();
 
-        /*
-         * 14. Load existing marks.
-         */
-        $studentIds = $students->pluck('id');
+            $selectedSubject = $examSubject?->subject;
+        }
+    }
 
-        $existingMarks = ExamMark::query()
-            ->where('exam_id', $exam->id)
-            ->where('exam_class_id', $examClass->id)
-            ->where(
-                'subject_id',
-                $examSubject->subject_id
-            )
-            ->whereIn('student_id', $studentIds)
+    if (
+        $selectedExam &&
+        $selectedClass &&
+        $request->filled('section') &&
+        $request->filled('subject_id') &&
+        $examSubject
+    ) {
+        $selectedSection = $request->section;
+
+        $students = Student::where('class_name', $selectedClass->class_name)
+            ->where('section', $selectedSection)
+            ->where('academic_year', $selectedExam->academic_year)
+            ->orderBy('first_name')
+            ->get();
+
+        $existingMarks = ExamMark::where('exam_id', $request->exam_id)
+            ->where('class_id', $request->class_id)
+            ->where('subject_id', $request->subject_id)
+            ->where('section', $selectedSection)
             ->get()
             ->keyBy('student_id');
-
-        /*
-         * 15. Attach marks.
-         */
-        $students->each(function ($student) use ($existingMarks) {
-            $student->examMark = $existingMarks->get(
-                $student->id
-            );
-        });
-
-        /*
-         * 16. Return marks page.
-         */
-        return view('admin.results.marks', [
-            'exams' => $exams,
-            'exam' => $exam,
-            'examClasses' => $examClasses,
-            'examClass' => $examClass,
-            'examSubject' => $examSubject,
-            'students' => $students,
-            'section' => $validated['section'],
-            'sections' => $sections,
-            'selectionMode' => false,
-        ]);
     }
 
+    return view('admin.results.marks', compact(
+        'exams',
+        'classes',
+        'sections',
+        'subjects',
+        'students',
+        'existingMarks',
+        'selectedExam',
+        'selectedClass',
+        'selectedSection',
+        'selectedSubject',
+        'examSubject'
+    ));
+}
     /**
-     * Save Internal + Theory + Practical marks.
-     */
-    public function saveMarks(Request $request)
-    {
-        $request->validate([
-            'exam_id' => [
-                'required',
-                'integer',
-                'exists:exams,id',
-            ],
-            'class_id' => [
-                'required',
-                'integer',
-                'exists:school_classes,id',
-            ],
-            'section' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-            'subject_id' => [
-                'required',
-                'integer',
-                'exists:subjects,id',
-            ],
-            'marks' => [
-                'required',
-                'array',
-            ],
-            'marks.*.internal_marks' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-            'marks.*.theory_marks' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-            'marks.*.practical_marks' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-            'marks.*.status' => [
-                'required',
-                'in:present,absent,na',
-            ],
-        ]);
+ * Save Internal + Theory marks.
+ */
+public function saveMarks(Request $request)
+{
+    $validated = $request->validate([
+        'exam_id' => ['required', 'integer', 'exists:exams,id'],
+        'class_id' => ['required', 'integer', 'exists:school_classes,id'],
+        'section' => ['nullable', 'string', 'max:50'],
+        'subject_id' => ['required', 'integer', 'exists:subjects,id'],
 
-        $exam = Exam::findOrFail($request->exam_id);
+        'marks' => ['required', 'array'],
 
-        $schoolClass = SchoolClass::findOrFail(
-            $request->class_id
+        'marks.*.internal_marks' => [
+            'nullable',
+            'numeric',
+            'min:0',
+        ],
+
+        'marks.*.theory_marks' => [
+            'nullable',
+            'numeric',
+            'min:0',
+        ],
+
+        'marks.*.status' => [
+            'required',
+            'in:present,absent,na',
+        ],
+
+        'marks.*.remarks' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+    ]);
+
+    $exam = Exam::findOrFail($validated['exam_id']);
+
+    $schoolClass = SchoolClass::findOrFail(
+        $validated['class_id']
+    );
+
+    $examClass = ExamClass::where('exam_id', $exam->id)
+        ->where('class_id', $schoolClass->id)
+        ->first();
+
+    if (!$examClass) {
+        return back()->withInput()->with(
+            'error',
+            'This class is not assigned to the selected examination.'
         );
+    }
 
-        /*
-         * Verify class.
-         */
-        $examClass = ExamClass::where('exam_id', $exam->id)
-            ->where('class_id', $schoolClass->id)
-            ->first();
+    $examSubject = ExamSubject::where('exam_id', $exam->id)
+        ->where('class_id', $schoolClass->id)
+        ->where('subject_id', $validated['subject_id'])
+        ->where('status', true)
+        ->first();
 
-        if (!$examClass) {
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'This class is not assigned to the selected examination.'
-                );
-        }
-
-        /*
-         * Verify subject.
-         */
-        $examSubject = ExamSubject::where('exam_id', $exam->id)
-            ->where('class_id', $schoolClass->id)
-            ->where(
-                'subject_id',
-                $request->subject_id
-            )
-            ->where('status', true)
-            ->first();
-
-        if (!$examSubject) {
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'This subject is not assigned to the selected examination and class.'
-                );
-        }
-
-        /*
-         * Maximum marks.
-         */
-        $maximumMarks = (float) $examSubject->maximum_marks;
-
-        /*
-         * Convert class name.
-         */
-        $studentClass = preg_replace(
-            '/^Class\s+/i',
-            '',
-            trim((string) $schoolClass->class_name)
+    if (!$examSubject) {
+        return back()->withInput()->with(
+            'error',
+            'This subject is not assigned to the selected examination and class.'
         );
+    }
 
-        $section = $request->filled('section')
-            ? trim($request->section)
-            : trim((string) $schoolClass->section);
+    $internalMaximum = (float) $examSubject->internal_max_marks;
+    $theoryMaximum = (float) $examSubject->theory_max_marks;
+    $maximumMarks = (float) $examSubject->maximum_marks;
 
-        /*
-         * Get submitted students.
-         */
-        $submittedStudentIds = array_keys(
-            $request->input('marks', [])
+    // Do not allow marks entry until distribution is configured.
+    if (
+        $internalMaximum <= 0 ||
+        $theoryMaximum <= 0 ||
+        $maximumMarks <= 0 ||
+        ($internalMaximum + $theoryMaximum) != $maximumMarks
+    ) {
+        return back()->withInput()->with(
+            'error',
+            'Please configure valid Internal and Theory maximum marks for this subject before entering student marks.'
         );
+    }
 
-        $students = Student::query()
-            ->where('class', $studentClass)
-            ->when(
-                $section !== '',
-                function ($query) use ($section) {
-                    $query->where('section', $section);
-                }
-            )
-            ->where('academic_year', $exam->academic_year)
-            ->where('status', 'active')
-            ->whereIn('id', $submittedStudentIds)
-            ->get();
+    $section = trim(
+        (string) (
+            $validated['section']
+            ?? $schoolClass->section
+            ?? ''
+        )
+    );
 
-        /*
-         * Security check.
-         */
-        if (
-            $students->count() !==
-            count($submittedStudentIds)
-        ) {
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'One or more selected students do not belong to this class or section.'
+    $submittedStudentIds = array_map(
+        'intval',
+        array_keys($validated['marks'])
+    );
+
+    $students = Student::query()
+        ->where('class', trim((string) $schoolClass->class_name))
+        ->when($section !== '', function ($query) use ($section) {
+            $query->where('section', $section);
+        })
+        ->where('academic_year', $exam->academic_year)
+        ->where('status', 'active')
+        ->whereIn('id', $submittedStudentIds)
+        ->get();
+
+    if ($students->count() !== count($submittedStudentIds)) {
+        return back()->withInput()->with(
+            'error',
+            'One or more selected students do not belong to this class or section.'
+        );
+    }
+
+    DB::transaction(function () use (
+        $validated,
+        $students,
+        $exam,
+        $examClass,
+        $examSubject,
+        $internalMaximum,
+        $theoryMaximum,
+        $maximumMarks
+    ) {
+        foreach ($students as $student) {
+            $studentMarks = $validated['marks'][$student->id];
+
+            $status = $studentMarks['status'] ?? 'present';
+
+            $internalMarks = 0;
+            $theoryMarks = 0;
+            $totalMarks = 0;
+
+            if ($status === 'present') {
+                $internalMarks = (float) (
+                    $studentMarks['internal_marks'] ?? 0
                 );
-        }
 
-        /*
-         * Save all marks inside transaction.
-         */
-        DB::transaction(function () use (
-            $request,
-            $students,
-            $exam,
-            $examClass,
-            $examSubject,
-            $maximumMarks
-        ) {
-            foreach ($students as $student) {
-                $studentMarks = $request->input(
-                    'marks.' . $student->id,
-                    []
+                $theoryMarks = (float) (
+                    $studentMarks['theory_marks'] ?? 0
                 );
 
-                $status = $studentMarks['status']
-                    ?? 'present';
-
-                if ($status !== 'present') {
-                    $internalMarks = 0;
-                    $theoryMarks = 0;
-                    $practicalMarks = 0;
-                    $totalMarks = 0;
-                } else {
-                    $internalMarks = (float) (
-                        $studentMarks['internal_marks']
-                        ?? 0
-                    );
-
-                    $theoryMarks = (float) (
-                        $studentMarks['theory_marks']
-                        ?? 0
-                    );
-
-                    $practicalMarks = (float) (
-                        $studentMarks['practical_marks']
-                        ?? 0
-                    );
-
-                    $totalMarks =
-                        $internalMarks +
-                        $theoryMarks +
-                        $practicalMarks;
-
-                    /*
-                     * Total cannot exceed subject maximum.
-                     */
-                    if ($totalMarks > $maximumMarks) {
-                        throw ValidationException::withMessages([
-                            "marks.{$student->id}.internal_marks" =>
-                                "Total marks for {$student->student_id} cannot exceed {$maximumMarks}.",
-                        ]);
-                    }
+                if ($internalMarks > $internalMaximum) {
+                    throw ValidationException::withMessages([
+                        "marks.{$student->id}.internal_marks" =>
+                            "Internal marks for {$student->student_id} cannot exceed {$internalMaximum}.",
+                    ]);
                 }
 
-                ExamMark::updateOrCreate(
-                    [
-                        'exam_id' => $exam->id,
-                        'student_id' => $student->id,
-                        'subject_id' => $examSubject->subject_id,
-                    ],
-                    [
-                        'exam_class_id' => $examClass->id,
-                        'internal_marks' => $internalMarks,
-                        'theory_marks' => $theoryMarks,
-                        'practical_marks' => $practicalMarks,
-                        'max_marks' => $maximumMarks,
-                        'total_marks' => $totalMarks,
-                        'status' => $status,
-                        'remarks' => $studentMarks['remarks'] ?? null,
-                    ]
-                );
+                if ($theoryMarks > $theoryMaximum) {
+                    throw ValidationException::withMessages([
+                        "marks.{$student->id}.theory_marks" =>
+                            "Theory marks for {$student->student_id} cannot exceed {$theoryMaximum}.",
+                    ]);
+                }
+
+                $totalMarks = $internalMarks + $theoryMarks;
+
+                if ($totalMarks > $maximumMarks) {
+                    throw ValidationException::withMessages([
+                        "marks.{$student->id}.theory_marks" =>
+                            "Total marks for {$student->student_id} cannot exceed {$maximumMarks}.",
+                    ]);
+                }
             }
+
+            ExamMark::updateOrCreate(
+                [
+                    'exam_id' => $exam->id,
+                    'student_id' => $student->id,
+                    'subject_id' => $examSubject->subject_id,
+                ],
+                [
+                    'exam_class_id' => $examClass->id,
+                    'internal_marks' => $internalMarks,
+                    'theory_marks' => $theoryMarks,
+
+                    // Keep legacy column at zero for compatibility.
+                    'practical_marks' => 0,
+
+                    'max_marks' => $maximumMarks,
+                    'total_marks' => $totalMarks,
+                    'status' => $status,
+                    'remarks' => $studentMarks['remarks'] ?? null,
+                ]
+            );
+        }
+    });
+
+    return redirect()
+        ->route('admin.results.marks', [
+            'exam_id' => $exam->id,
+            'class_id' => $schoolClass->id,
+            'section' => $section,
+            'subject_id' => $examSubject->subject_id,
+        ])
+        ->with(
+            'success',
+            'Internal and Theory marks saved successfully for ' .
+            $students->count() .
+            ' student(s).'
+        );
+}
+
+public function loadSections(Request $request)
+{
+    $validated = $request->validate([
+        'exam_id' => ['required', 'integer', 'exists:exams,id'],
+        'class_id' => ['required', 'integer', 'exists:school_classes,id'],
+    ]);
+
+    $exam = Exam::findOrFail($validated['exam_id']);
+
+    // Confirm the selected class belongs to this exam.
+    $examClass = ExamClass::with('schoolClass')
+        ->where('exam_id', $exam->id)
+        ->where('class_id', $validated['class_id'])
+        ->first();
+
+    if (!$examClass || !$examClass->schoolClass) {
+        return response()->json([
+            'success' => false,
+            'message' => 'This class is not assigned to the selected exam.',
+            'sections' => [],
+        ], 422);
+    }
+
+    $selectedSchoolClass = $examClass->schoolClass;
+
+    // Find all sections belonging to this class and academic year.
+    $sections = SchoolClass::query()
+        ->where('class_name', $selectedSchoolClass->class_name)
+        ->where('academic_year', $exam->academic_year)
+        ->where(function ($query) {
+            $query->where('status', 1)
+                ->orWhere('status', 'active');
+        })
+        ->whereNotNull('section')
+        ->where('section', '!=', '')
+        ->orderBy('section')
+        ->pluck('section')
+        ->unique()
+        ->values()
+        ->map(fn ($section) => [
+            'id' => $section,
+            'name' => $section,
+        ]);
+
+    $ownSection = trim((string) $selectedSchoolClass->section);
+
+    if (
+        $ownSection !== '' &&
+        !$sections->contains(fn ($item) => $item['id'] === $ownSection)
+    ) {
+        $sections->push([
+            'id' => $ownSection,
+            'name' => $ownSection,
+        ]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'sections' => $sections->sortBy('name')->values(),
+    ]);
+}
+
+public function loadSubjects(Request $request)
+{
+    $request->validate([
+        'exam_id' => 'required|integer|exists:exams,id',
+        'class_id' => 'required|integer|exists:classes,id',
+    ]);
+
+    $subjects = ExamSubject::with('subject')
+        ->where('exam_id', $request->exam_id)
+        ->where('class_id', $request->class_id)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->subject_id,
+                'name' => $item->subject->name ?? 'Unknown Subject',
+                'code' => $item->subject->code ?? '',
+                'internal_max_marks' => (int) $item->internal_max_marks,
+                'theory_max_marks' => (int) $item->theory_max_marks,
+                'maximum_marks' => (int) $item->maximum_marks,
+                'passing_marks' => (int) $item->passing_marks,
+                'duration_minutes' => (int) $item->duration_minutes,
+            ];
         });
 
-        return redirect()
-            ->route('admin.results.marks', [
-                'exam_id' => $exam->id,
-                'class_id' => $schoolClass->id,
-                'section' => $section,
-                'subject_id' => $examSubject->subject_id,
-            ])
-            ->with(
-                'success',
-                'Marks saved successfully for ' .
-                $students->count() .
-                ' student(s).'
-            );
-    }
-
-    /**
-     * Load subjects assigned to selected exam and class.
-     */
-    public function loadSubjects(Request $request)
-    {
-        $validated = $request->validate([
-            'exam_id' => [
-                'required',
-                'integer',
-                'exists:exams,id',
-            ],
-            'class_id' => [
-                'required',
-                'integer',
-                'exists:school_classes,id',
-            ],
-        ]);
-
-        $exam = Exam::findOrFail($validated['exam_id']);
-
-        $schoolClass = SchoolClass::findOrFail(
-            $validated['class_id']
-        );
-
-        /*
-         * Verify class assignment.
-         */
-        $examClass = ExamClass::where('exam_id', $exam->id)
-            ->where('class_id', $schoolClass->id)
-            ->first();
-
-        if (!$examClass) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Selected class is not assigned to this exam.',
-                'subjects' => [],
-            ], 422);
-        }
-
-        /*
-         * Load subjects.
-         */
-        $examSubjects = ExamSubject::with('subject')
-            ->where('exam_id', $exam->id)
-            ->where('class_id', $schoolClass->id)
-            ->where('status', true)
-            ->get();
-
-        $subjects = $examSubjects
-            ->map(function ($examSubject) {
-                return [
-                    'id' => $examSubject->subject_id,
-                    'name' => $examSubject->subject
-                        ? $examSubject->subject->subject_name
-                        : 'Unknown Subject',
-                    'code' => $examSubject->subject
-                        ? $examSubject->subject->subject_code
-                        : null,
-                    'maximum_marks' =>
-                        $examSubject->maximum_marks,
-                    'passing_marks' =>
-                        $examSubject->passing_marks,
-                    'duration_minutes' =>
-                        $examSubject->duration_minutes,
-                ];
-            })
-            ->values();
-
-        return response()->json([
-            'success' => true,
-            'exam' => [
-                'id' => $exam->id,
-                'name' => $exam->exam_name,
-                'academic_year' => $exam->academic_year,
-            ],
-            'class' => [
-                'id' => $schoolClass->id,
-                'name' => $schoolClass->class_name,
-                'section' => $schoolClass->section,
-            ],
-            'subjects' => $subjects,
-        ]);
-    }
-
-    /**
-     * Generate student results.
-     *
-     * Every generation creates a new ResultVersion.
-     * Old versions are never deleted.
-     */
+    return response()->json([
+        'success' => true,
+        'subjects' => $subjects,
+    ]);
+}
+   
     public function generateResult(Request $request)
     {
         $validated = $request->validate([
@@ -1145,12 +933,7 @@ public function getExamClasses(Request $request)
             );
         }
 
-        /*
-         * Convert:
-         *
-         * Class 1 -> 1
-         * Class 10 -> 10
-         */
+        
         $studentClass = preg_replace(
             '/^Class\s+/i',
             '',
@@ -1218,12 +1001,7 @@ public function getExamClasses(Request $request)
             );
         }
 
-        /*
-         * Generate all results inside one transaction.
-         *
-         * Result = current/latest result.
-         * ResultVersion = permanent historical snapshot.
-         */
+        
         DB::transaction(function () use (
             $students,
             $examMarks,
@@ -1343,11 +1121,6 @@ public function getExamClasses(Request $request)
                         'percentage' => $percentage,
                         'grade' => $grade,
                         'result_status' => $resultStatus,
-
-                        /*
-                         * Every regenerated result starts
-                         * from Generated state.
-                         */
                         'publication_status' => 'generated',
                         'published_at' => null,
                         'published_by' => null,
@@ -1791,10 +1564,6 @@ public function getExamClasses(Request $request)
             $validated['exam_id']
         );
 
-        /*
-         * Make sure this exam-class actually belongs
-         * to the selected exam and class.
-         */
         $examClass = ExamClass::query()
             ->where(
                 'id',
@@ -1810,37 +1579,22 @@ public function getExamClasses(Request $request)
             )
             ->firstOrFail();
 
-        /*
-         * Get actual school class.
-         *
-         * Section is stored here, NOT in exam_classes.
-         */
         $schoolClass = SchoolClass::findOrFail(
             $validated['class_id']
         );
 
-        /*
-         * Use URL section if supplied.
-         * Otherwise use section from school_classes.
-         */
+        
         $section = $validated['section']
             ?: $schoolClass->section;
 
-        /*
-         * Convert:
-         *
-         * Class 1 -> 1
-         * Class 10 -> 10
-         */
+       
         $studentClass = preg_replace(
             '/^Class\s+/i',
             '',
             trim((string) $schoolClass->class_name)
         );
 
-        /*
-         * Get students belonging to this class/section.
-         */
+       
         $students = Student::query()
             ->where(
                 'class',
@@ -1866,9 +1620,7 @@ public function getExamClasses(Request $request)
             ->orderBy('last_name')
             ->get();
 
-        /*
-         * Get already generated results for these students.
-         */
+        
         $results = Result::query()
             ->where(
                 'exam_id',
@@ -1938,11 +1690,7 @@ public function getExamClasses(Request $request)
         );
     }
 
-    /**
-     * Publish an approved result online.
-     *
-     * WhatsApp sending is temporarily paused.
-     */
+   
     public function publish(
         Result $result,
         WhatsAppService $whatsappService
@@ -2032,31 +1780,12 @@ public function getExamClasses(Request $request)
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | 7. WhatsApp sending temporarily paused
-        |--------------------------------------------------------------------------
-        |
-        | Meta WhatsApp API will be connected later.
-        |
-        */
-
         return back()->with(
             'success',
             'Result published successfully. WhatsApp notification is currently paused.'
         );
     }
 
-
-    /**
- * Publish all approved results for a class and section.
- *
- * Every student in the selected class/section must have a result.
- * Every result must be either approved or already published.
- *
- * Nothing is published if any student is missing a result or
- * has a result that is still generated/verified.
- */
 public function publishClassResults(Request $request)
 {
     $validated = $request->validate([
@@ -2107,17 +1836,7 @@ public function publishClassResults(Request $request)
         ? trim($validated['section'])
         : trim((string) $schoolClass->section);
 
-    /*
-     * Convert:
-     *
-     * Class 8
-     *
-     * into:
-     *
-     * 8
-     *
-     * This must match the value stored in students.class.
-     */
+   
     $studentClass = preg_replace(
         '/^Class\s+/i',
         '',
@@ -2186,17 +1905,7 @@ public function publishClassResults(Request $request)
         );
     }
 
-    /*
-     * Check publication status of every result.
-     *
-     * Allowed:
-     * - approved
-     * - published
-     *
-     * Not allowed:
-     * - generated
-     * - verified
-     */
+    
     $notReadyResults = $results->filter(function ($result) {
         return !in_array(
             $result->publication_status,
@@ -2245,11 +1954,7 @@ public function publishClassResults(Request $request)
         );
     }
 
-    /*
-     * Only approved results actually need publishing.
-     *
-     * Already published results are left unchanged.
-     */
+    
     $approvedResults = $results->filter(function ($result) {
         return $result->publication_status === 'approved';
     });
@@ -2272,10 +1977,7 @@ public function publishClassResults(Request $request)
     ) {
         foreach ($approvedResults as $result) {
 
-            /*
-             * Re-check the status inside the transaction
-             * before publishing.
-             */
+            
             if (
                 $result->publication_status !==
                 'approved'
@@ -2331,14 +2033,7 @@ protected function buildResultWhatsAppMessage(
         $studentName = 'your child';
     }
 
-    /*
-     * Public result page.
-     *
-     * Parent will enter:
-     * - Student ID
-     * - Mother's Name
-     * - CAPTCHA
-     */
+    
     $resultUrl = URL::route(
         'result.public'
     );
@@ -2375,14 +2070,7 @@ protected function buildResultWhatsAppMessage(
         "School Administration";
 }
 
-/**
- * Verify all generated results for a class and section.
- *
- * Every active student in the selected class/section must have
- * a generated result before verification can begin.
- *
- * Already verified, approved, or published results are left unchanged.
- */
+
 public function verifyClassResults(Request $request)
 {
     $validated = $request->validate([
@@ -2433,25 +2121,14 @@ public function verifyClassResults(Request $request)
         ? trim($validated['section'])
         : trim((string) $schoolClass->section);
 
-    /*
-     * Convert:
-     *
-     * Class 8
-     *
-     * into:
-     *
-     * 8
-     */
+    
     $studentClass = preg_replace(
         '/^Class\s+/i',
         '',
         trim((string) $schoolClass->class_name)
     );
 
-    /*
-     * Get all active students for this
-     * class, section and academic year.
-     */
+    
     $students = Student::query()
         ->where(
             'class',
@@ -2517,12 +2194,7 @@ public function verifyClassResults(Request $request)
         );
     }
 
-    /*
-     * Only generated results are verified.
-     *
-     * Already verified, approved and published
-     * results remain unchanged.
-     */
+    
     $generatedResults = $results->filter(
         function ($result) {
             return $result->publication_status === 'generated';
@@ -2576,15 +2248,6 @@ public function verifyClassResults(Request $request)
     );
 }
 
-
-/**
- * Approve all verified results for a class and section.
- *
- * Every active student must have a result.
- * Results must be verified before they can be approved.
- *
- * Already approved or published results are left unchanged.
- */
 public function approveClassResults(Request $request)
 {
     $validated = $request->validate([
@@ -2671,10 +2334,7 @@ public function approveClassResults(Request $request)
         );
     }
 
-    /*
-     * Get results belonging to these students
-     * for the selected exam.
-     */
+    
     $results = Result::query()
         ->where(
             'exam_id',
@@ -2706,12 +2366,7 @@ public function approveClassResults(Request $request)
         );
     }
 
-    /*
-     * Results can only be approved when they are
-     * already verified.
-     *
-     * Approved and published results are already processed.
-     */
+    
     $notReadyResults = $results->filter(
         function ($result) {
             return !in_array(
@@ -2804,24 +2459,7 @@ public function approveClassResults(Request $request)
     );
 }
 
-/**
- * Open WhatsApp with pre-filled result publication message.
- *
- * No WhatsApp API key is required.
- *
- * Flow:
- * Admin clicks "Send WhatsApp"
- *      ↓
- * Laravel validates published result
- *      ↓
- * Gets mother's registered mobile number
- *      ↓
- * Builds result message
- *      ↓
- * Opens WhatsApp with pre-filled message
- *      ↓
- * Admin presses Send
- */
+
 public function whatsapp(Result $result)
 {
     /*
@@ -2877,22 +2515,6 @@ public function whatsapp(Result $result)
         );
     }
 
-    /*
-     * ------------------------------------------------------------
-     * 4. Normalize phone number
-     *
-     * Examples:
-     *
-     * 9876543210
-     * 09876543210
-     * +91 9876543210
-     * 91-9876543210
-     *
-     * become:
-     *
-     * 919876543210
-     * ------------------------------------------------------------
-     */
     $phone = preg_replace(
         '/\D+/',
         '',
@@ -2968,15 +2590,7 @@ public function whatsapp(Result $result)
                 'pending',
         ]);
 
-    /*
-     * ------------------------------------------------------------
-     * 8. Build WhatsApp click-to-chat URL
-     *
-     * No API key.
-     * No WhatsApp Cloud API.
-     * No external service.
-     * ------------------------------------------------------------
-     */
+    
     $whatsappUrl =
         'https://wa.me/' .
         $phone .
@@ -2992,20 +2606,6 @@ public function whatsapp(Result $result)
         $whatsappUrl
     );
 }
-
-/**
- * Open the bulk WhatsApp result notification page.
- *
- * Step 1:
- * Only prepares the selected exam/class/section.
- * Actual WhatsApp sending will be implemented next.
- */
-
-
-/**
- * Bulk WhatsApp result notification page.
- */
-
 
 
 public function bulkWhatsapp(Request $request)
@@ -3073,18 +2673,6 @@ public function bulkWhatsapp(Request $request)
             );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Convert Class Name
-    |--------------------------------------------------------------------------
-    |
-    | Class 1  -> 1
-    | Class 7  -> 7
-    | Class 10 -> 10
-    |
-    */
-
     $className = trim($schoolClass->class_name);
 
     $classNumber = preg_replace(
@@ -3105,18 +2693,6 @@ public function bulkWhatsapp(Request $request)
     $selectedSection = !empty($section)
         ? trim($section)
         : trim($schoolClass->section);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load Students
-    |--------------------------------------------------------------------------
-    |
-    | Father's mobile number is stored in:
-    |
-    | students.father_phone
-    |
-    */
 
     $students = \App\Models\Student::query()
         ->whereNull('deleted_at')
@@ -3160,6 +2736,5 @@ public function bulkWhatsapp(Request $request)
         )
     );
 }
-
 
 }

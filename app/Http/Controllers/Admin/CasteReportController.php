@@ -5,51 +5,43 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\SchoolSetting;
+use App\Models\Class\SchoolClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Class\SchoolClass;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CasteReportController extends Controller
 {
     /**
-     * Caste / Category Report
+     * Caste / Category Report Index
      */
     public function index(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Filter Values
-        |--------------------------------------------------------------------------
-        */
-
         $academicYears = Student::query()
             ->where('status', 'active')
             ->whereNotNull('academic_year')
             ->where('academic_year', '!=', '')
             ->distinct()
-            ->orderBy('academic_year', 'desc')
+            ->orderByDesc('academic_year')
             ->pluck('academic_year');
 
-        $classes = \App\Models\Class\SchoolClass::query()
-    ->whereNotNull('class_name')
-    ->where('class_name', '!=', '')
-    ->select('class_name')
-    ->distinct()
-    ->pluck('class_name')
-    ->map(fn ($name) => trim($name))
-    ->filter()
-    ->unique()
-    ->sort(function ($a, $b) {
-        $a = trim($a);
-        $b = trim($b);
+        $classes = SchoolClass::query()
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->select('class_name')
+            ->distinct()
+            ->pluck('class_name')
+            ->map(fn ($name) => trim($name))
+            ->filter()
+            ->unique()
+            ->sort(function ($a, $b) {
+                if (is_numeric($a) && is_numeric($b)) {
+                    return (int) $a <=> (int) $b;
+                }
 
-        if (is_numeric($a) && is_numeric($b)) {
-            return (int) $a <=> (int) $b;
-        }
-
-        return strcasecmp($a, $b);
-    })
-    ->values();
+                return strcasecmp($a, $b);
+            })
+            ->values();
 
         $sections = Student::query()
             ->where('status', 'active')
@@ -67,189 +59,19 @@ class CasteReportController extends Controller
             ->orderBy('caste')
             ->pluck('caste');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Main Report Query
-        |--------------------------------------------------------------------------
-        */
-
-        $query = Student::query()
-            ->select(
-                'caste',
-                'class',
-
-                DB::raw("
-                    SUM(
-                        CASE
-                            WHEN LOWER(TRIM(gender)) IN (
-                                'male',
-                                'm',
-                                'boy',
-                                'boys'
-                            )
-                            THEN 1
-                            ELSE 0
-                        END
-                    ) AS boys
-                "),
-
-                DB::raw("
-                    SUM(
-                        CASE
-                            WHEN LOWER(TRIM(gender)) IN (
-                                'female',
-                                'f',
-                                'girl',
-                                'girls'
-                            )
-                            THEN 1
-                            ELSE 0
-                        END
-                    ) AS girls
-                ")
-            )
-            ->where('status', 'active')
-            ->whereNotNull('caste')
-            ->where('caste', '!=', '')
-            ->whereNotNull('class')
-            ->where('class', '!=', '');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Apply Academic Year Filter
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('academic_year')) {
-            $query->where(
-                'academic_year',
-                $request->academic_year
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Apply Class Filter
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('class')) {
-            $query->where(
-                'class',
-                $request->class
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Apply Section Filter
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('section')) {
-            $query->where(
-                'section',
-                $request->section
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Apply Caste Filter
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('caste')) {
-            $query->where(
-                'caste',
-                $request->caste
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Group Report
-        |--------------------------------------------------------------------------
-        */
+        $query = $this->buildReportQuery($request);
 
         $report = $query
             ->groupBy('caste', 'class')
             ->get();
 
+        $report = $this->prepareReport($report);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate Row Totals
-        |--------------------------------------------------------------------------
-        */
-
-        $report->each(function ($row) {
-
-            $row->boys = (int) $row->boys;
-            $row->girls = (int) $row->girls;
-
-            $row->total = $row->boys + $row->girls;
-        });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Class Order
-        |--------------------------------------------------------------------------
-        */
-
-        $classOrder = $this->classOrder();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sort Classes
-        |--------------------------------------------------------------------------
-        */
-
-        $report = $report
-            ->sortBy(function ($row) use ($classOrder) {
-
-                $class = trim($row->class);
-
-                return $classOrder[$class] ?? 999;
-            })
-            ->values();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Grand Totals
-        |--------------------------------------------------------------------------
-        */
-
-        $grandBoys = $report->sum('boys');
-
-        $grandGirls = $report->sum('girls');
-
-        $grandTotal = $report->sum('total');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | School Information
-        |--------------------------------------------------------------------------
-        */
+        $grandBoys = (int) $report->sum('boys');
+        $grandGirls = (int) $report->sum('girls');
+        $grandTotal = (int) $report->sum('total');
 
         $schoolSetting = SchoolSetting::first();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Filter Status
-        |--------------------------------------------------------------------------
-        */
 
         $hasFilters =
             $request->filled('academic_year') ||
@@ -257,194 +79,45 @@ class CasteReportController extends Controller
             $request->filled('section') ||
             $request->filled('caste');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return View
-        |--------------------------------------------------------------------------
-        */
-
         return view('admin.caste-reports.index', compact(
-    'report',
-    'classes',
-    'academicYears',
-    'sections',
-    'castes',
-    'schoolSetting',
-    'grandBoys',
-    'grandGirls',
-    'grandTotal',
-    'hasFilters'
-));
+            'report',
+            'classes',
+            'academicYears',
+            'sections',
+            'castes',
+            'schoolSetting',
+            'grandBoys',
+            'grandGirls',
+            'grandTotal',
+            'hasFilters'
+        ));
     }
 
-
     /**
-     * Class-wise Caste / Category Print Report
+     * Existing class-wise print report.
      */
     public function classWisePrint(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Main Query
-        |--------------------------------------------------------------------------
-        */
-
-        $query = Student::query()
-            ->select(
-                'caste',
-                'class',
-
-                DB::raw("
-                    SUM(
-                        CASE
-                            WHEN LOWER(TRIM(gender)) IN (
-                                'male',
-                                'm',
-                                'boy',
-                                'boys'
-                            )
-                            THEN 1
-                            ELSE 0
-                        END
-                    ) AS boys
-                "),
-
-                DB::raw("
-                    SUM(
-                        CASE
-                            WHEN LOWER(TRIM(gender)) IN (
-                                'female',
-                                'f',
-                                'girl',
-                                'girls'
-                            )
-                            THEN 1
-                            ELSE 0
-                        END
-                    ) AS girls
-                ")
-            )
-            ->where('status', 'active')
-            ->whereNotNull('caste')
-            ->where('caste', '!=', '')
-            ->whereNotNull('class')
-            ->where('class', '!=', '');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Apply Same Filters To Print
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('academic_year')) {
-            $query->where(
-                'academic_year',
-                $request->academic_year
-            );
-        }
-
-        if ($request->filled('class')) {
-            $query->where(
-                'class',
-                $request->class
-            );
-        }
-
-        if ($request->filled('section')) {
-            $query->where(
-                'section',
-                $request->section
-            );
-        }
-
-        if ($request->filled('caste')) {
-            $query->where(
-                'caste',
-                $request->caste
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Report
-        |--------------------------------------------------------------------------
-        */
+        $query = $this->buildReportQuery($request);
 
         $report = $query
             ->groupBy('caste', 'class')
             ->get();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate Totals
-        |--------------------------------------------------------------------------
-        */
-
-        $report->each(function ($row) {
-
-            $row->boys = (int) $row->boys;
-
-            $row->girls = (int) $row->girls;
-
-            $row->total = $row->boys + $row->girls;
-        });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sort By Class
-        |--------------------------------------------------------------------------
-        */
-
-        $classOrder = $this->classOrder();
-
-        $report = $report
-            ->sortBy(function ($row) use ($classOrder) {
-
-                return $classOrder[
-                    trim($row->class)
-                ] ?? 999;
-            })
-            ->values();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | School Settings
-        |--------------------------------------------------------------------------
-        */
-
-        $schoolSetting = SchoolSetting::first();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Academic Year
-        |--------------------------------------------------------------------------
-        */
+        $report = $this->prepareReport($report);
 
         $academicYear = $request->academic_year;
 
         if (!$academicYear) {
-
             $academicYear = Student::query()
                 ->where('status', 'active')
                 ->whereNotNull('academic_year')
                 ->where('academic_year', '!=', '')
-                ->orderBy('academic_year', 'desc')
+                ->orderByDesc('academic_year')
                 ->value('academic_year');
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Send Data To Print View
-        |--------------------------------------------------------------------------
-        */
+        $schoolSetting = SchoolSetting::first();
 
         return view(
             'admin.caste-reports.class-wise-print',
@@ -455,120 +128,219 @@ class CasteReportController extends Controller
             )
         );
     }
-/**
- * Dedicated A4 print page.
- */
-public function print(Request $request)
-{
-    $data = $this->getCasteReportData($request);
 
-    return view('admin.caste-reports.print', $data);
-}
+    /**
+     * Open the standalone print page.
+     */
+    public function print(Request $request)
+    {
+        $data = $this->getCasteReportData($request);
 
-
-/**
- * Download the actual PDF.
- */
-
-/**
- * Download the actual PDF.
- */
-public function pdfDownload(Request $request)
-{
-    $data = $this->getCasteReportData($request);
-
-    return \Barryvdh\DomPDF\Facade\Pdf::loadView(
-        'admin.caste-reports.pdf-document',
-        $data
-    )
-        ->setOption('isRemoteEnabled', true)
-        ->setPaper('a4', 'landscape')
-        ->download('caste-category-report.pdf');
-}
-
-
-/**
- * Build filtered report data for print and PDF.
- */
-private function getCasteReportData(Request $request): array
-{
-    $query = Student::query()
-        ->select(
-            'caste',
-            'class',
-            DB::raw("
-                SUM(CASE
-                    WHEN LOWER(TRIM(gender)) IN ('male', 'm', 'boy', 'boys')
-                    THEN 1 ELSE 0
-                END) AS boys
-            "),
-            DB::raw("
-                SUM(CASE
-                    WHEN LOWER(TRIM(gender)) IN ('female', 'f', 'girl', 'girls')
-                    THEN 1 ELSE 0
-                END) AS girls
-            ")
-        )
-        ->where('status', 'active')
-        ->whereNotNull('caste')
-        ->where('caste', '!=', '')
-        ->whereNotNull('class')
-        ->where('class', '!=', '');
-
-    foreach (['academic_year', 'class', 'section', 'caste'] as $filter) {
-        if ($request->filled($filter)) {
-            $query->where($filter, $request->input($filter));
-        }
+        return view('admin.caste-reports.print', $data);
     }
 
-    $report = $query->groupBy('caste', 'class')->get();
+    /**
+     * Download PDF using the SAME Blade template as print.
+     */
+    public function pdfDownload(Request $request)
+    {
+        $data = $this->getCasteReportData($request);
 
-    $report->each(function ($row) {
-        $row->boys = (int) $row->boys;
-        $row->girls = (int) $row->girls;
-        $row->total = $row->boys + $row->girls;
-    });
+        $pdf = Pdf::loadView(
+            'admin.caste-reports.print',
+            $data
+        )
+            ->setPaper('a4', 'landscape')
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isHtml5ParserEnabled', true);
 
-    $classOrder = $this->classOrder();
+        return $pdf->download('caste-category-report.pdf');
+    }
 
-    $report = $report->sortBy(function ($row) use ($classOrder) {
-        return $classOrder[trim($row->class)] ?? 999;
-    })->values();
+    /**
+     * Build all report data for both Print and PDF.
+     */
+    private function getCasteReportData(Request $request): array
+    {
+        $query = $this->buildReportQuery($request);
 
-    return [
-        'report' => $report,
-        'schoolSetting' => SchoolSetting::first(),
-        'academicYear' => $request->academic_year
-            ?: Student::where('status', 'active')
+        $report = $query
+            ->groupBy('caste', 'class')
+            ->get();
+
+        $report = $this->prepareReport($report);
+
+        /*
+         * Get all available classes.
+         */
+        $classes = SchoolClass::query()
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->select('class_name')
+            ->distinct()
+            ->pluck('class_name')
+            ->map(fn ($name) => trim($name))
+            ->filter()
+            ->unique()
+            ->sort(function ($a, $b) {
+                if (is_numeric($a) && is_numeric($b)) {
+                    return (int) $a <=> (int) $b;
+                }
+
+                return strcasecmp($a, $b);
+            })
+            ->values();
+
+        /*
+         * If a class is selected, show only that class.
+         */
+        $selectedClass = trim((string) $request->input('class', ''));
+
+        $classNames = $selectedClass !== ''
+            ? $classes->filter(function ($name) use ($selectedClass) {
+                return strcasecmp($name, $selectedClass) === 0;
+            })->values()
+            : $classes;
+
+        /*
+         * Calculate totals.
+         */
+        $grandBoys = (int) $report->sum('boys');
+        $grandGirls = (int) $report->sum('girls');
+        $grandTotal = (int) $report->sum('total');
+
+        /*
+         * Academic year.
+         */
+        $academicYear = $request->academic_year;
+
+        if (!$academicYear) {
+            $academicYear = Student::query()
+                ->where('status', 'active')
                 ->whereNotNull('academic_year')
                 ->where('academic_year', '!=', '')
                 ->orderByDesc('academic_year')
-                ->value('academic_year'),
-        'selectedFilters' => $request->only([
-            'academic_year', 'class', 'section', 'caste',
-        ]),
-        'grandBoys' => $report->sum('boys'),
-        'grandGirls' => $report->sum('girls'),
-        'grandTotal' => $report->sum('total'),
-    ];
-}
+                ->value('academic_year') ?? 'All Academic Years';
+        }
 
-    
-   /**
- * Fetch class order dynamically from Class Management.
- */
-private function classOrder(): array
-{
-    return SchoolClass::query()
-        ->whereNotNull('class_name')
-        ->where('class_name', '!=', '')
-        ->select('class_name')
-        ->distinct()
-        ->get()
-        ->pluck('class_name')
-        ->mapWithKeys(function ($className, $index) {
-            return [trim($className) => $index + 1];
-        })
-        ->all();
-}
+        /*
+         * Selected filters.
+         */
+        $selectedFilters = $request->only([
+            'academic_year',
+            'class',
+            'section',
+            'caste',
+        ]);
+
+        $hasFilters =
+            $request->filled('academic_year') ||
+            $request->filled('class') ||
+            $request->filled('section') ||
+            $request->filled('caste');
+
+        return [
+            'report' => $report,
+            'schoolSetting' => SchoolSetting::first(),
+            'academicYear' => $academicYear,
+            'selectedFilters' => $selectedFilters,
+            'classNames' => $classNames,
+            'classes' => $classes,
+            'selectedClass' => $selectedClass,
+            'grandBoys' => $grandBoys,
+            'grandGirls' => $grandGirls,
+            'grandTotal' => $grandTotal,
+            'hasFilters' => $hasFilters,
+        ];
+    }
+
+    /**
+     * Common report query.
+     */
+    private function buildReportQuery(Request $request)
+    {
+        $query = Student::query()
+            ->select(
+                'caste',
+                'class',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN LOWER(TRIM(gender)) IN (
+                                'male', 'm', 'boy', 'boys'
+                            )
+                            THEN 1
+                            ELSE 0
+                        END
+                    ) AS boys
+                "),
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN LOWER(TRIM(gender)) IN (
+                                'female', 'f', 'girl', 'girls'
+                            )
+                            THEN 1
+                            ELSE 0
+                        END
+                    ) AS girls
+                ")
+            )
+            ->where('status', 'active')
+            ->whereNotNull('caste')
+            ->where('caste', '!=', '')
+            ->whereNotNull('class')
+            ->where('class', '!=', '');
+
+        foreach ([
+            'academic_year',
+            'class',
+            'section',
+            'caste',
+        ] as $filter) {
+            if ($request->filled($filter)) {
+                $query->where($filter, $request->input($filter));
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Prepare report totals and class sorting.
+     */
+    private function prepareReport($report)
+    {
+        $report->each(function ($row) {
+            $row->boys = (int) $row->boys;
+            $row->girls = (int) $row->girls;
+            $row->total = $row->boys + $row->girls;
+        });
+
+        $classOrder = $this->classOrder();
+
+        return $report
+            ->sortBy(function ($row) use ($classOrder) {
+                return $classOrder[trim($row->class)] ?? 999;
+            })
+            ->values();
+    }
+
+    /**
+     * Fetch class order dynamically.
+     */
+    private function classOrder(): array
+    {
+        return SchoolClass::query()
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->select('class_name')
+            ->distinct()
+            ->get()
+            ->pluck('class_name')
+            ->mapWithKeys(function ($className, $index) {
+                return [trim($className) => $index + 1];
+            })
+            ->all();
+    }
 }

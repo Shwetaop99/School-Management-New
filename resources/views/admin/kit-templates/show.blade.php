@@ -1,640 +1,836 @@
-
+```blade
 @extends('layouts.app')
 
 @section('title', 'Government Kit Details')
 
 @section('content')
 
-<div class="container-fluid py-4">
+@php
+    $items = $kitTemplate->items;
+    $totalItems = $items->count();
 
-    {{-- =========================================================
-        PAGE HEADER
-    ========================================================== --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    $academicYear = $kitTemplate->academic_year;
 
+    $getAvailableStock = function ($supply) use ($academicYear) {
+        if (!$supply) {
+            return 0;
+        }
+
+        $stockQuery = $supply->stock();
+
+        if ($academicYear) {
+            $stockQuery->where('academic_year', $academicYear);
+        }
+
+        return (float) ($stockQuery->value('quantity') ?? 0);
+    };
+
+    $totalRequired = $items->sum(
+        fn ($item) => (float) $item->quantity
+    );
+
+    $lowStockCount = $items->filter(function ($item) use ($getAvailableStock) {
+        $stock = $getAvailableStock($item->supplyItem);
+        $required = (float) $item->quantity;
+
+        return $stock < $required;
+    })->count();
+
+    $outOfStockCount = $items->filter(function ($item) use ($getAvailableStock) {
+        return $getAvailableStock($item->supplyItem) <= 0;
+    })->count();
+@endphp
+
+<div class="container-fluid kit-details-page py-4">
+
+    {{-- PAGE HEADER --}}
+    <div class="kit-page-header mb-4">
         <div>
-            <h3 class="fw-bold mb-1">
-                <i class="bi bi-box-seam text-primary me-2"></i>
-                Government Kit Details
-            </h3>
+            <div class="kit-eyebrow">
+                <i class="bi bi-grid-1x2-fill me-2"></i>
+                GOVERNMENT SUPPLY MANAGEMENT
+            </div>
 
-            <p class="text-muted mb-0">
-                View the standard items provided to each student.
+            <h2 class="kit-page-title">Government Kit Details</h2>
+
+            <p class="kit-page-subtitle">
+                View kit information, student requirements and current inventory.
             </p>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="kit-header-actions">
+            <a href="{{ route('admin.kit-templates.index') }}"
+               class="btn btn-light border">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
 
             <a href="{{ route('admin.kit-templates.edit', $kitTemplate) }}"
-               class="btn btn-primary">
-
-                <i class="bi bi-pencil me-1"></i>
-                Edit Government Kit
-
+               class="btn btn-kit-primary">
+                <i class="bi bi-pencil-square me-1"></i> Edit Kit
             </a>
-
-            <a href="{{ route('admin.kit-templates.index') }}"
-               class="btn btn-outline-secondary">
-
-                <i class="bi bi-arrow-left me-1"></i>
-                Back
-
-            </a>
-
         </div>
-
     </div>
 
+    {{-- KIT HERO --}}
+    <div class="kit-hero mb-4">
+        <div class="kit-hero-icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
 
-    {{-- =========================================================
-        KIT SUMMARY
-    ========================================================== --}}
-    <div class="card border-0 shadow-sm mb-4">
+        <div class="kit-hero-content">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <h3>{{ $kitTemplate->kit_name }}</h3>
 
-        <div class="card-body">
-
-            <div class="row g-4 align-items-center">
-
-                {{-- Icon --}}
-                <div class="col-auto">
-
-                    <div class="rounded-4 bg-primary bg-opacity-10
-                                text-primary d-flex align-items-center
-                                justify-content-center"
-                         style="width:80px;height:80px;">
-
-                        <i class="bi bi-box-seam fs-1"></i>
-
-                    </div>
-
-                </div>
-
-
-                {{-- Name --}}
-                <div class="col">
-
-                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-
-                        <h4 class="fw-bold mb-0">
-                            {{ $kitTemplate->kit_name }}
-                        </h4>
-
-                        @if($kitTemplate->status === 'active')
-
-                            <span class="badge bg-success">
-                                <i class="bi bi-check-circle me-1"></i>
-                                Active
-                            </span>
-
-                        @else
-
-                            <span class="badge bg-secondary">
-                                <i class="bi bi-pause-circle me-1"></i>
-                                Inactive
-                            </span>
-
-                        @endif
-
-                    </div>
-
-                    <div class="text-muted">
-
-                        Government Student Supply Kit
-
-                    </div>
-
-                </div>
-
-
-                {{-- Class --}}
-                <div class="col-md-auto">
-
-                    <div class="border rounded-3 px-4 py-3 text-center">
-
-                        <div class="small text-muted">
-                            Applicable Class
-                        </div>
-
-                        <div class="fw-bold fs-5">
-                            Class {{ $kitTemplate->class }}
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- Academic Year --}}
-                <div class="col-md-auto">
-
-                    <div class="border rounded-3 px-4 py-3 text-center">
-
-                        <div class="small text-muted">
-                            Academic Year
-                        </div>
-
-                        <div class="fw-bold fs-5">
-                            {{ $kitTemplate->academic_year ?: '—' }}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                @if($kitTemplate->status === 'active')
+                    <span class="kit-status kit-status-active">
+                        <span class="kit-status-dot"></span> Active
+                    </span>
+                @else
+                    <span class="kit-status kit-status-inactive">
+                        <span class="kit-status-dot"></span> Inactive
+                    </span>
+                @endif
             </div>
 
+            <p>
+                {{ $kitTemplate->description ?: 'Standard government-supplied items for eligible students.' }}
+            </p>
+
+            <div class="kit-meta-list">
+                <span>
+                    <i class="bi bi-mortarboard"></i>
+                    Class {{ $kitTemplate->class }}
+                </span>
+
+                <span>
+                    <i class="bi bi-calendar3"></i>
+                    {{ $kitTemplate->academic_year ?: 'Academic year not specified' }}
+                </span>
+
+                <span>
+                    <i class="bi bi-boxes"></i>
+                    {{ $totalItems }} supply items
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {{-- SUMMARY CARDS --}}
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kit-stat-card">
+                <div class="kit-stat-icon stat-blue">
+                    <i class="bi bi-boxes"></i>
+                </div>
+                <div>
+                    <div class="kit-stat-label">Total Items</div>
+                    <div class="kit-stat-value">{{ $totalItems }}</div>
+                    <div class="kit-stat-help">Items configured in this kit</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kit-stat-card">
+                <div class="kit-stat-icon stat-purple">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+                <div>
+                    <div class="kit-stat-label">Required Quantity</div>
+                    <div class="kit-stat-value">
+                        {{ number_format($totalRequired, 2) }}
+                    </div>
+                    <div class="kit-stat-help">Sum of per-student quantities</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kit-stat-card">
+                <div class="kit-stat-icon stat-orange">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <div class="kit-stat-label">Insufficient Stock</div>
+                    <div class="kit-stat-value">{{ $lowStockCount }}</div>
+                    <div class="kit-stat-help">Items below one student's requirement</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kit-stat-card">
+                <div class="kit-stat-icon stat-red">
+                    <i class="bi bi-box2"></i>
+                </div>
+                <div>
+                    <div class="kit-stat-label">Out of Stock</div>
+                    <div class="kit-stat-value">{{ $outOfStockCount }}</div>
+                    <div class="kit-stat-help">Items with zero available stock</div>
+                </div>
+            </div>
         </div>
 
     </div>
 
+    {{-- INVENTORY TABLE --}}
+    <div class="kit-panel">
 
-    <div class="row g-4">
+        <div class="kit-panel-header">
+            <div>
+                <h5>
+                    <i class="bi bi-clipboard-data me-2"></i>
+                    Supply Inventory & Requirements
+                </h5>
+                <p>Available inventory compared with the standard quantity for one student.</p>
+            </div>
 
-        {{-- =====================================================
-            KIT INFORMATION
-        ====================================================== --}}
-        <div class="col-xl-4">
+            <span class="kit-count-badge">
+                {{ $totalItems }} {{ $totalItems === 1 ? 'Item' : 'Items' }}
+            </span>
+        </div>
 
-            <div class="card border-0 shadow-sm h-100">
+        @if($totalItems > 0)
 
-                <div class="card-header bg-white border-0 py-3">
+            <div class="table-responsive">
+                <table class="table kit-inventory-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">#</th>
+                            <th>Supply Item</th>
+                            <th>Item Code</th>
+                            <th>Unit</th>
+                            <th class="text-center">Per Student</th>
+                            <th>Available Stock</th>
+                            <th>Stock Status</th>
+                        </tr>
+                    </thead>
 
-                    <h5 class="fw-bold mb-0">
+                    <tbody>
+    @foreach($items as $kitItem)
+        @php
+            $supply = $kitItem->supplyItem;
 
-                        <i class="bi bi-info-circle text-primary me-2"></i>
+            $stock = $getAvailableStock($supply);
+            $required = (float) $kitItem->quantity;
 
-                        Kit Information
+            $unit = $supply?->unit ?? '';
+            $stockMissing = !$supply;
+            $outOfStock = !$stockMissing && $stock <= 0;
+            $insufficient = !$stockMissing
+                && $stock > 0
+                && $stock < $required;
+            $sufficient = !$stockMissing && $stock >= $required;
+        @endphp
 
-                    </h5>
+        <tr>
+            <td class="ps-4 text-muted">{{ $loop->iteration }}</td>
 
-                </div>
-
-
-                <div class="card-body">
-
-                    <div class="mb-4">
-
-                        <div class="small text-muted mb-1">
-                            Government Kit Name
-                        </div>
-
-                        <div class="fw-semibold">
-                            {{ $kitTemplate->kit_name }}
-                        </div>
-
-                    </div>
-
-
-                    <div class="mb-4">
-
-                        <div class="small text-muted mb-1">
-                            Applicable Class
-                        </div>
-
-                        <div class="fw-semibold">
-                            Class {{ $kitTemplate->class }}
-                        </div>
-
-                    </div>
-
-
-                    <div class="mb-4">
-
-                        <div class="small text-muted mb-1">
-                            Academic Year
-                        </div>
-
-                        <div class="fw-semibold">
-                            {{ $kitTemplate->academic_year ?: 'Not specified' }}
-                        </div>
-
-                    </div>
-
-
-                    <div class="mb-4">
-
-                        <div class="small text-muted mb-1">
-                            Status
-                        </div>
-
-                        <div>
-
-                            @if($kitTemplate->status === 'active')
-
-                                <span class="badge bg-success">
-                                    Active
-                                </span>
-
-                            @else
-
-                                <span class="badge bg-secondary">
-                                    Inactive
-                                </span>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
+            <td>
+                <div class="kit-item-name">
+                    <span class="kit-item-icon">
+                        <i class="bi bi-box"></i>
+                    </span>
 
                     <div>
-
-                        <div class="small text-muted mb-1">
-                            Description
+                        <div class="fw-semibold">
+                            {{ $supply?->item_name ?? 'Unknown Item' }}
                         </div>
 
-                        <div class="text-muted">
-
-                            @if($kitTemplate->description)
-
-                                {{ $kitTemplate->description }}
-
-                            @else
-
-                                No description provided.
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- =====================================================
-            GOVERNMENT SUPPLIED ITEMS
-        ====================================================== --}}
-        <div class="col-xl-8">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-header bg-white border-0 py-3">
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div>
-
-                            <h5 class="fw-bold mb-1">
-
-                                <i class="bi bi-boxes text-primary me-2"></i>
-
-                                Government Supplied Items
-
-                            </h5>
-
+                        @if($kitItem->remarks)
                             <small class="text-muted">
-
-                                Standard quantity provided to one student.
-
+                                {{ $kitItem->remarks }}
                             </small>
-
-                        </div>
-
-                        <span class="badge bg-primary">
-
-                            {{ $kitTemplate->items->count() }} Items
-
-                        </span>
-
+                        @endif
                     </div>
-
                 </div>
-
-
-                <div class="card-body p-0">
-
-                    @if($kitTemplate->items->count())
-
-                        <div class="table-responsive">
-
-                            <table class="table table-hover align-middle mb-0">
-
-                                <thead class="table-light">
-
-                                    <tr>
-
-                                        <th class="ps-4">
-                                            #
-                                        </th>
-
-                                        <th>
-                                            Supply Item
-                                        </th>
-
-                                        <th>
-                                            Code
-                                        </th>
-
-                                        <th>
-                                            Unit
-                                        </th>
-
-                                        <th class="text-center">
-                                            Quantity / Student
-                                        </th>
-
-                                        <th>
-                                            Stock Available
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach($kitTemplate->items as $kitItem)
-
-                                        <tr>
-
-                                            <td class="ps-4 text-muted">
-                                                {{ $loop->iteration }}
-                                            </td>
-
-
-                                            <td>
-
-                                                <div class="fw-semibold">
-
-                                                    {{ $kitItem->supplyItem?->item_name ?? 'Unknown Item' }}
-
-                                                </div>
-
-                                                @if($kitItem->remarks)
-
-                                                    <small class="text-muted">
-
-                                                        {{ $kitItem->remarks }}
-
-                                                    </small>
-
-                                                @endif
-
-                                            </td>
-
-
-                                            <td>
-
-                                                <span class="badge bg-light text-dark border">
-
-                                                    {{ $kitItem->supplyItem?->item_code ?? '—' }}
-
-                                                </span>
-
-                                            </td>
-
-
-                                            <td>
-
-                                                {{ $kitItem->supplyItem?->unit ?? '—' }}
-
-                                            </td>
-
-
-                                            <td class="text-center">
-
-                                                <span class="badge bg-primary">
-
-                                                    {{ $kitItem->quantity }}
-
-                                                </span>
-
-                                            </td>
-
-
-                                            <td>
-
-                                                @php
-                                                    $stock = $kitItem->supplyItem?->quantity_in_stock ?? 0;
-                                                    $required = $kitItem->quantity;
-                                                @endphp
-
-                                                @if($stock >= $required)
-
-                                                    <span class="text-success fw-semibold">
-
-                                                        <i class="bi bi-check-circle me-1"></i>
-
-                                                        {{ $stock }}
-
-                                                    </span>
-
-                                                @else
-
-                                                    <span class="text-danger fw-semibold">
-
-                                                        <i class="bi bi-exclamation-triangle me-1"></i>
-
-                                                        {{ $stock }}
-
-                                                    </span>
-
-                                                @endif
-
-                                            </td>
-
-                                        </tr>
-
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                    @else
-
-                        <div class="text-center py-5 px-3">
-
-                            <div class="rounded-circle bg-light d-inline-flex
-                                        align-items-center justify-content-center mb-3"
-                                 style="width:70px;height:70px;">
-
-                                <i class="bi bi-boxes text-muted fs-2"></i>
-
-                            </div>
-
-                            <h6 class="fw-bold">
-                                No Items Defined
-                            </h6>
-
-                            <p class="text-muted mb-3">
-                                No government-supplied items have been added to this kit.
-                            </p>
-
-                            <a href="{{ route('admin.kit-templates.edit', $kitTemplate) }}"
-                               class="btn btn-primary btn-sm">
-
-                                <i class="bi bi-plus-circle me-1"></i>
-                                Add Items
-
-                            </a>
-
-                        </div>
-
+            </td>
+
+            <td>
+                <span class="kit-code">
+                    {{ $supply?->item_code ?? '—' }}
+                </span>
+            </td>
+
+            <td>{{ $unit ?: '—' }}</td>
+
+            <td class="text-center">
+                <span class="kit-quantity">
+                    {{ number_format($required, 2) }}
+                    @if($unit)
+                        <small>{{ $unit }}</small>
                     @endif
+                </span>
+            </td>
 
+            <td>
+                <div class="kit-stock-number
+                    {{ $stockMissing || $outOfStock
+                        ? 'stock-zero'
+                        : ($insufficient ? 'stock-low' : 'stock-good') }}">
+
+                    {{ number_format($stock, 2) }}
+                    <small>{{ $unit }}</small>
                 </div>
 
+                @if($stockMissing)
+                    <small class="text-muted">
+                        Supply item not linked
+                    </small>
+                @elseif($academicYear)
+                    <small class="text-muted">
+                        Academic year: {{ $academicYear }}
+                    </small>
+                @endif
+
+                @if(!$stockMissing && $required > 0)
+                    <div class="kit-stock-track mt-2">
+                        <div class="kit-stock-fill
+                            {{ $sufficient ? 'fill-good' : 'fill-low' }}"
+                            style="width: {{ min(100, ($stock / $required) * 100) }}%">
+                        </div>
+                    </div>
+                @endif
+            </td>
+
+            <td>
+                @if($stockMissing)
+                    <span class="kit-stock-badge badge-neutral">
+                        <i class="bi bi-question-circle"></i>
+                        Unknown
+                    </span>
+                @elseif($outOfStock)
+                    <span class="kit-stock-badge badge-danger">
+                        <i class="bi bi-x-circle"></i>
+                        Out of stock
+                    </span>
+                @elseif($insufficient)
+                    <span class="kit-stock-badge badge-warning">
+                        <i class="bi bi-exclamation-circle"></i>
+                        Insufficient
+                    </span>
+                @else
+                    <span class="kit-stock-badge badge-success">
+                        <i class="bi bi-check-circle"></i>
+                        Sufficient
+                    </span>
+                @endif
+            </td>
+        </tr>
+    @endforeach
+</tbody>
+                </table>
             </div>
 
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        DISTRIBUTION INFORMATION
-    ========================================================== --}}
-    <div class="card border-0 shadow-sm mt-4">
-
-        <div class="card-body">
-
-            <div class="row g-4">
-
-                <div class="col-md-4">
-
-                    <div class="d-flex align-items-center">
-
-                        <div class="rounded-circle bg-primary bg-opacity-10
-                                    text-primary p-3 me-3">
-
-                            <i class="bi bi-boxes fs-4"></i>
-
-                        </div>
-
-                        <div>
-
-                            <div class="small text-muted">
-                                Items in Kit
-                            </div>
-
-                            <div class="fw-bold fs-5">
-                                {{ $kitTemplate->items->count() }}
-                            </div>
-
-                        </div>
-
-                    </div>
-
+            <div class="kit-table-footer">
+                <div>
+                    <i class="bi bi-info-circle me-1"></i>
+                    Stock is compared with the quantity required for <strong>one student</strong>.
                 </div>
 
-
-                <div class="col-md-4">
-
-                    <div class="d-flex align-items-center">
-
-                        <div class="rounded-circle bg-success bg-opacity-10
-                                    text-success p-3 me-3">
-
-                            <i class="bi bi-person-check fs-4"></i>
-
-                        </div>
-
-                        <div>
-
-                            <div class="small text-muted">
-                                Distribution
-                            </div>
-
-                            <div class="fw-bold">
-                                Per Student
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                <div class="kit-legend">
+                    <span><i class="legend-dot dot-green"></i> Sufficient</span>
+                    <span><i class="legend-dot dot-orange"></i> Insufficient</span>
+                    <span><i class="legend-dot dot-red"></i> Out of stock</span>
                 </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="d-flex align-items-center">
-
-                        <div class="rounded-circle bg-info bg-opacity-10
-                                    text-info p-3 me-3">
-
-                            <i class="bi bi-calendar3 fs-4"></i>
-
-                        </div>
-
-                        <div>
-
-                            <div class="small text-muted">
-                                Academic Year
-                            </div>
-
-                            <div class="fw-bold">
-                                {{ $kitTemplate->academic_year ?: '—' }}
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
             </div>
 
-        </div>
+        @else
+            <div class="kit-empty-state">
+                <div class="kit-empty-icon">
+                    <i class="bi bi-inbox"></i>
+                </div>
+                <h5>No supply items added</h5>
+                <p>Add the standard government-supplied items to this kit to view stock availability.</p>
 
+                <a href="{{ route('admin.kit-templates.edit', $kitTemplate) }}"
+                   class="btn btn-kit-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Add Supply Items
+                </a>
+            </div>
+        @endif
     </div>
 
-
-    {{-- =========================================================
-        ACTIONS
-    ========================================================== --}}
-    <div class="d-flex justify-content-between align-items-center mt-4">
-
-        <a href="{{ route('admin.kit-templates.index') }}"
-           class="btn btn-light border">
-
-            <i class="bi bi-arrow-left me-1"></i>
-            Back to Government Kits
-
+    {{-- FOOTER ACTIONS --}}
+    <div class="kit-bottom-actions mt-4">
+        <a href="{{ route('admin.kit-templates.index') }}" class="btn btn-light border">
+            <i class="bi bi-arrow-left me-1"></i> All Government Kits
         </a>
-
 
         <a href="{{ route('admin.kit-templates.edit', $kitTemplate) }}"
-           class="btn btn-primary">
-
-            <i class="bi bi-pencil me-1"></i>
-            Edit Government Kit
-
+           class="btn btn-kit-primary">
+            <i class="bi bi-pencil-square me-1"></i> Edit Government Kit
         </a>
-
     </div>
 
 </div>
 
-
-{{-- =============================================================
-    STYLES
-============================================================= --}}
 <style>
-
-    .card {
-        border-radius: 14px;
+    .kit-details-page {
+        color: #1e293b;
     }
 
-    .table th {
-        font-size: 13px;
-        font-weight: 600;
-        white-space: nowrap;
+    .kit-page-header,
+    .kit-header-actions,
+    .kit-meta-list,
+    .kit-bottom-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
     }
 
-    .table td {
+    .kit-eyebrow {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        margin-bottom: 8px;
+    }
+
+    .kit-page-title {
+        font-size: clamp(24px, 3vw, 31px);
+        font-weight: 800;
+        letter-spacing: -.7px;
+        margin: 0 0 6px;
+    }
+
+    .kit-page-subtitle {
+        color: #64748b;
+        margin: 0;
         font-size: 14px;
     }
 
+    .btn-kit-primary {
+        background: #176b50;
+        border: 1px solid #176b50;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 9px;
+        padding: 10px 16px;
+    }
+
+    .btn-kit-primary:hover,
+    .btn-kit-primary:focus {
+        background: #10543e;
+        border-color: #10543e;
+        color: #fff;
+    }
+
+    .kit-hero {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 26px;
+        border-radius: 17px;
+        background: linear-gradient(120deg, #103f32, #176b50 65%, #25815f);
+        color: white;
+        box-shadow: 0 8px 24px rgba(23, 107, 80, .12);
+    }
+
+    .kit-hero-icon {
+        width: 66px;
+        height: 66px;
+        flex: 0 0 66px;
+        display: grid;
+        place-items: center;
+        border-radius: 17px;
+        background: rgba(255,255,255,.14);
+        font-size: 30px;
+    }
+
+    .kit-hero-content {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .kit-hero h3 {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .kit-hero-content > p {
+        color: rgba(255,255,255,.78);
+        margin: 0 0 17px;
+        font-size: 14px;
+    }
+
+    .kit-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 20px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .kit-status-active {
+        color: #d1fae5;
+        background: rgba(16,185,129,.2);
+        border: 1px solid rgba(167,243,208,.3);
+    }
+
+    .kit-status-inactive {
+        color: #f1f5f9;
+        background: rgba(148,163,184,.2);
+        border: 1px solid rgba(226,232,240,.3);
+    }
+
+    .kit-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .kit-meta-list {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 10px 24px;
+        color: rgba(255,255,255,.9);
+        font-size: 13px;
+    }
+
+    .kit-meta-list span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .kit-stat-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        height: 100%;
+        min-height: 120px;
+        background: #fff;
+        border: 1px solid #e8edf2;
+        border-radius: 14px;
+        padding: 19px;
+        box-shadow: 0 3px 12px rgba(15,23,42,.025);
+    }
+
+    .kit-stat-icon {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        border-radius: 13px;
+        font-size: 21px;
+    }
+
+    .stat-blue { background: #eaf2ff; color: #2563eb; }
+    .stat-purple { background: #f1eafe; color: #7c3aed; }
+    .stat-orange { background: #fff2df; color: #c77716; }
+    .stat-red { background: #feecec; color: #dc2626; }
+
+    .kit-stat-label {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .kit-stat-value {
+        color: #172033;
+        font-size: 25px;
+        line-height: 1.15;
+        font-weight: 800;
+    }
+
+    .kit-stat-help {
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 5px;
+    }
+
+    .kit-panel {
+        background: white;
+        border: 1px solid #e6ebf0;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(15,23,42,.025);
+    }
+
+    .kit-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 22px 24px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .kit-panel-header h5 {
+        font-size: 17px;
+        font-weight: 800;
+        margin: 0 0 5px;
+    }
+
+    .kit-panel-header h5 i {
+        color: #176b50;
+    }
+
+    .kit-panel-header p {
+        color: #64748b;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .kit-count-badge {
+        white-space: nowrap;
+        background: #e9f5ef;
+        color: #176b50;
+        border-radius: 8px;
+        padding: 7px 11px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .kit-inventory-table thead th {
+        background: #f7f9fb;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .45px;
+        padding: 15px 12px;
+        white-space: nowrap;
+        border-bottom: 1px solid #e8edf2;
+    }
+
+    .kit-inventory-table tbody td {
+        padding: 17px 12px;
+        border-color: #edf0f4;
+        font-size: 13px;
+        color: #475569;
+    }
+
+    .kit-inventory-table tbody tr:hover {
+        background: #fbfdfc;
+    }
+
+    .kit-item-name {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 180px;
+    }
+
+    .kit-item-icon {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 36px;
+        border-radius: 10px;
+        background: #edf7f1;
+        color: #176b50;
+        font-size: 16px;
+    }
+
+    .kit-item-name .fw-semibold {
+        color: #1e293b;
+        font-size: 13px;
+    }
+
+    .kit-code {
+        display: inline-block;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 4px 7px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .kit-quantity {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        font-weight: 800;
+        color: #334155;
+        background: #f1f5f9;
+        border-radius: 7px;
+        padding: 6px 10px;
+        min-width: 65px;
+    }
+
+    .kit-quantity small,
+    .kit-stock-number small {
+        font-size: 10px;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    .kit-stock-number {
+        font-size: 15px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .stock-good { color: #15803d; }
+    .stock-low { color: #c77716; }
+    .stock-zero { color: #dc2626; }
+
+    .kit-stock-track {
+        width: 100px;
+        height: 5px;
+        overflow: hidden;
+        border-radius: 10px;
+        background: #edf0f4;
+    }
+
+    .kit-stock-fill {
+        height: 100%;
+        border-radius: inherit;
+    }
+
+    .fill-good { background: #22a06b; }
+    .fill-low { background: #f59e0b; }
+
+    .kit-stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 8px;
+        border-radius: 7px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .badge-success { background: #e8f7ee; color: #167344; }
+    .badge-warning { background: #fff4df; color: #a96009; }
+    .badge-danger { background: #feecec; color: #c62828; }
+    .badge-neutral { background: #f1f5f9; color: #64748b; }
+
+    .kit-table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        background: #fbfcfd;
+        border-top: 1px solid #edf0f4;
+        padding: 15px 22px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .kit-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 13px;
+    }
+
+    .kit-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .dot-green { background: #22a06b; }
+    .dot-orange { background: #f59e0b; }
+    .dot-red { background: #dc2626; }
+
+    .kit-empty-state {
+        text-align: center;
+        padding: 55px 20px;
+    }
+
+    .kit-empty-icon {
+        width: 65px;
+        height: 65px;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        background: #edf7f1;
+        color: #176b50;
+        font-size: 28px;
+        margin: 0 auto 16px;
+    }
+
+    .kit-empty-state h5 {
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .kit-empty-state p {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 767.98px) {
+        .kit-page-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .kit-header-actions {
+            width: 100%;
+        }
+
+        .kit-header-actions .btn {
+            flex: 1;
+        }
+
+        .kit-hero {
+            padding: 20px;
+            gap: 13px;
+        }
+
+        .kit-hero-icon {
+            width: 48px;
+            height: 48px;
+            flex-basis: 48px;
+            border-radius: 12px;
+            font-size: 23px;
+        }
+
+        .kit-hero h3 {
+            font-size: 19px;
+        }
+
+        .kit-meta-list {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 9px;
+        }
+
+        .kit-panel-header {
+            padding: 18px;
+        }
+
+        .kit-table-footer {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .kit-bottom-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .kit-bottom-actions .btn {
+            width: 100%;
+        }
+    }
 </style>
 
 @endsection
+```

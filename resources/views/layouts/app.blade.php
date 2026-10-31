@@ -615,6 +615,7 @@
    
 
 
+
 [
     'l' => 'Results',
     'i' => 'fa-chart-column',
@@ -624,11 +625,11 @@
     ],
     'c' => [
         ['Result Dashboard', 'admin.results.index'],
-        ['Enter Marks', 'admin.results.generate'],
-        ['Publish Results', 'admin.results.class-results'],
-
+        ['Enter Marks', 'admin.results.marks'],
+        ['Publish Results', 'admin.results.generate'],
     ],
 ],
+
 
 
 

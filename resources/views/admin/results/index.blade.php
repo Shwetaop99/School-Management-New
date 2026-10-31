@@ -1,2350 +1,2116 @@
-
 @extends('layouts.app')
 
 @section('title', 'Result Dashboard')
 
 @section('content')
-
-<style>
-    /* =========================================================
-       RESULT DASHBOARD
-    ========================================================== */
-
-    .result-dashboard {
-        --rd-primary: #1677f0;
-        --rd-primary-dark: #0f5fc4;
-        --rd-primary-soft: #eef6ff;
-
-        --rd-success: #198754;
-        --rd-success-soft: #edf9f2;
-
-        --rd-warning: #b77900;
-        --rd-warning-soft: #fff8e6;
-
-        --rd-info: #0d9fc1;
-        --rd-info-soft: #eafaff;
-
-        --rd-danger: #dc3545;
-        --rd-danger-soft: #fff0f1;
-
-        --rd-text: #172033;
-        --rd-muted: #667085;
-        --rd-border: #e5eaf0;
-        --rd-soft: #f7f9fc;
-
-        --rd-radius: 18px;
-
-        color: var(--rd-text);
-    }
-
-
-    /* =========================================================
-       HEADER
-    ========================================================== */
-
-    .rd-header {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid #dfe8f2;
-        border-radius: 20px;
-        padding: 25px 26px;
-        margin-bottom: 22px;
-
-        background:
-            radial-gradient(
-                circle at 92% 15%,
-                rgba(22,119,240,.10),
-                transparent 28%
-            ),
-            linear-gradient(
-                135deg,
-                #ffffff 0%,
-                #f4f8ff 100%
-            );
-
-        box-shadow: 0 8px 30px rgba(15,23,42,.055);
-    }
-
-    .rd-header-content {
-        position: relative;
-        z-index: 2;
-    }
-
-    .rd-title-icon {
-        width: 58px;
-        height: 58px;
-        min-width: 58px;
-        border-radius: 16px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        background: linear-gradient(
-            135deg,
-            rgba(22,119,240,.14),
-            rgba(22,119,240,.06)
-        );
-
-        color: var(--rd-primary);
-        font-size: 26px;
-    }
-
-    .rd-title {
-        color: var(--rd-text);
-        font-size: 24px;
-        font-weight: 750;
-        letter-spacing: -.3px;
-        margin: 0;
-    }
-
-    .rd-subtitle {
-        color: var(--rd-muted);
-        font-size: 13px;
-        margin: 5px 0 0;
-    }
-
-    .rd-generate-btn {
-        min-height: 44px;
-        border: 0;
-        border-radius: 11px;
-        padding: 10px 18px;
-        font-size: 13px;
-        font-weight: 650;
-
-        box-shadow: 0 7px 18px rgba(22,119,240,.20);
-
-        transition: .2s ease;
-    }
-
-    .rd-generate-btn:hover {
-        transform: translateY(-1px);
-    }
-
-
-    /* =========================================================
-       ALERTS
-    ========================================================== */
-
-    .rd-alert {
-        border: 0;
-        border-radius: 12px;
-        padding: 13px 16px;
-        font-size: 13px;
-        box-shadow: 0 5px 18px rgba(15,23,42,.045);
-    }
-
-    .rd-loading {
-        background: #eef7ff;
-        color: #145da0;
-        border: 1px solid #d8ecff;
-    }
-
-    .rd-error {
-        background: #fff1f2;
-        color: #b42318;
-        border: 1px solid #ffd8dc;
-    }
-
-
-    /* =========================================================
-       SELECTOR
-    ========================================================== */
-
-    .rd-selector-card {
-        background: #fff;
-        border: 1px solid var(--rd-border);
-        border-radius: var(--rd-radius);
-        box-shadow: 0 7px 25px rgba(15,23,42,.05);
-        overflow: hidden;
-    }
-
-    .rd-selector-header {
-        padding: 17px 21px;
-        border-bottom: 1px solid var(--rd-border);
-
-        background: linear-gradient(
-            180deg,
-            #ffffff,
-            #fbfcfe
-        );
-    }
-
-    .rd-selector-body {
-        padding: 21px;
-    }
-
-    .rd-selector-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 11px;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        background: var(--rd-primary-soft);
-        color: var(--rd-primary);
-        font-size: 18px;
-    }
-
-    .rd-section-title {
-        color: var(--rd-text);
-        font-size: 15px;
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .rd-section-subtitle {
-        color: var(--rd-muted);
-        font-size: 11px;
-        margin-top: 3px;
-    }
-
-    .rd-label {
-        color: #475467;
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .rd-select {
-        min-height: 47px;
-        border-radius: 11px;
-        border-color: #d8e1eb;
-        color: var(--rd-text);
-        font-size: 13px;
-        font-weight: 550;
-
-        box-shadow: none;
-        transition: .2s ease;
-    }
-
-    .rd-select:focus {
-        border-color: var(--rd-primary);
-        box-shadow: 0 0 0 .20rem rgba(22,119,240,.10);
-    }
-
-
-    /* =========================================================
-       EXAM INFORMATION
-    ========================================================== */
-
-    .rd-exam-card {
-        background: #fff;
-        border: 1px solid var(--rd-border);
-        border-radius: var(--rd-radius);
-        box-shadow: 0 7px 25px rgba(15,23,42,.05);
-        overflow: hidden;
-    }
-
-    .rd-exam-body {
-        padding: 18px 21px;
-    }
-
-    .rd-exam-item {
-        height: 100%;
-        background: var(--rd-soft);
-        border: 1px solid var(--rd-border);
-        border-radius: 12px;
-        padding: 14px 15px;
-    }
-
-    .rd-exam-label {
-        color: var(--rd-muted);
-        font-size: 10px;
-        font-weight: 750;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        margin-bottom: 6px;
-    }
-
-    .rd-exam-value {
-        color: var(--rd-text);
-        font-size: 14px;
-        font-weight: 650;
-    }
-
-
-    /* =========================================================
-       DYNAMIC STATUS BADGE
-    ========================================================== */
-
-    .rd-status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-
-        width: fit-content;
-
-        padding: 6px 11px;
-        border-radius: 20px;
-
-        font-size: 11px;
-        font-weight: 750;
-        text-transform: capitalize;
-    }
-
-    .rd-status-badge i {
-        font-size: 7px;
-    }
-
-    .rd-status-scheduled {
-        background: #eef6ff;
-        color: #1677f0;
-    }
-
-    .rd-status-draft {
-        background: #f2f4f7;
-        color: #667085;
-    }
-
-    .rd-status-completed {
-        background: #edf9f2;
-        color: #198754;
-    }
-
-    .rd-status-cancelled {
-        background: #fff0f1;
-        color: #dc3545;
-    }
-
-
-    /* =========================================================
-       SUMMARY CARDS
-    ========================================================== */
-
-    .rd-summary-card {
-        position: relative;
-        height: 100%;
-        overflow: hidden;
-
-        background: #fff;
-        border: 1px solid var(--rd-border);
-        border-radius: 15px;
-
-        box-shadow: 0 6px 22px rgba(15,23,42,.045);
-
-        transition: .2s ease;
-    }
-
-    .rd-summary-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(15,23,42,.08);
-    }
-
-    .rd-summary-body {
-        position: relative;
-        z-index: 1;
-        padding: 18px;
-    }
-
-    .rd-summary-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        margin-bottom: 13px;
-        font-size: 18px;
-    }
-
-    .rd-summary-total .rd-summary-icon {
-        background: var(--rd-primary-soft);
-        color: var(--rd-primary);
-    }
-
-    .rd-summary-generated .rd-summary-icon {
-        background: #edf4ff;
-        color: #0d6efd;
-    }
-
-    .rd-summary-approved .rd-summary-icon {
-        background: var(--rd-warning-soft);
-        color: var(--rd-warning);
-    }
-
-    .rd-summary-published .rd-summary-icon {
-        background: var(--rd-success-soft);
-        color: var(--rd-success);
-    }
-
-    .rd-summary-label {
-        color: var(--rd-muted);
-        font-size: 11px;
-        font-weight: 650;
-    }
-
-    .rd-summary-value {
-        color: var(--rd-text);
-        font-size: 26px;
-        line-height: 1.1;
-        font-weight: 750;
-        margin-top: 4px;
-    }
-
-
-    /* =========================================================
-       SUMMARY PROGRESS
-    ========================================================== */
-
-    .rd-overall-progress {
-        margin-top: 13px;
-    }
-
-    .rd-overall-progress-label {
-        color: var(--rd-muted);
-        font-size: 10px;
-        font-weight: 650;
-    }
-
-    .rd-overall-progress-value {
-        color: var(--rd-success);
-        font-size: 10px;
-        font-weight: 750;
-    }
-
-    .rd-overall-progress-bar {
-        height: 6px;
-        overflow: hidden;
-        border-radius: 20px;
-        background: #e9eef4;
-    }
-
-    .rd-overall-progress-bar .progress-bar {
-        border-radius: 20px;
-        transition: width .5s ease;
-    }
-
-
-    /* =========================================================
-       CLASS HEADER
-    ========================================================== */
-
-    .rd-class-heading {
-        margin-top: 5px;
-        margin-bottom: 18px;
-    }
-
-    .rd-class-heading-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        background: var(--rd-primary-soft);
-        color: var(--rd-primary);
-        font-size: 19px;
-    }
-
-    .rd-class-title {
-        color: var(--rd-text);
-        font-size: 17px;
-        font-weight: 750;
-        margin: 0;
-    }
-
-    .rd-class-description {
-        color: var(--rd-muted);
-        font-size: 12px;
-        margin: 3px 0 0;
-    }
-
-
-    /* =========================================================
-       CLASS CARD
-    ========================================================== */
-
-    .rd-class-card {
-        position: relative;
-        height: 100%;
-        overflow: hidden;
-
-        background: #fff;
-        border: 1px solid var(--rd-border);
-        border-radius: 17px;
-
-        box-shadow: 0 7px 25px rgba(15,23,42,.055);
-
-        transition: .22s ease;
-    }
-
-    .rd-class-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(22,119,240,.18);
-        box-shadow: 0 15px 34px rgba(15,23,42,.095);
-    }
-
-    .rd-class-card::before {
-        content: "";
-        position: absolute;
-
-        left: 0;
-        right: 0;
-        top: 0;
-
-        height: 3px;
-
-        background: var(--rd-primary);
-    }
-
-    .rd-class-card.status-completed::before {
-        background: var(--rd-success);
-    }
-
-    .rd-class-card.status-progress::before {
-        background: var(--rd-warning);
-    }
-
-    .rd-class-card.status-pending::before {
-        background: var(--rd-danger);
-    }
-
-    .rd-class-top {
-        padding: 21px 20px 18px;
-    }
-
-    .rd-class-icon {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        border-radius: 12px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        background: var(--rd-primary-soft);
-        color: var(--rd-primary);
-        font-size: 19px;
-    }
-
-    .rd-class-name {
-        color: var(--rd-text);
-        font-size: 16px;
-        font-weight: 750;
-        line-height: 1.25;
-        margin: 0;
-    }
-
-    .rd-class-year {
-        color: var(--rd-muted);
-        font-size: 11px;
-        margin-top: 5px;
-    }
-
-    .rd-student-badge {
-        padding: 6px 10px;
-        border-radius: 20px;
-
-        background: var(--rd-primary-soft);
-        color: var(--rd-primary);
-
-        font-size: 10px;
-        font-weight: 750;
-        white-space: nowrap;
-    }
-
-
-    /* =========================================================
-       CLASS STATUS
-    ========================================================== */
-
-    .rd-class-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-
-        margin-top: 12px;
-
-        padding: 6px 10px;
-
-        border-radius: 20px;
-
-        font-size: 10px;
-        font-weight: 750;
-    }
-
-    .rd-class-status.completed {
-        color: var(--rd-success);
-        background: var(--rd-success-soft);
-    }
-
-    .rd-class-status.progress {
-        color: var(--rd-warning);
-        background: var(--rd-warning-soft);
-    }
-
-    .rd-class-status.pending {
-        color: var(--rd-danger);
-        background: var(--rd-danger-soft);
-    }
-
-    .rd-class-status.empty {
-        color: var(--rd-muted);
-        background: #f2f4f7;
-    }
-
-
-    /* =========================================================
-       STATISTICS
-    ========================================================== */
-
-    .rd-stat {
-        position: relative;
-
-        background: #f9fafc;
-        border: 1px solid #edf1f5;
-        border-radius: 11px;
-
-        padding: 11px 8px;
-        text-align: center;
-
-        height: 100%;
-    }
-
-    .rd-stat-label {
-        display: block;
-        color: var(--rd-muted);
-        font-size: 10px;
-        font-weight: 650;
-        margin-bottom: 4px;
-    }
-
-    .rd-stat-value {
-        display: block;
-        font-size: 18px;
-        line-height: 1.1;
-        font-weight: 750;
-    }
-
-    .rd-stat-generated {
-        color: #0d6efd;
-    }
-
-    .rd-stat-verified {
-        color: var(--rd-info);
-    }
-
-    .rd-stat-approved {
-        color: var(--rd-warning);
-    }
-
-    .rd-stat-published {
-        color: var(--rd-success);
-    }
-
-
-    /* =========================================================
-       PUBLICATION PROGRESS
-    ========================================================== */
-
-    .rd-progress-area {
-        margin-top: 19px;
-    }
-
-    .rd-progress-label {
-        color: var(--rd-muted);
-        font-size: 11px;
-        font-weight: 650;
-    }
-
-    .rd-progress-value {
-        color: var(--rd-text);
-        font-size: 11px;
-        font-weight: 750;
-    }
-
-    .rd-progress {
-        height: 8px;
-        overflow: hidden;
-        border-radius: 20px;
-        background: #e9eef4;
-    }
-
-    .rd-progress .progress-bar {
-        border-radius: 20px;
-        transition: width .5s ease;
-    }
-
-
-    /* =========================================================
-       ACTIONS
-    ========================================================== */
-
-    .rd-card-footer {
-        padding: 15px 20px 20px;
-        border-top: 1px solid #eff2f5;
-        background: #fff;
-    }
-
-    .rd-action-btn {
-        min-height: 41px;
-        border-radius: 10px;
-
-        font-size: 12px;
-        font-weight: 650;
-
-        padding: 9px 12px;
-
-        transition: .18s ease;
-    }
-
-    .rd-action-btn:hover {
-        transform: translateY(-1px);
-    }
-
-    .rd-whatsapp-btn {
-        border-color: var(--rd-success);
-        box-shadow: 0 5px 14px rgba(25,135,84,.10);
-    }
-
-
-    /* =========================================================
-       EMPTY STATE
-    ========================================================== */
-
-    .rd-empty {
-        overflow: hidden;
-        background: #fff;
-        border: 1px solid var(--rd-border);
-        border-radius: var(--rd-radius);
-        box-shadow: 0 7px 25px rgba(15,23,42,.05);
-    }
-
-    .rd-empty-body {
-        padding: 70px 20px;
-        text-align: center;
-    }
-
-    .rd-empty-icon {
-        width: 82px;
-        height: 82px;
-        margin: 0 auto 19px;
-
-        border-radius: 22px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        background: var(--rd-soft);
-        color: #98a2b3;
-
-        font-size: 35px;
-    }
-
-    .rd-empty-title {
-        color: var(--rd-text);
-        font-size: 17px;
-        font-weight: 750;
-        margin-bottom: 6px;
-    }
-
-    .rd-empty-text {
-        color: var(--rd-muted);
-        font-size: 13px;
-        margin: 0;
-    }
-
-
-    /* =========================================================
-       RESPONSIVE
-    ========================================================== */
-
-    @media (max-width: 767.98px) {
-
-        .result-dashboard {
-            padding-top: 10px !important;
-        }
-
-        .rd-header {
-            padding: 19px;
-            border-radius: 16px;
-        }
-
-        .rd-header .d-flex {
-            align-items: flex-start !important;
-            flex-direction: column;
-        }
-
-        .rd-title {
-            font-size: 20px;
-        }
-
-        .rd-generate-btn {
-            width: 100%;
-        }
-
-        .rd-selector-body,
-        .rd-exam-body {
-            padding: 15px;
-        }
-
-        .rd-class-top,
-        .rd-card-footer {
-            padding-left: 16px;
-            padding-right: 16px;
-        }
-
-        .rd-action-btn {
-            width: 100%;
-        }
-    }
-</style>
-
-
-<div class="container-fluid py-4 result-dashboard">
-
-    {{-- =========================================================
-        PAGE HEADER
-    ========================================================== --}}
-
-    <div class="rd-header">
-
-        <div class="rd-header-content">
-
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-
-                <div class="d-flex align-items-center gap-3">
-
-                    <div class="rd-title-icon">
-                        <i class="bi bi-award-fill"></i>
-                    </div>
-
-                    <div>
-
-                        <h4 class="rd-title">
-                            Result Dashboard
-                        </h4>
-
-                        <p class="rd-subtitle">
-                            Manage generated, verified, approved and published student results.
-                        </p>
-
-                    </div>
-
+<div class="result-page">
+    <div class="container-fluid py-4 result-dashboard">
+
+        {{-- PAGE HEADER --}}
+        <header class="rd-header">
+            <div class="rd-header-content">
+                <div class="rd-header-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
                 </div>
 
-
-                <a
-                    href="{{ route('admin.results.generate') }}"
-                    class="btn btn-primary rd-generate-btn"
-                >
-                    <i class="bi bi-plus-circle me-1"></i>
-                    Generate Result
-                </a>
-
+                <div class="rd-header-text">
+                    <span class="rd-eyebrow">ACADEMIC MANAGEMENT</span>
+                    <h1>Result Dashboard</h1>
+                    <p>Manage examination results, track progress, and publish student results.</p>
+                </div>
             </div>
 
-        </div>
+            <div class="rd-header-actions">
+                <a href="{{ route('admin.results.generate') }}" class="rd-btn rd-btn-primary">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Enter Marks</span>
+                </a>
 
-    </div>
+                <button type="button" class="rd-btn rd-btn-light" id="refreshDashboard">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
 
+        {{-- NOTIFICATIONS --}}
+        @if(session('success'))
+            <div class="rd-alert rd-alert-success" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>{{ session('success') }}</div>
+                <button type="button" class="rd-alert-close" data-bs-dismiss="alert" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        @endif
 
-    {{-- =========================================================
-        FLASH MESSAGES
-    ========================================================== --}}
+        @if(session('error'))
+            <div class="rd-alert rd-alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>{{ session('error') }}</div>
+                <button type="button" class="rd-alert-close" data-bs-dismiss="alert" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        @endif
 
-    @if(session('success'))
-
-        <div class="alert alert-success alert-dismissible fade show rd-alert mb-4">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            {{ session('success') }}
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
-        </div>
-
-    @endif
-
-
-    @if(session('error'))
-
-        <div class="alert alert-danger alert-dismissible fade show rd-alert mb-4">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            {{ session('error') }}
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
-        </div>
-
-    @endif
-
-
-    {{-- =========================================================
-        EXAMINATION SELECTION
-    ========================================================== --}}
-
-    <div class="rd-selector-card mb-4">
-
-        <div class="rd-selector-header">
-
-            <div class="d-flex align-items-center gap-2">
-
-                <div class="rd-selector-icon">
-                    <i class="bi bi-journal-bookmark-fill"></i>
+        {{-- EXAM FILTER --}}
+        <section class="rd-filter-card">
+            <div class="rd-filter-heading">
+                <div class="rd-filter-icon">
+                    <i class="bi bi-funnel-fill"></i>
                 </div>
 
                 <div>
-
-                    <h5 class="rd-section-title">
-                        Examination Selection
-                    </h5>
-
-                    <div class="rd-section-subtitle">
-                        Select an examination to view its live result workflow
-                    </div>
-
+                    <h2>Examination Overview</h2>
+                    <p>Select an examination to view its result status.</p>
                 </div>
-
             </div>
 
-        </div>
+            <div class="rd-filter-controls">
+                <div class="rd-field">
+                    <label for="examSelect">Select Examination</label>
 
-
-        <div class="rd-selector-body">
-
-            <div class="row align-items-end">
-
-                <div class="col-lg-7 col-md-8">
-
-                    <label
-                        for="exam_id"
-                        class="rd-label"
-                    >
-                        Select Examination
-                    </label>
-
-                    <select
-                        id="exam_id"
-                        class="form-select rd-select"
-                    >
-
-                        <option value="">
-                            -- Select Examination --
-                        </option>
+                    <select id="examSelect" class="form-select">
+                        <option value="">Choose an examination</option>
 
                         @foreach($exams as $exam)
-
-                            <option value="{{ $exam->id }}">
-
+                            <option
+                                value="{{ $exam->id }}"
+                                {{ isset($selectedExam) && $selectedExam && $selectedExam->id == $exam->id ? 'selected' : '' }}
+                            >
                                 {{ $exam->exam_name }}
-
-                                @if($exam->academic_year)
-                                    - {{ $exam->academic_year }}
+                                @if(!empty($exam->academic_year))
+                                    — {{ $exam->academic_year }}
                                 @endif
-
                             </option>
-
                         @endforeach
-
                     </select>
-
                 </div>
 
+                <button type="button" id="loadResultsButton" class="rd-btn rd-btn-dark">
+                    <i class="bi bi-search"></i>
+                    View Results
+                </button>
             </div>
 
+            <div class="rd-filter-note">
+                <i class="bi bi-info-circle"></i>
+                Select an examination and load its results to view class-wise statistics.
+            </div>
+        </section>
+
+        {{-- LOADING --}}
+        <div id="dashboardLoading" class="rd-loading" hidden>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading examination results...</span>
         </div>
 
-    </div>
+        {{-- ERROR --}}
+        <div id="dashboardError" class="rd-alert rd-alert-danger" role="alert" hidden>
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div id="dashboardErrorMessage">Unable to load results. Please try again.</div>
+            <button type="button" class="rd-btn rd-btn-light" id="retryDashboard">
+                Retry
+            </button>
+        </div>
 
+        {{-- DASHBOARD CONTENT --}}
+        <div id="dashboardContent" hidden>
 
-    {{-- =========================================================
-        LOADING
-    ========================================================== --}}
+            {{-- EXAM INFORMATION --}}
+            <section class="rd-exam-banner">
+                <div class="rd-exam-banner-main">
+                    <span class="rd-exam-icon">
+                        <i class="bi bi-journal-check"></i>
+                    </span>
 
-    <div
-        id="loadingMessage"
-        class="alert rd-alert rd-loading d-none mb-4"
-        aria-live="polite"
-    >
+                    <div>
+                        <span class="rd-exam-label">CURRENT EXAMINATION</span>
+                        <h2 id="selectedExamName">—</h2>
+                        <p id="selectedExamMeta">Examination summary</p>
+                    </div>
+                </div>
 
-        <div class="d-flex align-items-center">
+                <div class="rd-live-status">
+                    <span class="rd-live-dot"></span>
+                    <span id="dashboardStatusText">Dashboard updated</span>
+                </div>
+            </section>
 
-            <div
-                class="spinner-border spinner-border-sm me-2"
-                role="status"
-            ></div>
+            {{-- SUMMARY CARDS --}}
+            <section class="rd-summary-grid">
+                <article class="rd-summary-card rd-card-students">
+                    <div class="rd-summary-top">
+                        <span>Total Students</span>
+                        <span class="rd-summary-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </span>
+                    </div>
 
-            <span>
-                Loading live examination status...
+                    <div class="rd-summary-number" id="totalStudents">0</div>
+                    <div class="rd-summary-bottom">
+                        <i class="bi bi-person-check"></i>
+                        Students across selected classes
+                    </div>
+                </article>
+
+                <article class="rd-summary-card rd-card-generated">
+                    <div class="rd-summary-top">
+                        <span>Generated Results</span>
+                        <span class="rd-summary-icon">
+                            <i class="bi bi-file-earmark-check-fill"></i>
+                        </span>
+                    </div>
+
+                    <div class="rd-summary-number" id="generatedResults">0</div>
+                    <div class="rd-summary-bottom">
+                        <i class="bi bi-clipboard-check"></i>
+                        Results generated for students
+                    </div>
+                </article>
+
+                <article class="rd-summary-card rd-card-approved">
+                    <div class="rd-summary-top">
+                        <span>Approved Results</span>
+                        <span class="rd-summary-icon">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </span>
+                    </div>
+
+                    <div class="rd-summary-number" id="approvedResults">0</div>
+                    <div class="rd-summary-bottom">
+                        <i class="bi bi-shield-check"></i>
+                        Results approved for publication
+                    </div>
+                </article>
+
+                <article class="rd-summary-card rd-card-published">
+                    <div class="rd-summary-top">
+                        <span>Published Results</span>
+                        <span class="rd-summary-icon">
+                            <i class="bi bi-megaphone-fill"></i>
+                        </span>
+                    </div>
+
+                    <div class="rd-summary-number" id="publishedResults">0</div>
+                    <div class="rd-summary-bottom">
+                        <i class="bi bi-globe"></i>
+                        Results available to students
+                    </div>
+                </article>
+            </section>
+
+            {{-- CLASS RESULTS --}}
+            <section class="rd-section-card">
+                <div class="rd-section-header">
+                    <div class="rd-section-title">
+                        <span class="rd-section-title-icon">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                        </span>
+
+                        <div>
+                            <h2>Class-wise Results</h2>
+                            <p>Review result progress for each class separately.</p>
+                        </div>
+                    </div>
+
+                    <span class="rd-class-count" id="classCount">0 classes</span>
+                </div>
+
+                <div class="rd-table-toolbar">
+                    <div class="rd-search-box">
+                        <i class="bi bi-search"></i>
+                        <input
+                            type="search"
+                            id="classSearch"
+                            placeholder="Search class or section..."
+                            aria-label="Search classes"
+                        >
+                    </div>
+
+                    <div class="rd-table-toolbar-right">
+                        <button type="button" class="rd-btn rd-btn-light rd-btn-small" id="clearSearch">
+                            <i class="bi bi-x-circle"></i>
+                            Clear Search
+                        </button>
+                    </div>
+                </div>
+
+                <div class="rd-table-wrap">
+                    <table class="rd-table">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Total Students</th>
+                                <th>Generated</th>
+                                <th>Approved</th>
+                                <th>Published</th>
+                                <th>Progress</th>
+                                <th class="rd-action-column">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="classResultsBody">
+                            <tr>
+                                <td colspan="7" class="rd-table-message">
+                                    Select an examination to view class results.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="noClassResults" class="rd-empty-state" hidden>
+                    <span class="rd-empty-icon">
+                        <i class="bi bi-folder2-open"></i>
+                    </span>
+                    <h3>No classes found</h3>
+                    <p>There are no class results matching your current selection.</p>
+                </div>
+            </section>
+
+            {{-- QUICK ACTIONS --}}
+            <section class="rd-section-card rd-quick-section">
+                <div class="rd-section-header">
+                    <div class="rd-section-title">
+                        <span class="rd-section-title-icon">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </span>
+
+                        <div>
+                            <h2>Quick Actions</h2>
+                            <p>Continue managing the selected examination.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rd-quick-grid">
+                    <a href="{{ route('admin.results.generate') }}" class="rd-quick-action">
+                        <span class="rd-quick-icon rd-quick-blue">
+                            <i class="bi bi-pencil-square"></i>
+                        </span>
+
+                        <span class="rd-quick-copy">
+                            <strong>Enter Marks</strong>
+                            <small>Record student subject marks.</small>
+                        </span>
+
+                        <i class="bi bi-arrow-up-right rd-quick-arrow"></i>
+                    </a>
+
+                    <a href="{{ route('admin.results.class-results') }}" class="rd-quick-action">
+                        <span class="rd-quick-icon rd-quick-green">
+                            <i class="bi bi-clipboard-data-fill"></i>
+                        </span>
+
+                        <span class="rd-quick-copy">
+                            <strong>Publish Results</strong>
+                            <small>Review and manage class results.</small>
+                        </span>
+
+                        <i class="bi bi-arrow-up-right rd-quick-arrow"></i>
+                    </a>
+
+                    <a href="{{ route('admin.results.class-results') }}" class="rd-quick-action">
+    <span class="rd-quick-icon rd-quick-purple">
+        <i class="bi bi-clock-history"></i>
+    </span>
+
+    <span class="rd-quick-copy">
+        <strong>Review Results</strong>
+        <small>Review and manage class-wise results.</small>
+    </span>
+
+    <i class="bi bi-arrow-up-right rd-quick-arrow"></i>
+</a>
+
+                    <a href="{{ route('admin.reports.results.index') }}" class="rd-quick-action">
+                        <span class="rd-quick-icon rd-quick-amber">
+                            <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                        </span>
+
+                        <span class="rd-quick-copy">
+                            <strong>Result Reports</strong>
+                            <small>View examination reports.</small>
+                        </span>
+
+                        <i class="bi bi-arrow-up-right rd-quick-arrow"></i>
+                    </a>
+                </div>
+            </section>
+        </div>
+
+        {{-- INITIAL EMPTY STATE --}}
+        <section id="dashboardInitialEmpty" class="rd-empty-state rd-initial-empty" hidden>
+            <span class="rd-empty-icon">
+                <i class="bi bi-journal-bookmark"></i>
             </span>
 
-        </div>
+            <h3>Select an Examination</h3>
+            <p>Choose an examination above and click View Results to load its dashboard.</p>
+        </section>
+
+        <footer class="rd-footer">
+            <i class="bi bi-mortarboard"></i>
+            <span>School Management</span>
+            <span class="rd-footer-separator">•</span>
+            <span>Examination &amp; Result Management</span>
+        </footer>
 
     </div>
-
-
-    {{-- =========================================================
-        ERROR
-    ========================================================== --}}
-
-    <div
-        id="errorMessage"
-        class="alert rd-alert rd-error d-none mb-4"
-        role="alert"
-    ></div>
-
-
-    {{-- =========================================================
-        EXAMINATION INFORMATION
-    ========================================================== --}}
-
-    <div
-        id="examInfo"
-        class="rd-exam-card mb-4 d-none"
-    >
-
-        <div class="rd-exam-body">
-
-            <div class="row g-3">
-
-                <div class="col-md-4">
-
-                    <div class="rd-exam-item">
-
-                        <div class="rd-exam-label">
-                            Examination
-                        </div>
-
-                        <div
-                            id="examName"
-                            class="rd-exam-value"
-                        >
-                            -
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="rd-exam-item">
-
-                        <div class="rd-exam-label">
-                            Academic Year
-                        </div>
-
-                        <div
-                            id="academicYear"
-                            class="rd-exam-value"
-                        >
-                            -
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="rd-exam-item">
-
-                        <div class="rd-exam-label">
-                            Examination Status
-                        </div>
-
-                        <div
-                            id="examStatus"
-                            class="rd-status-badge rd-status-draft"
-                        >
-                            <i class="bi bi-circle-fill"></i>
-                            -
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        PUBLICATION SUMMARY
-    ========================================================== --}}
-
-    <div
-        id="publicationSummary"
-        class="row g-3 mb-4 d-none"
-    >
-
-        {{-- TOTAL --}}
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="rd-summary-card rd-summary-total">
-
-                <div class="rd-summary-body">
-
-                    <div class="rd-summary-icon">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-
-                    <div class="rd-summary-label">
-                        Total Students
-                    </div>
-
-                    <div
-                        id="summaryTotal"
-                        class="rd-summary-value"
-                    >
-                        0
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- GENERATED --}}
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="rd-summary-card rd-summary-generated">
-
-                <div class="rd-summary-body">
-
-                    <div class="rd-summary-icon">
-                        <i class="bi bi-file-earmark-check-fill"></i>
-                    </div>
-
-                    <div class="rd-summary-label">
-                        Generated
-                    </div>
-
-                    <div
-                        id="summaryGenerated"
-                        class="rd-summary-value"
-                    >
-                        0
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- APPROVED --}}
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="rd-summary-card rd-summary-approved">
-
-                <div class="rd-summary-body">
-
-                    <div class="rd-summary-icon">
-                        <i class="bi bi-patch-check-fill"></i>
-                    </div>
-
-                    <div class="rd-summary-label">
-                        Approved
-                    </div>
-
-                    <div
-                        id="summaryApproved"
-                        class="rd-summary-value"
-                    >
-                        0
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- PUBLISHED --}}
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="rd-summary-card rd-summary-published">
-
-                <div class="rd-summary-body">
-
-                    <div class="rd-summary-icon">
-                        <i class="bi bi-globe2"></i>
-                    </div>
-
-                    <div class="rd-summary-label">
-                        Published
-                    </div>
-
-                    <div
-                        id="summaryPublished"
-                        class="rd-summary-value"
-                    >
-                        0
-                    </div>
-
-                    <div class="rd-overall-progress">
-
-                        <div class="d-flex justify-content-between mb-1">
-
-                            <span class="rd-overall-progress-label">
-                                Overall Publication
-                            </span>
-
-                            <span
-                                id="overallProgressValue"
-                                class="rd-overall-progress-value"
-                            >
-                                0%
-                            </span>
-
-                        </div>
-
-                        <div class="progress rd-overall-progress-bar">
-
-                            <div
-                                id="overallProgressBar"
-                                class="progress-bar bg-success"
-                                style="width:0%"
-                            ></div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        CLASS HEADER
-    ========================================================== --}}
-
-    <div
-        id="classHeader"
-        class="rd-class-heading d-none"
-    >
-
-        <div class="d-flex align-items-center gap-3">
-
-            <div class="rd-class-heading-icon">
-                <i class="bi bi-mortarboard-fill"></i>
-            </div>
-
-            <div>
-
-                <h5 class="rd-class-title">
-                    Classes
-                </h5>
-
-                <p class="rd-class-description">
-                    Live status of result generation, verification, approval and publication.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        CLASS CARDS
-    ========================================================== --}}
-
-    <div
-        id="classCards"
-        class="row g-4"
-    ></div>
-
-
-    {{-- =========================================================
-        EMPTY STATE
-    ========================================================== --}}
-
-    <div
-        id="emptyState"
-        class="rd-empty d-none"
-    >
-
-        <div class="rd-empty-body">
-
-            <div class="rd-empty-icon">
-                <i class="bi bi-inbox"></i>
-            </div>
-
-            <h5 class="rd-empty-title">
-                No Classes Found
-            </h5>
-
-            <p class="rd-empty-text">
-                No classes are available for this examination.
-            </p>
-
-        </div>
-
-    </div>
-
 </div>
 
+<style>
+
+/* SCHOOL DIARY — RESULT DASHBOARD
+   Matches Exam Management: warm paper, forest green, cream and earthy accents
+*/
+
+.result-page {
+    --rd-ink: #263b35;
+    --rd-forest: #344f43;
+    --rd-muted: #78827a;
+    --rd-line: #e5e1d5;
+    --rd-paper: #fffefa;
+    --rd-bg: #f7f6f0;
+    --rd-cream: #f1ead8;
+    --rd-wood: #a87543;
+    --rd-blue: #2b5d8a;
+    --rd-green: #3a8961;
+    --rd-teal: #527f79;
+    --rd-red: #bd5148;
+
+    min-height: calc(100vh - 70px);
+    color: #34423d;
+    background: var(--rd-bg);
+    font-family: "Public Sans", "Segoe UI", Arial, sans-serif;
+}
+
+.result-page *,
+.result-page *::before,
+.result-page *::after {
+    box-sizing: border-box;
+}
+
+.result-page a,
+.result-page button {
+    transition: all .2s ease;
+}
+
+.result-page .result-dashboard {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
+    padding: 24px !important;
+}
+
+/* HEADER */
+
+.rd-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    flex-wrap: wrap;
+    overflow: hidden;
+    padding: 30px;
+    margin-bottom: 24px;
+    border: 1px solid #30483b;
+    border-radius: 10px;
+    color: #fff;
+    background: linear-gradient(125deg, #263b30, #344f43 65%, #526c54);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .08);
+}
+
+.rd-header::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 30px;
+    width: 2px;
+    background: rgba(241, 234, 216, .45);
+    content: "";
+}
+
+.rd-header::after {
+    position: absolute;
+    top: -120px;
+    right: -70px;
+    width: 320px;
+    height: 320px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 50%;
+    box-shadow: 0 0 0 35px rgba(255,255,255,.035),
+                0 0 0 70px rgba(255,255,255,.025);
+    content: "";
+    pointer-events: none;
+}
+
+.rd-header-content,
+.rd-header-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.rd-header-content {
+    min-width: 0;
+}
+
+.rd-header-icon {
+    display: flex;
+    flex: 0 0 56px;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 12px;
+    color: var(--rd-cream);
+    background: rgba(255,255,255,.08);
+    font-size: 24px;
+}
+
+.rd-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: #d7c49b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+}
+
+.rd-header h1 {
+    margin: 0;
+    color: #fffefa;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(25px, 3vw, 32px);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.rd-header p {
+    max-width: 550px;
+    margin: 9px 0 0;
+    color: #e0e8df;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.rd-header-actions {
+    flex-wrap: wrap;
+}
+
+/* BUTTONS */
+
+.rd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.rd-btn:hover {
+    transform: translateY(-2px);
+}
+
+.rd-btn:disabled {
+    opacity: .65;
+    cursor: wait;
+    transform: none;
+}
+
+.rd-btn-primary {
+    border-color: var(--rd-cream);
+    color: var(--rd-ink);
+    background: var(--rd-cream);
+}
+
+.rd-btn-primary:hover {
+    border-color: #fffefa;
+    color: var(--rd-ink);
+    background: #fffefa;
+}
+
+.rd-btn-light {
+    border-color: #dedfd5;
+    color: var(--rd-ink);
+    background: var(--rd-paper);
+}
+
+.rd-btn-light:hover {
+    border-color: #c9d5c7;
+    color: var(--rd-ink);
+    background: #f0f2e9;
+}
+
+.rd-btn-dark {
+    border-color: var(--rd-ink);
+    color: #fffefa;
+    background: var(--rd-ink);
+}
+
+.rd-btn-dark:hover {
+    border-color: #456854;
+    color: #fffefa;
+    background: #456854;
+}
+
+.rd-btn-small {
+    min-height: 34px;
+    padding: 7px 11px;
+    font-size: 10px;
+}
+
+/* ALERTS */
+
+.rd-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border: 1px solid;
+    border-radius: 9px;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.rd-alert > i {
+    margin-top: 1px;
+    font-size: 17px;
+}
+
+.rd-alert-success {
+    border-color: #cfe4d2;
+    color: #347849;
+    background: #f2f8ef;
+}
+
+.rd-alert-danger {
+    border-color: #ebd2ca;
+    color: #a34038;
+    background: #fff4f0;
+}
+
+.rd-alert-close {
+    margin-left: auto;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+}
+
+/* FILTER PANEL */
+
+.rd-filter-card,
+.rd-section-card {
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid var(--rd-line);
+    border-radius: 10px;
+    background: var(--rd-paper);
+    box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
+}
+
+.rd-filter-card {
+    padding: 22px;
+}
+
+.rd-filter-heading,
+.rd-section-title {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.rd-filter-heading {
+    margin-bottom: 21px;
+}
+
+.rd-filter-icon,
+.rd-section-title-icon {
+    display: flex;
+    flex: 0 0 43px;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #d9e3dd;
+    border-radius: 10px;
+    color: var(--rd-forest);
+    background: #f0f2e9;
+    font-size: 16px;
+}
+
+.rd-filter-heading h2,
+.rd-section-title h2 {
+    margin: 0;
+    color: var(--rd-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.rd-filter-heading p,
+.rd-section-title p {
+    margin: 5px 0 0;
+    color: var(--rd-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.rd-filter-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 13px;
+    flex-wrap: wrap;
+}
+
+.rd-field {
+    flex: 1;
+    min-width: 230px;
+}
+
+.rd-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #526356;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+
+.rd-field select {
+    width: 100%;
+    min-height: 43px;
+    border: 1px solid #dedfd5;
+    border-radius: 7px;
+    color: var(--rd-ink);
+    background-color: #fffefa;
+    font-size: 12px;
+}
+
+.rd-field select:focus,
+.rd-search-box:focus-within {
+    border-color: #829a80;
+    box-shadow: 0 0 0 3px rgba(82, 127, 121, .12);
+}
+
+.rd-filter-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 14px;
+    color: var(--rd-muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.rd-filter-note i {
+    color: var(--rd-teal);
+}
+
+/* LOADING */
+
+.rd-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    padding: 23px;
+    margin-bottom: 20px;
+    border: 1px solid var(--rd-line);
+    border-radius: 9px;
+    color: var(--rd-forest);
+    background: var(--rd-paper);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rd-loading[hidden],
+.rd-alert[hidden],
+#dashboardContent[hidden],
+.rd-empty-state[hidden] {
+    display: none !important;
+}
+
+/* SELECTED EXAM BANNER */
+
+.rd-exam-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 21px 23px;
+    margin-bottom: 25px;
+    border: 1px solid #dce4d7;
+    border-radius: 10px;
+    background: linear-gradient(115deg, #f0f2e9, #fffefa);
+}
+
+.rd-exam-banner-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.rd-exam-icon {
+    display: flex;
+    flex: 0 0 48px;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #d9e3dd;
+    border-radius: 10px;
+    color: var(--rd-forest);
+    background: #e5ebdf;
+    font-size: 21px;
+}
+
+.rd-exam-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--rd-wood);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+}
+
+.rd-exam-banner h2 {
+    margin: 0;
+    color: var(--rd-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.rd-exam-banner p {
+    margin: 5px 0 0;
+    color: var(--rd-muted);
+    font-size: 11px;
+}
+
+.rd-live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 11px;
+    border: 1px solid #d8e4d4;
+    border-radius: 20px;
+    color: #426a49;
+    background: #f4f8ef;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.rd-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #5a9a61;
+    box-shadow: 0 0 0 3px #5a9a611c;
+}
+
+/* SUMMARY CARDS */
+
+.rd-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin: 37px 0 27px;
+}
+
+.rd-summary-card {
+    --card-color: #2b5d8a;
+    --card-tint: #edf3f8;
+    --card-border: #d7e2e9;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    min-height: 180px;
+    padding: 23px 20px 17px;
+    border: 1px solid var(--rd-line);
+    border-top: 3px solid var(--card-color);
+    border-radius: 9px;
+    background: var(--rd-paper);
+    box-shadow: 0 4px 13px rgba(38, 59, 53, .035);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.rd-summary-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--card-border);
+    box-shadow: 0 10px 23px rgba(38, 59, 53, .075);
+}
+
+.rd-card-students {
+    --card-color: #2b5d8a;
+    --card-tint: #edf3f8;
+    --card-border: #d7e2e9;
+}
+
+.rd-card-generated {
+    --card-color: #a87543;
+    --card-tint: #faf3e6;
+    --card-border: #e8dcc5;
+}
+
+.rd-card-approved {
+    --card-color: #3a8961;
+    --card-tint: #edf6ed;
+    --card-border: #d0e5d2;
+}
+
+.rd-card-published {
+    --card-color: #527f79;
+    --card-tint: #edf5f2;
+    --card-border: #d0e3dc;
+}
+
+.rd-summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: #68756b;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.rd-summary-icon {
+    display: flex;
+    flex: 0 0 43px;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 43px;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    color: var(--card-color);
+    background: var(--card-tint);
+    font-size: 17px;
+}
+
+.rd-summary-number {
+    color: var(--rd-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -.5px;
+    overflow-wrap: anywhere;
+}
+
+.rd-summary-bottom {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    min-height: 30px;
+    margin-top: auto;
+    padding-top: 11px;
+    border-top: 1px dashed #ded8c9;
+    color: var(--rd-muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.rd-summary-bottom i {
+    flex-shrink: 0;
+    padding-top: 1px;
+    color: var(--card-color);
+}
+
+/* SECTION HEADERS */
+
+.rd-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding: 19px 22px;
+    border-bottom: 1px dashed #dcd6c7;
+    background: var(--rd-paper);
+}
+
+.rd-class-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 7px 12px;
+    border: 1px solid #e5e1d5;
+    border-radius: 20px;
+    color: var(--rd-ink);
+    background: #faf9f4;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* SEARCH TOOLBAR */
+
+.rd-table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eeece3;
+    background: #faf9f4;
+}
+
+.rd-search-box {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: min(100%, 350px);
+    min-height: 38px;
+    padding: 0 11px;
+    border: 1px solid #dedfd5;
+    border-radius: 7px;
+    color: #899287;
+    background: #fffefa;
+}
+
+.rd-search-box input {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 0;
+    border: 0;
+    outline: none;
+    color: var(--rd-ink);
+    background: transparent;
+    font-family: inherit;
+    font-size: 11px;
+}
+
+.rd-table-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* RESULTS TABLE */
+
+.rd-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.rd-table {
+    width: 100%;
+    min-width: 900px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.rd-table th {
+    padding: 14px 15px;
+    border-bottom: 1px solid #e5e1d5;
+    color: #707a70;
+    background: #f5f3e9;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.rd-table td {
+    padding: 14px 15px;
+    border-bottom: 1px solid #eeece3;
+    color: #526054;
+    background: var(--rd-paper);
+    font-size: 11px;
+    vertical-align: middle;
+}
+
+.rd-table tbody tr {
+    transition: background .18s ease;
+}
+
+.rd-table tbody tr:hover td {
+    background: #faf9f2;
+}
+
+.rd-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.rd-table .rd-action-column {
+    text-align: right;
+}
+
+.rd-class-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 135px;
+}
+
+.rd-class-icon-small {
+    display: flex;
+    flex: 0 0 37px;
+    align-items: center;
+    justify-content: center;
+    width: 37px;
+    height: 37px;
+    border: 1px solid #d9e3dd;
+    border-radius: 9px;
+    color: var(--rd-forest);
+    background: #f0f2e9;
+    font-size: 14px;
+}
+
+.rd-class-name strong {
+    display: block;
+    color: var(--rd-ink);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.rd-class-name small {
+    display: block;
+    margin-top: 4px;
+    color: var(--rd-muted);
+    font-size: 9px;
+}
+
+.rd-count-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 35px;
+    padding: 6px 9px;
+    border: 1px solid #e5e1d5;
+    border-radius: 7px;
+    color: var(--rd-ink);
+    background: #faf9f4;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.rd-count-chip.is-complete {
+    border-color: #cfe3d2;
+    color: #347849;
+    background: #eff7ed;
+}
+
+.rd-progress-cell {
+    min-width: 130px;
+}
+
+.rd-progress-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 7px;
+    color: var(--rd-muted);
+    font-size: 9px;
+}
+
+.rd-progress-label strong {
+    color: var(--rd-ink);
+}
+
+.rd-progress-track {
+    width: 100%;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #e9ece4;
+}
+
+.rd-progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: #6b9470;
+    transition: width .25s ease;
+}
+
+.rd-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.rd-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 33px;
+    padding: 7px 9px;
+    border: 1px solid #dedfd5;
+    border-radius: 7px;
+    color: var(--rd-ink);
+    background: #fffefa;
+    font-size: 10px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.rd-action-link:hover {
+    transform: translateY(-1px);
+    border-color: #cbd8c6;
+    color: var(--rd-forest);
+    background: #f0f2e9;
+}
+
+/* EMPTY STATES */
+
+.rd-table-message {
+    padding: 32px 15px !important;
+    color: var(--rd-muted) !important;
+    text-align: center;
+}
+
+.rd-empty-state {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 38px 20px;
+    text-align: center;
+}
+
+.rd-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    border: 1px solid #e5dfcc;
+    border-radius: 13px;
+    color: var(--rd-forest);
+    background: #f4f0df;
+    font-size: 25px;
+}
+
+.rd-empty-state h3 {
+    margin: 15px 0 7px;
+    color: var(--rd-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.rd-empty-state p {
+    max-width: 440px;
+    margin: 0;
+    color: var(--rd-muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* QUICK ACTIONS */
+
+.rd-quick-section {
+    padding-bottom: 20px;
+}
+
+.rd-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+    padding: 20px 22px 0;
+}
+
+.rd-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 14px 12px;
+    border: 1px solid var(--rd-line);
+    border-radius: 9px;
+    background: #fffefa;
+    text-decoration: none;
+}
+
+.rd-quick-action:hover {
+    transform: translateY(-2px);
+    border-color: #cbd8c6;
+    box-shadow: 0 7px 17px rgba(38, 59, 53, .06);
+}
+
+.rd-quick-icon {
+    display: flex;
+    flex: 0 0 39px;
+    align-items: center;
+    justify-content: center;
+    width: 39px;
+    height: 39px;
+    border-radius: 9px;
+    font-size: 16px;
+}
+
+.rd-quick-blue {
+    color: #426b8a;
+    background: #edf3f8;
+}
+
+.rd-quick-green {
+    color: #416f49;
+    background: #edf6ed;
+}
+
+.rd-quick-purple {
+    color: #73528e;
+    background: #f0e9f6;
+}
+
+.rd-quick-amber {
+    color: #956d31;
+    background: #faf3e6;
+}
+
+.rd-quick-copy {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.rd-quick-copy strong {
+    color: var(--rd-ink);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.rd-quick-copy small {
+    color: var(--rd-muted);
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.rd-quick-arrow {
+    flex-shrink: 0;
+    color: #8a9689;
+    font-size: 12px;
+}
+
+/* FOOTER */
+
+.rd-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 19px 8px 5px;
+    color: #8a9185;
+    font-size: 9px;
+    font-weight: 600;
+}
+
+.rd-footer i {
+    color: var(--rd-wood);
+}
+
+.rd-footer-separator {
+    color: #b4ad9b;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1200px) {
+    .rd-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 27px 16px;
+    }
+
+    .rd-quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .rd-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rd-header-actions {
+        width: 100%;
+    }
+}
+
+@media (max-width: 650px) {
+    .result-page .result-dashboard {
+        padding: 16px 13px !important;
+    }
+
+    .rd-header {
+        padding: 22px 17px 22px 29px;
+        border-radius: 9px;
+    }
+
+    .rd-header::before {
+        left: 17px;
+    }
+
+    .rd-header-content {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .rd-header-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        border-radius: 10px;
+        font-size: 19px;
+    }
+
+    .rd-header h1 {
+        font-size: 25px;
+    }
+
+    .rd-header p {
+        font-size: 11px;
+    }
+
+    .rd-header-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .rd-header-actions .rd-btn {
+        padding: 10px 8px;
+        white-space: normal;
+    }
+
+    .rd-filter-card {
+        padding: 16px;
+    }
+
+    .rd-filter-controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .rd-field {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .rd-filter-controls > .rd-btn {
+        width: 100%;
+    }
+
+    .rd-summary-grid {
+        gap: 27px 12px;
+    }
+
+    .rd-summary-card {
+        min-height: 165px;
+        padding: 18px 14px 14px;
+    }
+
+    .rd-summary-number {
+        font-size: 32px;
+    }
+
+    .rd-summary-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+    }
+
+    .rd-summary-bottom {
+        font-size: 9px;
+    }
+
+    .rd-exam-banner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 17px;
+    }
+
+    .rd-exam-banner h2 {
+        font-size: 19px;
+    }
+
+    .rd-section-header {
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .rd-section-title {
+        gap: 9px;
+    }
+
+    .rd-section-title-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .rd-section-title h2 {
+        font-size: 17px;
+    }
+
+    .rd-section-title p {
+        font-size: 10px;
+    }
+
+    .rd-table-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 13px 15px;
+    }
+
+    .rd-search-box {
+        width: 100%;
+    }
+
+    .rd-table-toolbar-right .rd-btn {
+        width: 100%;
+    }
+
+    .rd-quick-grid {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+
+    .rd-quick-section {
+        padding-bottom: 5px;
+    }
+
+    .rd-footer {
+        line-height: 1.8;
+        text-align: center;
+    }
+}
+
+@media (max-width: 380px) {
+    .rd-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rd-header-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .rd-header h1 {
+        font-size: 22px;
+    }
+
+    .rd-section-header {
+        flex-direction: column;
+    }
+
+    .rd-class-count {
+        align-self: flex-start;
+    }
+}
+
+/* ACCESSIBILITY */
+
+.result-page .rd-btn:focus-visible,
+.result-page .rd-action-link:focus-visible,
+.result-page .rd-quick-action:focus-visible {
+    outline: 3px solid rgba(82, 127, 121, .35);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .result-page *,
+    .result-page *::before,
+    .result-page *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+</style>
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
 
-    const examSelect = document.getElementById('exam_id');
-    const classCards = document.getElementById('classCards');
-    const loadingMessage = document.getElementById('loadingMessage');
-    const errorMessage = document.getElementById('errorMessage');
-    const examInfo = document.getElementById('examInfo');
-    const publicationSummary = document.getElementById('publicationSummary');
-    const classHeader = document.getElementById('classHeader');
-    const emptyState = document.getElementById('emptyState');
+    const examSelect = document.getElementById('examSelect');
+    const loadButton = document.getElementById('loadResultsButton');
+    const refreshButton = document.getElementById('refreshDashboard');
+    const retryButton = document.getElementById('retryDashboard');
+    const searchInput = document.getElementById('classSearch');
+    const clearSearchButton = document.getElementById('clearSearch');
 
-    let selectedExamId = '';
+    const loading = document.getElementById('dashboardLoading');
+    const errorBox = document.getElementById('dashboardError');
+    const errorMessage = document.getElementById('dashboardErrorMessage');
+    const dashboardContent = document.getElementById('dashboardContent');
+    const initialEmpty = document.getElementById('dashboardInitialEmpty');
+    const tbody = document.getElementById('classResultsBody');
+    const noClassResults = document.getElementById('noClassResults');
+
+    let requestController = null;
+    let requestSequence = 0;
+    let currentClasses = [];
     let refreshTimer = null;
 
-
-    /* =========================================================
-       HTML ESCAPE
-    ========================================================== */
+    const routeTemplate = @json(route('admin.results.exam-classes', ['exam' => '__EXAM_ID__']));
+    const classResultsUrl = @json(route('admin.results.class-results'));
+    const bulkWhatsAppUrl = @json(route('admin.results.bulk-whatsapp'));
 
     function escapeHtml(value) {
-
-        if (value === null || value === undefined) {
-            return '';
-        }
-
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+        return String(value ?? '').replace(/[&<>"']/g, function (char) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[char];
+        });
     }
 
-
-    /* =========================================================
-       NUMBER
-    ========================================================== */
-
-    function number(value) {
-        return Number(value || 0);
+    function numberValue(value) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
     }
 
-
-    /* =========================================================
-       EXAM STATUS
-    ========================================================== */
-
-    function getExamStatusClass(status) {
-
-        const value = String(status || '').toLowerCase();
-
-        if (value === 'scheduled') {
-            return 'rd-status-scheduled';
-        }
-
-        if (value === 'completed') {
-            return 'rd-status-completed';
-        }
-
-        if (value === 'cancelled') {
-            return 'rd-status-cancelled';
-        }
-
-        return 'rd-status-draft';
+    function formatNumber(value) {
+        return numberValue(value).toLocaleString();
     }
 
-
-    function getExamStatusIcon(status) {
-
-        const value = String(status || '').toLowerCase();
-
-        if (value === 'completed') {
-            return 'bi-check-circle-fill';
+    function getFirst(object, keys, fallback = 0) {
+        for (const key of keys) {
+            if (object && object[key] !== undefined && object[key] !== null) {
+                return object[key];
+            }
         }
 
-        if (value === 'cancelled') {
-            return 'bi-x-circle-fill';
-        }
-
-        if (value === 'scheduled') {
-            return 'bi-clock-fill';
-        }
-
-        return 'bi-circle-fill';
+        return fallback;
     }
 
+    function getClassName(item) {
+        const classObject = item.school_class || item.schoolClass || item.class || {};
 
-    /* =========================================================
-       CLASS WORKFLOW STATUS
-    ========================================================== */
+        const name = getFirst(item, [
+            'class_name',
+            'name',
+            'className'
+        ], getFirst(classObject, [
+            'class_name',
+            'name'
+        ], 'Class'));
 
-    function getClassWorkflowStatus(
-        studentCount,
-        generatedCount,
-        verifiedCount,
-        approvedCount,
-        publishedCount
-    ) {
-
-        if (studentCount <= 0) {
-
-            return {
-                text: 'No Students',
-                className: 'empty',
-                cardClass: ''
-            };
-
-        }
-
-
-        if (publishedCount >= studentCount) {
-
-            return {
-                text: 'All Results Published',
-                className: 'completed',
-                cardClass: 'status-completed'
-            };
-
-        }
-
-
-        if (approvedCount > 0) {
-
-            return {
-                text: 'Approval / Publication in Progress',
-                className: 'progress',
-                cardClass: 'status-progress'
-            };
-
-        }
-
-
-        if (verifiedCount > 0) {
-
-            return {
-                text: 'Verification Completed Partially',
-                className: 'progress',
-                cardClass: 'status-progress'
-            };
-
-        }
-
-
-        if (generatedCount > 0) {
-
-            return {
-                text: 'Results Generated',
-                className: 'progress',
-                cardClass: 'status-progress'
-            };
-
-        }
-
+        const section = getFirst(item, [
+            'section',
+            'class_section'
+        ], getFirst(classObject, [
+            'section'
+        ], ''));
 
         return {
-            text: 'Results Pending',
-            className: 'pending',
-            cardClass: 'status-pending'
+            name: String(name || 'Class'),
+            section: String(section || '')
         };
     }
 
-
-    /* =========================================================
-       PROGRESS COLOR
-    ========================================================== */
-
-    function getProgressClass(percentage) {
-
-        if (percentage >= 100) {
-            return 'bg-success';
-        }
-
-        if (percentage >= 50) {
-            return 'bg-warning';
-        }
-
-        if (percentage > 0) {
-            return 'bg-info';
-        }
-
-        return 'bg-danger';
+    function getCount(item, keys) {
+        return numberValue(getFirst(item, keys, 0));
     }
 
+    function normalizeClass(item) {
+        const classInfo = getClassName(item);
 
-    /* =========================================================
-       ERROR
-    ========================================================== */
+        const students = getCount(item, [
+            'total_students',
+            'students_count',
+            'student_count',
+            'totalStudents'
+        ]);
+
+        const generated = getCount(item, [
+            'generated_results',
+            'results_generated',
+            'generated_count',
+            'generated',
+            'results_count'
+        ]);
+
+        const approved = getCount(item, [
+            'approved_results',
+            'results_approved',
+            'approved_count',
+            'approved'
+        ]);
+
+        const published = getCount(item, [
+            'published_results',
+            'results_published',
+            'published_count',
+            'published'
+        ]);
+
+        return {
+            id: getFirst(item, ['exam_class_id', 'class_id', 'id'], ''),
+            name: classInfo.name,
+            section: classInfo.section,
+            students: students,
+            generated: generated,
+            approved: approved,
+            published: published
+        };
+    }
+
+    function setLoading(isLoading) {
+        loading.hidden = !isLoading;
+        loadButton.disabled = isLoading;
+        refreshButton.disabled = isLoading;
+
+        loadButton.innerHTML = isLoading
+            ? '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Loading...'
+            : '<i class="bi bi-search"></i> View Results';
+
+        refreshButton.innerHTML = isLoading
+            ? '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Refreshing'
+            : '<i class="bi bi-arrow-clockwise"></i><span>Refresh</span>';
+    }
 
     function showError(message) {
-
-        errorMessage.textContent = message;
-        errorMessage.classList.remove('d-none');
+        errorMessage.textContent = message || 'Unable to load results. Please try again.';
+        errorBox.hidden = false;
     }
 
-
     function hideError() {
-
-        errorMessage.classList.add('d-none');
+        errorBox.hidden = true;
         errorMessage.textContent = '';
     }
 
-
-    /* =========================================================
-       RESET
-    ========================================================== */
-
-    function resetDashboard() {
-
-        classCards.innerHTML = '';
-
-        examInfo.classList.add('d-none');
-        publicationSummary.classList.add('d-none');
-        classHeader.classList.add('d-none');
-        emptyState.classList.add('d-none');
-
-        hideError();
-
-        document.getElementById('summaryTotal').textContent = '0';
-        document.getElementById('summaryGenerated').textContent = '0';
-        document.getElementById('summaryApproved').textContent = '0';
-        document.getElementById('summaryPublished').textContent = '0';
-
-        document.getElementById('overallProgressValue').textContent = '0%';
-        document.getElementById('overallProgressBar').style.width = '0%';
-
+    function getSelectedExamName() {
+        return examSelect.options[examSelect.selectedIndex]?.textContent.trim() || '';
     }
 
+    function getExamMeta(data) {
+        const exam = data.exam || data.selected_exam || {};
+        const parts = [];
 
-    /* =========================================================
-       EXAM CHANGE
-    ========================================================== */
+        const year = getFirst(exam, ['academic_year', 'year'], '');
+        const type = getFirst(exam, ['exam_type', 'type'], '');
 
-    examSelect.addEventListener('change', function () {
+        if (year) parts.push(String(year));
+        if (type) parts.push(String(type));
 
-        selectedExamId = this.value;
+        return parts.join(' • ') || 'Examination summary';
+    }
 
-        resetDashboard();
+    function updateSummary(data, classes) {
+        const summary = data.summary || data.statistics || data.stats || {};
 
-        if (!selectedExamId) {
+        const totalStudents = getFirst(summary, [
+            'total_students',
+            'students',
+            'totalStudents'
+        ], classes.reduce((sum, item) => sum + item.students, 0));
 
-            if (refreshTimer) {
-                clearInterval(refreshTimer);
-                refreshTimer = null;
-            }
+        const generated = getFirst(summary, [
+            'generated_results',
+            'total_generated',
+            'generated',
+            'generatedResults'
+        ], classes.reduce((sum, item) => sum + item.generated, 0));
+
+        const approved = getFirst(summary, [
+            'approved_results',
+            'total_approved',
+            'approved',
+            'approvedResults'
+        ], classes.reduce((sum, item) => sum + item.approved, 0));
+
+        const published = getFirst(summary, [
+            'published_results',
+            'total_published',
+            'published',
+            'publishedResults'
+        ], classes.reduce((sum, item) => sum + item.published, 0));
+
+        document.getElementById('totalStudents').textContent = formatNumber(totalStudents);
+        document.getElementById('generatedResults').textContent = formatNumber(generated);
+        document.getElementById('approvedResults').textContent = formatNumber(approved);
+        document.getElementById('publishedResults').textContent = formatNumber(published);
+    }
+
+    function createProgress(item) {
+        const percentage = item.students > 0
+            ? Math.min(100, Math.round((item.generated / item.students) * 100))
+            : 0;
+
+        return `
+            <div class="rd-progress-cell">
+                <div class="rd-progress-label">
+                    <span>Generated</span>
+                    <strong>${percentage}%</strong>
+                </div>
+                <div class="rd-progress-track"
+                     role="progressbar"
+                     aria-valuenow="${percentage}"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     aria-label="Result generation progress">
+                    <div class="rd-progress-fill" style="width:${percentage}%"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    function buildClassUrl(baseUrl, item) {
+        const url = new URL(baseUrl, window.location.origin);
+
+        if (examSelect.value) {
+            url.searchParams.set('exam_id', examSelect.value);
+        }
+
+        if (item.id !== '') {
+            url.searchParams.set('class_id', item.id);
+        }
+
+        if (item.name) {
+            url.searchParams.set('class_name', item.name);
+        }
+
+        if (item.section) {
+            url.searchParams.set('section', item.section);
+        }
+
+        return url.pathname + url.search;
+    }
+
+    function renderClassRows(classes) {
+        const query = (searchInput.value || '').trim().toLowerCase();
+
+        const filtered = classes.filter(item => {
+            const searchable = (item.name + ' ' + item.section).toLowerCase();
+            return searchable.includes(query);
+        });
+
+        document.getElementById('classCount').textContent =
+            classes.length + (classes.length === 1 ? ' class' : ' classes');
+
+        tbody.innerHTML = '';
+
+        if (!filtered.length) {
+            noClassResults.hidden = false;
+
+            const message = classes.length
+                ? 'No classes match your search.'
+                : 'No classes have been configured for this examination.';
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="rd-table-message">${escapeHtml(message)}</td>
+                </tr>
+            `;
 
             return;
         }
 
-        loadExamClasses(selectedExamId);
+        noClassResults.hidden = true;
 
-        /*
-         * Automatically refresh every 10 seconds.
-         * This keeps the dashboard status updated after
-         * generating / verifying / approving / publishing
-         * results from another page or browser tab.
-         */
+        filtered.forEach(item => {
+            const generated = item.generated;
+            const approved = item.approved;
+            const published = item.published;
+
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>
+                    <div class="rd-class-name">
+                        <span class="rd-class-icon-small">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </span>
+                        <div>
+                            <strong>${escapeHtml(item.name)}</strong>
+                            <small>${item.section ? 'Section ' + escapeHtml(item.section) : 'All sections'}</small>
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    <span class="rd-count-chip">${formatNumber(item.students)}</span>
+                </td>
+
+                <td>
+                    <span class="rd-count-chip ${generated > 0 ? 'is-complete' : ''}">
+                        ${formatNumber(generated)}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="rd-count-chip ${approved > 0 ? 'is-complete' : ''}">
+                        ${formatNumber(approved)}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="rd-count-chip ${published > 0 ? 'is-complete' : ''}">
+                        ${formatNumber(published)}
+                    </span>
+                </td>
+
+                <td>${createProgress(item)}</td>
+
+                <td>
+                    <div class="rd-row-actions">
+                        <a class="rd-action-link"
+                           href="${escapeHtml(buildClassUrl(classResultsUrl, item))}">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+
+                        <a class="rd-action-link"
+                           href="${escapeHtml(buildClassUrl(bulkWhatsAppUrl, item))}">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function normalizePayload(payload) {
+        let data = payload;
+
+        if (data && data.data && !Array.isArray(data.data)) {
+            data = { ...data, ...data.data };
+        }
+
+        let rawClasses = [];
+
+        if (Array.isArray(data.classes)) {
+            rawClasses = data.classes;
+        } else if (Array.isArray(data.exam_classes)) {
+            rawClasses = data.exam_classes;
+        } else if (Array.isArray(data.class_results)) {
+            rawClasses = data.class_results;
+        } else if (Array.isArray(data.results)) {
+            rawClasses = data.results;
+        } else if (Array.isArray(data.data)) {
+            rawClasses = data.data;
+        }
+
+        return {
+            ...data,
+            classes: rawClasses.map(normalizeClass)
+        };
+    }
+
+    async function loadDashboard(options = {}) {
+        const examId = examSelect.value;
+
+        if (!examId) {
+            dashboardContent.hidden = true;
+            initialEmpty.hidden = false;
+            hideError();
+            return;
+        }
+
+        if (requestController) {
+            requestController.abort();
+        }
 
         if (refreshTimer) {
-            clearInterval(refreshTimer);
+            clearTimeout(refreshTimer);
+            refreshTimer = null;
         }
 
-        refreshTimer = setInterval(function () {
+        requestController = new AbortController();
 
-            if (selectedExamId) {
-                loadExamClasses(
-                    selectedExamId,
-                    true
-                );
-            }
-
-        }, 10000);
-
-    });
-
-
-    /* =========================================================
-       LOAD EXAM CLASSES
-    ========================================================== */
-
-    function loadExamClasses(examId, silent = false) {
-
-        if (!silent) {
-            loadingMessage.classList.remove('d-none');
-        }
+        const controller = requestController;
+        const sequence = ++requestSequence;
 
         hideError();
+        initialEmpty.hidden = true;
+        setLoading(true);
 
-        fetch(
-            `{{ route('admin.results.exam-classes') }}` +
-            `?exam_id=${encodeURIComponent(examId)}`,
-            {
+        const endpoint = new URL(
+    @json(route('admin.results.exam-classes')),
+    window.location.origin
+);
+
+endpoint.searchParams.set('exam_id', examId);
+
+        try {
+            const response = await fetch(endpoint.toString(), {
+                method: 'GET',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            }
-        )
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                signal: controller.signal
+            });
 
-        .then(function (response) {
+            const contentType = response.headers.get('content-type') || '';
 
-            if (!response.ok) {
-
+            if (!contentType.includes('application/json')) {
                 throw new Error(
-                    'Unable to load examination classes.'
+                    'The results endpoint did not return JSON. Check the controller response and route.'
                 );
             }
 
-            return response.json();
+const responseText = await response.text();
+const cleanText = responseText.replace(/^[\s\uFEFF]+/, '');
 
-        })
+let payload;
 
-        .then(function (data) {
+try {
+    payload = JSON.parse(cleanText);
+} catch (error) {
+    console.error('Invalid Result Dashboard response:', {
+        url: response.url,
+        status: response.status,
+        response: responseText
+    });
 
-            loadingMessage.classList.add('d-none');
-
-            renderDashboard(
-                data,
-                examId
-            );
-
-        })
-
-        .catch(function (error) {
-
-            loadingMessage.classList.add('d-none');
-
-            if (!silent) {
-
-                showError(
-                    error.message ||
-                    'Something went wrong while loading classes.'
+    throw new Error(
+        'The server returned an invalid response. Check the browser console and Laravel logs.'
+    );
+}
+            if (!response.ok) {
+                throw new Error(
+                    payload.message || 'Unable to load results. Server returned ' + response.status + '.'
                 );
-
             }
 
-        });
+            if (sequence !== requestSequence) return;
 
+            const data = normalizePayload(payload);
+
+            currentClasses = data.classes;
+
+            document.getElementById('selectedExamName').textContent =
+                data.exam?.exam_name ||
+                data.selected_exam?.exam_name ||
+                getSelectedExamName();
+
+            document.getElementById('selectedExamMeta').textContent = getExamMeta(data);
+
+            updateSummary(data, currentClasses);
+            renderClassRows(currentClasses);
+
+            document.getElementById('dashboardStatusText').textContent =
+                'Updated ' + new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+            dashboardContent.hidden = false;
+            initialEmpty.hidden = true;
+
+            if (options.autoRefresh) {
+                refreshTimer = setTimeout(function () {
+                    if (examSelect.value === examId) {
+                        loadDashboard({ silent: true, autoRefresh: true });
+                    }
+                }, 10000);
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            if (sequence !== requestSequence) return;
+
+            if (options.silent && dashboardContent.hidden === false) {
+                document.getElementById('dashboardStatusText').textContent =
+                    'Refresh failed — showing last loaded data';
+            } else {
+                showError(error.message || 'Unable to load results. Please try again.');
+            }
+        } finally {
+            if (sequence === requestSequence) {
+                setLoading(false);
+            }
+        }
     }
 
-
-    /* =========================================================
-       RENDER DASHBOARD
-    ========================================================== */
-
-    function renderDashboard(data, examId) {
-
-        const classes =
-            Array.isArray(data.classes)
-                ? data.classes
-                : [];
-
-
-        if (classes.length === 0) {
-
-            classCards.innerHTML = '';
-
-            examInfo.classList.add('d-none');
-            publicationSummary.classList.add('d-none');
-            classHeader.classList.add('d-none');
-
-            emptyState.classList.remove('d-none');
-
-            return;
-        }
-
-
-        classHeader.classList.remove('d-none');
-        publicationSummary.classList.remove('d-none');
-        examInfo.classList.remove('d-none');
-        emptyState.classList.add('d-none');
-
-
-        /* =====================================================
-           EXAM INFORMATION
-        ====================================================== */
-
-        if (data.exam) {
-
-            const examStatus =
-                data.exam.status || 'draft';
-
-            const statusClass =
-                getExamStatusClass(examStatus);
-
-            const statusIcon =
-                getExamStatusIcon(examStatus);
-
-
-            document.getElementById('examName')
-                .textContent =
-                data.exam.exam_name || '-';
-
-
-            document.getElementById('academicYear')
-                .textContent =
-                data.exam.academic_year || '-';
-
-
-            const examStatusElement =
-                document.getElementById('examStatus');
-
-
-            examStatusElement.className =
-                `rd-status-badge ${statusClass}`;
-
-
-            examStatusElement.innerHTML = `
-                <i class="bi ${statusIcon}"></i>
-                ${escapeHtml(examStatus)}
-            `;
-
-        }
-
-
-        /* =====================================================
-           SUMMARY COUNTS
-        ====================================================== */
-
-        let totalStudents = 0;
-        let totalGenerated = 0;
-        let totalApproved = 0;
-        let totalPublished = 0;
-
-
-        classes.forEach(function (item) {
-
-            totalStudents +=
-                number(item.student_count);
-
-            totalGenerated +=
-                number(item.generated_count);
-
-            totalApproved +=
-                number(item.approved_count);
-
-            totalPublished +=
-                number(item.published_count);
-
-        });
-
-
-        document.getElementById('summaryTotal')
-            .textContent =
-            totalStudents;
-
-
-        document.getElementById('summaryGenerated')
-            .textContent =
-            totalGenerated;
-
-
-        document.getElementById('summaryApproved')
-            .textContent =
-            totalApproved;
-
-
-        document.getElementById('summaryPublished')
-            .textContent =
-            totalPublished;
-
-
-        /* =====================================================
-           OVERALL PUBLICATION
-        ====================================================== */
-
-        const overallPercentage =
-            totalStudents > 0
-                ? Math.min(
-                    100,
-                    Math.round(
-                        (
-                            totalPublished /
-                            totalStudents
-                        ) * 100
-                    )
-                )
-                : 0;
-
-
-        document.getElementById('overallProgressValue')
-            .textContent =
-            `${overallPercentage}%`;
-
-
-        const overallProgressBar =
-            document.getElementById('overallProgressBar');
-
-
-        overallProgressBar.style.width =
-            `${overallPercentage}%`;
-
-
-        overallProgressBar.className =
-            `progress-bar ${getProgressClass(overallPercentage)}`;
-
-
-        /* =====================================================
-           CLASS CARDS
-        ====================================================== */
-
-        classCards.innerHTML = '';
-
-
-        classes.forEach(function (item) {
-
-            const className =
-                item.class_name || 'Class';
-
-            const section =
-                item.section || '';
-
-            const studentCount =
-                number(item.student_count);
-
-            const generatedCount =
-                number(item.generated_count);
-
-            const verifiedCount =
-                number(item.verified_count);
-
-            const approvedCount =
-                number(item.approved_count);
-
-            const publishedCount =
-                number(item.published_count);
-
-
-            const currentExamId =
-                item.exam_id || examId;
-
-            const examClassId =
-                item.exam_class_id || '';
-
-            const classId =
-                item.class_id || '';
-
-
-            /* =================================================
-               PUBLICATION %
-            ================================================== */
-
-            const publicationPercentage =
-                studentCount > 0
-                    ? Math.min(
-                        100,
-                        Math.round(
-                            (
-                                publishedCount /
-                                studentCount
-                            ) * 100
-                        )
-                    )
-                    : 0;
-
-
-            /* =================================================
-               WORKFLOW STATUS
-            ================================================== */
-
-            const workflow =
-                getClassWorkflowStatus(
-                    studentCount,
-                    generatedCount,
-                    verifiedCount,
-                    approvedCount,
-                    publishedCount
-                );
-
-
-            const progressClass =
-                getProgressClass(
-                    publicationPercentage
-                );
-
-
-            const card =
-                document.createElement('div');
-
-
-            card.className =
-                'col-xl-4 col-lg-6 col-md-6';
-
-
-            card.innerHTML = `
-
-                <div class="rd-class-card h-100 ${workflow.cardClass}">
-
-                    <div class="rd-class-top">
-
-                        <div
-                            class="d-flex justify-content-between align-items-start gap-3"
-                        >
-
-                            <div
-                                class="d-flex align-items-center gap-3"
-                            >
-
-                                <div class="rd-class-icon">
-
-                                    <i class="bi bi-mortarboard-fill"></i>
-
-                                </div>
-
-                                <div>
-
-                                    <h5 class="rd-class-name">
-
-                                        ${escapeHtml(className)}
-
-                                        ${
-                                            section
-                                                ? `
-                                                    <span class="text-muted">
-                                                        - Section ${escapeHtml(section)}
-                                                    </span>
-                                                  `
-                                                : ''
-                                        }
-
-                                    </h5>
-
-                                    <div class="rd-class-year">
-
-                                        <i class="bi bi-calendar3 me-1"></i>
-
-                                        Academic Year:
-                                        ${escapeHtml(
-                                            item.academic_year || '-'
-                                        )}
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <span class="rd-student-badge">
-
-                                <i class="bi bi-people-fill me-1"></i>
-
-                                ${studentCount}
-
-                                Students
-
-                            </span>
-
-                        </div>
-
-
-                        {{-- DYNAMIC CLASS STATUS --}}
-
-                        <div>
-
-                            <span class="rd-class-status ${workflow.className}">
-
-                                <i class="bi bi-circle-fill"></i>
-
-                                ${escapeHtml(workflow.text)}
-
-                            </span>
-
-                        </div>
-
-
-                        {{-- STATISTICS --}}
-
-                        <div class="row g-2 mt-3">
-
-                            <div class="col-6">
-
-                                <div class="rd-stat">
-
-                                    <span class="rd-stat-label">
-                                        Generated
-                                    </span>
-
-                                    <span
-                                        class="rd-stat-value rd-stat-generated"
-                                    >
-                                        ${generatedCount}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-6">
-
-                                <div class="rd-stat">
-
-                                    <span class="rd-stat-label">
-                                        Verified
-                                    </span>
-
-                                    <span
-                                        class="rd-stat-value rd-stat-verified"
-                                    >
-                                        ${verifiedCount}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-6">
-
-                                <div class="rd-stat">
-
-                                    <span class="rd-stat-label">
-                                        Approved
-                                    </span>
-
-                                    <span
-                                        class="rd-stat-value rd-stat-approved"
-                                    >
-                                        ${approvedCount}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-6">
-
-                                <div class="rd-stat">
-
-                                    <span class="rd-stat-label">
-                                        Published
-                                    </span>
-
-                                    <span
-                                        class="rd-stat-value rd-stat-published"
-                                    >
-                                        ${publishedCount}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- PUBLICATION PROGRESS --}}
-
-                        <div class="rd-progress-area">
-
-                            <div
-                                class="d-flex justify-content-between align-items-center mb-2"
-                            >
-
-                                <span class="rd-progress-label">
-
-                                    <i class="bi bi-globe2 me-1"></i>
-
-                                    Publication Progress
-
-                                </span>
-
-                                <span class="rd-progress-value">
-
-                                    ${publishedCount} /
-                                    ${studentCount}
-
-                                    &nbsp;(${publicationPercentage}%)
-
-                                </span>
-
-                            </div>
-
-
-                            <div class="progress rd-progress">
-
-                                <div
-                                    class="progress-bar ${progressClass}"
-                                    role="progressbar"
-                                    style="width:${publicationPercentage}%"
-                                    aria-valuenow="${publicationPercentage}"
-                                    aria-valuemin="0"
-                                    aria-valuemax="100"
-                                ></div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- ACTIONS --}}
-
-                    <div class="rd-card-footer">
-
-                        <div class="d-flex flex-wrap gap-2">
-
-                            <a
-                                href="#"
-                                class="btn btn-outline-primary rd-action-btn show-class-results flex-grow-1"
-                                data-exam-class-id="${escapeHtml(examClassId)}"
-                                data-exam-id="${escapeHtml(currentExamId)}"
-                                data-class-id="${escapeHtml(classId)}"
-                                data-section="${escapeHtml(section)}"
-                            >
-
-                                <i class="bi bi-eye me-1"></i>
-
-                                Show Results
-
-                            </a>
-
-
-                            <a
-                                href="#"
-                                class="btn btn-success rd-action-btn rd-whatsapp-btn bulk-whatsapp flex-grow-1"
-                                data-exam-class-id="${escapeHtml(examClassId)}"
-                                data-exam-id="${escapeHtml(currentExamId)}"
-                                data-class-id="${escapeHtml(classId)}"
-                                data-section="${escapeHtml(section)}"
-                            >
-
-                                <i class="bi bi-whatsapp me-1"></i>
-
-                                WhatsApp
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            `;
-
-
-            classCards.appendChild(card);
-
-        });
-
-    }
-
-
-    /* =========================================================
-       SHOW CLASS RESULTS
-    ========================================================== */
-
-    classCards.addEventListener('click', function (event) {
-
-        const button =
-            event.target.closest(
-                '.show-class-results'
-            );
-
-
-        if (!button) {
-            return;
-        }
-
-
-        event.preventDefault();
-
-
-        const examId =
-            button.dataset.examId ||
-            examSelect.value;
-
-        const examClassId =
-            button.dataset.examClassId;
-
-        const classId =
-            button.dataset.classId;
-
-        const section =
-            button.dataset.section;
-
-
-        if (!examId) {
-
-            showError(
-                'Please select an examination.'
-            );
-
-            return;
-        }
-
-
-        if (!examClassId) {
-
-            showError(
-                'Exam class information is missing.'
-            );
-
-            return;
-        }
-
-
-        if (!classId) {
-
-            showError(
-                'Class information is missing.'
-            );
-
-            return;
-        }
-
-
-        const url =
-            `{{ route('admin.results.class-results') }}` +
-            `?exam_id=${encodeURIComponent(examId)}` +
-            `&exam_class_id=${encodeURIComponent(examClassId)}` +
-            `&class_id=${encodeURIComponent(classId)}` +
-            `&section=${encodeURIComponent(section || '')}`;
-
-
-        window.location.href = url;
-
+    loadButton.addEventListener('click', function () {
+        loadDashboard({ autoRefresh: true });
     });
 
-
-    /* =========================================================
-       BULK WHATSAPP
-    ========================================================== */
-
-    classCards.addEventListener('click', function (event) {
-
-        const button =
-            event.target.closest(
-                '.bulk-whatsapp'
-            );
-
-
-        if (!button) {
-            return;
-        }
-
-
-        event.preventDefault();
-
-
-        const examId =
-            button.dataset.examId ||
-            examSelect.value;
-
-        const examClassId =
-            button.dataset.examClassId;
-
-        const classId =
-            button.dataset.classId;
-
-        const section =
-            button.dataset.section;
-
-
-        if (!examId) {
-
-            showError(
-                'Please select an examination.'
-            );
-
-            return;
-        }
-
-
-        if (!examClassId) {
-
-            showError(
-                'Exam class information is missing.'
-            );
-
-            return;
-        }
-
-
-        if (!classId) {
-
-            showError(
-                'Class information is missing.'
-            );
-
-            return;
-        }
-
-
-        const url =
-            `{{ route('admin.results.bulk-whatsapp') }}` +
-            `?exam_id=${encodeURIComponent(examId)}` +
-            `&exam_class_id=${encodeURIComponent(examClassId)}` +
-            `&class_id=${encodeURIComponent(classId)}` +
-            `&section=${encodeURIComponent(section || '')}`;
-
-
-        window.location.href = url;
-
+    refreshButton.addEventListener('click', function () {
+        loadDashboard({ autoRefresh: true });
     });
 
+    retryButton.addEventListener('click', function () {
+        loadDashboard({ autoRefresh: true });
+    });
 
-    /* =========================================================
-       OPTIONAL: AUTO LOAD FIRST EXAM
-    ========================================================== */
+    examSelect.addEventListener('change', function () {
+        if (refreshTimer) {
+            clearTimeout(refreshTimer);
+            refreshTimer = null;
+        }
 
-    if (examSelect.options.length === 2) {
+        dashboardContent.hidden = true;
+        initialEmpty.hidden = !examSelect.value;
+        hideError();
 
-        examSelect.selectedIndex = 1;
+        if (examSelect.value) {
+            loadDashboard({ autoRefresh: true });
+        }
+    });
 
-        selectedExamId =
-            examSelect.value;
+    searchInput.addEventListener('input', function () {
+        renderClassRows(currentClasses);
+    });
 
-        loadExamClasses(
-            selectedExamId
-        );
+    clearSearchButton.addEventListener('click', function () {
+        searchInput.value = '';
+        renderClassRows(currentClasses);
+        searchInput.focus();
+    });
 
-        refreshTimer =
-            setInterval(function () {
-
-                if (selectedExamId) {
-
-                    loadExamClasses(
-                        selectedExamId,
-                        true
-                    );
-
-                }
-
-            }, 10000);
-
+    // Load a previously selected examination when the page opens.
+    if (examSelect.value) {
+        loadDashboard({ autoRefresh: true });
+    } else {
+        dashboardContent.hidden = true;
+        initialEmpty.hidden = false;
     }
 
+    // Stop scheduled refreshes when navigating away.
+    window.addEventListener('pagehide', function () {
+        if (refreshTimer) clearTimeout(refreshTimer);
+        if (requestController) requestController.abort();
+    });
 });
 </script>
-
 @endsection

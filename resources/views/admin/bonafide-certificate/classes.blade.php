@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Generate Bonafide Certificate | Admin')
 
@@ -6,7 +6,7 @@
 
 <style>
     /* =========================================================
-       SCHOOL DIARY DESIGN SYSTEM — BONAFIDE CERTIFICATE
+       SCHOOL DIARY DESIGN SYSTEM â€” BONAFIDE CERTIFICATE
     ========================================================= */
 
     .bonafide-page {
@@ -349,7 +349,7 @@
 
         <div class="class-grid">
             @foreach($classes as $item)
-                <a href="{{ route('admin.bonafide.students', ['class' => $item->class]) }}"
+                <a href="{{ route('admin.bonafide-certificate.students', ['class' => $item->class]) }}"
                    class="class-card">
 
                     <div class="class-icon">

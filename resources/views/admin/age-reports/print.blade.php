@@ -1,767 +1,937 @@
-@extends('layouts.app')
 
-@section('title', 'Print Student Age Report')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Age Report</title>
 
-@section('content')
+    @php
+        /*
+        |--------------------------------------------------------------------------
+        | School Information
+        |--------------------------------------------------------------------------
+        */
 
-@php
-    /*
-    |--------------------------------------------------------------------------
-    | School Information
-    |--------------------------------------------------------------------------
-    */
+        $school = $schoolSetting ?? \App\Models\SchoolSetting::first();
 
-    $school = $schoolSetting ?? \App\Models\SchoolSetting::first();
+        $schoolLogo = $school?->logo ?? null;
 
-    $schoolLogo = $school->logo ?? null;
+        if ($schoolLogo && !preg_match('~^(https?://|/)~i', $schoolLogo)) {
+            $schoolLogo = asset('storage/' . ltrim($schoolLogo, '/'));
+        }
 
-    if ($schoolLogo && !preg_match('~^(https?://|/)~i', $schoolLogo)) {
-        $schoolLogo = asset('storage/' . ltrim($schoolLogo, '/'));
-    }
+        if (!$schoolLogo) {
+            $schoolLogo = asset('images/gurukullogo.png');
+        }
 
-    if (!$schoolLogo) {
-        $schoolLogo = asset('images/gurukullogo.png');
-    }
+        $schoolAddress = collect([
+            $school?->address,
+            $school?->city,
+            $school?->district,
+            $school?->state,
+            $school?->pincode,
+        ])->filter()->implode(', ');
 
-    $schoolAddress = collect([
-        $school->address ?? null,
-        $school->city ?? null,
-        $school->district ?? null,
-        $school->state ?? null,
-        $school->pincode ?? null,
-    ])->filter()->implode(', ');
+        /*
+        |--------------------------------------------------------------------------
+        | Selected Filters
+        |--------------------------------------------------------------------------
+        */
 
-    /*
-    |--------------------------------------------------------------------------
-    | Report Data
-    |--------------------------------------------------------------------------
-    */
+        $selectedClassValue = $selectedClass ?? request('class', '');
 
-    $reportRows = collect($report ?? []);
+        $academicYearValue = !empty($selectedAcademicYear)
+            ? $selectedAcademicYear
+            : 'All Academic Years';
 
-    $selectedClass = request('class', '');
+        $ageAsOnValue = !empty($ageAsOn)
+            ? \Carbon\Carbon::parse($ageAsOn)->format('d-m-Y')
+            : now()->format('d-m-Y');
 
-    if ($selectedClass !== '') {
-        $reportRows = $reportRows->filter(function ($row) use ($selectedClass) {
-            return trim((string) data_get($row, 'class'))
-                === trim($selectedClass);
+        /*
+        |--------------------------------------------------------------------------
+        | Report Data
+        |--------------------------------------------------------------------------
+        */
+
+        $reportRows = collect($report ?? []);
+
+        // Keep only age groups containing students.
+        $reportRows = $reportRows->filter(function ($row) {
+            $total = data_get($row, 'total');
+
+            if ($total === null) {
+                $total = (int) data_get($row, 'boys', 0)
+                    + (int) data_get($row, 'girls', 0);
+            }
+
+            return (int) $total > 0;
+        })->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Student Count Helper
+        |--------------------------------------------------------------------------
+        */
+
+        $getStudentCount = function ($row) {
+            $total = data_get($row, 'total');
+
+            if ($total !== null) {
+                return (int) $total;
+            }
+
+            return (int) data_get($row, 'boys', 0)
+                + (int) data_get($row, 'girls', 0);
+        };
+
+        /*
+        |--------------------------------------------------------------------------
+        | Grand Totals
+        |--------------------------------------------------------------------------
+        */
+
+        $totalBoys = (int) $reportRows->sum(function ($row) {
+            return (int) data_get($row, 'boys', 0);
         });
-    }
 
-    $reportRows = $reportRows->values();
+        $totalGirls = (int) $reportRows->sum(function ($row) {
+            return (int) data_get($row, 'girls', 0);
+        });
 
-    $academicYearValue = $academicYear
-        ?? data_get($selectedFilters ?? [], 'academic_year')
-        ?? request('academic_year')
-        ?? 'All Academic Years';
+        $grandTotal = (int) $reportRows->sum(function ($row) use ($getStudentCount) {
+            return $getStudentCount($row);
+        });
 
-    $ageAsOnValue = $ageAsOn
-        ?? request('age_as_on')
-        ?? 'Not Specified';
+        /*
+        |--------------------------------------------------------------------------
+        | Class-Wise Grouping
+        |--------------------------------------------------------------------------
+        */
 
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Student Totals
-    |--------------------------------------------------------------------------
-    */
+        $classGroups = $reportRows
+            ->groupBy(function ($row) {
+                return trim((string) data_get($row, 'class'))
+                    ?: 'Not Specified';
+            })
+            ->sortKeys();
 
-    $getStudentCount = function ($row) {
-        $total = data_get($row, 'total');
+    @endphp
 
-        if ($total !== null) {
-            return (int) $total;
+    <style>
+        * {
+            box-sizing: border-box;
         }
 
-        return (int) data_get($row, 'boys', 0)
-            + (int) data_get($row, 'girls', 0);
-    };
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #222;
+            background: #f1f2f5;
+        }
 
-    $totalBoys = (int) $reportRows->sum(function ($row) {
-        return (int) data_get($row, 'boys', 0);
-    });
+        /* =====================================================
+           MAIN PAGE
+        ===================================================== */
 
-    $totalGirls = (int) $reportRows->sum(function ($row) {
-        return (int) data_get($row, 'girls', 0);
-    });
-
-    $grandTotal = (int) $reportRows->sum(function ($row) use ($getStudentCount) {
-        return $getStudentCount($row);
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Class-Wise Groups
-    |--------------------------------------------------------------------------
-    */
-
-    $classGroups = $reportRows
-        ->groupBy(function ($row) {
-            return trim((string) data_get($row, 'class'))
-                ?: 'Not Specified';
-        })
-        ->sortKeys();
-
-    /*
-    |--------------------------------------------------------------------------
-    | Summary Report: Class + Total Students Only
-    |--------------------------------------------------------------------------
-    */
-
-    $classSummary = $classGroups->map(function ($classRows, $className) use ($getStudentCount) {
-        return [
-            'class' => $className,
-            'total_students' => (int) $classRows->sum(function ($row) use ($getStudentCount) {
-                return $getStudentCount($row);
-            }),
-        ];
-    })->values();
-
-    $summaryGrandTotal = (int) $classSummary->sum('total_students');
-
-@endphp
-
-<style>
-    /*
-    |--------------------------------------------------------------------------
-    | Main Report
-    |--------------------------------------------------------------------------
-    */
-
-    .age-report-page {
-        position: relative;
-        isolation: isolate;
-        background: #fff;
-        color: #222;
-        padding: 25px;
-        min-height: 450px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | School Header
-    |--------------------------------------------------------------------------
-    */
-
-    .school-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 18px;
-        text-align: center;
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #333;
-    }
-
-    .school-logo {
-        width: 85px;
-        height: 85px;
-        object-fit: contain;
-        flex-shrink: 0;
-    }
-
-    .school-details h2 {
-        margin: 0 0 6px;
-        font-size: 22px;
-        font-weight: bold;
-    }
-
-    .school-details p {
-        margin: 3px 0;
-        font-size: 12px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Report Heading
-    |--------------------------------------------------------------------------
-    */
-
-    .report-heading {
-        text-align: center;
-        margin: 18px 0 22px;
-    }
-
-    .report-heading h3 {
-        margin: 0 0 7px;
-        font-size: 18px;
-    }
-
-    .report-heading p {
-        margin: 4px 0;
-        font-size: 12px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Buttons
-    |--------------------------------------------------------------------------
-    */
-
-    .report-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Report Information
-    |--------------------------------------------------------------------------
-    */
-
-    .report-info {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px 25px;
-        padding: 12px;
-        margin-bottom: 20px;
-        border: 1px solid #ddd;
-        background: #fff;
-        font-size: 12px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Tables
-    |--------------------------------------------------------------------------
-    */
-
-    .age-class-section {
-        margin-bottom: 25px;
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-
-    .age-class-title {
-        padding: 9px 10px;
-        margin: 0;
-        background: #edf2f8;
-        border: 1px solid #777;
-        border-bottom: none;
-        font-size: 14px;
-    }
-
-    .age-summary-table,
-    .age-detail-table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #fff;
-    }
-
-    .age-summary-table th,
-    .age-summary-table td,
-    .age-detail-table th,
-    .age-detail-table td {
-        border: 1px solid #777;
-        padding: 9px;
-        font-size: 12px;
-    }
-
-    .age-summary-table th,
-    .age-detail-table th {
-        background: #eaf1fb;
-        text-align: center;
-    }
-
-    .age-summary-table td,
-    .age-detail-table td {
-        text-align: center;
-    }
-
-    .age-total-row {
-        font-weight: bold;
-        background: #f1f1f1;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Grand Total
-    |--------------------------------------------------------------------------
-    */
-
-    .age-grand-total {
-        margin-top: 20px;
-        padding: 13px;
-        border: 1px solid #555;
-        font-weight: bold;
-        background: #f1f1f1;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 12px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Signatures
-    |--------------------------------------------------------------------------
-    */
-
-    .age-signatures {
-        display: flex;
-        justify-content: space-between;
-        gap: 25px;
-        margin: 65px 10px 10px;
-    }
-
-    .age-signatures span {
-        min-width: 150px;
-        padding-top: 8px;
-        border-top: 1px solid #333;
-        text-align: center;
-        font-size: 11px;
-    }
-
-    .age-empty-report {
-        padding: 30px;
-        border: 1px solid #ddd;
-        text-align: center;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Screen Layout
-    |--------------------------------------------------------------------------
-    */
-
-    @media (max-width: 768px) {
         .age-report-page {
-            padding: 12px;
+            position: relative;
+            isolation: isolate;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 12mm 12mm 25mm;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, .12);
         }
+
+        .report-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* =====================================================
+           PAGE BORDER
+        ===================================================== */
+
+        .page-border {
+            position: absolute;
+            z-index: 4;
+            top: 6mm;
+            right: 6mm;
+            bottom: 6mm;
+            left: 6mm;
+            border: 1px solid #777;
+            pointer-events: none;
+        }
+
+        /* =====================================================
+           SCHOOL WATERMARK
+        ===================================================== */
+
+        .watermark {
+            position: absolute;
+            z-index: 1;
+            top: 50%;
+            left: 50%;
+            width: 125mm;
+            height: 125mm;
+            object-fit: contain;
+            opacity: .10;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        /* =====================================================
+           SCHOOL HEADER
+        ===================================================== */
 
         .school-header {
-            flex-direction: column;
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #333;
         }
 
-        .school-details h2 {
-            font-size: 18px;
+        .school-header td {
+            border: none;
+            vertical-align: middle;
+            padding: 0 0 12px;
         }
 
-        .report-info {
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .age-summary-table th,
-        .age-summary-table td,
-        .age-detail-table th,
-        .age-detail-table td {
-            padding: 6px;
-            font-size: 10px;
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Print Layout
-    |--------------------------------------------------------------------------
-    */
-
-    @media print {
-        @page {
-            size: A4 portrait;
-            margin: 12mm;
-        }
-
-        body * {
-            visibility: hidden !important;
-        }
-
-        #age-report-print,
-        #age-report-print * {
-            visibility: visible !important;
-        }
-
-        #age-report-print {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #fff !important;
-            overflow: visible !important;
-        }
-
-        .report-actions,
-        .no-print,
-        .sidebar,
-        #sidebar,
-        .navbar,
-        .topbar,
-        nav,
-        footer,
-        button {
-            display: none !important;
-        }
-
-        /*
-         * Summary Mode
-         */
-
-        body[data-print-mode="summary"] #full-age-report,
-        body[data-print-mode="summary"] #full-age-report-info {
-            display: none !important;
-        }
-
-        body[data-print-mode="summary"] #summary-age-report {
-            display: block !important;
-        }
-
-        /*
-         * Full Report Mode
-         */
-
-        body[data-print-mode="full"] #summary-age-report {
-            display: none !important;
-        }
-
-        body[data-print-mode="full"] #full-age-report,
-        body[data-print-mode="full"] #full-age-report-info {
-            display: block !important;
-        }
-
-        .school-header {
-            gap: 12px;
+        .school-logo-cell {
+            width: 75px;
+            text-align: left;
         }
 
         .school-logo {
-            width: 70px;
-            height: 70px;
+            width: 68px;
+            height: 68px;
+            object-fit: contain;
         }
 
-        .school-details h2 {
-            font-size: 17px;
+        .school-details-cell {
+            text-align: center;
+        }
+
+        .school-spacer-cell {
+            width: 75px;
+        }
+
+        .school-details h1 {
+            margin: 0 0 5px;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 1.3;
         }
 
         .school-details p {
-            font-size: 9px;
+            margin: 2px 0;
+            font-size: 10px;
+            line-height: 1.4;
         }
 
-        .report-heading h3 {
-            font-size: 14px;
+        /* =====================================================
+           REPORT HEADING
+        ===================================================== */
+
+        .report-heading {
+            text-align: center;
+            margin: 16px 0 18px;
+        }
+
+        .report-heading h2 {
+            margin: 0 0 7px;
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: underline;
         }
 
         .report-heading p {
-            font-size: 10px;
+            margin: 4px 0;
+            font-size: 11px;
         }
+
+        /* =====================================================
+           REPORT INFORMATION
+        ===================================================== */
 
         .report-info {
-            padding: 7px;
-            gap: 8px 15px;
+            width: 100%;
+            margin-bottom: 16px;
+            padding: 9px 10px;
+            border: 1px solid #777;
+            background: rgba(255, 255, 255, .85);
+            font-size: 10px;
+            line-height: 1.7;
         }
 
-        .age-summary-table th,
-        .age-summary-table td,
+        .report-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .report-info td {
+            border: none;
+            padding: 2px 5px;
+            text-align: left;
+        }
+
+        /* =====================================================
+           CLASS SECTIONS
+        ===================================================== */
+
+        .age-class-section {
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .age-class-title {
+            margin: 0;
+            padding: 8px 10px;
+            border: 1px solid #555;
+            border-bottom: none;
+            background: #edf1f6;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           REPORT TABLE
+        ===================================================== */
+
+        .age-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            background: rgba(255, 255, 255, .88);
+        }
+
         .age-detail-table th,
         .age-detail-table td {
-            padding: 7px;
+            border: 1px solid #555;
+            padding: 8px 7px;
             font-size: 10px;
+            line-height: 1.4;
             overflow-wrap: anywhere;
         }
 
-        .age-class-section,
-        .age-grand-total,
-        .age-signatures {
-            break-inside: avoid;
-            page-break-inside: avoid;
+        .age-detail-table th {
+            background: #eaf0f8;
+            font-weight: 700;
+            text-align: center;
         }
 
-        * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+        .age-detail-table td {
+            text-align: center;
         }
-    }
-</style>
+
+        .age-detail-table td:nth-child(2) {
+            text-align: left;
+        }
+
+        .age-total-row {
+            background: #f0f0f0;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           GRAND TOTAL
+        ===================================================== */
+
+        .age-grand-total {
+            display: table;
+            width: 100%;
+            margin-top: 16px;
+            padding: 10px;
+            border: 1px solid #555;
+            background: #f0f0f0;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .age-grand-total span {
+            display: table-cell;
+            text-align: center;
+        }
+
+        .age-grand-total span:first-child {
+            text-align: left;
+        }
+
+        /* =====================================================
+           EMPTY REPORT
+        ===================================================== */
+
+        .age-empty-report {
+            padding: 25px;
+            border: 1px solid #aaa;
+            background: rgba(255, 255, 255, .9);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        /* =====================================================
+           SIGNATURES
+        ===================================================== */
+
+        .age-signatures {
+            display: table;
+            width: 100%;
+            margin-top: 55px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .signature-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+        }
+
+        .signature-cell:last-child {
+            text-align: right;
+        }
+
+        .signature-line {
+            display: inline-block;
+            width: 155px;
+            padding-top: 7px;
+            border-top: 1px solid #333;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .report-footer {
+            position: absolute;
+            right: 12mm;
+            bottom: 10mm;
+            left: 12mm;
+            z-index: 5;
+            padding-top: 5px;
+            border-top: 1px solid #aaa;
+            background: rgba(255, 255, 255, .9);
+            text-align: center;
+            font-size: 8px;
+            color: #555;
+        }
+
+        /* =====================================================
+           PRINT BUTTON
+        ===================================================== */
+
+        .report-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin: 0 0 20px;
+        }
+
+        .report-actions button {
+            display: inline-block;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 5px;
+            background: #21864b;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .report-actions button:hover {
+            background: #176c3a;
+        }
+
+        /* =====================================================
+           SCREEN RESPONSIVE
+        ===================================================== */
+
+        @media screen and (max-width: 850px) {
+            .age-report-page {
+                width: 100%;
+                min-height: 100vh;
+                margin: 0;
+                padding: 18px;
+            }
+
+            .school-logo-cell,
+            .school-spacer-cell {
+                width: 55px;
+            }
+
+            .school-logo {
+                width: 48px;
+                height: 48px;
+            }
+
+            .school-details h1 {
+                font-size: 15px;
+            }
+
+            .school-details p {
+                font-size: 9px;
+            }
+
+            .watermark {
+                width: 85%;
+                height: auto;
+            }
+
+            .age-detail-table th,
+            .age-detail-table td {
+                padding: 5px 3px;
+                font-size: 9px;
+            }
+
+            .report-footer {
+                position: static;
+                margin-top: 30px;
+            }
+        }
+
+        /* =====================================================
+           PRINT STYLES
+        ===================================================== */
+
+        @media print {
+
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+
+            html,
+            body {
+                width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+            }
+
+            body * {
+                visibility: hidden !important;
+            }
+
+            #age-report-print,
+            #age-report-print * {
+                visibility: visible !important;
+            }
+
+            #age-report-print {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                min-height: 277mm;
+                margin: 0 !important;
+                padding: 8mm 8mm 22mm !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+                isolation: isolate;
+            }
+
+            .report-actions,
+            .no-print {
+                display: none !important;
+            }
+
+            .page-border {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 4;
+            }
+
+            .watermark {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 125mm !important;
+                height: 125mm !important;
+                object-fit: contain !important;
+                opacity: .10 !important;
+                transform: translate(-50%, -50%) !important;
+                display: block !important;
+                visibility: visible !important;
+                z-index: 1 !important;
+            }
+
+            .report-content {
+                position: relative;
+                z-index: 2;
+            }
+
+            .school-header {
+                margin-bottom: 10px;
+            }
+
+            .school-header td {
+                padding-bottom: 9px;
+            }
+
+            .school-logo {
+                width: 62px;
+                height: 62px;
+            }
+
+            .school-details h1 {
+                font-size: 17px;
+            }
+
+            .school-details p {
+                font-size: 9px;
+            }
+
+            .report-heading {
+                margin: 12px 0 14px;
+            }
+
+            .report-heading h2 {
+                font-size: 14px;
+            }
+
+            .report-heading p {
+                font-size: 9px;
+            }
+
+            .report-info {
+                margin-bottom: 12px;
+                padding: 7px;
+            }
+
+            .age-class-title {
+                padding: 7px;
+                font-size: 11px;
+            }
+
+            .age-detail-table th,
+            .age-detail-table td {
+                padding: 6px 5px;
+                font-size: 9px;
+            }
+
+            .age-class-section,
+            .age-grand-total,
+            .age-signatures {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .report-footer {
+                position: fixed;
+                right: 8mm;
+                bottom: 4mm;
+                left: 8mm;
+                background: #fff;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
 
 <div id="age-report-print" class="age-report-page">
 
-    {{-- =====================================================
-         SCHOOL HEADER: SHOWN IN BOTH FORMATS
-    ====================================================== --}}
+    {{-- PAGE BORDER --}}
+    <div class="page-border"></div>
 
-    <div class="school-header">
+    {{-- SCHOOL WATERMARK --}}
+    @if($schoolLogo)
         <img
             src="{{ $schoolLogo }}"
-            alt="School Logo"
-            class="school-logo"
+            class="watermark"
+            alt=""
             onerror="this.style.display='none'"
         >
+    @endif
 
-        <div class="school-details">
-            <h2>
-                {{ $school->school_name ?? config('app.name', 'School') }}
-            </h2>
+    <div class="report-content">
 
-            @if($schoolAddress)
-                <p>{{ $schoolAddress }}</p>
-            @endif
+        {{-- =================================================
+             SCHOOL HEADER
+        ================================================== --}}
 
-            @if(!empty($school->phone))
-                <p>Phone: {{ $school->phone }}</p>
-            @endif
+        <table class="school-header">
+            <tr>
+                <td class="school-logo-cell">
+                    <img
+                        src="{{ $schoolLogo }}"
+                        alt="School Logo"
+                        class="school-logo"
+                        onerror="this.style.display='none'"
+                    >
+                </td>
 
-            @if(!empty($school->email))
-                <p>Email: {{ $school->email }}</p>
-            @endif
+                <td class="school-details-cell">
+                    <div class="school-details">
 
-            @if(!empty($school->udise_code))
-                <p>UDISE Code: {{ $school->udise_code }}</p>
-            @endif
-        </div>
-    </div>
+                        <h1>
+                            {{ $school?->school_name ?? config('app.name', 'School') }}
+                        </h1>
 
-    {{-- REPORT HEADING --}}
+                        @if($schoolAddress)
+                            <p>{{ $schoolAddress }}</p>
+                        @endif
 
-    <div class="report-heading">
-        <h3 id="age-report-title">STUDENT AGE REPORT</h3>
+                        @if(!empty($school?->phone))
+                            <p>Phone: {{ $school->phone }}</p>
+                        @endif
 
-        <p>
-            Academic Year: {{ $academicYearValue }}
-        </p>
+                        @if(!empty($school?->email))
+                            <p>Email: {{ $school->email }}</p>
+                        @endif
 
-        <p>
-            Age As On: {{ $ageAsOnValue }}
-        </p>
-    </div>
+                        @if(!empty($school?->udise_code))
+                            <p>UDISE Code: {{ $school->udise_code }}</p>
+                        @endif
 
-    {{-- PRINT ACTIONS --}}
+                    </div>
+                </td>
 
-    <div class="report-actions no-print">
-        <button
-            type="button"
-            class="btn btn-primary"
-            onclick="printAgeReport('summary')"
-        >
-            <i class="bi bi-printer"></i>
-            Print Class Summary
-        </button>
-
-        <button
-            type="button"
-            class="btn btn-success"
-            onclick="printAgeReport('full')"
-        >
-            <i class="bi bi-printer"></i>
-            Print Full Age Report
-        </button>
-
-        <a
-            class="btn btn-outline-secondary"
-            href="{{ route('admin.reports.age', request()->query()) }}"
-        >
-            Back to Age Report
-        </a>
-    </div>
-
-    {{-- =====================================================
-         FORMAT 1: CLASS SUMMARY
-         Only Class and Total Students
-    ====================================================== --}}
-
-    <div id="summary-age-report">
-
-        <table class="age-summary-table">
-            <thead>
-                <tr>
-                    <th style="width: 20%;">Sr. No.</th>
-                    <th style="width: 40%;">Class</th>
-                    <th style="width: 40%;">Total Students</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @forelse($classSummary as $row)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $row['class'] }}</td>
-                        <td>{{ $row['total_students'] }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="3">
-                            No student data found for the selected filters.
-                        </td>
-                    </tr>
-                @endforelse
-
-                @if($classSummary->isNotEmpty())
-                    <tr class="age-total-row">
-                        <td colspan="2">GRAND TOTAL</td>
-                        <td>{{ $summaryGrandTotal }}</td>
-                    </tr>
-                @endif
-            </tbody>
+                <td class="school-spacer-cell"></td>
+            </tr>
         </table>
 
-    </div>
+        {{-- =================================================
+             REPORT HEADING
+        ================================================== --}}
 
-    {{-- =====================================================
-         FORMAT 2: FULL AGE REPORT
-    ====================================================== --}}
+        <div class="report-heading">
 
-    <div id="full-age-report-info" class="report-info">
+            <h2>STUDENT AGE REPORT</h2>
 
-        <span>
-            <strong>Class:</strong>
-            {{ $selectedClass ?: 'All Classes' }}
-        </span>
+            <p>
+                <strong>Academic Year:</strong>
+                {{ $academicYearValue }}
+            </p>
 
-        <span>
-            <strong>Total Boys:</strong>
-            {{ $totalBoys }}
-        </span>
+            <p>
+                <strong>Age As On:</strong>
+                {{ $ageAsOnValue }}
+            </p>
 
-        <span>
-            <strong>Total Girls:</strong>
-            {{ $totalGirls }}
-        </span>
+        </div>
 
-        <span>
-            <strong>Total Students:</strong>
-            {{ $grandTotal }}
-        </span>
+        {{-- =================================================
+             PRINT BUTTON
+        ================================================== --}}
 
-    </div>
+        <div class="report-actions no-print">
+            <button type="button" onclick="printAgeReport()">
+                Print Age Report
+            </button>
+        </div>
 
-    <div id="full-age-report">
+        {{-- =================================================
+             REPORT INFORMATION
+        ================================================== --}}
 
-        @forelse($classGroups as $className => $classRows)
+        <div class="report-info">
 
-            @php
-                $ageGroupRows = $classRows
-                    ->groupBy(function ($row) {
-                        return trim((string) data_get($row, 'age_group'))
-                            ?: 'Not Specified';
-                    })
-                    ->sortKeys();
+            <table>
+                <tr>
+                    <td>
+                        <strong>Class:</strong>
+                        {{ $selectedClassValue ?: 'All Classes' }}
+                    </td>
 
-                $classBoys = (int) $classRows->sum(function ($row) {
-                    return (int) data_get($row, 'boys', 0);
-                });
+                    <td>
+                        <strong>Total Boys:</strong>
+                        {{ $totalBoys }}
+                    </td>
+                </tr>
 
-                $classGirls = (int) $classRows->sum(function ($row) {
-                    return (int) data_get($row, 'girls', 0);
-                });
+                <tr>
+                    <td>
+                        <strong>Total Girls:</strong>
+                        {{ $totalGirls }}
+                    </td>
 
-                $classTotal = (int) $classRows->sum(function ($row) use ($getStudentCount) {
-                    return $getStudentCount($row);
-                });
-            @endphp
+                    <td>
+                        <strong>Total Students:</strong>
+                        {{ $grandTotal }}
+                    </td>
+                </tr>
+            </table>
 
-            <div class="age-class-section">
+        </div>
 
-                <h4 class="age-class-title">
-                    Class: {{ $className }}
-                </h4>
+        {{-- =================================================
+             DETAILED AGE REPORT
+        ================================================== --}}
 
-                <table class="age-detail-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 12%;">Sr. No.</th>
-                            <th style="width: 40%;">Age Group</th>
-                            <th style="width: 16%;">Boys</th>
-                            <th style="width: 16%;">Girls</th>
-                            <th style="width: 16%;">Total</th>
-                        </tr>
-                    </thead>
+        <div id="full-age-report">
 
-                    <tbody>
-                        @foreach($ageGroupRows as $ageGroupName => $ageRows)
+            @forelse($classGroups as $className => $classRows)
 
-                            @php
-                                $boys = (int) $ageRows->sum(function ($row) {
-                                    return (int) data_get($row, 'boys', 0);
-                                });
+                @php
+                    $ageGroupRows = $classRows
+                        ->groupBy(function ($row) {
+                            return trim((string) data_get($row, 'age_group'))
+                                ?: 'Not Specified';
+                        });
 
-                                $girls = (int) $ageRows->sum(function ($row) {
-                                    return (int) data_get($row, 'girls', 0);
-                                });
+                    $classBoys = (int) $classRows->sum(function ($row) {
+                        return (int) data_get($row, 'boys', 0);
+                    });
 
-                                $ageTotal = (int) $ageRows->sum(function ($row) use ($getStudentCount) {
-                                    return $getStudentCount($row);
-                                });
-                            @endphp
+                    $classGirls = (int) $classRows->sum(function ($row) {
+                        return (int) data_get($row, 'girls', 0);
+                    });
 
+                    $classTotal = (int) $classRows->sum(function ($row) use ($getStudentCount) {
+                        return $getStudentCount($row);
+                    });
+                @endphp
+
+                <div class="age-class-section">
+
+                    <h3 class="age-class-title">
+                        Class: {{ $className }}
+                    </h3>
+
+                    <table class="age-detail-table">
+
+                        <thead>
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $ageGroupName }}</td>
-                                <td>{{ $boys }}</td>
-                                <td>{{ $girls }}</td>
-                                <td>{{ $ageTotal }}</td>
+                                <th style="width:12%;">Sr. No.</th>
+                                <th style="width:40%;">Age Group</th>
+                                <th style="width:16%;">Boys</th>
+                                <th style="width:16%;">Girls</th>
+                                <th style="width:16%;">Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach($ageGroupRows as $ageGroupName => $ageRows)
+
+                                @php
+                                    $boys = (int) $ageRows->sum(function ($row) {
+                                        return (int) data_get($row, 'boys', 0);
+                                    });
+
+                                    $girls = (int) $ageRows->sum(function ($row) {
+                                        return (int) data_get($row, 'girls', 0);
+                                    });
+
+                                    $ageTotal = (int) $ageRows->sum(function ($row) use ($getStudentCount) {
+                                        return $getStudentCount($row);
+                                    });
+                                @endphp
+
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $ageGroupName }}</td>
+                                    <td>{{ $boys }}</td>
+                                    <td>{{ $girls }}</td>
+                                    <td>{{ $ageTotal }}</td>
+                                </tr>
+
+                            @endforeach
+
+                            <tr class="age-total-row">
+                                <td colspan="2">CLASS TOTAL</td>
+                                <td>{{ $classBoys }}</td>
+                                <td>{{ $classGirls }}</td>
+                                <td>{{ $classTotal }}</td>
                             </tr>
 
-                        @endforeach
+                        </tbody>
 
-                        <tr class="age-total-row">
-                            <td colspan="2">CLASS TOTAL</td>
-                            <td>{{ $classBoys }}</td>
-                            <td>{{ $classGirls }}</td>
-                            <td>{{ $classTotal }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                    </table>
 
+                </div>
+
+            @empty
+
+                <div class="age-empty-report">
+                    No age report data found for the selected filters.
+                </div>
+
+            @endforelse
+
+            {{-- GRAND TOTAL --}}
+
+            @if($reportRows->isNotEmpty())
+
+                <div class="age-grand-total">
+                    <span>GRAND TOTAL</span>
+                    <span>Boys: {{ $totalBoys }}</span>
+                    <span>Girls: {{ $totalGirls }}</span>
+                    <span>Students: {{ $grandTotal }}</span>
+                </div>
+
+            @endif
+
+        </div>
+
+        {{-- =================================================
+             SIGNATURES
+        ================================================== --}}
+
+        <div class="age-signatures">
+
+            <div class="signature-cell">
+                <span class="signature-line">
+                    Class Teacher
+                </span>
             </div>
 
-        @empty
-
-            <div class="age-empty-report">
-                No age report data found for the selected filters.
+            <div class="signature-cell">
+                <span class="signature-line">
+                    Principal / Headmaster
+                </span>
             </div>
 
-        @endforelse
-
-        {{-- FULL REPORT GRAND TOTAL --}}
-
-        @if($reportRows->isNotEmpty())
-            <div class="age-grand-total">
-                <span>GRAND TOTAL</span>
-                <span>Boys: {{ $totalBoys }}</span>
-                <span>Girls: {{ $totalGirls }}</span>
-                <span>Students: {{ $grandTotal }}</span>
-            </div>
-        @endif
+        </div>
 
     </div>
 
-    {{-- SIGNATURES: SHOWN IN BOTH FORMATS --}}
+    {{-- FOOTER --}}
 
-    <div class="age-signatures">
-        <span>Class Teacher</span>
-        <span>Principal / Headmaster</span>
+    <div class="report-footer">
+        {{ $school?->school_name ?? config('app.name', 'School') }}
+        | Student Age Report
     </div>
 
 </div>
 
-{{-- PRINT MODE SCRIPT --}}
-
 <script>
-    function printAgeReport(mode) {
-        document.body.dataset.printMode = mode;
-
-        const title = document.getElementById('age-report-title');
-
-        if (title) {
-            title.textContent = mode === 'summary'
-                ? 'CLASS-WISE STUDENT COUNT REPORT'
-                : 'STUDENT AGE REPORT';
-        }
-
+    function printAgeReport() {
         window.print();
     }
-
-    window.addEventListener('afterprint', function () {
-        delete document.body.dataset.printMode;
-
-        const title = document.getElementById('age-report-title');
-
-        if (title) {
-            title.textContent = 'STUDENT AGE REPORT';
-        }
-    });
 </script>
 
-@endsection
+</body>
+</html>

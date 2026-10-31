@@ -214,85 +214,43 @@ public function create()
     */
 
 
+
 public function store(Request $request)
 {
+    // Validate all student fields, including identification numbers.
+    // Ensure validateStudent() contains the format and uniqueness rules.
     $validated = $this->validateStudent($request);
 
     DB::beginTransaction();
 
     try {
-
         /*
         |--------------------------------------------------------------------------
         | DEFAULT VALUES
         |--------------------------------------------------------------------------
         */
 
-        $validated['country'] = $request->input(
-            'country',
-            'India'
-        );
-
-        $validated['state'] = $request->input(
-            'state',
-            'Maharashtra'
-        );
-
-        $validated['status'] = $request->input(
-            'status',
-            'active'
-        );
-
+        $validated['country'] = $request->input('country', 'India');
+        $validated['state'] = $request->input('state', 'Maharashtra');
+        $validated['status'] = $request->input('status', 'active');
 
         /*
         |--------------------------------------------------------------------------
-        | ADMISSION CLASS
-        |--------------------------------------------------------------------------
-        | Current Class is removed.
-        | Admission Class is now the class selected by the user.
+        | ADMISSION CLASS AND CLASS
         |--------------------------------------------------------------------------
         */
 
-        $validated['admission_class'] = $request->input(
-            'admission_class'
-        );
-
+        $validated['admission_class'] = $request->input('admission_class');
+        $validated['class'] = $request->input('admission_class');
 
         /*
         |--------------------------------------------------------------------------
-        | CLASS
-        |--------------------------------------------------------------------------
-        | Keep the database `class` field synchronized with Admission Class
-        | so existing modules that use students.class continue to work.
+        | SECTION AND MEDIUM
         |--------------------------------------------------------------------------
         */
 
-        $validated['class'] = $request->input(
-            'admission_class'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECTION
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['section'] = $request->input(
-            'section'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | MEDIUM
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['medium'] = $request->input(
-            'medium'
-        );
-
+        $validated['section'] = $request->input('section');
+        $validated['medium'] = $request->input('medium');
 
         /*
         |--------------------------------------------------------------------------
@@ -300,93 +258,61 @@ public function store(Request $request)
         |--------------------------------------------------------------------------
         */
 
-        $validated['previous_school_board'] =
-            $request->input(
-                'previous_school_board',
-                $request->input('board')
-            );
-
+        $validated['previous_school_board'] = $request->input(
+            'previous_school_board',
+            $request->input('board')
+        );
 
         /*
         |--------------------------------------------------------------------------
-        | DISTRICT - TEXT
+        | DISTRICT AND TALUKA
         |--------------------------------------------------------------------------
         */
 
-        $validated['district'] =
-            $request->input(
-                'district',
-                $request->input('district_id')
-            );
+        $validated['district'] = $request->input(
+            'district',
+            $request->input('district_id')
+        );
 
+        $validated['taluka'] = $request->input(
+            'taluka',
+            $request->input('taluka_id')
+        );
 
         /*
         |--------------------------------------------------------------------------
-        | TALUKA - TEXT
+        | AUTOMATIC STUDENT ID
         |--------------------------------------------------------------------------
         */
 
-        $validated['taluka'] =
-            $request->input(
-                'taluka',
-                $request->input('taluka_id')
-            );
-
+        $validated['student_id'] = $this->generateStudentId(
+            $validated['admission_class'] ?? null,
+            $request->input('section'),
+            $request->input('academic_year')
+        );
 
         /*
         |--------------------------------------------------------------------------
-        | STUDENT ID
+        | STUDENT IDENTIFICATION NUMBERS
         |--------------------------------------------------------------------------
-        | Student ID remains automatically generated.
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['student_id'] =
-            $this->generateStudentId(
-                $validated['admission_class'] ?? null,
-                $request->input('section'),
-                $request->input('academic_year')
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | MANUAL STUDENT IDENTIFICATION NUMBERS
-        |--------------------------------------------------------------------------
-        | These are now entered manually by the user.
+        | These values are manually entered and validated by validateStudent().
         |--------------------------------------------------------------------------
         */
 
-        $validated['roll_number'] =
-            $request->input('roll_number');
-
-        $validated['register_no'] =
-            $request->input('register_no');
-
-        $validated['book_no'] =
-            $request->input('book_no');
-
-        $validated['appar_id'] =
-            $request->input('appar_id');
-
-        $validated['pen_no'] =
-            $request->input('pen_no');
-
-        $validated['saral_id'] =
-            $request->input('saral_id');
-
+        $validated['roll_number'] = $request->input('roll_number');
+        $validated['register_no'] = $request->input('register_no');
+        $validated['book_no'] = $request->input('book_no');
+        $validated['appar_id'] = $request->input('appar_id');
+        $validated['pen_no'] = $request->input('pen_no');
+        $validated['saral_id'] = $request->input('saral_id');
 
         /*
         |--------------------------------------------------------------------------
         | BIRTH PLACE
         |--------------------------------------------------------------------------
-        | This is manually entered from the student form.
-        |--------------------------------------------------------------------------
         */
 
-        $validated['birth_place'] =
-            $request->input('birth_place');
-
+        $validated['birth_place'] = $request->input('birth_place');
 
         /*
         |--------------------------------------------------------------------------
@@ -397,14 +323,11 @@ public function store(Request $request)
         $validated['profile_image'] = null;
 
         if ($request->hasFile('profile_image')) {
-
-            $validated['profile_image'] =
-                $this->uploadToCloudinary(
-                    $request->file('profile_image'),
-                    'student_' . uniqid()
-                );
+            $validated['profile_image'] = $this->uploadToCloudinary(
+                $request->file('profile_image'),
+                'student_' . uniqid()
+            );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -414,15 +337,7 @@ public function store(Request $request)
 
         $student = Student::create($validated);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | COMMIT
-        |--------------------------------------------------------------------------
-        */
-
         DB::commit();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -431,19 +346,14 @@ public function store(Request $request)
         */
 
         return redirect()
-            ->route(
-                'admin.students.show',
-                $student
-            )
+            ->route('admin.students.show', $student)
             ->with(
                 'success',
-                'Student registered successfully. Student ID: ' .
-                $student->student_id
+                'Student registered successfully. Student ID: '
+                    . $student->student_id
             );
 
-
-    } catch (Throwable $e) {
-
+    } catch (\Throwable $e) {
         DB::rollBack();
 
         report($e);
@@ -452,8 +362,7 @@ public function store(Request $request)
             ->withInput()
             ->with(
                 'error',
-                'Student registration failed: ' .
-                $e->getMessage()
+                'Student registration failed. Please check the application logs.'
             );
     }
 }
@@ -479,50 +388,35 @@ public function store(Request $request)
     */
 
     public function edit(Student $student)
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD ACTIVE CLASSES FROM SCHOOL CLASSES MODULE
-        |--------------------------------------------------------------------------
-        */
+{
+    $classSections = SchoolClass::query()
+        ->where('status', true)
+        ->whereNotNull('class_name')
+        ->where('class_name', '!=', '')
+        ->whereNotNull('section')
+        ->where('section', '!=', '')
+        ->orderBy('class_name')
+        ->orderBy('section')
+        ->get(['class_name', 'section']);
 
-        $classes = SchoolClass::query()
-            ->where('status', true)
-            ->whereNotNull('class_name')
-            ->where('class_name', '!=', '')
-            ->select('class_name')
-            ->distinct()
-            ->orderBy('class_name')
-            ->pluck('class_name')
-            ->values()
-            ->toArray();
+    $classes = $classSections
+        ->pluck('class_name')
+        ->unique()
+        ->values();
 
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD ACTIVE SECTIONS FROM SCHOOL CLASSES MODULE
-        |--------------------------------------------------------------------------
-        */
+    $sections = $classSections
+        ->where('class_name', old('class', $student->class))
+        ->pluck('section')
+        ->unique()
+        ->values();
 
-        $sections = SchoolClass::query()
-            ->where('status', true)
-            ->whereNotNull('section')
-            ->where('section', '!=', '')
-            ->select('section')
-            ->distinct()
-            ->orderBy('section')
-            ->pluck('section')
-            ->values()
-            ->toArray();
-
-        return view(
-            'admin.students.edit',
-            compact(
-                'student',
-                'classes',
-                'sections'
-            )
-        );
-    }
+    return view('admin.students.edit', compact(
+        'student',
+        'classes',
+        'sections',
+        'classSections'
+    ));
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -1516,422 +1410,221 @@ public function store(Request $request)
     |--------------------------------------------------------------------------
     */
 
-    private function validateStudent(
-        Request $request,
-        ?Student $student = null
-    ): array {
-
-        return $request->validate([
-
-            /*
-            |--------------------------------------------------------------------------
-            | BASIC INFORMATION
-            |--------------------------------------------------------------------------
-            */
-
-            'first_name' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-
-            'middle_name' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'last_name' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-
-            'marathi_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'gender' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            'date_of_birth' => [
-                'nullable',
-                'date'
-            ],
-
-            'birth_place' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'aadhar_card_no' => [
-                'nullable',
-                'digits:12'
-            ],
-
-            'phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            'email' => [
-                'nullable',
-                'email',
-                'max:255'
-            ],
-
-            'profile_image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:2048'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | ACADEMIC
-            |--------------------------------------------------------------------------
-            */
-
-            'academic_year' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            'class' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            'current_class' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            'section' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | GENERATED FIELDS
-            |--------------------------------------------------------------------------
-            */
-
-            'roll_number' => [
-                'nullable',
-                'string',
-                'max:50'
-            ],
-
-            'admission_class' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            'admission_date' => [
-                'nullable',
-                'date'
-            ],
-
-            'register_no' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'book_no' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'appar_id' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'pen_no' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | OTHER INFORMATION
-            |--------------------------------------------------------------------------
-            */
-
-            'medium' => [
-                'nullable',
-                'string',
-                'max:50'
-            ],
-
-            'mother_tongue' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'nationality' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'religion' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'caste' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'sub_caste' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'status' => [
-                'nullable',
-                Rule::in([
-                    'active',
-                    'inactive',
-                ])
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | FATHER
-            |--------------------------------------------------------------------------
-            */
-
-            'father_name' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
-            'father_phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            'father_occupation' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | MOTHER
-            |--------------------------------------------------------------------------
-            */
-
-            'mother_name' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
-            'mother_phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            'mother_occupation' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | GUARDIAN
-            |--------------------------------------------------------------------------
-            */
-
-            'guardian_name' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
-            'guardian_relation' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'guardian_phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | PREVIOUS SCHOOL
-            |--------------------------------------------------------------------------
-            */
-
-            'previous_school_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'previous_school_address' => [
-                'nullable',
-                'string',
-                'max:500'
-            ],
-
-            'previous_school_class' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_medium' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_board' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'board' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_result' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_remarks' => [
-                'nullable',
-                'string',
-                'max:1000'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | ADDRESS
-            |--------------------------------------------------------------------------
-            */
-
-            'address' => [
-                'nullable',
-                'string',
-                'max:1000'
-            ],
-
-            'country' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'state' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | DISTRICT - TEXT
-            |--------------------------------------------------------------------------
-            */
-
-            'district' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | TALUKA - TEXT
-            |--------------------------------------------------------------------------
-            */
-
-            'taluka' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'city_village' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
-            'pincode' => [
-                'nullable',
-                'digits:6'
-            ],
-
-        ], [
-
-            'aadhar_card_no.digits' =>
-                'Aadhar number must contain exactly 12 digits.',
-
-            'phone.regex' =>
-                'Please enter a valid 10-digit mobile number.',
-
-            'father_phone.regex' =>
-                'Please enter a valid 10-digit father mobile number.',
-
-            'mother_phone.regex' =>
-                'Please enter a valid 10-digit mother mobile number.',
-
-            'guardian_phone.regex' =>
-                'Please enter a valid 10-digit guardian mobile number.',
-
-            'pincode.digits' =>
-                'Pincode must contain exactly 6 digits.',
-
-            'profile_image.image' =>
-                'Please upload a valid image file.',
-
-            'profile_image.mimes' =>
-                'Profile image must be JPG, JPEG, PNG or WEBP.',
-
-            'profile_image.max' =>
-                'Profile image must not exceed 2 MB.',
-        ]);
-    }
+    
+private function validateStudent(
+    Request $request,
+    ?Student $student = null
+): array {
+    return $request->validate([
+        /*
+        |--------------------------------------------------------------------------
+        | BASIC INFORMATION
+        |--------------------------------------------------------------------------
+        */
+        'first_name' => ['required', 'string', 'max:100'],
+        'middle_name' => ['nullable', 'string', 'max:100'],
+        'last_name' => ['required', 'string', 'max:100'],
+        'marathi_name' => ['nullable', 'string', 'max:255'],
+        'gender' => ['nullable', 'string', 'max:20'],
+        'date_of_birth' => ['nullable', 'date'],
+        'birth_place' => ['nullable', 'string', 'max:255'],
+
+        'aadhar_card_no' => [
+            'nullable',
+            'string',
+            'regex:/^[2-9][0-9]{11}$/',
+            Rule::unique('students', 'aadhar_card_no')
+                ->ignore($student?->id),
+            function ($attribute, $value, $fail) {
+                if (
+                    filled($value) &&
+                    !$this->isValidAadhaarVerhoeff((string) $value)
+                ) {
+                    $fail('Please enter a valid Aadhaar number.');
+                }
+            },
+        ],
+
+        'phone' => [
+            'nullable',
+            'regex:/^[6-9][0-9]{9}$/',
+        ],
+
+        'email' => ['nullable', 'email', 'max:255'],
+
+        'profile_image' => [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACADEMIC INFORMATION
+        |--------------------------------------------------------------------------
+        */
+        'academic_year' => ['nullable', 'string', 'max:20'],
+        'class' => ['nullable', 'string', 'max:20'],
+        'current_class' => ['nullable', 'string', 'max:20'],
+        'section' => ['nullable', 'string', 'max:20'],
+        'admission_class' => ['nullable', 'string', 'max:20'],
+        'admission_date' => ['nullable', 'date'],
+
+        /*
+        |--------------------------------------------------------------------------
+        | STUDENT IDENTIFICATION NUMBERS
+        |--------------------------------------------------------------------------
+        */
+
+        // Exactly 8 digits, such as 20261042.
+        'register_no' => [
+            'required',
+            'string',
+            'regex:/^[0-9]{8}$/',
+            Rule::unique('students', 'register_no')
+                ->ignore($student?->id),
+        ],
+
+        // LIB- followed by exactly 5 digits, such as LIB-10254.
+        'book_no' => [
+            'required',
+            'string',
+            'regex:/^LIB-[0-9]{5}$/i',
+            Rule::unique('students', 'book_no')
+                ->ignore($student?->id),
+        ],
+
+        // PEN: exactly 11 digits; first digit cannot be zero.
+        'pen_no' => [
+            'nullable',
+            'string',
+            'regex:/^[1-9][0-9]{10}$/',
+            Rule::unique('students', 'pen_no')
+                ->ignore($student?->id),
+        ],
+
+        // SARAL ID: exactly 19 digits.
+        'saral_id' => [
+            'nullable',
+            'string',
+            'regex:/^[0-9]{19}$/',
+            Rule::unique('students', 'saral_id')
+                ->ignore($student?->id),
+        ],
+
+        'roll_number' => ['nullable', 'string', 'max:50'],
+        'appar_id' => ['nullable', 'string', 'max:100'],
+
+        /*
+        |--------------------------------------------------------------------------
+        | OTHER INFORMATION
+        |--------------------------------------------------------------------------
+        */
+        'medium' => ['nullable', 'string', 'max:50'],
+        'mother_tongue' => ['nullable', 'string', 'max:100'],
+        'nationality' => ['nullable', 'string', 'max:100'],
+        'religion' => ['nullable', 'string', 'max:100'],
+        'caste' => ['nullable', 'string', 'max:100'],
+        'sub_caste' => ['nullable', 'string', 'max:100'],
+
+        'status' => [
+            'nullable',
+            Rule::in(['active', 'inactive']),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | FATHER
+        |--------------------------------------------------------------------------
+        */
+        'father_name' => ['nullable', 'string', 'max:150'],
+        'father_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+        'father_occupation' => ['nullable', 'string', 'max:150'],
+
+        /*
+        |--------------------------------------------------------------------------
+        | MOTHER
+        |--------------------------------------------------------------------------
+        */
+        'mother_name' => ['nullable', 'string', 'max:150'],
+        'mother_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+        'mother_occupation' => ['nullable', 'string', 'max:150'],
+
+        /*
+        |--------------------------------------------------------------------------
+        | GUARDIAN
+        |--------------------------------------------------------------------------
+        */
+        'guardian_name' => ['nullable', 'string', 'max:150'],
+        'guardian_relation' => ['nullable', 'string', 'max:100'],
+        'guardian_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+
+        /*
+        |--------------------------------------------------------------------------
+        | PREVIOUS SCHOOL
+        |--------------------------------------------------------------------------
+        */
+        'previous_school_name' => ['nullable', 'string', 'max:255'],
+        'previous_school_address' => ['nullable', 'string', 'max:500'],
+        'previous_school_class' => ['nullable', 'string', 'max:100'],
+        'previous_school_medium' => ['nullable', 'string', 'max:100'],
+        'previous_school_board' => ['nullable', 'string', 'max:100'],
+        'board' => ['nullable', 'string', 'max:100'],
+        'previous_school_result' => ['nullable', 'string', 'max:100'],
+        'previous_school_remarks' => ['nullable', 'string', 'max:1000'],
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADDRESS
+        |--------------------------------------------------------------------------
+        */
+        'address' => ['nullable', 'string', 'max:1000'],
+        'country' => ['nullable', 'string', 'max:100'],
+        'state' => ['nullable', 'string', 'max:100'],
+        'district' => ['nullable', 'string', 'max:100'],
+        'taluka' => ['nullable', 'string', 'max:100'],
+        'city_village' => ['nullable', 'string', 'max:150'],
+        'pincode' => ['nullable', 'digits:6'],
+
+    ], [
+        /*
+        |--------------------------------------------------------------------------
+        | CUSTOM ERROR MESSAGES
+        |--------------------------------------------------------------------------
+        */
+        'first_name.required' => 'First name is required.',
+
+        'phone.regex' => 'Please enter a valid 10-digit mobile number.',
+        'father_phone.regex' => 'Please enter a valid 10-digit father mobile number.',
+        'mother_phone.regex' => 'Please enter a valid 10-digit mother mobile number.',
+        'guardian_phone.regex' => 'Please enter a valid 10-digit guardian mobile number.',
+
+        'pincode.digits' => 'Pincode must contain exactly 6 digits.',
+
+        'profile_image.image' => 'Please upload a valid image file.',
+        'profile_image.mimes' => 'Profile image must be JPG, JPEG, PNG or WEBP.',
+        'profile_image.max' => 'Profile image must not exceed 2 MB.',
+
+        'register_no.required' => 'Register Number is required.',
+        'register_no.regex' => 'Register Number must contain exactly 8 digits.',
+        'register_no.unique' => 'This Register Number is already assigned to another student.',
+
+        'book_no.required' => 'Book Number is required.',
+        'book_no.regex' => 'Book Number must follow the format LIB-10254.',
+        'book_no.unique' => 'This Book Number is already assigned to another student.',
+
+        'pen_no.regex' => 'PEN must contain exactly 11 digits and cannot start with zero.',
+        'pen_no.unique' => 'This PEN is already assigned to another student.',
+
+        'saral_id.regex' => 'Saral ID must contain exactly 19 digits.',
+        'saral_id.unique' => 'This Saral ID is already assigned to another student.',
+
+        'aadhar_card_no.regex' => 'Aadhaar must contain 12 digits and cannot start with 0 or 1.',
+        'aadhar_card_no.unique' => 'This Aadhaar number is already assigned to another student.',
+    ]);
+}
+
 
     /*
     |--------------------------------------------------------------------------
@@ -2853,42 +2546,116 @@ public function export(Request $request)
 /**
  * Download the Excel template for bulk student entry.
  */
+
 public function downloadBulkTemplate()
 {
     $headings = [
-        'first_name',
-        'middle_name',
-        'last_name',
-        'gender',
-        'date_of_birth',
-        'academic_year',
-        'class',
-        'section',
-        'admission_date',
-        'phone',
-        'email',
-        'father_name',
-        'father_phone',
-        'mother_name',
-        'mother_phone',
-        'address',
-        'city_village',
-        'district',
-        'taluka',
-        'pincode',
-    ];
+    'student_id',
+    'first_name',
+    'middle_name',
+    'last_name',
+    'marathi_name',
+    'gender',
+    'date_of_birth',
+    'birth_place',
+    'aadhar_card_no',
+    'academic_year',
+    'class',
+    'admission_class',
+    'section',
+    'admission_date',
+    'roll_number',
+    'register_no',
+    'book_no',
+    'appar_id',
+    'pen_no',
+    'saral_id',
+    'phone',
+    'email',
+    'father_name',
+    'father_phone',
+    'father_occupation',
+    'mother_name',
+    'mother_phone',
+    'mother_occupation',
+    'guardian_name',
+    'guardian_relation',
+    'guardian_phone',
+    'medium',
+    'mother_tongue',
+    'nationality',
+    'religion',
+    'caste',
+    'sub_caste',
+    'previous_school_name',
+    'previous_school_address',
+    'previous_school_class',
+    'previous_school_medium',
+    'previous_school_board',
+    'previous_school_result',
+    'previous_school_remarks',
+    'address',
+    'country',
+    'state',
+    'district',
+    'taluka',
+    'city_village',
+    'pincode',
+    'status',
+];
 
-    $export = new class($headings) implements
+    // Default values for generating Student IDs.
+    $academicYear = date('Y') . '-' . (date('Y') + 1);
+    $admissionClass = '';
+    $section = '';
+
+    // Generate the first available Student ID using existing logic.
+    $firstStudentId = $this->generateStudentId(
+        $admissionClass,
+        $section,
+        $academicYear
+    );
+
+    // Extract the numeric sequence from the generated ID.
+    $prefix = preg_replace('/\d+$/', '', $firstStudentId);
+    preg_match('/(\d+)$/', $firstStudentId, $matches);
+
+    $nextNumber = isset($matches[1])
+        ? (int) $matches[1]
+        : 1;
+
+    $numberLength = isset($matches[1])
+        ? strlen($matches[1])
+        : 4;
+
+    // Create 100 blank rows with sequential Student IDs.
+    $rows = [];
+
+    for ($i = 0; $i < 100; $i++) {
+        $rows[] = [
+            $prefix . str_pad(
+                (string) ($nextNumber + $i),
+                $numberLength,
+                '0',
+                STR_PAD_LEFT
+            ),
+            '', '', '', '', '', $academicYear,
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+        ];
+    }
+
+    $export = new class($headings, $rows) implements
         \Maatwebsite\Excel\Concerns\FromArray,
         \Maatwebsite\Excel\Concerns\WithHeadings
     {
         public function __construct(
-            private array $headings
+            private array $headings,
+            private array $rows
         ) {}
 
         public function array(): array
         {
-            return [];
+            return $this->rows;
         }
 
         public function headings(): array
@@ -2902,12 +2669,334 @@ public function downloadBulkTemplate()
         'bulk_student_template.xlsx'
     );
 }
+
+public function import(Request $request)
+{
+    $request->validate([
+        'file' => [
+            'required',
+            'file',
+            'mimes:xlsx,xls,csv',
+            'max:10240',
+        ],
+    ]);
+
+    $imported = 0;
+    $errors = [];
+
+    try {
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(
+            $request->file('file')->getRealPath()
+        );
+
+        $rows = $spreadsheet
+            ->getActiveSheet()
+            ->toArray(null, true, true, false);
+
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+
+        if (count($rows) < 2) {
+            return back()->with(
+                'error',
+                'The spreadsheet is empty or contains only headings.'
+            );
+        }
+
+        // Normalize headings, e.g. "First Name" becomes "first_name".
+        $headers = array_map(function ($heading) {
+            $heading = preg_replace(
+                '/^\xEF\xBB\xBF/',
+                '',
+                trim((string) $heading)
+            );
+
+            return strtolower(
+                preg_replace('/[^a-zA-Z0-9]+/', '_', $heading)
+            );
+        }, $rows[0]);
+
+        if (
+            count(array_filter($headers)) !== count($headers) ||
+            count($headers) !== count(array_unique($headers))
+        ) {
+            return back()->with(
+                'error',
+                'The spreadsheet contains blank or duplicate column headings.'
+            );
+        }
+
+        foreach (array_slice($rows, 1) as $index => $row) {
+            $rowNumber = $index + 2;
+
+            // Ignore completely blank rows.
+            if (!array_filter($row, fn ($value) =>
+                $value !== null && trim((string) $value) !== ''
+            )) {
+                continue;
+            }
+
+            $record = [];
+
+            foreach ($headers as $column => $heading) {
+                $record[$heading] = isset($row[$column])
+                    ? (is_string($row[$column])
+                        ? trim($row[$column])
+                        : $row[$column])
+                    : null;
+            }
+
+            // Support Excel date serial numbers and common date formats.
+            foreach (['date_of_birth', 'admission_date'] as $dateField) {
+                $value = $record[$dateField] ?? null;
+
+                if ($value === null || $value === '') {
+                    $record[$dateField] = null;
+                    continue;
+                }
+
+                try {
+                    if (is_numeric($value)) {
+                        $record[$dateField] =
+                            \PhpOffice\PhpSpreadsheet\Shared\Date::
+                                excelToDateTimeObject((float) $value)
+                                ->format('Y-m-d');
+                    } else {
+                        $parsed = null;
+                        $dateValue = trim((string) $value);
+
+                        foreach (
+                            ['Y-m-d', 'd/m/Y', 'd-m-Y', 'd.m.Y', 'm/d/Y']
+                            as $format
+                        ) {
+                            $candidate = \DateTime::createFromFormat(
+                                '!' . $format,
+                                $dateValue
+                            );
+
+                            $dateErrors = \DateTime::getLastErrors();
+
+                            if (
+                                $candidate &&
+                                (
+                                    $dateErrors === false ||
+                                    (
+                                        $dateErrors['warning_count'] === 0 &&
+                                        $dateErrors['error_count'] === 0
+                                    )
+                                ) &&
+                                $candidate->format($format) === $dateValue
+                            ) {
+                                $parsed = $candidate->format('Y-m-d');
+                                break;
+                            }
+                        }
+
+                        $record[$dateField] = $parsed ?? $dateValue;
+                    }
+                } catch (\Throwable $e) {
+                    // Leave invalid values for validation to report below.
+                    $record[$dateField] = (string) $value;
+                }
+            }
+
+            $data = [
+                'first_name' => $record['first_name'] ?? null,
+                'middle_name' => $record['middle_name'] ?? null,
+                'last_name' => $record['last_name'] ?? null,
+                'gender' => $record['gender'] ?? null,
+                'date_of_birth' => $record['date_of_birth'] ?? null,
+                'academic_year' => $record['academic_year'] ?? null,
+                'admission_class' => $record['admission_class']
+                    ?? $record['class']
+                    ?? null,
+                'class' => $record['admission_class']
+                    ?? $record['class']
+                    ?? null,
+                'section' => $record['section'] ?? null,
+                'admission_date' => $record['admission_date'] ?? null,
+                'phone' => $record['phone'] ?? null,
+                'email' => $record['email'] ?? null,
+                'father_name' => $record['father_name'] ?? null,
+                'father_phone' => $record['father_phone'] ?? null,
+                'mother_name' => $record['mother_name'] ?? null,
+                'mother_phone' => $record['mother_phone'] ?? null,
+                'address' => $record['address'] ?? null,
+                'city_village' => $record['city_village'] ?? null,
+                'district' => $record['district'] ?? null,
+                'taluka' => $record['taluka'] ?? null,
+                'pincode' => $record['pincode'] ?? null,
+                'roll_number' => $record['roll_number'] ?? null,
+                'register_no' => $record['register_no'] ?? null,
+                'book_no' => $record['book_no'] ?? null,
+                'appar_id' => $record['appar_id'] ?? null,
+                'pen_no' => $record['pen_no'] ?? null,
+                'saral_id' => $record['saral_id'] ?? null,
+                'marathi_name' => $record['marathi_name'] ?? null,
+                'birth_place' => $record['birth_place'] ?? null,
+                'aadhar_card_no' => $record['aadhar_card_no'] ?? null,
+                'medium' => $record['medium'] ?? null,
+                'mother_tongue' => $record['mother_tongue'] ?? null,
+                'nationality' => $record['nationality'] ?? null,
+                'religion' => $record['religion'] ?? null,
+                'caste' => $record['caste'] ?? null,
+                'sub_caste' => $record['sub_caste'] ?? null,
+                'father_occupation' => $record['father_occupation'] ?? null,
+                'mother_occupation' => $record['mother_occupation'] ?? null,
+                'guardian_name' => $record['guardian_name'] ?? null,
+                'guardian_relation' => $record['guardian_relation'] ?? null,
+                'guardian_phone' => $record['guardian_phone'] ?? null,
+                'previous_school_name' => $record['previous_school_name'] ?? null,
+                'previous_school_address' => $record['previous_school_address'] ?? null,
+                'previous_school_class' => $record['previous_school_class'] ?? null,
+                'previous_school_medium' => $record['previous_school_medium'] ?? null,
+                'previous_school_board' => $record['previous_school_board'] ?? null,
+                'previous_school_result' => $record['previous_school_result'] ?? null,
+                'previous_school_remarks' => $record['previous_school_remarks'] ?? null,
+                'country' => ($record['country'] ?? null) ?: 'India',
+'state'   => ($record['state'] ?? null) ?: 'Maharashtra',
+'status'  => ($record['status'] ?? null) ?: 'active',
+            ];
+
+            // Blank spreadsheet cells should become null values.
+            foreach ($data as $key => $value) {
+                if (is_string($value) && trim($value) === '') {
+                    $data[$key] = null;
+                }
+            }
+
+            $validator = \Illuminate\Support\Facades\Validator::make(
+                $data,
+                [
+                    'first_name' => 'required|string|max:100',
+                    'middle_name' => 'nullable|string|max:100',
+                    'last_name' => 'required|string|max:100',
+                    'gender' => 'nullable|string|max:20',
+                    'date_of_birth' => 'nullable|date',
+                    'admission_date' => 'nullable|date',
+                    'academic_year' => 'nullable|string|max:20',
+                    'admission_class' => 'nullable|string|max:20',
+                    'section' => 'nullable|string|max:20',
+                    'phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+                    'email' => 'nullable|email|max:255',
+                    'aadhar_card_no' => 'nullable|digits:12',
+                    'father_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+                    'mother_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+                    'guardian_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+                ]
+            );
+
+            if ($validator->fails()) {
+                $errors[] = 'Row ' . $rowNumber . ': ' .
+                    implode(' ', $validator->errors()->all());
+
+                continue;
+            }
+
+            try {
+                DB::transaction(function () use ($data) {
+                    // Use the same automatic ID generator as normal registration.
+                    $data['student_id'] = $this->generateStudentId(
+                        $data['admission_class'],
+                        $data['section'],
+                        $data['academic_year']
+                    );
+
+                    Student::create($data);
+                });
+
+                $imported++;
+            } catch (\Throwable $e) {
+                report($e);
+
+                $errors[] = 'Row ' . $rowNumber .
+                    ': The student could not be saved. Check the data and any duplicate IDs.';
+            }
+        }
+    } catch (\Throwable $e) {
+        report($e);
+
+        return back()->with(
+            'error',
+            'Unable to read the spreadsheet. Please check that it is a valid Excel or CSV file.'
+        );
+    }
+
+    if (count($errors) > 0) {
+        return redirect()
+            ->route('admin.students.index')
+            ->with(
+                $imported > 0 ? 'warning' : 'error',
+                "Imported {$imported} student(s). " .
+                    count($errors) . ' row(s) need attention.'
+            )
+            ->with('student_import_errors', array_slice($errors, 0, 50));
+    }
+
+    return redirect()
+        ->route('admin.students.index')
+        ->with('success', "Successfully imported {$imported} student(s).");
+}
+
 public function bulkCreate()
 {
-  $classes = \App\Models\SchoolClass::query()
-    ->orderBy('class_name')
-    ->get();
+    $classes = SchoolClass::query()
+        ->where('status', true)
+        ->orderBy('class_name')
+        ->orderBy('section')
+        ->get();
 
-    return view('admin.students.bulk-create', compact('classes'));
+    return view(
+        'admin.students.bulk-create',
+        compact('classes')
+    );
+}
+/**
+ * Validate an Aadhaar number using the Verhoeff checksum.
+ */
+private function isValidAadhaarVerhoeff(string $number): bool
+{
+    $number = trim($number);
+
+    if (!preg_match('/^[2-9][0-9]{11}$/', $number)) {
+        return false;
+    }
+
+    $multiplication = [
+        [0,1,2,3,4,5,6,7,8,9],
+        [1,2,3,4,0,6,7,8,9,5],
+        [2,3,4,0,1,7,8,9,5,6],
+        [3,4,0,1,2,8,9,5,6,7],
+        [4,0,1,2,3,9,5,6,7,8],
+        [5,9,8,7,6,0,4,3,2,1],
+        [6,5,9,8,7,1,0,4,3,2],
+        [7,6,5,9,8,2,1,0,4,3],
+        [8,7,6,5,9,3,2,1,0,4],
+        [9,8,7,6,5,4,3,2,1,0],
+    ];
+
+    $permutation = [
+        [0,1,2,3,4,5,6,7,8,9],
+        [1,5,7,6,2,8,3,0,9,4],
+        [5,8,0,3,7,9,6,1,4,2],
+        [8,9,1,6,0,4,3,5,2,7],
+        [9,4,5,3,1,2,6,8,7,0],
+        [4,2,8,6,5,7,3,9,0,1],
+        [2,7,9,3,8,0,6,4,1,5],
+        [7,0,4,6,9,1,3,2,5,8],
+    ];
+
+    $checksum = 0;
+    $digits = array_reverse(str_split($number));
+
+    foreach ($digits as $index => $digit) {
+        $checksum = $multiplication[
+            $checksum
+        ][
+            $permutation[$index % 8][(int) $digit]
+        ];
+    }
+
+    return $checksum === 0;
 }
 }

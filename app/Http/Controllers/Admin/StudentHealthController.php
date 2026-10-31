@@ -13,14 +13,19 @@ class StudentHealthController extends Controller
     /**
      * Display health records.
      */
-    public function index(Request $request)
+   
+public function index(Request $request)
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Base Student Query
+    |--------------------------------------------------------------------------
+    */
     $query = Student::with([
-        'healthRecords' => function ($query) {
-            $query->latest('checkup_date');
+        'healthRecords' => function ($q) {
+            $q->orderByDesc('checkup_date');
         }
-    ])
-    ->where('status', 'active');
+    ])->where('status', 'active');
 
     /*
     |--------------------------------------------------------------------------
@@ -28,14 +33,11 @@ class StudentHealthController extends Controller
     |--------------------------------------------------------------------------
     */
     if ($request->filled('academic_year')) {
+        $academicYear = $request->input('academic_year');
 
-        $query->whereHas('healthRecords', function ($q) use ($request) {
-            $q->where(
-                'academic_year',
-                $request->academic_year
-            );
+        $query->whereHas('healthRecords', function ($q) use ($academicYear) {
+            $q->where('academic_year', $academicYear);
         });
-
     }
 
     /*
@@ -44,12 +46,7 @@ class StudentHealthController extends Controller
     |--------------------------------------------------------------------------
     */
     if ($request->filled('class')) {
-
-        $query->where(
-            'class',
-            $request->class
-        );
-
+        $query->where('class', $request->input('class'));
     }
 
     /*
@@ -58,12 +55,7 @@ class StudentHealthController extends Controller
     |--------------------------------------------------------------------------
     */
     if ($request->filled('section')) {
-
-        $query->where(
-            'section',
-            $request->section
-        );
-
+        $query->where('section', $request->input('section'));
     }
 
     /*
@@ -72,51 +64,34 @@ class StudentHealthController extends Controller
     |--------------------------------------------------------------------------
     */
     if ($request->filled('search')) {
+        $search = trim($request->input('search'));
 
-        $search = trim($request->search);
-
-        $query->where(function ($q) use ($search) {
-
-            $q->where(
-                'student_id',
-                'like',
-                '%' . $search . '%'
-            )
-
-            ->orWhere(
-                'first_name',
-                'like',
-                '%' . $search . '%'
-            )
-
-            ->orWhere(
-                'middle_name',
-                'like',
-                '%' . $search . '%'
-            )
-
-            ->orWhere(
-                'last_name',
-                'like',
-                '%' . $search . '%'
-            );
-
-        });
-
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('student_id', 'like', "%{$search}%")
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('middle_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Students
+    | Paginated Students
+    |--------------------------------------------------------------------------
+    | - 25 students per page
+    | - Preserves active filters in pagination links
+    | - Orders students consistently
     |--------------------------------------------------------------------------
     */
     $students = $query
-        ->orderByRaw(
-            'CAST(class AS UNSIGNED) ASC'
-        )
+        ->orderByRaw('CAST(class AS UNSIGNED) ASC')
+        ->orderBy('class')
         ->orderBy('section')
         ->orderBy('roll_number')
-        ->paginate(25)
+        ->orderBy('student_id')
+        ->paginate(10)
         ->withQueryString();
 
     /*
@@ -125,6 +100,8 @@ class StudentHealthController extends Controller
     |--------------------------------------------------------------------------
     */
     $academicYears = StudentHealthRecord::query()
+        ->whereNotNull('academic_year')
+        ->where('academic_year', '!=', '')
         ->select('academic_year')
         ->distinct()
         ->orderByDesc('academic_year')
@@ -132,27 +109,29 @@ class StudentHealthController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Classes
+    | Active Classes
     |--------------------------------------------------------------------------
     */
     $classes = Student::query()
         ->where('status', 'active')
         ->whereNotNull('class')
+        ->where('class', '!=', '')
         ->select('class')
         ->distinct()
-        ->orderByRaw(
-            'CAST(class AS UNSIGNED) ASC'
-        )
+        ->orderByRaw('CAST(class AS UNSIGNED) ASC')
+        ->orderBy('class')
         ->pluck('class');
 
-    return view(
-        'admin.student-health.index',
-        compact(
-            'students',
-            'academicYears',
-            'classes'
-        )
-    );
+    /*
+    |--------------------------------------------------------------------------
+    | Return View
+    |--------------------------------------------------------------------------
+    */
+    return view('admin.student-health.index', compact(
+        'students',
+        'academicYears',
+        'classes'
+    ));
 }
 
     /**

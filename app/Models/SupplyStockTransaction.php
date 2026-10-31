@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
 
 class SupplyStockTransaction extends Model
 {
@@ -30,6 +28,12 @@ class SupplyStockTransaction extends Model
         'created_by' => 'integer',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | SUPPLY ITEM
+    |--------------------------------------------------------------------------
+    */
+
     public function supplyItem(): BelongsTo
     {
         return $this->belongsTo(
@@ -38,11 +42,17 @@ class SupplyStockTransaction extends Model
         );
     }
 
-    public function stockTransactions(): HasMany
-{
-    return $this->hasMany(
-        SupplyStockTransaction::class,
-        'supply_item_id'
-    );
-}
+    /*
+    |--------------------------------------------------------------------------
+    | CREATED BY USER
+    |--------------------------------------------------------------------------
+    */
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(
+            \App\Models\User::class,
+            'created_by'
+        );
+    }
 }

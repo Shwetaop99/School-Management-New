@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'School Leaving Certificate | Admin')
@@ -7,11 +8,7 @@
 @php
     $student = $certificate->student;
 
-    /*
-    |--------------------------------------------------------------------------
-    | SCHOOL PROFILE
-    |--------------------------------------------------------------------------
-    */
+    // School profile
     $schoolName = $school->school_name ?? '';
     $schoolAddress = $school->address ?? '';
     $schoolCity = $school->city ?? '';
@@ -23,113 +20,117 @@
     $udiseCode = $school->udise_code ?? '';
     $schoolCode = $school->school_code ?? '';
 
-    /*
-    |--------------------------------------------------------------------------
-    | SCHOOL LOGO
-    |--------------------------------------------------------------------------
-    */
-    $schoolLogo = $school->logo ?? null;
+    // School logo
+    $schoolLogo = trim((string) ($school->logo ?? ''));
     $schoolLogoUrl = null;
 
-    if (!empty($schoolLogo)) {
-        $schoolLogo = trim($schoolLogo);
-
-        if (str_starts_with($schoolLogo, 'http://') || str_starts_with($schoolLogo, 'https://')) {
+    if ($schoolLogo !== '') {
+        if (preg_match('/^https?:\/\//i', $schoolLogo)) {
             $schoolLogoUrl = $schoolLogo;
         } elseif (str_starts_with($schoolLogo, '/')) {
             $schoolLogoUrl = $schoolLogo;
-        } elseif (str_starts_with($schoolLogo, 'storage/')) {
-            $schoolLogoUrl = asset($schoolLogo);
-        } elseif (str_starts_with($schoolLogo, 'images/')) {
+        } elseif (
+            str_starts_with($schoolLogo, 'storage/') ||
+            str_starts_with($schoolLogo, 'images/')
+        ) {
             $schoolLogoUrl = asset($schoolLogo);
         } else {
             $schoolLogoUrl = asset('storage/' . ltrim($schoolLogo, '/'));
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SCHOOL LOCATION
-    |--------------------------------------------------------------------------
-    */
-    $schoolLocationParts = [];
-    if ($schoolCity) $schoolLocationParts[] = $schoolCity;
-    if ($schoolDistrict) $schoolLocationParts[] = $schoolDistrict;
-    if ($schoolState) $schoolLocationParts[] = $schoolState;
+    // Date formatter
+    $formatDate = function ($value) {
+        if (empty($value)) {
+            return '';
+        }
 
-    $schoolLocation = implode(', ', $schoolLocationParts);
-    if ($schoolPincode) {
-        $schoolLocation .= ($schoolLocation ? ' - ' : '') . $schoolPincode;
-    }
+        try {
+            return \Illuminate\Support\Carbon::parse($value)->format('d-m-Y');
+        } catch (\Throwable $e) {
+            return (string) $value;
+        }
+    };
 
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT FULL NAME
-    |--------------------------------------------------------------------------
-    */
-    $fullName = trim(
-        ($student->first_name ?? '') . ' ' .
-        ($student->middle_name ?? '') . ' ' .
-        ($student->last_name ?? '')
+    // Student details
+    $fullName = trim(implode(' ', array_filter([
+        $student->first_name ?? '',
+        $student->middle_name ?? '',
+        $student->last_name ?? '',
+    ], fn ($value) => trim((string) $value) !== '')));
+
+    $dob = $formatDate($student->date_of_birth ?? null);
+
+    $issueDate = $formatDate(
+        $certificate->certificate_date
+        ?? $certificate->issue_date
+        ?? null
     );
 
-    $marathiName = $student->marathi_name ?? '';
+    $leavingDate = $formatDate($certificate->leaving_date ?? null);
+    $admissionDate = $formatDate($student->admission_date ?? null);
 
-    /*
-    |--------------------------------------------------------------------------
-    | DATE OF BIRTH
-    |--------------------------------------------------------------------------
-    */
-    $dob = '';
-    if (!empty($student->date_of_birth)) {
-        try {
-            $dob = \Illuminate\Support\Carbon::parse($student->date_of_birth)->format('d-m-Y');
-        } catch (\Throwable $e) {
-            $dob = '';
-        }
+    $dobWords = $student->date_of_birth_words
+        ?? $student->dob_in_words
+        ?? '';
+
+    $casteSubCaste = trim(
+        ($student->caste ?? '') .
+        (!empty($student->sub_caste)
+            ? ' - ' . $student->sub_caste
+            : '')
+    );
+
+    $previousSchoolDisplay = trim(
+        ($student->previous_school_name ?? '') .
+        (!empty($student->previous_school_class)
+            ? ' - ' . $student->previous_school_class
+            : '')
+    );
+
+    $registerNo = $student->register_no ?? '';
+    $studentId = $student->student_id ?? '';
+    $admissionClass = $student->admission_class ?? '';
+
+    $academicYear = $certificate->academic_year
+        ?? $student->academic_year
+        ?? '';
+
+    $aadhar = $student->aadhar_card_no ?? '';
+    $apparId = $student->appar_id ?? '';
+    $penNo = $student->pen_no ?? '';
+
+    $motherTongue = $student->mother_tongue ?? '';
+    $motherName = $student->mother_name ?? '';
+    $religion = $student->religion ?? '';
+    $nationality = $student->nationality ?? 'Indian';
+    $birthPlace = $student->birth_place ?? '';
+    $medium = $student->medium ?? '';
+
+    $progress = $certificate->progress ?? '';
+    $conduct = $certificate->conduct ?? '';
+    $classSince = $student->class_studying_since ?? '';
+
+    $reason = $certificate->reason_for_leaving
+        ?? $certificate->leaving_reason
+        ?? '';
+
+    $remarks = $certificate->remarks ?? '';
+
+    // School address
+    $schoolAddressLine = implode(', ', array_filter([
+        $schoolAddress,
+        $schoolCity,
+        $schoolDistrict,
+        $schoolState,
+    ], fn ($value) => trim((string) $value) !== ''));
+
+    if ($schoolPincode !== '') {
+        $schoolAddressLine .= ($schoolAddressLine !== '' ? ' - ' : '')
+            . $schoolPincode;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CERTIFICATE / ISSUE DATE
-    |--------------------------------------------------------------------------
-    */
-    $certificateDate = $certificate->certificate_date ?? $certificate->issue_date ?? null;
-    $issueDate = '';
-    if ($certificateDate) {
-        try {
-            $issueDate = \Illuminate\Support\Carbon::parse($certificateDate)->format('d-m-Y');
-        } catch (\Throwable $e) {
-            $issueDate = '';
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LEAVING DATE
-    |--------------------------------------------------------------------------
-    */
-    $leavingDate = '';
-    if (!empty($certificate->leaving_date)) {
-        try {
-            $leavingDate = \Illuminate\Support\Carbon::parse($certificate->leaving_date)->format('d-m-Y');
-        } catch (\Throwable $e) {
-            $leavingDate = '';
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | REASON FOR LEAVING
-    |--------------------------------------------------------------------------
-    */
-    $reason = $certificate->reason_for_leaving ?? $certificate->leaving_reason ?? '';
-
-    /*
-    |--------------------------------------------------------------------------
-    | STATUS
-    |--------------------------------------------------------------------------
-    */
+    // Certificate status
     $statusClass = match ($certificate->status) {
         'issued' => 'issued',
         'cancelled' => 'cancelled',
@@ -138,19 +139,19 @@
 @endphp
 
 <style>
-    /* =========================================================
-       SCHOOL DIARY DESIGN SYSTEM — SCHOOL LEAVING CERTIFICATE SHOW
-       LOCKED VERSION
-    ========================================================= */
+    /* =====================================================
+       SCHOOL LEAVING CERTIFICATE SHOW PAGE
+       SAME DESIGN AS PRINT CERTIFICATE
+    ===================================================== */
 
     .slc-show-page {
         width: 100%;
         min-height: calc(100vh - 60px);
-        padding-bottom: 40px;
-        background: #f5f3e9;
-        color: #263b35;
-        font-family: "Inter", sans-serif;
-        font-size: 12px;
+        padding: 20px 12px 40px;
+        background: #f5f6f4;
+        color: #111;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10px;
     }
 
     .slc-show-page *,
@@ -159,531 +160,561 @@
         box-sizing: border-box;
     }
 
-    /* ---------- PAGE HEADER ---------- */
-    .slc-header {
-        position: relative;
-        overflow: hidden;
-        padding: 23px 25px;
-        margin-bottom: 20px;
-        color: #263b35;
-        background: #fffefa;
-        border: 1px solid #e5e1d3;
-        border-left: 4px solid #34775a;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(38, 59, 53, .05);
-    }
+    /* TOP ACTION BAR */
 
-    .slc-header-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .slc-breadcrumb {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 12px;
-        color: #7a857d;
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: .55px;
-    }
-
-    .slc-breadcrumb a {
-        color: #34775a;
-        text-decoration: none;
-        transition: color .2s ease;
-    }
-
-    .slc-breadcrumb a:hover {
-        color: #245a43;
-        text-decoration: underline;
-    }
-
-    .slc-breadcrumb i {
-        color: #a87543;
-        font-size: 9px;
-    }
-
-    .slc-title-row {
-        display: flex;
-        align-items: center;
-        gap: 13px;
-    }
-
-    .slc-title-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 48px;
-        width: 48px;
-        height: 48px;
-        color: #34775a;
-        background: linear-gradient(145deg, #eaf3e9, #dce9d9);
-        border: 1px solid #d0e2d0;
-        border-radius: 12px;
-        font-size: 22px;
-        box-shadow: 0 2px 6px rgba(52, 119, 90, .08);
-    }
-
-    .slc-title {
-        margin: 0;
-        color: #263b35;
-        font-size: 22px;
-        font-weight: 750;
-        line-height: 1.25;
-        letter-spacing: -.4px;
-    }
-
-    .slc-subtitle {
-        margin: 5px 0 0;
-        color: #778078;
-        font-size: 11px;
-        line-height: 1.5;
-    }
-
-    .slc-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        flex-shrink: 0;
-        flex-wrap: wrap;
-    }
-
-    /* ---------- BUTTONS ---------- */
-    .btn-scheme-back,
-    .btn-scheme-edit,
-    .btn-scheme-print {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        min-height: 38px;
-        padding: 0 16px;
+    .slc-action-bar {
+        max-width: 1100px;
+        margin: 0 auto 18px;
+        padding: 13px 16px;
+        background: #fff;
+        border: 1px solid #dfe7df;
         border-radius: 8px;
-        cursor: pointer;
-        font-family: inherit;
-        font-size: 11px;
-        font-weight: 700;
-        text-decoration: none;
-        border: 1px solid transparent;
-        transition: all .18s ease;
-    }
-
-    .btn-scheme-back {
-        color: #526057;
-        background: #fffefa;
-        border-color: #dcd8ca;
-    }
-
-    .btn-scheme-back:hover {
-        color: #263b35;
-        background: #f5f3e9;
-        border-color: #c5c0b0;
-    }
-
-    .btn-scheme-edit {
-        color: #fffefa;
-        background: linear-gradient(135deg, #34775a, #2d6a50);
-        border-color: #34775a;
-        box-shadow: 0 3px 10px rgba(52, 119, 90, .18);
-    }
-
-    .btn-scheme-edit:hover {
-        color: #fffefa;
-        background: linear-gradient(135deg, #245a43, #1f4f3a);
-        border-color: #245a43;
-        box-shadow: 0 5px 14px rgba(36, 90, 67, .22);
-        transform: translateY(-1px);
-    }
-
-    .btn-scheme-print {
-        color: #245a43;
-        background: #eaf3e9;
-        border-color: #c5dcc8;
-    }
-
-    .btn-scheme-print:hover {
-        background: #dce9d9;
-        border-color: #83aa8a;
-    }
-
-    /* ---------- ALERTS ---------- */
-    .scheme-alert {
-        margin-bottom: 18px;
-        padding: 14px 16px;
-        border-radius: 9px;
-        font-size: 11px;
-        line-height: 1.5;
-    }
-
-    .scheme-alert-success {
-        background: #eaf3e9;
-        border: 1px solid #c5dcc8;
-        border-left: 4px solid #34775a;
-        color: #245a43;
-    }
-
-    /* ---------- STATUS BADGE ---------- */
-    .status-wrap {
-        margin-bottom: 18px;
-    }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 7px 14px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-
-    .status-badge.issued {
-        background: #eaf3e9;
-        color: #245a43;
-        border: 1px solid #c5dcc8;
-    }
-
-    .status-badge.cancelled {
-        background: #fff1ed;
-        color: #8a3a34;
-        border: 1px solid #e8b8b0;
-    }
-
-    .status-badge.draft {
-        background: #f8eee0;
-        color: #87582d;
-        border: 1px solid #d9b88f;
-    }
-
-    /* ---------- CERTIFICATE CARD ---------- */
-    .certificate-card {
-        background: #fffefa;
-        border: 1px solid #e5e1d3;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(38, 59, 53, .05);
-        overflow: hidden;
-    }
-
-    .certificate-preview {
-        background: #fffefa;
-        padding: 36px 40px;
-    }
-
-    /* ---------- SCHOOL HEADER ---------- */
-    .school-header {
-        text-align: center;
-        margin-bottom: 8px;
-    }
-
-    .school-logo {
-        max-height: 90px;
-        max-width: 150px;
-        margin-bottom: 12px;
-        object-fit: contain;
-    }
-
-    .school-name {
-        margin: 0 0 6px;
-        color: #263b35;
-        font-size: 20px;
-        font-weight: 750;
-        letter-spacing: .3px;
-    }
-
-    .school-meta {
-        margin: 0 0 4px;
-        color: #5c6b62;
-        font-size: 11px;
-        line-height: 1.5;
-    }
-
-    .cert-type-label {
-        margin: 10px 0 0;
-        color: #34775a;
-        font-size: 13px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .5px;
-    }
-
-    .cert-meta-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
         flex-wrap: wrap;
-        margin: 16px 0 24px;
-        padding: 12px 16px;
-        background: linear-gradient(180deg, #faf8f0 0%, #f7f5ec 100%);
-        border: 1px solid #e5e1d3;
-        border-radius: 10px;
-        font-size: 11px;
-        font-weight: 650;
-        color: #263b35;
     }
 
-    .cert-meta-bar strong {
-        color: #5c6b62;
-        font-weight: 600;
-        margin-right: 4px;
-    }
-
-    /* ---------- SECTION TITLE ---------- */
-    .section-title {
-        background: linear-gradient(180deg, #faf8f0 0%, #f7f5ec 100%);
-        border-left: 4px solid #34775a;
-        padding: 10px 14px;
-        font-weight: 750;
-        font-size: 13px;
-        color: #263b35;
-        margin-bottom: 0;
-        border-radius: 0 8px 0 0;
-    }
-
-    /* ---------- CERTIFICATE TABLE ---------- */
-    .certificate-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-        font-size: 12px;
-    }
-
-    .certificate-table th,
-    .certificate-table td {
-        padding: 10px 12px;
-        vertical-align: middle;
-        border: 1px solid #e5e1d3;
-    }
-
-    .certificate-table th {
-        background: #f8f6ed;
+    .slc-action-title {
+        margin: 0;
+        font-size: 16px;
         font-weight: 700;
-        color: #405149;
-        width: 22%;
-        text-align: left;
+        color: #245c35;
     }
 
-    .certificate-table td {
-        background: #fffefa;
-        color: #263b35;
-        font-weight: 500;
-        width: 28%;
+    .slc-action-subtitle {
+        margin-top: 4px;
+        color: #777;
+        font-size: 11px;
     }
 
-    /* ---------- REMARKS ---------- */
-    .remarks-box {
-        background: linear-gradient(180deg, #faf8f0 0%, #f7f5ec 100%);
-        border: 1px solid #e5e1d3;
-        border-radius: 9px;
-        padding: 14px 16px;
-        margin-bottom: 20px;
-        color: #405149;
-        font-size: 12px;
-        line-height: 1.7;
-        white-space: pre-line;
-    }
-
-    /* ---------- DECLARATION ---------- */
-    .certificate-declaration {
-        font-size: 12px;
-        line-height: 1.8;
-        text-align: justify;
-        color: #405149;
-        padding: 14px 0;
-        border-top: 1px solid #e9e5d9;
-        margin-top: 8px;
-    }
-
-    /* ---------- SIGNATURES ---------- */
-    .signatures-row {
+    .slc-action-buttons {
         display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        margin-top: 40px;
-        padding-top: 20px;
+        align-items: center;
+        gap: 8px;
         flex-wrap: wrap;
     }
 
-    .signature-block {
-        flex: 1;
-        min-width: 140px;
-        text-align: center;
+    .slc-action-btn {
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        border: 1px solid transparent;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s ease;
     }
 
-    .signature-line {
-        border-top: 1px solid #5c6b62;
-        width: 75%;
-        margin: 0 auto 8px;
-        height: 28px;
+    .slc-back-btn {
+        color: #444;
+        background: #fff;
+        border-color: #ddd;
     }
 
-    .signature-block strong {
-        color: #263b35;
+    .slc-back-btn:hover {
+        background: #f2f2f2;
+        color: #222;
+    }
+
+    .slc-edit-btn {
+        color: #fff;
+        background: #34775a;
+        border-color: #34775a;
+    }
+
+    .slc-edit-btn:hover {
+        background: #245c35;
+        color: #fff;
+    }
+
+    .slc-print-btn {
+        color: #245c35;
+        background: #e8f5e9;
+        border-color: #8ab795;
+    }
+
+    .slc-print-btn:hover {
+        color: #174b29;
+        background: #d8eddb;
+    }
+
+    /* STATUS */
+
+    .slc-status-row {
+        max-width: 1100px;
+        margin: 0 auto 12px;
+    }
+
+    .slc-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 13px;
+        border-radius: 20px;
         font-size: 11px;
         font-weight: 700;
     }
 
-    /* ---------- RESPONSIVE ---------- */
-    @media (max-width: 767.98px) {
-        .slc-header {
-            padding: 18px 16px;
+    .slc-status.issued {
+        color: #245c35;
+        background: #e8f5e9;
+        border: 1px solid #8ab795;
+    }
+
+    .slc-status.draft {
+        color: #87582d;
+        background: #fff4df;
+        border: 1px solid #e4c58d;
+    }
+
+    .slc-status.cancelled {
+        color: #963c35;
+        background: #fff0ee;
+        border: 1px solid #e8b8b0;
+    }
+
+    .slc-success {
+        max-width: 1100px;
+        margin: 0 auto 15px;
+        padding: 12px 15px;
+        background: #e8f5e9;
+        border: 1px solid #8ab795;
+        border-radius: 6px;
+        color: #245c35;
+        font-size: 12px;
+    }
+
+    /* CERTIFICATE OUTER PAGE */
+
+    .certificate-page {
+        width: 194mm;
+        min-height: 281mm;
+        margin: 0 auto;
+        padding: 4mm;
+        border: 3px double #38734a;
+        background: #f4fbf2;
+        position: relative;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, .10);
+    }
+
+    .inner-border {
+        border: 1px solid #8ab795;
+        min-height: 271mm;
+        padding: 3mm;
+        display: flex;
+        flex-direction: column;
+        background: #fafff8;
+    }
+
+    /* SCHOOL HEADER */
+
+    .school-header {
+        display: grid;
+        grid-template-columns: 25mm minmax(0, 1fr) 25mm;
+        align-items: center;
+        gap: 3mm;
+        padding: 2mm 1mm 3mm;
+        text-align: center;
+    }
+
+    .logo-area {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .school-logo {
+        display: block;
+        width: 23mm;
+        height: 23mm;
+        object-fit: contain;
+    }
+
+    .school-heading {
+        min-width: 0;
+    }
+
+    .school-name {
+        margin: 0 0 2mm;
+        color: #245c35;
+        font-size: 18px;
+        line-height: 1.2;
+        font-weight: 800;
+        text-transform: uppercase;
+        overflow-wrap: anywhere;
+    }
+
+    .school-line {
+        margin: 1px 0;
+        font-size: 9px;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    .school-contact {
+        font-size: 8px;
+    }
+
+    .school-spacer {
+        min-width: 0;
+    }
+
+    .header-divider {
+        border: 0;
+        border-top: 1.5px solid #38734a;
+        margin: 0;
+    }
+
+    /* CERTIFICATE HEADING */
+
+    .certificate-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 4mm;
+        padding: 3mm 1mm 2mm;
+        font-size: 9px;
+    }
+
+    .certificate-number {
+        max-width: 35%;
+        overflow-wrap: anywhere;
+    }
+
+    .certificate-title {
+        margin: 0;
+        text-align: center;
+        color: #245c35;
+        font-size: 17px;
+        line-height: 1.25;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .certificate-subtitle {
+        margin-top: 2px;
+        font-size: 9px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .book-info {
+        text-align: right;
+        max-width: 35%;
+    }
+
+    .notice {
+        margin: 2mm 0;
+        padding: 2mm;
+        border-top: 1px solid #8ab795;
+        border-bottom: 1px solid #8ab795;
+        background: #e8f5e9;
+        text-align: center;
+        font-size: 9px;
+        font-style: italic;
+    }
+
+    /* REFERENCE TABLE */
+
+    .reference-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin: 1mm 0 3mm;
+    }
+
+    .reference-table td {
+        width: 33.333%;
+        padding: 2mm 1.5mm;
+        border: 1px solid #8ab795;
+        background: #f0f8ef;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+        font-size: 9px;
+    }
+
+    .field-label {
+        font-weight: 700;
+    }
+
+    /* DETAILS TABLE */
+
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .details-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .details-table td {
+        border: 1px solid #8ab795;
+        padding: 2.1mm 2mm;
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+        word-break: normal;
+        font-size: 10px;
+    }
+
+    .details-table .label {
+        width: 43%;
+        font-weight: 700;
+        background: #e8f5e9;
+    }
+
+    .details-table .value {
+        width: 57%;
+        min-height: 8mm;
+        background: #fafff8;
+    }
+
+    .details-table .dob-row td {
+        padding-top: 3mm;
+        padding-bottom: 3mm;
+    }
+
+    .muted {
+        font-size: 9px;
+        font-weight: 400;
+        font-style: italic;
+    }
+
+    /* DECLARATION */
+
+    .declaration {
+        margin-top: 4mm;
+        padding: 2mm 1mm;
+        text-align: center;
+        font-size: 9px;
+        line-height: 1.6;
+    }
+
+    /* SIGNATURES */
+
+    .signature-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: auto;
+    }
+
+    .signature-table td {
+        width: 33.333%;
+        padding: 0 2mm;
+        text-align: center;
+        vertical-align: bottom;
+        font-size: 9px;
+    }
+
+    .signature-space {
+        height: 22mm;
+    }
+
+    .signature-line {
+        border-top: 1px solid #38734a;
+        padding-top: 2mm;
+        font-weight: 700;
+    }
+
+    .date-value {
+        margin-bottom: 2mm;
+        text-align: left;
+        font-size: 9px;
+    }
+
+    .seal-space {
+        height: 13mm;
+        margin-bottom: 2mm;
+        font-size: 8px;
+        font-weight: 400;
+    }
+
+    .signature-note {
+        margin-top: 1mm;
+        font-size: 8px;
+        font-weight: 400;
+    }
+
+    /* RESPONSIVE PREVIEW */
+
+    @media screen and (max-width: 850px) {
+        .certificate-page {
+            transform-origin: top left;
+            margin-left: 0;
+            margin-right: 0;
         }
 
-        .slc-title {
-            font-size: 19px;
-        }
-
-        .slc-title-icon {
-            flex-basis: 42px;
-            width: 42px;
-            height: 42px;
-            font-size: 19px;
-        }
-
-        .slc-header-content {
-            flex-direction: column;
-        }
-
-        .slc-header-actions {
+        .slc-certificate-scroll {
             width: 100%;
+            overflow-x: auto;
+            padding-bottom: 15px;
+        }
+    }
+
+    @media screen and (max-width: 600px) {
+        .slc-show-page {
+            padding: 12px 6px 25px;
         }
 
-        .btn-scheme-back,
-        .btn-scheme-edit,
-        .btn-scheme-print {
-            flex: 1;
-        }
-
-        .certificate-preview {
-            padding: 20px 16px;
-        }
-
-        .school-name {
-            font-size: 17px;
-        }
-
-        .cert-meta-bar {
-            flex-direction: column;
+        .slc-action-bar {
             align-items: flex-start;
-            gap: 8px;
         }
 
-        .certificate-table th,
-        .certificate-table td {
-            display: block;
-            width: 100% !important;
-        }
-
-        .certificate-table tr {
-            display: block;
-            margin-bottom: 8px;
-            border: 1px solid #e5e1d3;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .signatures-row {
-            flex-direction: column;
-            gap: 28px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .slc-title {
-            font-size: 17px;
-        }
-
-        .slc-subtitle {
-            font-size: 10px;
-        }
-
-        .slc-header-actions {
-            flex-direction: column;
-        }
-
-        .btn-scheme-back,
-        .btn-scheme-edit,
-        .btn-scheme-print {
+        .slc-action-buttons {
             width: 100%;
         }
+
+        .slc-action-btn {
+            flex: 1;
+            padding: 8px 9px;
+        }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .slc-show-page *,
-        .slc-show-page *::before,
-        .slc-show-page *::after {
-            scroll-behavior: auto !important;
-            animation-duration: .01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: .01ms !important;
+    /* PRINT */
+
+    @media print {
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
+        }
+
+        html,
+        body {
+            width: auto;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            background: #fff !important;
+        }
+
+        body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .slc-action-bar,
+        .slc-status-row,
+        .slc-success {
+            display: none !important;
+        }
+
+        .slc-show-page {
+            width: 100%;
+            min-height: 0;
+            padding: 0;
+            margin: 0;
+            background: #fff !important;
+        }
+
+        .slc-certificate-scroll {
+            overflow: visible !important;
+            width: 100%;
+            padding: 0;
+        }
+
+        .certificate-page {
+            width: 100%;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            border: 3px double #38734a;
+            box-shadow: none;
+            background: #f4fbf2 !important;
+        }
+
+        .inner-border {
+            min-height: 278mm;
+            background: #fafff8 !important;
+        }
+
+        .certificate-page,
+        .inner-border,
+        .school-header,
+        .certificate-meta,
+        .notice,
+        .reference-table,
+        .details-table tr,
+        .declaration,
+        .signature-table {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .certificate-page,
+        .inner-border,
+        .reference-table td,
+        .details-table td,
+        .notice {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
     }
 </style>
 
 <div class="slc-show-page">
 
-    {{-- ===================== PAGE HEADER ===================== --}}
-    <div class="slc-header">
-        <div class="slc-header-content">
-            <div>
-                <div class="slc-breadcrumb">
-                    <a href="{{ route('admin.school-leaving-certificate.index') }}">School Leaving Certificates</a>
-                    <i class="bi bi-chevron-right"></i>
-                    <span>{{ $certificate->certificate_no }}</span>
-                </div>
-
-                <div class="slc-title-row">
-                    <div class="slc-title-icon">
-                        <i class="bi bi-file-earmark-text-fill"></i>
-                    </div>
-                    <div>
-                        <h1 class="slc-title">School Leaving Certificate</h1>
-                        <p class="slc-subtitle">
-                            Certificate No: <strong>{{ $certificate->certificate_no }}</strong>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="slc-header-actions">
-                <a href="{{ route('admin.school-leaving-certificate.index') }}" class="btn-scheme-back">
-                    <i class="bi bi-arrow-left"></i>
-                    Back
-                </a>
-                <a href="{{ route('admin.school-leaving-certificate.edit', $certificate) }}" class="btn-scheme-edit">
-                    <i class="bi bi-pencil-square"></i>
-                    Edit
-                </a>
-                <a href="{{ route('admin.school-leaving-certificate.print', $certificate) }}"
-                   target="_blank"
-                   class="btn-scheme-print">
-                    <i class="bi bi-printer"></i>
-                    Print
-                </a>
-            </div>
-        </div>
-    </div>
-
     {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
-        <div class="scheme-alert scheme-alert-success">
+        <div class="slc-success">
             <i class="bi bi-check-circle me-1"></i>
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- STATUS BADGE --}}
-    <div class="status-wrap">
-        <span class="status-badge {{ $statusClass }}">
+    {{-- TOP ACTION BAR --}}
+    <div class="slc-action-bar">
+
+        <div>
+            <h2 class="slc-action-title">
+                School Leaving Certificate
+            </h2>
+
+            <div class="slc-action-subtitle">
+                Certificate No:
+                <strong>{{ $certificate->certificate_no ?: 'Not Generated' }}</strong>
+            </div>
+        </div>
+
+        <div class="slc-action-buttons">
+
+            <a href="{{ route('admin.school-leaving-certificate.index') }}"
+               class="slc-action-btn slc-back-btn">
+                <i class="bi bi-arrow-left"></i>
+                Back
+            </a>
+
+            <a href="{{ route('admin.school-leaving-certificate.edit', $certificate) }}"
+               class="slc-action-btn slc-edit-btn">
+                <i class="bi bi-pencil-square"></i>
+                Edit
+            </a>
+
+            <a href="{{ route('admin.school-leaving-certificate.print', $certificate) }}"
+               target="_blank"
+               class="slc-action-btn slc-print-btn">
+                <i class="bi bi-printer"></i>
+                Print
+            </a>
+
+        </div>
+    </div>
+
+    {{-- STATUS --}}
+    <div class="slc-status-row">
+        <span class="slc-status {{ $statusClass }}">
             @if($certificate->status === 'issued')
                 <i class="bi bi-check-circle"></i>
             @elseif($certificate->status === 'cancelled')
@@ -691,211 +722,323 @@
             @else
                 <i class="bi bi-pencil-square"></i>
             @endif
-            {{ ucfirst($certificate->status) }}
+
+            {{ ucfirst($certificate->status ?? 'Draft') }}
         </span>
     </div>
 
-    {{-- ===================== CERTIFICATE CARD ===================== --}}
-    <div class="certificate-card">
-        <div class="certificate-preview">
+    {{-- CERTIFICATE PREVIEW --}}
+    <div class="slc-certificate-scroll">
 
-            {{-- SCHOOL HEADER --}}
-            <div class="school-header">
-                @if($schoolLogoUrl)
-                    <img src="{{ $schoolLogoUrl }}"
-                         alt="School Logo"
-                         class="school-logo"
-                         onerror="this.style.display='none';">
-                @endif
+        <main class="certificate-page">
 
-                <h2 class="school-name">{{ $schoolName ?: 'School Name' }}</h2>
+            <div class="inner-border">
 
-                @if($schoolAddress || $schoolLocation)
-                    <p class="school-meta">
-                        @if($schoolAddress){{ $schoolAddress }}@endif
-                        @if($schoolAddress && $schoolLocation), @endif
-                        {{ $schoolLocation }}
-                    </p>
-                @endif
+                {{-- SCHOOL HEADER --}}
+                <header class="school-header">
 
-                @if($udiseCode || $schoolCode)
-                    <p class="school-meta">
-                        @if($udiseCode)UDISE No : {{ $udiseCode }}@endif
-                        @if($udiseCode && $schoolCode)&nbsp; | &nbsp;@endif
-                        @if($schoolCode)School Code : {{ $schoolCode }}@endif
-                    </p>
-                @endif
-
-                @if($schoolPhone || $schoolEmail)
-                    <p class="school-meta">
-                        @if($schoolPhone)Phone No : {{ $schoolPhone }}@endif
-                        @if($schoolPhone && $schoolEmail)&nbsp; | &nbsp;@endif
-                        @if($schoolEmail)Email : {{ $schoolEmail }}@endif
-                    </p>
-                @endif
-
-                <p class="cert-type-label">School Leaving Certificate</p>
-
-                <div class="cert-meta-bar">
-                    <div>
-                        <strong>Certificate No:</strong>
-                        {{ $certificate->certificate_no }}
+                    <div class="logo-area">
+                        @if($schoolLogoUrl)
+                            <img
+                                src="{{ $schoolLogoUrl }}"
+                                class="school-logo"
+                                alt="School Logo"
+                                onerror="this.style.display='none';"
+                            >
+                        @endif
                     </div>
-                    <div>
-                        <strong>Academic Year:</strong>
-                        {{ $certificate->academic_year ?: '—' }}
+
+                    <div class="school-heading">
+
+                        <h1 class="school-name">
+                            {{ $schoolName ?: 'School Name' }}
+                        </h1>
+
+                        @if($schoolAddressLine !== '')
+                            <p class="school-line">
+                                {{ $schoolAddressLine }}
+                            </p>
+                        @endif
+
+                        @if($udiseCode || $schoolCode)
+                            <p class="school-line">
+
+                                @if($udiseCode)
+                                    UDISE Code: {{ $udiseCode }}
+                                @endif
+
+                                @if($udiseCode && $schoolCode)
+                                    &nbsp; | &nbsp;
+                                @endif
+
+                                @if($schoolCode)
+                                    School Code: {{ $schoolCode }}
+                                @endif
+
+                            </p>
+                        @endif
+
+                        @if($schoolPhone || $schoolEmail)
+                            <p class="school-line school-contact">
+
+                                @if($schoolPhone)
+                                    Phone: {{ $schoolPhone }}
+                                @endif
+
+                                @if($schoolPhone && $schoolEmail)
+                                    &nbsp; | &nbsp;
+                                @endif
+
+                                @if($schoolEmail)
+                                    Email: {{ $schoolEmail }}
+                                @endif
+
+                            </p>
+                        @endif
+
                     </div>
-                    <div>
-                        <strong>Issue Date:</strong>
-                        {{ $issueDate ?: '—' }}
+
+                    <div class="school-spacer"></div>
+
+                </header>
+
+                <hr class="header-divider">
+
+                {{-- CERTIFICATE TITLE AND NUMBER --}}
+                <section class="certificate-meta">
+
+                    <div class="certificate-number">
+                        <strong>Certificate No.:</strong>
+                        {{ $certificate->certificate_no ?: 'Not Generated' }}
                     </div>
+
+                    <div>
+                        <h2 class="certificate-title">
+                            School Leaving Certificate
+                        </h2>
+
+                        <div class="certificate-subtitle">
+                            Transfer / Leaving Certificate
+                        </div>
+                    </div>
+
+                    <div class="book-info">
+                        <strong>Medium:</strong>
+                        {{ $medium ?: '-' }}
+                    </div>
+
+                </section>
+
+                {{-- NOTICE --}}
+                <div class="notice">
+                    No changes shall be made in any entry except by the
+                    competent authority.
                 </div>
-            </div>
 
-            {{-- STUDENT INFORMATION --}}
-            <div class="section-title">Student Information</div>
-            <div class="table-responsive">
-                <table class="certificate-table">
+                {{-- STUDENT REFERENCE DETAILS --}}
+                <table class="reference-table">
+                    <tbody>
+
+                        <tr>
+                            <td>
+                                <span class="field-label">Register No.:</span>
+                                {{ $registerNo ?: '-' }}
+                            </td>
+
+                            <td>
+                                <span class="field-label">Admission Date:</span>
+                                {{ $admissionDate ?: '-' }}
+                            </td>
+
+                            <td>
+                                <span class="field-label">Academic Year:</span>
+                                {{ $academicYear ?: '-' }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <span class="field-label">Student ID:</span>
+                                {{ $studentId ?: '-' }}
+                            </td>
+
+                            <td>
+                                <span class="field-label">Admission Class:</span>
+                                {{ $admissionClass ?: '-' }}
+                            </td>
+
+                            <td>
+                                <span class="field-label">Aadhaar No.:</span>
+                                {{ $aadhar ?: '-' }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <span class="field-label">APAAR ID:</span>
+                                {{ $apparId ?: '-' }}
+                            </td>
+
+                            <td>
+                                <span class="field-label">Mother Tongue:</span>
+                                {{ $motherTongue ?: '-' }}
+                            </td>
+
+                            <td>
+                                <span class="field-label">PEN No.:</span>
+                                {{ $penNo ?: '-' }}
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+                {{-- CERTIFICATE DETAILS --}}
+                <table class="details-table">
+                    <tbody>
+
+                        <tr>
+                            <td class="label">1. Full Name of Student</td>
+                            <td class="value">{{ $fullName ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">2. Mother's Name</td>
+                            <td class="value">{{ $motherName ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">3. Religion</td>
+                            <td class="value">{{ $religion ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">4. Caste / Sub-caste</td>
+                            <td class="value">{{ $casteSubCaste ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">5. Nationality</td>
+                            <td class="value">{{ $nationality ?: '-' }}</td>
+                        </tr>
+
+                        <tr class="dob-row">
+                            <td class="label">
+                                6. Date of Birth
+                                <br>
+                                <span class="muted">(In figures and words)</span>
+                            </td>
+
+                            <td class="value">
+                                {{ $dob ?: '-' }}
+
+                                @if($dobWords)
+                                    <br>
+                                    <span class="muted">{{ $dobWords }}</span>
+                                @endif
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">7. Place of Birth</td>
+                            <td class="value">{{ $birthPlace ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">8. Previous School and Class</td>
+                            <td class="value">{{ $previousSchoolDisplay ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">9. Date of Leaving School</td>
+                            <td class="value">{{ $leavingDate ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">10. Student's Progress</td>
+                            <td class="value">{{ $progress ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">11. Student's Conduct</td>
+                            <td class="value">{{ $conduct ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">12. Class Studied and Since When</td>
+                            <td class="value">{{ $classSince ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">13. Reason for Leaving</td>
+                            <td class="value">{{ $reason ?: '-' }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">14. Remarks</td>
+                            <td class="value">{{ $remarks ?: '-' }}</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+                {{-- DECLARATION --}}
+                <div class="declaration">
+                    Certified that the particulars recorded above are true
+                    and correct according to the records of the institution.
+                </div>
+
+                {{-- SIGNATURES AND SEAL --}}
+                <table class="signature-table">
                     <tbody>
                         <tr>
-                            <th>Student ID</th>
-                            <td>{{ $student->student_id ?? '—' }}</td>
-                            <th>GR / Register No.</th>
-                            <td>{{ $student->register_no ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Student Name</th>
-                            <td>{{ $fullName ?: '—' }}</td>
-                            <th>Marathi Name</th>
-                            <td>{{ $marathiName ?: '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Date of Birth</th>
-                            <td>{{ $dob ?: '—' }}</td>
-                            <th>Gender</th>
-                            <td>{{ $student->gender ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Aadhaar Number</th>
-                            <td>{{ $student->aadhar_card_no ?? '—' }}</td>
-                            <th>PEN Number</th>
-                            <td>{{ $student->pen_no ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>APAAR ID</th>
-                            <td>{{ $student->appar_id ?? '—' }}</td>
-                            <th>Saral ID</th>
-                            <td>{{ $student->saral_id ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Nationality</th>
-                            <td>{{ $student->nationality ?? 'Indian' }}</td>
-                            <th>Mother Tongue</th>
-                            <td>{{ $student->mother_tongue ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Religion</th>
-                            <td>{{ $student->religion ?? '—' }}</td>
-                            <th>Category</th>
-                            <td>{{ $student->category ?? '—' }}</td>
+
+                            <td>
+                                <div class="signature-space"></div>
+
+                                <div class="date-value">
+                                    <strong>Date:</strong>
+                                    {{ $issueDate ?: $leavingDate ?: '-' }}
+                                </div>
+
+                                <div class="signature-line">
+                                    Date of Issue
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="signature-space"></div>
+
+                                <div class="signature-line">
+                                    Class Teacher
+
+                                    <div class="signature-note">
+                                        Signature
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                
+
+                                <div class="signature-space"></div>
+
+                                <div class="signature-line">
+                                    Principal / Headmaster
+
+                                    <div class="signature-note">
+                                        Signature
+                                    </div>
+                                </div>
+                            </td>
+
                         </tr>
                     </tbody>
                 </table>
+
             </div>
+        </main>
 
-            {{-- ACADEMIC INFORMATION --}}
-            <div class="section-title">Academic Information</div>
-            <div class="table-responsive">
-                <table class="certificate-table">
-                    <tbody>
-                        <tr>
-                            <th>Admission Class</th>
-                            <td>{{ $student->admission_class ?? '—' }}</td>
-                            <th>Current / Last Class</th>
-                            <td>{{ $certificate->last_class ?: ($student->class ?? '—') }}</td>
-                        </tr>
-                        <tr>
-                            <th>Division</th>
-                            <td>{{ $certificate->last_division ?: ($student->section ?? '—') }}</td>
-                            <th>Roll Number</th>
-                            <td>{{ $student->roll_number ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Medium</th>
-                            <td>{{ $student->medium ?? '—' }}</td>
-                            <th>Stream</th>
-                            <td>{{ $student->stream ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Admission Type</th>
-                            <td>{{ $student->admission_type ?? '—' }}</td>
-                            <th>Academic Year</th>
-                            <td>{{ $certificate->academic_year ?? '—' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- LEAVING INFORMATION --}}
-            <div class="section-title">Leaving Information</div>
-            <div class="table-responsive">
-                <table class="certificate-table">
-                    <tbody>
-                        <tr>
-                            <th>Date of Leaving</th>
-                            <td>{{ $leavingDate ?: '—' }}</td>
-                            <th>Reason for Leaving</th>
-                            <td>{{ $reason ?: '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Conduct</th>
-                            <td>{{ $certificate->conduct ?: '—' }}</td>
-                            <th>Progress</th>
-                            <td>{{ $certificate->progress ?: '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Certificate Status</th>
-                            <td>{{ ucfirst($certificate->status) }}</td>
-                            <th>Certificate Issue Date</th>
-                            <td>{{ $issueDate ?: '—' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- REMARKS --}}
-            @if($certificate->remarks)
-                <div class="section-title">Remarks</div>
-                <div class="remarks-box">
-                    {!! nl2br(e($certificate->remarks)) !!}
-                </div>
-            @endif
-
-            {{-- DECLARATION --}}
-            <div class="certificate-declaration">
-                <p class="mb-0">
-                    This is to certify that the above information is recorded in the school records
-                    and this School Leaving Certificate has been issued accordingly.
-                </p>
-            </div>
-
-            {{-- SIGNATURES --}}
-            <div class="signatures-row">
-                <div class="signature-block">
-                    <div class="signature-line"></div>
-                    <strong>Class Teacher</strong>
-                </div>
-                <div class="signature-block">
-                    <div class="signature-line"></div>
-                    <strong>Clerk</strong>
-                </div>
-                <div class="signature-block">
-                    <div class="signature-line"></div>
-                    <strong>Principal</strong>
-                </div>
-            </div>
-
-        </div>
     </div>
 
 </div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Select Student - Bonafide Certificate | Admin')
 
@@ -6,7 +6,7 @@
 
 <style>
     /* =========================================================
-       SCHOOL DIARY DESIGN SYSTEM — SELECT STUDENT (BONAFIDE)
+       SCHOOL DIARY DESIGN SYSTEM â€” SELECT STUDENT (BONAFIDE)
        LOCKED VERSION
     ========================================================= */
 
@@ -329,7 +329,7 @@
     <div class="bonafide-header">
         <div class="bonafide-header-content">
             <div class="bonafide-breadcrumb">
-                <a href="{{ route('admin.bonafide.classes') }}">Bonafide Certificate</a>
+                <a href="{{ route('admin.bonafide-certificate.classes') }}">Bonafide Certificate</a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Class {{ $class }}</span>
             </div>
@@ -378,7 +378,7 @@
                         </div>
 
                         <div class="student-id">
-                            Student ID: {{ $student->student_id ?? '—' }}
+                            Student ID: {{ $student->student_id ?? 'â€”' }}
                         </div>
 
                         <div class="student-details">
@@ -388,14 +388,14 @@
 
                             @if(!empty($student->roll_number))
                                 @if(!empty($student->section))
-                                    &nbsp;·&nbsp;
+                                    &nbsp;Â·&nbsp;
                                 @endif
                                 Roll No. {{ $student->roll_number }}
                             @endif
                         </div>
                     </div>
 
-                    <a href="{{ route('admin.bonafide.create', ['student_id' => $student->id]) }}"
+                    <a href="{{ route('admin.bonafide-certificate.create', ['student_id' => $student->id]) }}"
                        class="select-btn"
                        title="Generate Bonafide Certificate">
                         <i class="bi bi-arrow-right"></i>

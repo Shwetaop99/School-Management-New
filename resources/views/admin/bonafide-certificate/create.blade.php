@@ -440,9 +440,9 @@
             <div class="bonafide-breadcrumb">
                 <a href="{{ route('admin.students.index') }}">Students</a>
                 <i class="bi bi-chevron-right"></i>
-                <a href="{{ route('admin.bonafide.index') }}">Bonafide Certificate</a>
+                <a href="{{ route('admin.bonafide-certificate.index') }}">Bonafide Certificate</a>
                 <i class="bi bi-chevron-right"></i>
-                <a href="{{ route('admin.bonafide.students', ['class' => $student->class]) }}">Class {{ $student->class }}</a>
+                <a href="{{ route('admin.bonafide-certificate.students', ['class' => $student->class]) }}">Class {{ $student->class }}</a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Generate</span>
             </div>
@@ -617,7 +617,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="{{ route('admin.bonafide.students', ['class' => $student->class]) }}"
+                    <a href="{{ route('admin.bonafide-certificate.students', ['class' => $student->class]) }}"
                        class="btn-scheme-cancel">
                         <i class="bi bi-arrow-left"></i>
                         Back to Students

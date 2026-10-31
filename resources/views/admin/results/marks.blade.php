@@ -1,1486 +1,1805 @@
 ﻿```blade
+{{-- resources/views/admin/results/marks.blade.php --}}
+
 @extends('layouts.app')
 
-@section('title', 'Enter Marks')
+@section('title', 'Enter Examination Marks')
 
 @section('content')
 
+@php
+    $selectionMode = !(
+        isset($selectedExam, $selectedClass, $selectedSection, $examSubject)
+        && $selectedExam
+        && $selectedClass
+        && $selectedSection !== null
+        && $examSubject
+    );
+
+    $internalMaximum = (float) ($examSubject->internal_max_marks ?? 0);
+    $theoryMaximum = (float) ($examSubject->theory_max_marks ?? 0);
+    $totalMaximum = (float) ($examSubject->maximum_marks ?? 0);
+    $passingMarks = (float) ($examSubject->passing_marks ?? 0);
+
+    $distributionValid = $totalMaximum > 0
+        && ($internalMaximum + $theoryMaximum) == $totalMaximum;
+@endphp
+
+<div class="marks-page">
+
 <style>
     .marks-page {
-        --primary: #1677f0;
-        --primary-dark: #0d5fc7;
-        --soft-blue: #eef6ff;
-        --border: #e8edf3;
-        --text-dark: #1f2937;
-        --text-muted: #6b7280;
-        --danger: #dc3545;
+        --marks-gold: #c49a45;
+        --marks-dark: #171717;
+        --marks-muted: #727783;
+        --marks-border: #e8eaf0;
+        color: #242631;
+        padding: 8px 0 30px;
     }
 
-    .marks-page .page-header {
-        background: linear-gradient(135deg, #1677f0 0%, #125dcc 100%);
-        border-radius: 18px;
-        padding: 24px 26px;
-        color: #fff;
-        box-shadow: 0 8px 24px rgba(22, 119, 240, .16);
+    .marks-page * {
+        box-sizing: border-box;
     }
 
-    .marks-page .page-header h4 {
-        color: #fff;
-        font-size: 1.35rem;
-    }
-
-    .marks-page .page-header p {
-        color: rgba(255, 255, 255, .82) !important;
-    }
-
-    .marks-page .header-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, .16);
-        display: inline-flex;
+    .marks-header {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        font-size: 1.35rem;
-        flex-shrink: 0;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
     }
 
-    .marks-page .page-header .btn {
-        border-color: rgba(255, 255, 255, .55);
-        color: #fff;
-        background: rgba(255, 255, 255, .08);
-    }
-
-    .marks-page .page-header .btn:hover {
-        background: #fff;
-        color: var(--primary);
-        border-color: #fff;
-    }
-
-    .marks-page .modern-card,
-    .marks-page .marks-card {
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(15, 23, 42, .055);
-        overflow: hidden;
-        background: #fff;
-    }
-
-    .marks-page .card-header-modern {
-        background: #fff;
-        border-bottom: 1px solid var(--border);
-        padding: 18px 22px;
-    }
-
-    .marks-page .section-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 11px;
-        background: var(--soft-blue);
-        color: var(--primary);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.05rem;
-        flex-shrink: 0;
-    }
-
-    .marks-page .section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 2px;
-    }
-
-    .marks-page .section-subtitle {
-        font-size: .78rem;
-        color: var(--text-muted);
+    .marks-title {
         margin: 0;
+        font-size: clamp(23px, 3vw, 30px);
+        font-weight: 800;
+        color: var(--marks-dark);
+        letter-spacing: -.5px;
     }
 
-    .marks-page .form-label {
-        color: #374151;
-        font-size: .83rem;
-        margin-bottom: 7px;
+    .marks-subtitle {
+        color: var(--marks-muted);
+        margin: 6px 0 0;
+        font-size: 13px;
     }
 
-    .marks-page .form-select,
-    .marks-page .form-control {
+    .marks-panel {
+        background: #fff;
+        border: 1px solid var(--marks-border);
+        border-radius: 16px;
+        box-shadow: 0 5px 22px rgba(24,31,45,.045);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .marks-panel-heading {
+        padding: 18px 21px;
+        border-bottom: 1px solid var(--marks-border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .marks-heading-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: #8a641c;
+        background: #fbf3e3;
+        font-size: 19px;
+    }
+
+    .marks-panel-heading h2 {
+        font-size: 16px;
+        font-weight: 750;
+        margin: 0;
+        color: var(--marks-dark);
+    }
+
+    .marks-panel-heading p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--marks-muted);
+    }
+
+    .marks-panel-body {
+        padding: 21px;
+    }
+
+    .marks-filters {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 16px;
+    }
+
+    .marks-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 750;
+        color: #444957;
+    }
+
+    .marks-field label .required {
+        color: #d64545;
+    }
+
+    .marks-control {
+        display: block;
+        width: 100%;
         min-height: 44px;
-        border-color: #dfe5ec;
+        padding: 10px 12px;
+        border: 1px solid #dfe2e9;
         border-radius: 10px;
-        font-size: .88rem;
-        box-shadow: none;
+        background: #fff;
+        color: #242631;
+        font-size: 13px;
+        outline: none;
     }
 
-    .marks-page .form-select:focus,
-    .marks-page .form-control:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(22, 119, 240, .10);
+    .marks-control:focus {
+        border-color: var(--marks-gold);
+        box-shadow: 0 0 0 3px rgba(196,154,69,.14);
     }
 
-    .marks-page .form-select:disabled {
-        background-color: #f5f7fa;
+    .marks-control:disabled {
+        background: #f5f6f8;
+        color: #8b909a;
         cursor: not-allowed;
     }
 
-    .marks-page .required {
-        color: var(--danger);
-    }
-
-    .marks-page .info-box {
-        border: 1px solid var(--border);
-        background: #f9fbfd;
-        border-radius: 12px;
-        padding: 13px 15px;
-        height: 100%;
-    }
-
-    .marks-page .info-box .label {
-        color: var(--text-muted);
-        font-size: .74rem;
+    .marks-help {
         display: block;
-        margin-bottom: 4px;
+        margin-top: 6px;
+        color: #858a95;
+        font-size: 11px;
     }
 
-    .marks-page .info-box .value {
-        color: var(--text-dark);
-        font-weight: 700;
-        font-size: .92rem;
+    .marks-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 17px;
     }
 
-    .marks-page .info-box.primary {
-        background: var(--soft-blue);
-        border-color: rgba(22, 119, 240, .15);
+    .marks-toolbar h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--marks-dark);
     }
 
-    .marks-page .info-box.primary .value {
-        color: var(--primary);
+    .marks-toolbar p {
+        margin: 5px 0 0;
+        color: var(--marks-muted);
+        font-size: 12px;
     }
 
-    .marks-page .selection-footer {
-        margin-top: 22px;
-        padding-top: 18px;
-        border-top: 1px solid var(--border);
-    }
-
-    .marks-page .btn-primary {
-        background: var(--primary);
-        border-color: var(--primary);
+    .marks-button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        border: 0;
         border-radius: 10px;
-        font-weight: 600;
-    }
-
-    .marks-page .btn-primary:hover {
-        background: var(--primary-dark);
-        border-color: var(--primary-dark);
-    }
-
-    .marks-page .btn {
-        border-radius: 10px;
-        font-weight: 600;
-    }
-
-    .marks-page .exam-banner {
-        background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
-        border: 1px solid #dcecff;
-        border-radius: 16px;
-        padding: 22px;
-    }
-
-    .marks-page .exam-title {
-        color: var(--text-dark);
-        font-size: 1.1rem;
+        padding: 11px 17px;
+        min-height: 42px;
+        text-decoration: none;
+        font-size: 13px;
         font-weight: 750;
+        cursor: pointer;
+        transition: .2s ease;
     }
 
-    .marks-page .exam-meta {
-        font-size: .8rem;
-        color: var(--text-muted);
+    .marks-button-primary {
+        background: var(--marks-dark);
+        color: #fff;
     }
 
-    .marks-page .exam-badge {
-        border-radius: 8px;
-        padding: 7px 11px;
-        font-size: .74rem;
-        font-weight: 700;
+    .marks-button-primary:hover {
+        background: #303030;
+        color: #fff;
     }
 
-    .marks-page .badge-class {
-        background: #e9f2ff;
-        color: #1264d6;
+    .marks-button-gold {
+        background: var(--marks-gold);
+        color: #171717;
     }
 
-    .marks-page .badge-section {
-        background: #f0f2f5;
-        color: #4b5563;
+    .marks-button-gold:hover {
+        background: #d4ad5f;
+        color: #171717;
     }
 
-    .marks-page .badge-subject {
-        background: #e8f8fb;
-        color: #087990;
+    .marks-button:disabled {
+        opacity: .55;
+        cursor: not-allowed;
     }
 
-    .marks-page .marks-table-wrapper {
-        max-height: 68vh;
-        overflow: auto;
+    .marks-stats {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 12px;
+        margin-bottom: 18px;
     }
 
-    .marks-page .marks-table {
-        min-width: 1050px;
-        margin-bottom: 0;
-    }
-
-    .marks-page .marks-table thead th {
-        background: #f7f9fc;
-        border-bottom: 1px solid #dde4ec;
-        color: #4b5563;
-        font-size: .74rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .025em;
-        white-space: nowrap;
-        padding: 13px 11px;
-        position: sticky;
-        top: 0;
-        z-index: 5;
-    }
-
-    .marks-page .marks-table tbody td {
-        border-color: #edf0f4;
-        padding: 11px;
-        font-size: .84rem;
-        vertical-align: middle;
-    }
-
-    .marks-page .marks-table tbody tr:hover {
-        background: #f8fbff;
-    }
-
-    .marks-page .serial {
-        width: 48px;
-        text-align: center;
-        color: #6b7280;
-        font-weight: 600;
-    }
-
-    .marks-page .student-id {
-        font-weight: 700;
-        color: var(--primary);
-        white-space: nowrap;
-    }
-
-    .marks-page .roll-number {
-        color: #8a94a3;
-        font-size: .72rem;
-        margin-top: 2px;
-    }
-
-    .marks-page .student-name {
-        font-weight: 650;
-        color: #263241;
-        white-space: nowrap;
-    }
-
-    .marks-page .mark-input {
-        width: 108px;
-        min-height: 39px;
-        text-align: center;
-        font-weight: 650;
-        border-radius: 8px;
-        margin: auto;
-    }
-
-    .marks-page .mark-input:disabled {
-        background: #f1f3f5;
-        color: #9aa2ad;
-    }
-
-    .marks-page .total-input {
-        width: 92px;
-        min-height: 39px;
-        margin: auto;
-        background: #f4f8ff;
-        color: var(--primary);
-        border-color: #d9e8ff;
-    }
-
-    .marks-page .status-select {
-        min-height: 39px;
-        border-radius: 8px;
-        font-size: .8rem;
-        font-weight: 600;
-        min-width: 105px;
-    }
-
-    .marks-page .remarks-input {
-        min-width: 180px;
-        min-height: 39px;
-    }
-
-    .marks-page .table-heading-icon {
-        color: var(--primary);
-        margin-right: 5px;
-    }
-
-    .marks-page .marks-footer {
+    .marks-stat {
+        border: 1px solid var(--marks-border);
         background: #fff;
-        border-top: 1px solid var(--border);
-        padding: 15px 20px;
+        padding: 15px 17px;
+        border-radius: 12px;
     }
 
-    .marks-page .save-button {
-        min-width: 165px;
-        padding: 10px 18px;
+    .marks-stat-label {
+        font-size: 11px;
+        color: var(--marks-muted);
+        margin-bottom: 6px;
     }
 
-    .marks-page .footer-note {
-        color: var(--text-muted);
-        font-size: .76rem;
+    .marks-stat-value {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--marks-dark);
     }
 
-    .marks-page .empty-state {
-        padding: 70px 20px;
+    .marks-distribution {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 12px;
+    }
+
+    .marks-distribution-item {
+        border: 1px solid var(--marks-border);
+        border-radius: 12px;
+        padding: 16px;
+        background: #fff;
+    }
+
+    .marks-distribution-label {
+        color: var(--marks-muted);
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+    .marks-distribution-value {
+        font-size: 24px;
+        font-weight: 850;
+        color: var(--marks-dark);
+    }
+
+    .marks-distribution-item small {
+        display: block;
+        margin-top: 5px;
+        color: var(--marks-muted);
+        font-size: 11px;
+    }
+
+    .marks-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--marks-border);
+        border-radius: 12px;
+    }
+
+    .marks-table {
+        width: 100%;
+        min-width: 950px;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .marks-table th {
+        background: #f7f8fa;
+        color: #555b68;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .35px;
+        white-space: nowrap;
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--marks-border);
+        text-align: left;
+    }
+
+    .marks-table td {
+        padding: 11px 12px;
+        border-bottom: 1px solid #eff0f4;
+        vertical-align: middle;
+        font-size: 12px;
+    }
+
+    .marks-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .marks-table tbody tr:hover {
+        background: #fdfbf7;
+    }
+
+    .marks-student-name {
+        font-size: 13px;
+        font-weight: 750;
+        color: #292d37;
+    }
+
+    .marks-student-id {
+        font-size: 11px;
+        color: var(--marks-muted);
+        margin-top: 4px;
+    }
+
+    .marks-number {
+        width: 90px;
+        min-width: 75px;
+        padding: 9px 8px;
+        border: 1px solid #dfe2e9;
+        border-radius: 8px;
+        outline: none;
+        font-size: 12px;
+    }
+
+    .marks-number:focus {
+        border-color: var(--marks-gold);
+        box-shadow: 0 0 0 2px rgba(196,154,69,.13);
+    }
+
+    .marks-number:disabled {
+        background: #f2f3f5;
+        cursor: not-allowed;
+    }
+
+    .marks-status {
+        min-width: 110px;
+        padding: 9px 7px;
+        border: 1px solid #dfe2e9;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 12px;
+    }
+
+    .marks-total {
+        font-weight: 800;
+        color: #282c35;
+        white-space: nowrap;
+    }
+
+    .marks-alert {
+        padding: 13px 15px;
+        border-radius: 10px;
+        margin-bottom: 17px;
+        font-size: 13px;
+    }
+
+    .marks-empty {
+        padding: 42px 20px;
         text-align: center;
+        color: var(--marks-muted);
     }
 
-    .marks-page .empty-icon {
-        width: 78px;
-        height: 78px;
-        border-radius: 20px;
-        background: #f2f5f8;
-        color: #8b95a3;
+    .marks-empty-icon {
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 13px;
+        border-radius: 15px;
+        background: #fbf3e3;
+        color: #8a641c;
+        font-size: 23px;
+    }
+
+    .marks-empty h3 {
+        color: var(--marks-dark);
+        font-size: 16px;
+        font-weight: 800;
+        margin: 0 0 7px;
+    }
+
+    .marks-empty p {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .marks-loading {
+        display: none;
+        font-size: 12px;
+        color: #8a641c;
+        margin-top: 8px;
+    }
+
+    .marks-loading.show {
+        display: block;
+    }
+
+    .marks-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .marks-info-chip {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        font-size: 2rem;
+        border-radius: 7px;
+        padding: 5px 8px;
+        background: #f3f4f6;
+        color: #555b68;
+        font-size: 11px;
+        font-weight: 700;
+        margin-right: 4px;
     }
 
-    @media (max-width: 767.98px) {
-        .marks-page .page-header {
-            padding: 18px;
-            border-radius: 14px;
+    .marks-total-warning {
+        background: #fff0f0 !important;
+    }
+
+    @media(max-width:1000px) {
+        .marks-filters,
+        .marks-stats,
+        .marks-distribution {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+    }
+
+    @media(max-width:600px) {
+        .marks-panel-heading,
+        .marks-panel-body {
+            padding: 15px;
         }
 
-        .marks-page .page-header h4 {
-            font-size: 1.1rem;
+        .marks-filters,
+        .marks-stats,
+        .marks-distribution {
+            grid-template-columns: 1fr;
         }
 
-        .marks-page .page-header .header-actions {
+        .marks-header {
+            align-items: flex-start;
+        }
+
+        .marks-footer .marks-button {
             width: 100%;
-            margin-top: 15px;
-        }
-
-        .marks-page .page-header .header-actions .btn {
-            width: 100%;
-        }
-
-        .marks-page .exam-banner {
-            padding: 17px;
-        }
-
-        .marks-page .card-header-modern {
-            padding: 15px 17px;
-        }
-
-        .marks-page .marks-footer {
-            padding: 14px;
-        }
-
-        .marks-page .marks-footer .btn {
-            width: 100%;
-        }
-
-        .marks-page .footer-note {
-            display: none;
         }
     }
 </style>
 
-<div class="container-fluid py-4 marks-page">
+{{-- PAGE HEADER --}}
+<div class="marks-header">
+    <div>
+        <h1 class="marks-title">Enter Examination Marks</h1>
+        <p class="marks-subtitle">
+            Select an examination, class, section and subject to record student marks.
+        </p>
+    </div>
 
-    {{-- PAGE HEADER --}}
-    <div class="page-header mb-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <div class="header-icon me-3">
-                    <i class="bi bi-pencil-square"></i>
-                </div>
+    <a href="{{ route('admin.results.index') }}"
+       class="marks-button marks-button-primary">
+        <i class="bi bi-arrow-left"></i>
+        Back to Results
+    </a>
+</div>
 
-                <div>
-                    <h4 class="mb-1 fw-bold">Enter Marks</h4>
-                    <p class="mb-0">
-                        Enter and manage Internal and Theory marks.
-                    </p>
-                </div>
-            </div>
+{{-- FLASH MESSAGES --}}
+@if(session('success'))
+    <div class="alert alert-success marks-alert">
+        <i class="bi bi-check-circle me-2"></i>
+        {{ session('success') }}
+    </div>
+@endif
 
-            <div class="header-actions">
-                <a href="{{ route('admin.results.index') }}" class="btn">
-                    <i class="bi bi-arrow-left me-1"></i>
-                    Back to Results
-                </a>
-            </div>
+@if(session('error'))
+    <div class="alert alert-danger marks-alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ session('error') }}
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-danger marks-alert">
+        <strong>Please correct the following:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+{{-- SELECTION PANEL --}}
+<div class="marks-panel">
+    <div class="marks-panel-heading">
+        <div class="marks-heading-icon">
+            <i class="bi bi-funnel"></i>
+        </div>
+        <div>
+            <h2>Marks Selection</h2>
+            <p>Choose the examination and class details before entering marks.</p>
         </div>
     </div>
 
-    {{-- FLASH MESSAGES --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            <strong>Success:</strong>
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+    <div class="marks-panel-body">
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong>Error:</strong>
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+        <form id="marksSelectionForm"
+              method="GET"
+              action="{{ route('admin.results.marks') }}">
 
-    {{-- SELECTION MODE --}}
-    @if($selectionMode)
+            <div class="marks-filters">
 
-        <div class="modern-card">
-            <div class="card-header-modern">
-                <div class="d-flex align-items-center">
-                    <div class="section-icon me-3">
-                        <i class="bi bi-funnel-fill"></i>
-                    </div>
+                {{-- EXAM --}}
+                <div class="marks-field">
+                    <label for="exam_id">
+                        Examination <span class="required">*</span>
+                    </label>
 
-                    <div>
-                        <div class="section-title">
-                            Select Marks Entry Details
-                        </div>
-                        <p class="section-subtitle">
-                            Choose examination, class, section and subject.
-                        </p>
-                    </div>
-                </div>
-            </div>
+                    <select id="exam_id"
+                            name="exam_id"
+                            class="marks-control"
+                            required>
 
-            <div class="p-4">
-                <form
-                    method="GET"
-                    action="{{ route('admin.results.marks') }}"
-                    id="marksSelectionForm"
-                >
-                    <div class="row g-3">
+                        <option value="">Select examination</option>
 
-                        {{-- EXAM --}}
-                        <div class="col-xl-3 col-md-6">
-                            <label for="exam_id" class="form-label fw-semibold">
-                                Examination <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="exam_id"
-                                id="exam_id"
-                                class="form-select"
-                                required
-                            >
-                                <option value="">Select Examination</option>
-
-                                @foreach($exams as $item)
-                                    <option
-                                        value="{{ $item->id }}"
-                                        {{ (string) request('exam_id') === (string) $item->id ? 'selected' : '' }}
-                                    >
-                                        {{ $item->exam_name }}
-
-                                        @if($item->academic_year)
-                                            ({{ $item->academic_year }})
-                                        @endif
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- CLASS --}}
-                        <div class="col-xl-3 col-md-6">
-                            <label for="class_id" class="form-label fw-semibold">
-                                Class <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="class_id"
-                                id="class_id"
-                                class="form-select"
-                                {{ !$exam ? 'disabled' : '' }}
-                                required
-                            >
-                                <option value="">Select Class</option>
-
-                                @foreach($examClasses as $item)
-                                    @if($item->schoolClass)
-                                        <option
-                                            value="{{ $item->class_id }}"
-                                            data-section="{{ $item->schoolClass->section ?? '' }}"
-                                            {{ (string) request('class_id') === (string) $item->class_id ? 'selected' : '' }}
-                                        >
-                                            {{ $item->schoolClass->class_name }}
-
-                                            @if($item->schoolClass->section)
-                                                - Section {{ $item->schoolClass->section }}
-                                            @endif
-                                        </option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- SECTION --}}
-                        <div class="col-xl-3 col-md-6">
-                            <label for="section" class="form-label fw-semibold">
-                                Section <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="section"
-                                id="section"
-                                class="form-select"
-                                {{ !$exam ? 'disabled' : '' }}
-                                required
-                            >
-                                <option value="">Select Section</option>
-
-                                @if(isset($sections) && $sections->count())
-                                    @foreach($sections as $sectionItem)
-                                        <option
-                                            value="{{ $sectionItem }}"
-                                            {{ (string) request('section') === (string) $sectionItem ? 'selected' : '' }}
-                                        >
-                                            Section {{ $sectionItem }}
-                                        </option>
-                                    @endforeach
+                        @foreach($exams as $examOption)
+                            <option value="{{ $examOption->id }}"
+                                @selected((string)($selectedExam?->id ?? request('exam_id')) === (string)$examOption->id)>
+                                {{ $examOption->exam_name }}
+                                @if($examOption->academic_year)
+                                    — {{ $examOption->academic_year }}
                                 @endif
-                            </select>
-                        </div>
+                            </option>
+                        @endforeach
 
-                        {{-- SUBJECT --}}
-                        <div class="col-xl-3 col-md-6">
-                            <label for="subject_id" class="form-label fw-semibold">
-                                Subject <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="subject_id"
-                                id="subject_id"
-                                class="form-select"
-                                disabled
-                                required
-                            >
-                                <option value="">Select Subject</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {{-- MARK CONFIGURATION --}}
-                    <div class="mt-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="section-icon me-3">
-                                <i class="bi bi-bar-chart-line-fill"></i>
-                            </div>
-
-                            <div>
-                                <div class="section-title">Marks Configuration</div>
-                                <p class="section-subtitle">
-                                    Maximum and passing marks for the selected subject.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <div class="info-box primary">
-                                    <span class="label">
-                                        <i class="bi bi-award me-1"></i>
-                                        Maximum Marks
-                                    </span>
-
-                                    <span class="value" id="maximum_marks_display">-</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="info-box">
-                                    <span class="label">
-                                        <i class="bi bi-check-circle me-1"></i>
-                                        Passing Marks
-                                    </span>
-
-                                    <span class="value" id="passing_marks_display">-</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <input type="hidden" id="maximum_marks_value" value="">
-                        <input type="hidden" id="passing_marks_value" value="">
-                    </div>
-
-                    {{-- LOAD STUDENTS --}}
-                    <div class="selection-footer">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                            <div class="text-muted small">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Select all required fields before loading students.
-                            </div>
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary px-4"
-                                id="loadStudentsBtn"
-                            >
-                                <i class="bi bi-people-fill me-2"></i>
-                                Load Students
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-    @else
-
-        {{-- EXAM INFORMATION --}}
-        <div class="exam-banner mb-4">
-            <div class="row align-items-center g-3">
-                <div class="col-lg-7">
-                    <div class="d-flex align-items-center">
-                        <div class="section-icon me-3">
-                            <i class="bi bi-journal-text"></i>
-                        </div>
-
-                        <div>
-                            <div class="exam-title">{{ $exam->exam_name }}</div>
-
-                            <div class="exam-meta mt-1">
-                                <i class="bi bi-calendar3 me-1"></i>
-                                Academic Year:
-                                <strong>{{ $exam->academic_year }}</strong>
-                            </div>
-                        </div>
-                    </div>
+                    </select>
                 </div>
 
-                <div class="col-lg-5">
-                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
-                        <span class="exam-badge badge-class">
-                            <i class="bi bi-mortarboard-fill me-1"></i>
-                            {{ $examClass->schoolClass->class_name }}
-                        </span>
+                {{-- CLASS --}}
+                <div class="marks-field">
+                    <label for="class_id">
+                        Class <span class="required">*</span>
+                    </label>
 
-                        <span class="exam-badge badge-section">
-                            <i class="bi bi-diagram-3 me-1"></i>
-                            Section {{ $section }}
-                        </span>
+                    <select id="class_id"
+                            name="class_id"
+                            class="marks-control"
+                            data-initial="{{ request('class_id') }}"
+                            required
+                            {{ !$selectedExam ? 'disabled' : '' }}>
 
-                        <span class="exam-badge badge-subject">
-                            <i class="bi bi-book me-1"></i>
-                            {{ $examSubject->subject->subject_name ?? 'Subject' }}
-                        </span>
-                    </div>
+                        <option value="">Select class</option>
+
+                        @foreach($classes as $classOption)
+                            <option value="{{ $classOption->id }}"
+                                @selected((string)($selectedClass?->id ?? request('class_id')) === (string)$classOption->id)>
+                                {{ $classOption->class_name }}
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <small class="marks-help">
+                        Only classes assigned to this examination are listed.
+                    </small>
                 </div>
+
+                {{-- SECTION --}}
+                <div class="marks-field">
+                    <label for="section">
+                        Section <span class="required">*</span>
+                    </label>
+
+                    <select id="section"
+                            name="section"
+                            class="marks-control"
+                            data-initial="{{ request('section') }}"
+                            required
+                            {{ !$selectedClass ? 'disabled' : '' }}>
+
+                        <option value="">Select section</option>
+
+                        @foreach($sections as $sectionOption)
+                            <option value="{{ $sectionOption }}"
+                                @selected((string)($selectedSection ?? request('section')) === (string)$sectionOption)>
+                                {{ $sectionOption }}
+                            </option>
+                        @endforeach
+
+                    </select>
+                </div>
+
+                {{-- SUBJECT --}}
+                <div class="marks-field">
+                    <label for="subject_id">
+                        Subject <span class="required">*</span>
+                    </label>
+
+                    <select id="subject_id"
+                            name="subject_id"
+                            class="marks-control"
+                            data-initial="{{ request('subject_id') }}"
+                            required
+                            {{ !$selectedClass ? 'disabled' : '' }}>
+
+                        <option value="">Select subject</option>
+
+                        @foreach($subjects as $subjectOption)
+                            <option value="{{ $subjectOption->subject_id }}"
+                                @selected((string)($selectedSubject?->id ?? request('subject_id')) === (string)$subjectOption->subject_id)>
+
+                                {{ $subjectOption->subject->subject_name ?? 'Unnamed Subject' }}
+                                — Max {{ $subjectOption->maximum_marks }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+                </div>
+
             </div>
 
-            <div class="row g-3 mt-3 pt-3 border-top">
-                <div class="col-md-3">
-                    <div class="info-box">
-                        <span class="label">
-                            <i class="bi bi-book me-1"></i>
-                            Subject
-                        </span>
+            <div id="selectionLoading"
+                 class="marks-loading"
+                 role="status">
 
-                        <span class="value">
-                            {{ $examSubject->subject->subject_name ?? '-' }}
-                        </span>
-                    </div>
-                </div>
+                <i class="bi bi-arrow-repeat"></i>
+                Loading selection options…
 
-                <div class="col-md-3">
-                    <div class="info-box">
-                        <span class="label">
-                            <i class="bi bi-bullseye me-1"></i>
-                            Maximum Marks
-                        </span>
-
-                        <span class="value">{{ $examSubject->maximum_marks }}</span>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="info-box">
-                        <span class="label">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Passing Marks
-                        </span>
-
-                        <span class="value">{{ $examSubject->passing_marks }}</span>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="info-box primary">
-                        <span class="label">
-                            <i class="bi bi-people-fill me-1"></i>
-                            Students
-                        </span>
-
-                        <span class="value">{{ $students->count() }}</span>
-                    </div>
-                </div>
             </div>
-        </div>
 
-        {{-- MARKS FORM --}}
-        <form
-            method="POST"
-            action="{{ route('admin.results.save-marks') }}"
-            id="marksForm"
-        >
-            @csrf
+            <div class="marks-footer">
 
-            <input type="hidden" name="exam_id" value="{{ $exam->id }}">
-            <input type="hidden" name="exam_class_id" value="{{ $examClass->id }}">
-            <input type="hidden" name="class_id" value="{{ $examClass->class_id }}">
-            <input type="hidden" name="section" value="{{ $section }}">
-            <input type="hidden" name="subject_id" value="{{ $examSubject->subject_id }}">
+                <button type="button"
+                        id="resetSelection"
+                        class="marks-button marks-button-primary">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Reset
+                </button>
 
-            <div class="marks-card">
-                <div class="card-header-modern">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                        <div class="d-flex align-items-center">
-                            <div class="section-icon me-3">
-                                <i class="bi bi-table"></i>
-                            </div>
+                <button type="submit"
+                        class="marks-button marks-button-gold">
+                    <i class="bi bi-people"></i>
+                    Load Students
+                </button>
 
-                            <div>
-                                <div class="section-title">Student Marks</div>
-                                <p class="section-subtitle">
-                                    Enter Internal and Theory marks for each student and select the attendance status.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
-                                <i class="bi bi-people-fill me-1"></i>
-                                {{ $students->count() }} Students
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-0">
-                    @if($students->count())
-
-                        <div class="table-responsive marks-table-wrapper">
-                            <table class="table align-middle marks-table">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center" style="width:55px;">#</th>
-
-                                        <th>
-                                            <i class="bi bi-person-badge table-heading-icon"></i>
-                                            Student ID
-                                        </th>
-
-                                        <th>
-                                            <i class="bi bi-person table-heading-icon"></i>
-                                            Student Name
-                                        </th>
-
-                                        <th class="text-center" style="width:125px;">
-                                            Internal
-                                        </th>
-
-                                        <th class="text-center" style="width:125px;">
-                                            Theory
-                                        </th>
-
-                                        <th class="text-center" style="width:105px;">
-                                            Total
-                                        </th>
-
-                                        <th class="text-center" style="width:125px;">
-                                            Status
-                                        </th>
-
-                                        <th>
-                                            <i class="bi bi-chat-left-text table-heading-icon"></i>
-                                            Remarks
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @foreach($students as $index => $student)
-                                        @php
-                                            $mark = $student->examMark;
-                                            $status = $mark->status ?? 'present';
-                                            $internal = $mark->internal_marks ?? 0;
-                                            $theory = $mark->theory_marks ?? 0;
-
-                                            $fullName = trim(
-                                                collect([
-                                                    $student->first_name,
-                                                    $student->middle_name,
-                                                    $student->last_name,
-                                                ])
-                                                ->filter()
-                                                ->implode(' ')
-                                            );
-
-                                            // Total is calculated using Internal + Theory only.
-                                            $total = (float) $internal + (float) $theory;
-
-                                            // Prevent an existing saved total from exceeding the subject maximum.
-                                            $total = min(
-                                                $total,
-                                                (float) $examSubject->maximum_marks
-                                            );
-                                        @endphp
-
-                                        <tr>
-                                            <td class="serial">
-                                                {{ $index + 1 }}
-                                            </td>
-
-                                            <td>
-                                                <div class="student-id">
-                                                    {{ $student->student_id }}
-                                                </div>
-
-                                                @if($student->roll_number)
-                                                    <div class="roll-number">
-                                                        Roll No: {{ $student->roll_number }}
-                                                    </div>
-                                                @endif
-                                            </td>
-
-                                            <td>
-                                                <div class="student-name">
-                                                    {{ $fullName ?: '-' }}
-                                                </div>
-                                            </td>
-
-                                            {{-- INTERNAL MARKS --}}
-                                            <td>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
-                                                    max="{{ $examSubject->maximum_marks }}"
-                                                    class="form-control mark-input internal-input"
-                                                    name="marks[{{ $student->id }}][internal_marks]"
-                                                    value="{{ $internal }}"
-                                                    data-student="{{ $student->id }}"
-                                                    {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
-                                                >
-                                            </td>
-
-                                            {{-- THEORY MARKS --}}
-                                            <td>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
-                                                    max="{{ $examSubject->maximum_marks }}"
-                                                    class="form-control mark-input theory-input"
-                                                    name="marks[{{ $student->id }}][theory_marks]"
-                                                    value="{{ $theory }}"
-                                                    data-student="{{ $student->id }}"
-                                                    {{ in_array($status, ['absent', 'na']) ? 'disabled' : '' }}
-                                                >
-                                            </td>
-
-                                            {{-- TOTAL --}}
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    class="form-control total-input text-center fw-bold"
-                                                    value="{{ number_format($total, 2, '.', '') }}"
-                                                    data-student="{{ $student->id }}"
-                                                    readonly
-                                                >
-                                            </td>
-
-                                            {{-- STATUS --}}
-                                            <td>
-                                                <select
-                                                    class="form-select status-select"
-                                                    name="marks[{{ $student->id }}][status]"
-                                                    data-student="{{ $student->id }}"
-                                                >
-                                                    <option
-                                                        value="present"
-                                                        {{ $status === 'present' ? 'selected' : '' }}
-                                                    >
-                                                        Present
-                                                    </option>
-
-                                                    <option
-                                                        value="absent"
-                                                        {{ $status === 'absent' ? 'selected' : '' }}
-                                                    >
-                                                        Absent
-                                                    </option>
-
-                                                    <option
-                                                        value="na"
-                                                        {{ $status === 'na' ? 'selected' : '' }}
-                                                    >
-                                                        N/A
-                                                    </option>
-                                                </select>
-                                            </td>
-
-                                            {{-- REMARKS --}}
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    class="form-control remarks-input"
-                                                    name="marks[{{ $student->id }}][remarks]"
-                                                    value="{{ $mark->remarks ?? '' }}"
-                                                    placeholder="Optional remark"
-                                                >
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                    @else
-
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <i class="bi bi-people"></i>
-                            </div>
-
-                            <h5 class="mt-4 fw-bold">No Students Found</h5>
-
-                            <p class="text-muted mb-4">
-                                No active students were found for this
-                                class, section and academic year.
-                            </p>
-
-                            <a
-                                href="{{ route('admin.results.marks') }}"
-                                class="btn btn-outline-primary"
-                            >
-                                <i class="bi bi-arrow-left me-1"></i>
-                                Change Selection
-                            </a>
-                        </div>
-
-                    @endif
-                </div>
-
-                {{-- FOOTER --}}
-                <div class="marks-footer">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                        <div class="footer-note">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Total marks are calculated automatically from Internal + Theory.
-                        </div>
-
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a
-                                href="{{ route('admin.results.marks') }}"
-                                class="btn btn-outline-secondary"
-                            >
-                                <i class="bi bi-arrow-left me-1"></i>
-                                Back
-                            </a>
-
-                            @if($students->count())
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary save-button"
-                                    id="saveMarksBtn"
-                                >
-                                    <i class="bi bi-check2-circle me-1"></i>
-                                    Save All Marks
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-                </div>
             </div>
+
         </form>
 
-    @endif
+    </div>
+</div>
+
+{{-- MARKS ENTRY --}}
+@if(!$selectionMode && $examSubject)
+
+    {{-- DISTRIBUTION SUMMARY --}}
+    <div class="marks-panel">
+
+        <div class="marks-panel-heading">
+            <div class="marks-heading-icon">
+                <i class="bi bi-calculator"></i>
+            </div>
+
+            <div>
+                <h2>Marks Distribution</h2>
+                <p>Configured maximum and passing marks for this subject.</p>
+            </div>
+        </div>
+
+        <div class="marks-panel-body">
+
+            <div class="marks-distribution">
+
+                <div class="marks-distribution-item">
+                    <div class="marks-distribution-label">
+                        Internal Maximum
+                    </div>
+                    <div class="marks-distribution-value">
+                        {{ $internalMaximum }}
+                    </div>
+                    <small>Internal assessment</small>
+                </div>
+
+                <div class="marks-distribution-item">
+                    <div class="marks-distribution-label">
+                        Theory Maximum
+                    </div>
+                    <div class="marks-distribution-value">
+                        {{ $theoryMaximum }}
+                    </div>
+                    <small>Theory examination</small>
+                </div>
+
+                <div class="marks-distribution-item">
+                    <div class="marks-distribution-label">
+                        Total Maximum
+                    </div>
+                    <div class="marks-distribution-value">
+                        {{ $totalMaximum }}
+                    </div>
+                    <small>Internal + Theory</small>
+                </div>
+
+                <div class="marks-distribution-item">
+                    <div class="marks-distribution-label">
+                        Passing Marks
+                    </div>
+                    <div class="marks-distribution-value">
+                        {{ $passingMarks }}
+                    </div>
+                    <small>Minimum required marks</small>
+                </div>
+
+            </div>
+
+            @if(!$distributionValid)
+                <div class="alert alert-danger marks-alert mt-3 mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Internal maximum ({{ $internalMaximum }}) plus Theory maximum
+                    ({{ $theoryMaximum }}) must equal Total maximum
+                    ({{ $totalMaximum }}). Configure the distribution before saving marks.
+                </div>
+            @endif
+
+        </div>
+
+    </div>
+
+    {{-- STUDENT SUMMARY --}}
+    <div class="marks-stats">
+
+        <div class="marks-stat">
+            <div class="marks-stat-label">Students</div>
+            <div class="marks-stat-value">
+                {{ $students->count() }}
+            </div>
+        </div>
+
+        <div class="marks-stat">
+            <div class="marks-stat-label">Internal Marks</div>
+            <div class="marks-stat-value">
+                {{ $internalMaximum }}
+            </div>
+        </div>
+
+        <div class="marks-stat">
+            <div class="marks-stat-label">Theory Marks</div>
+            <div class="marks-stat-value">
+                {{ $theoryMaximum }}
+            </div>
+        </div>
+
+        <div class="marks-stat">
+            <div class="marks-stat-label">Total Maximum</div>
+            <div class="marks-stat-value">
+                {{ $totalMaximum }}
+            </div>
+        </div>
+
+    </div>
+
+    {{-- STUDENT MARKS PANEL --}}
+    <div class="marks-panel">
+
+        <div class="marks-panel-heading">
+
+            <div class="marks-heading-icon">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+
+            <div>
+                <h2>Student Marks Entry</h2>
+
+                <p>
+                    {{ $selectedExam->exam_name }}
+
+                    <span class="marks-info-chip">
+                        {{ $selectedClass->class_name }}
+                    </span>
+
+                    <span class="marks-info-chip">
+                        Section {{ $selectedSection }}
+                    </span>
+
+                    <span class="marks-info-chip">
+                        {{ $selectedSubject->subject_name ?? 'Subject' }}
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div class="marks-panel-body">
+
+            @if($students->isEmpty())
+
+                <div class="marks-empty">
+
+                    <div class="marks-empty-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+
+                    <h3>No students found</h3>
+
+                    <p>
+                        Check the selected class, section and academic year.
+                    </p>
+
+                </div>
+
+            @elseif(!$distributionValid)
+
+                <div class="marks-empty">
+
+                    <div class="marks-empty-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+
+                    <h3>Marks distribution is incomplete</h3>
+
+                    <p>
+                        Correct the subject distribution before entering student marks.
+                    </p>
+
+                </div>
+
+            @else
+
+                <form method="POST"
+                      action="{{ route('admin.results.save-marks') }}"
+                      id="saveMarksForm">
+
+                    @csrf
+
+                    <input type="hidden"
+                           name="exam_id"
+                           value="{{ $selectedExam->id }}">
+
+                    <input type="hidden"
+                           name="class_id"
+                           value="{{ $selectedClass->id }}">
+
+                    <input type="hidden"
+                           name="section"
+                           value="{{ $selectedSection }}">
+
+                    <input type="hidden"
+                           name="subject_id"
+                           value="{{ $examSubject->subject_id }}">
+
+                    <div class="marks-toolbar">
+
+                        <div>
+                            <h3>Marks Register</h3>
+                            <p>
+                                Enter Internal and Theory marks separately.
+                                Total calculates automatically.
+                            </p>
+                        </div>
+
+                        <span class="marks-info-chip">
+                            Maximum: {{ $totalMaximum }}
+                        </span>
+
+                    </div>
+
+                    <div class="marks-table-wrap">
+
+                        <table class="marks-table">
+
+                            <thead>
+                                <tr>
+                                    <th style="width:55px">#</th>
+                                    <th>Student</th>
+                                    <th>Roll No.</th>
+                                    <th>Internal / {{ $internalMaximum }}</th>
+                                    <th>Theory / {{ $theoryMaximum }}</th>
+                                    <th>Total / {{ $totalMaximum }}</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach($students as $student)
+
+                                    @php
+                                        $savedMark = $existingMarks->get($student->id);
+
+                                        $studentFullName = $student->full_name
+                                            ?? trim(collect([
+                                                $student->first_name ?? '',
+                                                $student->middle_name ?? '',
+                                                $student->last_name ?? '',
+                                            ])->filter()->implode(' '));
+
+                                        $markStatus = old(
+                                            "marks.{$student->id}.status",
+                                            $savedMark->status ?? 'present'
+                                        );
+
+                                        $internal = old(
+                                            "marks.{$student->id}.internal_marks",
+                                            $savedMark->internal_marks ?? ''
+                                        );
+
+                                        $theory = old(
+                                            "marks.{$student->id}.theory_marks",
+                                            $savedMark->theory_marks ?? ''
+                                        );
+
+                                        $remarks = old(
+                                            "marks.{$student->id}.remarks",
+                                            $savedMark->remarks ?? ''
+                                        );
+                                    @endphp
+
+                                    <tr class="student-mark-row"
+                                        data-internal-max="{{ $internalMaximum }}"
+                                        data-theory-max="{{ $theoryMaximum }}"
+                                        data-max="{{ $totalMaximum }}">
+
+                                        <td>{{ $loop->iteration }}</td>
+
+                                        <td>
+                                            <div class="marks-student-name">
+                                                {{ $studentFullName ?: 'Unnamed Student' }}
+                                            </div>
+
+                                            <div class="marks-student-id">
+                                                {{ $student->student_id }}
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            {{ $student->roll_number ?: '—' }}
+                                        </td>
+
+                                        {{-- INTERNAL --}}
+                                        <td>
+                                            <input type="number"
+                                                   class="marks-number mark-input internal-input"
+                                                   name="marks[{{ $student->id }}][internal_marks]"
+                                                   value="{{ $internal }}"
+                                                   min="0"
+                                                   max="{{ $internalMaximum }}"
+                                                   step="0.01"
+                                                   required
+                                                   aria-label="Internal marks for {{ $studentFullName }}">
+                                        </td>
+
+                                        {{-- THEORY --}}
+                                        <td>
+                                            <input type="number"
+                                                   class="marks-number mark-input theory-input"
+                                                   name="marks[{{ $student->id }}][theory_marks]"
+                                                   value="{{ $theory }}"
+                                                   min="0"
+                                                   max="{{ $theoryMaximum }}"
+                                                   step="0.01"
+                                                   required
+                                                   aria-label="Theory marks for {{ $studentFullName }}">
+                                        </td>
+
+                                        {{-- TOTAL --}}
+                                        <td>
+                                            <span class="marks-total js-row-total">
+                                                {{ number_format((float)($savedMark->total_marks ?? 0), 2) }}
+                                            </span>
+                                        </td>
+
+                                        {{-- STATUS --}}
+                                        <td>
+                                            <select class="marks-status mark-status"
+                                                    name="marks[{{ $student->id }}][status]">
+
+                                                <option value="present"
+                                                    @selected($markStatus === 'present')>
+                                                    Present
+                                                </option>
+
+                                                <option value="absent"
+                                                    @selected($markStatus === 'absent')>
+                                                    Absent
+                                                </option>
+
+                                                <option value="na"
+                                                    @selected($markStatus === 'na')>
+                                                    Not Applicable
+                                                </option>
+
+                                            </select>
+                                        </td>
+
+                                        {{-- REMARKS --}}
+                                        <td>
+                                            <input type="text"
+                                                   class="marks-number"
+                                                   style="width:125px"
+                                                   name="marks[{{ $student->id }}][remarks]"
+                                                   value="{{ $remarks }}"
+                                                   maxlength="255"
+                                                   placeholder="Optional">
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="marks-footer">
+
+                        <button type="button"
+                                id="clearMarks"
+                                class="marks-button marks-button-primary">
+
+                            <i class="bi bi-eraser"></i>
+                            Clear Unsaved Inputs
+
+                        </button>
+
+                        <button type="submit"
+                                class="marks-button marks-button-gold"
+                                id="saveMarksButton">
+
+                            <i class="bi bi-check2-circle"></i>
+                            Save Marks
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            @endif
+
+        </div>
+
+    </div>
+
+@else
+
+    <div class="marks-panel">
+
+        <div class="marks-empty">
+
+            <div class="marks-empty-icon">
+                <i class="bi bi-journal-check"></i>
+            </div>
+
+            <h3>Select the exam details first</h3>
+
+            <p>
+                Choose an examination, class, section and subject,
+                then click Load Students.
+            </p>
+
+        </div>
+
+    </div>
+
+@endif
 
 </div>
 
-@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | SELECTION ELEMENTS
-    |--------------------------------------------------------------------------
-    */
+    'use strict';
 
     const examSelect = document.getElementById('exam_id');
     const classSelect = document.getElementById('class_id');
     const sectionSelect = document.getElementById('section');
     const subjectSelect = document.getElementById('subject_id');
+    const loading = document.getElementById('selectionLoading');
 
-    const maximumMarksDisplay = document.getElementById('maximum_marks_display');
-    const passingMarksDisplay = document.getElementById('passing_marks_display');
-    const maximumMarksValue = document.getElementById('maximum_marks_value');
-    const passingMarksValue = document.getElementById('passing_marks_value');
+    const urls = {
+        classes: @json(route('admin.results.load-classes')),
+        sections: @json(route('admin.results.load-sections')),
+        subjects: @json(route('admin.results.load-subjects'))
+    };
 
-    /*
-    |--------------------------------------------------------------------------
-    | MARK CONFIGURATION DISPLAY
-    |--------------------------------------------------------------------------
-    */
+    const requestVersion = {
+        classes: 0,
+        sections: 0,
+        subjects: 0
+    };
 
-    function updateMarksDisplay(maximum, passing) {
-        maximum = maximum ?? '';
-        passing = passing ?? '';
-
-        if (maximumMarksDisplay) {
-            maximumMarksDisplay.textContent = maximum !== '' ? maximum : '-';
-        }
-
-        if (passingMarksDisplay) {
-            passingMarksDisplay.textContent = passing !== '' ? passing : '-';
-        }
-
-        if (maximumMarksValue) {
-            maximumMarksValue.value = maximum;
-        }
-
-        if (passingMarksValue) {
-            passingMarksValue.value = passing;
-        }
+    function setLoading(show) {
+        loading?.classList.toggle('show', show);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESET SUBJECT
-    |--------------------------------------------------------------------------
-    */
+    function resetSelect(select, placeholder, disabled = true) {
 
-    function resetSubject() {
-        if (!subjectSelect) {
-            return;
-        }
+        if (!select) return;
 
-        subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-        subjectSelect.disabled = true;
-
-        updateMarksDisplay('', '');
+        select.replaceChildren(new Option(placeholder, ''));
+        select.disabled = disabled;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESET SECTION
-    |--------------------------------------------------------------------------
-    */
+    function addOption(select, value, label, selected = false) {
 
-    function resetSection() {
-        if (!sectionSelect) {
-            return;
-        }
+        const option = new Option(
+            String(label ?? ''),
+            String(value ?? '')
+        );
 
-        sectionSelect.innerHTML = '<option value="">Select Section</option>';
-        sectionSelect.disabled = true;
+        option.selected = selected;
+        select.add(option);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | GET CLASS SECTION
-    |--------------------------------------------------------------------------
-    */
+    function showError(error) {
 
-    function getSelectedSection() {
-        if (!classSelect) {
-            return '';
-        }
+        console.error('Marks selection error:', error);
 
-        const option = classSelect.options[classSelect.selectedIndex];
-
-        if (!option) {
-            return '';
-        }
-
-        return option.dataset.section || '';
+        alert(
+            error.message ||
+            'Unable to load selection options. Please try again.'
+        );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD SUBJECTS
-    |--------------------------------------------------------------------------
-    */
+    async function getJson(url, params) {
 
-    function loadSubjects(examId, classId, selectedSubjectId = '') {
-        if (!subjectSelect) {
-            return;
-        }
+        const query = new URLSearchParams();
 
-        if (!examId || !classId) {
-            resetSubject();
-            return;
-        }
+        Object.entries(params).forEach(([key, value]) => {
 
-        subjectSelect.disabled = true;
-        subjectSelect.innerHTML = '<option value="">Loading Subjects...</option>';
-
-        updateMarksDisplay('', '');
-
-        const url =
-            "{{ route('admin.results.load-subjects') }}" +
-            "?exam_id=" + encodeURIComponent(examId) +
-            "&class_id=" + encodeURIComponent(classId);
-
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error('HTTP ' + response.status);
+            if (
+                value !== undefined &&
+                value !== null &&
+                value !== ''
+            ) {
+                query.set(key, value);
             }
 
-            return response.json();
-        })
-        .then(function (data) {
-            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+        });
 
-            if (!data || data.success !== true) {
-                subjectSelect.innerHTML = '<option value="">No Subjects Found</option>';
-                subjectSelect.disabled = true;
-                return;
+        const response = await fetch(
+            `${url}?${query.toString()}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            }
+        );
+
+        const rawText = await response.text();
+
+        const cleanText = rawText.replace(/^[\s\uFEFF]+/, '');
+
+        let data;
+
+        try {
+
+            data = JSON.parse(cleanText);
+
+        } catch (error) {
+
+            console.error('Invalid JSON response:', {
+                url: response.url,
+                status: response.status,
+                contentType: response.headers.get('content-type'),
+                response: rawText
+            });
+
+            throw new Error(
+                'Invalid server response. Check the Network tab for the request.'
+            );
+
+        }
+
+        if (!response.ok || data.success === false) {
+
+            throw new Error(
+                data.message || `Request failed (${response.status}).`
+            );
+
+        }
+
+        return data;
+    }
+
+    function getItemId(item) {
+
+        return item?.id
+            ?? item?.class_id
+            ?? item?.subject_id
+            ?? '';
+    }
+
+    function getClassName(item) {
+
+        return item?.name
+            ?? item?.class_name
+            ?? item?.school_class?.class_name
+            ?? item?.schoolClass?.class_name
+            ?? '';
+    }
+
+    function getSectionValue(item) {
+
+        return typeof item === 'object'
+            ? (item.section ?? item.name ?? item.id ?? '')
+            : item;
+    }
+
+    function getSubjectName(item) {
+
+        return item?.name
+            ?? item?.subject_name
+            ?? item?.subject?.subject_name
+            ?? item?.subject?.name
+            ?? 'Unnamed subject';
+    }
+
+    async function loadClasses(selectedClass = '') {
+
+        const version = ++requestVersion.classes;
+
+        requestVersion.sections++;
+        requestVersion.subjects++;
+
+        resetSelect(classSelect, 'Select class');
+        resetSelect(sectionSelect, 'Select section');
+        resetSelect(subjectSelect, 'Select subject');
+
+        if (!examSelect?.value) return;
+
+        setLoading(true);
+
+        try {
+
+            const data = await getJson(urls.classes, {
+                exam_id: examSelect.value
+            });
+
+            if (version !== requestVersion.classes) return;
+
+            if (!Array.isArray(data.classes)) {
+                throw new Error(
+                    data.message || 'Classes array is missing from the response.'
+                );
             }
 
-            const subjects = Array.isArray(data.subjects) ? data.subjects : [];
+            const seen = new Set();
 
-            if (subjects.length === 0) {
-                subjectSelect.innerHTML = '<option value="">No Subjects Found</option>';
-                subjectSelect.disabled = true;
-                return;
+            data.classes.forEach(item => {
+
+                const id = getItemId(item);
+                const name = getClassName(item);
+
+                if (id === '' || !name) return;
+
+                const key = String(id);
+
+                if (seen.has(key)) return;
+
+                seen.add(key);
+
+                const section =
+                    item.section ??
+                    item.school_class?.section ??
+                    item.schoolClass?.section ??
+                    '';
+
+                const label = section
+                    ? `${name} — Section ${section}`
+                    : name;
+
+                addOption(
+                    classSelect,
+                    id,
+                    label,
+                    String(id) === String(selectedClass)
+                );
+
+            });
+
+            classSelect.disabled = false;
+
+            if (selectedClass && classSelect.value) {
+
+                await loadSections(
+                    classSelect.value,
+                    sectionSelect.dataset.initial || ''
+                );
+
             }
 
-            let restoredSubject = false;
+        } catch (error) {
 
-            subjects.forEach(function (subject) {
-                const option = document.createElement('option');
+            if (version === requestVersion.classes) {
+                showError(error);
+            }
 
-                option.value = subject.id;
+        } finally {
 
-                option.textContent =
-                    subject.name +
-                    (subject.code ? ' (' + subject.code + ')' : '') +
-                    (
-                        subject.maximum_marks !== null &&
-                        subject.maximum_marks !== undefined
-                            ? ' - ' + subject.maximum_marks + ' Marks'
-                            : ''
-                    );
+            if (version === requestVersion.classes) {
+                setLoading(false);
+            }
 
-                option.dataset.maximum = subject.maximum_marks ?? '';
-                option.dataset.passing = subject.passing_marks ?? '';
+        }
+    }
+
+    async function loadSections(classId, selectedSection = '') {
+
+        const version = ++requestVersion.sections;
+
+        requestVersion.subjects++;
+
+        resetSelect(sectionSelect, 'Select section');
+        resetSelect(subjectSelect, 'Select subject');
+
+        if (!examSelect?.value || !classId) return;
+
+        setLoading(true);
+
+        try {
+
+            const data = await getJson(urls.sections, {
+                exam_id: examSelect.value,
+                class_id: classId
+            });
+
+            if (version !== requestVersion.sections) return;
+
+            if (!Array.isArray(data.sections)) {
+                throw new Error(
+                    data.message || 'Sections array is missing from the response.'
+                );
+            }
+
+            const seen = new Set();
+
+            data.sections.forEach(item => {
+
+                const value = getSectionValue(item);
 
                 if (
-                    selectedSubjectId &&
-                    String(subject.id) === String(selectedSubjectId)
+                    value === '' ||
+                    value === null ||
+                    value === undefined
                 ) {
-                    option.selected = true;
-                    restoredSubject = true;
-
-                    updateMarksDisplay(
-                        subject.maximum_marks,
-                        subject.passing_marks
-                    );
+                    return;
                 }
 
-                subjectSelect.appendChild(option);
+                const key = String(value);
+
+                if (seen.has(key)) return;
+
+                seen.add(key);
+
+                const label = typeof item === 'object'
+                    ? (item.name ?? item.section ?? item.label ?? value)
+                    : value;
+
+                addOption(
+                    sectionSelect,
+                    value,
+                    label,
+                    String(value) === String(selectedSection)
+                );
+
+            });
+
+            sectionSelect.disabled = false;
+
+            if (selectedSection && sectionSelect.value) {
+
+                await loadSubjects(
+                    classId,
+                    subjectSelect.dataset.initial || '',
+                    sectionSelect.value
+                );
+
+            }
+
+        } catch (error) {
+
+            if (version === requestVersion.sections) {
+                showError(error);
+            }
+
+        } finally {
+
+            if (version === requestVersion.sections) {
+                setLoading(false);
+            }
+
+        }
+    }
+
+    async function loadSubjects(
+        classId,
+        selectedSubject = '',
+        section = ''
+    ) {
+
+        const version = ++requestVersion.subjects;
+
+        resetSelect(subjectSelect, 'Select subject');
+
+        if (!examSelect?.value || !classId || !section) return;
+
+        setLoading(true);
+
+        try {
+
+            const data = await getJson(urls.subjects, {
+                exam_id: examSelect.value,
+                class_id: classId,
+                section: section
+            });
+
+            if (version !== requestVersion.subjects) return;
+
+            if (!Array.isArray(data.subjects)) {
+                throw new Error(
+                    data.message || 'Subjects array is missing from the response.'
+                );
+            }
+
+            const seen = new Set();
+
+            data.subjects.forEach(item => {
+
+                const id = getItemId(item);
+
+                if (id === '') return;
+
+                const key = String(id);
+
+                if (seen.has(key)) return;
+
+                seen.add(key);
+
+                let label = getSubjectName(item);
+
+                const code =
+                    item.code ??
+                    item.subject_code ??
+                    item.subject?.subject_code;
+
+                const internal = item.internal_max_marks;
+                const theory = item.theory_max_marks;
+                const maximum = item.maximum_marks;
+
+                if (code) {
+                    label += ` (${code})`;
+                }
+
+                if (
+                    internal !== undefined &&
+                    theory !== undefined
+                ) {
+                    label += ` — Internal ${internal} + Theory ${theory}`;
+                }
+
+                if (maximum !== undefined) {
+                    label += ` = ${maximum}`;
+                }
+
+                addOption(
+                    subjectSelect,
+                    id,
+                    label,
+                    String(id) === String(selectedSubject)
+                );
+
             });
 
             subjectSelect.disabled = false;
 
-            if (!restoredSubject) {
-                subjectSelect.selectedIndex = 0;
-                updateMarksDisplay('', '');
-            }
-        })
-        .catch(function (error) {
-            console.error('Subjects loading error:', error);
+        } catch (error) {
 
-            subjectSelect.innerHTML =
-                '<option value="">Unable to load subjects</option>';
-
-            subjectSelect.disabled = true;
-
-            updateMarksDisplay('', '');
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | EXAM CHANGE
-    |--------------------------------------------------------------------------
-    */
-
-    if (examSelect) {
-        examSelect.addEventListener('change', function () {
-            const examId = this.value;
-            const baseUrl = "{{ route('admin.results.marks') }}";
-
-            if (!examId) {
-                window.location.href = baseUrl;
-                return;
+            if (version === requestVersion.subjects) {
+                showError(error);
             }
 
-            window.location.href =
-                baseUrl + '?exam_id=' + encodeURIComponent(examId);
-        });
-    }
+        } finally {
 
-    /*
-    |--------------------------------------------------------------------------
-    | CLASS CHANGE
-    |--------------------------------------------------------------------------
-    */
-
-    if (classSelect) {
-        classSelect.addEventListener('change', function () {
-            const examId = examSelect ? examSelect.value : '';
-            const classId = this.value;
-            const section = getSelectedSection();
-
-            resetSubject();
-            resetSection();
-
-            if (!classId) {
-                return;
+            if (version === requestVersion.subjects) {
+                setLoading(false);
             }
 
-            if (section && sectionSelect) {
-                const sectionOption = document.createElement('option');
-
-                sectionOption.value = section;
-                sectionOption.textContent = 'Section ' + section;
-                sectionOption.selected = true;
-
-                sectionSelect.appendChild(sectionOption);
-                sectionSelect.disabled = false;
-            }
-
-            if (examId) {
-                loadSubjects(examId, classId);
-            }
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SECTION CHANGE
-    |--------------------------------------------------------------------------
-    */
-
-    if (sectionSelect) {
-        sectionSelect.addEventListener('change', function () {
-            // Subjects depend on the selected exam and class.
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SUBJECT CHANGE
-    |--------------------------------------------------------------------------
-    */
-
-    if (subjectSelect) {
-        subjectSelect.addEventListener('change', function () {
-            const selectedOption = this.options[this.selectedIndex];
-
-            if (!selectedOption || !selectedOption.value) {
-                updateMarksDisplay('', '');
-                return;
-            }
-
-            updateMarksDisplay(
-                selectedOption.dataset.maximum || '',
-                selectedOption.dataset.passing || ''
-            );
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESTORE EXISTING SELECTION
-    |--------------------------------------------------------------------------
-    */
-
-    if (examSelect && classSelect && sectionSelect && subjectSelect) {
-        const existingExamId = "{{ request('exam_id') }}";
-        const existingClassId = "{{ request('class_id') }}";
-        const existingSection = "{{ request('section') }}";
-        const existingSubjectId = "{{ request('subject_id') }}";
-
-        if (existingExamId && existingClassId) {
-            classSelect.value = existingClassId;
-
-            const section = getSelectedSection();
-
-            resetSection();
-
-            if (section) {
-                const sectionOption = document.createElement('option');
-
-                sectionOption.value = section;
-                sectionOption.textContent = 'Section ' + section;
-
-                sectionSelect.appendChild(sectionOption);
-                sectionSelect.disabled = false;
-
-                if (existingSection) {
-                    sectionSelect.value = existingSection;
-                }
-            }
-
-            loadSubjects(
-                existingExamId,
-                existingClassId,
-                existingSubjectId
-            );
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | MARKS ENTRY
-    |--------------------------------------------------------------------------
-    */
+    // Examination changed.
+    examSelect?.addEventListener('change', function () {
 
-    const marksForm = document.getElementById('marksForm');
+        classSelect.dataset.initial = '';
+        sectionSelect.dataset.initial = '';
+        subjectSelect.dataset.initial = '';
 
-    if (marksForm) {
-        const maxMarks =
-            parseFloat("{{ $examSubject->maximum_marks ?? 0 }}") || 0;
+        loadClasses('');
+    });
 
-        /*
-        | Calculate Total = Internal + Theory
-        | Practical marks are no longer used.
-        */
+    // Class changed.
+    classSelect?.addEventListener('change', function () {
 
-        
-function calculateTotal(studentId) {
-    const internalInput = document.querySelector(
-        `[name="marks[${studentId}][internal_marks]"]`
-    );
+        sectionSelect.dataset.initial = '';
+        subjectSelect.dataset.initial = '';
 
-    const theoryInput = document.querySelector(
-        `[name="marks[${studentId}][theory_marks]"]`
-    );
+        loadSections(this.value, '');
+    });
 
-    const totalInput = document.querySelector(
-        `[name="marks[${studentId}][total_marks]"]`
-    );
+    // Section changed.
+    sectionSelect?.addEventListener('change', function () {
 
-    const internal = parseFloat(internalInput?.value) || 0;
-    const theory = parseFloat(theoryInput?.value) || 0;
+        subjectSelect.dataset.initial = '';
 
-    const total = internal + theory;
+        if (classSelect.value && this.value) {
 
-    if (totalInput) {
-        totalInput.value = total;
-    }
-}
+            loadSubjects(
+                classSelect.value,
+                '',
+                this.value
+            );
 
-        /*
-        |--------------------------------------------------------------------------
-        | MARK INPUT EVENTS
-        |--------------------------------------------------------------------------
-        */
+        } else {
 
-        document.querySelectorAll('.mark-input').forEach(function (input) {
-            input.addEventListener('input', function () {
-                calculateTotal(this.dataset.student);
-            });
+            requestVersion.subjects++;
 
-            // Validate the combined total when a field loses focus.
-            input.addEventListener('change', function () {
-                calculateTotal(this.dataset.student);
-            });
+            resetSelect(subjectSelect, 'Select subject');
+
+        }
+
+    });
+
+    // Reset selection.
+    document.getElementById('resetSelection')
+        ?.addEventListener('click', function () {
+
+            window.location.href = @json(route('admin.results.marks'));
+
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | STATUS EVENTS
-        |--------------------------------------------------------------------------
-        */
+    // Restore dropdowns after page reload.
+    if (examSelect?.value && classSelect) {
 
-        document.querySelectorAll('.status-select').forEach(function (select) {
-            select.addEventListener('change', function () {
-                const studentId = this.dataset.student;
+        const initialClass =
+            classSelect.dataset.initial || classSelect.value;
 
-                const inputs = document.querySelectorAll(
-                    '.mark-input[data-student="' + studentId + '"]'
+        const initialSection =
+            sectionSelect.dataset.initial || '';
+
+        const initialSubject =
+            subjectSelect.dataset.initial || '';
+
+        sectionSelect.dataset.initial = initialSection;
+        subjectSelect.dataset.initial = initialSubject;
+
+        loadClasses(initialClass);
+    }
+
+    // Calculate student totals.
+    function updateRow(row) {
+
+        const status = row.querySelector('.mark-status')?.value;
+
+        const internalInput = row.querySelector('.internal-input');
+        const theoryInput = row.querySelector('.theory-input');
+        const totalElement = row.querySelector('.js-row-total');
+
+        const internalMaximum = Number(
+            row.dataset.internalMax || 0
+        );
+
+        const theoryMaximum = Number(
+            row.dataset.theoryMax || 0
+        );
+
+        const totalMaximum = Number(
+            row.dataset.max || 0
+        );
+
+        if (status !== 'present') {
+
+            internalInput.value = '';
+            theoryInput.value = '';
+
+            internalInput.disabled = true;
+            theoryInput.disabled = true;
+
+            internalInput.setCustomValidity('');
+            theoryInput.setCustomValidity('');
+
+            if (totalElement) {
+                totalElement.textContent = '0.00';
+                totalElement.style.color = '';
+            }
+
+            return;
+        }
+
+        internalInput.disabled = false;
+        theoryInput.disabled = false;
+
+        const internal = Number(internalInput.value || 0);
+        const theory = Number(theoryInput.value || 0);
+
+        const total = internal + theory;
+
+        if (totalElement) {
+
+            totalElement.textContent = total.toFixed(2);
+
+            totalElement.style.color =
+                total > totalMaximum ? '#c62828' : '';
+
+        }
+
+        internalInput.setCustomValidity(
+            internal > internalMaximum
+                ? `Maximum internal marks are ${internalMaximum}.`
+                : ''
+        );
+
+        theoryInput.setCustomValidity(
+            theory > theoryMaximum
+                ? `Maximum theory marks are ${theoryMaximum}.`
+                : ''
+        );
+
+        row.classList.toggle(
+            'marks-total-warning',
+            total > totalMaximum
+        );
+    }
+
+    // Initialize all student rows.
+    document.querySelectorAll('.student-mark-row').forEach(row => {
+
+        row.querySelectorAll('.mark-input').forEach(input => {
+
+            input.addEventListener('input', function () {
+                updateRow(row);
+            });
+
+        });
+
+        row.querySelector('.mark-status')
+            ?.addEventListener('change', function () {
+                updateRow(row);
+            });
+
+        updateRow(row);
+
+    });
+
+    // Clear unsaved marks.
+    document.getElementById('clearMarks')
+        ?.addEventListener('click', function () {
+
+            if (!confirm(
+                'Clear entered marks and remarks from this form?'
+            )) {
+                return;
+            }
+
+            document.querySelectorAll('.student-mark-row')
+                .forEach(row => {
+
+                    row.querySelectorAll('.mark-input')
+                        .forEach(input => {
+
+                            input.value = '';
+                            input.setCustomValidity('');
+
+                        });
+
+                    const remarks = row.querySelector(
+                        'input[name$="[remarks]"]'
+                    );
+
+                    if (remarks) {
+                        remarks.value = '';
+                    }
+
+                    const status = row.querySelector('.mark-status');
+
+                    if (status) {
+                        status.value = 'present';
+                    }
+
+                    updateRow(row);
+
+                });
+
+        });
+
+    // Validate before saving.
+    document.getElementById('saveMarksForm')
+        ?.addEventListener('submit', function (event) {
+
+            let invalid = false;
+            let firstInvalid = null;
+
+            document.querySelectorAll('.student-mark-row')
+                .forEach(row => {
+
+                    updateRow(row);
+
+                    row.style.background = '';
+
+                    const status = row.querySelector('.mark-status')?.value;
+
+                    if (status !== 'present') {
+                        return;
+                    }
+
+                    const internalInput = row.querySelector('.internal-input');
+                    const theoryInput = row.querySelector('.theory-input');
+
+                    const internalMaximum = Number(
+                        row.dataset.internalMax || 0
+                    );
+
+                    const theoryMaximum = Number(
+                        row.dataset.theoryMax || 0
+                    );
+
+                    const internal = Number(internalInput.value);
+                    const theory = Number(theoryInput.value);
+
+                    const internalInvalid =
+                        internalInput.value.trim() === '' ||
+                        !Number.isFinite(internal) ||
+                        internal < 0 ||
+                        internal > internalMaximum;
+
+                    const theoryInvalid =
+                        theoryInput.value.trim() === '' ||
+                        !Number.isFinite(theory) ||
+                        theory < 0 ||
+                        theory > theoryMaximum;
+
+                    if (internalInvalid || theoryInvalid) {
+
+                        invalid = true;
+
+                        firstInvalid ||= internalInvalid
+                            ? internalInput
+                            : theoryInput;
+
+                        row.style.background = '#fff0f0';
+
+                    }
+
+                });
+
+            if (invalid) {
+
+                event.preventDefault();
+
+                alert(
+                    'Please check the marks. Internal and Theory marks are required and cannot exceed their individual maximum marks.'
                 );
 
-                if (this.value === 'absent' || this.value === 'na') {
-                    inputs.forEach(function (input) {
-                        input.value = 0;
-                        input.disabled = true;
-                    });
-                } else {
-                    inputs.forEach(function (input) {
-                        input.disabled = false;
-                    });
-                }
+                firstInvalid?.focus();
 
-                calculateTotal(studentId);
-            });
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | INITIAL TOTALS
-        |--------------------------------------------------------------------------
-        */
-
-        document.querySelectorAll('.total-input').forEach(function (input) {
-            calculateTotal(input.dataset.student);
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE MARKS
-        |--------------------------------------------------------------------------
-        */
-
-        marksForm.addEventListener('submit', function () {
-            const saveButton = document.getElementById('saveMarksBtn');
-
-            if (saveButton) {
-                saveButton.disabled = true;
-
-                saveButton.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-1"></span>' +
-                    'Saving...';
             }
+
         });
-    }
+
 });
 </script>
-@endpush
 
 @endsection
 ```

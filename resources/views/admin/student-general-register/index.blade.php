@@ -49,13 +49,7 @@
                     it exactly as you see it.
                 </p>
 
-                <a href="{{ route('admin.student-general-register.print', request()->query()) }}"
-                   id="printRegisterBtn"
-                   target="_blank"
-                   class="diary-primary-btn">
-                    <i class="fas fa-print"></i>
-                    Print Register
-                </a>
+                
             </div>
         </section>
 

@@ -1,5 +1,4 @@
-﻿
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Students | Admin')
 @section('page-title', 'Students')
@@ -7,11 +6,10 @@
 @section('content')
 
 <style>
-/* ==========================================================
-   STUDENTS — LOCKED SCHOOL DIARY DESIGN SYSTEM
-   Reference: Transport Records
-   Forest green | Cream paper | Sage tables | Responsive
-========================================================== */
+/* =========================================================
+   STUDENTS — SCHOOL DIARY DESIGN SYSTEM
+   Forest Green | Cream Paper | Sage Tables | Responsive
+========================================================= */
 
 .student-page {
     --ink: #263b35;
@@ -44,7 +42,8 @@
 .student-page a,
 .student-page button {
     transition: color .2s ease, background .2s ease,
-        border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+        border-color .2s ease, box-shadow .2s ease,
+        transform .2s ease;
 }
 
 .student-page .container-fluid {
@@ -55,16 +54,16 @@
     padding-left: 24px;
 }
 
-/* HERO */
-
-.student-hero,
 .student-paper-panel,
-.student-filter-panel {
+.student-filter-panel,
+.student-hero {
     border: 1px solid var(--line);
     border-radius: 15px;
     background: var(--paper);
     box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
 }
+
+/* HERO */
 
 .student-hero {
     position: relative;
@@ -103,7 +102,6 @@
     border-radius: 16px;
     color: var(--ink);
     background: var(--chalk);
-    box-shadow: 0 3px 10px rgba(38, 59, 53, .04);
     font-size: 25px;
 }
 
@@ -132,7 +130,7 @@
 .student-hero-text h2 {
     margin: 0 0 11px;
     color: var(--ink);
-    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(26px, 2.2vw, 34px);
     font-weight: 700;
     line-height: 1.2;
@@ -217,7 +215,7 @@
 
 .student-handwritten {
     color: #f0e5c9;
-    font-family: var(--hand, cursive);
+    font-family: cursive;
     font-size: 23px;
     line-height: 1.4;
 }
@@ -230,7 +228,7 @@
     line-height: 1.9;
 }
 
-/* BUTTON SYSTEM */
+/* BUTTONS */
 
 .student-page .diary-primary-btn,
 .student-page .diary-secondary-btn,
@@ -253,7 +251,8 @@
     cursor: pointer;
 }
 
-.student-page .diary-primary-btn {
+.student-page .diary-primary-btn,
+.student-page .diary-apply-btn {
     border-color: var(--ink);
     color: #fff;
     background: var(--ink);
@@ -265,11 +264,12 @@
     background: #f1ead8;
 }
 
-.student-page .diary-primary-btn:hover {
+.student-page .diary-primary-btn:hover,
+.student-page .diary-apply-btn:hover {
     transform: translateY(-2px);
-    border-color: #456854;
+    border-color: #426652;
     color: #fff;
-    background: #456854;
+    background: #426652;
     box-shadow: 0 6px 15px rgba(29,48,43,.13);
 }
 
@@ -291,44 +291,27 @@
     background: #e6f1e2;
 }
 
-.student-page .diary-outline-btn {
+.student-page .diary-outline-btn,
+.student-page .diary-reset-btn {
     border-color: #deded2;
     color: #5d6b60;
     background: var(--paper);
 }
 
-.student-page .diary-outline-btn:hover {
-    border-color: #b5c4b0;
-    color: var(--ink);
-    background: #f0f3e9;
-}
-
-.student-page .diary-apply-btn {
-    border-color: var(--ink);
-    color: #fff;
-    background: var(--ink);
-}
-
-.student-page .diary-apply-btn:hover {
-    transform: translateY(-1px);
-    border-color: #426652;
-    color: #fff;
-    background: #426652;
-}
-
-.student-page .diary-reset-btn {
-    border-color: #deded2;
-    color: #5d6b60;
-    background: #fffefa;
-}
-
+.student-page .diary-outline-btn:hover,
 .student-page .diary-reset-btn:hover {
     border-color: #b5c4b0;
     color: var(--ink);
     background: #f0f3e9;
 }
 
-/* PAGE HEADER AND IMPORT/EXPORT */
+.student-page button:disabled {
+    opacity: .65;
+    cursor: wait;
+    transform: none !important;
+}
+
+/* PAGE HEADER */
 
 .student-page-header {
     display: flex;
@@ -363,7 +346,7 @@
 .student-page-heading h3 {
     margin: 0;
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 23px;
     font-weight: 700;
 }
@@ -381,13 +364,13 @@
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: 9px;
+    min-width: 0;
 }
 
 .student-import-form {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
+    margin: 0;
 }
 
 .student-import-input {
@@ -464,7 +447,7 @@
     margin-left: auto;
 }
 
-/* KPI CARDS */
+/* STATISTICS */
 
 .student-kpis {
     display: grid;
@@ -476,7 +459,6 @@
 .student-kpi {
     --kpi-color: #426b8a;
 
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -493,24 +475,6 @@
 .student-kpi.green { --kpi-color: #43835d; }
 .student-kpi.orange { --kpi-color: #a87543; }
 .student-kpi.red { --kpi-color: #b95b50; }
-
-.student-kpi::before {
-    position: absolute;
-    top: -24px;
-    left: 17px;
-    padding: 5px 10px;
-    border-radius: 6px 6px 0 0;
-    color: #fff;
-    background: var(--kpi-color);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: .6px;
-}
-
-.student-kpi.blue::before { content: "ENROLMENT"; }
-.student-kpi.green::before { content: "BOYS"; }
-.student-kpi.orange::before { content: "GIRLS"; }
-.student-kpi.red::before { content: "ACADEMICS"; }
 
 .student-kpi:hover {
     transform: translateY(-3px);
@@ -546,7 +510,7 @@
 
 .student-kpi-value {
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 35px;
     font-weight: 700;
     line-height: 1.1;
@@ -561,7 +525,7 @@
     line-height: 1.7;
 }
 
-/* PANEL HEADERS */
+/* PANELS */
 
 .student-panel-header {
     display: flex;
@@ -598,7 +562,7 @@
 .student-panel-title-wrap h4 {
     margin: 0;
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 19px;
     font-weight: 700;
 }
@@ -630,7 +594,7 @@
     color: var(--ink);
 }
 
-/* FILTER PANEL */
+/* FILTERS */
 
 .student-filter-panel {
     margin-bottom: 29px;
@@ -668,7 +632,7 @@
 .student-filter-heading h4 {
     margin: 0;
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 17px;
     font-weight: 700;
 }
@@ -693,6 +657,7 @@
     width: 100%;
     min-width: 0;
     min-height: 44px;
+    padding: 10px 12px;
     border: 1px solid #dedfd3;
     border-radius: 9px;
     outline: none;
@@ -703,14 +668,8 @@
     box-shadow: none;
 }
 
-.student-page .form-control,
-.student-page .form-select {
-    padding: 10px 12px;
-}
-
 .student-page .form-control:hover,
-.student-page .form-select:hover,
-.student-import-input:hover {
+.student-page .form-select:hover {
     border-color: #bdcabb;
 }
 
@@ -752,8 +711,6 @@
     margin-top: 17px;
 }
 
-/* ACTIVE FILTER BADGE */
-
 .student-active-filter {
     display: inline-flex;
     align-items: center;
@@ -768,7 +725,7 @@
     font-weight: 800;
 }
 
-/* TABLE PANEL */
+/* STUDENT TABLE */
 
 .student-table-panel {
     overflow: hidden;
@@ -787,7 +744,7 @@
 
 .student-list-title {
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 19px;
     font-weight: 700;
 }
@@ -907,16 +864,22 @@
     line-height: 1.6;
 }
 
-.student-id-badge {
+.student-id-badge,
+.student-class-badge,
+.student-section-badge {
     display: inline-block;
     padding: 7px 10px;
-    border: 1px solid #dce6da;
+    border: 1px solid transparent;
     border-radius: 7px;
-    color: #426b8a;
-    background: #edf3e9;
     font-size: 10px;
     font-weight: 800;
     white-space: nowrap;
+}
+
+.student-id-badge {
+    border-color: #dce6da;
+    color: #426b8a;
+    background: #edf3e9;
 }
 
 .student-academic-year {
@@ -929,17 +892,6 @@
 .student-academic-year i {
     margin-right: 5px;
     color: var(--blue);
-}
-
-.student-class-badge,
-.student-section-badge {
-    display: inline-block;
-    padding: 7px 10px;
-    border: 1px solid transparent;
-    border-radius: 7px;
-    font-size: 10px;
-    font-weight: 800;
-    white-space: nowrap;
 }
 
 .student-class-badge {
@@ -1102,14 +1054,13 @@
     border-radius: 19px;
     color: var(--ink);
     background: var(--chalk);
-    box-shadow: 0 5px 13px rgba(38,59,53,.04);
     font-size: 27px;
 }
 
 .student-empty-state h5 {
     margin: 0 0 10px;
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 22px;
     font-weight: 700;
 }
@@ -1369,14 +1320,16 @@
     }
 
     .student-header-actions {
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: stretch;
     }
 
     .student-header-actions > a,
+    .student-header-actions > form,
     .student-import-form,
-    .student-import-form > * {
+    .student-import-form button {
         width: 100%;
     }
 
@@ -1526,6 +1479,7 @@
 
     {{-- HERO --}}
     <section class="student-hero">
+
         <div class="student-hero-content">
             <div class="student-hero-icon">
                 <i class="bi bi-mortarboard-fill"></i>
@@ -1557,11 +1511,13 @@
                 <i class="bi bi-journal-bookmark-fill"></i>
             </div>
 
-            <div class="student-handwritten">Growing Minds. Bright Futures.</div>
+            <div class="student-handwritten">
+                Growing Minds. Bright Futures.
+            </div>
 
             <p>
-                Keep student information organised and
-                academic records ready when you need them.
+                Keep student information organised and academic records
+                ready when you need them.
             </p>
 
             <a href="{{ route('admin.students.bulk-create') }}"
@@ -1570,42 +1526,64 @@
                 Add Student
             </a>
         </div>
+
     </section>
 
     {{-- PAGE HEADER --}}
     <section class="student-page-header">
+
         <div class="student-page-heading">
             <div class="student-page-heading-icon">
                 <i class="bi bi-people-fill"></i>
             </div>
+
             <div>
                 <h3>Students</h3>
                 <p>View, import, export and manage registered students.</p>
             </div>
         </div>
 
-        {{-- DOWNLOAD EXCEL TEMPLATE --}}
-        <a href="{{ route('admin.students.bulk-template') }}"
-   class="btn btn-outline-success px-3 py-2 rounded-3 fw-semibold">
-            <i class="bi bi-file-earmark-excel me-2"></i>
-            Download Template
-        </a>
+        <div class="student-header-actions">
 
-        {{-- IMPORT STUDENTS --}}
-       
+            <a href="{{ route('admin.students.bulk-template') }}"
+               class="diary-outline-btn"
+               title="Download the student import template">
+                <i class="bi bi-file-earmark-excel"></i>
+                Download Template
+            </a>
+
+            <a href="{{ route('admin.students.export', request()->query()) }}"
+               class="diary-secondary-btn"
+               title="Export student records">
+                <i class="bi bi-download"></i>
+                Export Students
+            </a>
+
+            <form id="studentImportForm"
+                  class="student-import-form"
+                  method="POST"
+                  action="{{ route('admin.students.import') }}"
+                  enctype="multipart/form-data">
+
+                @csrf
 
                 <input type="file"
+                       id="studentImportFile"
                        name="file"
-                       class="student-import-input"
                        accept=".xlsx,.xls,.csv"
                        aria-label="Choose student import file"
+                       hidden
                        required>
 
-                <button type="submit" class="diary-primary-btn">
+                <button type="button"
+                        id="studentImportButton"
+                        class="diary-primary-btn">
                     <i class="bi bi-upload"></i>
                     Import Students
                 </button>
+
             </form>
+
         </div>
     </section>
 
@@ -1615,6 +1593,7 @@
             <span class="alert-symbol">
                 <i class="bi bi-check-circle-fill"></i>
             </span>
+
             <div class="student-alert-content">
                 {{ session('success') }}
             </div>
@@ -1626,6 +1605,7 @@
             <span class="alert-symbol">
                 <i class="bi bi-exclamation-triangle-fill"></i>
             </span>
+
             <div class="student-alert-content">
                 {{ session('error') }}
             </div>
@@ -1637,8 +1617,10 @@
             <span class="alert-symbol">
                 <i class="bi bi-exclamation-triangle-fill"></i>
             </span>
+
             <div class="student-alert-content">
                 <strong>Import validation errors</strong>
+
                 <ul>
                     @foreach(session('import_errors') as $importError)
                         @if(is_array($importError))
@@ -1648,6 +1630,24 @@
                         @else
                             <li>{{ $importError }}</li>
                         @endif
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    {{-- VALIDATION ERRORS --}}
+    @if($errors->any())
+        <div class="student-alert error" role="alert">
+            <span class="alert-symbol">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </span>
+
+            <div class="student-alert-content">
+                <strong>Please check the following errors:</strong>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
@@ -1664,9 +1664,11 @@
                     <i class="bi bi-people-fill"></i>
                 </span>
             </div>
+
             <div class="student-kpi-value">
                 {{ number_format($totalStudents) }}
             </div>
+
             <div class="student-kpi-caption">
                 Total registered student records
             </div>
@@ -1679,9 +1681,11 @@
                     <i class="bi bi-gender-male"></i>
                 </span>
             </div>
+
             <div class="student-kpi-value">
                 {{ number_format($totalMaleStudents) }}
             </div>
+
             <div class="student-kpi-caption">
                 Registered male students
             </div>
@@ -1694,9 +1698,11 @@
                     <i class="bi bi-gender-female"></i>
                 </span>
             </div>
+
             <div class="student-kpi-value">
                 {{ number_format($totalFemaleStudents) }}
             </div>
+
             <div class="student-kpi-caption">
                 Registered female students
             </div>
@@ -1709,9 +1715,11 @@
                     <i class="bi bi-building"></i>
                 </span>
             </div>
+
             <div class="student-kpi-value">
                 {{ count($classes) }}
             </div>
+
             <div class="student-kpi-caption">
                 Classes available in the current list
             </div>
@@ -1727,6 +1735,7 @@
                 <div class="student-panel-title-icon">
                     <i class="bi bi-funnel-fill"></i>
                 </div>
+
                 <div>
                     <h4>Search &amp; Filter Students</h4>
                     <p>Find student records using the available filters.</p>
@@ -1748,10 +1757,12 @@
         </div>
 
         <div class="student-filter-body">
+
             <div class="student-filter-heading">
                 <div class="student-filter-heading-icon">
                     <i class="bi bi-sliders"></i>
                 </div>
+
                 <div>
                     <h4>Find Student Records</h4>
                     <p>
@@ -1771,10 +1782,12 @@
                         <label for="student-search" class="filter-label">
                             Search Student
                         </label>
+
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="bi bi-search"></i>
                             </span>
+
                             <input id="student-search"
                                    type="text"
                                    name="search"
@@ -1788,10 +1801,12 @@
                         <label for="student-academic-year" class="filter-label">
                             Academic Year
                         </label>
+
                         <select id="student-academic-year"
                                 name="academic_year"
                                 class="form-select">
                             <option value="">All Years</option>
+
                             @foreach($academicYears as $year)
                                 <option value="{{ $year }}"
                                     @selected(request('academic_year') == $year)>
@@ -1805,10 +1820,12 @@
                         <label for="student-class" class="filter-label">
                             Class
                         </label>
+
                         <select id="student-class"
                                 name="class"
                                 class="form-select">
                             <option value="">All Classes</option>
+
                             @foreach($classes as $class)
                                 <option value="{{ $class }}"
                                     @selected(request('class') == $class)>
@@ -1822,10 +1839,12 @@
                         <label for="student-section" class="filter-label">
                             Section
                         </label>
+
                         <select id="student-section"
                                 name="section"
                                 class="form-select">
                             <option value="">All Sections</option>
+
                             @foreach($sections as $section)
                                 <option value="{{ $section }}"
                                     @selected(request('section') == $section)>
@@ -1839,14 +1858,17 @@
                         <label for="student-status" class="filter-label">
                             Status
                         </label>
+
                         <select id="student-status"
                                 name="status"
                                 class="form-select">
                             <option value="">All Statuses</option>
+
                             <option value="active"
                                 @selected(request('status') === 'active')>
                                 Active
                             </option>
+
                             <option value="inactive"
                                 @selected(request('status') === 'inactive')>
                                 Inactive
@@ -1857,6 +1879,7 @@
                 </div>
 
                 <div class="student-filter-actions">
+
                     <a href="{{ route('admin.students.index') }}"
                        class="diary-reset-btn">
                         <i class="bi bi-arrow-counterclockwise"></i>
@@ -1867,6 +1890,7 @@
                         <i class="bi bi-search"></i>
                         Apply Filters
                     </button>
+
                 </div>
             </form>
         </div>
@@ -1876,12 +1900,15 @@
     <section class="student-paper-panel student-table-panel">
 
         <div class="student-table-summary">
+
             <div class="student-panel-title-wrap">
                 <div class="student-panel-title-icon">
                     <i class="bi bi-card-list"></i>
                 </div>
+
                 <div>
                     <div class="student-list-title">Student List</div>
+
                     <div class="student-list-subtitle">
                         @if($students->total() > 0)
                             Showing {{ $students->firstItem() }}
@@ -1899,10 +1926,12 @@
                 <strong>{{ number_format($students->total()) }}</strong>
                 Records
             </div>
+
         </div>
 
         <div class="table-responsive">
             <table class="table student-table">
+
                 <thead>
                     <tr>
                         <th>#</th>
@@ -1946,6 +1975,7 @@
 
                             <td>
                                 <div class="student-identity">
+
                                     @if($avatarUrl)
                                         <img src="{{ $avatarUrl }}"
                                              alt="{{ $fullName ?: 'Student' }}"
@@ -1969,6 +1999,7 @@
                                             </div>
                                         @endif
                                     </div>
+
                                 </div>
                             </td>
 
@@ -2059,6 +2090,7 @@
 
                             <td>
                                 <div class="student-action-group">
+
                                     <a href="{{ route('admin.students.show', $student) }}"
                                        class="student-action-btn view"
                                        title="View Student"
@@ -2076,6 +2108,7 @@
                                     <form method="POST"
                                           action="{{ route('admin.students.destroy', $student) }}"
                                           onsubmit="return confirm('Are you sure you want to delete this student?');">
+
                                         @csrf
                                         @method('DELETE')
 
@@ -2085,6 +2118,7 @@
                                                 aria-label="Delete student">
                                             <i class="bi bi-trash"></i>
                                         </button>
+
                                     </form>
                                 </div>
                             </td>
@@ -2094,6 +2128,7 @@
                         <tr>
                             <td colspan="11">
                                 <div class="student-empty-state">
+
                                     <div class="student-empty-icon">
                                         <i class="bi bi-person-x"></i>
                                     </div>
@@ -2106,6 +2141,7 @@
                                     </p>
 
                                     <div class="student-empty-actions">
+
                                         <a href="{{ route('admin.students.index') }}"
                                            class="diary-outline-btn">
                                             <i class="bi bi-arrow-counterclockwise"></i>
@@ -2117,18 +2153,21 @@
                                             <i class="bi bi-person-plus-fill"></i>
                                             Add Student
                                         </a>
+
                                     </div>
                                 </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
+
             </table>
         </div>
 
         {{-- PAGINATION --}}
         @if($students->hasPages())
             <div class="student-pagination">
+
                 <div class="pagination-info">
                     Showing
                     <strong>{{ $students->firstItem() ?? 0 }}</strong>
@@ -2145,11 +2184,13 @@
                         ->withQueryString()
                         ->links('pagination::bootstrap-5') }}
                 </div>
+
             </div>
         @endif
 
         {{-- FOOTER --}}
         <div class="student-table-footer">
+
             <div>
                 Showing <strong>{{ $students->count() }}</strong>
                 record(s) on this page
@@ -2159,6 +2200,7 @@
                 <i class="bi bi-check-circle-fill"></i>
                 Student records loaded
             </div>
+
         </div>
 
     </section>
@@ -2166,5 +2208,69 @@
 </div>
 </div>
 
-@endsection
+{{-- STUDENT IMPORT SCRIPT --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
 
+    const importForm = document.getElementById('studentImportForm');
+    const importButton = document.getElementById('studentImportButton');
+    const importFile = document.getElementById('studentImportFile');
+
+    if (!importForm || !importButton || !importFile) {
+        return;
+    }
+
+    const originalButtonHTML = importButton.innerHTML;
+    let submitting = false;
+
+    importButton.addEventListener('click', function () {
+        if (!submitting) {
+            importFile.click();
+        }
+    });
+
+    importFile.addEventListener('change', function () {
+        const file = importFile.files && importFile.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const allowedExtensions = ['xlsx', 'xls', 'csv'];
+        const extension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(extension)) {
+            alert('Please select a valid Excel (.xlsx, .xls) or CSV (.csv) file.');
+
+            importFile.value = '';
+            importButton.disabled = false;
+            importButton.innerHTML = originalButtonHTML;
+
+            return;
+        }
+
+        submitting = true;
+        importButton.disabled = true;
+        importButton.innerHTML =
+            '<i class="bi bi-arrow-repeat"></i> Importing...';
+
+        importForm.requestSubmit();
+    });
+
+    importForm.addEventListener('submit', function () {
+        submitting = true;
+        importButton.disabled = true;
+        importButton.innerHTML =
+            '<i class="bi bi-arrow-repeat"></i> Importing...';
+    });
+
+    window.addEventListener('pageshow', function () {
+        submitting = false;
+        importButton.disabled = false;
+        importButton.innerHTML = originalButtonHTML;
+    });
+});
+</script>
+
+@endsection
