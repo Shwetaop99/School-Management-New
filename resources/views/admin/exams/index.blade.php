@@ -79,12 +79,20 @@
                     every examination on track.
                 </p>
 
-                <a href="{{ route('admin.exams.create') }}"
-                   class="exam-primary-btn">
-                    <i class="bi bi-plus-lg"></i>
-                    Create New Exam
-                    <i class="bi bi-arrow-right"></i>
-                </a>
+                <div class="exam-header-actions">
+
+    <div class="exam-record-count">
+        <i class="bi bi-folder2-open"></i>
+        <strong>{{ $totalExams }}</strong>
+        {{ $totalExams === 1 ? 'Exam' : 'Exams' }}
+    </div>
+
+    <a href="{{ route('admin.exams.create') }}" class="exam-create-btn">
+        <i class="bi bi-plus-lg"></i>
+        Create Exam
+    </a>
+
+</div>
             </div>
         </section>
 
@@ -1385,6 +1393,50 @@
         scroll-behavior: auto !important;
         animation: none !important;
         transition: none !important;
+    }
+}
+
+.exam-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.exam-create-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 37px;
+    padding: 9px 14px;
+    border: 1px solid #263b35;
+    border-radius: 7px;
+    color: #fff;
+    background: #263b35;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.exam-create-btn:hover {
+    transform: translateY(-2px);
+    border-color: #456854;
+    color: #fff;
+    background: #456854;
+    box-shadow: 0 4px 12px rgba(38,59,53,.15);
+}
+
+@media(max-width:650px) {
+    .exam-header-actions {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .exam-create-btn {
+        flex: 1;
     }
 }
 </style>

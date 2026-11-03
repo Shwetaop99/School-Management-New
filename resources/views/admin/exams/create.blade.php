@@ -2,13 +2,13 @@
 @extends('layouts.app')
 
 @section('title', 'Create Exam')
+@section('page-title', 'Create Exam')
 
 @section('content')
 
 <style>
 /* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM
-   Create Exam
+   SCHOOL DIARY DESIGN SYSTEM — CREATE EXAM
 ========================================================= */
 
 .create-exam-page {
@@ -30,6 +30,7 @@
     --ce-shadow: 0 8px 26px rgba(38, 59, 53, .055);
     --ce-radius: 16px;
 
+    width: 100%;
     max-width: 1650px;
     margin: 0 auto;
     padding: 24px;
@@ -45,8 +46,13 @@
     box-sizing: border-box;
 }
 
+.create-exam-page a,
+.create-exam-page button {
+    transition: all .2s ease;
+}
+
 /* =========================================================
-   PAGE HEADER
+   PAGE HEADER — DARK GREEN
 ========================================================= */
 
 .create-exam-page .ce-page-header {
@@ -58,11 +64,20 @@
     padding: 28px 30px;
     margin-bottom: 17px;
     overflow: hidden;
-    background: var(--ce-paper);
-    border: 1px solid var(--ce-line);
-    border-left: 5px solid var(--ce-forest);
+
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+
+    border: 1px solid #456b54;
+    border-left: 6px solid #c49a45;
     border-radius: var(--ce-radius);
-    box-shadow: var(--ce-shadow);
+
+    box-shadow: 0 6px 20px rgba(20, 47, 37, .22);
+    color: #fff;
 }
 
 .create-exam-page .ce-page-header::after {
@@ -70,9 +85,21 @@
     position: absolute;
     top: -115px;
     right: 16%;
-    width: 190px;
-    height: 190px;
-    border: 1px solid rgba(82, 127, 112, .13);
+    width: 220px;
+    height: 220px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.create-exam-page .ce-page-header::before {
+    content: "";
+    position: absolute;
+    top: -75px;
+    right: 10%;
+    width: 150px;
+    height: 150px;
+    border: 1px solid rgba(196, 154, 69, .18);
     border-radius: 50%;
     pointer-events: none;
 }
@@ -88,16 +115,20 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 9px;
-    color: var(--ce-amber);
+    color: #e2c47f;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1.6px;
     text-transform: uppercase;
 }
 
+.create-exam-page .ce-eyebrow i {
+    font-size: 14px;
+}
+
 .create-exam-page .ce-page-title {
     margin: 0;
-    color: var(--ce-ink);
+    color: #fff !important;
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(25px, 3vw, 34px);
     font-weight: 700;
@@ -107,7 +138,7 @@
 
 .create-exam-page .ce-page-subtitle {
     margin: 10px 0 0;
-    color: var(--ce-muted);
+    color: #d5e3da !important;
     font-size: 12px;
     line-height: 1.8;
 }
@@ -119,6 +150,18 @@
     flex-shrink: 0;
     align-items: center;
     gap: 10px;
+}
+
+.create-exam-page .ce-header-actions .ce-btn-outline {
+    color: #fff;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .4);
+}
+
+.create-exam-page .ce-header-actions .ce-btn-outline:hover {
+    color: #142f25;
+    background: #c49a45;
+    border-color: #c49a45;
 }
 
 /* =========================================================
@@ -165,7 +208,8 @@
     padding: 12px 22px;
     color: var(--ce-ink);
     background: var(--ce-cream-deep);
-    border-color: #e3dac3;
+    border: 1px solid #e3dac3;
+    border-radius: 10px;
     box-shadow: 0 4px 10px rgba(38, 59, 53, .07);
 }
 
@@ -329,7 +373,7 @@
     border-bottom: 1px solid var(--ce-line);
 }
 
-.create-exam-page .ce-section-heading i {
+.create-exam-page .ce-section-heading > i {
     color: var(--ce-sage);
     font-size: 16px;
 }
@@ -501,10 +545,11 @@
 }
 
 /* =========================================================
-   NEXT STEPS CARD
+   NEXT STEPS
 ========================================================= */
 
 .create-exam-page .ce-next-steps {
+    width: 100%;
     margin-top: 27px;
     overflow: hidden;
     background: #fcfbf6;
@@ -550,6 +595,9 @@
 }
 
 .create-exam-page .ce-next-steps-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     padding: 19px;
 }
 
@@ -557,11 +605,6 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    margin-bottom: 15px;
-}
-
-.create-exam-page .ce-step-item:last-child {
-    margin-bottom: 0;
 }
 
 .create-exam-page .ce-step-number {
@@ -580,6 +623,7 @@
 }
 
 .create-exam-page .ce-step-text {
+    min-width: 0;
     padding-top: 4px;
     color: var(--ce-text);
     font-size: 11px;
@@ -689,6 +733,28 @@
     }
 }
 
+@media (max-width: 575.98px) {
+    .create-exam-page .ce-date-preview {
+        align-items: flex-start;
+        padding: 13px;
+    }
+
+    .create-exam-page .ce-date-preview-icon {
+        width: 37px;
+        height: 37px;
+        flex-basis: 37px;
+        font-size: 15px;
+    }
+
+    .create-exam-page .ce-error-card {
+        padding: 14px;
+    }
+
+    .create-exam-page .ce-breadcrumb {
+        margin-bottom: 16px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .create-exam-page *,
     .create-exam-page *::before,
@@ -702,9 +768,7 @@
 
 <div class="create-exam-page">
 
-    {{-- =====================================================
-        PAGE HEADER
-    ====================================================== --}}
+    {{-- PAGE HEADER --}}
     <div class="ce-page-header">
 
         <div class="ce-header-content">
@@ -714,9 +778,7 @@
                 Examination Management
             </div>
 
-            <h1 class="ce-page-title">
-                Create Exam
-            </h1>
+            <h1 class="ce-page-title">Create Exam</h1>
 
             <p class="ce-page-subtitle">
                 Set up the examination details and dates to get started.
@@ -728,38 +790,24 @@
 
             <a href="{{ route('admin.exams.index') }}"
                class="ce-btn ce-btn-outline">
-
                 <i class="bi bi-arrow-left"></i>
                 Back to Exams
-
             </a>
 
         </div>
 
     </div>
 
-
-    {{-- =====================================================
-        BREADCRUMB
-    ====================================================== --}}
+    {{-- BREADCRUMB --}}
     <div class="ce-breadcrumb">
-
         <i class="bi bi-house-door"></i>
-
         <span>Examinations</span>
-
         <span class="ce-breadcrumb-separator">/</span>
-
         <span>Create Exam</span>
-
     </div>
 
-
-    {{-- =====================================================
-        VALIDATION ERRORS
-    ====================================================== --}}
+    {{-- VALIDATION ERRORS --}}
     @if ($errors->any())
-
         <div class="ce-error-card" role="alert">
 
             <i class="bi bi-exclamation-triangle-fill ce-error-icon"></i>
@@ -771,23 +819,17 @@
                 </div>
 
                 <ul class="ce-error-list">
-
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
-
                 </ul>
 
             </div>
 
         </div>
-
     @endif
 
-
-    {{-- =====================================================
-        MAIN FORM PANEL
-    ====================================================== --}}
+    {{-- MAIN FORM PANEL --}}
     <section class="ce-panel">
 
         <div class="ce-panel-header">
@@ -810,7 +852,6 @@
 
         </div>
 
-
         <div class="ce-panel-body">
 
             <form method="POST"
@@ -819,10 +860,7 @@
 
                 @csrf
 
-
-                {{-- =================================================
-                    BASIC EXAM INFORMATION
-                ================================================== --}}
+                {{-- BASIC EXAM INFORMATION --}}
                 <div class="ce-form-section">
 
                     <div class="ce-section-heading">
@@ -840,7 +878,6 @@
                         </div>
 
                     </div>
-
 
                     <div class="row g-4">
 
@@ -861,13 +898,17 @@
                                     <input type="text"
                                            id="academic_year"
                                            name="academic_year"
-                                           class="ce-form-control ce-input-with-icon"
+                                           class="ce-form-control ce-input-with-icon @error('academic_year') is-invalid @enderror"
                                            value="{{ old('academic_year', '2026-2027') }}"
                                            placeholder="2026-2027"
                                            maxlength="20"
                                            required>
 
                                 </div>
+
+                                @error('academic_year')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
 
                                 <small class="ce-field-help">
                                     <i class="bi bi-info-circle"></i>
@@ -877,7 +918,6 @@
                             </div>
 
                         </div>
-
 
                         {{-- EXAM NAME --}}
                         <div class="col-lg-6">
@@ -896,13 +936,17 @@
                                     <input type="text"
                                            id="exam_name"
                                            name="exam_name"
-                                           class="ce-form-control ce-input-with-icon"
+                                           class="ce-form-control ce-input-with-icon @error('exam_name') is-invalid @enderror"
                                            value="{{ old('exam_name') }}"
                                            placeholder="Mid Term Examination"
                                            maxlength="150"
                                            required>
 
                                 </div>
+
+                                @error('exam_name')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
 
                                 <small class="ce-field-help">
                                     <i class="bi bi-info-circle"></i>
@@ -912,7 +956,6 @@
                             </div>
 
                         </div>
-
 
                         {{-- EXAM TYPE --}}
                         <div class="col-lg-6">
@@ -931,13 +974,17 @@
                                     <input type="text"
                                            id="exam_type"
                                            name="exam_type"
-                                           class="ce-form-control ce-input-with-icon"
+                                           class="ce-form-control ce-input-with-icon @error('exam_type') is-invalid @enderror"
                                            value="{{ old('exam_type') }}"
                                            placeholder="e.g. Unit Test 1, Mid Term, Annual"
                                            maxlength="100"
                                            required>
 
                                 </div>
+
+                                @error('exam_type')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
 
                                 <small class="ce-field-help">
                                     <i class="bi bi-info-circle"></i>
@@ -947,7 +994,6 @@
                             </div>
 
                         </div>
-
 
                         {{-- STATUS --}}
                         <div class="col-lg-6">
@@ -965,7 +1011,7 @@
 
                                     <select id="status"
                                             name="status"
-                                            class="ce-form-select ce-input-with-icon"
+                                            class="ce-form-select ce-input-with-icon @error('status') is-invalid @enderror"
                                             required>
 
                                         <option value="draft"
@@ -992,6 +1038,10 @@
 
                                 </div>
 
+                                @error('status')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+
                                 <small class="ce-field-help">
                                     <i class="bi bi-info-circle"></i>
                                     You can update the examination status later.
@@ -1005,10 +1055,7 @@
 
                 </div>
 
-
-                {{-- =================================================
-                    EXAMINATION PERIOD
-                ================================================== --}}
+                {{-- EXAMINATION PERIOD --}}
                 <div class="ce-form-section">
 
                     <div class="ce-section-heading">
@@ -1026,7 +1073,6 @@
                         </div>
 
                     </div>
-
 
                     <div class="row g-4">
 
@@ -1047,11 +1093,15 @@
                                     <input type="date"
                                            name="start_date"
                                            id="start_date"
-                                           class="ce-form-control ce-input-with-icon"
+                                           class="ce-form-control ce-input-with-icon @error('start_date') is-invalid @enderror"
                                            value="{{ old('start_date') }}"
                                            required>
 
                                 </div>
+
+                                @error('start_date')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
 
                                 <small class="ce-field-help">
                                     <i class="bi bi-info-circle"></i>
@@ -1061,7 +1111,6 @@
                             </div>
 
                         </div>
-
 
                         {{-- END DATE --}}
                         <div class="col-lg-6">
@@ -1079,10 +1128,14 @@
                                     <input type="date"
                                            name="end_date"
                                            id="end_date"
-                                           class="ce-form-control ce-input-with-icon"
+                                           class="ce-form-control ce-input-with-icon @error('end_date') is-invalid @enderror"
                                            value="{{ old('end_date') }}">
 
                                 </div>
+
+                                @error('end_date')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
 
                                 <small class="ce-field-help">
                                     <i class="bi bi-info-circle"></i>
@@ -1094,7 +1147,6 @@
                         </div>
 
                     </div>
-
 
                     {{-- DATE PREVIEW --}}
                     <div class="ce-date-preview"
@@ -1120,10 +1172,7 @@
 
                 </div>
 
-
-                {{-- =================================================
-                    NEXT STEPS
-                ================================================== --}}
+                {{-- NEXT STEPS --}}
                 <div class="ce-next-steps">
 
                     <div class="ce-next-steps-header">
@@ -1133,19 +1182,16 @@
                         </div>
 
                         <div>
-
                             <h3 class="ce-next-steps-title">
-                                What Happens Next?
+                                What's Next?
                             </h3>
 
                             <p class="ce-next-steps-subtitle">
-                                Continue setting up your examination after creating it.
+                                Follow these steps after creating your examination.
                             </p>
-
                         </div>
 
                     </div>
-
 
                     <div class="ce-next-steps-body">
 
@@ -1186,10 +1232,7 @@
 
                 </div>
 
-
-                {{-- =================================================
-                    ACTION BAR
-                ================================================== --}}
+                {{-- ACTION BAR --}}
                 <div class="ce-action-bar">
 
                     <div class="ce-action-note">
@@ -1224,10 +1267,10 @@
 
 </div>
 
-
 {{-- =========================================================
     DATE PREVIEW AND FORM SUBMISSION SCRIPT
 ========================================================= --}}
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -1245,7 +1288,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Format a local date without timezone shifting
+    | Parse date in local timezone
     |--------------------------------------------------------------------------
     */
     function parseLocalDate(value) {
@@ -1256,13 +1299,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const parts = value.split('-').map(Number);
 
-        if (parts.length !== 3 || parts.some(Number.isNaN)) {
+        if (
+            parts.length !== 3 ||
+            parts.some(Number.isNaN)
+        ) {
             return null;
         }
 
         return new Date(parts[0], parts[1] - 1, parts[2]);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Format date
+    |--------------------------------------------------------------------------
+    */
     function formatDate(date) {
 
         return date.toLocaleDateString('en-IN', {
@@ -1270,12 +1321,11 @@ document.addEventListener('DOMContentLoaded', function () {
             month: 'short',
             year: 'numeric'
         });
-
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Update the examination date preview
+    | Update examination period preview
     |--------------------------------------------------------------------------
     */
     function updateDatePreview() {
@@ -1311,19 +1361,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 text =
                     formatDate(start)
                     + ' → Please select an end date on or after the start date.';
-
             }
-
         }
 
         datePreviewText.textContent = text;
         datePreview.classList.add('show');
-
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Validate date ordering and update the minimum end date
+    | Update date constraints
     |--------------------------------------------------------------------------
     */
     function updateDateConstraints() {
@@ -1339,26 +1386,31 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
 
             endDate.removeAttribute('min');
-
         }
 
         updateDatePreview();
-
     }
 
     startDate.addEventListener('change', updateDateConstraints);
-    endDate.addEventListener('change', updateDatePreview);
+    endDate.addEventListener('change', function () {
+        endDate.setCustomValidity('');
+        updateDatePreview();
+    });
+
+    endDate.addEventListener('input', function () {
+        endDate.setCustomValidity('');
+    });
 
     /*
     |--------------------------------------------------------------------------
-    | Initialize preview for old input after validation redirects
+    | Initialize preview after validation redirect
     |--------------------------------------------------------------------------
     */
     updateDateConstraints();
 
     /*
     |--------------------------------------------------------------------------
-    | Prevent duplicate submissions
+    | Prevent duplicate submissions and validate dates
     |--------------------------------------------------------------------------
     */
     let submissionStarted = false;
@@ -1370,13 +1422,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        if (!form.checkValidity()) {
-            return;
-        }
+        endDate.setCustomValidity('');
 
-        /*
-         * Extra guard in case a date is populated without normal UI interaction.
-         */
         if (
             startDate.value &&
             endDate.value &&
@@ -1393,10 +1440,11 @@ document.addEventListener('DOMContentLoaded', function () {
             endDate.focus();
 
             return;
-
         }
 
-        endDate.setCustomValidity('');
+        if (!form.checkValidity()) {
+            return;
+        }
 
         submissionStarted = true;
 
@@ -1408,13 +1456,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<span class="spinner-border spinner-border-sm" '
                 + 'role="status" aria-hidden="true"></span> '
                 + 'Creating Exam...';
-
         }
-
-    });
-
-    endDate.addEventListener('input', function () {
-        endDate.setCustomValidity('');
     });
 
 });

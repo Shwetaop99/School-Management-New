@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Add Exam Session')
@@ -9,10 +8,11 @@
 
     {{-- PAGE HEADER --}}
     <div class="exam-session-header">
+
         <div class="header-main">
             <div class="breadcrumb-line">
                 <a href="{{ route('admin.exam-sessions.index', $exam) }}">
-                    Examinations
+                    Examination
                 </a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Add Exam Session</span>
@@ -31,10 +31,11 @@
         </div>
 
         <a href="{{ route('admin.exam-sessions.index', $exam) }}"
-           class="diary-btn diary-btn-secondary">
+           class="diary-btn diary-btn-secondary header-back-btn">
             <i class="bi bi-arrow-left"></i>
             <span>Back to Sessions</span>
         </a>
+
     </div>
 
 
@@ -347,6 +348,8 @@
         --sage: #527f70;
         --sage-light: #edf2ec;
         --danger: #b95b50;
+        --gold: #c49a45;
+        --gold-light: #e2c47f;
 
         padding: 24px;
         color: var(--text);
@@ -360,18 +363,65 @@
         box-sizing: border-box;
     }
 
-    /* HEADER */
+    /* =========================================
+       PAGE HEADER - DARK GREEN & GOLD THEME
+    ========================================= */
 
     .exam-session-header {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 20px;
+        gap: 24px;
+
+        min-height: 190px;
+        padding: 27px 30px;
         margin-bottom: 25px;
+
+        background: linear-gradient(
+            135deg,
+            #142f25 0%,
+            #1e4535 55%,
+            #285640 100%
+        );
+
+        border: 1px solid rgba(196, 154, 69, .38);
+        border-left: 4px solid #c49a45;
+        border-radius: 16px;
+
+        box-shadow: 0 10px 25px rgba(20, 47, 37, .14);
+    }
+
+    /* Decorative circular design */
+    .exam-session-header::after {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        top: -145px;
+        right: -70px;
+
+        width: 340px;
+        height: 340px;
+
+        border: 1px solid rgba(226, 196, 127, .22);
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 28px rgba(255, 255, 255, .025),
+            0 0 0 58px rgba(255, 255, 255, .02),
+            0 0 0 90px rgba(255, 255, 255, .015);
+
+        pointer-events: none;
     }
 
     .header-main {
+        position: relative;
+        z-index: 1;
+        flex: 1;
         min-width: 0;
     }
 
@@ -380,81 +430,113 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 9px;
-        margin-bottom: 14px;
-        color: var(--muted);
-        font-size: 12px;
+        margin-bottom: 17px;
+
+        color: rgba(255, 254, 250, .68);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .3px;
     }
 
     .breadcrumb-line a {
-        color: var(--soft-ink);
+        color: #e2c47f;
         text-decoration: none;
+        transition: color .18s ease;
     }
 
     .breadcrumb-line a:hover {
-        color: var(--ink-dark);
+        color: #fffefa;
         text-decoration: underline;
     }
 
     .breadcrumb-line i {
         font-size: 9px;
-        color: #a5a99e;
+        color: rgba(226, 196, 127, .75);
+    }
+
+    .breadcrumb-line span {
+        color: rgba(255, 254, 250, .85);
     }
 
     .header-title-row {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 15px;
     }
 
     .page-icon {
-        width: 46px;
-        height: 46px;
-        flex: 0 0 46px;
+        width: 49px;
+        height: 49px;
+        flex: 0 0 49px;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid var(--line);
+
+        border: 1px solid rgba(226, 196, 127, .42);
         border-radius: 12px;
-        background: var(--paper);
-        color: var(--ink);
-        font-size: 20px;
+
+        background: rgba(226, 196, 127, .13);
+        color: #f0dba9;
+
+        font-size: 21px;
     }
 
     .header-title-row h1 {
         margin: 0;
-        color: var(--ink-dark);
+
+        color: #fffefa;
         font-family: Georgia, serif;
-        font-size: clamp(23px, 2.2vw, 30px);
+        font-size: clamp(26px, 3vw, 35px);
         font-weight: 700;
-        letter-spacing: -0.6px;
+        letter-spacing: -.6px;
+        line-height: 1.2;
     }
 
     .header-title-row p {
-        margin: 5px 0 0;
-        color: var(--muted);
+        margin: 7px 0 0;
+
+        color: rgba(255, 254, 250, .76);
         font-size: 13px;
         line-height: 1.6;
     }
 
-    /* BUTTONS */
+    .header-back-btn {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+
+    /* =========================================
+       BUTTONS
+    ========================================= */
 
     .diary-btn {
         min-height: 42px;
+
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
+
         padding: 10px 17px;
+
         border: 1px solid transparent;
         border-radius: 9px;
+
         font-family: inherit;
         font-size: 13px;
         font-weight: 600;
         line-height: 1.3;
+
         text-decoration: none;
         cursor: pointer;
-        transition: background .18s ease, border-color .18s ease,
-                    color .18s ease, transform .18s ease;
+
+        transition:
+            background .18s ease,
+            border-color .18s ease,
+            color .18s ease,
+            transform .18s ease;
     }
 
     .diary-btn:hover {
@@ -485,7 +567,22 @@
         color: #fffefa;
     }
 
-    /* EXAM SUMMARY */
+    /* Header button overrides */
+    .exam-session-header .diary-btn-secondary {
+        background: rgba(255, 255, 255, .09);
+        border-color: rgba(255, 255, 255, .30);
+        color: #fffefa;
+    }
+
+    .exam-session-header .diary-btn-secondary:hover {
+        background: #fffefa;
+        border-color: #fffefa;
+        color: #20392d;
+    }
+
+    /* =========================================
+       EXAM SUMMARY
+    ========================================= */
 
     .exam-summary {
         display: flex;
@@ -494,6 +591,7 @@
         gap: 24px;
         padding: 22px;
         margin-bottom: 22px;
+
         background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 14px;
@@ -510,11 +608,14 @@
         width: 52px;
         height: 52px;
         flex: 0 0 52px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid #d9e0d5;
         border-radius: 13px;
+
         background: var(--sage-light);
         color: var(--ink);
         font-size: 22px;
@@ -528,6 +629,7 @@
     .summary-side-label {
         display: block;
         margin-bottom: 6px;
+
         color: var(--muted);
         font-size: 10px;
         font-weight: 700;
@@ -536,10 +638,12 @@
 
     .exam-summary-details h2 {
         margin: 0;
+
         color: var(--ink-dark);
         font-family: Georgia, serif;
         font-size: 21px;
         font-weight: 700;
+
         overflow-wrap: anywhere;
     }
 
@@ -549,6 +653,7 @@
         flex-wrap: wrap;
         gap: 9px;
         margin-top: 9px;
+
         color: var(--muted);
         font-size: 12px;
     }
@@ -572,8 +677,10 @@
         display: flex;
         align-items: center;
         gap: 12px;
+
         min-width: 240px;
         padding: 14px 16px;
+
         background: var(--chalk);
         border: 1px solid var(--line);
         border-radius: 11px;
@@ -583,11 +690,14 @@
         width: 38px;
         height: 38px;
         flex: 0 0 38px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid var(--line);
         border-radius: 9px;
+
         background: var(--paper);
         color: var(--ink);
         font-size: 16px;
@@ -607,14 +717,18 @@
         font-size: 11px;
     }
 
-    /* VALIDATION */
+    /* =========================================
+       VALIDATION
+    ========================================= */
 
     .validation-panel {
         display: flex;
         align-items: flex-start;
         gap: 13px;
+
         padding: 17px 19px;
         margin-bottom: 22px;
+
         background: #fff9f6;
         border: 1px solid #ead4cd;
         border-radius: 11px;
@@ -625,9 +739,11 @@
         width: 35px;
         height: 35px;
         flex: 0 0 35px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         background: #f8e9e3;
         border-radius: 9px;
         font-size: 17px;
@@ -646,13 +762,17 @@
         line-height: 1.8;
     }
 
-    /* MAIN FORM CARD */
+    /* =========================================
+       MAIN FORM CARD
+    ========================================= */
 
     .form-card {
         overflow: hidden;
+
         background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 15px;
+
         box-shadow: 0 5px 18px rgba(38, 59, 53, .035);
     }
 
@@ -660,7 +780,9 @@
         display: flex;
         align-items: center;
         gap: 13px;
+
         padding: 21px 25px;
+
         border-bottom: 1px solid var(--line);
         background: #fffefa;
     }
@@ -669,11 +791,14 @@
         width: 42px;
         height: 42px;
         flex: 0 0 42px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid #dce3d9;
         border-radius: 11px;
+
         background: var(--sage-light);
         color: var(--ink);
         font-size: 18px;
@@ -681,6 +806,7 @@
 
     .form-card-header h2 {
         margin: 0;
+
         color: var(--ink);
         font-family: Georgia, serif;
         font-size: 18px;
@@ -710,7 +836,9 @@
         padding: 26px;
     }
 
-    /* FORM SECTIONS */
+    /* =========================================
+       FORM SECTIONS
+    ========================================= */
 
     .form-section {
         padding-bottom: 26px;
@@ -729,13 +857,17 @@
         width: 34px;
         height: 34px;
         flex: 0 0 34px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid var(--line);
         border-radius: 9px;
+
         background: var(--chalk);
         color: var(--ink);
+
         font-size: 12px;
         font-weight: 700;
     }
@@ -781,13 +913,16 @@
     .input-icon {
         width: 44px;
         min-width: 44px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         background: var(--chalk);
         border: 1px solid var(--line);
         border-right: 0;
         border-radius: 9px 0 0 9px;
+
         color: var(--soft-ink);
         font-size: 15px;
     }
@@ -797,15 +932,20 @@
         width: 100%;
         min-width: 0;
         min-height: 45px;
+
         padding: 10px 12px;
+
         background-color: var(--paper);
         border: 1px solid var(--line);
         border-radius: 0 9px 9px 0;
+
         color: var(--text);
         font-family: inherit;
         font-size: 13px;
+
         box-shadow: none;
         outline: none;
+
         transition: border-color .18s ease, box-shadow .18s ease;
     }
 
@@ -835,14 +975,18 @@
         line-height: 1.5;
     }
 
-    /* SESSION PREVIEW */
+    /* =========================================
+       SESSION PREVIEW
+    ========================================= */
 
     .session-preview {
         display: flex;
         align-items: flex-start;
         gap: 13px;
+
         padding: 17px;
         margin-top: 3px;
+
         background: var(--chalk);
         border: 1px solid var(--line);
         border-radius: 11px;
@@ -852,11 +996,14 @@
         width: 37px;
         height: 37px;
         flex: 0 0 37px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid var(--line);
         border-radius: 9px;
+
         background: var(--paper);
         color: var(--ink);
         font-size: 16px;
@@ -877,26 +1024,47 @@
         line-height: 1.7;
     }
 
-    /* FORM ACTIONS */
+    /* =========================================
+       FORM ACTIONS
+    ========================================= */
 
     .form-actions {
         display: flex;
         justify-content: flex-end;
         flex-wrap: wrap;
         gap: 10px;
+
         padding-top: 23px;
         margin-top: 24px;
+
         border-top: 1px solid var(--line);
     }
 
-    /* FOOTER */
+    /* Save button - gold */
+    .form-actions .diary-btn-primary {
+        background: #c49a45;
+        border-color: #c49a45;
+        color: #1b3026;
+    }
+
+    .form-actions .diary-btn-primary:hover {
+        background: #d6b46a;
+        border-color: #d6b46a;
+        color: #17291f;
+    }
+
+    /* =========================================
+       FOOTER
+    ========================================= */
 
     .page-footer-note {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
+
         margin-top: 20px;
+
         color: var(--muted);
         font-size: 11px;
     }
@@ -911,7 +1079,9 @@
         color: #b3b5a8;
     }
 
-    /* RESPONSIVE */
+    /* =========================================
+       RESPONSIVE
+    ========================================= */
 
     @media (max-width: 900px) {
         .exam-summary {
@@ -933,7 +1103,10 @@
         .exam-session-header {
             align-items: flex-start;
             flex-direction: column;
-            gap: 15px;
+            gap: 17px;
+
+            min-height: auto;
+            padding: 22px 19px;
         }
 
         .exam-session-header > .diary-btn {
@@ -946,14 +1119,14 @@
         }
 
         .page-icon {
-            width: 41px;
-            height: 41px;
-            flex-basis: 41px;
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
             font-size: 18px;
         }
 
         .header-title-row h1 {
-            font-size: 24px;
+            font-size: 25px;
         }
 
         .header-title-row p {
@@ -1028,6 +1201,28 @@
             width: 100%;
         }
     }
+
+    @media (max-width: 380px) {
+        .exam-session-page {
+            padding: 12px;
+        }
+
+        .exam-session-header {
+            padding: 19px 15px;
+        }
+
+        .header-title-row h1 {
+            font-size: 22px;
+        }
+
+        .form-card-body {
+            padding: 14px;
+        }
+    }
+
+    /* =========================================
+       ACCESSIBILITY
+    ========================================= */
 
     @media (prefers-reduced-motion: reduce) {
         .exam-session-page *,

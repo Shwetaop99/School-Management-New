@@ -522,34 +522,367 @@
         min-width: 900px;
     }
 }
+/* ==========================================
+   COMPACT RESULT DASHBOARD HERO HEADER
+========================================== */
 
+.result-page .marks-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32%;
+    gap: 16px;
+    align-items: stretch;
+    min-height: 220px;
+    padding: 18px 8px 18px 30px;
+    margin-bottom: 22px;
+    background: #fffefa;
+    border: 1px solid #e8dfce;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(40, 55, 45, .04);
+}
+
+.result-page .marks-hero::before,
+.result-page .marks-hero::after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    width: 1px;
+    height: 30px;
+    background: #f0e5d2;
+}
+
+.result-page .marks-hero::before {
+    top: 0;
+}
+
+.result-page .marks-hero::after {
+    bottom: 0;
+}
+
+.result-page .marks-hero-left {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+    padding: 15px 15px 15px 28px;
+    border-left: 3px solid #e2b39b;
+}
+
+.result-page .marks-hero-icon {
+    flex: 0 0 70px;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #e7ddca;
+    border-radius: 18px;
+    background: #f6f3e9;
+    color: #234437;
+    font-size: 29px;
+    box-shadow: 0 5px 14px rgba(40, 55, 45, .04);
+}
+
+.result-page .marks-hero-content {
+    min-width: 0;
+}
+
+.result-page .marks-hero-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 12px;
+    color: #78827e;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.result-page .marks-hero-breadcrumb i {
+    font-size: 11px;
+    color: #a6a69c;
+}
+
+.result-page .marks-hero-title {
+    margin: 0;
+    color: #203c32;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(26px, 3vw, 36px);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.result-page .marks-hero-description {
+    max-width: 550px;
+    margin: 12px 0;
+    color: #718078;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.result-page .marks-hero-trust {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #286044;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.result-page .marks-hero-trust i {
+    font-size: 15px;
+    color: #438a73;
+}
+
+/* RIGHT PANEL */
+
+.result-page .marks-hero-right {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 180px;
+    padding: 18px 15px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #304f42, #193a30);
+    color: #fff;
+    text-align: center;
+    border-radius: 13px;
+}
+
+.result-page .marks-hero-right::before,
+.result-page .marks-hero-right::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.result-page .marks-hero-right::before {
+    width: 230px;
+    height: 230px;
+    top: -155px;
+    right: -45px;
+    box-shadow:
+        0 0 0 17px rgba(255,255,255,.025),
+        0 0 0 35px rgba(255,255,255,.025);
+}
+
+.result-page .marks-hero-right::after {
+    width: 190px;
+    height: 190px;
+    bottom: -165px;
+    left: -65px;
+}
+
+.result-page .marks-hero-right-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,.23);
+    border-radius: 13px;
+    background: rgba(255,255,255,.08);
+    color: #f3d18e;
+    font-size: 19px;
+}
+
+.result-page .marks-hero-tagline {
+    margin: 0 0 8px;
+    color: #f6d39a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    font-style: italic;
+    font-weight: 800;
+}
+
+.result-page .marks-hero-right-description {
+    max-width: 300px;
+    margin: 0 auto 13px;
+    color: #f1f4f1;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.result-page .marks-hero-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.result-page .marks-hero-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 15px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 9px;
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 750;
+    transition: .2s ease;
+}
+
+.result-page .marks-hero-action:hover {
+    background: rgba(255,255,255,.16);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.result-page .marks-hero-action-primary {
+    background: #f3ead5;
+    border-color: #f3ead5;
+    color: #233e33;
+}
+
+.result-page .marks-hero-action-primary:hover {
+    background: #fff4dc;
+    color: #233e33;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 850px) {
+    .result-page .marks-hero {
+        grid-template-columns: 1fr;
+        padding: 18px;
+    }
+
+    .result-page .marks-hero-left {
+        padding: 15px 10px 15px 20px;
+    }
+
+    .result-page .marks-hero-right {
+        min-height: 165px;
+    }
+}
+
+@media(max-width: 600px) {
+    .result-page .marks-hero {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .result-page .marks-hero-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 8px 15px 15px;
+    }
+
+    .result-page .marks-hero-icon {
+        width: 55px;
+        height: 55px;
+        flex-basis: 55px;
+        font-size: 23px;
+        border-radius: 14px;
+    }
+
+    .result-page .marks-hero-title {
+        font-size: 27px;
+    }
+
+    .result-page .marks-hero-description {
+        font-size: 11px;
+        margin: 9px 0;
+    }
+
+    .result-page .marks-hero-right {
+        padding: 18px 12px;
+    }
+
+    .result-page .marks-hero-actions {
+        width: 100%;
+    }
+
+    .result-page .marks-hero-action {
+        flex: 1;
+    }
+}
 </style>
 
 <div class="container-fluid py-4 result-page">
 
-    {{-- PAGE HEADING --}}
-    <div class="page-heading">
-        <div class="heading-title">
-            <div class="heading-icon">
-                <i class="bi bi-file-earmark-check"></i>
-            </div>
+    {{-- COMPACT RESULT HERO HEADER --}}
+<div class="marks-hero">
 
-            <div>
-                <h4 class="page-title">Generate Result</h4>
-                <p class="page-subtitle">
-                    Select an examination, class and section to generate student results.
-                </p>
-            </div>
+    {{-- LEFT CONTENT --}}
+    <div class="marks-hero-left">
+
+        <div class="marks-hero-icon">
+            <i class="bi bi-file-earmark-check"></i>
         </div>
 
-        <div class="heading-actions">
+        <div class="marks-hero-content">
+
+            <div class="marks-hero-breadcrumb">
+                <span>Dashboard</span>
+                <i class="bi bi-chevron-right"></i>
+                <span>Results</span>
+                <i class="bi bi-chevron-right"></i>
+                <span>Generate Result</span>
+            </div>
+
+            <h2 class="marks-hero-title">
+                Generate Result
+            </h2>
+
+            <p class="marks-hero-description">
+                Select an examination, class and section to view students
+                and generate their examination results.
+            </p>
+
+            <div class="marks-hero-trust">
+                <i class="bi bi-shield-check"></i>
+                Accurate examination result management
+            </div>
+
+        </div>
+    </div>
+
+    {{-- RIGHT GREEN PANEL --}}
+    <div class="marks-hero-right">
+
+        <div class="marks-hero-right-icon">
+            <i class="bi bi-mortarboard-fill"></i>
+        </div>
+
+        <h4 class="marks-hero-tagline">
+            Every Result Tells a Story
+        </h4>
+
+        <p class="marks-hero-right-description">
+            Manage student performance and generate examination
+            results with confidence.
+        </p>
+
+        <div class="marks-hero-actions">
             <a href="{{ route('admin.results.index') }}"
-               class="btn btn-primary">
-                <i class="bi bi-arrow-left me-1"></i>
+               class="marks-hero-action marks-hero-action-primary">
+                <i class="bi bi-arrow-left"></i>
                 Back to Results
             </a>
         </div>
+
     </div>
+
+</div>
 
     {{-- FLASH MESSAGES --}}
     @if(session('success'))

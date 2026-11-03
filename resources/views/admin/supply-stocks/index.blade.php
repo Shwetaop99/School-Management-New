@@ -705,81 +705,241 @@
             grid-template-columns: 1fr;
         }
     }
+    /* =========================================
+   SUPPLY STOCK PAGE HEADER BAR
+========================================= */
+
+.stock-page-heading-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 19px 23px;
+    margin-bottom: 17px;
+    border-radius: 13px;
+    overflow: hidden;
+    color: #fff;
+    background: linear-gradient(135deg, #285c4d, #203b31);
+    box-shadow: 0 5px 16px rgba(32, 59, 49, .12);
+}
+
+.stock-page-heading-bar::before,
+.stock-page-heading-bar::after {
+    content: "";
+    position: absolute;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.stock-page-heading-bar::before {
+    width: 190px;
+    height: 190px;
+    right: -55px;
+    top: -135px;
+}
+
+.stock-page-heading-bar::after {
+    width: 130px;
+    height: 130px;
+    right: 125px;
+    bottom: -110px;
+}
+
+.stock-page-heading-icon {
+    position: relative;
+    z-index: 1;
+    width: 49px;
+    height: 49px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.20);
+    color: #e5c47d;
+    font-size: 23px;
+}
+
+.stock-page-heading-content {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+}
+
+.stock-page-heading-content h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -.3px;
+}
+
+.stock-page-heading-content p {
+    margin: 5px 0 0;
+    color: rgba(255,255,255,.76);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.stock-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stock-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+/* Responsive header */
+
+@media (max-width: 650px) {
+    .stock-page-heading-bar {
+        padding: 16px;
+        gap: 12px;
+        border-radius: 11px;
+    }
+
+    .stock-page-heading-icon {
+        width: 43px;
+        height: 43px;
+        font-size: 20px;
+    }
+
+    .stock-page-heading-content h2 {
+        font-size: 19px;
+    }
+
+    .stock-page-heading-content p {
+        font-size: 10px;
+    }
+
+    .stock-header {
+        justify-content: stretch;
+    }
+
+    .stock-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stock-actions > * {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .stock-year-filter {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 380px) {
+    .stock-page-heading-bar {
+        padding: 13px 11px;
+    }
+
+    .stock-page-heading-content h2 {
+        font-size: 17px;
+    }
+
+    .stock-page-heading-icon {
+        width: 39px;
+        height: 39px;
+        font-size: 18px;
+    }
+}
 </style>
 
 <div class="stock-page">
 
-    {{-- PAGE HEADER --}}
-    <div class="stock-header">
+    {{-- PAGE TITLE HEADER BAR --}}
+<div class="stock-page-heading-bar">
 
-        <div class="stock-heading">
-            <div class="stock-heading-icon">
-                <i class="bi bi-box-seam"></i>
-            </div>
-
-            <div>
-                <h2 class="stock-title">Supply Stock Management</h2>
-                <div class="stock-subtitle">
-                    Monitor available supplies, stock levels and inventory transactions.
-                </div>
-            </div>
-        </div>
-
-        <div class="stock-actions">
-
-            <a href="{{ route('admin.student-supply-kits.index', [
-                    'academic_year' => $academicYear
-                ]) }}"
-               class="stock-btn stock-btn-back">
-                <i class="bi bi-arrow-left"></i>
-                Back to Supply Kits
-            </a>
-
-            {{-- ACADEMIC YEAR FILTER --}}
-            <form method="GET"
-                  action="{{ route('admin.supply-stocks.index') }}"
-                  class="stock-year-filter">
-
-                <i class="bi bi-calendar3"></i>
-
-                <select name="academic_year"
-                        onchange="this.form.submit()"
-                        aria-label="Select academic year">
-
-                    @foreach(['2025-26', '2026-27', '2027-28', '2028-29'] as $year)
-                        <option value="{{ $year }}"
-                            {{ $academicYear == $year ? 'selected' : '' }}>
-                            {{ $year }}
-                        </option>
-                    @endforeach
-
-                </select>
-            </form>
-
-            <a href="{{ route('admin.supply-items.create') }}"
-               class="stock-btn stock-btn-add">
-                <i class="bi bi-plus-circle"></i>
-                Add Supply Item
-            </a>
-
-            {{-- PRINT BUTTON --}}
-            <a href="{{ route('admin.supply-stocks.print', ['academic_year' => $academicYear]) }}"
-   target="_blank"
-   class="btn btn-success">
-    <i class="fas fa-print"></i> Print Stock
-</a>
-
-            {{-- RECEIVE STOCK --}}
-            <button type="button"
-                    class="stock-btn stock-btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#receiveStockModal">
-                <i class="bi bi-box-arrow-in-down"></i>
-                Receive Stock
-            </button>
-
-        </div>
+    <div class="stock-page-heading-icon">
+        <i class="bi bi-box-seam"></i>
     </div>
+
+    <div class="stock-page-heading-content">
+        <h2>Supply Stock Management</h2>
+
+        <p>
+            Monitor available supplies, stock levels and inventory transactions.
+        </p>
+    </div>
+
+</div>
+
+{{-- PAGE ACTIONS --}}
+<div class="stock-header">
+
+    <div class="stock-actions">
+
+        <a href="{{ route('admin.student-supply-kits.index', [
+                'academic_year' => $academicYear
+            ]) }}"
+           class="stock-btn stock-btn-back">
+            <i class="bi bi-arrow-left"></i>
+            Back to Supply Kits
+        </a>
+
+        {{-- ACADEMIC YEAR FILTER --}}
+        <form method="GET"
+              action="{{ route('admin.supply-stocks.index') }}"
+              class="stock-year-filter">
+
+            <i class="bi bi-calendar3"></i>
+
+            <select name="academic_year"
+                    onchange="this.form.submit()"
+                    aria-label="Select academic year">
+
+                @foreach(['2025-26', '2026-27', '2027-28', '2028-29'] as $year)
+                    <option value="{{ $year }}"
+                        {{ $academicYear == $year ? 'selected' : '' }}>
+                        {{ $year }}
+                    </option>
+                @endforeach
+
+            </select>
+        </form>
+
+        {{-- ADD SUPPLY ITEM --}}
+        <a href="{{ route('admin.supply-items.create') }}"
+           class="stock-btn stock-btn-add">
+            <i class="bi bi-plus-circle"></i>
+            Add Supply Item
+        </a>
+
+        {{-- PRINT STOCK --}}
+        <a href="{{ route('admin.supply-stocks.print', ['academic_year' => $academicYear]) }}"
+           target="_blank"
+           class="stock-btn stock-btn-print">
+            <i class="bi bi-printer"></i>
+            Print Stock
+        </a>
+
+        {{-- RECEIVE STOCK --}}
+        <button type="button"
+                class="stock-btn stock-btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#receiveStockModal">
+            <i class="bi bi-box-arrow-in-down"></i>
+            Receive Stock
+        </button>
+
+    </div>
+
+</div>
 
     {{-- SUCCESS MESSAGE --}}
     @if(session('success'))

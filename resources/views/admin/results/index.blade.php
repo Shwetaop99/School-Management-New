@@ -6,33 +6,75 @@
 <div class="result-page">
     <div class="container-fluid py-4 result-dashboard">
 
-        {{-- PAGE HEADER --}}
-        <header class="rd-header">
-            <div class="rd-header-content">
-                <div class="rd-header-icon">
-                    <i class="bi bi-mortarboard-fill"></i>
-                </div>
+        {{-- PAGE HEADER — SPLIT SCHOOL DIARY DESIGN --}}
+<header class="rd-header">
 
-                <div class="rd-header-text">
-                    <span class="rd-eyebrow">ACADEMIC MANAGEMENT</span>
-                    <h1>Result Dashboard</h1>
-                    <p>Manage examination results, track progress, and publish student results.</p>
-                </div>
+    {{-- LEFT WHITE PANEL --}}
+    <div class="rd-header-left">
+
+        <div class="rd-header-icon">
+            <i class="bi bi-mortarboard-fill"></i>
+        </div>
+
+        <div class="rd-header-text">
+
+            <div class="rd-breadcrumb">
+                <span>ACADEMIC MANAGEMENT</span>
+                <i class="bi bi-chevron-right"></i>
+                <span>RESULT DASHBOARD</span>
             </div>
 
-            <div class="rd-header-actions">
-                <a href="{{ route('admin.results.generate') }}" class="rd-btn rd-btn-primary">
-                    <i class="bi bi-plus-circle"></i>
-                    <span>Enter Marks</span>
-                </a>
+            <h1>Result Dashboard</h1>
 
-                <button type="button" class="rd-btn rd-btn-light" id="refreshDashboard">
-                    <i class="bi bi-arrow-clockwise"></i>
-                    <span>Refresh</span>
-                </button>
+            <p>
+                Manage examination results, monitor student progress,
+                review class-wise performance and publish results
+                from one place.
+            </p>
+
+            <div class="rd-header-caption">
+                <i class="bi bi-shield-fill-check"></i>
+                School Records &amp; Examination Management
             </div>
-        </header>
 
+        </div>
+
+    </div>
+
+    {{-- RIGHT DARK GREEN PANEL --}}
+    <div class="rd-header-right">
+
+        <div class="rd-header-right-icon">
+            <i class="bi bi-journal-check"></i>
+        </div>
+
+        <h2>Every Result. One Dashboard.</h2>
+
+        <p>
+            Track academic progress, manage approvals and
+            keep every examination result organized.
+        </p>
+
+        <div class="rd-header-actions">
+
+            <a href="{{ route('admin.results.generate') }}"
+               class="rd-btn rd-btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                <span>Enter Marks</span>
+            </a>
+
+            <button type="button"
+                    class="rd-btn rd-btn-light"
+                    id="refreshDashboard">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Refresh</span>
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
         {{-- NOTIFICATIONS --}}
         @if(session('success'))
             <div class="rd-alert rd-alert-success" role="alert">
@@ -1557,7 +1599,341 @@
         scroll-behavior: auto !important;
     }
 }
+/* =========================================================
+   RESULT DASHBOARD — SPLIT SCHOOL DIARY HEADER
+========================================================= */
 
+.rd-header {
+    position: relative;
+    display: grid;
+    grid-template-columns: 65% 35%;
+    width: 100%;
+    min-height: 285px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid #e5dfd0;
+    border-radius: 19px;
+    background: #fffefa;
+    box-shadow: 0 7px 24px rgba(38, 59, 53, .045);
+}
+
+/* LEFT PANEL */
+
+.rd-header-left {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    min-width: 0;
+    padding: 42px 38px 42px 64px;
+    background: #fffefa;
+}
+
+.rd-header-left::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 35px;
+    width: 3px;
+    background: #dfb09b;
+    content: "";
+}
+
+.rd-header-icon {
+    display: flex;
+    flex: 0 0 80px;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border: 1px solid #e4dece;
+    border-radius: 20px;
+    color: #263b35;
+    background: #f5f2e8;
+    box-shadow: 0 4px 12px rgba(38, 59, 53, .045);
+    font-size: 30px;
+}
+
+.rd-header-text {
+    min-width: 0;
+}
+
+.rd-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 17px;
+    color: #7e887d;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+}
+
+.rd-breadcrumb i {
+    color: #a99c83;
+    font-size: 10px;
+}
+
+.rd-header h1 {
+    margin: 0;
+    color: #203a32;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(30px, 3vw, 43px);
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.rd-header-left p {
+    max-width: 650px;
+    margin: 16px 0 20px;
+    color: #727d75;
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.rd-header-caption {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #347052;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.rd-header-caption i {
+    color: #4b8870;
+    font-size: 15px;
+}
+
+/* RIGHT PANEL */
+
+.rd-header-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 35px 28px;
+    color: #fffefa;
+    background: linear-gradient(145deg, #304d40, #203b31);
+    text-align: center;
+}
+
+.rd-header-right::before {
+    position: absolute;
+    top: -160px;
+    right: -65px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 35px rgba(255,255,255,.025),
+        0 0 0 70px rgba(255,255,255,.02);
+    content: "";
+    pointer-events: none;
+}
+
+.rd-header-right::after {
+    position: absolute;
+    bottom: -170px;
+    left: -85px;
+    width: 250px;
+    height: 250px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+
+.rd-header-right > * {
+    position: relative;
+    z-index: 1;
+}
+
+.rd-header-right-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 51px;
+    height: 51px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 15px;
+    color: #e9d19c;
+    background: rgba(255,255,255,.09);
+    font-size: 22px;
+}
+
+.rd-header-right h2 {
+    margin: 0 0 12px;
+    color: #f1d7a5;
+    font-family: "Brush Script MT", "Segoe Script", cursive;
+    font-size: clamp(20px, 2vw, 27px);
+    font-weight: 600;
+}
+
+.rd-header-right p {
+    max-width: 370px;
+    margin: 0 0 17px;
+    color: #e2e9e1;
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+/* HEADER BUTTONS */
+
+.rd-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.rd-header-actions .rd-btn {
+    min-height: 43px;
+    padding: 11px 17px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.rd-header-right .rd-btn-primary {
+    border-color: #f1ead8;
+    color: #263b35;
+    background: #f1ead8;
+}
+
+.rd-header-right .rd-btn-primary:hover {
+    border-color: #fffefa;
+    color: #263b35;
+    background: #fffefa;
+}
+
+.rd-header-right .rd-btn-light {
+    border-color: rgba(255,255,255,.3);
+    color: #fffefa;
+    background: rgba(255,255,255,.09);
+}
+
+.rd-header-right .rd-btn-light:hover {
+    border-color: #f1ead8;
+    color: #263b35;
+    background: #f1ead8;
+}
+
+/* RESPONSIVE HEADER */
+
+@media (max-width: 1000px) {
+    .rd-header {
+        grid-template-columns: 60% 40%;
+    }
+
+    .rd-header-left {
+        gap: 18px;
+        padding: 32px 25px 32px 48px;
+    }
+
+    .rd-header-left::before {
+        left: 24px;
+    }
+
+    .rd-header-icon {
+        flex-basis: 62px;
+        width: 62px;
+        height: 62px;
+        font-size: 25px;
+    }
+
+    .rd-header-right {
+        padding: 28px 18px;
+    }
+}
+
+@media (max-width: 700px) {
+    .rd-header {
+        grid-template-columns: 1fr;
+        border-radius: 13px;
+    }
+
+    .rd-header-left {
+        align-items: flex-start;
+        padding: 27px 19px 28px 32px;
+    }
+
+    .rd-header-left::before {
+        left: 15px;
+    }
+
+    .rd-header-icon {
+        flex-basis: 48px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        font-size: 21px;
+    }
+
+    .rd-breadcrumb {
+        gap: 7px;
+        margin-bottom: 12px;
+        font-size: 8px;
+    }
+
+    .rd-header h1 {
+        font-size: 29px;
+    }
+
+    .rd-header-left p {
+        margin: 11px 0 14px;
+        font-size: 11px;
+    }
+
+    .rd-header-caption {
+        font-size: 10px;
+    }
+
+    .rd-header-right {
+        min-height: 230px;
+        padding: 26px 20px;
+    }
+
+    .rd-header-right h2 {
+        font-size: 24px;
+    }
+
+    .rd-header-right p {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 380px) {
+    .rd-header-left {
+        gap: 12px;
+        padding-right: 13px;
+    }
+
+    .rd-header-icon {
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .rd-header h1 {
+        font-size: 25px;
+    }
+
+    .rd-header-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .rd-header-actions .rd-btn {
+        width: 100%;
+    }
+}
 </style>
 
 <script>
@@ -1649,47 +2025,48 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function normalizeClass(item) {
-        const classInfo = getClassName(item);
+    const classInfo = getClassName(item);
 
-        const students = getCount(item, [
-            'total_students',
-            'students_count',
-            'student_count',
-            'totalStudents'
-        ]);
+    const students = getCount(item, [
+        'total_students',
+        'students_count',
+        'student_count',
+        'totalStudents'
+    ]);
 
-        const generated = getCount(item, [
-            'generated_results',
-            'results_generated',
-            'generated_count',
-            'generated',
-            'results_count'
-        ]);
+    const generated = getCount(item, [
+        'generated_results',
+        'results_generated',
+        'generated_count',
+        'generated',
+        'results_count'
+    ]);
 
-        const approved = getCount(item, [
-            'approved_results',
-            'results_approved',
-            'approved_count',
-            'approved'
-        ]);
+    const approved = getCount(item, [
+        'approved_results',
+        'results_approved',
+        'approved_count',
+        'approved'
+    ]);
 
-        const published = getCount(item, [
-            'published_results',
-            'results_published',
-            'published_count',
-            'published'
-        ]);
+    const published = getCount(item, [
+        'published_results',
+        'results_published',
+        'published_count',
+        'published'
+    ]);
 
-        return {
-            id: getFirst(item, ['exam_class_id', 'class_id', 'id'], ''),
-            name: classInfo.name,
-            section: classInfo.section,
-            students: students,
-            generated: generated,
-            approved: approved,
-            published: published
-        };
-    }
+    return {
+        id: getFirst(item, ['class_id'], ''),
+        exam_class_id: getFirst(item, ['exam_class_id'], ''),
+        name: classInfo.name,
+        section: classInfo.section,
+        students: students,
+        generated: generated,
+        approved: approved,
+        published: published
+    };
+}
 
     function setLoading(isLoading) {
         loading.hidden = !isLoading;
@@ -1792,26 +2169,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function buildClassUrl(baseUrl, item) {
-        const url = new URL(baseUrl, window.location.origin);
+    const url = new URL(baseUrl, window.location.origin);
 
-        if (examSelect.value) {
-            url.searchParams.set('exam_id', examSelect.value);
-        }
-
-        if (item.id !== '') {
-            url.searchParams.set('class_id', item.id);
-        }
-
-        if (item.name) {
-            url.searchParams.set('class_name', item.name);
-        }
-
-        if (item.section) {
-            url.searchParams.set('section', item.section);
-        }
-
-        return url.pathname + url.search;
+    if (examSelect.value) {
+        url.searchParams.set('exam_id', examSelect.value);
     }
+
+    if (item.id !== '') {
+        url.searchParams.set('class_id', item.id);
+    }
+
+    if (item.exam_class_id !== '') {
+        url.searchParams.set('exam_class_id', item.exam_class_id);
+    }
+
+    if (item.name) {
+        url.searchParams.set('class_name', item.name);
+    }
+
+    if (item.section) {
+        url.searchParams.set('section', item.section);
+    }
+
+    return url.pathname + url.search;
+}
 
     function renderClassRows(classes) {
         const query = (searchInput.value || '').trim().toLowerCase();

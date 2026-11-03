@@ -12,11 +12,20 @@ class ExamController extends Controller
      * Display all exams.
      */
     public function index()
-    {
-        $exams = Exam::latest()->get();
+{
+    // Automatically update expired examinations
+    \App\Models\Exam::where('status', 'scheduled')
+        ->whereNotNull('end_date')
+        ->whereDate('end_date', '<', now()->toDateString())
+        ->update([
+            'status' => 'completed',
+            'updated_at' => now(),
+        ]);
 
-        return view('admin.exams.index', compact('exams'));
-    }
+    $exams = \App\Models\Exam::latest()->get();
+
+    return view('admin.exams.index', compact('exams'));
+}
 
     /**
      * Show create exam form.

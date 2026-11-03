@@ -28,6 +28,7 @@
     --et-line: #e5e1d5;
     --et-shadow: 0 8px 26px rgba(38, 59, 53, .055);
 
+    width: 100%;
     padding: 26px;
     border-radius: 20px;
     background: var(--et-page);
@@ -44,67 +45,104 @@
     box-sizing: border-box;
 }
 
-/* Header */
+.exam-timetable-page a,
+.exam-timetable-page button {
+    transition: all .2s ease;
+}
 
-.et-page-header {
+/* =========================================================
+   DARK GREEN PAGE HEADER — MATCH CREATE EXAM
+========================================================= */
+
+.exam-timetable-page .et-page-header {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 22px;
     margin-bottom: 25px;
-    padding: 8px 0 8px 20px;
-    border-left: 4px solid var(--et-wood);
+    padding: 28px 30px;
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+
+    border: 1px solid #456b54;
+    border-left: 6px solid #c49a45;
+    border-radius: 14px;
+
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(20, 47, 37, .22);
 }
 
-.et-header-copy {
+.exam-timetable-page .et-page-header::after {
+    content: "";
+    position: absolute;
+    top: -115px;
+    right: 16%;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.exam-timetable-page .et-header-copy {
+    position: relative;
+    z-index: 1;
     min-width: 0;
 }
 
-.et-eyebrow {
+.exam-timetable-page .et-eyebrow {
     display: flex;
     align-items: center;
     gap: 7px;
-    margin-bottom: 7px;
-    color: var(--et-wood);
-    font-size: 10px;
+    margin-bottom: 9px;
+    color: #e2c47f;
+    font-size: 11px;
     font-weight: 800;
     letter-spacing: 1.5px;
     text-transform: uppercase;
 }
 
-.et-page-title {
+.exam-timetable-page .et-page-title {
     margin: 0;
-    color: var(--et-ink);
+    color: #ffffff !important;
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(25px, 3vw, 34px);
     font-weight: 700;
     line-height: 1.2;
 }
 
-.et-page-icon {
+.exam-timetable-page .et-page-icon {
     display: inline-flex;
     width: 36px;
     height: 36px;
     align-items: center;
     justify-content: center;
     margin-right: 7px;
-    border: 1px solid var(--et-line);
+    color: #f0d58e;
+    background: rgba(255, 255, 255, .10);
+    border: 1px solid rgba(255, 255, 255, .25);
     border-radius: 11px;
-    background: var(--et-cream);
-    color: var(--et-forest);
     font-size: 18px;
     vertical-align: middle;
 }
 
-.et-page-subtitle {
-    margin: 9px 0 0;
-    color: var(--et-muted);
+.exam-timetable-page .et-page-subtitle {
+    margin: 10px 0 0;
+    color: #d5e3da !important;
     font-size: 13px;
+    line-height: 1.7;
 }
 
-/* Buttons */
-
-.et-header-actions {
+.exam-timetable-page .et-header-actions {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -112,7 +150,11 @@
     gap: 9px;
 }
 
-.et-btn {
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.exam-timetable-page .et-btn {
     display: inline-flex;
     min-height: 40px;
     align-items: center;
@@ -129,72 +171,133 @@
     transition: .2s ease;
 }
 
-.et-btn:hover {
+.exam-timetable-page .et-btn:hover {
     transform: translateY(-1px);
 }
 
-.et-btn-primary {
+.exam-timetable-page .et-btn-primary {
     border-color: var(--et-forest);
     background: var(--et-forest);
     color: #fff;
 }
 
-.et-btn-primary:hover {
+.exam-timetable-page .et-btn-primary:hover {
     background: #1d302b;
     color: #fff;
 }
 
-.et-btn-secondary {
+.exam-timetable-page .et-btn-secondary {
     border-color: var(--et-line);
     background: var(--et-paper);
     color: var(--et-ink);
 }
 
-.et-btn-secondary:hover {
+.exam-timetable-page .et-btn-secondary:hover {
     border-color: var(--et-sage);
     background: var(--et-cream);
     color: var(--et-ink);
 }
 
-.et-btn-print {
+.exam-timetable-page .et-btn-print {
     border-color: #d6e3d8;
     background: var(--et-green-soft);
     color: var(--et-green);
 }
 
-.et-btn-print:hover {
+.exam-timetable-page .et-btn-print:hover {
     border-color: var(--et-green);
     background: var(--et-green);
     color: #fff;
 }
 
-.et-btn-bulk {
+.exam-timetable-page .et-btn-bulk {
     border-color: #d6e0eb;
     background: var(--et-blue-soft);
     color: var(--et-blue);
 }
 
-.et-btn-bulk:hover {
+.exam-timetable-page .et-btn-bulk:hover {
     border-color: var(--et-blue);
     background: var(--et-blue);
     color: #fff;
 }
 
-.et-btn-bulk-pdf {
+.exam-timetable-page .et-btn-bulk-pdf {
     border-color: #efd3ce;
     background: var(--et-red-soft);
     color: var(--et-red);
 }
 
-.et-btn-bulk-pdf:hover {
+.exam-timetable-page .et-btn-bulk-pdf:hover {
     border-color: var(--et-red);
     background: var(--et-red);
     color: #fff;
 }
 
-/* Panels */
+/* Header button overrides */
 
-.et-panel {
+.exam-timetable-page .et-header-actions .et-btn {
+    min-height: 42px;
+    padding: 10px 15px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-secondary {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .4);
+}
+
+.exam-timetable-page .et-header-actions .et-btn-secondary:hover {
+    color: #142f25;
+    background: #c49a45;
+    border-color: #c49a45;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-primary {
+    color: #142f25;
+    background: #e2c47f;
+    border: 1px solid #e2c47f;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-primary:hover {
+    color: #142f25;
+    background: #f0d99e;
+    border-color: #f0d99e;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-print,
+.exam-timetable-page .et-header-actions .et-btn-bulk {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .10);
+    border: 1px solid rgba(255, 255, 255, .4);
+}
+
+.exam-timetable-page .et-header-actions .et-btn-print:hover,
+.exam-timetable-page .et-header-actions .et-btn-bulk:hover {
+    color: #142f25;
+    background: #c49a45;
+    border-color: #c49a45;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-bulk-pdf {
+    color: #ffffff;
+    background: rgba(185, 91, 80, .22);
+    border: 1px solid rgba(255, 210, 200, .5);
+}
+
+.exam-timetable-page .et-header-actions .et-btn-bulk-pdf:hover {
+    color: #ffffff;
+    background: #b95b50;
+    border-color: #b95b50;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.exam-timetable-page .et-panel {
     margin-bottom: 22px;
     overflow: hidden;
     border: 1px solid var(--et-line);
@@ -203,7 +306,7 @@
     box-shadow: var(--et-shadow);
 }
 
-.et-panel-header {
+.exam-timetable-page .et-panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -213,14 +316,14 @@
     background: rgba(245, 243, 233, .56);
 }
 
-.et-panel-heading {
+.exam-timetable-page .et-panel-heading {
     display: flex;
     min-width: 0;
     align-items: center;
     gap: 12px;
 }
 
-.et-panel-icon {
+.exam-timetable-page .et-panel-icon {
     display: inline-flex;
     width: 40px;
     height: 40px;
@@ -234,46 +337,48 @@
     font-size: 17px;
 }
 
-.et-icon-blue {
+.exam-timetable-page .et-icon-blue {
     background: var(--et-blue-soft);
     color: var(--et-blue);
 }
 
-.et-icon-green {
+.exam-timetable-page .et-icon-green {
     background: var(--et-green-soft);
     color: var(--et-green);
 }
 
-.et-panel-title {
+.exam-timetable-page .et-panel-title {
     margin: 0;
     color: var(--et-ink);
     font-size: 15px;
     font-weight: 800;
 }
 
-.et-panel-description {
+.exam-timetable-page .et-panel-description {
     margin: 3px 0 0;
     color: var(--et-muted);
     font-size: 11px;
 }
 
-.et-panel-body {
+.exam-timetable-page .et-panel-body {
     padding: 21px;
 }
 
-.et-no-padding {
+.exam-timetable-page .et-no-padding {
     padding: 0;
 }
 
-/* Information cards */
+/* =========================================================
+   INFORMATION CARDS
+========================================================= */
 
-.et-info-grid {
+.exam-timetable-page .et-info-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
 }
 
-.et-info-item {
+.exam-timetable-page .et-info-item {
     position: relative;
     min-width: 0;
     overflow: hidden;
@@ -283,7 +388,7 @@
     background: var(--et-paper);
 }
 
-.et-info-item::before {
+.exam-timetable-page .et-info-item::before {
     position: absolute;
     top: 0;
     left: 0;
@@ -293,19 +398,19 @@
     content: "";
 }
 
-.et-info-item:nth-child(2)::before {
+.exam-timetable-page .et-info-item:nth-child(2)::before {
     background: var(--et-wood);
 }
 
-.et-info-item:nth-child(3)::before {
+.exam-timetable-page .et-info-item:nth-child(3)::before {
     background: var(--et-blue);
 }
 
-.et-info-item:nth-child(4)::before {
+.exam-timetable-page .et-info-item:nth-child(4)::before {
     background: var(--et-green);
 }
 
-.et-info-label {
+.exam-timetable-page .et-info-label {
     display: flex;
     align-items: center;
     gap: 7px;
@@ -317,21 +422,23 @@
     text-transform: uppercase;
 }
 
-.et-info-label i {
+.exam-timetable-page .et-info-label i {
     color: var(--et-wood);
     font-size: 13px;
 }
 
-.et-info-value {
+.exam-timetable-page .et-info-value {
     overflow-wrap: anywhere;
     color: var(--et-ink);
     font-size: 15px;
     font-weight: 800;
 }
 
-/* Count */
+/* =========================================================
+   COUNT
+========================================================= */
 
-.et-count {
+.exam-timetable-page .et-count {
     display: inline-flex;
     min-height: 29px;
     align-items: center;
@@ -346,15 +453,17 @@
     white-space: nowrap;
 }
 
-/* Table */
+/* =========================================================
+   TABLE
+========================================================= */
 
-.et-table-wrap {
+.exam-timetable-page .et-table-wrap {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.et-table {
+.exam-timetable-page .et-table {
     width: 100%;
     min-width: 850px;
     margin: 0;
@@ -364,7 +473,7 @@
     font-size: 12px;
 }
 
-.et-table thead th {
+.exam-timetable-page .et-table thead th {
     padding: 13px 12px;
     border-bottom: 1px solid var(--et-line);
     background: #f5f3e9;
@@ -377,27 +486,27 @@
     white-space: nowrap;
 }
 
-.et-table tbody td {
+.exam-timetable-page .et-table tbody td {
     padding: 13px 12px;
     border-bottom: 1px solid #eeebe2;
     color: var(--et-text);
     vertical-align: middle;
 }
 
-.et-table tbody tr:last-child td {
+.exam-timetable-page .et-table tbody tr:last-child td {
     border-bottom: 0;
 }
 
-.et-table tbody tr:hover {
+.exam-timetable-page .et-table tbody tr:hover {
     background: #fbfaf5;
 }
 
-.et-table th:first-child,
-.et-table td:first-child {
+.exam-timetable-page .et-table th:first-child,
+.exam-timetable-page .et-table td:first-child {
     padding-left: 20px;
 }
 
-.et-number {
+.exam-timetable-page .et-number {
     display: inline-flex;
     width: 28px;
     height: 28px;
@@ -411,26 +520,26 @@
     font-weight: 800;
 }
 
-.et-date {
+.exam-timetable-page .et-date {
     color: var(--et-ink);
     font-size: 12px;
     font-weight: 750;
     white-space: nowrap;
 }
 
-.et-time {
+.exam-timetable-page .et-time {
     color: var(--et-ink);
     font-size: 11px;
     font-weight: 750;
     white-space: nowrap;
 }
 
-.et-time i {
+.exam-timetable-page .et-time i {
     margin-right: 4px;
     color: var(--et-sage);
 }
 
-.et-class-chip {
+.exam-timetable-page .et-class-chip {
     display: inline-block;
     padding: 6px 9px;
     border: 1px solid #d5e3d7;
@@ -442,13 +551,13 @@
     line-height: 1.5;
 }
 
-.et-subject {
+.exam-timetable-page .et-subject {
     color: var(--et-ink);
     font-size: 12px;
     font-weight: 800;
 }
 
-.et-mark-chip {
+.exam-timetable-page .et-mark-chip {
     display: inline-flex;
     align-items: center;
     padding: 6px 9px;
@@ -461,21 +570,23 @@
     white-space: nowrap;
 }
 
-.et-duration {
+.exam-timetable-page .et-duration {
     color: var(--et-ink);
     font-size: 11px;
     font-weight: 750;
     white-space: nowrap;
 }
 
-/* Empty state */
+/* =========================================================
+   EMPTY STATE
+========================================================= */
 
-.et-empty-state {
+.exam-timetable-page .et-empty-state {
     padding: 45px 22px;
     text-align: center;
 }
 
-.et-empty-icon {
+.exam-timetable-page .et-empty-icon {
     display: inline-flex;
     width: 70px;
     height: 70px;
@@ -489,7 +600,7 @@
     font-size: 29px;
 }
 
-.et-empty-title {
+.exam-timetable-page .et-empty-title {
     margin: 0 0 9px;
     color: var(--et-ink);
     font-family: Georgia, "Times New Roman", serif;
@@ -497,7 +608,7 @@
     font-weight: 700;
 }
 
-.et-empty-description {
+.exam-timetable-page .et-empty-description {
     max-width: 440px;
     margin: 0 auto 22px;
     color: var(--et-muted);
@@ -505,26 +616,30 @@
     line-height: 1.8;
 }
 
-/* Responsive */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-@media (max-width: 1199px) {
-    .et-info-grid {
+@media (max-width: 767.98px) {
+    .exam-timetable-page .et-info-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 767.98px) {
     .exam-timetable-page {
         padding: 20px;
     }
 
-    .et-page-header {
+    .exam-timetable-page .et-page-header {
         align-items: flex-start;
         flex-direction: column;
+        padding: 23px;
     }
 
-    .et-header-actions {
+    .exam-timetable-page .et-header-actions {
         justify-content: flex-start;
+        width: 100%;
     }
 }
 
@@ -534,61 +649,65 @@
         border-radius: 14px;
     }
 
-    .et-page-header {
-        padding-left: 13px;
+    .exam-timetable-page .et-page-header {
+        padding: 21px 18px;
     }
 
-    .et-header-actions {
+    .exam-timetable-page .et-header-actions {
         display: grid;
         width: 100%;
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .et-header-actions .et-btn {
+    .exam-timetable-page .et-header-actions .et-btn {
         width: 100%;
         padding: 9px 7px;
         font-size: 11px;
     }
 
-    .et-info-grid {
+    .exam-timetable-page .et-info-grid {
         grid-template-columns: 1fr;
         gap: 10px;
     }
 
-    .et-panel-header {
+    .exam-timetable-page .et-panel-header {
         padding: 14px;
     }
 
-    .et-panel-body {
+    .exam-timetable-page .et-panel-body {
         padding: 15px;
     }
 
-    .et-no-padding {
+    .exam-timetable-page .et-no-padding {
         padding: 0;
     }
 
-    .et-empty-state {
+    .exam-timetable-page .et-empty-state {
         padding: 32px 15px;
     }
 }
 
 @media (max-width: 420px) {
-    .et-header-actions {
+    .exam-timetable-page .et-header-actions {
         grid-template-columns: 1fr;
     }
 
-    .et-page-title {
+    .exam-timetable-page .et-page-title {
         font-size: 24px;
     }
 
-    .et-panel-title {
+    .exam-timetable-page .et-panel-title {
         font-size: 13px;
     }
 }
 
+/* =========================================================
+   PRINT
+========================================================= */
+
 @media print {
-    .et-page-header,
-    .et-header-actions {
+    .exam-timetable-page .et-page-header,
+    .exam-timetable-page .et-header-actions {
         display: none !important;
     }
 
@@ -597,24 +716,23 @@
         background: #fff;
     }
 
-    .et-panel {
+    .exam-timetable-page .et-panel {
         border: 1px solid #ddd;
         box-shadow: none;
     }
 
-    .et-table {
+    .exam-timetable-page .et-table {
         min-width: 0 !important;
         width: 100% !important;
     }
 
-    .et-table th,
-    .et-table td {
+    .exam-timetable-page .et-table th,
+    .exam-timetable-page .et-table td {
         padding: 6px !important;
         font-size: 9px !important;
     }
 }
 </style>
-
 
 <div class="exam-timetable-page">
 
@@ -689,7 +807,6 @@
         </div>
 
     </header>
-
 
     {{-- EXAM INFORMATION --}}
     <section class="et-panel">
@@ -769,7 +886,6 @@
         </div>
 
     </section>
-
 
     {{-- TIMETABLE CONTENT --}}
     @if($timetables->isEmpty())

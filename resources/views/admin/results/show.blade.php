@@ -6,6 +6,101 @@
 @section('content')
 
 @php
+    /*
+    |--------------------------------------------------------------------------
+    | SCHOOL SETTINGS
+    |--------------------------------------------------------------------------
+    */
+
+    $school = $school ?? \App\Models\SchoolSetting::first();
+
+    $schoolName = data_get($school, 'school_name')
+        ?? data_get($school, 'name')
+        ?? 'School Name';
+
+    $schoolAddress = data_get($school, 'address')
+        ?? data_get($school, 'school_address')
+        ?? '';
+
+    $schoolPhone = data_get($school, 'phone')
+        ?? data_get($school, 'phone_number')
+        ?? '';
+
+    $schoolEmail = data_get($school, 'email')
+        ?? data_get($school, 'school_email')
+        ?? '';
+
+    $schoolWebsite = data_get($school, 'website')
+        ?? data_get($school, 'website_url')
+        ?? '';
+
+    $schoolCode = data_get($school, 'school_code') ?? '';
+    $udiseCode = data_get($school, 'udise_code')
+        ?? data_get($school, 'udise')
+        ?? '';
+
+    $established = data_get($school, 'established_year')
+        ?? data_get($school, 'established')
+        ?? '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | SCHOOL LOGO
+    |--------------------------------------------------------------------------
+    */
+
+    $logoValue = data_get($school, 'logo')
+        ?: data_get($school, 'school_logo');
+
+    $logoSource = null;
+
+    if ($logoValue) {
+        if (\Illuminate\Support\Str::startsWith($logoValue, ['http://', 'https://'])) {
+            $logoSource = $logoValue;
+        } else {
+            $relativeLogo = ltrim(str_replace('\\', '/', $logoValue), '/');
+
+            $relativeLogo = preg_replace(
+                '#^(public/|storage/)#',
+                '',
+                $relativeLogo
+            );
+
+            $possiblePaths = [
+                storage_path('app/public/' . $relativeLogo),
+                public_path('storage/' . $relativeLogo),
+                public_path($relativeLogo),
+            ];
+
+            foreach ($possiblePaths as $possiblePath) {
+                if (is_file($possiblePath)) {
+                    $extension = strtolower(pathinfo($possiblePath, PATHINFO_EXTENSION));
+
+                    $mime = match ($extension) {
+                        'png' => 'image/png',
+                        'jpg', 'jpeg' => 'image/jpeg',
+                        'gif' => 'image/gif',
+                        'webp' => 'image/webp',
+                        default => null,
+                    };
+
+                    if ($mime) {
+                        $logoSource = 'data:' . $mime . ';base64,' .
+                            base64_encode(file_get_contents($possiblePath));
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESULT INFORMATION
+    |--------------------------------------------------------------------------
+    */
+
     $publicationStatus = strtolower(
         trim((string) ($result->publication_status ?? 'generated'))
     );
@@ -29,7 +124,8 @@
     $percentage = (float) ($result->percentage ?? 0);
     $percentage = max(0, min(100, $percentage));
 
-    $subjectCount = $result->details?->count() ?? 0;
+    $details = $result->details ?? collect();
+    $subjectCount = $details->count();
 
     $statusConfig = match ($publicationStatus) {
         'generated' => [
@@ -58,1010 +154,1296 @@
             'class' => 'status-default',
         ],
     };
+
+    $examName = $result->exam?->exam_name ?? 'N/A';
+    $examType = $result->exam?->exam_type ?? 'N/A';
+
+    $generatedDate = $result->generated_at
+        ?? $result->created_at;
+
+    $publishedDate = $result->published_at;
+
+    $finalStatus = strtoupper($result->result_status ?? 'N/A');
+
+    $isPassed = in_array($resultStatus, ['pass', 'passed']);
+    $isFailed = in_array($resultStatus, ['fail', 'failed']);
+    $isAbsent = $resultStatus === 'absent';
 @endphp
 
+
 <style>
-    .result-page {
-        --primary: #1677f0;
-        --primary-dark: #0d63d3;
-        --primary-soft: #eef6ff;
-        --success: #16803c;
-        --success-soft: #edf9f1;
-        --warning: #a66b00;
-        --warning-soft: #fff8e6;
-        --danger: #d92d20;
-        --danger-soft: #fff1f0;
-        --info: #087f9b;
-        --info-soft: #eafaff;
-        --text: #172033;
-        --muted: #667085;
-        --border: #e4e9f0;
-        --surface: #ffffff;
-        --page: #f6f8fb;
-    }
+/* =========================================================
+   STUDENT RESULT - ADMIN PAGE
+========================================================= */
 
-    .result-page {
-        color: var(--text);
-    }
+.result-admin {
+    --green: #286044;
+    --green-dark: #17452f;
+    --green-light: #e8f1eb;
+    --green-soft: #f3f8f4;
+    --border: #c8d9cd;
+    --text: #263c30;
+    --muted: #6d7c72;
+    color: var(--text);
+}
 
-    .result-hero {
-        position: relative;
-        overflow: hidden;
-        border-radius: 18px;
-        padding: 26px;
-        margin-bottom: 22px;
-        background:
-            radial-gradient(circle at 90% 10%, rgba(255,255,255,.18), transparent 28%),
-            linear-gradient(135deg, #1677f0 0%, #125fca 100%);
-        color: #fff;
-        box-shadow: 0 12px 30px rgba(22,119,240,.18);
-    }
+/* ADMIN TOP SECTION */
 
-    .result-hero::after {
-        content: "";
-        position: absolute;
-        width: 180px;
-        height: 180px;
-        right: -65px;
-        bottom: -90px;
-        border-radius: 50%;
-        border: 25px solid rgba(255,255,255,.08);
-    }
+.admin-result-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
 
-    .hero-content {
-        position: relative;
-        z-index: 2;
-    }
+.admin-result-heading h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--green-dark);
+    margin: 0 0 5px;
+}
 
-    .hero-icon {
-        width: 54px;
-        height: 54px;
-        border-radius: 15px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255,255,255,.16);
-        border: 1px solid rgba(255,255,255,.2);
-        font-size: 25px;
-        margin-bottom: 14px;
-    }
+.admin-result-heading p {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0;
+}
 
-    .hero-title {
-        font-size: 25px;
-        font-weight: 700;
-        margin: 0 0 5px;
-    }
+.admin-result-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
 
-    .hero-subtitle {
-        color: rgba(255,255,255,.82);
-        font-size: 14px;
-        margin: 0;
-    }
+.admin-result-buttons .btn {
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 9px 14px;
+}
 
-    .hero-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 20px;
-    }
+/* PUBLICATION CARD */
 
-    .hero-actions .btn {
-        border-radius: 9px;
-        font-weight: 600;
-        padding: 8px 14px;
-    }
+.publication-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 22px;
+    box-shadow: 0 3px 12px rgba(30, 75, 48, .05);
+}
 
-    .hero-actions .btn-light {
-        color: #1559b5;
-    }
+.publication-card-header {
+    padding: 15px 19px;
+    background: var(--green-soft);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
 
-    .hero-actions .btn-outline-light:hover {
-        color: #1559b5;
-    }
+.publication-card-header h5 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--green-dark);
+    margin: 0;
+}
 
-    .result-card {
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        background: var(--surface);
-        box-shadow: 0 5px 18px rgba(16,24,40,.05);
-        overflow: hidden;
-        margin-bottom: 22px;
-    }
+.publication-card-header p {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 4px 0 0;
+}
 
-    .result-card-header {
-        padding: 17px 20px;
-        border-bottom: 1px solid var(--border);
-        background: #fff;
-    }
+.publication-card-body {
+    padding: 18px;
+}
 
-    .result-card-title {
-        font-size: 16px;
-        font-weight: 700;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 9px;
-    }
+.publication-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
 
-    .result-card-title i {
-        color: var(--primary);
-        font-size: 19px;
-    }
+.status-generated {
+    color: #52605a;
+    background: #edf1ee;
+}
 
-    .result-card-subtitle {
-        margin: 3px 0 0 28px;
-        color: var(--muted);
-        font-size: 12px;
-    }
+.status-verified {
+    color: #176b58;
+    background: #e5f4ed;
+}
 
-    .result-card-body {
-        padding: 20px;
-    }
+.status-approved {
+    color: #87600b;
+    background: #fff5d9;
+}
 
-    /* Publication */
+.status-published {
+    color: #146b36;
+    background: #e4f5e9;
+}
 
-    .publication-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-    }
+.status-default {
+    color: #52605a;
+    background: #edf1ee;
+}
 
-    .publication-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 8px 13px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
+/* WORKFLOW */
 
-    .status-generated {
-        color: #475467;
-        background: #f2f4f7;
-    }
+.workflow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
 
-    .status-verified {
-        color: #087f9b;
-        background: var(--info-soft);
-    }
+.workflow-step {
+    border: 1px solid #dce7df;
+    border-radius: 10px;
+    padding: 13px;
+    background: #fafcfa;
+    min-height: 105px;
+}
 
-    .status-approved {
-        color: #8a5a00;
-        background: var(--warning-soft);
-    }
+.workflow-step.completed {
+    background: #f1f8f3;
+    border-color: #9fc7aa;
+}
 
-    .status-published {
-        color: var(--success);
-        background: var(--success-soft);
-    }
+.workflow-number {
+    width: 31px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #e4eee7;
+    color: var(--green);
+    margin-bottom: 8px;
+}
 
-    .status-default {
-        color: #344054;
-        background: #f2f4f7;
-    }
+.workflow-title {
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 3px;
+}
 
+.workflow-text {
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.publication-actions {
+    border-top: 1px solid #e5ece7;
+    padding-top: 15px;
+    margin-top: 16px;
+}
+
+.publication-actions .btn {
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 15px;
+}
+
+.published-alert {
+    padding: 13px;
+    border-radius: 9px;
+    background: #eff9f1;
+    border: 1px solid #b6dfc2;
+    color: #155b2e;
+    font-size: 12px;
+}
+
+.whatsapp-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -8px;
+    margin-bottom: 18px;
+}
+
+.whatsapp-btn {
+    background: #25a95a;
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 15px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   A4 RESULT SHEET
+========================================================= */
+
+.result-sheet {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    min-height: 1120px;
+    margin: 0 auto 25px;
+    padding: 25px;
+    background: #fff;
+    border: 2px solid var(--green);
+    outline: 1px solid #9bbba3;
+    outline-offset: -7px;
+    color: #263c30;
+    box-shadow: 0 5px 20px rgba(25, 70, 43, .10);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.result-sheet-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* WATERMARK */
+
+.result-watermark {
+    position: absolute;
+    z-index: 0;
+    width: 270px;
+    height: 270px;
+    object-fit: contain;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: .045;
+    pointer-events: none;
+}
+
+/* SCHOOL HEADER */
+
+.school-header {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--green);
+    margin-bottom: 13px;
+}
+
+.school-logo-cell,
+.school-name-cell,
+.school-code-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.school-logo-cell {
+    width: 16%;
+    text-align: left;
+}
+
+.school-logo {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+}
+
+.school-name-cell {
+    width: 59%;
+    text-align: center;
+    padding: 0 8px;
+}
+
+.school-name {
+    font-size: 21px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    letter-spacing: .6px;
+    margin: 0 0 7px;
+}
+
+.school-address {
+    font-size: 9px;
+    line-height: 1.5;
+    color: #43594a;
+    margin-bottom: 5px;
+}
+
+.school-contact {
+    font-size: 9px;
+    line-height: 1.6;
+    color: #43594a;
+}
+
+.school-code-cell {
+    width: 25%;
+    border-left: 1px solid #a9c5b0;
+    padding-left: 12px;
+}
+
+.school-code-item {
+    font-size: 9px;
+    line-height: 1.8;
+    color: #314d3b;
+}
+
+.school-code-item strong {
+    color: var(--green-dark);
+}
+
+/* TITLE */
+
+.marksheet-title {
+    text-align: center;
+    margin: 13px 0 15px;
+}
+
+.marksheet-title h2 {
+    display: inline-block;
+    border: 1px solid var(--green);
+    background: var(--green-light);
+    color: var(--green-dark);
+    padding: 8px 28px;
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.marksheet-subtitle {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--green-dark);
+    margin-top: 7px;
+}
+
+/* SHEET SECTION */
+
+.sheet-section {
+    margin-bottom: 13px;
+}
+
+.sheet-section-title {
+    background: #dcecdf;
+    color: var(--green-dark);
+    border: 1px solid var(--green);
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 900;
+    margin: 0;
+}
+
+.sheet-info-table,
+.sheet-marks-table,
+.sheet-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.sheet-info-table td {
+    border: 1px solid #a9c3ae;
+    padding: 8px 9px;
+    font-size: 10px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.sheet-info-table td strong {
+    color: var(--green-dark);
+}
+
+/* MARKS TABLE */
+
+.sheet-marks-table {
+    font-size: 10px;
+}
+
+.sheet-marks-table th {
+    background: #e8f1eb;
+    color: var(--green-dark);
+    border: 1px solid #8eae98;
+    padding: 8px 5px;
+    font-weight: 900;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.sheet-marks-table td {
+    border: 1px solid #a9c3ae;
+    padding: 8px 6px;
+    text-align: center;
+    vertical-align: middle;
+    color: #304738;
+}
+
+.sheet-marks-table tbody tr:nth-child(even) {
+    background: #f7faf7;
+}
+
+.sheet-marks-table .subject-name {
+    text-align: left;
+    font-weight: 800;
+}
+
+.sheet-marks-table .total-row {
+    background: #e8f1eb !important;
+    font-weight: 900;
+    color: var(--green-dark);
+}
+
+.sheet-marks-table .grade-cell {
+    font-weight: 900;
+}
+
+/* SUMMARY */
+
+.sheet-summary-table {
+    margin-top: 7px;
+}
+
+.sheet-summary-table td {
+    border: 1px solid var(--green);
+    padding: 12px 5px;
+    text-align: center;
+    width: 25%;
+}
+
+.summary-heading {
+    display: block;
+    font-size: 9px;
+    font-weight: 900;
+    color: #53685a;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.summary-number {
+    display: block;
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--green-dark);
+}
+
+/* FINAL RESULT */
+
+.sheet-final-result {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.sheet-final-label {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+}
+
+.sheet-final-status {
+    display: inline-block;
+    min-width: 120px;
+    padding: 8px 22px;
+    border: 1px solid;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.sheet-pass {
+    color: #176b36;
+    background: #e7f5ea;
+    border-color: #9fcba9;
+}
+
+.sheet-fail {
+    color: #b52c2c;
+    background: #fff0ef;
+    border-color: #e6b9b5;
+}
+
+.sheet-absent {
+    color: #87600b;
+    background: #fff5d9;
+    border-color: #e5cf91;
+}
+
+.sheet-other {
+    color: #52605a;
+    background: #edf1ee;
+    border-color: #cbd8ce;
+}
+
+/* PUBLICATION INFO */
+
+.sheet-publication {
+    text-align: center;
+    font-size: 9px;
+    color: #52685a;
+    font-weight: 800;
+    padding: 9px 5px;
+    border-top: 1px solid #a9c3ae;
+    border-bottom: 1px solid #a9c3ae;
+    margin-top: 12px;
+}
+
+/* SIGNATURES */
+
+.sheet-signatures {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    margin-top: 35px;
+}
+
+.sheet-signature-cell {
+    display: table-cell;
+    width: 33.33%;
+    text-align: center;
+    vertical-align: bottom;
+    height: 65px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #304738;
+}
+
+.signature-line {
+    width: 80%;
+    margin: 0 auto 7px;
+    border-top: 1px solid #708b77;
+    height: 1px;
+}
+
+.sheet-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid #c8d9cd;
+    padding-top: 8px;
+    margin-top: 15px;
+    font-size: 8px;
+    color: #66796c;
+}
+
+/* ADMIN BOTTOM */
+
+.admin-bottom-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 25px;
+}
+
+.admin-bottom-actions .btn {
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* ALERTS */
+
+.result-admin .alert {
+    border-radius: 9px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 767px) {
     .workflow {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .workflow-step {
-        position: relative;
-        min-height: 104px;
-        padding: 15px;
-        border: 1px solid var(--border);
-        border-radius: 13px;
-        background: #fbfcfe;
-        transition: .2s ease;
-    }
-
-    .workflow-step.active {
-        background: #fff;
-        box-shadow: 0 4px 14px rgba(16,24,40,.05);
-    }
-
-    .workflow-step.completed.generated {
-        border-color: #b9c2cc;
-    }
-
-    .workflow-step.completed.verified {
-        border-color: #80d7e8;
-        background: #f7fdff;
-    }
-
-    .workflow-step.completed.approved {
-        border-color: #efd18a;
-        background: #fffdf6;
-    }
-
-    .workflow-step.completed.published {
-        border-color: #9bd8af;
-        background: #f7fcf8;
-    }
-
-    .workflow-number {
-        width: 39px;
-        height: 39px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 11px;
-        font-size: 17px;
-    }
-
-    .workflow-generated .workflow-number {
-        background: #eaecf0;
-        color: #475467;
-    }
-
-    .workflow-verified .workflow-number {
-        background: var(--info-soft);
-        color: var(--info);
-    }
-
-    .workflow-approved .workflow-number {
-        background: var(--warning-soft);
-        color: var(--warning);
-    }
-
-    .workflow-published .workflow-number {
-        background: var(--success-soft);
-        color: var(--success);
-    }
-
-    .workflow-title {
-        font-size: 13px;
-        font-weight: 700;
-        margin-bottom: 3px;
-    }
-
-    .workflow-text {
-        font-size: 11px;
-        color: var(--muted);
-    }
-
-    .publication-actions {
-        border-top: 1px solid var(--border);
-        margin-top: 20px;
-        padding-top: 17px;
-    }
-
-    .publication-actions .btn {
-        border-radius: 9px;
-        font-weight: 600;
-    }
-
-    .published-alert {
-        border: 1px solid #b9e4c7;
-        background: var(--success-soft);
-        color: #176b35;
-        border-radius: 12px;
-        padding: 14px 16px;
-    }
-
-    .published-alert-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #d9f2e0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--success);
-        font-size: 19px;
-        flex-shrink: 0;
-    }
-
-    .whatsapp-row {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: -8px;
-        margin-bottom: 22px;
-    }
-
-    .whatsapp-btn {
-        background: #25d366;
-        border-color: #25d366;
-        color: #fff;
-        border-radius: 9px;
-        font-weight: 600;
-        padding: 9px 15px;
-        box-shadow: 0 5px 12px rgba(37,211,102,.16);
-    }
-
-    .whatsapp-btn:hover {
-        background: #1fbd59;
-        border-color: #1fbd59;
-        color: #fff;
-    }
-
-    /* Information */
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 12px;
-    }
-
-    .info-item {
+    .result-sheet {
         padding: 14px;
-        border: 1px solid var(--border);
-        border-radius: 11px;
-        background: #fbfcfe;
-        min-height: 77px;
+        min-height: auto;
     }
 
-    .info-label {
-        font-size: 11px;
-        color: var(--muted);
-        margin-bottom: 5px;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-        font-weight: 600;
+    .school-logo {
+        width: 55px;
+        height: 55px;
     }
 
-    .info-value {
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--text);
-        word-break: break-word;
+    .school-name {
+        font-size: 14px;
     }
 
-    /* Marks */
-
-    .marks-card {
-        overflow: hidden;
+    .school-address,
+    .school-contact,
+    .school-code-item {
+        font-size: 7px;
     }
 
-    .marks-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 15px;
+    .sheet-info-table td {
+        padding: 6px 5px;
+        font-size: 8px;
     }
 
-    .subject-count {
-        background: var(--primary-soft);
-        color: var(--primary);
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 11px;
-        font-weight: 700;
+    .sheet-marks-table {
+        font-size: 8px;
     }
 
-    .marks-table {
-        margin: 0;
-        min-width: 720px;
+    .sheet-marks-table th,
+    .sheet-marks-table td {
+        padding: 5px 3px;
     }
 
-    .marks-table thead th {
-        background: #f8fafc;
-        border-bottom: 1px solid var(--border);
-        border-top: 0;
-        color: #475467;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-        padding: 13px 12px;
-        white-space: nowrap;
-    }
-
-    .marks-table tbody td {
-        padding: 13px 12px;
-        border-color: #edf0f4;
+    .summary-number {
         font-size: 13px;
     }
 
-    .marks-table tbody tr:hover {
-        background: #fbfdff;
+    .sheet-summary-table td {
+        padding: 8px 3px;
     }
 
-    .subject-number {
-        width: 29px;
-        height: 29px;
-        display: inline-flex;
+    .summary-heading {
+        font-size: 7px;
+    }
+
+    .sheet-signature-cell {
+        font-size: 8px;
+    }
+}
+
+/* =========================================================
+   PRINT - PRINT ONLY THE A4 RESULT SHEET
+========================================================= */
+
+@page {
+    size: A4 portrait;
+    margin: 7mm;
+}
+
+@media print {
+
+    html,
+    body {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body * {
+        visibility: hidden !important;
+    }
+
+    .result-sheet,
+    .result-sheet * {
+        visibility: visible !important;
+    }
+
+    .result-sheet {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 280mm !important;
+        margin: 0 !important;
+        padding: 6mm !important;
+        border: 1.5px solid #286044 !important;
+        outline: 1px solid #9bbba3 !important;
+        outline-offset: -5px !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        background: #fff !important;
+    }
+
+    .result-sheet-content {
+        position: relative !important;
+        z-index: 2 !important;
+    }
+
+    .result-watermark {
+        position: absolute !important;
+        opacity: .045 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .sheet-section,
+    .sheet-summary-table,
+    .sheet-signatures,
+    .school-header,
+    .marksheet-title {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .sheet-marks-table tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .admin-result-heading,
+    .publication-card,
+    .whatsapp-row,
+    .admin-bottom-actions,
+    .alert {
+        display: none !important;
+    }
+
+    .result-admin {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .sheet-footer {
+        break-inside: avoid !important;
+    }
+}
+/* =====================================================
+   PUBLICATION FEATURE CARD — SCHOOL DIARY DESIGN
+===================================================== */
+
+.publication-feature-card {
+    display: grid;
+    grid-template-columns: 64% 36%;
+    width: 100%;
+    min-height: 315px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    background: #fffefa;
+    border: 1px solid #e6dfce;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(37, 57, 43, .06);
+}
+
+/* LEFT SECTION */
+
+.publication-main {
+    position: relative;
+    padding: 38px 35px 30px;
+    background: #fffefa;
+    border-left: 4px solid #d9b78d;
+}
+
+.publication-heading {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.publication-heading-icon {
+    flex: 0 0 80px;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5decc;
+    border-radius: 19px;
+    background: #f5f2e8;
+    color: #244c3b;
+    font-size: 31px;
+}
+
+.publication-heading-content {
+    min-width: 0;
+}
+
+.publication-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 13px;
+    color: #8b8b7c;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+}
+
+.publication-breadcrumb i {
+    font-size: 10px;
+    color: #b5a98e;
+}
+
+.publication-heading-content h3 {
+    margin: 0 0 10px;
+    color: #193c2e;
+    font-family: Georgia, serif;
+    font-size: clamp(25px, 2.5vw, 37px);
+    font-weight: 700;
+    letter-spacing: -.7px;
+}
+
+.publication-heading-content p {
+    max-width: 690px;
+    margin: 0;
+    color: #737b74;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.publication-school-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 17px;
+    color: #286348;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.publication-school-label i {
+    font-size: 16px;
+}
+
+/* WORKFLOW STEPS */
+
+.publication-workflow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 32px;
+    padding-top: 22px;
+    border-top: 1px solid #eee8db;
+}
+
+.publication-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 11px 8px;
+    border: 1px solid #e9e5da;
+    border-radius: 11px;
+    background: #faf9f4;
+    transition: .2s ease;
+}
+
+.publication-step.is-completed {
+    border-color: #c8dfce;
+    background: #f1f8f2;
+}
+
+.publication-step-icon {
+    flex: 0 0 35px;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #eeeee7;
+    color: #778176;
+    font-size: 16px;
+}
+
+.publication-step.is-completed .publication-step-icon {
+    background: #dceee0;
+    color: #286348;
+}
+
+.publication-step-title {
+    color: #294b39;
+    font-size: 10px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.publication-step-text {
+    margin-top: 4px;
+    color: #8a918a;
+    font-size: 9px;
+    line-height: 1.3;
+}
+
+/* RIGHT GREEN PANEL */
+
+.publication-side {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 30px 35px;
+    text-align: center;
+    color: #fff;
+    background:
+        radial-gradient(circle at 100% 0%, transparent 0 105px, rgba(255,255,255,.07) 106px 107px, transparent 108px),
+        radial-gradient(circle at 0% 100%, transparent 0 90px, rgba(255,255,255,.07) 91px 92px, transparent 93px),
+        linear-gradient(145deg, #294c3d, #19372c);
+}
+
+.publication-side-icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 17px;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 15px;
+    background: rgba(255,255,255,.10);
+    color: #e9d39c;
+    font-size: 22px;
+}
+
+.publication-side h4 {
+    margin: 0 0 13px;
+    color: #f2dfad;
+    font-family: Georgia, serif;
+    font-size: clamp(19px, 1.8vw, 25px);
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.publication-side > p {
+    max-width: 330px;
+    margin: 0 auto 17px;
+    color: rgba(255,255,255,.82);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* CURRENT STATUS */
+
+.publication-current-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    color: rgba(255,255,255,.75);
+    font-size: 11px;
+}
+
+.publication-current-status strong {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 30px;
+    background: rgba(255,255,255,.12);
+    color: #fff2c9;
+    font-size: 11px;
+}
+
+/* ACTION BUTTON */
+
+.publication-side-actions {
+    width: 100%;
+    max-width: 270px;
+}
+
+.publication-side-actions form {
+    width: 100%;
+}
+
+.publication-action-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 16px;
+    border: 1px solid #f1e7d0;
+    border-radius: 10px;
+    background: #f3ead5;
+    color: #193c2e;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: left;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.publication-action-btn:hover {
+    transform: translateY(-2px);
+    background: #fff8e9;
+    box-shadow: 0 6px 15px rgba(0,0,0,.12);
+}
+
+.publication-published-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 10px;
+    background: rgba(255,255,255,.10);
+    text-align: left;
+}
+
+.publication-published-message > i {
+    color: #a8e1b4;
+    font-size: 22px;
+}
+
+.publication-published-message strong,
+.publication-published-message span {
+    display: block;
+}
+
+.publication-published-message strong {
+    color: #f2dfad;
+    font-size: 12px;
+}
+
+.publication-published-message span {
+    margin-top: 4px;
+    color: rgba(255,255,255,.78);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.publication-date {
+    margin-top: 10px;
+    color: rgba(255,255,255,.78);
+    font-size: 10px;
+}
+
+.publication-pending-message {
+    color: #f2dfad;
+    font-size: 11px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+    .publication-feature-card {
+        grid-template-columns: 1fr;
+    }
+
+    .publication-side {
+        min-height: 260px;
+    }
+
+    .publication-workflow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .publication-main {
+        padding: 25px 18px;
+    }
+
+    .publication-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .publication-heading-icon {
+        width: 60px;
+        height: 60px;
+        flex-basis: 60px;
+        font-size: 24px;
+    }
+
+    .publication-heading-content h3 {
+        font-size: 27px;
+    }
+
+    .publication-workflow {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 23px;
+    }
+
+    .publication-step {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .publication-step-title {
+        white-space: normal;
+    }
+
+    .publication-side {
+        padding: 28px 20px;
+    }
+}
+
+@media (max-width: 380px) {
+    .publication-workflow {
+        grid-template-columns: 1fr;
+    }
+
+    .publication-step {
+        flex-direction: row;
         align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        background: #f2f4f7;
-        color: #475467;
-        font-size: 11px;
-        font-weight: 700;
     }
-
-    .grade-badge {
-        min-width: 35px;
-        display: inline-flex;
-        justify-content: center;
-        padding: 5px 8px;
-        border-radius: 7px;
-        background: var(--primary-soft);
-        color: var(--primary);
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-    .percentage-cell {
-        font-weight: 700;
-    }
-
-    /* Summary */
-
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 13px;
-    }
-
-    .summary-item {
-        position: relative;
-        overflow: hidden;
-        padding: 17px;
-        border: 1px solid var(--border);
-        border-radius: 13px;
-        background: #fff;
-    }
-
-    .summary-item::after {
-        content: "";
-        position: absolute;
-        width: 65px;
-        height: 65px;
-        right: -25px;
-        bottom: -25px;
-        border-radius: 50%;
-        background: var(--primary-soft);
-    }
-
-    .summary-label {
-        position: relative;
-        z-index: 1;
-        color: var(--muted);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-        font-weight: 600;
-    }
-
-    .summary-value {
-        position: relative;
-        z-index: 1;
-        margin-top: 7px;
-        font-size: 23px;
-        font-weight: 800;
-        color: var(--text);
-    }
-
-    .summary-value.primary {
-        color: var(--primary);
-    }
-
-    .progress-wrap {
-        margin-top: 11px;
-    }
-
-    .progress {
-        height: 6px;
-        border-radius: 99px;
-        background: #edf1f5;
-    }
-
-    .progress-bar {
-        border-radius: 99px;
-        background: var(--primary);
-    }
-
-    /* Final status */
-
-    .final-status-card {
-        border-radius: 16px;
-        padding: 20px;
-        border: 1px solid var(--border);
-        background: #fff;
-        box-shadow: 0 5px 18px rgba(16,24,40,.05);
-    }
-
-    .final-status-inner {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .final-status-label {
-        color: var(--muted);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: .4px;
-        font-weight: 600;
-    }
-
-    .final-status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        margin-top: 7px;
-        padding: 8px 15px;
-        border-radius: 9px;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .final-pass {
-        color: var(--success);
-        background: var(--success-soft);
-    }
-
-    .final-fail {
-        color: var(--danger);
-        background: var(--danger-soft);
-    }
-
-    .final-absent {
-        color: #8a5a00;
-        background: var(--warning-soft);
-    }
-
-    .final-other {
-        color: #475467;
-        background: #f2f4f7;
-    }
-
-    .generated-box {
-        text-align: right;
-        padding-left: 20px;
-        border-left: 1px solid var(--border);
-    }
-
-    .generated-label {
-        color: var(--muted);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-        font-weight: 600;
-    }
-
-    .generated-value {
-        margin-top: 5px;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    /* Footer */
-
-    .footer-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 9px;
-        padding-bottom: 10px;
-    }
-
-    .footer-actions .btn {
-        border-radius: 9px;
-        font-weight: 600;
-    }
-
-    @media (max-width: 1199px) {
-        .info-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .workflow {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 767px) {
-        .result-hero {
-            padding: 20px;
-            border-radius: 14px;
-        }
-
-        .hero-title {
-            font-size: 21px;
-        }
-
-        .hero-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .hero-actions .btn {
-            width: 100%;
-        }
-
-        .result-card-header,
-        .result-card-body {
-            padding: 15px;
-        }
-
-        .publication-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .workflow {
-            grid-template-columns: 1fr;
-        }
-
-        .info-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .summary-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .final-status-inner {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .generated-box {
-            width: 100%;
-            text-align: left;
-            border-left: 0;
-            border-top: 1px solid var(--border);
-            padding-left: 0;
-            padding-top: 15px;
-        }
-
-        .whatsapp-row {
-            justify-content: stretch;
-        }
-
-        .whatsapp-row .btn {
-            width: 100%;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .info-grid,
-        .summary-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .hero-actions {
-            grid-template-columns: 1fr;
-        }
-
-        .footer-actions {
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        .footer-actions .btn {
-            width: 100%;
-        }
-    }
+}
 </style>
 
-<div class="container-fluid py-4 result-page">
 
-    {{-- =========================================================
-        FLASH MESSAGES
-    ========================================================== --}}
+<div class="container-fluid py-3 result-admin">
+
+    {{-- FLASH MESSAGES --}}
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <div class="alert alert-success alert-dismissible fade show mb-3">
             <i class="bi bi-check-circle-fill me-2"></i>
             {{ session('success') }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            {{ session('error') }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     @if(session('warning'))
-        <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <div class="alert alert-warning alert-dismissible fade show mb-3">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ session('warning') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
 
-    {{-- =========================================================
-        PAGE HERO
-    ========================================================== --}}
+    {{-- =====================================================
+         ADMIN HEADING AND BUTTONS
+    ====================================================== --}}
 
-    <div class="result-hero">
+    <div class="admin-result-heading">
 
-        <div class="hero-content">
-
-            <div class="hero-icon">
-                <i class="bi bi-file-earmark-text"></i>
-            </div>
-
-            <h1 class="hero-title">
+        <div>
+            <h3>
+                <i class="bi bi-file-earmark-text me-2"></i>
                 Student Result
-            </h1>
+            </h3>
 
-            <p class="hero-subtitle">
-                View examination performance, publication status and result history.
+            <p>
+                Manage publication and view the student's A4 result marksheet.
             </p>
+        </div>
 
-            <div class="hero-actions">
+        <div class="admin-result-buttons">
 
-                <a href="{{ route('admin.results.print', $result) }}"
-                   target="_blank"
-                   class="btn btn-light">
+            <a href="{{ route('admin.results.print', $result) }}"
+               target="_blank"
+               class="btn btn-success">
+                <i class="bi bi-printer me-1"></i>
+                Print Result
+            </a>
 
-                    <i class="bi bi-printer me-1"></i>
-                    Print Result
-
-                </a>
-
-                <a href="{{ route('admin.results.pdf', $result) }}"
-                   target="_blank"
-                   class="btn btn-outline-light">
-
-                    <i class="bi bi-file-earmark-pdf me-1"></i>
-                    PDF
-
-                </a>
-
-                <a href="{{ route('admin.results.history', $result) }}"
-                   class="btn btn-outline-light">
-
-                    <i class="bi bi-clock-history me-1"></i>
-                    History
-
-                </a>
-
-            </div>
+            <a href="{{ route('admin.results.history', $result) }}"
+               class="btn btn-outline-success">
+                <i class="bi bi-clock-history me-1"></i>
+                Result History
+            </a>
 
         </div>
 
     </div>
 
 
-    {{-- =========================================================
-        PUBLICATION WORKFLOW
-    ========================================================== --}}
+  {{-- =====================================================
+     PUBLICATION WORKFLOW — FEATURE CARD DESIGN
+====================================================== --}}
 
-    <div class="result-card">
+<div class="publication-feature-card">
 
-        <div class="result-card-header">
+    {{-- LEFT CONTENT --}}
+    <div class="publication-main">
 
-            <div class="publication-header">
+        <div class="publication-heading">
+
+            <div class="publication-heading-icon">
+                <i class="bi bi-cloud-arrow-up"></i>
+            </div>
+
+            <div class="publication-heading-content">
+                <div class="publication-breadcrumb">
+                    RESULT MANAGEMENT
+                    <i class="bi bi-chevron-right"></i>
+                    PUBLICATION WORKFLOW
+                </div>
+
+                <h3>Result Publication</h3>
+
+                <p>
+                    Verify, approve and publish this student's examination
+                    result through the school result management system.
+                </p>
+
+                <div class="publication-school-label">
+                    <i class="bi bi-shield-check"></i>
+                    School Records & Academic Result Management
+                </div>
+            </div>
+
+        </div>
+
+        {{-- WORKFLOW STEPS --}}
+        <div class="publication-workflow">
+
+            <div class="publication-step
+                {{ in_array($publicationStatus, ['generated', 'verified', 'approved', 'published']) ? 'is-completed' : '' }}">
+
+                <div class="publication-step-icon">
+                    <i class="bi bi-file-earmark-check"></i>
+                </div>
 
                 <div>
-
-                    <h5 class="result-card-title">
-                        <i class="bi bi-cloud-arrow-up"></i>
-                        Result Publication
-                    </h5>
-
-                    <p class="result-card-subtitle">
-                        Follow the verification and approval workflow before publishing online.
-                    </p>
-
-                </div>
-
-                <span class="publication-status {{ $statusConfig['class'] }}">
-                    <i class="bi {{ $statusConfig['icon'] }}"></i>
-                    {{ $statusConfig['label'] }}
-                </span>
-
-            </div>
-
-        </div>
-
-        <div class="result-card-body">
-
-            <div class="workflow">
-
-                {{-- GENERATED --}}
-
-                <div class="workflow-step workflow-generated
-                    {{ in_array($publicationStatus, ['generated', 'verified', 'approved', 'published']) ? 'completed generated active' : '' }}">
-
-                    <div class="workflow-number">
-                        <i class="bi bi-file-earmark-check"></i>
+                    <div class="publication-step-title">01. Generated</div>
+                    <div class="publication-step-text">
+                        Result generated
                     </div>
-
-                    <div class="workflow-title">
-                        1. Generated
-                    </div>
-
-                    <div class="workflow-text">
-                        Result has been generated.
-                    </div>
-
-                </div>
-
-
-                {{-- VERIFIED --}}
-
-                <div class="workflow-step workflow-verified
-                    {{ in_array($publicationStatus, ['verified', 'approved', 'published']) ? 'completed verified active' : '' }}">
-
-                    <div class="workflow-number">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
-
-                    <div class="workflow-title">
-                        2. Verified
-                    </div>
-
-                    <div class="workflow-text">
-                        Result has been verified.
-                    </div>
-
-                </div>
-
-
-                {{-- APPROVED --}}
-
-                <div class="workflow-step workflow-approved
-                    {{ in_array($publicationStatus, ['approved', 'published']) ? 'completed approved active' : '' }}">
-
-                    <div class="workflow-number">
-                        <i class="bi bi-shield-check"></i>
-                    </div>
-
-                    <div class="workflow-title">
-                        3. Approved
-                    </div>
-
-                    <div class="workflow-text">
-                        Approved for online publishing.
-                    </div>
-
-                </div>
-
-
-                {{-- PUBLISHED --}}
-
-                <div class="workflow-step workflow-published
-                    {{ $publicationStatus === 'published' ? 'completed published active' : '' }}">
-
-                    <div class="workflow-number">
-                        <i class="bi bi-globe2"></i>
-                    </div>
-
-                    <div class="workflow-title">
-                        4. Published
-                    </div>
-
-                    <div class="workflow-text">
-                        Available for online viewing.
-                    </div>
-
                 </div>
 
             </div>
 
+            <div class="publication-step
+                {{ in_array($publicationStatus, ['verified', 'approved', 'published']) ? 'is-completed' : '' }}">
 
-            {{-- ACTIONS --}}
+                <div class="publication-step-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
 
-            <div class="publication-actions">
-
-                @if($publicationStatus === 'generated')
-
-                    <form method="POST"
-                          action="{{ route('admin.results.verify', $result) }}">
-
-                        @csrf
-
-                        <button type="submit"
-                                class="btn btn-info text-white">
-
-                            <i class="bi bi-check-circle me-1"></i>
-                            Verify Result
-
-                        </button>
-
-                    </form>
-
-
-                @elseif($publicationStatus === 'verified')
-
-                    <form method="POST"
-                          action="{{ route('admin.results.approve', $result) }}">
-
-                        @csrf
-
-                        <button type="submit"
-                                class="btn btn-warning">
-
-                            <i class="bi bi-shield-check me-1"></i>
-                            Approve Result
-
-                        </button>
-
-                    </form>
-
-
-                @elseif($publicationStatus === 'approved')
-
-                    <form method="POST"
-                          action="{{ route('admin.results.publish', $result) }}">
-
-                        @csrf
-
-                        <button type="submit"
-                                class="btn btn-success"
-                                onclick="return confirm('Are you sure you want to publish this result online?');">
-
-                            <i class="bi bi-cloud-arrow-up me-1"></i>
-                            Publish Result
-
-                        </button>
-
-                    </form>
-
-
-                @elseif($publicationStatus === 'published')
-
-                    <div class="published-alert">
-
-                        <div class="d-flex align-items-start gap-3">
-
-                            <div class="published-alert-icon">
-                                <i class="bi bi-check-circle-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <div class="fw-bold mb-1">
-                                    Result Published Successfully
-                                </div>
-
-                                <div class="small">
-
-                                    This result is now available for online viewing.
-
-                                    @if($result->published_at)
-                                        <br>
-                                        Published on:
-                                        <strong>
-                                            {{ $result->published_at->format('d M Y, h:i A') }}
-                                        </strong>
-                                    @endif
-
-                                    @if($result->publisher)
-                                        <br>
-                                        Published by:
-                                        <strong>
-                                            {{ $result->publisher->name }}
-                                        </strong>
-                                    @endif
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
+                <div>
+                    <div class="publication-step-title">02. Verified</div>
+                    <div class="publication-step-text">
+                        Result verified
                     </div>
+                </div>
 
-                @endif
+            </div>
+
+            <div class="publication-step
+                {{ in_array($publicationStatus, ['approved', 'published']) ? 'is-completed' : '' }}">
+
+                <div class="publication-step-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+
+                <div>
+                    <div class="publication-step-title">03. Approved</div>
+                    <div class="publication-step-text">
+                        Approval completed
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="publication-step
+                {{ $publicationStatus === 'published' ? 'is-completed' : '' }}">
+
+                <div class="publication-step-icon">
+                    <i class="bi bi-globe2"></i>
+                </div>
+
+                <div>
+                    <div class="publication-step-title">04. Published</div>
+                    <div class="publication-step-text">
+                        Online availability
+                    </div>
+                </div>
 
             </div>
 
@@ -1070,16 +1452,123 @@
     </div>
 
 
-    {{-- WHATSAPP --}}
+    {{-- RIGHT DARK GREEN PANEL --}}
+    <div class="publication-side">
+
+        <div class="publication-side-icon">
+            <i class="bi bi-patch-check-fill"></i>
+        </div>
+
+        <h4>
+            Every Result. <br>
+            Properly Verified.
+        </h4>
+
+        <p>
+            Complete the publication process to make this student's
+            academic performance available online.
+        </p>
+
+        <div class="publication-current-status">
+            <span>Current Status</span>
+
+            <strong>
+                <i class="bi {{ $statusConfig['icon'] }} me-1"></i>
+                {{ $statusConfig['label'] }}
+            </strong>
+        </div>
+
+
+        {{-- WORKFLOW ACTIONS --}}
+        <div class="publication-side-actions">
+
+            @if($publicationStatus === 'generated')
+
+                <form method="POST"
+                      action="{{ route('admin.results.verify', $result) }}">
+                    @csrf
+
+                    <button type="submit" class="publication-action-btn">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Verify Result
+                        <i class="bi bi-arrow-right ms-auto"></i>
+                    </button>
+                </form>
+
+            @elseif($publicationStatus === 'verified')
+
+                <form method="POST"
+                      action="{{ route('admin.results.approve', $result) }}">
+                    @csrf
+
+                    <button type="submit" class="publication-action-btn">
+                        <i class="bi bi-shield-check me-2"></i>
+                        Approve Result
+                        <i class="bi bi-arrow-right ms-auto"></i>
+                    </button>
+                </form>
+
+            @elseif($publicationStatus === 'approved')
+
+                <form method="POST"
+                      action="{{ route('admin.results.publish', $result) }}">
+                    @csrf
+
+                    <button type="submit"
+                            class="publication-action-btn"
+                            onclick="return confirm('Are you sure you want to publish this result online?');">
+                        <i class="bi bi-cloud-arrow-up me-2"></i>
+                        Publish Result
+                        <i class="bi bi-arrow-right ms-auto"></i>
+                    </button>
+                </form>
+
+            @elseif($publicationStatus === 'published')
+
+                <div class="publication-published-message">
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <div>
+                        <strong>Successfully Published</strong>
+                        <span>
+                            This result is available for online viewing.
+                        </span>
+                    </div>
+                </div>
+
+                @if($publishedDate)
+                    <div class="publication-date">
+                        <i class="bi bi-calendar-check me-1"></i>
+                        {{ $publishedDate->format('d M Y, h:i A') }}
+                    </div>
+                @endif
+
+            @else
+
+                <div class="publication-pending-message">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Publication status is not yet available.
+                </div>
+
+            @endif
+
+        </div>
+
+    </div>
+
+</div>
+
+
+    {{-- WHATSAPP NOTIFICATION --}}
 
     @if($publicationStatus === 'published')
 
         <div class="whatsapp-row">
 
             <a href="{{ route('admin.results.whatsapp', $result) }}"
+               target="_blank"
                class="btn whatsapp-btn"
-               onclick="return confirm('Open WhatsApp with the result message for this parent?');"
-               target="_blank">
+               onclick="return confirm('Open WhatsApp with the result message for this parent?');">
 
                 <i class="bi bi-whatsapp me-1"></i>
                 Send WhatsApp Notification
@@ -1091,571 +1580,575 @@
     @endif
 
 
-    {{-- =========================================================
-        STUDENT INFORMATION
-    ========================================================== --}}
+    {{-- =====================================================
+         A4 RESULT MARKSHEET
+    ====================================================== --}}
 
-    <div class="result-card">
+    <div class="result-sheet">
 
-        <div class="result-card-header">
+        @if($logoSource)
+            <img src="{{ $logoSource }}"
+                 class="result-watermark"
+                 alt="School watermark">
+        @endif
 
-            <h5 class="result-card-title">
-                <i class="bi bi-person-vcard"></i>
-                Student Information
-            </h5>
+        <div class="result-sheet-content">
 
-            <p class="result-card-subtitle">
-                Basic student and academic identification details.
-            </p>
+            {{-- SCHOOL HEADER --}}
 
-        </div>
+            <div class="school-header">
 
-        <div class="result-card-body">
+                <div class="school-logo-cell">
 
-            <div class="info-grid">
+                    @if($logoSource)
+                        <img src="{{ $logoSource }}"
+                             class="school-logo"
+                             alt="School Logo">
+                    @endif
 
-                <div class="info-item">
-                    <div class="info-label">Student ID</div>
-                    <div class="info-value">
-                        {{ $result->student?->student_id ?? 'N/A' }}
-                    </div>
                 </div>
 
-                <div class="info-item">
-                    <div class="info-label">Student Name</div>
-                    <div class="info-value">
-                        {{ $studentName }}
+                <div class="school-name-cell">
+
+                    <h1 class="school-name">
+                        {{ $schoolName }}
+                    </h1>
+
+                    @if($schoolAddress)
+                        <div class="school-address">
+                            {{ $schoolAddress }}
+                        </div>
+                    @endif
+
+                    <div class="school-contact">
+
+                        @if($schoolPhone)
+                            Phone: {{ $schoolPhone }}
+                        @endif
+
+                        @if($schoolPhone && $schoolEmail)
+                            |
+                        @endif
+
+                        @if($schoolEmail)
+                            Email: {{ $schoolEmail }}
+                        @endif
+
+                        @if($schoolWebsite)
+                            <br>
+                            {{ $schoolWebsite }}
+                        @endif
+
                     </div>
+
                 </div>
 
-                <div class="info-item">
-                    <div class="info-label">Class</div>
-                    <div class="info-value">
-                        {{ $result->class_name ?? 'N/A' }}
-                    </div>
-                </div>
+                <div class="school-code-cell">
 
-                <div class="info-item">
-                    <div class="info-label">Section</div>
-                    <div class="info-value">
-                        {{ $result->section ?? 'N/A' }}
-                    </div>
-                </div>
+                    @if($schoolCode)
+                        <div class="school-code-item">
+                            <strong>School Code:</strong>
+                            {{ $schoolCode }}
+                        </div>
+                    @endif
 
-                <div class="info-item">
-                    <div class="info-label">Roll Number</div>
-                    <div class="info-value">
-                        {{ $result->student?->roll_number ?? 'N/A' }}
-                    </div>
+                    @if($udiseCode)
+                        <div class="school-code-item">
+                            <strong>UDISE:</strong>
+                            {{ $udiseCode }}
+                        </div>
+                    @endif
+
+                    @if($established)
+                        <div class="school-code-item">
+                            <strong>Established:</strong>
+                            {{ $established }}
+                        </div>
+                    @endif
+
                 </div>
 
             </div>
 
-        </div>
 
-    </div>
+            {{-- MARKSHEET TITLE --}}
 
+            <div class="marksheet-title">
 
-    {{-- =========================================================
-        EXAMINATION INFORMATION
-    ========================================================== --}}
+                <h2>STATEMENT OF MARKS</h2>
 
-    <div class="result-card">
-
-        <div class="result-card-header">
-
-            <h5 class="result-card-title">
-                <i class="bi bi-journal-text"></i>
-                Examination Information
-            </h5>
-
-            <p class="result-card-subtitle">
-                Examination schedule and academic year details.
-            </p>
-
-        </div>
-
-        <div class="result-card-body">
-
-            <div class="info-grid">
-
-                <div class="info-item">
-                    <div class="info-label">Examination</div>
-                    <div class="info-value">
-                        {{ $result->exam?->exam_name ?? 'N/A' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Exam Type</div>
-                    <div class="info-value">
-                        {{ $result->exam?->exam_type ?? 'N/A' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Academic Year</div>
-                    <div class="info-value">
-                        {{ $result->academic_year ?? 'N/A' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Start Date</div>
-                    <div class="info-value">
-
-                        @if($result->exam?->start_date)
-
-                            {{ \Carbon\Carbon::parse(
-                                $result->exam->start_date
-                            )->format('d M Y') }}
-
-                        @else
-                            N/A
-                        @endif
-
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">End Date</div>
-                    <div class="info-value">
-
-                        @if($result->exam?->end_date)
-
-                            {{ \Carbon\Carbon::parse(
-                                $result->exam->end_date
-                            )->format('d M Y') }}
-
-                        @else
-                            N/A
-                        @endif
-
-                    </div>
+                <div class="marksheet-subtitle">
+                    {{ $examName }}
+                    |
+                    Academic Year: {{ $result->academic_year ?? 'N/A' }}
                 </div>
 
             </div>
 
-        </div>
 
-    </div>
+            {{-- STUDENT INFORMATION --}}
+
+            <div class="sheet-section">
+
+                <h5 class="sheet-section-title">
+                    Student Information
+                </h5>
+
+                <table class="sheet-info-table">
+
+                    <tr>
+                        <td>
+                            <strong>Student Name:</strong>
+                            {{ $studentName }}
+                        </td>
+
+                        <td>
+                            <strong>Student ID:</strong>
+                            {{ $result->student?->student_id ?? 'N/A' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <strong>Roll Number:</strong>
+                            {{ $result->student?->roll_number ?? 'N/A' }}
+                        </td>
+
+                        <td>
+                            <strong>Class:</strong>
+                            {{ $result->class_name ?? 'N/A' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <strong>Section:</strong>
+                            {{ $result->section ?? 'N/A' }}
+                        </td>
+
+                        <td>
+                            <strong>Academic Year:</strong>
+                            {{ $result->academic_year ?? 'N/A' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <strong>Examination:</strong>
+                            {{ $examName }}
+                        </td>
+
+                        <td>
+                            <strong>Exam Type:</strong>
+                            {{ $examType }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <strong>Start Date:</strong>
+
+                            @if($result->exam?->start_date)
+                                {{ \Carbon\Carbon::parse($result->exam->start_date)->format('d-m-Y') }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
+
+                        <td>
+                            <strong>End Date:</strong>
+
+                            @if($result->exam?->end_date)
+                                {{ \Carbon\Carbon::parse($result->exam->end_date)->format('d-m-Y') }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <strong>Generated On:</strong>
+
+                            {{ $generatedDate
+                                ? \Carbon\Carbon::parse($generatedDate)->format('d-m-Y')
+                                : 'N/A' }}
+                        </td>
+
+                        <td>
+                            <strong>Publication Status:</strong>
+                            {{ ucfirst($publicationStatus) }}
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
 
 
-    {{-- =========================================================
-        SUBJECT-WISE MARKS
-    ========================================================== --}}
+            {{-- ACADEMIC PERFORMANCE --}}
 
-    <div class="result-card marks-card">
+            <div class="sheet-section">
 
-        <div class="result-card-header">
+                <h5 class="sheet-section-title">
+                    Academic Performance
+                </h5>
 
-            <div class="marks-toolbar mb-0">
+                <table class="sheet-marks-table">
 
-                <div>
+                    <thead>
 
-                    <h5 class="result-card-title">
-                        <i class="bi bi-table"></i>
-                        Subject-wise Marks
-                    </h5>
+                        <tr>
+                            <th rowspan="2" style="width:7%;">
+                                Sr. No.
+                            </th>
 
-                    <p class="result-card-subtitle">
-                        Detailed marks and subject performance.
-                    </p>
+                            <th rowspan="2" style="width:25%;">
+                                Subject
+                            </th>
 
+                            <th colspan="2" style="width:22%;">
+                                Marks Obtained
+                            </th>
+
+                            <th rowspan="2" style="width:15%;">
+                                Obtained
+                            </th>
+
+                            <th rowspan="2" style="width:15%;">
+                                Maximum
+                            </th>
+
+                            <th rowspan="2" style="width:10%;">
+                                Grade
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <th>Internal</th>
+                            <th>Theory</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @php
+                            $calculatedObtained = 0;
+                            $calculatedMaximum = 0;
+                        @endphp
+
+                        @forelse($details as $index => $detail)
+
+                            @php
+                                $maximum = (float) (
+                                    $detail->max_marks
+                                    ?? $detail->maximum_marks
+                                    ?? $detail->total_marks
+                                    ?? 0
+                                );
+
+                                $obtained = (float) (
+                                    $detail->obtained_marks
+                                    ?? $detail->marks_obtained
+                                    ?? $detail->marks
+                                    ?? 0
+                                );
+
+                                $internal = (float) (
+                                    $detail->internal_marks ?? 0
+                                );
+
+                                $theory = (float) (
+                                    $detail->theory_marks ?? 0
+                                );
+
+                                $hasSplitMarks =
+                                    $detail->internal_marks !== null
+                                    || $detail->theory_marks !== null;
+
+                                $calculatedObtained += $obtained;
+                                $calculatedMaximum += $maximum;
+
+                                $subjectPercentage = $maximum > 0
+                                    ? ($obtained / $maximum) * 100
+                                    : 0;
+
+                                $displayGrade = $detail->grade ?? null;
+
+                                if (!$displayGrade) {
+                                    $displayGrade = match (true) {
+                                        $subjectPercentage >= 90 => 'A+',
+                                        $subjectPercentage >= 80 => 'A',
+                                        $subjectPercentage >= 70 => 'B+',
+                                        $subjectPercentage >= 60 => 'B',
+                                        $subjectPercentage >= 50 => 'C',
+                                        $subjectPercentage >= 40 => 'D',
+                                        default => 'F',
+                                    };
+                                }
+
+                                $subjectName =
+                                    $detail->subject_name
+                                    ?? $detail->subject?->subject_name
+                                    ?? $detail->subject?->name
+                                    ?? 'N/A';
+                            @endphp
+
+                            <tr>
+
+                                <td>{{ $index + 1 }}</td>
+
+                                <td class="subject-name">
+                                    {{ $subjectName }}
+                                </td>
+
+                                <td>
+                                    {{ $hasSplitMarks
+                                        ? number_format($internal, 2)
+                                        : '—' }}
+                                </td>
+
+                                <td>
+                                    {{ $hasSplitMarks
+                                        ? number_format($theory, 2)
+                                        : '—' }}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ number_format($obtained, 2) }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ number_format($maximum, 2) }}
+                                </td>
+
+                                <td class="grade-cell">
+                                    {{ $displayGrade }}
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td colspan="7">
+                                    No subject-wise marks available.
+                                </td>
+                            </tr>
+
+                        @endforelse
+
+
+                        @if($subjectCount > 0)
+
+                            <tr class="total-row">
+
+                                <td colspan="4" style="text-align:right;">
+                                    TOTAL
+                                </td>
+
+                                <td>
+                                    {{ number_format(
+                                        (float) ($result->obtained_marks ?? $calculatedObtained),
+                                        2
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    {{ number_format(
+                                        (float) ($result->total_marks ?? $calculatedMaximum),
+                                        2
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    {{ $result->grade ?? 'N/A' }}
+                                </td>
+
+                            </tr>
+
+                        @endif
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            {{-- RESULT SUMMARY --}}
+
+            <div class="sheet-section">
+
+                <h5 class="sheet-section-title">
+                    Result Summary
+                </h5>
+
+                <table class="sheet-summary-table">
+
+                    <tr>
+
+                        <td>
+                            <span class="summary-heading">
+                                Total Maximum
+                            </span>
+
+                            <span class="summary-number">
+                                {{ number_format((float) $result->total_marks, 2) }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="summary-heading">
+                                Total Obtained
+                            </span>
+
+                            <span class="summary-number">
+                                {{ number_format((float) $result->obtained_marks, 2) }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="summary-heading">
+                                Percentage
+                            </span>
+
+                            <span class="summary-number">
+                                {{ number_format($percentage, 2) }}%
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="summary-heading">
+                                Grade
+                            </span>
+
+                            <span class="summary-number">
+                                {{ $result->grade ?? 'N/A' }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+            {{-- FINAL RESULT --}}
+
+            <div class="sheet-final-result">
+
+                <div class="sheet-final-label">
+                    FINAL RESULT
                 </div>
 
-                <span class="subject-count">
-                    {{ $subjectCount }} {{ $subjectCount === 1 ? 'Subject' : 'Subjects' }}
+                <span class="sheet-final-status
+                    {{ $isPassed ? 'sheet-pass' : ($isFailed ? 'sheet-fail' : ($isAbsent ? 'sheet-absent' : 'sheet-other')) }}">
+
+                    {{ $finalStatus }}
+
+                </span>
+
+            </div>
+
+
+            {{-- PUBLICATION INFORMATION --}}
+
+            <div class="sheet-publication">
+
+                {{ $publicationStatus === 'published'
+                    ? 'ONLINE RESULT PUBLISHED'
+                    : 'RESULT ' . strtoupper($publicationStatus) }}
+
+                @if($publishedDate)
+                    |
+                    Published on:
+                    {{ \Carbon\Carbon::parse($publishedDate)->format('d-m-Y') }}
+                @endif
+
+                @if($result->publisher)
+                    |
+                    Published by:
+                    {{ $result->publisher->name }}
+                @endif
+
+            </div>
+
+
+            {{-- SIGNATURES --}}
+
+            <div class="sheet-signatures">
+
+                <div class="sheet-signature-cell">
+                    <div class="signature-line"></div>
+                    Class Teacher
+                </div>
+
+                <div class="sheet-signature-cell">
+                    <div class="signature-line"></div>
+                    School Seal
+                </div>
+
+                <div class="sheet-signature-cell">
+                    <div class="signature-line"></div>
+                    Principal
+                </div>
+
+            </div>
+
+
+            {{-- FOOTER --}}
+
+            <div class="sheet-footer">
+
+                <span>
+                    Generated from {{ $schoolName }}
+                </span>
+
+                <span>
+                    Generated on:
+                    {{ now()->format('d-m-Y') }}
+                </span>
+
+                <span>
+                    Published on:
+                    {{ $publishedDate
+                        ? \Carbon\Carbon::parse($publishedDate)->format('d-m-Y')
+                        : 'Not Published' }}
                 </span>
 
             </div>
 
         </div>
 
-        <div class="table-responsive">
-
-            <table class="table marks-table align-middle">
-
-                <thead>
-
-                    <tr>
-
-                        <th width="65">#</th>
-
-                        <th>Subject</th>
-
-                        <th class="text-center">
-                            Maximum
-                        </th>
-
-                        <th class="text-center">
-                            Obtained
-                        </th>
-
-                        <th class="text-center">
-                            Percentage
-                        </th>
-
-                        <th class="text-center">
-                            Grade
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @forelse($result->details as $index => $detail)
-
-                        @php
-
-                            $maximum = (float) (
-                                $detail->max_marks
-                                ?? $detail->maximum_marks
-                                ?? $detail->total_marks
-                                ?? 0
-                            );
-
-                            $obtained = (float) (
-                                $detail->obtained_marks
-                                ?? $detail->marks_obtained
-                                ?? $detail->marks
-                                ?? 0
-                            );
-
-                            $subjectPercentage = $maximum > 0
-                                ? ($obtained / $maximum) * 100
-                                : 0;
-
-                            $detailGrade = $detail->grade ?? null;
-
-                            $displayGrade = $detailGrade;
-
-                            if (!$displayGrade) {
-                                $displayGrade = match (true) {
-                                    $subjectPercentage >= 90 => 'A+',
-                                    $subjectPercentage >= 80 => 'A',
-                                    $subjectPercentage >= 70 => 'B+',
-                                    $subjectPercentage >= 60 => 'B',
-                                    $subjectPercentage >= 50 => 'C',
-                                    $subjectPercentage >= 40 => 'D',
-                                    default => 'F',
-                                };
-                            }
-
-                        @endphp
-
-                        <tr>
-
-                            <td>
-                                <span class="subject-number">
-                                    {{ $index + 1 }}
-                                </span>
-                            </td>
-
-                            <td>
-
-                                <div class="fw-bold">
-
-                                    {{ $detail->subject_name
-                                        ?? $detail->subject?->subject_name
-                                        ?? $detail->subject?->name
-                                        ?? 'N/A' }}
-
-                                </div>
-
-                            </td>
-
-                            <td class="text-center">
-                                {{ number_format($maximum, 2) }}
-                            </td>
-
-                            <td class="text-center fw-bold">
-                                {{ number_format($obtained, 2) }}
-                            </td>
-
-                            <td class="text-center percentage-cell">
-
-                                {{ number_format(
-                                    $subjectPercentage,
-                                    2
-                                ) }}%
-
-                            </td>
-
-                            <td class="text-center">
-
-                                <span class="grade-badge">
-                                    {{ $displayGrade }}
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-
-                            <td colspan="6"
-                                class="text-center py-5">
-
-                                <i class="bi bi-inbox fs-2 text-muted d-block mb-2"></i>
-
-                                <div class="fw-semibold text-muted">
-                                    No subject-wise result details found.
-                                </div>
-
-                                <small class="text-muted">
-                                    Marks details are not available for this result.
-                                </small>
-
-                            </td>
-
-                        </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
-
     </div>
 
 
-    {{-- =========================================================
-        RESULT SUMMARY
-    ========================================================== --}}
+    {{-- ADMIN BOTTOM ACTIONS --}}
 
-    <div class="result-card">
-
-        <div class="result-card-header">
-
-            <h5 class="result-card-title">
-                <i class="bi bi-bar-chart"></i>
-                Result Summary
-            </h5>
-
-            <p class="result-card-subtitle">
-                Overall academic performance for this examination.
-            </p>
-
-        </div>
-
-        <div class="result-card-body">
-
-            <div class="summary-grid">
-
-                <div class="summary-item">
-
-                    <div class="summary-label">
-                        Total Marks
-                    </div>
-
-                    <div class="summary-value">
-                        {{ number_format(
-                            (float) $result->total_marks,
-                            2
-                        ) }}
-                    </div>
-
-                </div>
-
-
-                <div class="summary-item">
-
-                    <div class="summary-label">
-                        Obtained Marks
-                    </div>
-
-                    <div class="summary-value">
-                        {{ number_format(
-                            (float) $result->obtained_marks,
-                            2
-                        ) }}
-                    </div>
-
-                </div>
-
-
-                <div class="summary-item">
-
-                    <div class="summary-label">
-                        Percentage
-                    </div>
-
-                    <div class="summary-value primary">
-                        {{ number_format(
-                            $percentage,
-                            2
-                        ) }}%
-                    </div>
-
-                    <div class="progress-wrap">
-
-                        <div class="progress">
-
-                            <div class="progress-bar"
-                                 role="progressbar"
-                                 style="width: {{ $percentage }}%;"
-                                 aria-valuenow="{{ $percentage }}"
-                                 aria-valuemin="0"
-                                 aria-valuemax="100">
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="summary-item">
-
-                    <div class="summary-label">
-                        Overall Grade
-                    </div>
-
-                    <div class="summary-value">
-                        {{ $result->grade ?? 'N/A' }}
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        FINAL RESULT STATUS
-    ========================================================== --}}
-
-    <div class="final-status-card mb-4">
-
-        <div class="final-status-inner">
-
-            <div>
-
-                <div class="final-status-label">
-                    Final Result Status
-                </div>
-
-                <div>
-
-                    @if(in_array($resultStatus, ['pass', 'passed']))
-
-                        <span class="final-status-badge final-pass">
-                            <i class="bi bi-check-circle-fill"></i>
-                            PASS
-                        </span>
-
-                    @elseif(in_array($resultStatus, ['fail', 'failed']))
-
-                        <span class="final-status-badge final-fail">
-                            <i class="bi bi-x-circle-fill"></i>
-                            FAIL
-                        </span>
-
-                    @elseif($resultStatus === 'absent')
-
-                        <span class="final-status-badge final-absent">
-                            <i class="bi bi-dash-circle-fill"></i>
-                            ABSENT
-                        </span>
-
-                    @else
-
-                        <span class="final-status-badge final-other">
-                            {{ strtoupper(
-                                $result->result_status ?? 'N/A'
-                            ) }}
-                        </span>
-
-                    @endif
-
-                </div>
-
-            </div>
-
-
-            <div class="generated-box">
-
-                <div class="generated-label">
-                    Result Generated On
-                </div>
-
-                <div class="generated-value">
-
-                    @if($result->generated_at)
-
-                        {{ $result->generated_at->format(
-                            'd M Y, h:i A'
-                        ) }}
-
-                    @else
-
-                        {{ $result->created_at?->format(
-                            'd M Y, h:i A'
-                        ) ?? 'N/A' }}
-
-                    @endif
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-        FOOTER ACTIONS
-    ========================================================== --}}
-
-    <div class="footer-actions">
+    <div class="admin-bottom-actions">
 
         <a href="{{ route('admin.results.index') }}"
            class="btn btn-outline-secondary">
-
             <i class="bi bi-arrow-left me-1"></i>
             Back to Results
-
         </a>
-
 
         <a href="{{ route('admin.results.history', $result) }}"
-           class="btn btn-outline-primary">
-
+           class="btn btn-outline-success">
             <i class="bi bi-clock-history me-1"></i>
-            View History
-
+            View Result History
         </a>
-
 
         <a href="{{ route('admin.results.print', $result) }}"
            target="_blank"
-           class="btn btn-outline-secondary">
-
+           class="btn btn-success">
             <i class="bi bi-printer me-1"></i>
-            Print Result
-
-        </a>
-
-
-        <a href="{{ route('admin.results.pdf', $result) }}"
-           target="_blank"
-           class="btn btn-outline-danger">
-
-            <i class="bi bi-file-earmark-pdf me-1"></i>
-            Download PDF
-
+            Print A4 Result
         </a>
 
     </div>

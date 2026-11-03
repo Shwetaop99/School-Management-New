@@ -7,12 +7,20 @@
 
     {{-- PAGE HEADER --}}
     <div class="exam-page-header">
+
         <div class="exam-heading">
+
             <div class="exam-page-icon">
                 <i class="bi bi-mortarboard-fill"></i>
             </div>
 
             <div class="exam-heading-content">
+
+                <div class="exam-eyebrow">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                    Examination Management
+                </div>
+
                 <div class="exam-title-line">
                     <h1>Exam Classes</h1>
 
@@ -24,7 +32,9 @@
                 <p>
                     Configure which classes will participate in this examination.
                 </p>
+
             </div>
+
         </div>
 
         <a href="{{ route('admin.exams.show', $exam) }}"
@@ -32,6 +42,7 @@
             <i class="bi bi-arrow-left"></i>
             <span>Back to Exam</span>
         </a>
+
     </div>
 
     {{-- EXAM INFORMATION --}}
@@ -116,6 +127,7 @@
     <section class="exam-panel">
 
         <div class="exam-panel-header">
+
             <div class="exam-panel-heading">
                 <div class="exam-section-icon">
                     <i class="bi bi-grid-3x3-gap-fill"></i>
@@ -137,6 +149,7 @@
                     </span>
                 </div>
             @endif
+
         </div>
 
         <form method="POST"
@@ -151,7 +164,6 @@
                     <label class="exam-select-all">
                         <input type="checkbox" id="selectAll">
                         <span class="exam-custom-checkbox"></span>
-
                         <span>Select All Classes</span>
                     </label>
 
@@ -164,7 +176,9 @@
 
                 {{-- CLASSES TABLE --}}
                 <div class="exam-table-wrap">
+
                     <table class="exam-table">
+
                         <thead>
                             <tr>
                                 <th class="exam-select-column">
@@ -178,7 +192,9 @@
                         </thead>
 
                         <tbody>
+
                             @foreach($classes as $class)
+
                                 <tr class="class-row">
 
                                     {{-- CHECKBOX --}}
@@ -199,6 +215,7 @@
                                     {{-- CLASS NAME --}}
                                     <td>
                                         <div class="exam-class-cell">
+
                                             <div class="exam-class-avatar">
                                                 <i class="bi bi-mortarboard"></i>
                                             </div>
@@ -207,6 +224,7 @@
                                                 <strong>{{ $class->class_name }}</strong>
                                                 <span>Class ID: {{ $class->id }}</span>
                                             </div>
+
                                         </div>
                                     </td>
 
@@ -242,13 +260,18 @@
                                     </td>
 
                                 </tr>
+
                             @endforeach
+
                         </tbody>
+
                     </table>
+
                 </div>
 
                 {{-- FORM FOOTER --}}
                 <div class="exam-panel-footer">
+
                     <div class="exam-footer-note">
                         <i class="bi bi-shield-check"></i>
                         <span>
@@ -262,12 +285,14 @@
                         <i class="bi bi-check2-circle"></i>
                         <span>Save &amp; Continue</span>
                     </button>
+
                 </div>
 
             @else
 
                 {{-- EMPTY STATE --}}
                 <div class="exam-empty-state">
+
                     <div class="exam-empty-icon">
                         <i class="bi bi-mortarboard"></i>
                     </div>
@@ -284,25 +309,32 @@
                         <i class="bi bi-arrow-left"></i>
                         Back to Exam
                     </a>
+
                 </div>
 
             @endif
 
         </form>
+
     </section>
 
     {{-- PAGE FOOTNOTE --}}
     <div class="exam-page-footnote">
         <i class="bi bi-journal-check"></i>
-        <span>School Diary <span class="exam-footnote-dot">·</span> Examination Management</span>
+        <span>
+            School Diary
+            <span class="exam-footnote-dot">·</span>
+            Examination Management
+        </span>
     </div>
 
 </div>
 
 <style>
+
 /* =========================================================
    SCHOOL DIARY DESIGN SYSTEM
-   Exam Classes
+   EXAM CLASSES
 ========================================================= */
 
 .exam-classes-page {
@@ -358,21 +390,69 @@
     outline-offset: 3px;
 }
 
-/* PAGE HEADER */
+/* =========================================================
+   PAGE HEADER — MATCHING EXAMINATION HEADER
+========================================================= */
 
 .exam-page-header {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 20px;
+    min-height: 155px;
     margin-bottom: 25px;
+    padding: 27px 30px;
+    overflow: hidden;
+
+    border: 1px solid rgba(196, 154, 69, 0.35);
+    border-left: 4px solid #c49a45;
+    border-radius: 17px;
+
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+
+    box-shadow: 0 9px 24px rgba(20, 47, 37, 0.12);
+}
+
+/* Decorative background circle */
+
+.exam-page-header::after {
+    content: "";
+    position: absolute;
+    top: -105px;
+    right: 90px;
+    width: 290px;
+    height: 290px;
+    border: 1px solid rgba(226, 196, 127, 0.12);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.025);
+    pointer-events: none;
+}
+
+.exam-page-header::before {
+    content: "";
+    position: absolute;
+    top: -65px;
+    right: 155px;
+    width: 200px;
+    height: 200px;
+    border: 1px solid rgba(226, 196, 127, 0.09);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 .exam-heading {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 17px;
     min-width: 0;
 }
 
@@ -381,14 +461,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 54px;
-    width: 54px;
-    height: 54px;
-    border: 1px solid #d8e1d7;
-    border-radius: 16px;
-    background: #e9eee5;
-    color: var(--exam-forest);
-    font-size: 24px;
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+
+    border: 1px solid rgba(226, 196, 127, 0.42);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.09);
+
+    color: #e2c47f;
+    font-size: 25px;
 }
 
 .exam-page-icon::after {
@@ -399,11 +481,30 @@
     top: 7px;
     right: 7px;
     border-radius: 50%;
-    background: #b4c8a9;
+    background: #c49a45;
+    box-shadow: 0 0 10px rgba(196, 154, 69, 0.45);
 }
 
 .exam-heading-content {
+    position: relative;
+    z-index: 1;
     min-width: 0;
+}
+
+.exam-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #e2c47f;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.exam-eyebrow i {
+    font-size: 13px;
 }
 
 .exam-title-line {
@@ -411,22 +512,22 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 11px;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
 }
 
 .exam-title-line h1 {
     margin: 0;
-    color: var(--exam-ink);
+    color: #fffefa;
     font-family: Georgia, serif;
-    font-size: clamp(25px, 3vw, 32px);
+    font-size: clamp(25px, 3vw, 33px);
     font-weight: 700;
     letter-spacing: -0.7px;
 }
 
 .exam-heading-content > p {
     margin: 0;
-    color: var(--exam-muted);
-    font-size: 13px;
+    color: rgba(244, 246, 237, 0.76);
+    font-size: 12px;
     line-height: 1.7;
 }
 
@@ -436,18 +537,61 @@
     justify-content: center;
     min-height: 27px;
     padding: 5px 11px;
-    border: 1px solid #d9e3d7;
+
+    border: 1px solid rgba(226, 196, 127, 0.4);
     border-radius: 30px;
-    background: #edf2e9;
-    color: var(--exam-forest);
+    background: rgba(196, 154, 69, 0.13);
+
+    color: #f0d99e;
     font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
 }
 
-/* BUTTONS */
+/* HEADER BACK BUTTON */
 
-.exam-back-btn {
+.exam-page-header .exam-back-btn {
+    position: relative;
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    min-height: 42px;
+    padding: 10px 17px;
+
+    border: 1px solid rgba(226, 196, 127, 0.45);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+
+    color: #fffefa;
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: all 0.2s ease;
+}
+
+.exam-page-header .exam-back-btn i {
+    color: #e2c47f;
+    font-size: 15px;
+}
+
+.exam-page-header .exam-back-btn:hover {
+    border-color: #c49a45;
+    background: #c49a45;
+    color: #20352c;
+    transform: translateY(-2px);
+}
+
+.exam-page-header .exam-back-btn:hover i {
+    color: #20352c;
+}
+
+/* EMPTY STATE BACK BUTTON */
+
+.exam-empty-state .exam-back-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -460,11 +604,10 @@
     color: var(--exam-ink);
     font-size: 12px;
     font-weight: 700;
-    transition: background 0.2s ease, border-color 0.2s ease,
-                transform 0.2s ease;
+    transition: all 0.2s ease;
 }
 
-.exam-back-btn:hover {
+.exam-empty-state .exam-back-btn:hover {
     border-color: #b6c5b6;
     background: #f0f1e8;
     color: var(--exam-forest-dark);
@@ -1026,7 +1169,7 @@
     font-size: 16px;
 }
 
-/* FOREST-GREEN ACTION BUTTON */
+/* SAVE BUTTON */
 
 .exam-save-btn {
     display: inline-flex;
@@ -1130,7 +1273,8 @@
 
 /* RESPONSIVE */
 
-@media (max-width: 991.98px) {
+@media (max-width: 767.98px) {
+
     .exam-classes-page {
         padding: 20px;
     }
@@ -1149,16 +1293,23 @@
         width: 40px;
         height: 40px;
     }
+
+    .exam-page-header {
+        padding: 24px;
+    }
 }
 
 @media (max-width: 767.98px) {
+
     .exam-classes-page {
         padding: 15px;
     }
 
     .exam-page-header {
         align-items: flex-start;
-        gap: 16px;
+        flex-direction: column;
+        gap: 17px;
+        padding: 22px 19px;
     }
 
     .exam-heading {
@@ -1277,8 +1428,13 @@
 }
 
 @media (max-width: 420px) {
+
     .exam-classes-page {
         padding: 12px;
+    }
+
+    .exam-page-header {
+        padding: 19px 15px;
     }
 
     .exam-page-icon {
@@ -1317,6 +1473,7 @@
 /* REDUCED MOTION */
 
 @media (prefers-reduced-motion: reduce) {
+
     .exam-classes-page *,
     .exam-classes-page *::before,
     .exam-classes-page *::after {
@@ -1325,11 +1482,14 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+
 }
+
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const page = document.querySelector('.exam-classes-page');
 
     if (!page) {
@@ -1337,18 +1497,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const selectAll = page.querySelector('#selectAll');
+
     const checkboxes = Array.from(
         page.querySelectorAll('.class-checkbox')
     );
+
     const selectedCount = page.querySelector('#selectedCount');
     const selectedBadge = page.querySelector('#selectedBadge');
-    const rows = Array.from(page.querySelectorAll('.class-row'));
+
+    const rows = Array.from(
+        page.querySelectorAll('.class-row')
+    );
 
     if (!selectAll || !checkboxes.length) {
         return;
     }
 
     function updateSelection() {
+
         const checkedCount = checkboxes.filter(
             checkbox => checkbox.checked
         ).length;
@@ -1362,33 +1528,52 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         selectAll.checked = checkedCount === checkboxes.length;
+
         selectAll.indeterminate =
-            checkedCount > 0 && checkedCount < checkboxes.length;
+            checkedCount > 0 &&
+            checkedCount < checkboxes.length;
 
         rows.forEach(function (row, index) {
+
             if (checkboxes[index]) {
+
                 row.classList.toggle(
                     'selected',
                     checkboxes[index].checked
                 );
+
             }
+
         });
+
     }
 
+    /* SELECT ALL */
+
     selectAll.addEventListener('change', function () {
+
         checkboxes.forEach(function (checkbox) {
             checkbox.checked = selectAll.checked;
         });
 
         updateSelection();
+
     });
+
+    /* INDIVIDUAL CHECKBOXES */
 
     checkboxes.forEach(function (checkbox) {
+
         checkbox.addEventListener('change', updateSelection);
+
     });
 
+    /* CLICK ROW TO SELECT */
+
     rows.forEach(function (row, index) {
+
         row.addEventListener('click', function (event) {
+
             if (
                 event.target.closest('input') ||
                 event.target.closest('button') ||
@@ -1401,13 +1586,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const checkbox = checkboxes[index];
 
             if (checkbox) {
+
                 checkbox.checked = !checkbox.checked;
+
                 updateSelection();
+
             }
+
         });
+
     });
 
+    /* INITIAL STATE */
+
     updateSelection();
+
 });
 </script>
 

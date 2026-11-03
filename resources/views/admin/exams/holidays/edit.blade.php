@@ -50,11 +50,8 @@
         </a>
 
         <i class="bi bi-chevron-right"></i>
-
         <span>Exam Holidays</span>
-
         <i class="bi bi-chevron-right"></i>
-
         <span class="breadcrumb-current">Edit Holiday</span>
     </div>
 
@@ -71,14 +68,8 @@
 
                 <div class="summary-details">
                     <span class="summary-label">Examination</span>
-
-                    <strong class="summary-value">
-                        {{ $exam->exam_name }}
-                    </strong>
-
-                    <span class="summary-caption">
-                        Examination details
-                    </span>
+                    <strong class="summary-value">{{ $exam->exam_name }}</strong>
+                    <span class="summary-caption">Examination details</span>
                 </div>
             </div>
         </div>
@@ -93,14 +84,8 @@
 
                 <div class="summary-details">
                     <span class="summary-label">Academic Year</span>
-
-                    <strong class="summary-value">
-                        {{ $exam->academic_year }}
-                    </strong>
-
-                    <span class="summary-caption">
-                        Current academic session
-                    </span>
+                    <strong class="summary-value">{{ $exam->academic_year }}</strong>
+                    <span class="summary-caption">Current academic session</span>
                 </div>
             </div>
         </div>
@@ -115,14 +100,10 @@
 
                 <div class="summary-details">
                     <span class="summary-label">Current Holiday</span>
-
                     <strong class="summary-value">
                         {{ $holiday->holiday_date->format('d M Y') }}
                     </strong>
-
-                    <span class="summary-caption">
-                        Existing holiday date
-                    </span>
+                    <span class="summary-caption">Existing holiday date</span>
                 </div>
             </div>
         </div>
@@ -158,10 +139,7 @@
 
             <div class="form-header-copy">
                 <h2>Holiday Information</h2>
-
-                <p>
-                    Review and update the details of this holiday record.
-                </p>
+                <p>Review and update the details of this holiday record.</p>
             </div>
 
             <div class="form-header-side">
@@ -178,7 +156,7 @@
                 @csrf
                 @method('PUT')
 
-                {{-- SECTION: HOLIDAY DETAILS --}}
+                {{-- HOLIDAY DETAILS --}}
                 <div class="holiday-section-heading">
                     <div class="section-number">01</div>
 
@@ -227,7 +205,6 @@
                             The holiday date must fall within the examination period.
                         </div>
 
-                        {{-- EXAM PERIOD --}}
                         <div class="exam-period-panel">
                             <div class="period-icon">
                                 <i class="bi bi-calendar-range"></i>
@@ -249,7 +226,7 @@
 
                     </div>
 
-                    {{-- STATUS --}}
+                    {{-- HOLIDAY STATUS --}}
                     <div class="holiday-field">
 
                         <label for="status" class="holiday-label">
@@ -322,7 +299,7 @@
 
                 </div>
 
-                {{-- SECTION: REASON --}}
+                {{-- HOLIDAY REASON --}}
                 <div class="holiday-section-heading reason-section-heading">
                     <div class="section-number">02</div>
 
@@ -377,7 +354,6 @@
 
                     <div>
                         <strong>Updating an Existing Record</strong>
-
                         <p>
                             Your changes will replace the current holiday information
                             after you select <strong>Update Holiday</strong>.
@@ -391,10 +367,7 @@
 
                     <div class="holiday-security-note">
                         <i class="bi bi-shield-check"></i>
-
-                        <span>
-                            Review your changes before saving.
-                        </span>
+                        <span>Review your changes before saving.</span>
                     </div>
 
                     <div class="holiday-form-actions">
@@ -405,8 +378,7 @@
                             Cancel
                         </a>
 
-                        <button type="submit"
-                                class="holiday-btn holiday-btn-save">
+                        <button type="submit" class="holiday-btn holiday-btn-save">
                             <i class="bi bi-check2-circle"></i>
                             Update Holiday
                             <i class="bi bi-arrow-right save-arrow"></i>
@@ -424,6 +396,7 @@
     {{-- BOTTOM NOTE --}}
     <div class="holiday-bottom-note">
         <i class="bi bi-journal-check"></i>
+
         <span>
             <strong>Examination Records</strong>
             <span class="bottom-note-divider">/</span>
@@ -435,63 +408,62 @@
 
 <style>
 /* =========================================================
-   SCHOOL DIARY DESIGN SYSTEM
-   Edit Exam Holiday
-   Scoped styles only
+   EDIT EXAM HOLIDAY — SCHOOL DIARY DESIGN
 ========================================================= */
 
 .exam-holiday-page {
-    --holiday-page: #f7f6f0;
-    --holiday-paper: #fffefa;
-    --holiday-cream: #f5f3e9;
-    --holiday-ink: #263b35;
-    --holiday-dark: #1d302b;
-    --holiday-soft: #40574a;
-    --holiday-text: #39483e;
-    --holiday-muted: #7b857b;
-    --holiday-line: #e5e1d5;
-    --holiday-sage: #527f70;
-    --holiday-blue: #426b8a;
-    --holiday-amber: #a87543;
-    --holiday-green: #43835d;
-    --holiday-red: #b95b50;
-
+    --holiday-dark: #17382b;
+    --holiday-green: #285640;
+    --holiday-sage: #527d61;
+    --holiday-gold: #c49a45;
+    --holiday-ink: #26352c;
+    --holiday-muted: #7c877e;
+    --holiday-border: #e8ece7;
+    --holiday-bg: #f7f9f6;
     width: 100%;
-    max-width: 1650px;
-    margin: 0 auto;
-    padding: 24px;
-    color: var(--holiday-text);
-    font-family: "Public Sans", "Segoe UI", sans-serif;
-    font-size: 14px;
-}
-
-.exam-holiday-page *,
-.exam-holiday-page *::before,
-.exam-holiday-page *::after {
-    box-sizing: border-box;
-}
-
-.exam-holiday-page a {
-    text-decoration: none;
-}
-
-.exam-holiday-page button,
-.exam-holiday-page input,
-.exam-holiday-page select {
-    font: inherit;
+    color: var(--holiday-ink);
 }
 
 /* PAGE HEADER */
 
 .holiday-page-header {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 22px;
+    min-height: 178px;
     margin-bottom: 20px;
+    padding: 25px 28px;
+    border: 1px solid rgba(196, 154, 69, .38);
+    border-left: 4px solid var(--holiday-gold);
+    border-radius: 16px;
+    background: linear-gradient(135deg, #142f25 0%, #1e4535 55%, #285640 100%);
+    box-shadow: 0 10px 25px rgba(20, 47, 37, .14);
+}
+
+.holiday-page-header::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: -145px;
+    right: -70px;
+    width: 340px;
+    height: 340px;
+    border: 1px solid rgba(226, 196, 127, .22);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 28px rgba(255, 255, 255, .025),
+        0 0 0 58px rgba(255, 255, 255, .02),
+        0 0 0 90px rgba(255, 255, 255, .015);
+    pointer-events: none;
 }
 
 .holiday-heading {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -505,10 +477,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #d9dfd2;
+    border: 1px solid rgba(226, 196, 127, .35);
     border-radius: 15px;
-    background: #e9eee4;
-    color: var(--holiday-ink);
+    background: rgba(226, 196, 127, .13);
+    color: #f0dba9;
     font-size: 23px;
 }
 
@@ -517,8 +489,8 @@
 }
 
 .holiday-eyebrow {
-    margin-bottom: 5px;
-    color: var(--holiday-sage);
+    margin-bottom: 7px;
+    color: #e2c47f;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1.5px;
@@ -533,11 +505,11 @@
 
 .holiday-page-title {
     margin: 0;
-    color: var(--holiday-ink);
+    color: #fffefa;
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(25px, 2.3vw, 32px);
     font-weight: 700;
-    letter-spacing: -0.8px;
+    letter-spacing: -.8px;
     line-height: 1.25;
 }
 
@@ -546,22 +518,24 @@
     align-items: center;
     gap: 6px;
     padding: 6px 10px;
-    border: 1px solid #eadbc4;
+    border: 1px solid rgba(226, 196, 127, .4);
     border-radius: 30px;
-    background: #f6ecda;
-    color: #8b6338;
+    background: rgba(226, 196, 127, .14);
+    color: #f0dba9;
     font-size: 11px;
     font-weight: 700;
 }
 
 .holiday-page-subtitle {
     margin: 7px 0 0;
-    color: var(--holiday-muted);
+    color: rgba(255, 254, 250, .78);
     font-size: 13px;
     line-height: 1.7;
 }
 
 .holiday-back-btn {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -569,19 +543,20 @@
     min-height: 43px;
     flex-shrink: 0;
     padding: 0 16px;
-    border: 1px solid #d8dcd2;
+    border: 1px solid rgba(255, 255, 255, .30);
     border-radius: 10px;
-    background: var(--holiday-paper);
-    color: var(--holiday-ink);
+    background: rgba(255, 255, 255, .09);
+    color: #fffefa;
     font-size: 12px;
     font-weight: 700;
-    transition: background .2s ease, border-color .2s ease, transform .2s ease;
+    text-decoration: none;
+    transition: all .2s ease;
 }
 
 .holiday-back-btn:hover {
-    border-color: var(--holiday-sage);
-    background: #f0f2e9;
-    color: var(--holiday-dark);
+    border-color: #fffefa;
+    background: #fffefa;
+    color: #20392d;
     transform: translateY(-1px);
 }
 
@@ -600,6 +575,7 @@
 .holiday-breadcrumb a {
     color: var(--holiday-sage);
     font-weight: 700;
+    text-decoration: none;
 }
 
 .holiday-breadcrumb a:hover {
@@ -621,73 +597,64 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
-    margin-bottom: 23px;
+    margin-bottom: 22px;
 }
 
 .holiday-summary-card {
     position: relative;
     overflow: hidden;
     min-width: 0;
-    border: 1px solid var(--holiday-line);
-    border-radius: 15px;
-    background: var(--holiday-paper);
-    box-shadow: 0 3px 12px rgba(38, 59, 53, .035);
+    border: 1px solid var(--holiday-border);
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(30, 55, 40, .035);
     transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .holiday-summary-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(38, 59, 53, .07);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(30, 55, 40, .08);
 }
 
 .summary-top-line {
     height: 3px;
-    width: 100%;
 }
 
-.summary-line-green {
-    background: #527f70;
-}
-
-.summary-line-blue {
-    background: #6687a0;
-}
-
-.summary-line-amber {
-    background: #b78b57;
-}
+.summary-line-green { background: #4d8660; }
+.summary-line-blue { background: #5685b6; }
+.summary-line-amber { background: #c49a45; }
 
 .summary-card-content {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 19px;
+    gap: 13px;
+    padding: 18px;
 }
 
 .summary-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    height: 46px;
+    width: 45px;
+    height: 45px;
     flex-shrink: 0;
     border-radius: 12px;
     font-size: 19px;
 }
 
 .summary-icon-green {
-    background: #e8eee5;
-    color: var(--holiday-ink);
+    color: #36714a;
+    background: #eaf4ec;
 }
 
 .summary-icon-blue {
-    background: #e9eff2;
-    color: var(--holiday-blue);
+    color: #4777a8;
+    background: #edf3fa;
 }
 
 .summary-icon-amber {
-    background: #f5ecdf;
-    color: var(--holiday-amber);
+    color: #a77b2e;
+    background: #fbf3e3;
 }
 
 .summary-details {
@@ -698,21 +665,22 @@
 }
 
 .summary-label {
-    color: var(--holiday-muted);
-    font-size: 11px;
-    font-weight: 600;
+    color: #89928a;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .65px;
 }
 
 .summary-value {
     overflow-wrap: anywhere;
-    color: var(--holiday-ink);
+    color: #293b30;
     font-size: 15px;
-    font-weight: 750;
-    line-height: 1.45;
+    font-weight: 800;
 }
 
 .summary-caption {
-    color: #969b90;
+    color: #a0a79f;
     font-size: 10px;
 }
 
@@ -722,33 +690,29 @@
     display: flex;
     align-items: flex-start;
     gap: 13px;
-    margin-bottom: 22px;
-    padding: 17px 19px;
-    border: 1px solid #e9cbc4;
-    border-radius: 12px;
-    background: #fff8f5;
-    color: #843f36;
+    margin-bottom: 20px;
+    padding: 16px 18px;
+    border: 1px solid #f2d0ce;
+    border-left: 4px solid #c6534d;
+    border-radius: 11px;
+    background: #fff7f6;
+    color: #873c38;
 }
 
 .holiday-error-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 35px;
+    height: 35px;
     flex-shrink: 0;
-    border-radius: 10px;
-    background: #f7e5df;
-    color: var(--holiday-red);
+    border-radius: 9px;
+    background: #fce5e3;
+    color: #b84741;
     font-size: 17px;
 }
 
-.holiday-error-content {
-    min-width: 0;
-    padding-top: 2px;
-}
-
-.holiday-error-content > strong {
+.holiday-error-content strong {
     font-size: 13px;
 }
 
@@ -759,36 +723,36 @@
     line-height: 1.8;
 }
 
-/* MAIN FORM CARD */
+/* FORM CARD */
 
 .holiday-form-card {
     overflow: hidden;
-    border: 1px solid var(--holiday-line);
-    border-radius: 16px;
-    background: var(--holiday-paper);
-    box-shadow: 0 5px 22px rgba(38, 59, 53, .045);
+    border: 1px solid var(--holiday-border);
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 5px 20px rgba(30, 55, 40, .045);
 }
 
 .holiday-form-header {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 22px 27px;
-    border-bottom: 1px solid var(--holiday-line);
-    background: #fbfaf5;
+    gap: 13px;
+    padding: 19px 23px;
+    border-bottom: 1px solid #edf0eb;
+    background: linear-gradient(110deg, #fbfcfa, #f6f9f5);
 }
 
 .form-header-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 43px;
-    height: 43px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
-    border: 1px solid #dce2d7;
-    border-radius: 12px;
-    background: #e9eee4;
-    color: var(--holiday-ink);
+    border: 1px solid #dce9dc;
+    border-radius: 11px;
+    background: #eaf3e9;
+    color: #396d49;
     font-size: 18px;
 }
 
@@ -797,30 +761,24 @@
 }
 
 .form-header-copy h2 {
-    margin: 0 0 5px;
-    color: var(--holiday-ink);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 19px;
-    font-weight: 700;
+    margin: 0;
+    color: #293b30;
+    font-size: 16px;
+    font-weight: 800;
 }
 
 .form-header-copy p {
-    margin: 0;
-    color: var(--holiday-muted);
-    font-size: 12px;
-    line-height: 1.6;
+    margin: 4px 0 0;
+    color: #89928a;
+    font-size: 11px;
 }
 
 .form-header-side {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     margin-left: auto;
-    padding: 8px 11px;
-    border: 1px solid #e4e2d8;
-    border-radius: 30px;
-    background: var(--holiday-paper);
-    color: var(--holiday-soft);
+    color: #718176;
     font-size: 10px;
     font-weight: 700;
     white-space: nowrap;
@@ -830,11 +788,12 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--holiday-sage);
+    background: #c49a45;
+    box-shadow: 0 0 0 3px rgba(196, 154, 69, .13);
 }
 
 .holiday-form-body {
-    padding: 29px;
+    padding: 25px;
 }
 
 /* SECTION HEADINGS */
@@ -842,47 +801,47 @@
 .holiday-section-heading {
     display: flex;
     align-items: center;
-    gap: 13px;
-    margin-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 22px;
 }
 
 .section-number {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 37px;
+    height: 37px;
     flex-shrink: 0;
-    border: 1px solid #dce2d7;
-    border-radius: 11px;
-    background: #edf0e7;
-    color: var(--holiday-ink);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 15px;
-    font-weight: 700;
+    border: 1px solid #e6eadf;
+    border-radius: 10px;
+    background: #f4f7f1;
+    color: #64805d;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .holiday-section-heading h3 {
-    margin: 0 0 4px;
-    color: var(--holiday-ink);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 17px;
-    font-weight: 700;
+    margin: 0;
+    color: #2e4034;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .holiday-section-heading p {
-    margin: 0;
-    color: var(--holiday-muted);
+    margin: 4px 0 0;
+    color: #929a92;
     font-size: 11px;
-    line-height: 1.6;
 }
 
 .holiday-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 27px;
-    margin-bottom: 30px;
+    gap: 25px;
+    padding-bottom: 27px;
+    border-bottom: 1px solid #edf0eb;
 }
+
+/* FIELDS */
 
 .holiday-field {
     min-width: 0;
@@ -891,116 +850,99 @@
 .holiday-label {
     display: block;
     margin-bottom: 9px;
-    color: var(--holiday-ink);
+    color: #38473d;
     font-size: 12px;
-    font-weight: 750;
+    font-weight: 800;
 }
 
 .required-star {
-    margin-left: 3px;
-    color: var(--holiday-red);
+    color: #d45c52;
+    margin-left: 2px;
 }
 
 .optional-label {
-    margin-left: 4px;
-    color: var(--holiday-muted);
-    font-size: 11px;
-    font-weight: 400;
+    color: #a0a79f;
+    font-size: 10px;
+    font-weight: 500;
 }
-
-/* INPUTS */
 
 .holiday-input-wrap {
+    position: relative;
     display: flex;
-    align-items: stretch;
-    min-width: 0;
-    min-height: 48px;
-    overflow: hidden;
-    border: 1px solid #dedfd5;
-    border-radius: 10px;
-    background: #fffefa;
-    transition: border-color .2s ease, box-shadow .2s ease;
-}
-
-.holiday-input-wrap:focus-within {
-    border-color: var(--holiday-sage);
-    box-shadow: 0 0 0 3px rgba(82, 127, 112, .11);
+    align-items: center;
 }
 
 .holiday-input-icon {
+    position: absolute;
+    z-index: 1;
+    left: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    flex-shrink: 0;
-    border-right: 1px solid #e8e6dc;
-    background: #f5f4ec;
-    color: var(--holiday-soft);
+    color: #829385;
     font-size: 15px;
+    pointer-events: none;
 }
 
 .holiday-input {
     display: block;
     width: 100%;
-    min-width: 0;
-    min-height: 46px;
-    padding: 11px 13px;
-    border: 0;
-    outline: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--holiday-ink);
-    font-size: 13px;
-    box-shadow: none;
-}
-
-.holiday-input::placeholder {
-    color: #a0a397;
+    min-height: 47px;
+    padding: 10px 13px 10px 42px;
+    border: 1px solid #dfe6dd;
+    border-radius: 9px;
+    outline: none;
+    background: #fff;
+    color: #35443a;
+    font-family: inherit;
+    font-size: 12px;
+    transition: border-color .2s ease, box-shadow .2s ease;
 }
 
 .holiday-input:focus {
-    border: 0;
-    outline: 0;
-    box-shadow: none;
+    border-color: #729879;
+    box-shadow: 0 0 0 3px rgba(85, 133, 94, .11);
 }
 
-.holiday-input.is-invalid {
-    border-color: transparent !important;
-    background-image: none;
-}
-
-.holiday-input-wrap:has(.holiday-input.is-invalid) {
-    border-color: var(--holiday-red);
+.holiday-input::placeholder {
+    color: #adb5ae;
 }
 
 .holiday-select {
+    appearance: none;
     cursor: pointer;
-    appearance: auto;
+    padding-right: 35px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%237e8d80' d='M3.2 5.8 8 10.3l4.8-4.5.9 1-5.7 5.3L2.3 6.8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+.holiday-input.is-invalid {
+    border-color: #d66a64;
 }
 
 .holiday-field-error {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
     margin-top: 7px;
-    color: var(--holiday-red);
+    color: #bd4d47;
     font-size: 11px;
-    line-height: 1.6;
 }
 
 .holiday-help-text {
     display: flex;
     align-items: flex-start;
     gap: 7px;
-    margin-top: 10px;
-    color: var(--holiday-muted);
-    font-size: 11px;
-    line-height: 1.7;
+    margin-top: 9px;
+    color: #929b92;
+    font-size: 10px;
+    line-height: 1.6;
 }
 
 .holiday-help-text i {
-    margin-top: 2px;
-    color: var(--holiday-sage);
+    margin-top: 1px;
+    color: #819a84;
 }
 
 /* EXAM PERIOD */
@@ -1008,50 +950,49 @@
 .exam-period-panel {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 11px;
     margin-top: 17px;
-    padding: 14px;
-    border: 1px solid #e2e3d7;
-    border-radius: 11px;
-    background: #f7f6ef;
+    padding: 13px;
+    border: 1px solid #e4ebdf;
+    border-radius: 10px;
+    background: #f8faf6;
 }
 
 .period-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 37px;
-    height: 37px;
+    width: 35px;
+    height: 35px;
     flex-shrink: 0;
-    border: 1px solid #dce2d7;
-    border-radius: 10px;
-    background: #e9eee4;
-    color: var(--holiday-ink);
+    border-radius: 9px;
+    background: #e9f1e6;
+    color: #608264;
     font-size: 15px;
 }
 
 .period-details {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    min-width: 0;
+    gap: 4px;
 }
 
 .period-label {
-    color: var(--holiday-muted);
-    font-size: 10px;
-    font-weight: 600;
+    color: #929b90;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .7px;
 }
 
 .period-details strong {
-    color: var(--holiday-ink);
-    font-size: 12px;
-    line-height: 1.6;
+    color: #405444;
+    font-size: 11px;
 }
 
 .period-separator {
-    padding: 0 4px;
-    color: var(--holiday-sage);
+    padding: 0 5px;
+    color: #a8b2a6;
 }
 
 /* STATUS PANEL */
@@ -1059,81 +1000,62 @@
 .holiday-status-panel {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: 11px;
     margin-top: 17px;
-    padding: 15px;
+    padding: 14px;
     border: 1px solid;
-    border-radius: 11px;
-    transition: background .2s ease, border-color .2s ease;
+    border-radius: 10px;
+    transition: all .2s ease;
 }
 
 .status-active {
-    border-color: #d9e6d8;
-    background: #f1f5ec;
+    border-color: #d7e9d9;
+    background: #f2f9f2;
+    color: #3c7549;
 }
 
 .status-inactive {
-    border-color: #e4e1d8;
-    background: #f6f4ee;
+    border-color: #e5e8e5;
+    background: #f7f8f7;
+    color: #778078;
 }
 
 .status-panel-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 35px;
-    height: 35px;
-    flex-shrink: 0;
-    border: 1px solid #d9e2d5;
-    border-radius: 10px;
-    background: #e4ecdf;
-    color: var(--holiday-green);
-    font-size: 16px;
-}
-
-.status-inactive .status-panel-icon {
-    border-color: #e1ded5;
-    background: #ebe9e1;
-    color: #797f74;
-}
-
-.holiday-status-panel > div:last-child {
-    min-width: 0;
+    font-size: 17px;
+    padding-top: 1px;
 }
 
 .holiday-status-panel strong {
     display: block;
-    margin-bottom: 5px;
-    color: var(--holiday-ink);
+    margin-bottom: 4px;
     font-size: 12px;
 }
 
 .holiday-status-panel p {
     margin: 0;
-    color: var(--holiday-muted);
-    font-size: 11px;
-    line-height: 1.7;
+    font-size: 10px;
+    line-height: 1.6;
+    color: #78857a;
 }
 
 /* REASON SECTION */
 
 .reason-section-heading {
-    position: relative;
-    margin-top: 7px;
-    padding-top: 26px;
-    border-top: 1px solid var(--holiday-line);
+    margin-top: 27px;
+    margin-bottom: 19px;
 }
 
 .optional-section-badge {
     margin-left: auto;
-    padding: 6px 10px;
-    border: 1px solid #e4e1d6;
-    border-radius: 30px;
-    background: #f7f5ed;
-    color: var(--holiday-muted);
-    font-size: 10px;
-    font-weight: 700;
-    white-space: nowrap;
+    padding: 5px 10px;
+    border: 1px solid #e9e8d8;
+    border-radius: 20px;
+    background: #faf9f1;
+    color: #96834d;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
 }
 
 /* RECORD NOTE */
@@ -1141,75 +1063,70 @@
 .holiday-record-note {
     display: flex;
     align-items: flex-start;
-    gap: 13px;
-    margin-top: 27px;
-    padding: 17px;
-    border: 1px solid #dfe3d8;
-    border-radius: 12px;
-    background: #f5f5ed;
+    gap: 12px;
+    margin-top: 25px;
+    padding: 15px 17px;
+    border: 1px solid #e6e9df;
+    border-radius: 10px;
+    background: #f8f9f5;
 }
 
 .record-note-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 35px;
+    height: 35px;
     flex-shrink: 0;
-    border: 1px solid #dce1d5;
-    border-radius: 10px;
-    background: #e8ede3;
-    color: var(--holiday-ink);
+    border-radius: 9px;
+    background: #edf1e5;
+    color: #758650;
     font-size: 16px;
-}
-
-.holiday-record-note > div:last-child {
-    min-width: 0;
 }
 
 .holiday-record-note strong {
     display: block;
     margin-bottom: 5px;
-    color: var(--holiday-ink);
-    font-size: 12px;
+    color: #465441;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .holiday-record-note p {
     margin: 0;
-    color: var(--holiday-muted);
-    font-size: 11px;
-    line-height: 1.8;
+    color: #899187;
+    font-size: 10px;
+    line-height: 1.7;
 }
 
-/* FOOTER AND BUTTONS */
+/* FORM FOOTER */
 
 .holiday-form-footer {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 18px;
-    margin-top: 27px;
-    padding-top: 23px;
-    border-top: 1px solid var(--holiday-line);
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #edf0eb;
 }
 
 .holiday-security-note {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--holiday-muted);
-    font-size: 11px;
-    line-height: 1.6;
+    color: #8a958a;
+    font-size: 10px;
 }
 
 .holiday-security-note i {
-    color: var(--holiday-green);
-    font-size: 16px;
+    color: #6e9272;
+    font-size: 15px;
 }
 
 .holiday-form-actions {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
 }
@@ -1218,53 +1135,49 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    min-height: 44px;
+    gap: 8px;
+    min-height: 43px;
     padding: 0 17px;
     border: 1px solid transparent;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 750;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
     cursor: pointer;
-    transition: background .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+    transition: all .2s ease;
 }
 
 .holiday-btn-cancel {
-    border-color: #dedfd5;
-    background: #fffefa;
-    color: var(--holiday-soft);
+    border-color: #e1e6df;
+    background: #fff;
+    color: #69766b;
 }
 
 .holiday-btn-cancel:hover {
-    border-color: #c5cbbd;
-    background: #f3f2e9;
-    color: var(--holiday-ink);
+    border-color: #cbd4c9;
+    background: #f7f9f6;
+    color: #354c3a;
 }
 
 .holiday-btn-save {
-    border-color: var(--holiday-dark);
-    background: linear-gradient(135deg, #344f43 0%, #20352c 100%);
-    color: #fffefa;
-    box-shadow: 0 4px 10px rgba(29, 48, 43, .12);
+    border-color: #234c35;
+    background: linear-gradient(135deg, #234c35, #326746);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(35, 76, 53, .15);
 }
 
 .holiday-btn-save:hover {
-    border-color: #1d302b;
-    background: #1d302b;
-    color: #fffefa;
-    box-shadow: 0 7px 16px rgba(29, 48, 43, .18);
+    border-color: #173c29;
+    background: linear-gradient(135deg, #173c29, #28583a);
+    color: #fff;
     transform: translateY(-1px);
-}
-
-.holiday-btn:focus-visible,
-.holiday-back-btn:focus-visible {
-    outline: 3px solid rgba(82, 127, 112, .35);
-    outline-offset: 3px;
+    box-shadow: 0 6px 14px rgba(35, 76, 53, .2);
 }
 
 .save-arrow {
     margin-left: 3px;
-    color: #e6e0cf;
+    font-size: 10px;
     transition: transform .2s ease;
 }
 
@@ -1277,60 +1190,60 @@
 .holiday-bottom-note {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
     margin-top: 18px;
-    padding: 13px 3px 0;
-    color: var(--holiday-muted);
-    font-size: 11px;
-    line-height: 1.7;
+    padding: 13px 15px;
+    border: 1px solid #e9ece5;
+    border-radius: 10px;
+    background: #fbfcfa;
+    color: #8b958a;
+    font-size: 10px;
+    line-height: 1.6;
 }
 
 .holiday-bottom-note > i {
-    color: var(--holiday-sage);
-    font-size: 15px;
+    color: #9b8959;
+    font-size: 16px;
 }
 
 .holiday-bottom-note strong {
-    color: var(--holiday-soft);
+    color: #5a6a5a;
+    font-weight: 800;
 }
 
 .bottom-note-divider {
-    margin: 0 7px;
-    color: #c1c1b5;
+    margin: 0 5px;
+    color: #c2c9bd;
 }
 
 /* RESPONSIVE */
 
-@media (max-width: 1050px) {
-    .exam-holiday-page {
-        padding: 20px;
-    }
-
-    .holiday-form-header,
-    .holiday-form-body {
-        padding: 23px;
+@media (max-width: 991.98px) {
+    .holiday-summary-grid {
+        gap: 11px;
     }
 
     .summary-card-content {
-        gap: 11px;
-        padding: 16px;
+        padding: 14px;
     }
 
     .summary-icon {
-        width: 41px;
-        height: 41px;
+        width: 39px;
+        height: 39px;
+    }
+
+    .summary-value {
+        font-size: 13px;
     }
 }
 
 @media (max-width: 767.98px) {
-    .exam-holiday-page {
-        padding: 14px;
-    }
-
     .holiday-page-header {
-        align-items: flex-start;
+        align-items: stretch;
         flex-direction: column;
-        gap: 16px;
+        min-height: 0;
+        gap: 17px;
+        padding: 20px 18px;
     }
 
     .holiday-heading {
@@ -1357,97 +1270,44 @@
         width: 100%;
     }
 
-    .holiday-breadcrumb {
-        margin-bottom: 17px;
-    }
-
     .holiday-summary-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
-        margin-bottom: 18px;
     }
 
-    .summary-card-content {
-        padding: 15px 17px;
-    }
-
-    .holiday-form-header {
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 11px;
-        padding: 18px;
-    }
-
-    .form-header-icon {
-        width: 38px;
-        height: 38px;
-    }
-
-    .form-header-copy {
-        flex: 1;
-    }
-
-    .form-header-copy h2 {
-        font-size: 17px;
-    }
-
-    .form-header-side {
-        margin-left: 49px;
+    .holiday-form-grid {
+        grid-template-columns: 1fr;
+        gap: 23px;
     }
 
     .holiday-form-body {
         padding: 19px;
     }
 
-    .holiday-form-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-        margin-bottom: 26px;
+    .holiday-form-header {
+        padding: 16px 19px;
     }
 
-    .holiday-section-heading {
-        gap: 11px;
-        margin-bottom: 20px;
-    }
-
-    .holiday-section-heading h3 {
-        font-size: 16px;
-    }
-
-    .holiday-section-heading p {
-        font-size: 10px;
-    }
-
-    .section-number {
-        width: 34px;
-        height: 34px;
+    .form-header-side {
+        font-size: 9px;
     }
 
     .holiday-form-footer {
         align-items: stretch;
         flex-direction: column;
-        gap: 16px;
     }
 
     .holiday-form-actions {
-        display: grid;
-        grid-template-columns: 1fr 1.5fr;
         width: 100%;
     }
 
-    .holiday-btn {
-        padding: 0 10px;
-        font-size: 11px;
-    }
-
-    .holiday-bottom-note {
-        align-items: flex-start;
+    .holiday-form-actions .holiday-btn {
+        flex: 1;
     }
 }
 
 @media (max-width: 420px) {
-    .exam-holiday-page {
-        padding: 11px;
+    .holiday-page-header {
+        padding: 18px 15px;
     }
 
     .holiday-page-title {
@@ -1464,42 +1324,34 @@
     }
 
     .holiday-form-header {
-        padding: 16px;
+        flex-wrap: wrap;
+        padding: 14px;
     }
 
-    .holiday-form-actions {
-        grid-template-columns: 1fr;
-    }
-
-    .holiday-btn {
+    .form-header-side {
         width: 100%;
-        min-height: 45px;
+        margin-left: 55px;
+    }
+
+    .holiday-section-heading {
+        gap: 9px;
+    }
+
+    .holiday-section-heading h3 {
+        font-size: 13px;
+    }
+
+    .holiday-section-heading p {
+        font-size: 10px;
     }
 
     .optional-section-badge {
-        padding: 5px 7px;
-        font-size: 9px;
+        padding: 4px 7px;
+        font-size: 8px;
     }
 
-    .holiday-record-note {
-        padding: 13px;
-    }
-
-    .bottom-note-divider {
-        margin: 0 3px;
-    }
-}
-
-/* REDUCED MOTION */
-
-@media (prefers-reduced-motion: reduce) {
-    .exam-holiday-page *,
-    .exam-holiday-page *::before,
-    .exam-holiday-page *::after {
-        scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
+    .holiday-bottom-note {
+        align-items: flex-start;
     }
 }
 </style>
