@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveApplication;
+use App\Models\OtherStaff;
 use App\Models\Teacher;
 use App\Models\TeacherAttendance;
 use App\Models\TeacherSalary;
@@ -36,7 +37,9 @@ class TeacherSalaryController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        return view('admin.salary.create', compact('teachers'));
+        $otherStaff = OtherStaff::orderBy('name')->get();
+
+        return view('admin.salary.create', compact('teachers', 'otherStaff'));
     }
 
     /**
@@ -95,7 +98,7 @@ class TeacherSalaryController extends Controller
         $salary->save();
 
         return redirect()
-            ->route('admin.teachers.salary.index')
+            ->route('admin.salary.index')
             ->with('success', 'Salary generated successfully.');
     }
 
@@ -390,7 +393,7 @@ class TeacherSalaryController extends Controller
         $teacherSalary->save();
 
         return redirect()
-            ->route('admin.teachers.salary.index')
+            ->route('admin.salary.index')
             ->with('success', 'Teacher salary updated successfully.');
     }
 
@@ -402,7 +405,9 @@ class TeacherSalaryController extends Controller
         $teacherSalary->delete();
 
         return redirect()
-            ->route('admin.teachers.salary.index')
+            ->route('admin.salary.index')
             ->with('success', 'Salary deleted successfully.');
     }
 }
+
+

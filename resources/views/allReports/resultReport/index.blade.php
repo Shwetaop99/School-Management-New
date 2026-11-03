@@ -181,12 +181,11 @@
                                 <td>{{ $result->exam_name }}</td>
                                 <td>{{ $result->academic_year }}</td>
                                 <td>
-                                    {{ $subjectNames[$result->exam_subject_id]->subject_name
-    ?? 'Subject #' . $result->exam_subject_id }}
+                                    Not assigned
                                 </td>
                                 <td>
-                                    {{ $result->marks_obtained !== null
-                                        ? number_format((float) $result->marks_obtained, 2)
+                                    {{ $result->obtained_marks !== null
+                                        ? number_format((float) $result->obtained_marks, 2)
                                         : '—' }}
                                 </td>
                                 <td>{{ $result->grade ?? '—' }}</td>

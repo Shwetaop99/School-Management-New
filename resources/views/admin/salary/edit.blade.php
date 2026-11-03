@@ -1,4 +1,4 @@
-
+﻿
 @extends('layouts.app')
 
 @section('title', 'Edit Salary')
@@ -620,7 +620,7 @@ textarea.form-control {
             <span>Final Net Salary</span>
 
             <strong id="topNetSalary">
-                ₹{{ number_format((float) $netSalary, 2) }}
+                â‚¹{{ number_format((float) $netSalary, 2) }}
             </strong>
 
         </div>
@@ -1048,7 +1048,7 @@ textarea.form-control {
                             class="deduction-amount"
                             id="deductionAmountDisplay"
                         >
-                            ₹{{ number_format((float) $deductions, 2) }}
+                            â‚¹{{ number_format((float) $deductions, 2) }}
                         </div>
 
                     </div>
@@ -1071,7 +1071,7 @@ textarea.form-control {
                     </span>
 
                     <strong id="grossSalaryDisplay">
-                        ₹{{ number_format((float) $grossSalary, 2) }}
+                        â‚¹{{ number_format((float) $grossSalary, 2) }}
                     </strong>
 
                 </div>
@@ -1084,7 +1084,7 @@ textarea.form-control {
                     </span>
 
                     <strong id="totalDeductionDisplay">
-                        ₹{{ number_format((float) $deductions, 2) }}
+                        â‚¹{{ number_format((float) $deductions, 2) }}
                     </strong>
 
                 </div>
@@ -1097,7 +1097,7 @@ textarea.form-control {
                     </span>
 
                     <strong id="netSalaryDisplay">
-                        ₹{{ number_format((float) $netSalary, 2) }}
+                        â‚¹{{ number_format((float) $netSalary, 2) }}
                     </strong>
 
                 </div>
@@ -1212,7 +1212,7 @@ textarea.form-control {
         <div class="form-actions">
 
             <a
-                href="{{ route('admin.teachers.salary.index') }}"
+                href="{{ route('admin.salary.index') }}"
                 class="btn btn-secondary"
             >
                 <i class="fas fa-arrow-left"></i>
@@ -1297,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function formatCurrency(value) {
 
-        return '₹' + Number(value || 0).toLocaleString(
+        return 'â‚¹' + Number(value || 0).toLocaleString(
             'en-IN',
             {
                 minimumFractionDigits: 2,
@@ -1739,4 +1739,5 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 @endsection
+
 

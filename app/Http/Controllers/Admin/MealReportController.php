@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Meal\MealItem;
+use App\Models\Meal\MealStockLog;
 use App\Models\Meal\MealStockTransaction;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -13,105 +14,135 @@ use App\Exports\MealReportExport;
 class MealReportController extends Controller
 {
     /**
-     * Meal Management Report
+     * Meal Reports landing page and individual reports.
      */
     public function index(Request $request)
     {
+        $type = $request->query('type');
+
+        // Show the three report options when no report is selected.
+        if (!in_array($type, ['stock_in', 'stock_out', 'logs'], true)) {
+            return view('allReports.mealReport.index');
+        }
+
         $items = MealItem::query()
             ->orderBy('item_name')
             ->get();
 
-        $query = MealStockTransaction::with('mealItem')
-            ->orderByDesc('transaction_date')
-            ->orderByDesc('id');
+        $transactions = collect();
+        $logs = collect();
 
-        // Filter by meal item
-        if ($request->filled('meal_item_id')) {
-            $query->where('meal_item_id', $request->meal_item_id);
+        if ($type === 'logs') {
+            $query = MealStockLog::with([
+                'mealItem',
+                'stockTransaction',
+            ])->orderByDesc('id');
+
+            if ($request->filled('meal_item_id')) {
+                $query->where('meal_item_id', $request->meal_item_id);
+            }
+
+            if ($request->filled('from_date')) {
+                $query->whereDate(
+                    'created_at',
+                    '>=',
+                    $request->from_date
+                );
+            }
+
+            if ($request->filled('to_date')) {
+                $query->whereDate(
+                    'created_at',
+                    '<=',
+                    $request->to_date
+                );
+            }
+
+            $logs = $query->get();
+        } else {
+            $query = MealStockTransaction::with('mealItem')
+                ->where('transaction_type', $type)
+                ->orderByDesc('transaction_date')
+                ->orderByDesc('id');
+
+            if ($request->filled('meal_item_id')) {
+                $query->where('meal_item_id', $request->meal_item_id);
+            }
+
+            if ($request->filled('from_date')) {
+                $query->whereDate(
+                    'transaction_date',
+                    '>=',
+                    $request->from_date
+                );
+            }
+
+            if ($request->filled('to_date')) {
+                $query->whereDate(
+                    'transaction_date',
+                    '<=',
+                    $request->to_date
+                );
+            }
+
+            $transactions = $query->get();
         }
 
-        // Filter by transaction type
-        if ($request->filled('transaction_type')) {
-            $query->where(
-                'transaction_type',
-                $request->transaction_type
-            );
-        }
+        $totalQuantity = $type === 'logs'
+            ? $logs->sum(fn ($log) => (float) $log->quantity)
+            : $transactions->sum(fn ($transaction) => (float) $transaction->quantity);
 
-        // Filter by date range
-        if ($request->filled('from_date')) {
-            $query->whereDate(
-                'transaction_date',
-                '>=',
-                $request->from_date
-            );
-        }
-
-        if ($request->filled('to_date')) {
-            $query->whereDate(
-                'transaction_date',
-                '<=',
-                $request->to_date
-            );
-        }
-
-        $transactions = $query->get();
-
-        // Summary
-        $totalItems = MealItem::count();
-
-        $lowStockItems = MealItem::whereColumn(
-            'current_stock',
-            '<=',
-            'minimum_stock'
-        )->count();
-
-        $totalCurrentStock = MealItem::sum('current_stock');
-
-        $totalStockIn = (clone $query)
-            ->where('transaction_type', 'stock_in')
-            ->sum('quantity');
-
-        $totalStockOut = (clone $query)
-            ->where('transaction_type', 'stock_out')
-            ->sum('quantity');
-
-        $totalStockInAmount = (clone $query)
-            ->where('transaction_type', 'stock_in')
-            ->sum('total_amount');
-
-        return view(
-            'allReports.mealReport.index',
-            compact(
-                'items',
-                'transactions',
-                'totalItems',
-                'lowStockItems',
-                'totalCurrentStock',
-                'totalStockIn',
-                'totalStockOut',
-                'totalStockInAmount'
-            )
+        $totalAmount = $transactions->sum(
+            fn ($transaction) => (float) ($transaction->total_amount ?? 0)
         );
+
+        $reportTitles = [
+            'stock_in' => 'Meal Stock In Report',
+            'stock_out' => 'Meal Stock Out Report',
+            'logs' => 'Meal Logs Report',
+        ];
+
+        return view('allReports.mealReport.detail', [
+            'type' => $type,
+            'reportTitle' => $reportTitles[$type],
+            'items' => $items,
+            'transactions' => $transactions,
+            'logs' => $logs,
+            'totalRecords' => $type === 'logs'
+                ? $logs->count()
+                : $transactions->count(),
+            'totalQuantity' => $totalQuantity,
+            'totalAmount' => $totalAmount,
+        ]);
     }
 
     /**
-     * Download Meal Report as PDF
+     * Download the selected report as PDF.
      */
     public function pdf(Request $request)
     {
-        $data = $this->getReportData($request);
+        $type = $request->query('type');
+
+        if (!in_array($type, ['stock_in', 'stock_out', 'logs'], true)) {
+            return redirect()
+                ->route('admin.reports.meal')
+                ->with('error', 'Please select a meal report first.');
+        }
+
+        $data = $this->getReportData($request, $type);
 
         $pdf = Pdf::loadView(
             'allReports.mealReport.pdf',
             $data
-        );
+        )->setPaper('a4', 'landscape');
 
-        return $pdf->download('meal-report.pdf');
+        return $pdf->download(
+            'meal-' . str_replace('_', '-', $type) . '-report.pdf'
+        );
     }
 
     /**
-     * Download Meal Report as Excel
+     * Keep the existing Excel download route working.
      */
     public function excel(Request $request)
     {
@@ -122,81 +153,94 @@ class MealReportController extends Controller
     }
 
     /**
-     * Get report data using the same filters
+     * Build data for the selected PDF report.
      */
-    private function getReportData(Request $request)
+    private function getReportData(Request $request, string $type): array
     {
         $items = MealItem::query()
             ->orderBy('item_name')
             ->get();
 
-        $query = MealStockTransaction::with('mealItem')
-            ->orderByDesc('transaction_date')
-            ->orderByDesc('id');
+        $transactions = collect();
+        $logs = collect();
 
-        if ($request->filled('meal_item_id')) {
-            $query->where(
-                'meal_item_id',
-                $request->meal_item_id
-            );
+        if ($type === 'logs') {
+            $query = MealStockLog::with([
+                'mealItem',
+                'stockTransaction',
+            ])->orderByDesc('id');
+
+            if ($request->filled('meal_item_id')) {
+                $query->where('meal_item_id', $request->meal_item_id);
+            }
+
+            if ($request->filled('from_date')) {
+                $query->whereDate(
+                    'created_at',
+                    '>=',
+                    $request->from_date
+                );
+            }
+
+            if ($request->filled('to_date')) {
+                $query->whereDate(
+                    'created_at',
+                    '<=',
+                    $request->to_date
+                );
+            }
+
+            $logs = $query->get();
+        } else {
+            $query = MealStockTransaction::with('mealItem')
+                ->where('transaction_type', $type)
+                ->orderByDesc('transaction_date')
+                ->orderByDesc('id');
+
+            if ($request->filled('meal_item_id')) {
+                $query->where('meal_item_id', $request->meal_item_id);
+            }
+
+            if ($request->filled('from_date')) {
+                $query->whereDate(
+                    'transaction_date',
+                    '>=',
+                    $request->from_date
+                );
+            }
+
+            if ($request->filled('to_date')) {
+                $query->whereDate(
+                    'transaction_date',
+                    '<=',
+                    $request->to_date
+                );
+            }
+
+            $transactions = $query->get();
         }
 
-        if ($request->filled('transaction_type')) {
-            $query->where(
-                'transaction_type',
-                $request->transaction_type
-            );
-        }
+        $reportTitles = [
+            'stock_in' => 'Meal Stock In Report',
+            'stock_out' => 'Meal Stock Out Report',
+            'logs' => 'Meal Logs Report',
+        ];
 
-        if ($request->filled('from_date')) {
-            $query->whereDate(
-                'transaction_date',
-                '>=',
-                $request->from_date
-            );
-        }
-
-        if ($request->filled('to_date')) {
-            $query->whereDate(
-                'transaction_date',
-                '<=',
-                $request->to_date
-            );
-        }
-
-        $transactions = $query->get();
-
-        $totalItems = MealItem::count();
-
-        $lowStockItems = MealItem::whereColumn(
-            'current_stock',
-            '<=',
-            'minimum_stock'
-        )->count();
-
-        $totalCurrentStock = MealItem::sum('current_stock');
-
-        $totalStockIn = (clone $query)
-            ->where('transaction_type', 'stock_in')
-            ->sum('quantity');
-
-        $totalStockOut = (clone $query)
-            ->where('transaction_type', 'stock_out')
-            ->sum('quantity');
-
-        $totalStockInAmount = (clone $query)
-            ->where('transaction_type', 'stock_in')
-            ->sum('total_amount');
-
-        return compact(
-            'items',
-            'transactions',
-            'totalItems',
-            'lowStockItems',
-            'totalCurrentStock',
-            'totalStockIn',
-            'totalStockOut',
-            'totalStockInAmount'
-        );
+        return [
+            'type' => $type,
+            'reportTitle' => $reportTitles[$type],
+            'items' => $items,
+            'transactions' => $transactions,
+            'logs' => $logs,
+            'totalRecords' => $type === 'logs'
+                ? $logs->count()
+                : $transactions->count(),
+            'totalQuantity' => $type === 'logs'
+                ? $logs->sum(fn ($log) => (float) $log->quantity)
+                : $transactions->sum(fn ($transaction) => (float) $transaction->quantity),
+            'totalAmount' => $transactions->sum(
+                fn ($transaction) => (float) ($transaction->total_amount ?? 0)
+            ),
+        ];
     }
 }

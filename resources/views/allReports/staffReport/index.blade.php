@@ -1,580 +1,157 @@
-@extends('layouts.app')
+ @extends('layouts.app')
 
-@section('title', 'Staff Reports')
+@section('title', 'Staff Reports | Admin')
 @section('page-title', 'Staff Reports')
 
 @section('content')
 
-<style>
-
-    .report-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-
-.report-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.report-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    border: none;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.pdf-btn {
-    background: #dc2626;
-    color: white;
-}
-
-.excel-btn {
-    background: #16a34a;
-    color: white;
-}
-
-.print-btn {
-    background: #0f766e;
-    color: white;
-}
-
-    .staff-report-page {
-        padding: 25px;
-        background: #f5f7fb;
-        min-height: calc(100vh - 70px);
-    }
-
-    /* Header */
-    .report-header {
-        background: linear-gradient(135deg, #2563eb, #4f46e5);
-        color: #fff;
-        padding: 24px 28px;
-        border-radius: 16px;
-        margin-bottom: 22px;
-    }
-
-    .report-header h2 {
-        margin: 0 0 5px;
-        font-size: 24px;
-        font-weight: 700;
-    }
-
-    .report-header p {
-        margin: 0;
-        font-size: 14px;
-        opacity: .9;
-    }
-
-    /* Filter */
-    .filter-card {
-        background: #fff;
-        padding: 22px;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        margin-bottom: 22px;
-    }
-
-    .filter-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-    }
-
-    .filter-title-icon {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9px;
-        background: #eff6ff;
-        color: #2563eb;
-    }
-
-    .filter-title h5 {
-        margin: 0;
-        font-size: 16px;
-        color: #1f2937;
-    }
-
-    .filter-label {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #475569;
-    }
-
-    .filter-control {
-        width: 100%;
-        height: 42px;
-        padding: 0 12px;
-        border: 1px solid #dbe1ea;
-        border-radius: 8px;
-        background: #fff;
-        font-size: 14px;
-        color: #334155;
-        outline: none;
-    }
-
-    .filter-control:focus {
-        border-color: #2563eb;
-    }
-
-    .filter-buttons {
-        display: flex;
-        gap: 8px;
-    }
-
-    .btn-filter,
-    .btn-reset {
-        height: 42px;
-        padding: 0 16px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-    }
-
-    .btn-filter {
-        border: none;
-        background: #2563eb;
-        color: #fff;
-    }
-
-    .btn-filter:hover {
-        background: #1d4ed8;
-    }
-
-    .btn-reset {
-        border: 1px solid #dbe1ea;
-        background: #fff;
-        color: #475569;
-    }
-
-    .btn-reset:hover {
-        background: #f8fafc;
-    }
-
-    /* Table */
-    .table-card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        overflow: hidden;
-    }
-
-    .table-header {
-        padding: 18px 22px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .table-header h5 {
-        margin: 0;
-        font-size: 16px;
-        color: #1f2937;
-    }
-
-    .table-header p {
-        margin: 4px 0 0;
-        font-size: 13px;
-        color: #64748b;
-    }
-
-    .staff-count {
-        padding: 6px 11px;
-        border-radius: 20px;
-        background: #eff6ff;
-        color: #2563eb;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .staff-report-table {
-        width: 100%;
-        min-width: 1000px;
-        border-collapse: collapse;
-    }
-
-    .staff-report-table th {
-        padding: 13px 15px;
-        background: #f8fafc;
-        border-bottom: 1px solid #e5e7eb;
-        color: #64748b;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    .staff-report-table td {
-        padding: 13px 15px;
-        border-bottom: 1px solid #f1f5f9;
-        color: #334155;
-        font-size: 13px;
-        white-space: nowrap;
-    }
-
-    .staff-report-table tbody tr:hover {
-        background: #fafcff;
-    }
-
-    /* Staff */
-    .staff-info {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-    }
-
-    .staff-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 9px;
-        background: #eff6ff;
-        color: #2563eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-
-    .staff-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .staff-name {
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .staff-id {
-        margin-top: 2px;
-        font-size: 11px;
-        color: #94a3b8;
-    }
-
-    /* Badges */
-    .status-badge,
-    .gender-badge,
-    .designation-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 8px;
-        border-radius: 7px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .status-active {
-        background: #dcfce7;
-        color: #15803d;
-    }
-
-    .status-inactive {
-        background: #fee2e2;
-        color: #b91c1c;
-    }
-
-    .gender-badge,
-    .designation-badge {
-        background: #f1f5f9;
-        color: #475569;
-    }
-
-    /* Empty */
-    .empty-state {
-        padding: 50px 20px;
-        text-align: center;
-        color: #64748b;
-    }
-
-    .empty-state i {
-        display: block;
-        margin-bottom: 10px;
-        font-size: 40px;
-        color: #cbd5e1;
-    }
-
-    .empty-state h6 {
-        margin-bottom: 4px;
-        color: #475569;
-        font-size: 15px;
-    }
-
-    .empty-state p {
-        margin: 0;
-        font-size: 13px;
-    }
-
-    /* Mobile */
-    @media (max-width: 768px) {
-        .staff-report-page {
-            padding: 15px;
-        }
-
-        .filter-card {
-            padding: 18px;
-        }
-
-        .table-header {
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-    }
-
-    @media print {
-
-    body {
-        background: white !important;
-    }
-
-    .staff-report-page {
-        padding: 0 !important;
-        background: white !important;
-    }
-
-    .report-header {
-        background: white !important;
-        color: #000 !important;
-        border: none !important;
-        padding: 0 0 15px !important;
-    }
-
-    .report-header p {
-        color: #555 !important;
-    }
-
-    .report-actions,
-    .filter-card,
-    .staff-report-page > .table-card .staff-count,
-    .staff-report-page .table-header p,
-    .staff-report-page .pagination {
-        display: none !important;
-    }
-
-    .table-card {
-        border: none !important;
-    }
-
-    .table-responsive {
-        overflow: visible !important;
-    }
-
-    .staff-report-table {
-        min-width: 0 !important;
-        width: 100% !important;
-    }
-
-    .staff-report-table th,
-    .staff-report-table td {
-        font-size: 9px !important;
-        padding: 6px !important;
-    }
-
-    .staff-report-table th:last-child,
-    .staff-report-table td:last-child {
-        display: none !important;
-    }
-
-    .staff-report-table {
-        page-break-inside: auto;
-    }
-
-    .staff-report-table tr {
-        page-break-inside: avoid;
-    }
-
-    @page {
-        size: A4 landscape;
-        margin: 10mm;
-    }
-}
-</style>
-
-<div class="staff-report-page">
-
-    <div class="report-header">
-
-    <div>
-        <h2>Staff Reports</h2>
-        <p>Generate and view detailed information about non-teaching staff.</p>
-    </div>
-
-    <div class="report-actions">
-
-        <a
-            
-href="{{ route('reports.staff.pdf', request()->query()) }}"
-
-            class="report-action pdf-btn"
-        >
-            <i class="bi bi-file-earmark-pdf"></i>
-            PDF
-        </a>
-
-        <a
-            
-href="{{ route('reports.staff.excel', request()->query()) }}"
-
-            class="report-action excel-btn"
-        >
-            <i class="bi bi-file-earmark-excel"></i>
-            Excel
-        </a>
-
-        <button
-            type="button"
-            onclick="window.print()"
-            class="report-action print-btn"
-        >
-            <i class="bi bi-printer"></i>
-            Print
-        </button>
-
-    </div>
-
-</div>
-
-    <div class="filter-card">
-
-        <div class="filter-title">
-            <div class="filter-title-icon">
-                <i class="bi bi-funnel-fill"></i>
-            </div>
-            <h5>Filter Staff Reports</h5>
-        </div>
-
-        
-<form method="GET" action="{{ route('reports.staff.index') }}">
-
-
-            <div class="row g-3">
-
-                <div class="col-lg-4 col-md-6">
-                    <label class="filter-label">Staff Search</label>
-                    <input
-                        type="text"
-                        name="search"
-                        class="filter-control"
-                        placeholder="Name, ID, phone or email..."
-                        value="{{ request('search') }}"
-                    >
-                </div>
-
-                <div class="col-lg-2 col-md-3">
-                    <label class="filter-label">Designation</label>
-                    <select name="designation" class="filter-control">
-                        <option value="">All Designations</option>
-                        @foreach($designations as $designation)
-                            <option value="{{ $designation }}" {{ request('designation') == $designation ? 'selected' : '' }}>
-                                {{ $designation }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-lg-2 col-md-3">
-                    <label class="filter-label">Department</label>
-                    <select name="department" class="filter-control">
-                        <option value="">All Departments</option>
-                        @foreach($departments as $department)
-                            <option value="{{ $department }}" {{ request('department') == $department ? 'selected' : '' }}>
-                                {{ $department }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-lg-2 col-md-3">
-                    <label class="filter-label">Gender</label>
-                    <select name="gender" class="filter-control">
-                        <option value="">All Genders</option>
-                        @foreach($genders as $gender)
-                            <option value="{{ $gender }}" {{ request('gender') == $gender ? 'selected' : '' }}>
-                                {{ $gender }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-lg-2 col-md-3">
-                    <label class="filter-label">Status</label>
-                    <select name="status" class="filter-control">
-                        <option value="">All Status</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                </div>
-
-                <div class="col-lg-4 col-md-8">
-                    <label class="filter-label">&nbsp;</label>
-
-                    <div class="filter-buttons">
-                        <button type="submit" class="btn-filter">
-                            <i class="bi bi-funnel me-1"></i>
-                            Apply Filters
-                        </button>
-
-                        
-<a href="{{ route('reports.staff.index') }}" class="btn-reset">
-
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>
-                            Reset
-                        </a>
+<div class="payroll-simple staff-reports-page">
+    <div class="container-fluid py-4">
+
+        @php
+            $selectedSearch      = request('search');
+            $selectedDesignation = request('designation');
+            $selectedDepartment  = request('department');
+            $selectedGender      = request('gender');
+            $selectedStatus      = request('status');
+
+            // School identity for print
+            $schoolSetting = $schoolSetting ?? \App\Models\SchoolSetting::query()->first();
+            $schoolName    = trim((string) ($schoolSetting->school_name ?? ''));
+            $schoolName    = $schoolName !== '' ? $schoolName : 'School Management System';
+            $schoolLogo    = $schoolSetting->logo_url ?? null;
+            $schoolAddress = collect([
+                $schoolSetting->address ?? null,
+                $schoolSetting->city ?? null,
+                $schoolSetting->district ?? null,
+                $schoolSetting->state ?? null,
+                $schoolSetting->pincode ?? null,
+            ])->filter(fn ($value) => trim((string) $value) !== '')->implode(', ');
+            $schoolPhone   = trim((string) ($schoolSetting->phone ?? ''));
+            $schoolEmail   = trim((string) ($schoolSetting->email ?? ''));
+        @endphp
+
+        {{-- PRINT ONLY SCHOOL BRANDING --}}
+        <div class="print-only">
+            <div class="print-header">
+                <div class="print-brand">
+                    @if (!empty($schoolLogo))
+                        <img class="print-school-logo" src="{{ $schoolLogo }}" alt="School Logo">
+                    @endif
+                    <div class="print-school-identity">
+                        <div class="print-school-name">{{ $schoolName }}</div>
+                        @if ($schoolAddress !== '')
+                            <div class="print-school-contact">{{ $schoolAddress }}</div>
+                        @endif
+                        @if ($schoolPhone !== '' || $schoolEmail !== '')
+                            <div class="print-school-contact">
+                                @if ($schoolPhone !== '') Phone: {{ $schoolPhone }} @endif
+                                @if ($schoolPhone !== '' && $schoolEmail !== '') &nbsp; | &nbsp; @endif
+                                @if ($schoolEmail !== '') Email: {{ $schoolEmail }} @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
-
+                <div class="print-report-title">
+                    <div class="print-brand-name">Staff Reports</div>
+                    <div class="print-brand-sub">Official Non-Teaching Staff Report</div>
+                </div>
             </div>
-
-        </form>
-
-    </div>
-
-    <div class="table-card">
-
-        <div class="table-header">
-            <div>
-                <h5>Staff Report</h5>
-                <p>Staff information based on the selected filters.</p>
+            <div class="print-meta">
+                <div class="print-meta-row">
+                    <span class="print-label">Records:</span>
+                    <span class="print-value">{{ number_format($staff->total()) }}</span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Generated:</span>
+                    <span class="print-value" id="staff-print-date">—</span>
+                </div>
             </div>
-
-            <div class="staff-count">
-                {{ $staff->total() }} Staff
-            </div>
+            <div class="print-divider"></div>
         </div>
 
-        <div class="table-responsive">
+        {{-- TOP BAR --}}
+        <div class="top-bar">
+            <a href="{{ route('admin.reports.index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+            </a>
+        </div>
 
-            <table class="staff-report-table">
+        {{-- HERO SECTION --}}
+        <section class="hero-section">
+            <div class="hero-left">
+                <div class="hero-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="hero-text">
+                    <div class="hero-breadcrumb">Reports / Staff Reports</div>
+                    <h2>Staff Reports</h2>
+                    <p>Generate and view detailed information about non-teaching staff members.</p>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="hero-handwritten">Staff. Records. Reports.</div>
+                <p>Filter staff and export complete reports instantly.</p>
+            </div>
+        </section>
 
+        {{-- FILTERS --}}
+        <form method="GET" action="{{ route('admin.reports.staff') }}" class="filters">
+            <div class="filter-item search-item">
+                <label>Search</label>
+                <input type="text" name="search" value="{{ $selectedSearch }}" placeholder="Name, ID, phone or email...">
+            </div>
+
+            <div class="filter-item">
+                <label>Designation</label>
+                <select name="designation">
+                    <option value="">All Designations</option>
+                    @foreach($designations ?? [] as $designation)
+                        <option value="{{ $designation }}" @selected($selectedDesignation == $designation)>{{ $designation }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label>Department</label>
+                <select name="department">
+                    <option value="">All Departments</option>
+                    @foreach($departments ?? [] as $department)
+                        <option value="{{ $department }}" @selected($selectedDepartment == $department)>{{ $department }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label>Gender</label>
+                <select name="gender">
+                    <option value="">All Genders</option>
+                    @foreach($genders ?? [] as $gender)
+                        <option value="{{ $gender }}" @selected($selectedGender == $gender)>{{ $gender }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label>Status</label>
+                <select name="status">
+                    <option value="">All Status</option>
+                    <option value="active" @selected($selectedStatus === 'active')>Active</option>
+                    <option value="inactive" @selected($selectedStatus === 'inactive')>Inactive</option>
+                </select>
+            </div>
+
+            <div class="filter-buttons">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <a href="{{ route('admin.reports.staff') }}" class="btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        {{-- TABLE --}}
+        <div class="table-wrap">
+            <table>
                 <thead>
                     <tr>
                         <th>#</th>
@@ -587,132 +164,713 @@ href="{{ route('reports.staff.excel', request()->query()) }}"
                         <th>Phone</th>
                         <th>Joining Date</th>
                         <th>Status</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
-
                 <tbody>
-
-                    @forelse($staff as $member)
-
-                        <tr
-                            onclick="window.location='{{ route('reports.staff.show', $member->id) }}'"
-                            style="cursor: pointer;"
-                        >
-
-                            <td>{{ $staff->firstItem() + $loop->index }}</td>
-
-                            <td>
-    <div class="staff-info">
-
-        <div class="staff-avatar">
-            @if($member->profile_photo)
-                <img
-                    src="{{ asset('storage/' . $member->profile_photo) }}"
-                    alt="{{ $member->name }}"
-                >
-            @else
-                {{ strtoupper(substr($member->name ?? 'S', 0, 1)) }}
-            @endif
-        </div>
-
-        <div>
-            <div class="staff-name">
-                {{ $member->name ?? '-' }}
-            </div>
-
-            <div class="staff-id">
-                {{ $member->staff_id ?? '-' }}
-            </div>
-        </div>
-
-    </div>
-</td>
-                            <td>{{ $member->staff_id ?? '-' }}</td>
-
-                            <td>
-                                @if($member->designation)
-                                    <span class="designation-badge">
-                                        {{ $member->designation }}
-                                    </span>
-                                @else
-                                    -
-                                @endif
-                            </td>
-
-                            <td>{{ $member->department ?? '-' }}</td>
-                            <td>{{ $member->qualification ?? '-' }}</td>
-
-                            <td>
-                                @if($member->gender)
-                                    <span class="gender-badge">
-                                        {{ $member->gender }}
-                                    </span>
-                                @else
-                                    -
-                                @endif
-                            </td>
-
-                            <td>{{ $member->phone ?? '-' }}</td>
-
-                            <td>
-                                @if($member->joining_date)
-                                    {{ $member->joining_date->format('d M Y') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-
-                            <td>
-                                @if(strtolower($member->status ?? '') === 'active')
-                                    <span class="status-badge status-active">Active</span>
-                                @else
-                                    <span class="status-badge status-inactive">
-                                        {{ ucfirst($member->status ?? 'Inactive') }}
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td>
-    <a
-        href="{{ route('reports.staff.show', $member->id) }}"
-        class="btn btn-sm btn-primary"
-        title="View Staff Report"
-    >
-        <i class="bi bi-eye"></i>
-    </a>
-</td>
-
-                        </tr>
-
-                    @empty
-
+                    @forelse ($staff as $member)
                         <tr>
-                            <td colspan="10">
-                                <div class="empty-state">
-                                    <i class="bi bi-person-badge"></i>
-                                    <h6>No staff found</h6>
-                                    <p>No staff records match the selected filters.</p>
-                                </div>
+                            <td>{{ ($staff->firstItem() ?? 0) + $loop->index }}</td>
+
+                            <td>
+                                <a href="{{ route('admin.reports.staff.show', $member->id) }}"
+                                   class="staff-profile-link">
+                                    <div class="emp-name">
+                                        {{ $member->name ?? '—' }}
+                                    </div>
+                                </a>
+                                <div class="emp-id">ID: {{ $member->staff_id ?? 'N/A' }}</div>
+                            </td>
+
+                            <td><strong>{{ $member->staff_id ?? '—' }}</strong></td>
+                            <td>{{ $member->designation ?? '—' }}</td>
+                            <td>{{ $member->department ?? '—' }}</td>
+                            <td>{{ $member->qualification ?? '—' }}</td>
+                            <td>{{ $member->gender ?? '—' }}</td>
+                            <td>{{ $member->phone ?? '—' }}</td>
+
+                            <td>
+                                {{ $member->joining_date ? $member->joining_date->format('d M Y') : '—' }}
+                            </td>
+
+                            <td>
+                                @php
+                                    $status = strtolower(trim($member->status ?? ''));
+                                    $statusClass = $status === 'active' ? 'paid' : 'unpaid';
+                                @endphp
+                                <span class="status {{ $statusClass }}">
+                                    {{ $member->status ? ucfirst($member->status) : 'Not set' }}
+                                </span>
                             </td>
                         </tr>
-
+                    @empty
+                        <tr>
+                            <td colspan="10" class="empty">
+                                No staff records found. Try changing the filters.
+                            </td>
+                        </tr>
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
 
-        @if($staff->hasPages())
-            <div style="padding:20px;border-top:1px solid #edf1f6;">
-                {{ $staff->links() }}
+        {{-- PAGINATION --}}
+        @if ($staff->hasPages())
+            <div class="pagination-bar">
+                <span>
+                    Showing {{ $staff->firstItem() ?? 0 }} to {{ $staff->lastItem() ?? 0 }} of {{ $staff->total() }} records
+                </span>
+                <div>{{ $staff->withQueryString()->links() }}</div>
+            </div>
+        @elseif($staff->count())
+            <div class="pagination-bar">
+                <span>Showing {{ $staff->count() }} of {{ $staff->total() }} records</span>
             </div>
         @endif
 
     </div>
-
 </div>
+
+<style>
+.payroll-simple {
+    --bg: #f5f4f0;
+    --text: #1e2a25;
+    --muted: #5c6b64;
+    --border: #d4cfc2;
+    --primary: #2c3e36;
+    --primary-hover: #3a4f45;
+    --net: #1a6b3c;
+    background: var(--bg);
+    color: var(--text);
+    min-height: calc(100vh - 70px);
+    font-family: Inter, "Public Sans", Arial, sans-serif;
+}
+
+.payroll-simple .container-fluid {
+    max-width: 1400px;
+}
+
+/* Top bar */
+.payroll-simple .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.payroll-simple .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.payroll-simple .btn-back:hover {
+    background: #f0eee8;
+}
+
+.payroll-simple .btn-primary,
+.payroll-simple .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+
+.payroll-simple .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.payroll-simple .btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.payroll-simple .btn-secondary {
+    background: #fff;
+    color: var(--muted);
+    border-color: var(--border);
+}
+
+.payroll-simple .btn-secondary:hover {
+    background: #f0eee8;
+    color: var(--text);
+}
+
+/* Hero Section */
+.payroll-simple .hero-section {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: #fff;
+}
+
+.payroll-simple .hero-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 28px 28px 28px 32px;
+    background: #fdfbf7;
+}
+
+.payroll-simple .hero-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    background: #f3ead8;
+    border: 1px solid #e5d9c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5c4a32;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.payroll-simple .hero-text .hero-breadcrumb {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9c7b4a;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.payroll-simple .hero-text h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.payroll-simple .hero-text p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 480px;
+}
+
+/* Cream / Pearl Right Side */
+.payroll-simple .hero-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    background: linear-gradient(145deg, #f8f1e3 0%, #f0e6d2 50%, #e8dcc6 100%);
+    border-left: 1px solid #e5d9c4;
+}
+
+.payroll-simple .hero-handwritten {
+    font-family: "Segoe Print", "Comic Sans MS", cursive;
+    font-size: 22px;
+    color: #5c4a32;
+    line-height: 1.3;
+}
+
+.payroll-simple .hero-right p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b5c45;
+    max-width: 260px;
+    line-height: 1.6;
+}
+
+.payroll-simple .hero-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.payroll-simple .hero-right .btn-primary {
+    background: #3a3428;
+    border-color: #3a3428;
+}
+
+.payroll-simple .hero-right .btn-primary:hover {
+    background: #2a241c;
+    border-color: #2a241c;
+}
+
+.payroll-simple .hero-right .btn-secondary {
+    background: rgba(255, 252, 245, 0.7);
+    border-color: #c4b49a;
+    color: #5c4a32;
+}
+
+.payroll-simple .hero-right .btn-secondary:hover {
+    background: #fff;
+    border-color: #a8926e;
+    color: #3a3428;
+}
+
+/* Filters */
+.payroll-simple .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.payroll-simple .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.payroll-simple .filter-item label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.payroll-simple .filter-item input,
+.payroll-simple .filter-item select {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 140px;
+    background: #fff;
+}
+
+.payroll-simple .filter-item.search-item input {
+    min-width: 220px;
+}
+
+.payroll-simple .filter-item input:focus,
+.payroll-simple .filter-item select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.payroll-simple .filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Table */
+.payroll-simple .table-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.payroll-simple table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 1100px;
+}
+
+.payroll-simple th {
+    background: #f0eee8;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.payroll-simple td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee9dd;
+    vertical-align: middle;
+}
+
+.payroll-simple tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.payroll-simple tbody tr:hover td {
+    background: #faf9f5;
+}
+
+.payroll-simple .emp-name {
+    font-weight: 600;
+}
+
+/* Clickable individual staff profile name */
+.payroll-simple .staff-profile-link {
+    display: inline-block;
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.payroll-simple .staff-profile-link:hover {
+    color: #9c7b4a;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.payroll-simple .staff-profile-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+.payroll-simple .emp-id {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.payroll-simple .status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.payroll-simple .status.paid {
+    background: #e4f3ea;
+    color: #1a6b3c;
+}
+
+.payroll-simple .status.unpaid {
+    background: #fcebe8;
+    color: #a33a2e;
+}
+
+.payroll-simple .empty {
+    text-align: center;
+    padding: 40px 20px !important;
+    color: var(--muted);
+}
+
+/* Pagination */
+.payroll-simple .pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Print only */
+.payroll-simple .print-only {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .payroll-simple .hero-section {
+        grid-template-columns: 1fr;
+    }
+    .payroll-simple .hero-right {
+        border-left: none;
+        border-top: 1px solid #e5d9c4;
+    }
+}
+
+@media (max-width: 768px) {
+    .payroll-simple .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .payroll-simple .filter-item input,
+    .payroll-simple .filter-item select {
+        width: 100%;
+        min-width: 0;
+    }
+    .payroll-simple .hero-left {
+        padding: 22px 20px;
+    }
+    .payroll-simple .hero-text h2 {
+        font-size: 20px;
+    }
+}
+
+/* ================= PRINT — Professional Layout ================= */
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 10mm 12mm 12mm 12mm;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .payroll-simple,
+    .payroll-simple * {
+        visibility: visible;
+    }
+
+    .payroll-simple {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #fff !important;
+        color: #1a1a1a;
+        font-family: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
+        font-size: 10.5px;
+        line-height: 1.35;
+    }
+
+    .payroll-simple .top-bar,
+    .payroll-simple .hero-section,
+    .payroll-simple .filters,
+    .payroll-simple .pagination-bar,
+    .payroll-simple .print-hide {
+        display: none !important;
+    }
+
+    .payroll-simple .print-only {
+        display: block !important;
+        margin-bottom: 14px;
+        text-align: left;
+    }
+
+    .payroll-simple .print-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #d4cfc2;
+    }
+
+    .payroll-simple .print-brand {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .payroll-simple .print-school-logo {
+        display: block;
+        width: 62px;
+        height: 62px;
+        object-fit: contain;
+        margin-right: 4px;
+    }
+
+    .payroll-simple .print-school-identity {
+        text-align: left;
+        max-width: 430px;
+    }
+
+    .payroll-simple .print-school-name {
+        font-size: 16px;
+        line-height: 1.25;
+        font-weight: 700;
+        color: #263b35;
+        margin-bottom: 3px;
+    }
+
+    .payroll-simple .print-school-contact {
+        font-size: 8.5px;
+        line-height: 1.4;
+        color: #5c6b64;
+        margin-top: 2px;
+    }
+
+    .payroll-simple .print-report-title {
+        text-align: left;
+        border-left: 1px solid #d4cfc2;
+        padding-left: 16px;
+        flex-shrink: 0;
+    }
+
+    .payroll-simple .print-brand-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.2px;
+        line-height: 1.2;
+        text-align: left;
+    }
+
+    .payroll-simple .print-brand-sub {
+        font-size: 11px;
+        color: #555;
+        margin-top: 2px;
+        letter-spacing: 0.3px;
+        text-align: left;
+    }
+
+    .payroll-simple .print-meta {
+        text-align: left;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px 18px;
+        padding: 8px 0 2px;
+    }
+
+    .payroll-simple .print-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 9px;
+    }
+
+    .payroll-simple .print-label {
+        color: #666;
+        font-weight: 500;
+    }
+
+    .payroll-simple .print-value {
+        color: #1a1a1a;
+        font-weight: 600;
+    }
+
+    .payroll-simple .print-divider {
+        height: 2px;
+        background: #344f43;
+        margin: 8px 0 12px;
+        width: 100%;
+    }
+
+    .payroll-simple .table-wrap {
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+    }
+
+    .payroll-simple table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9.5px;
+        border: 1px solid #999;
+        min-width: 0 !important;
+    }
+
+    .payroll-simple th {
+        background: #2c3e36 !important;
+        color: #fff !important;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 7px 8px;
+        border: 1px solid #1e2a25;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .payroll-simple td {
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        vertical-align: middle;
+        color: #222;
+    }
+
+    .payroll-simple tbody tr:nth-child(even) td {
+        background: #f7f6f2 !important;
+    }
+
+    .payroll-simple tbody tr:last-child td {
+        border-bottom: 1px solid #999;
+    }
+
+    .payroll-simple .emp-name {
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 9.5px;
+    }
+
+    .payroll-simple .staff-profile-link,
+    .payroll-simple .staff-profile-link:hover {
+        color: #1a1a1a !important;
+        text-decoration: none !important;
+    }
+
+    .payroll-simple .emp-id {
+        font-size: 8.5px;
+        color: #555;
+        margin-top: 1px;
+    }
+
+    .payroll-simple .status {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 3px;
+        font-size: 8.5px;
+        font-weight: 600;
+        border: 1px solid transparent;
+    }
+
+    .payroll-simple .status.paid {
+        background: #e4f3ea !important;
+        color: #1a6b3c !important;
+        border-color: #a8d5b5;
+    }
+
+    .payroll-simple .status.unpaid {
+        background: #fcebe8 !important;
+        color: #a33a2e !important;
+        border-color: #e8b4ad;
+    }
+
+    .payroll-simple .empty {
+        text-align: center;
+        padding: 28px 16px !important;
+        color: #666;
+        font-style: italic;
+    }
+
+    .payroll-simple .table-wrap::after {
+        content: "This is a system-generated staff report. For official use only.";
+        display: block;
+        margin-top: 10px;
+        font-size: 8.5px;
+        color: #777;
+        text-align: center;
+        border-top: 1px solid #ddd;
+        padding-top: 6px;
+    }
+}
+</style>
+
+
 
 @endsection
