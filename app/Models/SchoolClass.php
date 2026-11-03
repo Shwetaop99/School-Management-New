@@ -9,10 +9,13 @@ class SchoolClass extends Model
 {
     use HasFactory;
 
-    protected $table = 'classes';
+    protected $table = 'school_classes';
 
     protected $fillable = [
         'class_name',
+        'section',
+        'academic_year',
+        'status',
     ];
 
     public function sections()
