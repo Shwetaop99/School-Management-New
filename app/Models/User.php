@@ -14,6 +14,7 @@ class User extends Authenticatable
     /**
      * The role assigned to this user.
      */
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
@@ -61,16 +62,18 @@ class User extends Authenticatable
      * Mass assignable fields.
      */
     protected $fillable = [
-        'name',
-        'profile_photo',
-        'login_id',
-        'email',
-        'password',
-        'status',
-        'role_id',
-        'two_factor_secret',
-        'two_factor_enabled',
-    ];
+    'name',
+    'profile_photo',
+    'login_id',
+    'email',
+    'password',
+    'status',
+    'role_id',
+    'school_id',
+    'phone',
+    'two_factor_secret',
+    'two_factor_enabled',
+];
 
     /**
      * Hidden fields.
@@ -90,6 +93,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_enabled' => 'boolean',
+            'super_admin_two_factor_enabled' => 'boolean',
         ];
     }
 }

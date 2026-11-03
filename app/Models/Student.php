@@ -12,9 +12,15 @@ use App\Models\SchoolLeavingCertificate;
 use App\Models\Attendance;
 use App\Models\StudentSupplyKit;
 use App\Models\StudentHealthRecord;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Student extends Model
 {
+    public function school(): BelongsTo
+{
+    return $this->belongsTo(School::class);
+}
+
     use HasFactory, SoftDeletes;
 
     protected $table = 'students';
@@ -29,6 +35,8 @@ class Student extends Model
         // =====================================================
         // BASIC INFORMATION
         // =====================================================
+
+'school_id',
 'student_id',
 'roll_number',
 'saral_id',
