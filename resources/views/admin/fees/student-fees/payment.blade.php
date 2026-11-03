@@ -1,4 +1,4 @@
-
+﻿
 @extends('layouts.app')
 
 @section('title', 'Collect Student Fee Payment')
@@ -487,7 +487,7 @@
                 <form
                     method="POST"
                     action="{{ route(
-                        'admin.fees.student-fees.payment.store',
+                        'admin.fees.student-fees.payments.store',
                         $studentFee
                     ) }}"
                 >
@@ -881,3 +881,4 @@
 </script>
 
 @endsection
+

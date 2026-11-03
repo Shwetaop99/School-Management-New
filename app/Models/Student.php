@@ -11,11 +11,13 @@ use App\Models\IdCard;
 use App\Models\SchoolLeavingCertificate;
 use App\Models\Attendance;
 use App\Models\StudentSupplyKit;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use App\Models\StudentHealthRecord;
 
 class Student extends Model
 {
-    use HasFactory, SoftDeletes;
+     use HasFactory, SoftDeletes,LogsActivity;
 
     protected $table = 'students';
 
@@ -225,4 +227,13 @@ class Student extends Model
             'student_id'
         );
     }
+       public function getActivitylogOptions(): LogOptions
+   {
+       return LogOptions::defaults()
+           ->logAll()
+           ->logOnlyDirty()
+           ->dontSubmitEmptyLogs();
+   }
+protected $guarded = ['id', 'created_at', 'updated_at'];
+   
 }

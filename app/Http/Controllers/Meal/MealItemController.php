@@ -328,4 +328,8 @@ class MealItemController extends Controller
                 'Meal item deleted successfully.'
             );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Exports\StudentAttendanceExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreStudentAttendanceRequest;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -918,21 +919,9 @@ class AttendanceController extends Controller
      * STORE ATTENDANCE
      * =========================================================
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'academic_year' =>
-                'required|string',
-
-            'class' =>
-                'required|string',
-
-            'section' =>
-                'required|string',
-
-            'attendance' =>
-                'required|array',
-        ]);
+    public function store(StoreStudentAttendanceRequest $request)
+{
+    $validated = $request->validated();
 
         $attendanceMonth =
             $request->input(
@@ -1834,6 +1823,22 @@ public function excel(
         ];
     }
 
+    /**
+ * Bulk delete multiple records.
+ */
+public function bulkDestroy(Request $request)
+{
+    $request->validate([
+        'ids'   => 'required|array|min:1',
+        'ids.*' => 'integer|exists:teachers,id',   // ← change table name
+    ]);
+
+    $count = Teacher::whereIn('id', $request->ids)->delete();  // ← change Model
+
+    return redirect()
+        ->route('admin.teachers.index')                          // ← change route
+        ->with('success', $count . ' teacher(s) deleted successfully.');
+}
 
     /**
      * =========================================================
@@ -1902,6 +1907,7 @@ public function excel(
                 (string) $section
             )
         );
+        
     }
 }
 

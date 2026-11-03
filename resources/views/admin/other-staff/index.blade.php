@@ -164,7 +164,7 @@
     background: #eaf2e8;
 }
 
-/* ---------- Hero information panel (no add button) ---------- */
+/* ---------- Hero action panel ---------- */
 
 .other-staff-page .hero-actions {
     position: relative;
@@ -210,6 +210,61 @@
     color: #c5d0bd;
     font-size: 11px;
     line-height: 1.7;
+}
+
+/* ---------- Add staff button ---------- */
+
+.other-staff-page .add-btn {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 20px;
+    border: 1px solid #e2d8bd;
+    border-radius: 8px;
+    color: var(--ink);
+    background: var(--cream);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .14);
+}
+
+.other-staff-page .add-btn:hover {
+    color: var(--ink);
+    background: #fffefa;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, .18);
+}
+
+/* Dark version for light backgrounds (panel header, empty state) */
+.other-staff-page .add-btn.solid {
+    border-color: var(--ink);
+    color: #fffefa;
+    background: var(--ink);
+    box-shadow: 0 3px 8px rgba(38, 59, 53, .12);
+}
+
+.other-staff-page .add-btn.solid:hover {
+    border-color: var(--forest-light);
+    color: #fffefa;
+    background: var(--forest-light);
+    box-shadow: 0 6px 12px rgba(38, 59, 53, .15);
+}
+
+.other-staff-page .add-btn:focus-visible {
+    outline: 3px solid rgba(82, 127, 121, .35);
+    outline-offset: 3px;
+}
+
+.other-staff-page .empty-state .add-btn {
+    margin-top: 20px;
 }
 
 /* ---------- Success / error alerts ---------- */
@@ -294,26 +349,15 @@
     letter-spacing: .4px;
 }
 
-.other-staff-page .staff-kpi.blue { --c: #2b5d8a; }
-.other-staff-page .staff-kpi.green { --c: #3a7958; }
+.other-staff-page .staff-kpi.blue   { --c: #2b5d8a; }
+.other-staff-page .staff-kpi.green  { --c: #3a7958; }
 .other-staff-page .staff-kpi.orange { --c: #b98024; }
-.other-staff-page .staff-kpi.red { --c: #bd5148; }
+.other-staff-page .staff-kpi.red    { --c: #bd5148; }
 
-.other-staff-page .staff-kpi.blue::before {
-    content: "TEAM";
-}
-
-.other-staff-page .staff-kpi.green::before {
-    content: "ACTIVE";
-}
-
-.other-staff-page .staff-kpi.orange::before {
-    content: "INACTIVE";
-}
-
-.other-staff-page .staff-kpi.red::before {
-    content: "LIBRARY";
-}
+.other-staff-page .staff-kpi.blue::before   { content: "TEAM"; }
+.other-staff-page .staff-kpi.green::before  { content: "ACTIVE"; }
+.other-staff-page .staff-kpi.orange::before { content: "INACTIVE"; }
+.other-staff-page .staff-kpi.red::before    { content: "LIBRARY"; }
 
 .other-staff-page .kpi-top {
     display: flex;
@@ -592,12 +636,6 @@
     font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
-    transition:
-        color .18s ease,
-        background .18s ease,
-        border-color .18s ease,
-        transform .18s ease,
-        box-shadow .18s ease;
 }
 
 .other-staff-page .apply-btn {
@@ -916,6 +954,189 @@
     background: var(--ink);
 }
 
+/* ---------- Bulk delete ---------- */
+
+.other-staff-page .panel-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.other-staff-page .bulk-btn,
+.other-staff-page .cancel-btn,
+.other-staff-page .delete-selected-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.other-staff-page .bulk-btn {
+    border-color: #e3c3bd;
+    color: var(--red);
+    background: var(--paper);
+}
+
+.other-staff-page .bulk-btn:hover {
+    border-color: var(--red);
+    color: #fff;
+    background: var(--red);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(189, 81, 72, .18);
+}
+
+.other-staff-page .cancel-btn {
+    border-color: #d7d6ca;
+    color: var(--ink);
+    background: var(--paper);
+}
+
+.other-staff-page .cancel-btn:hover {
+    border-color: var(--ink);
+    color: #fffefa;
+    background: var(--ink);
+}
+
+.other-staff-page .delete-selected-btn {
+    border-color: var(--red);
+    color: #fff;
+    background: var(--red);
+}
+
+.other-staff-page .delete-selected-btn:hover:not(:disabled) {
+    border-color: #a5423a;
+    background: #a5423a;
+    transform: translateY(-1px);
+}
+
+.other-staff-page .delete-selected-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.other-staff-page .bulk-btn:focus-visible,
+.other-staff-page .cancel-btn:focus-visible,
+.other-staff-page .delete-selected-btn:focus-visible {
+    outline: 3px solid rgba(189, 81, 72, .30);
+    outline-offset: 3px;
+}
+
+.other-staff-page .delete-mode-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 13px 21px;
+    border-bottom: 1px solid #edd2cb;
+    background: #fff6f3;
+}
+
+.other-staff-page .delete-mode-bar.is-active {
+    display: flex;
+}
+
+.other-staff-page .delete-mode-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    color: #a5423a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.other-staff-page .mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    color: #fff;
+    background: var(--red);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+
+.other-staff-page .select-all-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+}
+
+.other-staff-page .selected-count {
+    color: var(--red);
+    font-weight: 800;
+}
+
+.other-staff-page .delete-mode-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Checkbox column: hidden until delete mode */
+.other-staff-page .check-col {
+    display: none;
+    width: 46px;
+    text-align: center !important;
+}
+
+.other-staff-page .staff-panel.delete-mode .check-col {
+    display: table-cell;
+}
+
+.other-staff-page .staff-table input[type="checkbox"],
+.other-staff-page .select-all-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--red);
+}
+
+.other-staff-page .staff-table tbody tr.is-selected,
+.other-staff-page .staff-table tbody tr.is-selected:hover {
+    background: #fff6f3;
+}
+
+/* Single-row delete is hidden while bulk mode is on */
+.other-staff-page .staff-panel.delete-mode .action-btn.delete {
+    display: none;
+}
+
+@media (max-width: 650px) {
+    .other-staff-page .panel-actions,
+    .other-staff-page .delete-mode-actions {
+        width: 100%;
+    }
+
+    .other-staff-page .panel-actions .add-btn,
+    .other-staff-page .panel-actions .bulk-btn,
+    .other-staff-page .delete-mode-actions .cancel-btn,
+    .other-staff-page .delete-mode-actions .delete-selected-btn {
+        flex: 1;
+    }
+
+    .other-staff-page .delete-mode-bar {
+        padding: 13px 15px;
+    }
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1350px) {
@@ -1023,9 +1244,13 @@
     }
 
     .other-staff-page .staff-panel-header {
-        align-items: flex-start;
+        align-items: stretch;
         flex-direction: column;
         padding: 15px;
+    }
+
+    .other-staff-page .staff-panel-header .add-btn {
+        width: 100%;
     }
 
     .other-staff-page .panel-title {
@@ -1071,7 +1296,7 @@
         </div>
     @endif
 
-    {{-- Locked School Diary hero --}}
+    {{-- Hero --}}
     <section class="staff-hero">
 
         <div class="staff-hero-content">
@@ -1104,7 +1329,7 @@
 
         </div>
 
-        {{-- Decorative information panel; add button removed --}}
+        {{-- Hero action panel with Add Staff button --}}
         <div class="hero-actions">
 
             <div class="hero-actions-label">
@@ -1114,6 +1339,11 @@
             <div class="hero-actions-subtitle">
                 Keep your school team organised, connected and up to date.
             </div>
+
+            <a href="{{ route('admin.other-staff.create') }}" class="add-btn">
+                <i class="fas fa-user-plus" aria-hidden="true"></i>
+                Add Staff
+            </a>
 
         </div>
 
@@ -1209,7 +1439,7 @@
     </section>
 
     {{-- Staff records panel --}}
-    <section class="staff-panel">
+    <section class="staff-panel" id="staffPanel">
 
         <div class="staff-panel-header">
 
@@ -1235,7 +1465,72 @@
 
             </div>
 
+            <div class="panel-actions">
+
+                @if ($staff->count())
+                    <button type="button" class="bulk-btn" id="enterDeleteModeBtn">
+                        <i class="fas fa-trash-can" aria-hidden="true"></i>
+                        Bulk Delete
+                    </button>
+                @endif
+
+                <a href="{{ route('admin.other-staff.create') }}" class="add-btn solid">
+                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                    Add Staff
+                </a>
+
+            </div>
+
         </div>
+
+        {{-- Delete mode bar --}}
+        <div class="delete-mode-bar" id="deleteModeBar">
+
+            <div class="delete-mode-left">
+
+                <span class="mode-badge">
+                    <i class="fas fa-trash-can" aria-hidden="true"></i>
+                    Delete Mode
+                </span>
+
+                <label class="select-all-label">
+                    <input type="checkbox" id="selectAllBar" aria-label="Select all staff on this page">
+                    Select all on this page
+                </label>
+
+                <span>
+                    <span class="selected-count" id="selectedCount">0</span>
+                    record(s) selected
+                </span>
+
+            </div>
+
+            <div class="delete-mode-actions">
+
+                <button type="button" class="cancel-btn" id="cancelDeleteModeBtn">
+                    <i class="fas fa-xmark" aria-hidden="true"></i>
+                    Cancel
+                </button>
+
+                <button type="button" class="delete-selected-btn" id="deleteSelectedBtn" disabled>
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    Delete Selected
+                </button>
+
+            </div>
+
+        </div>
+
+        {{-- Hidden bulk delete form --}}
+        <form
+            action="{{ url('admin/other-staff-bulk-delete') }}"
+            method="POST"
+            id="bulkDeleteForm"
+            style="display:none;"
+        >
+            @csrf
+            <div id="bulkIdsContainer"></div>
+        </form>
 
         {{-- Search and filters --}}
         <div class="filter-panel">
@@ -1391,6 +1686,9 @@
 
                     <thead>
                         <tr>
+                            <th class="check-col">
+                                <input type="checkbox" id="selectAllTable" aria-label="Select all staff on this page">
+                            </th>
                             <th>Staff Member</th>
                             <th>Designation</th>
                             <th>Department</th>
@@ -1406,6 +1704,17 @@
                         @foreach ($staff as $member)
 
                             <tr>
+
+                                {{-- Bulk select checkbox --}}
+                                <td class="check-col">
+                                    <input
+                                        type="checkbox"
+                                        class="row-check"
+                                        value="{{ $member->id }}"
+                                        data-url="{{ route('admin.other-staff.destroy', $member) }}"
+                                        aria-label="Select {{ $member->name }}"
+                                    >
+                                </td>
 
                                 {{-- Staff identity --}}
                                 <td>
@@ -1590,7 +1899,7 @@
 
         @else
 
-            {{-- Empty state: Add Staff button removed --}}
+            {{-- Empty state with Add Staff button --}}
             <div class="empty-state">
 
                 <div class="empty-icon">
@@ -1601,8 +1910,13 @@
 
                 <p>
                     No staff records match your current search or filters.
-                    Try changing the filters to find existing staff records.
+                    Try changing the filters, or add a new staff member.
                 </p>
+
+                <a href="{{ route('admin.other-staff.create') }}" class="add-btn solid">
+                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                    Add Staff
+                </a>
 
             </div>
 
@@ -1611,5 +1925,103 @@
     </section>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const panel        = document.getElementById('staffPanel');
+    const enterBtn     = document.getElementById('enterDeleteModeBtn');
+    const cancelBtn    = document.getElementById('cancelDeleteModeBtn');
+    const deleteBar    = document.getElementById('deleteModeBar');
+    const deleteBtn    = document.getElementById('deleteSelectedBtn');
+    const selectBar    = document.getElementById('selectAllBar');
+    const selectTable  = document.getElementById('selectAllTable');
+    const countEl      = document.getElementById('selectedCount');
+    const bulkForm     = document.getElementById('bulkDeleteForm');
+    const idsContainer = document.getElementById('bulkIdsContainer');
+
+    // No staff on this page, so there is nothing to bulk delete
+    if (!enterBtn || !panel) return;
+
+    const rowChecks = () => Array.from(document.querySelectorAll('.row-check'));
+
+    function updateCount() {
+        const checks  = rowChecks();
+        const checked = checks.filter(c => c.checked);
+        const all     = checks.length > 0 && checked.length === checks.length;
+
+        countEl.textContent = checked.length;
+        deleteBtn.disabled  = checked.length === 0;
+
+        selectBar.checked   = all;
+        selectTable.checked = all;
+        selectBar.indeterminate   = checked.length > 0 && !all;
+        selectTable.indeterminate = checked.length > 0 && !all;
+
+        checks.forEach(c => c.closest('tr').classList.toggle('is-selected', c.checked));
+    }
+
+    function setDeleteMode(on) {
+        panel.classList.toggle('delete-mode', on);
+        deleteBar.classList.toggle('is-active', on);
+        enterBtn.style.display = on ? 'none' : '';
+
+        if (!on) {
+            rowChecks().forEach(c => c.checked = false);
+        }
+
+        updateCount();
+    }
+
+    function toggleAll(state) {
+        rowChecks().forEach(c => c.checked = state);
+        updateCount();
+    }
+
+    enterBtn.addEventListener('click', () => setDeleteMode(true));
+    cancelBtn.addEventListener('click', () => setDeleteMode(false));
+    selectBar.addEventListener('change', e => toggleAll(e.target.checked));
+    selectTable.addEventListener('change', e => toggleAll(e.target.checked));
+    rowChecks().forEach(c => c.addEventListener('change', updateCount));
+
+    deleteBtn.addEventListener('click', async function () {
+        const checked = rowChecks().filter(c => c.checked);
+        if (!checked.length) return;
+
+        const n = checked.length;
+        const message = 'You selected ' + n + ' record' + (n > 1 ? 's' : '') + '.\n\n' +
+                        'Are you sure you want to delete ' + (n > 1 ? 'these staff members' : 'this staff member') + '?\n' +
+                        'This action cannot be undone.';
+
+        if (!confirm(message)) return;
+
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="fas fa-hourglass-half" aria-hidden="true"></i> Deleting...';
+
+        const token = bulkForm.querySelector('input[name="_token"]').value;
+
+        // Uses the existing single-delete route once per ticked row (one at a time)
+        for (const c of checked) {
+            const body = new FormData();
+            body.append('_token', token);
+            body.append('_method', 'DELETE');
+
+            try {
+                await fetch(c.dataset.url, {
+                    method: 'POST',
+                    body: body,
+                    redirect: 'manual',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+            } catch (e) {
+                // keep going; the reload below shows what is left
+            }
+        }
+
+        window.location.reload();
+    });
+
+});
+</script>
 
 @endsection

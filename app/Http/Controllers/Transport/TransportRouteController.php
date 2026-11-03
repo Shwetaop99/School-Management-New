@@ -529,4 +529,8 @@ class TransportRouteController extends Controller
                 'Transport route deleted successfully.'
             );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

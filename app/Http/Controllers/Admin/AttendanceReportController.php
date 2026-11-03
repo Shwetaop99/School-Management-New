@@ -212,4 +212,20 @@ public function excel(Request $request)
         'attendance-report.xlsx'
     );
 }
+/**
+ * Bulk delete multiple records.
+ */
+public function bulkDestroy(Request $request)
+{
+    $request->validate([
+        'ids'   => 'required|array|min:1',
+        'ids.*' => 'integer|exists:teachers,id',   // ← change table name
+    ]);
+
+    $count = Teacher::whereIn('id', $request->ids)->delete();  // ← change Model
+
+    return redirect()
+        ->route('admin.teachers.index')                          // ← change route
+        ->with('success', $count . ' teacher(s) deleted successfully.');
+}
 }

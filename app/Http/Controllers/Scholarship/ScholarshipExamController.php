@@ -884,4 +884,8 @@ class ScholarshipExamController extends Controller
                 'section',
             ]);
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

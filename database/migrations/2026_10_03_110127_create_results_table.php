@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -8,6 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Avoid creating a table that already exists.
+        if (Schema::hasTable('results')) {
+            return;
+        }
+
         Schema::create('results', function (Blueprint $table) {
             $table->id();
 
@@ -43,6 +49,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('results');
+        // Preserve the existing results table and its data.
     }
 };

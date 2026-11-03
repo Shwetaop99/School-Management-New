@@ -1,4 +1,4 @@
-
+﻿
 @extends('layouts.app')
 
 @section('title', 'Student Fee Details')
@@ -335,7 +335,7 @@
             {{-- Collect Payment --}}
             @if((float) $studentFee->balance_amount > 0)
             
-<a href="{{ route('admin.fees.student-fees.payment.create', $studentFee) }}"
+<a href="{{ route('admin.fees.student-fees.payments.create', $studentFee) }}"
    class="btn-custom btn-payment">
     <i class="bi bi-credit-card"></i>
     Collect Payment
@@ -678,3 +678,4 @@
 </div>
 
 @endsection
+

@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, LogsActivity;
 
     /**
      * Mass assignable fields.
@@ -73,4 +75,11 @@ class User extends Authenticatable
     {
         return optional($this->role)->name === $roleName;
     }
+    public function getActivitylogOptions(): LogOptions
+{
+    return LogOptions::defaults()
+        ->logOnly(['name', 'login_id', 'email', 'status', 'role_id'])
+        ->logOnlyDirty()
+        ->dontSubmitEmptyLogs();
+}
 }

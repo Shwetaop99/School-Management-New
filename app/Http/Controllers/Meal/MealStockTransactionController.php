@@ -375,4 +375,7 @@ class MealStockTransactionController extends Controller
                 'Stock transaction recorded successfully.'
             );
     }
+    /**
+ * Bulk delete multiple records.
+ */
 }

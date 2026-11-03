@@ -33,12 +33,16 @@ class TeacherController extends Controller
         $activeTeachers = Teacher::where('status', 'Active')->count();
         $inactiveTeachers = Teacher::where('status', 'Inactive')->count();
 
-        return view('admin.teachers.index', compact(
-            'teachers',
-            'totalTeachers',
-            'activeTeachers',
-            'inactiveTeachers'
-        ));
+$teachers = Teacher::latest()->paginate(10);
+
+    return view('admin.teachers.index', [
+        'teachers'         => $teachers,
+        'totalTeachers'    => Teacher::count(),
+        'activeTeachers'   => Teacher::where('status', 'Active')->count(),
+        'inactiveTeachers' => Teacher::where('status', 'Inactive')->count(),
+
+       
+    ]);
     }
 
     /*
@@ -638,4 +642,20 @@ class TeacherController extends Controller
             ->with('success', "{$imported} teacher(s) imported successfully.")
             ->with('import_errors', $errors);
     }
+    /**
+ * Bulk delete multiple records.
+ */
+public function bulkDestroy(Request $request)
+{
+    $validated = $request->validate([
+        'ids' => 'required|array|min:1',
+        'ids.*' => 'required|integer|distinct|exists:teachers,id',
+    ]);
+
+    $count = Teacher::whereIn('id', $validated['ids'])->delete();
+
+    return redirect()
+        ->route('admin.teachers.index')
+        ->with('success', $count . ' teacher(s) deleted successfully.');
+}
 }

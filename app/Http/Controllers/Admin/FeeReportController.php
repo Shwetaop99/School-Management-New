@@ -73,4 +73,8 @@ class FeeReportController extends Controller
             'totalBalance'
         ));
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

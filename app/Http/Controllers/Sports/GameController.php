@@ -170,4 +170,9 @@ class GameController extends Controller
             ->route('admin.sports.games.index')
             ->with('success', 'Game/Event deleted successfully.');
     }
+
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

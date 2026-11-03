@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeacherSalary extends Model
 {
+    use HasFactory, LogsActivity; 
+    
     protected $fillable = [
         'staff_type',
         'teacher_id',
@@ -59,4 +65,11 @@ class TeacherSalary extends Model
 
         return $this->otherStaff->name ?? '-';
     }
-}
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    {
+        return \Spatie\Activitylog\LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }}

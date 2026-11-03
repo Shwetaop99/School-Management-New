@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en">
 
@@ -718,6 +718,7 @@
                 'admin.settings.*',
                 'backup.*',
                 'admin.2fa.*',
+                'admin.activity-log.*',
             ],
             'c' => [
                 ['School Profile', 'admin.settings.index'],
@@ -725,6 +726,7 @@
                 ['Add User', 'admin.settings.users.index'],
                 ['Security', 'admin.2fa.security'],
                 ['Backup & Recovery', 'admin.backup.index'],
+                ['Activity Log', 'admin.activity-log.index'],
             ],
             'p' => [
                 'settings.view',
@@ -1197,7 +1199,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </script>
 
+@php
+    $__denied = (!$isSuperAdmin && $user) ? \App\Support\Access::deniedRoutes($user) : [];
+@endphp
+@if (!empty($__denied))
+<script>
+(function () {
+    const denied = @json($__denied).map(d => ({ m: d.m, re: new RegExp(d.re) }));
 
+    function isDenied(url, method) {
+        let path;
+        try { path = new URL(url, location.origin).pathname; } catch (e) { return false; }
+        method = method.toUpperCase();
+        return denied.some(d => d.m === method && d.re.test(path));
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('a[href]').forEach(function (a) {
+            if (isDenied(a.getAttribute('href'), 'GET')) a.remove();
+        });
+        document.querySelectorAll('form[action]').forEach(function (f) {
+            const spoof  = f.querySelector('input[name="_method"]');
+            const method = spoof ? spoof.value : (f.method || 'GET');
+            if (isDenied(f.getAttribute('action'), method)) f.remove();
+        });
+    });
+})();
+</script>
+@endif
 
 @stack('scripts')
 

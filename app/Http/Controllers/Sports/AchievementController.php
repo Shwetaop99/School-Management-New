@@ -157,4 +157,8 @@ class AchievementController extends Controller
             ->route('admin.sports.achievements.index')
             ->with('success', 'Achievement deleted successfully.');
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

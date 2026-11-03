@@ -251,7 +251,7 @@ class MeritConcessionController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.merit-concession.index')
+            ->route('admin.scholarship.merit.concession.index')
             ->with('success', 'Scholarship percentage rule saved successfully.');
     }
 
@@ -384,4 +384,8 @@ class MeritConcessionController extends Controller
                 'Scholarship record removed from view. Original result remains unchanged.'
             );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

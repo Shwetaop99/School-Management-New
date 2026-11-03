@@ -10,4 +10,8 @@ class SportsController extends Controller
     {
         return view('admin.sports.index');
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }
