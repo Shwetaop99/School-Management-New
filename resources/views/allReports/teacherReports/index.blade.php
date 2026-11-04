@@ -1,1257 +1,882 @@
 @extends('layouts.app')
 
-@section('title', 'Teacher Reports')
-
-@section('page-title', 'Teacher Reports')
+@section('title', 'Faculty Reports | Admin')
+@section('page-title', 'Faculty Reports')
 
 @section('content')
 
+@php
+    $selectedSearch  = request('search');
+    $selectedFrom    = request('from_date');
+    $selectedTo      = request('to_date');
+    $selectedGender  = request('gender');
+    $selectedSubject = request('subject');
+    $selectedStatus  = request('status');
+
+    $schoolSetting = $schoolSetting ?? \App\Models\SchoolSetting::query()->first();
+
+    $schoolName = trim((string) ($schoolSetting->school_name ?? ''));
+    $schoolName = $schoolName !== '' ? $schoolName : 'School Management System';
+
+    $schoolLogo = $schoolSetting->logo_url ?? null;
+
+    $schoolAddress = collect([
+        $schoolSetting->address ?? null,
+        $schoolSetting->city ?? null,
+        $schoolSetting->district ?? null,
+        $schoolSetting->state ?? null,
+        $schoolSetting->pincode ?? null,
+    ])->filter(fn ($value) => trim((string) $value) !== '')->implode(', ');
+
+    $schoolPhone = trim((string) ($schoolSetting->phone ?? ''));
+    $schoolEmail = trim((string) ($schoolSetting->email ?? ''));
+@endphp
+
+<div class="payroll-simple faculty-reports-page">
+    <div class="container-fluid py-4">
+
+        {{-- Page Header --}}
+        <div class="faculty-report-topbar">
+            <a href="{{ route('admin.reports.index') }}" class="faculty-back-link">
+                <span>&larr;</span> Back to Reports
+            </a>
+
+            <button type="button" class="faculty-print-btn" onclick="printFacultyReport()">
+                <span>⎙</span> Print
+            </button>
+        </div>
+
+        {{-- Hero Section --}}
+        <section class="faculty-report-hero">
+            <div class="faculty-report-hero-content">
+                <span class="faculty-report-eyebrow">FACULTY RECORDS</span>
+
+                <h2>Faculty Reports</h2>
+
+                <p>
+                    Explore faculty profiles, attendance records, salary details
+                    and complete individual teacher reports from one place.
+                </p>
+            </div>
+
+            <div class="faculty-report-hero-art">
+                <div class="faculty-hero-icon">▤</div>
+                <span>FACULTY DIRECTORY</span>
+                <strong>Teacher Overview</strong>
+            </div>
+        </section>
+
+        {{-- Faculty Directory --}}
+        <section class="faculty-directory-section">
+
+            <div class="faculty-section-heading">
+                <div>
+                    <span class="faculty-report-eyebrow">EXPLORE RECORDS</span>
+                    <h3>Select a Faculty Member</h3>
+                    <p>Choose a teacher to view their complete individual report.</p>
+                </div>
+
+                <div class="faculty-record-count">
+                    {{ $teachers->count() }} Faculty Members
+                </div>
+            </div>
+
+            {{-- Filters --}}
+            <form method="GET"
+                  action="{{ route('admin.teachers.reports.index') }}"
+                  class="faculty-filters">
+
+                <div class="faculty-filter-item faculty-search-item">
+                    <label for="faculty-search">Search Faculty</label>
+                    <input
+                        type="text"
+                        id="faculty-search"
+                        name="search"
+                        value="{{ $selectedSearch }}"
+                        placeholder="Name, ID, email, phone..."
+                    >
+                </div>
+
+                <div class="faculty-filter-item">
+                    <label for="faculty-from-date">Attendance From</label>
+                    <input
+                        type="date"
+                        id="faculty-from-date"
+                        name="from_date"
+                        value="{{ $selectedFrom }}"
+                    >
+                </div>
+
+                <div class="faculty-filter-item">
+                    <label for="faculty-to-date">Attendance To</label>
+                    <input
+                        type="date"
+                        id="faculty-to-date"
+                        name="to_date"
+                        value="{{ $selectedTo }}"
+                    >
+                </div>
+
+                <div class="faculty-filter-item">
+                    <label for="faculty-gender">Gender</label>
+                    <select id="faculty-gender" name="gender">
+                        <option value="">All Genders</option>
+                        @foreach($genders ?? [] as $gender)
+                            <option value="{{ $gender }}" @selected($selectedGender == $gender)>
+                                {{ $gender }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="faculty-filter-item">
+                    <label for="faculty-subject">Subject</label>
+                    <select id="faculty-subject" name="subject">
+                        <option value="">All Subjects</option>
+                        @foreach($subjects ?? [] as $subject)
+                            <option value="{{ $subject }}" @selected($selectedSubject == $subject)>
+                                {{ $subject }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="faculty-filter-item">
+                    <label for="faculty-status">Status</label>
+                    <select id="faculty-status" name="status">
+                        <option value="">All Status</option>
+                        <option value="Active" @selected($selectedStatus === 'Active')>Active</option>
+                        <option value="Inactive" @selected($selectedStatus === 'Inactive')>Inactive</option>
+                    </select>
+                </div>
+
+                <div class="faculty-filter-buttons">
+                    <button type="submit" class="faculty-apply-btn">Apply Filters</button>
+                    <a href="{{ route('admin.teachers.reports.index') }}" class="faculty-reset-btn">
+                        Reset
+                    </a>
+                </div>
+            </form>
+
+            {{-- Faculty Cards --}}
+            @if($teachers->isNotEmpty())
+
+                <div class="faculty-card-grid">
+
+                    @foreach($teachers as $teacher)
+
+                        @php
+                            $teacherName = trim(
+                                ($teacher->first_name ?? '') . ' ' .
+                                ($teacher->last_name ?? '')
+                            );
+
+                            $teacherName = $teacherName !== '' ? $teacherName : 'Unnamed Faculty';
+
+                            $teacherStatus = strtolower(trim((string) ($teacher->status ?? '')));
+                            $statusClass = $teacherStatus === 'active' ? 'faculty-active' : 'faculty-inactive';
+                        @endphp
+
+                        <a
+                            href="{{ route('admin.teachers.reports.show', $teacher->id) }}"
+                            class="faculty-member-card"
+                        >
+                            <div class="faculty-card-icon">
+                                <span>♙</span>
+                            </div>
+
+                            <div class="faculty-card-content">
+                                <span class="faculty-card-label">FACULTY MEMBER</span>
+
+                                <h4>{{ $teacherName }}</h4>
+
+                                <div class="faculty-card-id">
+                                    ID: {{ $teacher->teacher_id ?? 'Not assigned' }}
+                                </div>
+
+                                <div class="faculty-card-details">
+                                    <span>
+                                        <strong>Subject:</strong>
+                                        {{ $teacher->subject ?: 'Not specified' }}
+                                    </span>
+
+                                    <span>
+                                        <strong>Gender:</strong>
+                                        {{ $teacher->gender ?: 'Not specified' }}
+                                    </span>
+                                </div>
+
+                                <span class="faculty-status {{ $statusClass }}">
+                                    {{ $teacher->status ? ucfirst($teacher->status) : 'Not set' }}
+                                </span>
+
+                                <div class="faculty-card-action">
+                                    View Individual Report <span>&rarr;</span>
+                                </div>
+                            </div>
+                        </a>
+
+                    @endforeach
+
+                </div>
+
+            @else
+
+                <div class="faculty-empty-state">
+                    <div class="faculty-empty-icon">▤</div>
+                    <h4>No Faculty Records Found</h4>
+                    <p>
+                        No faculty records match your selected filters.
+                        Try changing your search or filter criteria.
+                    </p>
+
+                    @if(request()->query())
+                        <a href="{{ route('admin.teachers.reports.index') }}" class="faculty-reset-btn">
+                            Clear Filters
+                        </a>
+                    @endif
+                </div>
+
+            @endif
+
+        </section>
+
+        {{-- Print School Header --}}
+        <div class="faculty-print-school print-only">
+            @if(!empty($schoolLogo))
+                <img src="{{ $schoolLogo }}" alt="School Logo">
+            @endif
+
+            <div class="faculty-print-school-info">
+                <h2>{{ $schoolName }}</h2>
+
+                @if($schoolAddress !== '')
+                    <p>{{ $schoolAddress }}</p>
+                @endif
+
+                @if($schoolPhone !== '' || $schoolEmail !== '')
+                    <p>
+                        @if($schoolPhone !== '')
+                            Phone: {{ $schoolPhone }}
+                        @endif
+
+                        @if($schoolPhone !== '' && $schoolEmail !== '')
+                            |
+                        @endif
+
+                        @if($schoolEmail !== '')
+                            Email: {{ $schoolEmail }}
+                        @endif
+                    </p>
+                @endif
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <style>
-
 /* =========================================================
+   FACULTY REPORTS - MATCHING STUDENT REPORTS DESIGN
+========================================================= */
 
-   TEACHER REPORTS PAGE
-
-   Strongly scoped CSS to prevent layout conflicts
-
-\========================================================= */
-
-.teacher-reports-page {
-
-    width: 100% !important;
-
-    max-width: 1600px !important;
-
-    margin: 0 auto !important;
-
-    padding: 28px !important;
-
-    background: #f4f7fb !important;
-
-    min-height: calc(100vh - 120px) !important;
-
-    box-sizing: border-box !important;
-
+.payroll-simple.faculty-reports-page {
+    background: #f5f4f0;
+    color: #1e2a25;
+    min-height: 100vh;
+    padding-bottom: 35px;
+    font-family: 'Inter', 'Public Sans', Arial, sans-serif;
 }
 
-/* =========================================================
-
-   HEADER
-
-\========================================================= */
-
-.teacher-reports-page .reports-header {
-
-    width: 100% !important;
-
-    background: linear-gradient(135deg, #147cf5, #6c63ff) !important;
-
-    border-radius: 16px !important;
-
-    padding: 28px 32px !important;
-
-    margin-bottom: 25px !important;
-
-    color: #ffffff !important;
-
-    box-shadow: 0 8px 25px rgba(20, 124, 245, 0.15) !important;
-
-    box-sizing: border-box !important;
-
+.faculty-reports-page * {
+    box-sizing: border-box;
 }
 
-.teacher-reports-page .reports-header h2 {
-
-    margin: 0 0 8px 0 !important;
-
-    padding: 0 !important;
-
-    color: #ffffff !important;
-
-    font-size: 26px !important;
-
-    font-weight: 700 !important;
-
-    line-height: 1.3 !important;
-
+.faculty-reports-page .container-fluid {
+    max-width: 1650px;
 }
 
-.teacher-reports-page .reports-header p {
+/* Topbar */
 
-    margin: 0 !important;
-
-    padding: 0 !important;
-
-    color: rgba(255,255,255,0.9) !important;
-
-    font-size: 14px !important;
-
-    line-height: 1.5 !important;
-
+.faculty-report-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 22px;
 }
 
-/* =========================================================
-
-   MAIN REPORT CARD
-
-\========================================================= */
-
-.teacher-reports-page .reports-main-card {
-
-    width: 100% !important;
-
-    background: #ffffff !important;
-
-    border-radius: 16px !important;
-
-    padding: 25px !important;
-
-    margin: 0 !important;
-
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important;
-
-    box-sizing: border-box !important;
-
+.faculty-back-link {
+    color: #526158;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
 }
 
-.teacher-reports-page .reports-main-card h3 {
-
-    margin: 0 0 6px 0 !important;
-
-    padding: 0 !important;
-
-    color: #1e293b !important;
-
-    font-size: 19px !important;
-
-    font-weight: 700 !important;
-
+.faculty-back-link:hover {
+    color: #1a6b3c;
 }
 
-.teacher-reports-page .reports-main-card > p {
-
-    margin: 0 0 22px 0 !important;
-
-    padding: 0 !important;
-
-    color: #64748b !important;
-
-    font-size: 13px !important;
-
+.faculty-back-link span {
+    margin-right: 6px;
 }
 
-/* =========================================================
-
-   TEACHER GRID
-
-\========================================================= */
-
-.teacher-reports-page .reports-teacher-grid {
-
-    width: 100% !important;
-
-    display: grid !important;
-
-    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important;
-
-    gap: 18px !important;
-
+.faculty-print-btn {
+    border: 1px solid #d4cfc2;
+    background: #fff;
+    color: #2c3e36;
+    border-radius: 9px;
+    padding: 10px 17px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
 }
 
-/* =========================================================
-
-   TEACHER CARD
-
-\========================================================= */
-
-.teacher-reports-page .reports-teacher-card {
-
-    width: 100% !important;
-
-    min-width: 0 !important;
-
-    background: #ffffff !important;
-
-    border: 1px solid #e2e8f0 !important;
-
-    border-radius: 14px !important;
-
-    padding: 18px !important;
-
-    margin: 0 !important;
-
-    box-sizing: border-box !important;
-
-    transition: all 0.2s ease !important;
-
+.faculty-print-btn:hover {
+    background: #2c3e36;
+    color: #fff;
 }
 
-.teacher-reports-page .reports-teacher-card:hover {
+/* Hero */
 
-    border-color: #147cf5 !important;
-
-    box-shadow: 0 7px 20px rgba(20, 124, 245, 0.10) !important;
-
-    transform: translateY(-2px) !important;
-
+.faculty-report-hero {
+    display: grid;
+    grid-template-columns: 1.35fr .65fr;
+    min-height: 225px;
+    overflow: hidden;
+    border: 1px solid #d4cfc2;
+    border-radius: 17px;
+    background: #fdfbf7;
+    margin-bottom: 32px;
 }
 
-/* =========================================================
-
-   TEACHER INFORMATION
-
-\========================================================= */
-
-.teacher-reports-page .reports-teacher-info {
-
-    display: flex !important;
-
-    align-items: center !important;
-
-    gap: 13px !important;
-
-    margin-bottom: 12px !important;
-
+.faculty-report-hero-content {
+    padding: 38px 40px;
 }
 
-.teacher-reports-page .reports-avatar {
-
-    width: 50px !important;
-
-    height: 50px !important;
-
-    min-width: 50px !important;
-
-    border-radius: 50% !important;
-
-    overflow: hidden !important;
-
-    background: #eaf3ff !important;
-
-    display: flex !important;
-
-    align-items: center !important;
-
-    justify-content: center !important;
-
-    color: #147cf5 !important;
-
-    font-size: 18px !important;
-
-    font-weight: 700 !important;
-
+.faculty-report-eyebrow {
+    display: inline-block;
+    color: #8b795b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
 }
 
-.teacher-reports-page .reports-avatar img {
-
-    width: 100% !important;
-
-    height: 100% !important;
-
-    object-fit: cover !important;
-
-    display: block !important;
-
+.faculty-report-hero h2 {
+    color: #1e2a25;
+    font-family: Georgia, serif;
+    font-size: 34px;
+    font-weight: 700;
+    margin: 0 0 12px;
 }
 
-.teacher-reports-page .reports-teacher-name {
-
-    margin: 0 0 3px 0 !important;
-
-    padding: 0 !important;
-
-    color: #1e293b !important;
-
-    font-size: 15px !important;
-
-    font-weight: 700 !important;
-
-    line-height: 1.4 !important;
-
+.faculty-report-hero-content p {
+    color: #5c6b64;
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0;
 }
 
-.teacher-reports-page .reports-teacher-id {
-
-    margin: 0 !important;
-
-    padding: 0 !important;
-
-    color: #64748b !important;
-
-    font-size: 12px !important;
-
+.faculty-report-hero-art {
+    background: linear-gradient(135deg, #f8f1e3, #e8dcc6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 25px;
+    color: #2c3e36;
 }
 
-/* =========================================================
-
-   STATUS
-
-\========================================================= */
-
-.teacher-reports-page .reports-status {
-
-    display: inline-block !important;
-
-    padding: 5px 10px !important;
-
-    margin: 0 0 15px 0 !important;
-
-    border-radius: 20px !important;
-
-    font-size: 11px !important;
-
-    font-weight: 700 !important;
-
-    line-height: 1.2 !important;
-
+.faculty-hero-icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: #fffefa;
+    color: #527f70;
+    font-size: 34px;
+    margin-bottom: 13px;
+    box-shadow: 0 5px 18px rgba(44, 62, 54, .08);
 }
 
-.teacher-reports-page .reports-status-active {
-
-    background: #dcfce7 !important;
-
-    color: #15803d !important;
-
+.faculty-report-hero-art > span {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #8b795b;
 }
 
-.teacher-reports-page .reports-status-inactive {
-
-    background: #fee2e2 !important;
-
-    color: #b91c1c !important;
-
+.faculty-report-hero-art strong {
+    font-family: Georgia, serif;
+    font-size: 21px;
+    margin-top: 5px;
 }
 
-/* =========================================================
+/* Directory section */
 
-   REPORT DESCRIPTION
-
-\========================================================= */
-
-.teacher-reports-page .reports-description {
-
-    width: 100% !important;
-
-    background: #f8fafc !important;
-
-    border: 1px solid #eef2f7 !important;
-
-    border-radius: 10px !important;
-
-    padding: 12px !important;
-
-    margin: 0 0 16px 0 !important;
-
-    box-sizing: border-box !important;
-
+.faculty-directory-section {
+    background: #fffefa;
+    border: 1px solid #d4cfc2;
+    border-radius: 16px;
+    padding: 28px;
 }
 
-.teacher-reports-page .reports-description-title {
-
-    margin: 0 0 5px 0 !important;
-
-    color: #334155 !important;
-
-    font-size: 12px !important;
-
-    font-weight: 700 !important;
-
+.faculty-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 24px;
 }
 
-.teacher-reports-page .reports-description-text {
-
-    margin: 0 !important;
-
-    color: #64748b !important;
-
-    font-size: 11px !important;
-
-    line-height: 1.6 !important;
-
+.faculty-section-heading h3 {
+    color: #1e2a25;
+    font-family: Georgia, serif;
+    font-size: 25px;
+    margin: 0 0 7px;
 }
 
-/* =========================================================
-
-   ACTION AREA
-
-\========================================================= */
-
-.teacher-reports-page .reports-actions {
-
-    width: 100% !important;
-
-    display: flex !important;
-
-    align-items: center !important;
-
-    flex-wrap: wrap !important;
-
-    gap: 8px !important;
-
-    margin: 0 !important;
-
+.faculty-section-heading p {
+    color: #5c6b64;
+    font-size: 13px;
+    margin: 0;
 }
 
-/* =========================================================
-
-   REPORT BUTTONS
-
-   !important prevents AdminLTE/layout button overrides
-
-\========================================================= */
-
-.teacher-reports-page .reports-action-btn,
-
-.teacher-reports-page a.reports-action-btn {
-
-    display: inline-flex !important;
-
-    align-items: center !important;
-
-    justify-content: center !important;
-
-    gap: 6px !important;
-
-    width: auto !important;
-
-    min-width: 0 !important;
-
-    height: auto !important;
-
-    margin: 0 !important;
-
-    padding: 9px 12px !important;
-
-    border: 0 !important;
-
-    border-radius: 8px !important;
-
-    font-family: inherit !important;
-
-    font-size: 11px !important;
-
-    font-weight: 700 !important;
-
-    line-height: 1.2 !important;
-
-    text-decoration: none !important;
-
-    box-shadow: none !important;
-
-    cursor: pointer !important;
-
-    transition: all 0.2s ease !important;
-
+.faculty-record-count {
+    padding: 9px 14px;
+    background: #f3ead8;
+    color: #526158;
+    border: 1px solid #e5dccb;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.teacher-reports-page .reports-action-btn i {
+/* Filters */
 
-    font-size: 12px !important;
-
-    line-height: 1 !important;
-
+.faculty-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+    background: #fdfbf7;
+    border: 1px solid #e5e0d5;
+    border-radius: 13px;
 }
 
-/* Profile */
-
-.teacher-reports-page .reports-profile-btn {
-
-    background: #eaf3ff !important;
-
-    color: #147cf5 !important;
-
+.faculty-filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
 }
 
-.teacher-reports-page .reports-profile-btn:hover {
-
-    background: #147cf5 !important;
-
-    color: #ffffff !important;
-
+.faculty-filter-item label {
+    color: #526158;
+    font-size: 11px;
+    font-weight: 800;
 }
 
-/* Timetable */
-
-.teacher-reports-page .reports-timetable-btn {
-
-    background: #f1efff !important;
-
-    color: #6c63ff !important;
-
+.faculty-filter-item input,
+.faculty-filter-item select {
+    width: 100%;
+    height: 41px;
+    padding: 0 12px;
+    border: 1px solid #d4cfc2;
+    border-radius: 8px;
+    background: #fffefa;
+    color: #1e2a25;
+    font-size: 12px;
+    outline: none;
 }
 
-.teacher-reports-page .reports-timetable-btn:hover {
-
-    background: #6c63ff !important;
-
-    color: #ffffff !important;
-
+.faculty-filter-item input:focus,
+.faculty-filter-item select:focus {
+    border-color: #527f70;
+    box-shadow: 0 0 0 3px rgba(82, 127, 112, .10);
 }
 
-/* Complete Report */
-
-.teacher-reports-page .reports-complete-btn {
-
-    background: #ecfdf5 !important;
-
-    color: #059669 !important;
-
+.faculty-filter-buttons {
+    display: flex;
+    align-items: flex-end;
+    gap: 9px;
 }
 
-.teacher-reports-page .reports-complete-btn:hover {
-
-    background: #059669 !important;
-
-    color: #ffffff !important;
-
+.faculty-apply-btn,
+.faculty-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 41px;
+    padding: 0 17px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .2s ease;
 }
 
-/* =========================================================
-
-   EMPTY STATE
-
-\========================================================= */
-
-.teacher-reports-page .reports-empty {
-
-    width: 100% !important;
-
-    text-align: center !important;
-
-    padding: 55px 20px !important;
-
-    box-sizing: border-box !important;
-
+.faculty-apply-btn {
+    background: #2c3e36;
+    color: #fff;
+    border: 1px solid #2c3e36;
 }
 
-.teacher-reports-page .reports-empty i {
-
-    display: block !important;
-
-    margin-bottom: 12px !important;
-
-    color: #94a3b8 !important;
-
-    font-size: 45px !important;
-
+.faculty-apply-btn:hover {
+    background: #3a4f45;
 }
 
-.teacher-reports-page .reports-empty h4 {
-
-    margin: 0 0 7px 0 !important;
-
-    color: #334155 !important;
-
-    font-size: 17px !important;
-
+.faculty-reset-btn {
+    background: #fff;
+    color: #526158;
+    border: 1px solid #d4cfc2;
 }
 
-.teacher-reports-page .reports-empty p {
-
-    margin: 0 !important;
-
-    color: #64748b !important;
-
-    font-size: 13px !important;
-
+.faculty-reset-btn:hover {
+    background: #f3ead8;
+    color: #2c3e36;
 }
 
-/* =========================================================
+/* Faculty cards */
 
-   FACULTY REPORT FILTERS
-
-\========================================================= */
-
-.teacher-reports-page .teacher-report-filters {
-
-    width: 100%;
-
-    background: #f8fafc;
-
-    border: 1px solid #e2e8f0;
-
-    border-radius: 12px;
-
-    padding: 18px;
-
-    margin-bottom: 25px;
-
-    box-sizing: border-box;
-
+.faculty-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
 }
 
-.teacher-reports-page .filter-row {
-
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1fr;
-
-    gap: 14px;
-
-    align-items: end;
-
+.faculty-member-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    min-height: 190px;
+    padding: 21px;
+    border: 1px solid #e5e0d5;
+    border-radius: 13px;
+    background: #fff;
+    text-decoration: none;
+    transition: all .2s ease;
 }
 
-.teacher-reports-page .filter-group {
-
-    min-width: 0;
-
+.faculty-member-card:hover {
+    border-color: #8ca899;
+    background: #fcfdf9;
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(44, 62, 54, .07);
 }
 
-.teacher-reports-page .filter-group label {
-
-    display: block;
-
-    margin-bottom: 6px;
-
-    color: #334155;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
+.faculty-card-icon {
+    width: 53px;
+    height: 53px;
+    min-width: 53px;
+    border-radius: 13px;
+    background: #f3ead8;
+    display: grid;
+    place-items: center;
+    color: #527f70;
+    font-size: 27px;
 }
 
-.teacher-reports-page .filter-group input,
-
-.teacher-reports-page .filter-group select {
-
-    width: 100%;
-
-    height: 40px;
-
-    padding: 8px 11px;
-
-    border: 1px solid #cbd5e1;
-
-    border-radius: 8px;
-
-    background: #ffffff;
-
-    color: #334155;
-
-    font-size: 12px;
-
-    outline: none;
-
-    box-sizing: border-box;
-
+.faculty-card-content {
+    flex: 1;
+    min-width: 0;
 }
 
-.teacher-reports-page .filter-group input:focus,
-
-.teacher-reports-page .filter-group select:focus {
-
-    border-color: #147cf5;
-
-    box-shadow: 0 0 0 3px rgba(20, 124, 245, 0.10);
-
+.faculty-card-label {
+    display: block;
+    color: #8b795b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin-bottom: 5px;
 }
 
-.teacher-reports-page .filter-actions {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    margin-top: 16px;
-
+.faculty-card-content h4 {
+    color: #1e2a25;
+    font-family: Georgia, serif;
+    font-size: 21px;
+    font-weight: 700;
+    margin: 0 0 5px;
+    overflow-wrap: anywhere;
 }
 
-.teacher-reports-page .filter-apply-btn,
-
-.teacher-reports-page .filter-reset-btn {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 6px;
-
-    height: 40px;
-
-    padding: 8px 16px;
-
-    border-radius: 8px;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    text-decoration: none;
-
-    cursor: pointer;
-
-    box-sizing: border-box;
-
+.faculty-card-id {
+    color: #7b857b;
+    font-size: 11px;
+    margin-bottom: 12px;
 }
 
-.teacher-reports-page .filter-apply-btn {
-
-    border: 0;
-
-    background: #147cf5;
-
-    color: #ffffff;
-
+.faculty-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: #5c6b64;
+    font-size: 12px;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
 }
 
-.teacher-reports-page .filter-apply-btn:hover {
-
-    background: #0f6bd6;
-
+.faculty-card-details strong {
+    color: #39483e;
 }
 
-.teacher-reports-page .filter-reset-btn {
-
-    border: 1px solid #cbd5e1;
-
-    background: #ffffff;
-
-    color: #475569;
-
+.faculty-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
 }
 
-.teacher-reports-page .filter-reset-btn:hover {
-
-    background: #f1f5f9;
-
+.faculty-active {
+    background: #e4f3ea;
+    color: #1a6b3c;
 }
 
-/* =========================================================
+.faculty-inactive {
+    background: #fcebe8;
+    color: #a33a2e;
+}
 
-   FILTER RESPONSIVE
+.faculty-card-action {
+    color: #527f70;
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 15px;
+}
 
-\========================================================= */
+.faculty-card-action span {
+    margin-left: 4px;
+    transition: margin .2s ease;
+}
 
-@media (max-width: 1200px) {
+.faculty-member-card:hover .faculty-card-action span {
+    margin-left: 9px;
+}
 
-    .teacher-reports-page .filter-row {
+/* Empty state */
 
-        grid-template-columns: repeat(3, 1fr);
+.faculty-empty-state {
+    text-align: center;
+    padding: 55px 20px;
+    border: 1px dashed #d4cfc2;
+    border-radius: 13px;
+    background: #fdfbf7;
+}
 
-    }
+.faculty-empty-icon {
+    font-size: 38px;
+    color: #527f70;
+    margin-bottom: 12px;
+}
 
+.faculty-empty-state h4 {
+    color: #1e2a25;
+    font-family: Georgia, serif;
+    font-size: 21px;
+    margin: 0 0 8px;
+}
+
+.faculty-empty-state p {
+    color: #5c6b64;
+    font-size: 13px;
+    margin: 0 0 17px;
+}
+
+/* Print school header */
+
+.faculty-reports-page .print-only {
+    display: none;
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+    .faculty-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .faculty-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 700px) {
+    .faculty-report-hero {
+        grid-template-columns: 1fr;
+    }
 
-    .teacher-reports-page .filter-row {
+    .faculty-report-hero-content {
+        padding: 28px 22px;
+    }
 
-        grid-template-columns: 1fr;
+    .faculty-report-hero h2 {
+        font-size: 29px;
+    }
 
-    }
+    .faculty-report-hero-art {
+        min-height: 170px;
+    }
 
-    .teacher-reports-page .filter-actions {
+    .faculty-card-grid,
+    .faculty-filters {
+        grid-template-columns: 1fr;
+    }
 
-        flex-direction: column;
+    .faculty-directory-section {
+        padding: 20px;
+    }
 
-        align-items: stretch;
+    .faculty-member-card {
+        padding: 17px;
+    }
 
-    }
+    .faculty-filter-buttons {
+        align-items: stretch;
+    }
 
-    .teacher-reports-page .filter-apply-btn,
-
-    .teacher-reports-page .filter-reset-btn {
-
-        width: 100%;
-
-    }
-
+    .faculty-filter-buttons > * {
+        flex: 1;
+    }
 }
 
-/* =========================================================
+/* Print */
 
-   RESPONSIVE
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 12mm;
+    }
 
-\========================================================= */
+    body {
+        background: #fff !important;
+    }
 
-@media (max-width: 900px) {
+    .sidebar,
+    .top-header,
+    .app-footer,
+    .faculty-report-topbar,
+    .faculty-report-hero-art,
+    .faculty-filters {
+        display: none !important;
+    }
 
-    .teacher-reports-page {
+    .main-area {
+        margin: 0 !important;
+        width: 100% !important;
+    }
 
-        padding: 20px !important;
+    .main-content {
+        padding: 0 !important;
+        background: #fff !important;
+    }
 
-    }
+    .payroll-simple.faculty-reports-page {
+        background: #fff !important;
+        padding: 0 !important;
+        min-height: auto !important;
+    }
 
-    .teacher-reports-page .reports-teacher-grid {
+    .faculty-reports-page .container-fluid {
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    .faculty-reports-page .print-only {
+        display: flex !important;
+    }
 
-    }
+    .faculty-print-school {
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        text-align: center;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #2c3e36;
+        padding-bottom: 15px;
+    }
 
+    .faculty-print-school img {
+        width: 65px;
+        height: 65px;
+        object-fit: contain;
+    }
+
+    .faculty-print-school h2 {
+        font-family: Georgia, serif;
+        color: #1e2a25;
+        margin: 0 0 5px;
+        font-size: 20px;
+    }
+
+    .faculty-print-school p {
+        color: #5c6b64;
+        font-size: 11px;
+        margin: 3px 0;
+    }
+
+    .faculty-report-hero {
+        display: block;
+        min-height: auto;
+        border: none;
+        margin-bottom: 20px;
+    }
+
+    .faculty-report-hero-content {
+        padding: 10px 0;
+    }
+
+    .faculty-directory-section {
+        border: none;
+        padding: 0;
+    }
+
+    .faculty-card-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .faculty-member-card {
+        min-height: auto;
+        break-inside: avoid;
+        box-shadow: none !important;
+        transform: none !important;
+        border: 1px solid #d4cfc2;
+        color: #1e2a25 !important;
+    }
+
+    .faculty-card-content h4 {
+        color: #1e2a25 !important;
+    }
+
+    .faculty-card-action {
+        color: #527f70 !important;
+    }
 }
-
-@media (max-width: 600px) {
-
-    .teacher-reports-page {
-
-        padding: 15px !important;
-
-    }
-
-    .teacher-reports-page .reports-header {
-
-        padding: 22px !important;
-
-    }
-
-    .teacher-reports-page .reports-header h2 {
-
-        font-size: 22px !important;
-
-    }
-
-    .teacher-reports-page .reports-main-card {
-
-        padding: 18px !important;
-
-    }
-
-    .teacher-reports-page .reports-teacher-grid {
-
-        grid-template-columns: 1fr !important;
-
-    }
-
-    .teacher-reports-page .reports-actions {
-
-        flex-direction: column !important;
-
-        align-items: stretch !important;
-
-    }
-
-    .teacher-reports-page .reports-action-btn {
-
-        width: 100% !important;
-
-    }
-
-}
-
 </style>
 
-<div class="teacher-reports-page">
-
-    {{-- =====================================================
-
-         PAGE HEADER
-
-    ====================================================== --}}
-
-    <div class="reports-header">
-
-        <h2>
-
-            <i class="bi bi-file-earmark-bar-graph"></i>
-
-            Teacher Reports
-
-        </h2>
-
-        <p>
-
-            View teacher information, timetable and complete reports.
-
-        </p>
-
-    </div>
-
-    {{-- =====================================================
-
-         MAIN CARD
-
-    ====================================================== --}}
-
-    <div class="reports-main-card">
-
-        <h3>
-
-            <i class="bi bi-people"></i>
-
-            Teacher Reports
-
-        </h3>
-
-        <p>
-
-            Select a teacher to view their available reports.
-
-        </p>
-
-        {{-- =====================================================
-
-     FACULTY REPORT FILTERS
-
-\====================================================== --}}
-
-<div class="teacher-report-filters">
-
-    <form method="GET" action="{{ route('admin.teachers.reports.index') }}">
-
-        <div class="filter-row">
-
-            {{-- Faculty Search --}}
-
-            <div class="filter-group search-group">
-
-                <label for="search">Faculty Search</label>
-
-                <input
-
-                    type="text"
-
-                    id="search"
-
-                    name="search"
-
-                    value="{{ request('search') }}"
-
-                    placeholder="Name, ID, email, phone..."
-
-                >
-
-            </div>
-
-            {{-- From Date --}}
-
-            <div class="filter-group">
-
-                <label for="from_date">From Date</label>
-
-                <input
-
-                    type="date"
-
-                    id="from_date"
-
-                    name="from_date"
-
-                    value="{{ request('from_date') }}"
-
-                >
-
-            </div>
-
-            {{-- To Date --}}
-
-            <div class="filter-group">
-
-                <label for="to_date">To Date</label>
-
-                <input
-
-                    type="date"
-
-                    id="to_date"
-
-                    name="to_date"
-
-                    value="{{ request('to_date') }}"
-
-                >
-
-            </div>
-
-            {{-- Gender --}}
-
-            <div class="filter-group">
-
-                <label for="gender">Gender</label>
-
-                <select id="gender" name="gender">
-
-                    <option value="">All Genders</option>
-
-                    @foreach($genders ?? [] as $gender)
-
-                        <option
-
-                            value="{{ $gender }}"
-
-                            {{ request('gender') == $gender ? 'selected' : '' }}
-
-                        >
-
-                            {{ $gender }}
-
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-            </div>
-
-            {{-- Subject --}}
-
-            <div class="filter-group">
-
-                <label for="subject">Subject</label>
-
-                <select id="subject" name="subject">
-
-                    <option value="">All Subjects</option>
-
-                    @foreach($subjects ?? [] as $subject)
-
-                        <option
-
-                            value="{{ $subject }}"
-
-                            {{ request('subject') == $subject ? 'selected' : '' }}
-
-                        >
-
-                            {{ $subject }}
-
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-            </div>
-
-            {{-- Status --}}
-
-            <div class="filter-group">
-
-                <label for="status">Status</label>
-
-                <select id="status" name="status">
-
-                    <option value="">All Status</option>
-
-                    <option value="Active" {{ request('status') == 'Active' ? 'selected' : '' }}>
-
-                        Active
-
-                    </option>
-
-                    <option value="Inactive" {{ request('status') == 'Inactive' ? 'selected' : '' }}>
-
-                        Inactive
-
-                    </option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-        <div class="filter-actions">
-
-            <button type="submit" class="filter-apply-btn">
-
-                <i class="bi bi-funnel"></i>
-
-                Apply Filters
-
-            </button>
-
-            <a href="{{ route('admin.teachers.reports.index') }}" class="report-card">
-
-                <i class="bi bi-arrow-counterclockwise"></i>
-
-                Reset
-
-            </a>
-
-        </div>
-
-    </form>
-
-</div>
-
-        @if($teachers->count() > 0)
-
-            <div class="reports-teacher-grid">
-
-                @foreach($teachers as $teacher)
-
-                    <div class="reports-teacher-card">
-
-                        {{-- Teacher information --}}
-
-                        <div class="reports-teacher-info">
-
-                            <div class="reports-avatar">
-
-                                @if($teacher->profile_image)
-
-                                    <img
-
-                                        src="{{ $teacher->profile_image }}"
-
-                                        alt="{{ $teacher->first_name }}"
-
-                                    >
-
-                                @else
-
-                                    {{ strtoupper(substr($teacher->first_name, 0, 1)) }}
-
-                                @endif
-
-                            </div>
-
-                            <div>
-
-                                <div class="reports-teacher-name">
-
-                                    {{ $teacher->first_name }}
-
-                                    {{ $teacher->last_name }}
-
-                                </div>
-
-                                <div class="reports-teacher-id">
-
-                                    Teacher ID: {{ $teacher->teacher_id }}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {{-- Status --}}
-
-                        @if($teacher->status === 'Active')
-
-                            <span class="reports-status reports-status-active">
-
-                                Active
-
-                            </span>
-
-                        @else
-
-                            <span class="reports-status reports-status-inactive">
-
-                                Inactive
-
-                            </span>
-
-                        @endif
-
-                        {{-- Report information --}}
-
-                        <div class="reports-description">
-
-                            <div class="reports-description-title">
-
-                                Complete Teacher Report
-
-                            </div>
-
-                            <div class="reports-description-text">
-
-                                Teacher information, lectures,
-
-                                working hours, leaves, timetable,
-
-                                attendance and other available records.
-
-                            </div>
-
-                        </div>
-
-                        {{-- Actions --}}
-
-                        <div class="reports-actions">
-
-                            {{-- Profile --}}
-
-                            <a
-
-                                href="{{ route('admin.teachers.show', $teacher->id) }}"
-
-                                class="reports-action-btn reports-profile-btn"
-
-                            >
-
-                                <i class="bi bi-person"></i>
-
-                                Profile
-
-                            </a>
-
-                            {{-- Timetable --}}
-
-                            <a
-
-                                href="{{ route('admin.timetable.index') }}"
-
-                                class="reports-action-btn reports-timetable-btn"
-
-                            >
-
-                                <i class="bi bi-calendar3"></i>
-
-                                Timetable
-
-                            </a>
-
-                            {{-- Complete Report --}}
-
-                            <a
-
-                                href="{{ route('admin.teachers.reports.show', $teacher->id) }}"
-
-                                class="reports-action-btn reports-complete-btn"
-
-                            >
-
-                                <i class="bi bi-file-earmark-bar-graph"></i>
-
-                                Complete Report
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                @endforeach
-
-            </div>
-
-        @else
-
-            {{-- Empty state --}}
-
-            <div class="reports-empty">
-
-                <i class="bi bi-people"></i>
-
-                <h4>
-
-                    No Teachers Found
-
-                </h4>
-
-                <p>
-
-                    Add a teacher first to generate teacher reports.
-
-                </p>
-
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
+<script>
+function printFacultyReport() {
+    const logo = document.querySelector('.faculty-print-school img');
+
+    if (logo && typeof logo.decode === 'function') {
+        logo.decode().catch(function () {}).finally(function () {
+            window.print();
+        });
+        return;
+    }
+
+    window.print();
+}
+</script>
 
 @endsection

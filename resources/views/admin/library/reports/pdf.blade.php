@@ -123,20 +123,25 @@
     {{-- HEADER --}}
 
     <div class="header">
-
-        <h1>Gurukul Vidyalaya</h1>
-
-        <p>Library Management System — Library Report</p>
-
+    @if(!empty($schoolLogo))
+        <div style="margin-bottom: 8px;">
+            <img src="{{ $schoolLogo }}" alt="School Logo" style="max-width: 85px; max-height: 65px;">
+        </div>
+    @endif
+    <h1>{{ $schoolName ?? 'School Management System' }}</h1>
+    @if(!empty($schoolAddress))
+        <p>{{ $schoolAddress }}</p>
+    @endif
+    @if(!empty($schoolPhone) || !empty($schoolEmail))
         <p>
-
-            Generated on:
-
-            {{ now()->format('d M Y, h:i A') }}
-
+            @if(!empty($schoolPhone))Phone: {{ $schoolPhone }}@endif
+            @if(!empty($schoolPhone) && !empty($schoolEmail)) | @endif
+            @if(!empty($schoolEmail))Email: {{ $schoolEmail }}@endif
         </p>
-
-    </div>
+    @endif
+    <p>Library Management System - Library Report</p>
+    <p>Generated on: {{ now()->format('d M Y, h:i A') }}</p>
+</div>
 
 
 
@@ -452,9 +457,7 @@
                         {{ $issue->issue_date
 
                             ? $issue->issue_date->format('d M Y')
-
-                            : '—'
-
+                            : '-'
                         }}
 
                     </td>
@@ -466,9 +469,7 @@
                         {{ $issue->due_date
 
                             ? $issue->due_date->format('d M Y')
-
-                            : '—'
-
+                            : '-'
                         }}
 
                     </td>
@@ -480,9 +481,7 @@
                         {{ $issue->return_date
 
                             ? $issue->return_date->format('d M Y')
-
-                            : '—'
-
+                            : '-'
                         }}
 
                     </td>
@@ -546,18 +545,14 @@
 
 
                             <span class="fine">
-
-                                ₹{{ number_format($issue->fine, 2) }}
+                                &#8377;{{ number_format($issue->fine, 2) }}
 
                             </span>
 
 
 
                         @else
-
-
-
-                            ₹0.00
+                            &#8377;0.00
 
 
 
@@ -609,7 +604,7 @@
 
     <div class="footer">
 
-        Gurukul Vidyalaya — Library Management System
+        {{ $schoolName ?? 'School Management System' }} Ã¢â‚¬â€ Library Management System
 
     </div>
 

@@ -9,6 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LibraryReportExport;
 use App\Models\Book;
+use App\Models\SchoolSetting;
 
 class LibraryReportDownloadController extends Controller
 {
@@ -56,9 +57,18 @@ class LibraryReportDownloadController extends Controller
     $bookStock = Book::orderBy('title')->get();
 
     // Generate PDF
+    // Fetch school branding
+    $schoolSetting = SchoolSetting::query()->first();
+    $schoolName = trim((string) ($schoolSetting->school_name ?? ''));
+    $schoolName = $schoolName !== '' ? $schoolName : 'School Management System';
+    $schoolLogo = $schoolSetting->logo_url ?? null;
+    $schoolAddress = $schoolSetting->address ?? '';
+    $schoolPhone = $schoolSetting->phone ?? '';
+    $schoolEmail = $schoolSetting->email ?? '';
+
     $pdf = Pdf::loadView(
         'admin.library.reports.pdf',
-        compact('transactions', 'bookStock')
+        compact('transactions', 'bookStock', 'schoolSetting', 'schoolName', 'schoolLogo', 'schoolAddress', 'schoolPhone', 'schoolEmail')
     );
 
     return $pdf->download('library-report.pdf');

@@ -98,7 +98,13 @@
 
 <body>
     <div class="header">
-        <div class="school-name">SCHOOL MANAGEMENT</div>
+        @if (!empty($schoolLogo))
+            <div style="margin-bottom: 8px;">
+                <img src="{{ $schoolLogo }}" alt="School Logo" style="max-width: 85px; max-height: 70px;">
+            </div>
+        @endif
+
+        <div class="school-name">{{ $schoolName }}</div>
         <div class="subtitle">Examination Department</div>
         <div class="report-title">EXAMINATION REPORT</div>
     </div>

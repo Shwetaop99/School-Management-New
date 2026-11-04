@@ -43,16 +43,15 @@ class ResultReportController extends Controller
         $summary = (clone $baseQuery)
             ->selectRaw('COUNT(*) as total_records')
             ->selectRaw('COUNT(DISTINCT results.student_id) as total_students')
-            ->selectRaw('COALESCE(SUM(results.marks_obtained), 0) as total_obtained')
-            ->selectRaw('AVG(results.marks_obtained) as average_marks')
+            ->selectRaw('COALESCE(SUM(results.obtained_marks), 0) as total_obtained')
+            ->selectRaw('AVG(results.obtained_marks) as average_marks')
             ->first();
 
         $results = (clone $baseQuery)
             ->select([
                 'results.id',
                 'results.exam_id',
-                'results.exam_subject_id',
-                'results.marks_obtained',
+                'results.obtained_marks',
                 'results.grade',
                 'results.remarks',
                 'students.student_id as student_code',

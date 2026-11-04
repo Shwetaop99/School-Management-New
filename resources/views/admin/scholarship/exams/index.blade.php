@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Scholarship Exam Records | Admin')
 @section('page-title', 'Scholarship Exam Records')
@@ -1370,6 +1370,7 @@
         animation: none !important;
     }
 }
+
 </style>
 
 {{-- Load Playfair Display for the inspirational hero quote only --}}
@@ -1435,8 +1436,7 @@
                 Add Exam Record
                 <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
-        </div>
-
+           
     </section>
 
     {{-- ================= KPI CARDS ================= --}}
@@ -1731,7 +1731,7 @@
 
                                 <td>
                                     <span class="year-text">
-                                        {{ $exam->academic_year ?: '—' }}
+                                        {{ $exam->academic_year ?: 'â€”' }}
                                     </span>
                                 </td>
 
@@ -1740,7 +1740,7 @@
                                         @if($exam->exam_date)
                                             {{ \Illuminate\Support\Carbon::parse($exam->exam_date)->format('d M Y') }}
                                         @else
-                                            —
+                                            â€”
                                         @endif
                                     </span>
                                 </td>
@@ -1935,3 +1935,5 @@
 
 </div>
 @endsection
+
+

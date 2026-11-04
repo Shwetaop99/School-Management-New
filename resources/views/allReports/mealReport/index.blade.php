@@ -1,772 +1,802 @@
 @extends('layouts.app')
 
-@section('title', 'Meal Reports')
+@section('title', 'Meal Reports | Admin')
 @section('page-title', 'Meal Reports')
 
 @section('content')
 
+<div class="meal-reports-page">
+    <div class="container-fluid py-4">
+
+        {{-- TOP BAR --}}
+        <div class="top-bar">
+            <a href="{{ route('admin.reports.index') }}" class="btn-back">
+                <i class="bi bi-arrow-left"></i>
+                Back to Reports
+            </a>
+        </div>
+
+        {{-- HERO SECTION — MATCHING PAYROLL DESIGN --}}
+        <section class="hero-section">
+
+            <div class="hero-left">
+                <div class="hero-icon">
+                    <i class="bi bi-egg-fried"></i>
+                </div>
+
+                <div class="hero-text">
+                    <div class="hero-breadcrumb">REPORTS / MEAL MANAGEMENT</div>
+
+                    <h2>Meal Reports</h2>
+
+                    <p>
+                        A unified view of incoming stock, outgoing inventory
+                        and meal stock-history records.
+                    </p>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="hero-handwritten">Track. Review. Report.</div>
+
+                <p>
+                    Choose a report to review records, apply filters,
+                    print statements or download PDFs.
+                </p>
+
+                <div class="hero-buttons">
+                    <a
+                        href="{{ route('admin.reports.meal', ['type' => 'stock_in']) }}"
+                        class="btn-primary"
+                    >
+                        <i class="bi bi-box-arrow-in-down"></i>
+                        Stock In
+                    </a>
+
+                    <a
+                        href="{{ route('admin.reports.meal', ['type' => 'stock_out']) }}"
+                        class="btn-secondary"
+                    >
+                        <i class="bi bi-box-arrow-up"></i>
+                        Stock Out
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+        {{-- REPORT OPTIONS --}}
+        <div class="reports-panel">
+
+            <div class="section-header">
+                <div>
+                    <h3 class="section-heading">Choose a Report</h3>
+
+                    <p class="section-description">
+                        Select a report to view its records, apply filters,
+                        print the report or download it as a PDF.
+                    </p>
+                </div>
+
+                <span class="section-tag">
+                    <i class="bi bi-grid-1x2"></i>
+                    3 Reports
+                </span>
+            </div>
+
+            <div class="report-options">
+
+                {{-- STOCK IN --}}
+                <a
+                    href="{{ route('admin.reports.meal', ['type' => 'stock_in']) }}"
+                    class="report-option"
+                >
+                    <div class="option-top">
+                        <div class="option-icon stock-in-icon">
+                            <i class="bi bi-box-arrow-in-down"></i>
+                        </div>
+
+                        <span class="option-number">01</span>
+                    </div>
+
+                    <div class="option-content">
+                        <h3>Meal Stock In</h3>
+
+                        <p>
+                            View incoming meal inventory, quantities received,
+                            suppliers, rates and transaction amounts.
+                        </p>
+                    </div>
+
+                    <div class="option-footer">
+                        <span class="option-link">
+                            View Stock In Report
+                        </span>
+
+                        <span class="option-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+
+                {{-- STOCK OUT --}}
+                <a
+                    href="{{ route('admin.reports.meal', ['type' => 'stock_out']) }}"
+                    class="report-option"
+                >
+                    <div class="option-top">
+                        <div class="option-icon stock-out-icon">
+                            <i class="bi bi-box-arrow-up"></i>
+                        </div>
+
+                        <span class="option-number">02</span>
+                    </div>
+
+                    <div class="option-content">
+                        <h3>Meal Stock Out</h3>
+
+                        <p>
+                            View outgoing meal inventory, quantities issued,
+                            transaction dates and recorded reasons.
+                        </p>
+                    </div>
+
+                    <div class="option-footer">
+                        <span class="option-link">
+                            View Stock Out Report
+                        </span>
+
+                        <span class="option-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+
+                {{-- MEAL LOGS --}}
+                <a
+                    href="{{ route('admin.reports.meal', ['type' => 'logs']) }}"
+                    class="report-option"
+                >
+                    <div class="option-top">
+                        <div class="option-icon logs-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+
+                        <span class="option-number">03</span>
+                    </div>
+
+                    <div class="option-content">
+                        <h3>Meal Logs</h3>
+
+                        <p>
+                            Review stock-history entries, previous and updated
+                            stock, recorded actions and remarks.
+                        </p>
+                    </div>
+
+                    <div class="option-footer">
+                        <span class="option-link">
+                            View Meal Logs
+                        </span>
+
+                        <span class="option-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+
+            </div>
+
+            {{-- INFORMATION NOTE --}}
+            <div class="report-note">
+                <div class="note-icon">
+                    <i class="bi bi-info-circle"></i>
+                </div>
+
+                <div class="note-content">
+                    <strong>Important Note</strong>
+
+                    <p>
+                        Meal Logs displays recorded stock-history entries.
+                        It does not represent meals served or consumed unless
+                        those records are maintained separately in your system.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
 <style>
 /* =========================================================
-   MEAL REPORTS PAGE
-   Same design system as Teacher Reports
+   MEAL REPORTS
+   Scoped design matching the locked Payroll Report UI
 ========================================================= */
 
 .meal-reports-page {
-    width: 100% !important;
-    max-width: 1600px !important;
-    margin: 0 auto !important;
-    padding: 28px !important;
-    background: #f4f7fb !important;
-    min-height: calc(100vh - 120px) !important;
-    box-sizing: border-box !important;
+    --bg: #f5f4f0;
+    --text: #1e2a25;
+    --muted: #5c6b64;
+    --border: #d4cfc2;
+    --primary: #2c3e36;
+    --primary-hover: #3a4f45;
+    --cream: #f3ead8;
+    --cream-border: #e5d9c0;
+    --net: #1a6b3c;
+
+    width: 100%;
+    min-height: calc(100vh - 70px);
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, "Public Sans", Arial, sans-serif;
 }
 
-/* HEADER */
-
-.meal-reports-page .reports-header {
-    width: 100% !important;
-    background: linear-gradient(135deg, #147cf5, #6c63ff) !important;
-    border-radius: 16px !important;
-    padding: 28px 32px !important;
-    margin-bottom: 25px !important;
-    color: #ffffff !important;
-    box-shadow: 0 8px 25px rgba(20, 124, 245, 0.15) !important;
-    box-sizing: border-box !important;
+.meal-reports-page *,
+.meal-reports-page *::before,
+.meal-reports-page *::after {
+    box-sizing: border-box;
 }
 
-.meal-reports-page .reports-header h2 {
-    margin: 0 0 8px 0 !important;
-    color: #ffffff !important;
-    font-size: 26px !important;
-    font-weight: 700 !important;
-    line-height: 1.3 !important;
+.meal-reports-page .container-fluid {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
 }
 
-.meal-reports-page .reports-header p {
-    margin: 0 !important;
-    color: rgba(255,255,255,0.9) !important;
-    font-size: 14px !important;
-    line-height: 1.5 !important;
+/* Top bar */
+
+.meal-reports-page .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
-/* MAIN CARD */
-
-.meal-reports-page .reports-main-card {
-    width: 100% !important;
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    padding: 25px !important;
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important;
-    box-sizing: border-box !important;
+.meal-reports-page .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .2s ease, border-color .2s ease;
 }
 
-.meal-reports-page .reports-main-card h3 {
-    margin: 0 0 6px 0 !important;
-    color: #1e293b !important;
-    font-size: 19px !important;
-    font-weight: 700 !important;
+.meal-reports-page .btn-back:hover {
+    background: #f0eee8;
+    border-color: #bdb6a7;
+    color: var(--text);
 }
 
-.meal-reports-page .reports-main-card > p {
-    margin: 0 0 22px 0 !important;
-    color: #64748b !important;
-    font-size: 13px !important;
+/* Shared buttons */
+
+.meal-reports-page .btn-primary,
+.meal-reports-page .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: background .2s ease, border-color .2s ease;
 }
 
-/* SUMMARY */
-
-.meal-reports-page .summary-grid {
-    width: 100% !important;
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 14px !important;
-    margin-bottom: 25px !important;
+.meal-reports-page .btn-primary {
+    background: #3a3428;
+    color: #fff;
+    border-color: #3a3428;
 }
 
-.meal-reports-page .summary-card {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 18px !important;
-    box-sizing: border-box !important;
+.meal-reports-page .btn-primary:hover {
+    background: #2a241c;
+    border-color: #2a241c;
+    color: #fff;
 }
 
-.meal-reports-page .summary-label {
-    margin: 0 0 7px 0 !important;
-    color: #64748b !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
+.meal-reports-page .btn-secondary {
+    background: rgba(255, 252, 245, .7);
+    border-color: #c4b49a;
+    color: #5c4a32;
 }
 
-.meal-reports-page .summary-value {
-    margin: 0 !important;
-    color: #1e293b !important;
-    font-size: 22px !important;
-    font-weight: 700 !important;
+.meal-reports-page .btn-secondary:hover {
+    background: #fff;
+    border-color: #a8926e;
+    color: #3a3428;
 }
 
-/* FILTERS */
+/* Hero section */
 
-.meal-reports-page .meal-report-filters {
-    width: 100% !important;
-    background: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 18px !important;
-    margin-bottom: 25px !important;
-    box-sizing: border-box !important;
+.meal-reports-page .hero-section {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: #fff;
 }
 
-.meal-reports-page .filter-row {
-    width: 100% !important;
-    display: grid !important;
-    grid-template-columns: 2fr 1fr 1fr 1fr !important;
-    gap: 14px !important;
-    align-items: end !important;
+.meal-reports-page .hero-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 28px 28px 28px 32px;
+    background: #fdfbf7;
 }
 
-.meal-reports-page .filter-group {
-    min-width: 0 !important;
+.meal-reports-page .hero-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--cream);
+    border: 1px solid var(--cream-border);
+    color: #5c4a32;
+    font-size: 22px;
 }
 
-.meal-reports-page .filter-group label {
-    display: block !important;
-    margin-bottom: 6px !important;
-    color: #334155 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
+.meal-reports-page .hero-text {
+    min-width: 0;
 }
 
-.meal-reports-page .filter-group input,
-.meal-reports-page .filter-group select {
-    width: 100% !important;
-    height: 40px !important;
-    padding: 8px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    background: #ffffff !important;
-    color: #334155 !important;
-    font-size: 12px !important;
-    outline: none !important;
-    box-sizing: border-box !important;
+.meal-reports-page .hero-breadcrumb {
+    margin-bottom: 6px;
+    color: #9c7b4a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-.meal-reports-page .filter-group input:focus,
-.meal-reports-page .filter-group select:focus {
-    border-color: #147cf5 !important;
-    box-shadow: 0 0 0 3px rgba(20, 124, 245, 0.10) !important;
+.meal-reports-page .hero-text h2 {
+    margin: 0 0 8px;
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
-.meal-reports-page .filter-actions {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    margin-top: 16px !important;
+.meal-reports-page .hero-text p {
+    max-width: 480px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.6;
 }
 
-.meal-reports-page .filter-apply-btn,
-.meal-reports-page .filter-reset-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    height: 40px !important;
-    padding: 8px 16px !important;
-    border-radius: 8px !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-    cursor: pointer !important;
-    box-sizing: border-box !important;
+/* Cream / pearl right side */
+
+.meal-reports-page .hero-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    background: linear-gradient(
+        145deg,
+        #f8f1e3 0%,
+        #f0e6d2 50%,
+        #e8dcc6 100%
+    );
+    border-left: 1px solid #e5d9c4;
 }
 
-.meal-reports-page .filter-apply-btn {
-    border: 0 !important;
-    background: #147cf5 !important;
-    color: #ffffff !important;
+.meal-reports-page .hero-handwritten {
+    color: #5c4a32;
+    font-family: "Segoe Print", "Comic Sans MS", cursive;
+    font-size: 22px;
+    line-height: 1.3;
 }
 
-.meal-reports-page .filter-reset-btn {
-    border: 1px solid #cbd5e1 !important;
-    background: #ffffff !important;
-    color: #475569 !important;
+.meal-reports-page .hero-right p {
+    max-width: 280px;
+    margin: 0;
+    color: #6b5c45;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
-/* TABLE CARD */
-
-.meal-reports-page .report-table-card {
-    width: 100% !important;
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 18px !important;
-    margin-bottom: 25px !important;
-    box-sizing: border-box !important;
-    overflow-x: auto !important;
+.meal-reports-page .hero-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
 }
 
-.meal-reports-page .report-table-card h3 {
-    margin: 0 0 15px 0 !important;
-    color: #1e293b !important;
-    font-size: 17px !important;
-    font-weight: 700 !important;
+/* Reports panel */
+
+.meal-reports-page .reports-panel {
+    padding: 25px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
 }
 
-.meal-reports-page .report-table {
-    width: 100% !important;
-    border-collapse: collapse !important;
+.meal-reports-page .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
 }
 
-.meal-reports-page .report-table th {
-    padding: 11px 12px !important;
-    background: #f8fafc !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    color: #334155 !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    text-align: left !important;
-    white-space: nowrap !important;
+.meal-reports-page .section-heading {
+    margin: 0 0 7px;
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.4;
 }
 
-.meal-reports-page .report-table td {
-    padding: 11px 12px !important;
-    border-bottom: 1px solid #eef2f7 !important;
-    color: #64748b !important;
-    font-size: 12px !important;
+.meal-reports-page .section-description {
+    max-width: 700px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
 }
 
-.meal-reports-page .report-table td:first-child {
-    color: #334155 !important;
-    font-weight: 700 !important;
+.meal-reports-page .section-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 7px 11px;
+    border: 1px solid var(--cream-border);
+    border-radius: 6px;
+    background: #fdfbf7;
+    color: #6b5c45;
+    font-size: 12px;
+    font-weight: 600;
 }
 
-.meal-reports-page .status {
-    display: inline-block !important;
-    padding: 5px 10px !important;
-    border-radius: 20px !important;
-    font-size: 10px !important;
-    font-weight: 700 !important;
+/* Report cards */
+
+.meal-reports-page .report-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
 }
 
-.meal-reports-page .status-low {
-    background: #fee2e2 !important;
-    color: #b91c1c !important;
+.meal-reports-page .report-option {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 255px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text);
+    text-decoration: none;
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        border-color .2s ease,
+        background .2s ease;
 }
 
-.meal-reports-page .status-ok {
-    background: #dcfce7 !important;
-    color: #15803d !important;
+.meal-reports-page .report-option:hover {
+    transform: translateY(-3px);
+    border-color: #b8aa8e;
+    background: #fffefa;
+    box-shadow: 0 9px 22px rgba(44, 62, 54, .08);
+    color: var(--text);
 }
 
-.meal-reports-page .status-in {
-    background: #dcfce7 !important;
-    color: #15803d !important;
+.meal-reports-page .report-option:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
 }
 
-.meal-reports-page .status-out {
-    background: #fee2e2 !important;
-    color: #b91c1c !important;
+.meal-reports-page .option-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
-.meal-reports-page .reports-empty {
-    text-align: center !important;
-    padding: 45px 20px !important;
-    color: #64748b !important;
-    font-size: 13px !important;
+.meal-reports-page .option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    flex-shrink: 0;
+    border: 1px solid var(--cream-border);
+    border-radius: 10px;
+    background: var(--cream);
+    color: #5c4a32;
+    font-size: 23px;
 }
 
-
-/* REPORT ACTIONS */
-
-.meal-reports-page .report-actions {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-    gap: 10px !important;
-    margin-bottom: 20px !important;
+.meal-reports-page .stock-in-icon {
+    background: #e8f0e8;
+    border-color: #d2e0d1;
+    color: #37664a;
 }
 
-.meal-reports-page .report-action-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 7px !important;
-    min-height: 40px !important;
-    padding: 9px 15px !important;
-    border: 0 !important;
-    border-radius: 8px !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-    cursor: pointer !important;
-    box-sizing: border-box !important;
+.meal-reports-page .stock-out-icon {
+    background: #f5e9e3;
+    border-color: #e8d4c9;
+    color: #9a5140;
 }
 
-.meal-reports-page .excel-btn {
-    background: #16a34a !important;
-    color: #ffffff !important;
+.meal-reports-page .logs-icon {
+    background: #e9ece6;
+    border-color: #d8ded2;
+    color: #536b55;
 }
 
-.meal-reports-page .pdf-btn {
-    background: #dc2626 !important;
-    color: #ffffff !important;
+.meal-reports-page .option-number {
+    color: #a49a87;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-.meal-reports-page .print-btn {
-    background: #475569 !important;
-    color: #ffffff !important;
+.meal-reports-page .option-content {
+    flex: 1;
 }
 
-@media print {
-    .meal-reports-page .report-actions,
-    .meal-reports-page .meal-report-filters {
-        display: none !important;
-    }
-
-    .meal-reports-page {
-        padding: 0 !important;
-        background: #ffffff !important;
-        max-width: none !important;
-    }
-
-    .meal-reports-page .reports-header,
-    .meal-reports-page .reports-main-card,
-    .meal-reports-page .report-table-card {
-        box-shadow: none !important;
-    }
+.meal-reports-page .report-option h3 {
+    margin: 0 0 9px;
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
 }
 
-/* RESPONSIVE */
+.meal-reports-page .report-option p {
+    margin: 0 0 20px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.75;
+}
+
+.meal-reports-page .option-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee9dd;
+}
+
+.meal-reports-page .option-link {
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.meal-reports-page .option-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fdfbf7;
+    color: var(--primary);
+    transition:
+        background .2s ease,
+        color .2s ease,
+        border-color .2s ease;
+}
+
+.meal-reports-page .report-option:hover .option-arrow {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+/* Information note */
+
+.meal-reports-page .report-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-top: 22px;
+    padding: 16px 18px;
+    border: 1px solid #e5d9c4;
+    border-radius: 8px;
+    background: #fdfbf7;
+    color: var(--muted);
+}
+
+.meal-reports-page .note-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border: 1px solid var(--cream-border);
+    border-radius: 7px;
+    background: var(--cream);
+    color: #806744;
+    font-size: 15px;
+}
+
+.meal-reports-page .note-content {
+    min-width: 0;
+}
+
+.meal-reports-page .note-content strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.meal-reports-page .note-content p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* Responsive layout */
 
 @media (max-width: 1000px) {
-    .meal-reports-page .summary-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
+    .meal-reports-page .report-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .meal-reports-page .filter-row {
-        grid-template-columns: repeat(2, 1fr) !important;
+    .meal-reports-page .hero-section {
+        grid-template-columns: 1fr;
+    }
+
+    .meal-reports-page .hero-right {
+        border-left: none;
+        border-top: 1px solid #e5d9c4;
     }
 }
 
-@media (max-width: 600px) {
-    .meal-reports-page {
-        padding: 15px !important;
+@media (max-width: 768px) {
+    .meal-reports-page .container-fluid {
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
-    .meal-reports-page .reports-header {
-        padding: 22px !important;
+    .meal-reports-page .hero-left {
+        padding: 22px 20px;
     }
 
-    .meal-reports-page .reports-header h2 {
-        font-size: 22px !important;
+    .meal-reports-page .hero-text h2 {
+        font-size: 20px;
     }
 
-    .meal-reports-page .reports-main-card {
-        padding: 18px !important;
+    .meal-reports-page .hero-right {
+        padding: 24px 18px;
     }
 
-    .meal-reports-page .summary-grid,
-    .meal-reports-page .filter-row {
-        grid-template-columns: 1fr !important;
+    .meal-reports-page .reports-panel {
+        padding: 18px;
     }
 
-    .meal-reports-page .filter-actions {
-        flex-direction: column !important;
-        align-items: stretch !important;
+    .meal-reports-page .section-heading {
+        font-size: 18px;
     }
 
-    .meal-reports-page .filter-apply-btn,
-    .meal-reports-page .filter-reset-btn {
-        width: 100% !important;
+    .meal-reports-page .section-header {
+        flex-wrap: wrap;
+    }
+
+    .meal-reports-page .report-options {
+        gap: 14px;
+    }
+
+    .meal-reports-page .report-option {
+        padding: 18px;
+        min-height: 245px;
+    }
+}
+
+@media (max-width: 560px) {
+    .meal-reports-page .container-fluid {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .meal-reports-page .hero-left {
+        align-items: flex-start;
+        gap: 13px;
+        padding: 20px 16px;
+    }
+
+    .meal-reports-page .hero-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 9px;
+        font-size: 19px;
+    }
+
+    .meal-reports-page .hero-breadcrumb {
+        font-size: 9px;
+        letter-spacing: .6px;
+    }
+
+    .meal-reports-page .hero-text h2 {
+        font-size: 19px;
+    }
+
+    .meal-reports-page .hero-text p {
+        font-size: 12.5px;
+    }
+
+    .meal-reports-page .hero-handwritten {
+        font-size: 20px;
+    }
+
+    .meal-reports-page .hero-buttons {
+        width: 100%;
+    }
+
+    .meal-reports-page .hero-buttons a {
+        flex: 1;
+    }
+
+    .meal-reports-page .reports-panel {
+        padding: 16px;
+    }
+
+    .meal-reports-page .report-options {
+        grid-template-columns: 1fr;
+    }
+
+    .meal-reports-page .report-option {
+        min-height: 0;
+    }
+
+    .meal-reports-page .option-content {
+        margin-bottom: 4px;
+    }
+
+    .meal-reports-page .section-tag {
+        font-size: 11px;
+    }
+
+    .meal-reports-page .report-note {
+        padding: 13px;
+        gap: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .meal-reports-page *,
+    .meal-reports-page *::before,
+    .meal-reports-page *::after {
+        transition: none !important;
     }
 }
 </style>
-
-<div class="meal-reports-page">
-
-    {{-- HEADER --}}
-    <div class="reports-header">
-        <h2>
-            <i class="bi bi-egg-fried"></i>
-            Meal Reports
-        </h2>
-
-        <p>
-            View meal stock, usage and inventory records.
-        </p>
-    </div>
-
-    <div class="report-actions">
-
-    {{-- Excel --}}
-    <a href="{{ route('admin.reports.meal.excel', request()->query()) }}"
-       class="report-action-btn excel-btn">
-        <i class="fas fa-file-excel"></i>
-        Download Excel
-    </a>
-
-    {{-- PDF --}}
-    <a href="{{ route('admin.reports.meal.pdf', request()->query()) }}"
-       class="report-action-btn pdf-btn">
-        <i class="fas fa-file-pdf"></i>
-        Download PDF
-    </a>
-
-    {{-- Print --}}
-    <button type="button"
-            onclick="window.print()"
-            class="report-action-btn print-btn">
-        <i class="fas fa-print"></i>
-        Print
-    </button>
-
-</div>
-
-    {{-- MAIN CARD --}}
-    <div class="reports-main-card">
-
-        <h3>
-            <i class="bi bi-box-seam"></i>
-            Meal Inventory Reports
-        </h3>
-
-        <p>
-            View current meal stock and stock transaction records.
-        </p>
-
-        {{-- SUMMARY --}}
-        <div class="summary-grid">
-
-            <div class="summary-card">
-                <div class="summary-label">Total Items</div>
-                <div class="summary-value">
-                    {{ $totalItems }}
-                </div>
-            </div>
-
-            <div class="summary-card">
-                <div class="summary-label">Low Stock Items</div>
-                <div class="summary-value">
-                    {{ $lowStockItems }}
-                </div>
-            </div>
-
-            <div class="summary-card">
-                <div class="summary-label">Current Stock</div>
-                <div class="summary-value">
-                    {{ number_format($totalCurrentStock, 2) }}
-                </div>
-            </div>
-
-            <div class="summary-card">
-                <div class="summary-label">Total Stock In</div>
-                <div class="summary-value">
-                    {{ number_format($totalStockIn, 2) }}
-                </div>
-            </div>
-
-            <div class="summary-card">
-                <div class="summary-label">Total Stock Out</div>
-                <div class="summary-value">
-                    {{ number_format($totalStockOut, 2) }}
-                </div>
-            </div>
-
-            <div class="summary-card">
-                <div class="summary-label">Stock In Amount</div>
-                <div class="summary-value">
-                    ₹{{ number_format($totalStockInAmount, 2) }}
-                </div>
-            </div>
-
-        </div>
-
-        {{-- FILTERS --}}
-        <div class="meal-report-filters">
-
-            <form method="GET"
-                  action="{{ route('admin.reports.meal') }}">
-
-                <div class="filter-row">
-
-                    <div class="filter-group">
-                        <label for="meal_item_id">Meal Item</label>
-
-                        <select id="meal_item_id" name="meal_item_id">
-
-                            <option value="">All Items</option>
-
-                            @foreach($items as $item)
-                                <option
-                                    value="{{ $item->id }}"
-                                    {{ request('meal_item_id') == $item->id ? 'selected' : '' }}
-                                >
-                                    {{ $item->item_name }}
-                                </option>
-                            @endforeach
-
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label for="transaction_type">
-                            Transaction Type
-                        </label>
-
-                        <select id="transaction_type"
-                                name="transaction_type">
-
-                            <option value="">All Transactions</option>
-
-                            <option value="stock_in"
-                                {{ request('transaction_type') == 'stock_in' ? 'selected' : '' }}>
-                                Stock In
-                            </option>
-
-                            <option value="stock_out"
-                                {{ request('transaction_type') == 'stock_out' ? 'selected' : '' }}>
-                                Stock Out
-                            </option>
-
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label for="from_date">From Date</label>
-
-                        <input
-                            type="date"
-                            id="from_date"
-                            name="from_date"
-                            value="{{ request('from_date') }}"
-                        >
-                    </div>
-
-                    <div class="filter-group">
-                        <label for="to_date">To Date</label>
-
-                        <input
-                            type="date"
-                            id="to_date"
-                            name="to_date"
-                            value="{{ request('to_date') }}"
-                        >
-                    </div>
-
-                </div>
-
-                <div class="filter-actions">
-
-                    <button type="submit"
-                            class="filter-apply-btn">
-
-                        <i class="bi bi-funnel"></i>
-                        Apply Filters
-
-                    </button>
-
-                    <a
-                        href="{{ route('admin.reports.meal') }}"
-                        class="filter-reset-btn"
-                    >
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                        Reset
-                    </a>
-
-                </div>
-
-            </form>
-
-        </div>
-
-        {{-- CURRENT STOCK --}}
-        <div class="report-table-card">
-
-            <h3>
-                <i class="bi bi-boxes"></i>
-                Current Meal Stock
-            </h3>
-
-            <table class="report-table">
-
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Category</th>
-                        <th>Current Stock</th>
-                        <th>Unit</th>
-                        <th>Minimum Stock</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @forelse($items as $item)
-
-                        <tr>
-
-                            <td>
-                                {{ $item->item_name }}
-                            </td>
-
-                            <td>
-                                {{ $item->category ?? '-' }}
-                            </td>
-
-                            <td>
-                                {{ number_format($item->current_stock, 2) }}
-                            </td>
-
-                            <td>
-                                {{ $item->unit }}
-                            </td>
-
-                            <td>
-                                {{ number_format($item->minimum_stock, 2) }}
-                            </td>
-
-                            <td>
-
-                                @if($item->current_stock <= $item->minimum_stock)
-
-                                    <span class="status status-low">
-                                        Low Stock
-                                    </span>
-
-                                @else
-
-                                    <span class="status status-ok">
-                                        Available
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-                            <td colspan="6">
-                                <div class="reports-empty">
-                                    No meal items found.
-                                </div>
-                            </td>
-                        </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-        {{-- STOCK TRANSACTIONS --}}
-        <div class="report-table-card">
-
-            <h3>
-                <i class="bi bi-arrow-left-right"></i>
-                Stock Transactions
-            </h3>
-
-            <table class="report-table">
-
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Item</th>
-                        <th>Type</th>
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Rate</th>
-                        <th>Amount</th>
-                        <th>Supplier</th>
-                        <th>Reason</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @forelse($transactions as $transaction)
-
-                        <tr>
-
-                            <td>
-                                {{ optional($transaction->transaction_date)->format('d M Y') }}
-                            </td>
-
-                            <td>
-                                {{ $transaction->mealItem->item_name ?? '-' }}
-                            </td>
-
-                            <td>
-
-                                @if($transaction->transaction_type === 'stock_in')
-
-                                    <span class="status status-in">
-                                        Stock In
-                                    </span>
-
-                                @else
-
-                                    <span class="status status-out">
-                                        Stock Out
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-                            <td>
-                                {{ number_format($transaction->quantity, 2) }}
-                            </td>
-
-                            <td>
-                                {{ $transaction->unit }}
-                            </td>
-
-                            <td>
-                                ₹{{ number_format($transaction->rate ?? 0, 2) }}
-                            </td>
-
-                            <td>
-                                ₹{{ number_format($transaction->total_amount ?? 0, 2) }}
-                            </td>
-
-                            <td>
-                                {{ $transaction->supplier ?? '-' }}
-                            </td>
-
-                            <td>
-                                {{ $transaction->reason ?? '-' }}
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-                            <td colspan="9">
-                                <div class="reports-empty">
-                                    No stock transactions found.
-                                </div>
-                            </td>
-                        </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
 
 @endsection

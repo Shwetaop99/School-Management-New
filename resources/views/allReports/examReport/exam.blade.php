@@ -1,276 +1,368 @@
 @extends('layouts.app')
 
-
-
-@section('title', 'Exam Reports')
+@section('title', 'Exam Reports | Admin')
 
 @section('page-title', 'Exam Reports')
 
-
-
 @section('content')
 
-<div class="container-fluid exam-report-page py-4">
+<div class="payroll-simple">
 
+    <div class="container-fluid py-4">
 
+        @php
 
-    {{-- Screen Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-        <div>
-            <h2 class="fw-bold mb-1">Exam Reports</h2>
-            <p class="text-muted mb-0">Examination summary and records</p>
-        </div>
+            $selectedSearch = request('search');
 
-        <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-danger" onclick="window.print()">
-                <i class="fas fa-file-pdf me-1"></i>
-                Print / Save as PDF
-            </button>
+            $selectedYear = request('academic_year');
 
-            <button type="button" class="btn btn-success" onclick="exportExamTableToCSV()">
-                <i class="fas fa-file-excel me-1"></i>
-                Export Excel
-            </button>
-        </div>
-    </div>
+            $selectedType = request('exam_type');
 
-    {{-- Screen Summary Cards --}}
+            $selectedStatus = request('status');
 
-    <div class="row g-3 mb-4 no-print">
+            // School identity for print (exact same as Payroll)
 
-        <div class="col-md-4">
+            $schoolSetting = $schoolSetting ?? \App\Models\SchoolSetting::query()->first();
 
-            <div class="card border-0 shadow-sm h-100">
+            $schoolName = trim((string) ($schoolSetting->school_name ?? ''));
 
-                <div class="card-body">
+            $schoolName = $schoolName !== '' ? $schoolName : 'School Management System';
 
-                    <div class="text-muted small">Total Exams</div>
+            $schoolLogo = $schoolSetting->logo_url ?? null;
 
-                    <h3 class="fw-bold mb-0">{{ $totalExams }}</h3>
+            $schoolAddress = collect([
+
+                $schoolSetting->address ?? null,
+
+                $schoolSetting->city ?? null,
+
+                $schoolSetting->district ?? null,
+
+                $schoolSetting->state ?? null,
+
+                $schoolSetting->pincode ?? null,
+
+            ])->filter(fn ($value) => trim((string) $value) !== '')->implode(', ');
+
+            $schoolPhone = trim((string) ($schoolSetting->phone ?? ''));
+
+            $schoolEmail = trim((string) ($schoolSetting->email ?? ''));
+
+        @endphp
+
+        {{-- PRINT ONLY SCHOOL BRANDING AND REPORT HEADER --}}
+
+        <div class="print-only">
+
+            <div class="print-header">
+
+                <div class="print-brand">
+
+                    @if (!empty($schoolLogo))
+
+                        <img class="print-school-logo" src="{{ $schoolLogo }}" alt="School Logo">
+
+                    @endif
+
+                    <div class="print-school-identity">
+
+                        <div class="print-school-name">{{ $schoolName }}</div>
+
+                        @if ($schoolAddress !== '')
+
+                            <div class="print-school-contact">{{ $schoolAddress }}</div>
+
+                        @endif
+
+                        @if ($schoolPhone !== '' || $schoolEmail !== '')
+
+                            <div class="print-school-contact">
+
+                                @if ($schoolPhone !== '') Phone: {{ $schoolPhone }} @endif
+
+                                @if ($schoolPhone !== '' && $schoolEmail !== '') &nbsp; | &nbsp; @endif
+
+                                @if ($schoolEmail !== '') Email: {{ $schoolEmail }} @endif
+
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+                <div class="print-report-title">
+
+                    <div class="print-brand-name">Examination Report</div>
+
+                    <div class="print-brand-sub">Official Exam Summary</div>
 
                 </div>
 
             </div>
 
-        </div>
+            <div class="print-meta">
 
+                <div class="print-meta-row">
 
+                    <span class="print-label">Search:</span>
 
-        <div class="col-md-4">
+                    <span class="print-value">{{ $selectedSearch ?: 'All Exams' }}</span>
 
-            <div class="card border-0 shadow-sm h-100">
+                </div>
 
-                <div class="card-body">
+                <div class="print-meta-row">
 
-                    <div class="text-muted small">Completed Exams</div>
+                    <span class="print-label">Academic Year:</span>
 
-                    <h3 class="fw-bold text-success mb-0">{{ $completedExams }}</h3>
+                    <span class="print-value">{{ $selectedYear ?: 'All' }}</span>
+
+                </div>
+
+                <div class="print-meta-row">
+
+                    <span class="print-label">Exam Type:</span>
+
+                    <span class="print-value">{{ $selectedType ? ucfirst($selectedType) : 'All' }}</span>
+
+                </div>
+
+                <div class="print-meta-row">
+
+                    <span class="print-label">Status:</span>
+
+                    <span class="print-value">{{ $selectedStatus ? ucfirst($selectedStatus) : 'All' }}</span>
+
+                </div>
+
+                <div class="print-meta-row">
+
+                    <span class="print-label">Total Exams:</span>
+
+                    <span class="print-value">{{ $totalExams }}</span>
+
+                </div>
+
+                <div class="print-meta-row">
+
+                    <span class="print-label">Completed:</span>
+
+                    <span class="print-value">{{ $completedExams }}</span>
+
+                </div>
+
+                <div class="print-meta-row">
+
+                    <span class="print-label">Upcoming:</span>
+
+                    <span class="print-value">{{ $upcomingExams }}</span>
+
+                </div>
+
+                <div class="print-meta-row">
+
+                    <span class="print-label">Records:</span>
+
+                    <span class="print-value">{{ method_exists($exams, 'total') ? number_format($exams->total()) : number_format($exams->count()) }}</span>
+
+                </div>
+
+                <div class="print-meta-row">
+
+                    <span class="print-label">Generated:</span>
+
+                    <span class="print-value" id="exam-print-date">—</span>
 
                 </div>
 
             </div>
 
+            <div class="print-divider"></div>
+
         </div>
 
+        {{-- TOP BAR --}}
 
+        <div class="top-bar">
 
-        <div class="col-md-4">
+            <a href="{{ route('admin.reports.index') }}" class="btn-back">
 
-            <div class="card border-0 shadow-sm h-100">
+                <i class="fas fa-arrow-left"></i> Back to Reports
 
-                <div class="card-body">
+            </a>
 
-                    <div class="text-muted small">Upcoming Exams</div>
+            <div></div>
 
-                    <h3 class="fw-bold text-primary mb-0">{{ $upcomingExams }}</h3>
+        </div>
+
+        {{-- HERO SECTION (Cream / Pearl) --}}
+
+        <section class="hero-section">
+
+            <div class="hero-left">
+
+                <div class="hero-icon">
+
+                    <i class="fas fa-clipboard-list"></i>
+
+                </div>
+
+                <div class="hero-text">
+
+                    <div class="hero-breadcrumb"></div>
+
+                    <h2>Exam Reports</h2>
+
+                    <p>Examination summary, schedules and status across academic years.</p>
 
                 </div>
 
             </div>
 
-        </div>
+            <div class="hero-right">
 
-    </div>
+                <div class="hero-handwritten">Plan. Conduct. Report.</div>
 
+                <p>View total, completed and upcoming exams in one clean statement.</p>
 
+                <div class="hero-buttons">
 
-    {{-- Filters: Screen Only --}}
+                    <button type="button" class="btn-primary" onclick="printExamReport()">
 
-    <div class="card border-0 shadow-sm mb-4 no-print">
+                        <i class="fas fa-print"></i> Print
 
-        <div class="card-body">
+                    </button>
 
-            <form method="GET" action="{{ route('admin.reports.exams') }}">
-
-                <div class="row g-3 align-items-end">
-
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label" for="search">Search Exam</label>
-
-                        <input
-
-                            id="search"
-
-                            type="text"
-
-                            name="search"
-
-                            class="form-control"
-
-                            placeholder="Search exam name..."
-
-                            value="{{ request('search') }}"
-
-                        >
-
-                    </div>
-
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label" for="academic_year">Academic Year</label>
-
-                        <select id="academic_year" name="academic_year" class="form-select">
-
-                            <option value="">All Academic Years</option>
-
-                            @foreach ($academicYears as $year)
-
-                                <option value="{{ $year }}" @selected(request('academic_year') == $year)>
-
-                                    {{ $year }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                    </div>
-
-
-
-                    <div class="col-md-2">
-
-                        <label class="form-label" for="exam_type">Exam Type</label>
-
-                        <select id="exam_type" name="exam_type" class="form-select">
-
-                            <option value="">All Types</option>
-
-                            @foreach ($examTypes as $type)
-
-                                <option value="{{ $type }}" @selected(request('exam_type') == $type)>
-
-                                    {{ ucfirst($type) }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                    </div>
-
-
-
-                    <div class="col-md-2">
-
-                        <label class="form-label" for="status">Status</label>
-
-                        <select id="status" name="status" class="form-select">
-
-                            <option value="">All Statuses</option>
-
-                            @foreach (['upcoming', 'ongoing', 'completed', 'cancelled'] as $statusOption)
-
-                                <option value="{{ $statusOption }}" @selected(request('status') == $statusOption)>
-
-                                    {{ ucfirst($statusOption) }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                    </div>
-
-
-
-                    <div class="col-md-2 d-flex gap-2">
-
-                        <button type="submit" class="btn btn-primary">Filter</button>
-
-                        <a href="{{ route('admin.reports.exams') }}" class="btn btn-outline-secondary">Reset</a>
-
-                    </div>
-
-
+                    <a href="{{ route('admin.reports.exams.pdf', request()->query()) }}" class="btn-secondary">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </a>
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+        </section>
 
-    </div>
+        {{-- SUMMARY --}}
 
+        <div class="summary">
 
+            <div>
 
-    {{-- Printable Report --}}
+                <span>Total Exams</span>
 
-    <div class="exam-print-area">
-
-
-
-        {{-- Report Header --}}
-
-        <header class="report-header">
-
-            <div class="school-name">SCHOOL MANAGEMENT</div>
-
-            <div class="school-subtitle">Examination Department</div>
-
-            <div class="report-heading">EXAMINATION REPORT</div>
-
-            <div class="report-meta">
-
-                <span>Academic Year: {{ request('academic_year') ?: 'All Academic Years' }}</span>
-
-                <span>Generated: {{ now()->format('d M Y, h:i A') }}</span>
+                <strong>{{ $totalExams }}</strong>
 
             </div>
 
-            <div class="header-line"></div>
+            <div>
 
-        </header>
+                <span>Completed Exams</span>
 
+                <strong class="net">{{ $completedExams }}</strong>
 
+            </div>
 
-        {{-- Report Summary --}}
+            <div>
 
-        <div class="print-summary">
+                <span>Upcoming Exams</span>
 
-            <div><strong>Total Exams:</strong> {{ $totalExams }}</div>
+                <strong>{{ $upcomingExams }}</strong>
 
-            <div><strong>Completed:</strong> {{ $completedExams }}</div>
-
-            <div><strong>Upcoming:</strong> {{ $upcomingExams }}</div>
+            </div>
 
         </div>
 
+        {{-- FILTERS --}}
 
+        <form method="GET" action="{{ route('admin.reports.exams') }}" class="filters">
 
-        {{-- Exam Table --}}
+            <div class="filter-item">
 
-        <div class="table-responsive print-table-wrap">
+                <label>Search Exam</label>
 
-            <table class="table exam-table">
+                <input type="text" name="search" value="{{ $selectedSearch }}" placeholder="Search exam name...">
+
+            </div>
+
+            <div class="filter-item">
+
+                <label>Academic Year</label>
+
+                <select name="academic_year">
+
+                    <option value="">All Years</option>
+
+                    @foreach ($academicYears as $year)
+
+                        <option value="{{ $year }}" @selected($selectedYear == $year)>{{ $year }}</option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <div class="filter-item">
+
+                <label>Exam Type</label>
+
+                <select name="exam_type">
+
+                    <option value="">All Types</option>
+
+                    @foreach ($examTypes as $type)
+
+                        <option value="{{ $type }}" @selected($selectedType == $type)>{{ ucfirst($type) }}</option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <div class="filter-item">
+
+                <label>Status</label>
+
+                <select name="status">
+
+                    <option value="">All Statuses</option>
+
+                    @foreach (['upcoming', 'ongoing', 'completed', 'cancelled'] as $statusOption)
+
+                        <option value="{{ $statusOption }}" @selected($selectedStatus == $statusOption)>
+
+                            {{ ucfirst($statusOption) }}
+
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <div class="filter-buttons">
+
+                <button type="submit" class="btn-primary">
+
+                    <i class="fas fa-filter"></i> Apply
+
+                </button>
+
+                <a href="{{ route('admin.reports.exams') }}" class="btn-secondary">Reset</a>
+
+            </div>
+
+        </form>
+
+        {{-- TABLE --}}
+
+        <div class="table-wrap">
+
+            <table>
 
                 <thead>
 
@@ -298,41 +390,37 @@
 
                 </thead>
 
-
-
                 <tbody>
 
                     @forelse ($exams as $exam)
 
                         @php
 
-                            $examStatus = strtolower($exam->status ?? 'unknown');
-
-
+                            $examStatus = strtolower(trim($exam->status ?? 'unknown'));
 
                             $statusClass = match ($examStatus) {
 
-                                'completed' => 'status-completed',
+                                'completed' => 'paid',
 
-                                'upcoming'  => 'status-upcoming',
+                                'upcoming', 'ongoing' => '',
 
-                                'ongoing'   => 'status-ongoing',
+                                'cancelled' => 'unpaid',
 
-                                'cancelled' => 'status-cancelled',
-
-                                default     => 'status-default',
+                                default => '',
 
                             };
 
                         @endphp
 
-
-
                         <tr>
 
                             <td>{{ $exams->firstItem() + $loop->index }}</td>
 
-                            <td class="exam-name">{{ $exam->exam_name }}</td>
+                            <td>
+
+                                <div class="emp-name">{{ $exam->exam_name }}</div>
+
+                            </td>
 
                             <td>{{ $exam->academic_year ?? '—' }}</td>
 
@@ -340,21 +428,13 @@
 
                             <td>
 
-                                {{ $exam->start_date
-
-                                    ? \Carbon\Carbon::parse($exam->start_date)->format('d/m/Y')
-
-                                    : '—' }}
+                                {{ $exam->start_date ? \Carbon\Carbon::parse($exam->start_date)->format('d M Y') : '—' }}
 
                             </td>
 
                             <td>
 
-                                {{ $exam->end_date
-
-                                    ? \Carbon\Carbon::parse($exam->end_date)->format('d/m/Y')
-
-                                    : '—' }}
+                                {{ $exam->end_date ? \Carbon\Carbon::parse($exam->end_date)->format('d M Y') : '—' }}
 
                             </td>
 
@@ -364,7 +444,7 @@
 
                             <td>
 
-                                <span class="status-label {{ $statusClass }}">
+                                <span class="status {{ $statusClass }}">
 
                                     {{ ucfirst($examStatus) }}
 
@@ -378,9 +458,9 @@
 
                         <tr>
 
-                            <td colspan="9" class="text-center empty-row">
+                            <td colspan="9" class="empty">
 
-                                No examination records found for the selected filters.
+                                No examination records found. Try changing the filters.
 
                             </td>
 
@@ -394,556 +474,1222 @@
 
         </div>
 
-
-
-        {{-- Screen Pagination (keeps the active filters) --}}
+        {{-- PAGINATION --}}
 
         @if ($exams->hasPages())
 
-            <div class="mt-3 no-print">
+            <div class="pagination-bar">
 
-                {{ $exams->withQueryString()->links('pagination::bootstrap-5') }}
+                <span>
+
+                    Showing {{ $exams->firstItem() ?? 0 }} to {{ $exams->lastItem() ?? 0 }} of {{ $exams->total() }} records
+
+                </span>
+
+                <div>{{ $exams->withQueryString()->links() }}</div>
+
+            </div>
+
+        @elseif ($exams->count())
+
+            <div class="pagination-bar">
+
+                <span>Showing {{ $exams->count() }} of {{ $exams->total() }} records</span>
 
             </div>
 
         @endif
 
-
-
-        {{-- Report Footer --}}
-
-        <footer class="report-footer">
-
-            <div>Official Examination Report</div>
-
-            <div>Generated by School Management System</div>
-
-        </footer>
-
-
-
     </div>
 
 </div>
 
-@endsection
-
-
-
-@push('styles')
-
 <style>
 
-    /* ---------- Screen ---------- */
+.payroll-simple {
 
-    .exam-report-page {
+    --bg: #f5f4f0;
 
-        color: #263238;
+    --text: #1e2a25;
+
+    --muted: #5c6b64;
+
+    --border: #d4cfc2;
+
+    --primary: #2c3e36;
+
+    --primary-hover: #3a4f45;
+
+    --net: #1a6b3c;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    min-height: calc(100vh - 70px);
+
+    font-family: Inter, "Public Sans", Arial, sans-serif;
+
+}
+
+.payroll-simple .container-fluid {
+
+    max-width: 1400px;
+
+}
+
+/* Top bar */
+
+.payroll-simple .top-bar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+
+}
+
+.payroll-simple .btn-back {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 6px;
+
+    background: #fff;
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+}
+
+.payroll-simple .btn-back:hover {
+
+    background: #f0eee8;
+
+}
+
+.payroll-simple .top-actions {
+
+    display: flex;
+
+    gap: 8px;
+
+}
+
+.payroll-simple .btn-primary,
+
+.payroll-simple .btn-secondary {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 8px 14px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    border: 1px solid transparent;
+
+}
+
+.payroll-simple .btn-primary {
+
+    background: var(--primary);
+
+    color: #fff;
+
+    border-color: var(--primary);
+
+}
+
+.payroll-simple .btn-primary:hover {
+
+    background: var(--primary-hover);
+
+}
+
+.payroll-simple .btn-secondary {
+
+    background: #fff;
+
+    color: var(--muted);
+
+    border-color: var(--border);
+
+}
+
+.payroll-simple .btn-secondary:hover {
+
+    background: #f0eee8;
+
+    color: var(--text);
+
+}
+
+/* ========== HERO SECTION (Cream / Pearl) ========== */
+
+.payroll-simple .hero-section {
+
+    display: grid;
+
+    grid-template-columns: 1.6fr 1fr;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    margin-bottom: 24px;
+
+    background: #fff;
+
+}
+
+.payroll-simple .hero-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 28px 28px 28px 32px;
+
+    background: #fdfbf7;
+
+}
+
+.payroll-simple .hero-icon {
+
+    width: 54px;
+
+    height: 54px;
+
+    border-radius: 12px;
+
+    background: #f3ead8;
+
+    border: 1px solid #e5d9c0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #5c4a32;
+
+    font-size: 22px;
+
+    flex-shrink: 0;
+
+}
+
+.payroll-simple .hero-text .hero-breadcrumb {
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #9c7b4a;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 6px;
+
+}
+
+.payroll-simple .hero-text h2 {
+
+    margin: 0 0 8px;
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+    color: var(--text);
+
+}
+
+.payroll-simple .hero-text p {
+
+    margin: 0;
+
+    font-size: 13.5px;
+
+    color: var(--muted);
+
+    line-height: 1.6;
+
+    max-width: 480px;
+
+}
+
+/* Cream / Pearl Right Side */
+
+.payroll-simple .hero-right {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    padding: 28px 24px;
+
+    text-align: center;
+
+    background: linear-gradient(145deg, #f8f1e3 0%, #f0e6d2 50%, #e8dcc6 100%);
+
+    border-left: 1px solid #e5d9c4;
+
+}
+
+.payroll-simple .hero-handwritten {
+
+    font-family: "Segoe Print", "Comic Sans MS", cursive;
+
+    font-size: 22px;
+
+    color: #5c4a32;
+
+    line-height: 1.3;
+
+}
+
+.payroll-simple .hero-right p {
+
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #6b5c45;
+
+    max-width: 260px;
+
+    line-height: 1.6;
+
+}
+
+.payroll-simple .hero-buttons {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    margin-top: 6px;
+
+}
+
+.payroll-simple .hero-right .btn-primary {
+
+    background: #3a3428;
+
+    border-color: #3a3428;
+
+}
+
+.payroll-simple .hero-right .btn-primary:hover {
+
+    background: #2a241c;
+
+    border-color: #2a241c;
+
+}
+
+.payroll-simple .hero-right .btn-secondary {
+
+    background: rgba(255, 252, 245, 0.7);
+
+    border-color: #c4b49a;
+
+    color: #5c4a32;
+
+}
+
+.payroll-simple .hero-right .btn-secondary:hover {
+
+    background: #fff;
+
+    border-color: #a8926e;
+
+    color: #3a3428;
+
+}
+
+/* Filters */
+
+.payroll-simple .filters {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+    align-items: flex-end;
+
+    padding: 16px;
+
+    background: #fff;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+
+}
+
+.payroll-simple .filter-item {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+}
+
+.payroll-simple .filter-item label {
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--muted);
+
+}
+
+.payroll-simple .filter-item input,
+
+.payroll-simple .filter-item select {
+
+    height: 38px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    min-width: 160px;
+
+    background: #fff;
+
+}
+
+.payroll-simple .filter-item input:focus,
+
+.payroll-simple .filter-item select:focus {
+
+    outline: none;
+
+    border-color: var(--primary);
+
+}
+
+.payroll-simple .filter-buttons {
+
+    display: flex;
+
+    gap: 8px;
+
+}
+
+/* Summary */
+
+.payroll-simple .summary {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 28px;
+
+    padding: 14px 16px;
+
+    background: #fff;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+
+    font-size: 13px;
+
+}
+
+.payroll-simple .summary span {
+
+    display: block;
+
+    font-size: 11px;
+
+    color: var(--muted);
+
+    margin-bottom: 2px;
+
+    text-transform: uppercase;
+
+}
+
+.payroll-simple .summary strong {
+
+    font-size: 15px;
+
+}
+
+.payroll-simple .summary .net {
+
+    color: var(--net);
+
+}
+
+/* Table */
+
+.payroll-simple .table-wrap {
+
+    background: #fff;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    overflow-x: auto;
+
+}
+
+.payroll-simple table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 13px;
+
+    min-width: 1000px;
+
+}
+
+.payroll-simple th {
+
+    background: #f0eee8;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    padding: 12px 14px;
+
+    text-align: left;
+
+    border-bottom: 1px solid var(--border);
+
+    white-space: nowrap;
+
+}
+
+.payroll-simple td {
+
+    padding: 12px 14px;
+
+    border-bottom: 1px solid #eee9dd;
+
+    vertical-align: middle;
+
+}
+
+.payroll-simple tbody tr:last-child td {
+
+    border-bottom: none;
+
+}
+
+.payroll-simple tbody tr:hover td {
+
+    background: #faf9f5;
+
+}
+
+.payroll-simple .emp-name {
+
+    font-weight: 600;
+
+}
+
+.payroll-simple .emp-id {
+
+    font-size: 12px;
+
+    color: var(--muted);
+
+    margin-top: 2px;
+
+}
+
+.payroll-simple .net {
+
+    color: var(--net);
+
+    font-weight: 700;
+
+}
+
+.payroll-simple .status {
+
+    display: inline-block;
+
+    padding: 3px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+.payroll-simple .status.paid {
+
+    background: #e4f3ea;
+
+    color: #1a6b3c;
+
+}
+
+.payroll-simple .status.unpaid {
+
+    background: #fcebe8;
+
+    color: #a33a2e;
+
+}
+
+.payroll-simple .empty {
+
+    text-align: center;
+
+    padding: 40px 20px !important;
+
+    color: var(--muted);
+
+}
+
+/* Pagination */
+
+.payroll-simple .pagination-bar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 16px;
+
+    font-size: 13px;
+
+    color: var(--muted);
+
+}
+
+/* Print only (hidden on screen) */
+
+.payroll-simple .print-only {
+
+    display: none;
+
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+
+    .payroll-simple .hero-section {
+
+        grid-template-columns: 1fr;
 
     }
 
+    .payroll-simple .hero-right {
 
+        border-left: none;
 
-    .exam-report-page .card {
-
-        border-radius: 10px;
-
-    }
-
-
-
-    .exam-report-page .btn {
-
-        border-radius: 6px;
+        border-top: 1px solid #e5d9c4;
 
     }
 
+}
 
+@media (max-width: 768px) {
 
-    .exam-print-area {
+    .payroll-simple .filters {
 
-        background: #fff;
+        flex-direction: column;
 
-        padding: 24px;
-
-        border-radius: 10px;
-
-    }
-
-
-
-    .report-header {
-
-        text-align: center;
-
-        margin-bottom: 18px;
+        align-items: stretch;
 
     }
 
+    .payroll-simple .filter-item input,
 
-
-    .school-name {
-
-        font-family: Georgia, serif;
-
-        font-size: 25px;
-
-        font-weight: 700;
-
-        letter-spacing: 1.5px;
-
-        color: #173b35;
-
-    }
-
-
-
-    .school-subtitle {
-
-        font-size: 12px;
-
-        color: #65736e;
-
-        margin-top: 2px;
-
-    }
-
-
-
-    .report-heading {
-
-        font-size: 17px;
-
-        font-weight: 700;
-
-        letter-spacing: 1px;
-
-        margin-top: 15px;
-
-    }
-
-
-
-    .report-meta {
-
-        display: flex;
-
-        justify-content: space-between;
-
-        gap: 12px;
-
-        font-size: 11px;
-
-        margin-top: 12px;
-
-    }
-
-
-
-    .header-line {
-
-        border-bottom: 2px solid #244e43;
-
-        margin-top: 10px;
-
-    }
-
-
-
-    .print-summary {
-
-        display: flex;
-
-        justify-content: space-between;
-
-        gap: 12px;
-
-        padding: 10px 12px;
-
-        margin-bottom: 16px;
-
-        background: #f3f7f5;
-
-        border: 1px solid #dce7e1;
-
-        border-radius: 5px;
-
-        font-size: 12px;
-
-    }
-
-
-
-    .exam-table {
+    .payroll-simple .filter-item select {
 
         width: 100%;
 
-        border-collapse: collapse;
-
-        font-size: 11px;
-
-        margin-bottom: 0;
+        min-width: 0;
 
     }
 
+    .payroll-simple .summary {
 
-
-    .exam-table th,
-
-    .exam-table td {
-
-        padding: 10px 8px;
-
-        border: 1px solid #dce2df;
-
-        vertical-align: middle;
+        gap: 16px;
 
     }
 
+    .payroll-simple .hero-left {
 
-
-    .exam-table thead th {
-
-        background: #eaf1ed;
-
-        color: #203d33;
-
-        font-weight: 700;
-
-        white-space: nowrap;
+        padding: 22px 20px;
 
     }
 
+    .payroll-simple .hero-text h2 {
 
-
-    .exam-table tbody tr:nth-child(even) {
-
-        background: #fafcfb;
+        font-size: 20px;
 
     }
 
+}
 
+/* ================= PRINT — Professional Layout ================= */
 
-    .exam-name {
-
-        font-weight: 600;
-
-    }
-
-
-
-    .status-label {
-
-        display: inline-block;
-
-        padding: 4px 7px;
-
-        border-radius: 4px;
-
-        font-size: 10px;
-
-        font-weight: 700;
-
-        white-space: nowrap;
-
-    }
-
-
-
-    .status-completed { color: #17663a; background: #e2f3e8; }
-
-    .status-upcoming  { color: #1553a4; background: #e6efff; }
-
-    .status-ongoing   { color: #795500; background: #fff2c9; }
-
-    .status-cancelled { color: #a12626; background: #fde7e7; }
-
-    .status-default   { color: #4d5961; background: #edf0f2; }
-
-
-
-    .empty-row {
-
-        padding: 25px !important;
-
-        color: #68756f;
-
-    }
-
-
-
-    .report-footer {
-
-        display: flex;
-
-        justify-content: space-between;
-
-        gap: 12px;
-
-        border-top: 1px solid #cbd6d0;
-
-        padding-top: 9px;
-
-        margin-top: 22px;
-
-        font-size: 10px;
-
-        color: #5e6e66;
-
-    }
-
-
-
-    /* ---------- Print ---------- */
+@media print {
 
     @page {
 
         size: A4 landscape;
 
-        margin: 8mm;
+        margin: 10mm 12mm 12mm 12mm;
 
     }
 
+    * {
 
+        -webkit-print-color-adjust: exact !important;
 
-    @media print {
+        print-color-adjust: exact !important;
 
-        html,
-
-        body {
-
-            background: #fff !important;
-
-            -webkit-print-color-adjust: exact !important;
-
-            print-color-adjust: exact !important;
-
-        }
-
-
-
-        /* Hide the dashboard chrome (sidebar, header, footer, loaders) */
-
-        .no-print,
-
-        #topbar,
-
-        #pageLoader,
-
-        .sidebar,
-
-        .sidebar-overlay,
-
-        .top-header,
-
-        .app-footer {
-
-            display: none !important;
-
-        }
-
-
-
-        /* Collapse the dashboard layout so the report fills the page */
-
-        .app-wrapper,
-
-        .main-area {
-
-            display: block !important;
-
-            width: 100% !important;
-
-            min-height: 0 !important;
-
-            margin: 0 !important;
-
-        }
-
-
-
-        .main-content {
-
-            padding: 0 !important;
-
-            background: #fff !important;
-
-        }
-
-
-
-        .exam-report-page,
-
-        .exam-report-page.py-4 {
-
-            padding: 0 !important;
-
-            max-width: 100% !important;
-
-        }
-
-
-
-        .exam-print-area {
-
-            padding: 0 !important;
-
-            border: none !important;
-
-            border-radius: 0 !important;
-
-            box-shadow: none !important;
-
-            background: #fff !important;
-
-        }
-
-
-
-        .report-header { margin: 0 0 8px !important; }
-
-        .school-name { font-size: 19px !important; }
-
-        .school-subtitle { font-size: 9px !important; }
-
-        .report-heading { font-size: 13px !important; margin-top: 6px !important; }
-
-        .report-meta { font-size: 8px !important; margin-top: 6px !important; }
-
-        .header-line { margin-top: 6px !important; }
-
-
-
-        .print-summary {
-
-            margin: 0 0 8px !important;
-
-            padding: 6px 8px !important;
-
-            font-size: 9px !important;
-
-            border-radius: 0 !important;
-
-        }
-
-
-
-        .print-table-wrap,
-
-        .table-responsive {
-
-            overflow: visible !important;
-
-        }
-
-
-
-        .exam-table {
-
-            table-layout: fixed !important;
-
-            font-size: 8px !important;
-
-        }
-
-
-
-        .exam-table th,
-
-        .exam-table td {
-
-            padding: 4px 3px !important;
-
-            overflow-wrap: anywhere !important;
-
-            white-space: normal !important;
-
-            border: 1px solid #bfc9c3 !important;
-
-        }
-
-
-
-        /* Column widths (total 100%) */
-
-        .exam-table th:nth-child(1) { width: 5%; }
-
-        .exam-table th:nth-child(2) { width: 26%; }
-
-        .exam-table th:nth-child(3) { width: 11%; }
-
-        .exam-table th:nth-child(4) { width: 9%; }
-
-        .exam-table th:nth-child(5) { width: 10%; }
-
-        .exam-table th:nth-child(6) { width: 10%; }
-
-        .exam-table th:nth-child(7) { width: 8%; }
-
-        .exam-table th:nth-child(8) { width: 9%; }
-
-        .exam-table th:nth-child(9) { width: 12%; }
-
-
-
-        .exam-table thead { display: table-header-group; }   /* repeat header on every page */
-
-        .exam-table tr { break-inside: avoid !important; page-break-inside: avoid !important; }
-
-
-
-        .status-label { font-size: 7px !important; padding: 2px 4px !important; }
-
-
-
-        .report-footer { margin-top: 10px !important; font-size: 8px !important; }
-
-
-
-        * {
-
-            animation: none !important;
-
-            transition: none !important;
-
-        }
+        color-adjust: exact !important;
 
     }
+
+    body * {
+
+        visibility: hidden;
+
+    }
+
+    .payroll-simple,
+
+    .payroll-simple * {
+
+        visibility: visible;
+
+    }
+
+    .payroll-simple {
+
+        position: absolute;
+
+        left: 0;
+
+        top: 0;
+
+        width: 100%;
+
+        background: #fff !important;
+
+        color: #1a1a1a;
+
+        font-family: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
+
+        font-size: 10.5px;
+
+        line-height: 1.35;
+
+    }
+
+    /* Hide non-print elements */
+
+    .payroll-simple .top-bar,
+
+    .payroll-simple .hero-section,
+
+    .payroll-simple .filters,
+
+    .payroll-simple .summary,
+
+    .payroll-simple .pagination-bar {
+
+        display: none !important;
+
+    }
+
+    /* ---- Print Header ---- */
+
+    .payroll-simple .print-only {
+
+        display: block !important;
+
+        margin-bottom: 14px;
+
+        text-align: left;
+
+    }
+
+    .payroll-simple .print-header {
+
+        display: flex;
+
+        flex-direction: row;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 18px;
+
+        padding-bottom: 10px;
+
+        border-bottom: 1px solid #d4cfc2;
+
+    }
+
+    .payroll-simple .print-brand {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: flex-start;
+
+        gap: 12px;
+
+        min-width: 0;
+
+    }
+
+    .payroll-simple .print-school-logo {
+
+        display: block;
+
+        width: 62px;
+
+        height: 62px;
+
+        object-fit: contain;
+
+        margin-right: 4px;
+
+    }
+
+    .payroll-simple .print-school-identity {
+
+        text-align: left;
+
+        max-width: 430px;
+
+    }
+
+    .payroll-simple .print-school-name {
+
+        font-size: 16px;
+
+        line-height: 1.25;
+
+        font-weight: 700;
+
+        color: #263b35;
+
+        margin-bottom: 3px;
+
+    }
+
+    .payroll-simple .print-school-contact {
+
+        font-size: 8.5px;
+
+        line-height: 1.4;
+
+        color: #5c6b64;
+
+        margin-top: 2px;
+
+    }
+
+    .payroll-simple .print-report-title {
+
+        text-align: left;
+
+        border-left: 1px solid #d4cfc2;
+
+        padding-left: 16px;
+
+        flex-shrink: 0;
+
+    }
+
+    .payroll-simple .print-brand-name {
+
+        font-size: 18px;
+
+        font-weight: 700;
+
+        color: #1a1a1a;
+
+        letter-spacing: -0.2px;
+
+        line-height: 1.2;
+
+        text-align: left;
+
+    }
+
+    .payroll-simple .print-brand-sub {
+
+        font-size: 11px;
+
+        color: #555;
+
+        margin-top: 2px;
+
+        letter-spacing: 0.3px;
+
+        text-align: left;
+
+    }
+
+    .payroll-simple .print-meta {
+
+        text-align: left;
+
+        display: flex;
+
+        flex-wrap: wrap;
+
+        justify-content: space-between;
+
+        gap: 8px 18px;
+
+        padding: 8px 0 2px;
+
+    }
+
+    .payroll-simple .print-meta-row {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        font-size: 9px;
+
+    }
+
+    .payroll-simple .print-label {
+
+        color: #666;
+
+        font-weight: 500;
+
+    }
+
+    .payroll-simple .print-value {
+
+        color: #1a1a1a;
+
+        font-weight: 600;
+
+    }
+
+    .payroll-simple .print-divider {
+
+        height: 2px;
+
+        background: #344f43;
+
+        margin: 8px 0 12px;
+
+        width: 100%;
+
+    }
+
+    /* ---- Table Styling for Print ---- */
+
+    .payroll-simple .table-wrap {
+
+        border: none !important;
+
+        border-radius: 0 !important;
+
+        overflow: visible !important;
+
+        box-shadow: none !important;
+
+    }
+
+    .payroll-simple table {
+
+        width: 100%;
+
+        border-collapse: collapse;
+
+        font-size: 9.5px;
+
+        border: 1px solid #999;
+
+    }
+
+    .payroll-simple th {
+
+        background: #2c3e36 !important;
+
+        color: #fff !important;
+
+        font-size: 9px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.4px;
+
+        padding: 7px 8px;
+
+        border: 1px solid #1e2a25;
+
+        text-align: left;
+
+        white-space: nowrap;
+
+    }
+
+    .payroll-simple td {
+
+        padding: 6px 8px;
+
+        border: 1px solid #ccc;
+
+        vertical-align: middle;
+
+        color: #222;
+
+    }
+
+    .payroll-simple tbody tr:nth-child(even) td {
+
+        background: #f7f6f2 !important;
+
+    }
+
+    .payroll-simple tbody tr:last-child td {
+
+        border-bottom: 1px solid #999;
+
+    }
+
+    .payroll-simple .emp-name {
+
+        font-weight: 600;
+
+        color: #1a1a1a;
+
+        font-size: 9.5px;
+
+    }
+
+    .payroll-simple .emp-id {
+
+        font-size: 8.5px;
+
+        color: #555;
+
+        margin-top: 1px;
+
+    }
+
+    .payroll-simple .net {
+
+        color: #1a6b3c !important;
+
+        font-weight: 700;
+
+    }
+
+    .payroll-simple .status {
+
+        display: inline-block;
+
+        padding: 2px 7px;
+
+        border-radius: 3px;
+
+        font-size: 8.5px;
+
+        font-weight: 600;
+
+        border: 1px solid transparent;
+
+    }
+
+    .payroll-simple .status.paid {
+
+        background: #e4f3ea !important;
+
+        color: #1a6b3c !important;
+
+        border-color: #a8d5b5;
+
+    }
+
+    .payroll-simple .status.unpaid {
+
+        background: #fcebe8 !important;
+
+        color: #a33a2e !important;
+
+        border-color: #e8b4ad;
+
+    }
+
+    .payroll-simple .empty {
+
+        text-align: center;
+
+        padding: 28px 16px !important;
+
+        color: #666;
+
+        font-style: italic;
+
+    }
+
+    /* Subtle footer note */
+
+    .payroll-simple .table-wrap::after {
+
+        content: "This is a system-generated examination report. For official use only.";
+
+        display: block;
+
+        margin-top: 10px;
+
+        font-size: 8.5px;
+
+        color: #777;
+
+        text-align: center;
+
+        border-top: 1px solid #ddd;
+
+        padding-top: 6px;
+
+    }
+
+}
 
 </style>
 
-@endpush
-
-
-@push('scripts')
 <script>
-    function exportExamTableToCSV() {
-        const table = document.querySelector('.exam-table');
-        if (!table) {
-            alert('The exam table could not be found.');
-            return;
+
+(function () {
+
+    function setExamPrintDate() {
+
+        const el = document.getElementById('exam-print-date');
+
+        if (el) {
+
+            el.textContent = new Date().toLocaleString();
+
         }
 
-        const rows = Array.from(table.querySelectorAll('tr'));
-        const csv = rows.map(row => {
-            const cells = Array.from(row.querySelectorAll('th, td'));
-            return cells.map(cell => {
-                const value = cell.innerText.replace(/\s+/g, ' ').trim();
-                return '"' + value.replace(/"/g, '""') + '"';
-            }).join(',');
-        }).join('\r\n');
-
-        const blob = new Blob(['\ufeff' + csv], {
-            type: 'text/csv;charset=utf-8;'
-        });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'exam-report.csv';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(url);
     }
+
+    window.printExamReport = function () {
+
+        setExamPrintDate();
+
+        const logo = document.querySelector('.print-school-logo');
+
+        if (logo && typeof logo.decode === 'function') {
+
+            logo.decode().catch(function () {}).finally(function () {
+
+                window.print();
+
+            });
+
+            return;
+
+        }
+
+        window.print();
+
+    };
+
+})();
+
 </script>
-@endpush
+
+@endsection

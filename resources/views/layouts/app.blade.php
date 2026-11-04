@@ -804,6 +804,7 @@
     ['School Profile', 'admin.settings.index'],
     ['User Roles & Permission', 'admin.settings.roles.index'],
     ['User Assign', 'admin.settings.users.index'],
+    ['Add User', 'admin.settings.users.index'],
     ['Security', 'admin.2fa.security'],
     ['Backup & Recovery', 'admin.backup.index'],
 ],

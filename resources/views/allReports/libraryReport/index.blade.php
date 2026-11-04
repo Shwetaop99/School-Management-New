@@ -1,1237 +1,283 @@
 @extends('layouts.app')
 
-@section('title', 'Library Reports')
+@section('title', 'Library Reports | Admin')
 @section('page-title', 'Library Reports')
 
 @section('content')
-
-<style>
-/* =========================================================
-   LIBRARY REPORTS PAGE
-   Matching Teacher Reports UI
-========================================================= */
-
-.library-reports-page {
-    width: 100% !important;
-    max-width: 1600px !important;
-    margin: 0 auto !important;
-    padding: 28px !important;
-    background: #f4f7fb !important;
-    min-height: calc(100vh - 120px) !important;
-    box-sizing: border-box !important;
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.library-reports-page .reports-header {
-    width: 100% !important;
-    background: linear-gradient(135deg, #147cf5, #6c63ff) !important;
-    border-radius: 16px !important;
-    padding: 28px 32px !important;
-    margin-bottom: 25px !important;
-    color: #ffffff !important;
-    box-shadow: 0 8px 25px rgba(20, 124, 245, 0.15) !important;
-    box-sizing: border-box !important;
-
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    gap: 20px !important;
-}
-
-.library-reports-page .reports-header h2 {
-    margin: 0 0 8px 0 !important;
-    color: #ffffff !important;
-    font-size: 26px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .reports-header p {
-    margin: 0 !important;
-    color: rgba(255,255,255,0.9) !important;
-    font-size: 14px !important;
-}
-
-
-/* =========================================================
-   HEADER ACTION BUTTONS
-========================================================= */
-
-.library-reports-page .header-actions {
-    display: flex !important;
-    gap: 8px !important;
-    flex-wrap: wrap !important;
-}
-
-.library-reports-page .header-action-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 7px !important;
-
-    padding: 10px 15px !important;
-    border: 0 !important;
-    border-radius: 8px !important;
-
-    color: #ffffff !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-
-    cursor: pointer !important;
-}
-
-.library-reports-page .pdf-btn {
-    background: #dc2626 !important;
-}
-
-.library-reports-page .excel-btn {
-    background: #16a34a !important;
-}
-
-.library-reports-page .print-btn {
-    background: #0f766e !important;
-}
-
-
-/* =========================================================
-   SUMMARY CARDS
-========================================================= */
-
-.library-reports-page .summary-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 18px !important;
-    margin-bottom: 18px !important;
-}
-
-.library-reports-page .summary-card {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 14px !important;
-    padding: 20px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    gap: 14px !important;
-
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05) !important;
-}
-
-.library-reports-page .summary-icon {
-    width: 50px !important;
-    height: 50px !important;
-    min-width: 50px !important;
-
-    border-radius: 13px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    font-size: 19px !important;
-}
-
-.library-reports-page .icon-blue {
-    background: #eaf3ff !important;
-    color: #147cf5 !important;
-}
-
-.library-reports-page .icon-purple {
-    background: #f1efff !important;
-    color: #6c63ff !important;
-}
-
-.library-reports-page .icon-green {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
-}
-
-.library-reports-page .icon-orange {
-    background: #fff7ed !important;
-    color: #ea580c !important;
-}
-
-.library-reports-page .summary-label {
-    margin: 0 0 4px 0 !important;
-    color: #64748b !important;
-    font-size: 12px !important;
-}
-
-.library-reports-page .summary-value {
-    margin: 0 !important;
-    color: #1e293b !important;
-    font-size: 24px !important;
-    font-weight: 700 !important;
-}
-
-
-/* =========================================================
-   SECONDARY SUMMARY
-========================================================= */
-
-.library-reports-page .mini-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 18px !important;
-    margin-bottom: 25px !important;
-}
-
-.library-reports-page .mini-card {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 14px !important;
-    padding: 17px 19px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04) !important;
-}
-
-.library-reports-page .mini-label {
-    color: #64748b !important;
-    font-size: 12px !important;
-    margin-bottom: 3px !important;
-}
-
-.library-reports-page .mini-value {
-    color: #1e293b !important;
-    font-size: 20px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .mini-card > i {
-    color: #94a3b8 !important;
-    font-size: 20px !important;
-}
-
-
-/* =========================================================
-   MAIN CARD
-========================================================= */
-
-.library-reports-page .reports-main-card {
-    width: 100% !important;
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    padding: 25px !important;
-    margin-bottom: 25px !important;
-
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important;
-    box-sizing: border-box !important;
-}
-
-.library-reports-page .reports-main-card h3 {
-    margin: 0 0 6px 0 !important;
-    color: #1e293b !important;
-    font-size: 19px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .reports-main-card > p {
-    margin: 0 0 22px 0 !important;
-    color: #64748b !important;
-    font-size: 13px !important;
-}
-
-
-/* =========================================================
-   FILTERS
-========================================================= */
-
-.library-reports-page .filter-card {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    padding: 25px !important;
-    margin-bottom: 25px !important;
-
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important;
-}
-
-.library-reports-page .filter-title {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    margin-bottom: 20px !important;
-}
-
-.library-reports-page .filter-title-icon {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 10px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    background: #eaf3ff !important;
-    color: #147cf5 !important;
-}
-
-.library-reports-page .filter-title h3 {
-    margin: 0 !important;
-    color: #1e293b !important;
-    font-size: 18px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .filter-label {
-    display: block !important;
-    margin-bottom: 7px !important;
-
-    color: #334155 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .filter-control {
-    width: 100% !important;
-    height: 42px !important;
-
-    border: 1px solid #d9e0ea !important;
-    border-radius: 9px !important;
-
-    padding: 0 12px !important;
-
-    font-size: 13px !important;
-    color: #334155 !important;
-    background: #ffffff !important;
-
-    outline: none !important;
-}
-
-.library-reports-page .filter-control:focus {
-    border-color: #147cf5 !important;
-    box-shadow: 0 0 0 3px rgba(20,124,245,0.08) !important;
-}
-
-.library-reports-page .filter-buttons {
-    display: flex !important;
-    align-items: end !important;
-    gap: 8px !important;
-    height: 42px !important;
-}
-
-.library-reports-page .filter-btn {
-    height: 42px !important;
-    padding: 0 16px !important;
-    border: 0 !important;
-    border-radius: 9px !important;
-
-    background: #147cf5 !important;
-    color: #ffffff !important;
-
-    font-size: 12px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .reset-btn {
-    height: 42px !important;
-    padding: 0 16px !important;
-
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    border: 1px solid #d9e0ea !important;
-    border-radius: 9px !important;
-
-    background: #ffffff !important;
-    color: #475569 !important;
-
-    text-decoration: none !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-}
-
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.library-reports-page .table-card {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important;
-}
-
-.library-reports-page .table-card-header {
-    padding: 22px 25px !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 15px !important;
-}
-
-.library-reports-page .table-card-header h3 {
-    margin: 0 0 5px 0 !important;
-    color: #1e293b !important;
-    font-size: 18px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .table-card-header p {
-    margin: 0 !important;
-    color: #64748b !important;
-    font-size: 12px !important;
-}
-
-.library-reports-page .record-count {
-    background: #eaf3ff !important;
-    color: #147cf5 !important;
-
-    padding: 7px 12px !important;
-    border-radius: 20px !important;
-
-    font-size: 11px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .library-table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-}
-
-.library-reports-page .library-table th {
-    background: #f8fafc !important;
-    color: #64748b !important;
-
-    padding: 14px 18px !important;
-
-    font-size: 11px !important;
-    font-weight: 700 !important;
-
-    text-transform: uppercase !important;
-    white-space: nowrap !important;
-
-    border-bottom: 1px solid #e2e8f0 !important;
-}
-
-.library-reports-page .library-table td {
-    padding: 15px 18px !important;
-
-    color: #334155 !important;
-    font-size: 13px !important;
-
-    border-bottom: 1px solid #eef2f7 !important;
-    vertical-align: middle !important;
-}
-
-.library-reports-page .library-table tbody tr:hover {
-    background: #fafbff !important;
-}
-
-.library-reports-page .book-title {
-    color: #1e293b !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .book-author {
-    color: #64748b !important;
-    font-size: 11px !important;
-    margin-top: 3px !important;
-}
-
-
-/* =========================================================
-   BADGES
-========================================================= */
-
-.library-reports-page .status-badge {
-    display: inline-block !important;
-
-    padding: 5px 10px !important;
-    border-radius: 20px !important;
-
-    font-size: 11px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .status-issued {
-    background: #eaf3ff !important;
-    color: #147cf5 !important;
-}
-
-.library-reports-page .status-returned {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
-}
-
-.library-reports-page .status-overdue {
-    background: #fef2f2 !important;
-    color: #dc2626 !important;
-}
-
-.library-reports-page .fine {
-    color: #dc2626 !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .stock-badge {
-    display: inline-block !important;
-
-    min-width: 38px !important;
-    padding: 5px 9px !important;
-
-    text-align: center !important;
-    border-radius: 8px !important;
-
-    font-size: 11px !important;
-    font-weight: 700 !important;
-}
-
-.library-reports-page .available-stock {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
-}
-
-.library-reports-page .issued-stock {
-    background: #fff7ed !important;
-    color: #ea580c !important;
-}
-
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.library-reports-page .empty-state {
-    text-align: center !important;
-    padding: 55px 20px !important;
-}
-
-.library-reports-page .empty-state i {
-    display: block !important;
-    margin-bottom: 12px !important;
-    color: #94a3b8 !important;
-    font-size: 42px !important;
-}
-
-.library-reports-page .empty-state h4 {
-    margin: 0 0 6px 0 !important;
-    color: #334155 !important;
-    font-size: 16px !important;
-}
-
-.library-reports-page .empty-state p {
-    margin: 0 !important;
-    color: #64748b !important;
-    font-size: 13px !important;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1000px) {
-
-    .library-reports-page .summary-grid,
-    .library-reports-page .mini-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-
-    .library-reports-page .reports-header {
-        align-items: flex-start !important;
-        flex-direction: column !important;
-    }
-
-    .library-reports-page .header-actions {
-        width: 100% !important;
-    }
-}
-
-
-@media (max-width: 600px) {
-
-    .library-reports-page {
-        padding: 15px !important;
-    }
-
-    .library-reports-page .reports-header {
-        padding: 22px !important;
-    }
-
-    .library-reports-page .reports-header h2 {
-        font-size: 22px !important;
-    }
-
-    .library-reports-page .summary-grid,
-    .library-reports-page .mini-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .library-reports-page .table-card-header {
-        align-items: flex-start !important;
-        flex-direction: column !important;
-    }
-}
-
-
-/* =========================================================
-   PRINT
-========================================================= */
-
-@media print {
-
-    .no-print,
-    .header-actions,
-    .filter-card,
-    .sidebar,
-    .top-header {
-        display: none !important;
-    }
-
-    .library-reports-page {
-        padding: 0 !important;
-        background: #ffffff !important;
-    }
-
-    .library-reports-page .reports-header {
-        background: none !important;
-        color: #000 !important;
-        box-shadow: none !important;
-        padding: 0 0 20px !important;
-    }
-
-    .library-reports-page .reports-header h2,
-    .library-reports-page .reports-header p {
-        color: #000 !important;
-    }
-
-    .library-reports-page .summary-card,
-    .library-reports-page .mini-card,
-    .library-reports-page .table-card {
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
-    }
-}
-</style>
-
-
-<div class="library-reports-page">
-
-
-    {{-- =====================================================
-         PAGE HEADER
-    ====================================================== --}}
-
-    <div class="reports-header">
-
-        <div>
-
-            <h2>
-                <i class="bi bi-book-half"></i>
-                Library Reports
-            </h2>
-
-            <p>
-                Overview of books, transactions, returns and fines.
-            </p>
-
+<div class="payroll-simple">
+    <div class="container-fluid py-4">
+        @php
+            $money = function ($amount) {
+                return '₹' . number_format((float) ($amount ?? 0), 2);
+            };
+
+            $fromDate = $fromDate ?? request('from_date');
+            $toDate = $toDate ?? request('to_date');
+            $bookId = $bookId ?? request('book_id');
+            $studentId = $studentId ?? request('student_id');
+            $status = $status ?? request('status');
+
+            // School identity for print (exact same as Payroll)
+            $schoolSetting = $schoolSetting ?? \App\Models\SchoolSetting::query()->first();
+            $schoolName = trim((string) ($schoolSetting->school_name ?? ''));
+            $schoolName = $schoolName !== '' ? $schoolName : 'School Management System';
+            $schoolLogo = $schoolSetting->logo_url ?? null;
+            $schoolAddress = collect([
+                $schoolSetting->address ?? null,
+                $schoolSetting->city ?? null,
+                $schoolSetting->district ?? null,
+                $schoolSetting->state ?? null,
+                $schoolSetting->pincode ?? null,
+            ])->filter(fn ($value) => trim((string) $value) !== '')->implode(', ');
+            $schoolPhone = trim((string) ($schoolSetting->phone ?? ''));
+            $schoolEmail = trim((string) ($schoolSetting->email ?? ''));
+        @endphp
+
+        {{-- PRINT ONLY SCHOOL BRANDING AND REPORT HEADER --}}
+        <div class="print-only">
+            <div class="print-header">
+                <div class="print-brand">
+                    @if (!empty($schoolLogo))
+                        <img class="print-school-logo" src="{{ $schoolLogo }}" alt="School Logo">
+                    @endif
+                    <div class="print-school-identity">
+                        <div class="print-school-name">{{ $schoolName }}</div>
+                        @if ($schoolAddress !== '')
+                            <div class="print-school-contact">{{ $schoolAddress }}</div>
+                        @endif
+                        @if ($schoolPhone !== '' || $schoolEmail !== '')
+                            <div class="print-school-contact">
+                                @if ($schoolPhone !== '') Phone: {{ $schoolPhone }} @endif
+                                @if ($schoolPhone !== '' && $schoolEmail !== '') &nbsp; | &nbsp; @endif
+                                @if ($schoolEmail !== '') Email: {{ $schoolEmail }} @endif
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="print-report-title">
+                    <div class="print-brand-name">Library Report</div>
+                    <div class="print-brand-sub">Official Library Statement</div>
+                </div>
+            </div>
+            <div class="print-meta">
+                <div class="print-meta-row">
+                    <span class="print-label">Period:</span>
+                    <span class="print-value">
+                        @if ($fromDate || $toDate)
+                            {{ $fromDate ? \Carbon\Carbon::parse($fromDate)->format('d M Y') : '…' }}
+                            –
+                            {{ $toDate ? \Carbon\Carbon::parse($toDate)->format('d M Y') : '…' }}
+                        @else
+                            All Dates
+                        @endif
+                    </span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Status:</span>
+                    <span class="print-value">{{ $status ?: 'All' }}</span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Total Books:</span>
+                    <span class="print-value">{{ $totalBooks }}</span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Available:</span>
+                    <span class="print-value">{{ $availableCopies }}</span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Issued:</span>
+                    <span class="print-value">{{ $issuedCopies }}</span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Overdue:</span>
+                    <span class="print-value">{{ $overdueBooks }}</span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Pending Fines:</span>
+                    <span class="print-value">{{ $money($pendingFines) }}</span>
+                </div>
+                <div class="print-meta-row">
+                    <span class="print-label">Generated:</span>
+                    <span class="print-value" id="library-print-date">—</span>
+                </div>
+            </div>
+            <div class="print-divider"></div>
         </div>
 
-
-        <div class="header-actions">
-
-            <a
-                href="{{ route('admin.library.reports.pdf', request()->query()) }}"
-                class="header-action-btn pdf-btn"
-            >
-                <i class="bi bi-file-earmark-pdf"></i>
-                PDF
+        {{-- TOP BAR --}}
+        <div class="top-bar">
+            <a href="{{ route('admin.reports.index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Reports
             </a>
-
-
-            <a
-                href="{{ route('admin.library.reports.excel', request()->query()) }}"
-                class="header-action-btn excel-btn"
-            >
-                <i class="bi bi-file-earmark-excel"></i>
-                Excel
-            </a>
-
-
-            <button
-                type="button"
-                onclick="window.print()"
-                class="header-action-btn print-btn"
-            >
-                <i class="bi bi-printer"></i>
-                Print
-            </button>
-
+            <div></div>
         </div>
 
-    </div>
-
-
-    {{-- =====================================================
-         SUMMARY
-    ====================================================== --}}
-
-    <div class="summary-grid">
-
-        <div class="summary-card">
-
-            <div class="summary-icon icon-blue">
-                <i class="bi bi-book"></i>
+        {{-- HERO SECTION (Cream / Pearl) --}}
+        <section class="hero-section">
+            <div class="hero-left">
+                <div class="hero-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="hero-text">
+                    <div class="hero-breadcrumb"></div>
+                    <h2>Library Reports</h2>
+                    <p>Overview of books, transactions, returns and fines.</p>
+                </div>
             </div>
+            <div class="hero-right">
+                <div class="hero-handwritten">Issue. Return. Report.</div>
+                <p>Track stock, issues, overdues and fines in one clean statement.</p>
+                <div class="hero-buttons">
+                    <button type="button" class="btn-primary" onclick="printLibraryReport()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    @if (Route::has('admin.library.reports.excel'))
+                        <a href="{{ route('admin.library.reports.excel', request()->query()) }}" class="btn-secondary">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </section>
 
+        {{-- SUMMARY --}}
+        <div class="summary">
             <div>
-                <div class="summary-label">
-                    Total Books
-                </div>
-
-                <div class="summary-value">
-                    {{ $totalBooks }}
-                </div>
+                <span>Total Books</span>
+                <strong>{{ $totalBooks }}</strong>
             </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-icon icon-purple">
-                <i class="bi bi-layers"></i>
-            </div>
-
             <div>
-                <div class="summary-label">
-                    Total Book Stock
-                </div>
-
-                <div class="summary-value">
-                    {{ $totalCopies }}
-                </div>
+                <span>Total Stock</span>
+                <strong>{{ $totalCopies }}</strong>
             </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-icon icon-green">
-                <i class="bi bi-check-circle"></i>
-            </div>
-
             <div>
-                <div class="summary-label">
-                    Available Copies
-                </div>
-
-                <div class="summary-value">
-                    {{ $availableCopies }}
-                </div>
+                <span>Available</span>
+                <strong class="net">{{ $availableCopies }}</strong>
             </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-icon icon-orange">
-                <i class="bi bi-bookmark-check"></i>
-            </div>
-
             <div>
-                <div class="summary-label">
-                    Currently Issued
-                </div>
-
-                <div class="summary-value">
-                    {{ $issuedCopies }}
-                </div>
+                <span>Currently Issued</span>
+                <strong>{{ $issuedCopies }}</strong>
             </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- SECONDARY SUMMARY --}}
-
-    <div class="mini-grid">
-
-        <div class="mini-card">
-
             <div>
-                <div class="mini-label">
-                    Returned Books
-                </div>
-
-                <div class="mini-value">
-                    {{ $returnedBooks }}
-                </div>
+                <span>Returned</span>
+                <strong>{{ $returnedBooks }}</strong>
             </div>
-
-            <i class="bi bi-arrow-return-left"></i>
-
-        </div>
-
-
-        <div class="mini-card">
-
             <div>
-                <div class="mini-label">
-                    Overdue Books
-                </div>
-
-                <div class="mini-value">
-                    {{ $overdueBooks }}
-                </div>
+                <span>Overdue</span>
+                <strong style="color:#a33a2e;">{{ $overdueBooks }}</strong>
             </div>
-
-            <i class="bi bi-clock"></i>
-
-        </div>
-
-
-        <div class="mini-card">
-
             <div>
-                <div class="mini-label">
-                    Total Fines
-                </div>
-
-                <div class="mini-value">
-                    ₹{{ number_format($totalFines, 2) }}
-                </div>
+                <span>Total Fines</span>
+                <strong>{{ $money($totalFines) }}</strong>
             </div>
-
-            <i class="bi bi-currency-rupee"></i>
-
-        </div>
-
-
-        <div class="mini-card">
-
             <div>
-                <div class="mini-label">
-                    Pending Fines
-                </div>
-
-                <div class="mini-value">
-                    ₹{{ number_format($pendingFines, 2) }}
-                </div>
+                <span>Pending Fines</span>
+                <strong style="color:#a33a2e;">{{ $money($pendingFines) }}</strong>
             </div>
-
-            <i class="bi bi-exclamation-circle"></i>
-
         </div>
 
-    </div>
-
-
-    {{-- =====================================================
-         BOOK STOCK
-    ====================================================== --}}
-
-    <div class="table-card"
-         style="margin-bottom:25px;">
-
-        <div class="table-card-header">
-
-            <div>
-
-                <h3>
-                    Book Stock
-                </h3>
-
-                <p>
-                    Individual stock details for every book.
-                </p>
-
+        {{-- FILTERS --}}
+        <form method="GET" action="{{ route('admin.library.reports.index') }}" class="filters">
+            <div class="filter-item">
+                <label>From Date</label>
+                <input type="date" name="from_date" value="{{ $fromDate }}">
             </div>
 
-        </div>
+            <div class="filter-item">
+                <label>To Date</label>
+                <input type="date" name="to_date" value="{{ $toDate }}">
+            </div>
 
+            <div class="filter-item">
+                <label>Book</label>
+                <select name="book_id">
+                    <option value="">All Books</option>
+                    @foreach($books as $book)
+                        <option value="{{ $book->id }}" @selected($bookId == $book->id)>
+                            {{ $book->title }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="table-responsive">
+            <div class="filter-item">
+                <label>Student ID</label>
+                <input type="text" name="student_id" value="{{ $studentId }}" placeholder="Student ID">
+            </div>
 
-            <table class="library-table">
+            <div class="filter-item">
+                <label>Status</label>
+                <select name="status">
+                    <option value="">All Status</option>
+                    <option value="Issued" @selected($status === 'Issued')>Issued</option>
+                    <option value="Returned" @selected($status === 'Returned')>Returned</option>
+                    <option value="Overdue" @selected($status === 'Overdue')>Overdue</option>
+                </select>
+            </div>
 
+            <div class="filter-buttons">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <a href="{{ route('admin.library.reports.index') }}" class="btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        {{-- BOOK STOCK TABLE --}}
+        <div class="table-wrap" style="margin-bottom: 20px;">
+            <table>
                 <thead>
-
                     <tr>
-
                         <th>Book</th>
                         <th>Author</th>
                         <th>Total Copies</th>
                         <th>Available</th>
                         <th>Issued</th>
-
                     </tr>
-
                 </thead>
-
-
                 <tbody>
-
                     @forelse($bookStock as $book)
-
                         @php
-                            $issued =
-                                $book->quantity -
-                                $book->available_quantity;
+                            $issued = ($book->quantity ?? 0) - ($book->available_quantity ?? 0);
                         @endphp
-
                         <tr>
-
                             <td>
-
-                                <div class="book-title">
-                                    {{ $book->title }}
-                                </div>
-
-                                @if($book->isbn)
-
-                                    <div class="book-author">
-                                        ISBN: {{ $book->isbn }}
-                                    </div>
-
+                                <div class="emp-name">{{ $book->title }}</div>
+                                @if ($book->isbn)
+                                    <div class="emp-id">ISBN: {{ $book->isbn }}</div>
                                 @endif
-
                             </td>
-
-
-                            <td>
-                                {{ $book->author ?? '-' }}
-                            </td>
-
-
-                            <td>
-                                {{ $book->quantity }}
-                            </td>
-
-
-                            <td>
-
-                                <span class="stock-badge available-stock">
-                                    {{ $book->available_quantity }}
-                                </span>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="stock-badge issued-stock">
-                                    {{ $issued }}
-                                </span>
-
-                            </td>
-
+                            <td>{{ $book->author ?? '—' }}</td>
+                            <td>{{ $book->quantity }}</td>
+                            <td class="net">{{ $book->available_quantity }}</td>
+                            <td>{{ $issued }}</td>
                         </tr>
-
                     @empty
-
                         <tr>
-
-                            <td colspan="5">
-
-                                <div class="empty-state">
-
-                                    <i class="bi bi-bookshelf"></i>
-
-                                    <h4>
-                                        No Books Found
-                                    </h4>
-
-                                    <p>
-                                        No book stock is currently available.
-                                    </p>
-
-                                </div>
-
+                            <td colspan="5" class="empty">
+                                No book stock found.
                             </td>
-
                         </tr>
-
                     @endforelse
-
                 </tbody>
-
-
-                @if($bookStock->count())
-
+                @if ($bookStock->count())
                     <tfoot>
-
                         <tr>
-
-                            <td colspan="2">
-                                <strong>Total Book Stock</strong>
-                            </td>
-
-                            <td>
-                                <strong>
-                                    {{ $bookStock->sum('quantity') }}
-                                </strong>
-                            </td>
-
-                            <td>
-
-                                <span class="stock-badge available-stock">
-                                    {{ $bookStock->sum('available_quantity') }}
-                                </span>
-
-                            </td>
-
-                            <td>
-
-                                <span class="stock-badge issued-stock">
-                                    {{ $bookStock->sum('quantity') - $bookStock->sum('available_quantity') }}
-                                </span>
-
-                            </td>
-
+                            <td colspan="2"><strong>Total</strong></td>
+                            <td><strong>{{ $bookStock->sum('quantity') }}</strong></td>
+                            <td class="net"><strong>{{ $bookStock->sum('available_quantity') }}</strong></td>
+                            <td><strong>{{ $bookStock->sum('quantity') - $bookStock->sum('available_quantity') }}</strong></td>
                         </tr>
-
                     </tfoot>
-
                 @endif
-
             </table>
-
         </div>
 
-    </div>
-
-
-    {{-- =====================================================
-         FILTERS
-    ====================================================== --}}
-
-    <div class="filter-card no-print">
-
-        <div class="filter-title">
-
-            <div class="filter-title-icon">
-                <i class="bi bi-funnel-fill"></i>
-            </div>
-
-            <h3>
-                Report Filters
-            </h3>
-
-        </div>
-
-
-        <form
-            method="GET"
-            action="{{ route('admin.library.reports.index') }}"
-        >
-
-            <div class="row g-3">
-
-                {{-- From Date --}}
-                <div class="col-lg-2 col-md-6">
-
-                    <label class="filter-label">
-                        From Date
-                    </label>
-
-                    <input
-                        type="date"
-                        name="from_date"
-                        class="filter-control"
-                        value="{{ $fromDate }}"
-                    >
-
-                </div>
-
-
-                {{-- To Date --}}
-                <div class="col-lg-2 col-md-6">
-
-                    <label class="filter-label">
-                        To Date
-                    </label>
-
-                    <input
-                        type="date"
-                        name="to_date"
-                        class="filter-control"
-                        value="{{ $toDate }}"
-                    >
-
-                </div>
-
-
-                {{-- Book --}}
-                <div class="col-lg-3 col-md-6">
-
-                    <label class="filter-label">
-                        Book
-                    </label>
-
-                    <select
-                        name="book_id"
-                        class="filter-control"
-                    >
-
-                        <option value="">
-                            All Books
-                        </option>
-
-                        @foreach($books as $book)
-
-                            <option
-                                value="{{ $book->id }}"
-                                {{ $bookId == $book->id ? 'selected' : '' }}
-                            >
-                                {{ $book->title }}
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-                </div>
-
-
-                {{-- Student --}}
-                <div class="col-lg-2 col-md-6">
-
-                    <label class="filter-label">
-                        Student ID
-                    </label>
-
-                    <input
-                        type="text"
-                        name="student_id"
-                        class="filter-control"
-                        placeholder="Student ID"
-                        value="{{ $studentId }}"
-                    >
-
-                </div>
-
-
-                {{-- Status --}}
-                <div class="col-lg-2 col-md-6">
-
-                    <label class="filter-label">
-                        Status
-                    </label>
-
-                    <select
-                        name="status"
-                        class="filter-control"
-                    >
-
-                        <option value="">
-                            All Status
-                        </option>
-
-                        <option
-                            value="Issued"
-                            {{ $status === 'Issued' ? 'selected' : '' }}
-                        >
-                            Issued
-                        </option>
-
-                        <option
-                            value="Returned"
-                            {{ $status === 'Returned' ? 'selected' : '' }}
-                        >
-                            Returned
-                        </option>
-
-                        <option
-                            value="Overdue"
-                            {{ $status === 'Overdue' ? 'selected' : '' }}
-                        >
-                            Overdue
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- Buttons --}}
-                <div class="col-lg-1 col-md-6">
-
-                    <label class="filter-label">
-                        &nbsp;
-                    </label>
-
-                    <div class="filter-buttons">
-
-                        <button
-                            type="submit"
-                            class="filter-btn"
-                        >
-                            <i class="bi bi-search"></i>
-                            Filter
-                        </button>
-
-                        <a
-                            href="{{ route('admin.library.reports.index') }}"
-                            class="reset-btn"
-                        >
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                            Reset
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
-
-    {{-- =====================================================
-         TRANSACTIONS
-    ====================================================== --}}
-
-    <div class="table-card">
-
-        <div class="table-card-header">
-
-            <div>
-
-                <h3>
-                    Library Transactions
-                </h3>
-
-                <p>
-                    Complete issue and return transaction history.
-                </p>
-
-            </div>
-
-
-            <span class="record-count">
-                {{ $transactions->total() }} Records
-            </span>
-
-        </div>
-
-
-        <div class="table-responsive">
-
-            <table class="library-table">
-
+        {{-- TRANSACTIONS TABLE --}}
+        <div class="table-wrap">
+            <table>
                 <thead>
-
                     <tr>
-
                         <th>Book</th>
                         <th>Student ID</th>
                         <th>Issue Date</th>
@@ -1239,159 +285,687 @@
                         <th>Return Date</th>
                         <th>Status</th>
                         <th>Fine</th>
-
                     </tr>
-
                 </thead>
-
-
                 <tbody>
-
                     @forelse($transactions as $transaction)
-
+                        @php
+                            $isOverdue = $transaction->status === 'Overdue'
+                                || (
+                                    !$transaction->return_date
+                                    && $transaction->due_date
+                                    && $transaction->due_date->isPast()
+                                );
+                            $statusText = $transaction->status === 'Returned'
+                                ? 'Returned'
+                                : ($isOverdue ? 'Overdue' : 'Issued');
+                            $statusClass = $statusText === 'Returned' ? 'paid' : ($statusText === 'Overdue' ? 'unpaid' : '');
+                        @endphp
                         <tr>
-
                             <td>
-
-                                <div class="book-title">
+                                <div class="emp-name">
                                     {{ $transaction->book->title ?? 'Deleted Book' }}
                                 </div>
-
-                                @if($transaction->book)
-
-                                    <div class="book-author">
-                                        {{ $transaction->book->author }}
-                                    </div>
-
+                                @if ($transaction->book)
+                                    <div class="emp-id">{{ $transaction->book->author }}</div>
                                 @endif
-
                             </td>
-
-
+                            <td>{{ $transaction->student_id }}</td>
                             <td>
-                                {{ $transaction->student_id }}
+                                {{ $transaction->issue_date ? $transaction->issue_date->format('d M Y') : '—' }}
                             </td>
-
-
                             <td>
-                                {{ $transaction->issue_date
-                                    ? $transaction->issue_date->format('d M Y')
-                                    : '—' }}
+                                {{ $transaction->due_date ? $transaction->due_date->format('d M Y') : '—' }}
                             </td>
-
-
                             <td>
-                                {{ $transaction->due_date
-                                    ? $transaction->due_date->format('d M Y')
-                                    : '—' }}
+                                {{ $transaction->return_date ? $transaction->return_date->format('d M Y') : '—' }}
                             </td>
-
-
                             <td>
-                                {{ $transaction->return_date
-                                    ? $transaction->return_date->format('d M Y')
-                                    : '—' }}
+                                <span class="status {{ $statusClass }}">
+                                    {{ $statusText }}
+                                </span>
                             </td>
-
-
                             <td>
-
-                                @if($transaction->status === 'Returned')
-
-                                    <span class="status-badge status-returned">
-                                        Returned
+                                @if (($transaction->fine ?? 0) > 0)
+                                    <span style="color:#a33a2e; font-weight:700;">
+                                        {{ $money($transaction->fine) }}
                                     </span>
-
-                                @elseif(
-                                    $transaction->status === 'Overdue'
-                                    ||
-                                    (
-                                        !$transaction->return_date &&
-                                        $transaction->due_date &&
-                                        $transaction->due_date->isPast()
-                                    )
-                                )
-
-                                    <span class="status-badge status-overdue">
-                                        Overdue
-                                    </span>
-
                                 @else
-
-                                    <span class="status-badge status-issued">
-                                        Issued
-                                    </span>
-
+                                    {{ $money(0) }}
                                 @endif
-
                             </td>
-
-
-                            <td>
-
-                                @if($transaction->fine > 0)
-
-                                    <span class="fine">
-                                        ₹{{ number_format($transaction->fine, 2) }}
-                                    </span>
-
-                                @else
-
-                                    <span>
-                                        ₹0.00
-                                    </span>
-
-                                @endif
-
-                            </td>
-
                         </tr>
-
                     @empty
-
                         <tr>
-
-                            <td colspan="7">
-
-                                <div class="empty-state">
-
-                                    <i class="bi bi-journal-x"></i>
-
-                                    <h4>
-                                        No Transactions Found
-                                    </h4>
-
-                                    <p>
-                                        Try changing your report filters.
-                                    </p>
-
-                                </div>
-
+                            <td colspan="7" class="empty">
+                                No transactions found. Try changing the filters.
                             </td>
-
                         </tr>
-
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
 
-
-        @if($transactions->hasPages())
-
-            <div class="px-4 py-3 border-top no-print">
-
-                {{ $transactions->links() }}
-
+        {{-- PAGINATION --}}
+        @if ($transactions->hasPages())
+            <div class="pagination-bar">
+                <span>
+                    Showing {{ $transactions->firstItem() ?? 0 }} to {{ $transactions->lastItem() ?? 0 }} of {{ $transactions->total() }} records
+                </span>
+                <div>{{ $transactions->links() }}</div>
             </div>
-
+        @elseif ($transactions->count())
+            <div class="pagination-bar">
+                <span>Showing {{ $transactions->count() }} of {{ $transactions->total() }} records</span>
+            </div>
         @endif
-
     </div>
-
 </div>
 
+<style>
+.payroll-simple {
+    --bg: #f5f4f0;
+    --text: #1e2a25;
+    --muted: #5c6b64;
+    --border: #d4cfc2;
+    --primary: #2c3e36;
+    --primary-hover: #3a4f45;
+    --net: #1a6b3c;
+    background: var(--bg);
+    color: var(--text);
+    min-height: calc(100vh - 70px);
+    font-family: Inter, "Public Sans", Arial, sans-serif;
+}
+.payroll-simple .container-fluid {
+    max-width: 1400px;
+}
+/* Top bar */
+.payroll-simple .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.payroll-simple .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.payroll-simple .btn-back:hover {
+    background: #f0eee8;
+}
+.payroll-simple .top-actions {
+    display: flex;
+    gap: 8px;
+}
+.payroll-simple .btn-primary,
+.payroll-simple .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.payroll-simple .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+.payroll-simple .btn-primary:hover {
+    background: var(--primary-hover);
+}
+.payroll-simple .btn-secondary {
+    background: #fff;
+    color: var(--muted);
+    border-color: var(--border);
+}
+.payroll-simple .btn-secondary:hover {
+    background: #f0eee8;
+    color: var(--text);
+}
+/* ========== HERO SECTION (Cream / Pearl) ========== */
+.payroll-simple .hero-section {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: #fff;
+}
+.payroll-simple .hero-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 28px 28px 28px 32px;
+    background: #fdfbf7;
+}
+.payroll-simple .hero-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    background: #f3ead8;
+    border: 1px solid #e5d9c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5c4a32;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.payroll-simple .hero-text .hero-breadcrumb {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9c7b4a;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.payroll-simple .hero-text h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+}
+.payroll-simple .hero-text p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 480px;
+}
+/* Cream / Pearl Right Side */
+.payroll-simple .hero-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    background: linear-gradient(145deg, #f8f1e3 0%, #f0e6d2 50%, #e8dcc6 100%);
+    border-left: 1px solid #e5d9c4;
+}
+.payroll-simple .hero-handwritten {
+    font-family: "Segoe Print", "Comic Sans MS", cursive;
+    font-size: 22px;
+    color: #5c4a32;
+    line-height: 1.3;
+}
+.payroll-simple .hero-right p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b5c45;
+    max-width: 260px;
+    line-height: 1.6;
+}
+.payroll-simple .hero-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 6px;
+}
+.payroll-simple .hero-right .btn-primary {
+    background: #3a3428;
+    border-color: #3a3428;
+}
+.payroll-simple .hero-right .btn-primary:hover {
+    background: #2a241c;
+    border-color: #2a241c;
+}
+.payroll-simple .hero-right .btn-secondary {
+    background: rgba(255, 252, 245, 0.7);
+    border-color: #c4b49a;
+    color: #5c4a32;
+}
+.payroll-simple .hero-right .btn-secondary:hover {
+    background: #fff;
+    border-color: #a8926e;
+    color: #3a3428;
+}
+/* Filters */
+.payroll-simple .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.payroll-simple .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.payroll-simple .filter-item label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}
+.payroll-simple .filter-item input,
+.payroll-simple .filter-item select {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 160px;
+    background: #fff;
+}
+.payroll-simple .filter-item input:focus,
+.payroll-simple .filter-item select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+.payroll-simple .filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+/* Summary */
+.payroll-simple .summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+.payroll-simple .summary span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+.payroll-simple .summary strong {
+    font-size: 15px;
+}
+.payroll-simple .summary .net {
+    color: var(--net);
+}
+/* Table */
+.payroll-simple .table-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+}
+.payroll-simple table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 900px;
+}
+.payroll-simple th {
+    background: #f0eee8;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+.payroll-simple td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee9dd;
+    vertical-align: middle;
+}
+.payroll-simple tbody tr:last-child td {
+    border-bottom: none;
+}
+.payroll-simple tbody tr:hover td {
+    background: #faf9f5;
+}
+.payroll-simple tfoot td {
+    background: #f7f6f2;
+    font-weight: 600;
+    border-top: 1px solid var(--border);
+}
+.payroll-simple .emp-name {
+    font-weight: 600;
+}
+.payroll-simple .emp-id {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+.payroll-simple .net {
+    color: var(--net);
+    font-weight: 700;
+}
+.payroll-simple .status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.payroll-simple .status.paid {
+    background: #e4f3ea;
+    color: #1a6b3c;
+}
+.payroll-simple .status.unpaid {
+    background: #fcebe8;
+    color: #a33a2e;
+}
+.payroll-simple .empty {
+    text-align: center;
+    padding: 40px 20px !important;
+    color: var(--muted);
+}
+/* Pagination */
+.payroll-simple .pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+}
+/* Print only (hidden on screen) */
+.payroll-simple .print-only {
+    display: none;
+}
+/* Responsive */
+@media (max-width: 900px) {
+    .payroll-simple .hero-section {
+        grid-template-columns: 1fr;
+    }
+    .payroll-simple .hero-right {
+        border-left: none;
+        border-top: 1px solid #e5d9c4;
+    }
+}
+@media (max-width: 768px) {
+    .payroll-simple .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .payroll-simple .filter-item input,
+    .payroll-simple .filter-item select {
+        width: 100%;
+        min-width: 0;
+    }
+    .payroll-simple .summary {
+        gap: 16px;
+    }
+    .payroll-simple .hero-left {
+        padding: 22px 20px;
+    }
+    .payroll-simple .hero-text h2 {
+        font-size: 20px;
+    }
+}
+/* ================= PRINT — Professional Layout ================= */
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 10mm 12mm 12mm 12mm;
+    }
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    body * {
+        visibility: hidden;
+    }
+    .payroll-simple,
+    .payroll-simple * {
+        visibility: visible;
+    }
+    .payroll-simple {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #fff !important;
+        color: #1a1a1a;
+        font-family: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
+        font-size: 10.5px;
+        line-height: 1.35;
+    }
+    /* Hide non-print elements */
+    .payroll-simple .top-bar,
+    .payroll-simple .hero-section,
+    .payroll-simple .filters,
+    .payroll-simple .summary,
+    .payroll-simple .pagination-bar {
+        display: none !important;
+    }
+    /* ---- Print Header ---- */
+    .payroll-simple .print-only {
+        display: block !important;
+        margin-bottom: 14px;
+        text-align: left;
+    }
+    .payroll-simple .print-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #d4cfc2;
+    }
+    .payroll-simple .print-brand {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        min-width: 0;
+    }
+    .payroll-simple .print-school-logo {
+        display: block;
+        width: 62px;
+        height: 62px;
+        object-fit: contain;
+        margin-right: 4px;
+    }
+    .payroll-simple .print-school-identity {
+        text-align: left;
+        max-width: 430px;
+    }
+    .payroll-simple .print-school-name {
+        font-size: 16px;
+        line-height: 1.25;
+        font-weight: 700;
+        color: #263b35;
+        margin-bottom: 3px;
+    }
+    .payroll-simple .print-school-contact {
+        font-size: 8.5px;
+        line-height: 1.4;
+        color: #5c6b64;
+        margin-top: 2px;
+    }
+    .payroll-simple .print-report-title {
+        text-align: left;
+        border-left: 1px solid #d4cfc2;
+        padding-left: 16px;
+        flex-shrink: 0;
+    }
+    .payroll-simple .print-brand-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.2px;
+        line-height: 1.2;
+        text-align: left;
+    }
+    .payroll-simple .print-brand-sub {
+        font-size: 11px;
+        color: #555;
+        margin-top: 2px;
+        letter-spacing: 0.3px;
+        text-align: left;
+    }
+    .payroll-simple .print-meta {
+        text-align: left;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px 18px;
+        padding: 8px 0 2px;
+    }
+    .payroll-simple .print-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 9px;
+    }
+    .payroll-simple .print-label {
+        color: #666;
+        font-weight: 500;
+    }
+    .payroll-simple .print-value {
+        color: #1a1a1a;
+        font-weight: 600;
+    }
+    .payroll-simple .print-divider {
+        height: 2px;
+        background: #344f43;
+        margin: 8px 0 12px;
+        width: 100%;
+    }
+    /* ---- Table Styling for Print ---- */
+    .payroll-simple .table-wrap {
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        margin-bottom: 16px !important;
+    }
+    .payroll-simple table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9.5px;
+        border: 1px solid #999;
+    }
+    .payroll-simple th {
+        background: #2c3e36 !important;
+        color: #fff !important;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 7px 8px;
+        border: 1px solid #1e2a25;
+        text-align: left;
+        white-space: nowrap;
+    }
+    .payroll-simple td {
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        vertical-align: middle;
+        color: #222;
+    }
+    .payroll-simple tbody tr:nth-child(even) td {
+        background: #f7f6f2 !important;
+    }
+    .payroll-simple tbody tr:last-child td {
+        border-bottom: 1px solid #999;
+    }
+    .payroll-simple tfoot td {
+        background: #f0eee8 !important;
+        font-weight: 700;
+    }
+    .payroll-simple .emp-name {
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 9.5px;
+    }
+    .payroll-simple .emp-id {
+        font-size: 8.5px;
+        color: #555;
+        margin-top: 1px;
+    }
+    .payroll-simple .net {
+        color: #1a6b3c !important;
+        font-weight: 700;
+    }
+    .payroll-simple .status {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 3px;
+        font-size: 8.5px;
+        font-weight: 600;
+        border: 1px solid transparent;
+    }
+    .payroll-simple .status.paid {
+        background: #e4f3ea !important;
+        color: #1a6b3c !important;
+        border-color: #a8d5b5;
+    }
+    .payroll-simple .status.unpaid {
+        background: #fcebe8 !important;
+        color: #a33a2e !important;
+        border-color: #e8b4ad;
+    }
+    .payroll-simple .empty {
+        text-align: center;
+        padding: 28px 16px !important;
+        color: #666;
+        font-style: italic;
+    }
+    /* Subtle footer note */
+    .payroll-simple .table-wrap:last-of-type::after {
+        content: "This is a system-generated library report. For official use only.";
+        display: block;
+        margin-top: 10px;
+        font-size: 8.5px;
+        color: #777;
+        text-align: center;
+        border-top: 1px solid #ddd;
+        padding-top: 6px;
+    }
+}
+</style>
+
+<script>
+(function () {
+    function setLibraryPrintDate() {
+        const el = document.getElementById('library-print-date');
+        if (el) {
+            el.textContent = new Date().toLocaleString();
+        }
+    }
+
+    window.printLibraryReport = function () {
+        setLibraryPrintDate();
+        const logo = document.querySelector('.print-school-logo');
+        if (logo && typeof logo.decode === 'function') {
+            logo.decode().catch(function () {}).finally(function () {
+                window.print();
+            });
+            return;
+        }
+        window.print();
+    };
+})();
+</script>
 @endsection
