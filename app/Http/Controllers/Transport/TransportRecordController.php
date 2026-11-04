@@ -834,4 +834,12 @@ class TransportRecordController extends Controller
                 'Transport record deleted successfully.'
             );
     }
+<<<<<<< HEAD
 }
+=======
+    /**
+ * Bulk delete multiple records.
+ */
+
+}
+>>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c

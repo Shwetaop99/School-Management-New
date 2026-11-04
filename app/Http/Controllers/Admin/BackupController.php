@@ -34,6 +34,20 @@ class BackupController extends Controller
         return $directory;
     }
 
+
+    private function logAction(string $message, array $props = []): void
+{
+    try {
+        Log::notice('Backup: ' . $message, $props + ['user_id' => auth()->id()]);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties($props + ['ip' => request()->ip()])
+            ->log($message);
+    } catch (Throwable $e) {
+        // logging must never break a backup
+    }
+}
     public function index()
     {
         $backups = collect(File::files($this->ensureBackupDirectory()))
@@ -75,6 +89,7 @@ class BackupController extends Controller
 
         try {
             $filename = $this->createBackupArchive('school_management_backup');
+            $this->logAction('Backup created', ['file' => $filename]);
             return redirect()->route(self::INDEX_ROUTE)
                 ->with('success', "Backup created successfully: {$filename}");
         } catch (Throwable $exception) {
@@ -336,6 +351,7 @@ class BackupController extends Controller
 {
     $path = $this->safeBackupPath($backup);
     abort_unless(File::isFile($path), 404, 'Backup file not found.');
+    $this->logAction('Backup downloaded', ['file' => basename($path)]);
     // Prevent accidental output from contaminating the download.
     while (ob_get_level() > 0) {
         if (!@ob_end_clean()) {
@@ -360,6 +376,7 @@ class BackupController extends Controller
         $path = $this->safeBackupPath($backup);
         abort_unless(File::isFile($path), 404, 'Backup file not found.');
 
+        $this->logAction('Backup deleted', ['file' => basename($path)]);
         File::delete($path);
 
         return redirect()->route(self::INDEX_ROUTE)
@@ -417,6 +434,8 @@ class BackupController extends Controller
                 throw new RuntimeException('The validated backup could not be saved.');
             }
 
+            $this->logAction('Backup uploaded', ['file' => $filename]);
+
             return redirect()->route(self::RESTORE_ROUTE)->with(
                 'success',
                 "Archive checks passed. Backup saved as {$filename}. No school data has been restored or changed."
@@ -438,8 +457,7 @@ class BackupController extends Controller
 
     public function restoreBackup(string $backup)
     {
-        abort_unless(config('backup.restore_enabled', false) === true, 403,
-            'Backup restoration is currently disabled.');
+ $this->logAction('Backup uploaded', ['file' => $filename]);
 
         $path = $this->safeBackupPath($backup);
         abort_unless(File::isFile($path) && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'zip',
@@ -479,13 +497,23 @@ class BackupController extends Controller
 
             $filesChanged = true;
             $this->replacePublicFilesFromStage($staged['files'], $currentPublic);
-
+$this->logAction('Backup RESTORED', [
+    'file'          => basename($path),
+    'safety_backup' => $safetyFilename,
+]);
             return redirect()->route(self::RESTORE_ROUTE)->with(
                 'success',
                 "Backup restored successfully. Safety backup created: {$safetyFilename}"
             );
         } catch (Throwable $exception) {
             Log::error('Backup restore failed', [
+                
+                'backup' => basename($path),
+                'safety_backup' => $safetyFilename,
+                'message' => $exception->getMessage(),
+            ]);
+            $this->logAction('Backup restore FAILED', ['file' => basename($path)]);
+            $this->logAction('Backup restore failed', [
                 'backup' => basename($path),
                 'safety_backup' => $safetyFilename,
                 'message' => $exception->getMessage(),
@@ -519,6 +547,8 @@ class BackupController extends Controller
                     $rollbackMessage = ' CRITICAL: automatic recovery also failed. Keep the safety backup and contact your administrator immediately.';
                 }
             }
+
+            
 
             return redirect()->route(self::RESTORE_ROUTE)->with(
                 'error',

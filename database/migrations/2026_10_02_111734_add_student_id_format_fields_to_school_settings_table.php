@@ -9,17 +9,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('school_settings', function (Blueprint $table) {
-            $table->string('student_id_format')
-                ->default('STU-{YEAR}-{NUMBER}')
-                ->after('school_code');
 
-            $table->unsignedInteger('student_id_start')
-                ->default(1)
-                ->after('student_id_format');
+            if (!Schema::hasColumn('school_settings', 'student_id_format')) {
+                $table->string('student_id_format')
+                    ->default('STU-{YEAR}-{NUMBER}')
+                    ->after('school_code');
+            }
 
-            $table->unsignedInteger('student_id_length')
-                ->default(4)
-                ->after('student_id_start');
+            if (!Schema::hasColumn('school_settings', 'student_id_start')) {
+                $table->unsignedInteger('student_id_start')
+                    ->default(1)
+                    ->after('student_id_format');
+            }
+
+            if (!Schema::hasColumn('school_settings', 'student_id_length')) {
+                $table->unsignedInteger('student_id_length')
+                    ->default(4)
+                    ->after('student_id_start');
+            }
         });
     }
 

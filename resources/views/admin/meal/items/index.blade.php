@@ -1,78 +1,71 @@
+
 @extends('layouts.app')
- 
+
 @section('title', 'Meal Items | Admin')
 @section('page-title', 'Meal Items')
- 
+
 @section('content')
- 
+
 @php
     $itemsCollection = $items ?? collect();
- 
+
     $transactionsCollection = collect();
- 
+
     if (isset($transactions)) {
         $transactionsCollection = method_exists($transactions, 'getCollection')
             ? $transactions->getCollection()
             : collect($transactions);
     }
- 
+
     $totalItems = isset($items) && method_exists($items, 'total')
         ? $items->total()
         : $itemsCollection->count();
- 
+
     $activeItems = $itemsCollection->where('status', 'active')->count();
- 
-    $lowStockItems = $itemsCollection
-        ->filter(function ($item) {
-            return (float) ($item->current_stock ?? 0)
-                <= (float) ($item->minimum_stock ?? 0);
-        })
-        ->count();
- 
-    $stockInCount  = $transactionsCollection->where('transaction_type', 'stock_in')->count();
-    $stockOutCount = $transactionsCollection->where('transaction_type', 'stock_out')->count();
+
+    $lowStockItems = $itemsCollection->filter(function ($item) {
+        return (float) ($item->current_stock ?? 0)
+            <= (float) ($item->minimum_stock ?? 0);
+    })->count();
+
+    $stockInCount = $transactionsCollection
+        ->where('transaction_type', 'stock_in')->count();
+
+    $stockOutCount = $transactionsCollection
+        ->where('transaction_type', 'stock_out')->count();
+
     $stockMovementCount = $stockInCount + $stockOutCount;
- 
-    $hasFilters = request()->hasAny(['search', 'status']);
+
+    $hasFilters = request()->filled('search') || request()->filled('status');
 @endphp
- 
+
 <div class="meal-items-page">
     <div class="container-fluid py-4">
- 
+
         {{-- FLASH MESSAGES --}}
         @if(session('success'))
-            <div class="meal-success-alert" role="status">
-                <span class="success-icon">
-                    <i class="fas fa-check"></i>
-                </span>
+            <div class="meal-alert success" role="status">
+                <i class="fas fa-circle-check"></i>
                 <span>{{ session('success') }}</span>
-                <button type="button" class="alert-close"
-                        aria-label="Close alert"
-                        onclick="this.parentElement.remove();">
+                <button type="button" onclick="this.parentElement.remove()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         @endif
- 
+
         @if(session('error'))
-            <div class="meal-error-alert" role="alert">
-                <span class="error-icon">
-                    <i class="fas fa-exclamation"></i>
-                </span>
+            <div class="meal-alert error" role="alert">
+                <i class="fas fa-circle-exclamation"></i>
                 <span>{{ session('error') }}</span>
-                <button type="button" class="alert-close"
-                        aria-label="Close alert"
-                        onclick="this.parentElement.remove();">
+                <button type="button" onclick="this.parentElement.remove()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         @endif
- 
+
         @if($errors->any())
-            <div class="meal-error-alert" role="alert">
-                <span class="error-icon">
-                    <i class="fas fa-exclamation"></i>
-                </span>
+            <div class="meal-alert error">
+                <i class="fas fa-triangle-exclamation"></i>
                 <div>
                     <strong>Please check the following:</strong>
                     <ul class="mb-0 mt-1">
@@ -83,214 +76,217 @@
                 </div>
             </div>
         @endif
- 
-        {{-- SCHOOL DIARY HERO --}}
+
+        {{-- HERO SECTION --}}
         <section class="meal-hero">
-            <div class="meal-hero-content">
-                <div class="meal-hero-icon">
+
+            <div class="hero-main">
+
+                <div class="hero-icon">
                     <i class="fas fa-bowl-food"></i>
                 </div>
- 
-                <div class="meal-hero-text">
-                    <div class="meal-breadcrumb">
+
+                <div class="hero-copy">
+                    <div class="hero-breadcrumb">
                         INVENTORY <span>/</span> MEAL ITEMS
                     </div>
- 
+
                     <h2>Meal Items</h2>
- 
+
                     <p>
-                        Manage meal inventory, check available stock and keep
-                        your school supplies organised from one place.
+                        Manage your school's meal inventory, monitor available
+                        stock and maintain organised supply records.
                     </p>
- 
-                    <div class="meal-hero-note">
+
+                    <div class="hero-note">
                         <i class="fas fa-shield-alt"></i>
-                        <span>School Meal Inventory Management</span>
+                        School Meal Inventory Management
                     </div>
                 </div>
+
             </div>
- 
-            <div class="meal-hero-actions">
-                <div class="hero-handwritten">Simple. Organised. Efficient.</div>
- 
+
+            <div class="hero-side">
+                <div class="hero-handwritten">
+                    Simple. Organised. Efficient.
+                </div>
+
                 <p>
-                    Keep track of inventory and identify the items
-                    that need attention.
+                    Keep your inventory updated and make sure
+                    essential meal supplies are available.
                 </p>
- 
+
                 <a href="{{ route('admin.meal.items.create') }}"
-                   class="diary-primary-btn hero-primary-btn">
+                   class="meal-primary-btn">
                     <i class="fas fa-plus"></i>
                     Add Meal Item
                 </a>
             </div>
+
         </section>
- 
+
         {{-- KPI CARDS --}}
         <section class="meal-kpis">
- 
+
             <article class="meal-kpi blue">
                 <div class="kpi-top">
-                    <span class="kpi-label">Total Meal Items</span>
-                    <span class="kpi-icon">
-                        <i class="fas fa-boxes-stacked"></i>
-                    </span>
+                    <span>Total Meal Items</span>
+                    <i class="fas fa-boxes-stacked"></i>
                 </div>
- 
+
                 <div class="kpi-value">{{ $totalItems }}</div>
- 
-                <div class="kpi-caption">
+
+                <div class="kpi-footer">
                     <i class="fas fa-layer-group"></i>
                     Registered inventory items
                 </div>
             </article>
- 
+
             <article class="meal-kpi green">
                 <div class="kpi-top">
-                    <span class="kpi-label">Active Items</span>
-                    <span class="kpi-icon">
-                        <i class="fas fa-circle-check"></i>
-                    </span>
-                </div>
- 
-                <div class="kpi-value">{{ $activeItems }}</div>
- 
-                <div class="kpi-caption">
+                    <span>Active Items</span>
                     <i class="fas fa-circle-check"></i>
+                </div>
+
+                <div class="kpi-value">{{ $activeItems }}</div>
+
+                <div class="kpi-footer">
+                    <i class="fas fa-check-circle"></i>
                     Active items on this page
                 </div>
             </article>
- 
+
             <article class="meal-kpi amber">
                 <div class="kpi-top">
-                    <span class="kpi-label">Low Stock</span>
-                    <span class="kpi-icon">
-                        <i class="fas fa-triangle-exclamation"></i>
-                    </span>
+                    <span>Low Stock</span>
+                    <i class="fas fa-triangle-exclamation"></i>
                 </div>
- 
+
                 <div class="kpi-value">{{ $lowStockItems }}</div>
- 
-                <div class="kpi-caption">
+
+                <div class="kpi-footer">
                     <i class="fas fa-arrow-trend-down"></i>
-                    At or below minimum stock
+                    Items at minimum stock
                 </div>
             </article>
- 
+
             <article class="meal-kpi red">
                 <div class="kpi-top">
-                    <span class="kpi-label">Stock Movements</span>
-                    <span class="kpi-icon">
-                        <i class="fas fa-right-left"></i>
-                    </span>
+                    <span>Stock Movements</span>
+                    <i class="fas fa-right-left"></i>
                 </div>
- 
+
                 <div class="kpi-value">{{ $stockMovementCount }}</div>
- 
-                <div class="kpi-caption">
+
+                <div class="kpi-footer">
                     <i class="fas fa-clock-rotate-left"></i>
-                    Movements in the loaded records
+                    Loaded transaction records
                 </div>
             </article>
- 
+
         </section>
- 
-        {{-- SEARCH AND FILTERS --}}
-        <section class="meal-filter-card">
- 
-            <div class="filter-heading">
-                <div class="filter-heading-icon">
+
+        {{-- SEARCH AND FILTER --}}
+        <section class="meal-card filter-card">
+
+            <div class="section-heading">
+
+                <div class="heading-icon">
                     <i class="fas fa-filter"></i>
                 </div>
- 
-                <div class="filter-heading-copy">
+
+                <div class="heading-content">
                     <div class="section-eyebrow">RECORD MANAGEMENT</div>
                     <h3>Search &amp; Filter Meal Items</h3>
-                    <p>Find items by name or category and filter by status.</p>
+                    <p>Find meal items and filter inventory records by status.</p>
                 </div>
- 
+
                 @if($hasFilters)
                     <a href="{{ route('admin.meal.items.index') }}"
-                       class="diary-reset-btn reset-heading-btn">
+                       class="meal-outline-btn heading-reset">
                         <i class="fas fa-rotate-left"></i>
                         Reset
                     </a>
                 @endif
+
             </div>
- 
+
             <form method="GET" action="{{ route('admin.meal.items.index') }}">
- 
-                <div class="meal-filter-grid">
- 
-                    <div class="diary-filter-group search-group">
+
+                <div class="filter-grid">
+
+                    <div class="filter-group">
                         <label for="meal-search">Search Records</label>
- 
-                        <div class="diary-search-input">
+
+                        <div class="search-control">
                             <i class="fas fa-search"></i>
- 
-                            <input
-                                type="text"
-                                name="search"
-                                id="meal-search"
-                                value="{{ request('search') }}"
-                                placeholder="Item name or category..."
-                                autocomplete="off"
-                            >
+
+                            <input type="text"
+                                   name="search"
+                                   id="meal-search"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search item name or category..."
+                                   autocomplete="off">
                         </div>
                     </div>
- 
-                    <div class="diary-filter-group">
+
+                    <div class="filter-group">
                         <label for="meal-status">Record Status</label>
- 
+
                         <select name="status"
                                 id="meal-status"
-                                class="diary-control">
+                                class="meal-control">
+
                             <option value="">All Statuses</option>
- 
+
                             <option value="active"
                                 @selected(request('status') === 'active')>
                                 Active
                             </option>
- 
+
                             <option value="inactive"
                                 @selected(request('status') === 'inactive')>
                                 Inactive
                             </option>
+
                         </select>
                     </div>
- 
-                    <div class="diary-filter-actions">
-                        <button type="submit" class="diary-apply-btn">
+
+                    <div class="filter-actions">
+
+                        <button type="submit" class="meal-apply-btn">
                             <i class="fas fa-filter"></i>
                             Apply Filters
                         </button>
- 
+
                         <a href="{{ route('admin.meal.items.index') }}"
-                           class="diary-reset-btn">
+                           class="meal-outline-btn">
                             <i class="fas fa-rotate-left"></i>
                             Reset
                         </a>
+
                     </div>
- 
+
                 </div>
+
             </form>
- 
-            {{-- ACTIVE FILTERS --}}
+
             @if($hasFilters)
-                <div class="meal-active-filters">
-                    <div class="active-filter-items">
-                        <span class="active-filter-label">
+                <div class="active-filters">
+
+                    <div class="active-filter-list">
+                        <span class="active-filter-title">
                             <i class="fas fa-sliders-h"></i>
-                            Active filters
+                            Active Filters
                         </span>
- 
+
                         @if(request('search'))
                             <span class="filter-chip">
                                 <i class="fas fa-search"></i>
                                 {{ request('search') }}
                             </span>
                         @endif
- 
+
                         @if(request('status'))
                             <span class="filter-chip">
                                 <i class="fas fa-circle-half-stroke"></i>
@@ -298,204 +294,295 @@
                             </span>
                         @endif
                     </div>
- 
-                    <span class="filter-result-count">
-                        {{ $totalItems }} {{ $totalItems == 1 ? 'result' : 'results' }}
+
+                    <span class="filter-results">
+                        {{ $totalItems }} {{ $totalItems === 1 ? 'result' : 'results' }}
                     </span>
+
                 </div>
             @endif
- 
+
         </section>
- 
-        {{-- MEAL ITEM RECORDS --}}
-        <section class="meal-table-card">
- 
-            <div class="meal-panel-header">
-                <div class="panel-title-wrap">
-                    <div class="panel-title-icon">
+
+        {{-- MEAL ITEMS TABLE --}}
+        <section class="meal-card table-card">
+
+            {{-- BULK DELETE FORM --}}
+            <form id="bulkDeleteMealItemsForm"
+                  method="POST"
+                  action="{{ route('admin.meal.items.bulk-destroy') }}">
+                @csrf
+                @method('DELETE')
+            </form>
+
+            <div class="table-heading">
+
+                <div class="table-heading-main">
+
+                    <div class="heading-icon">
                         <i class="fas fa-list-ul"></i>
                     </div>
- 
+
                     <div>
                         <div class="section-eyebrow">INVENTORY REGISTER</div>
                         <h3>All Meal Items</h3>
-                        <p>Review, edit or remove inventory items.</p>
+                        <p>Review, update or remove meal inventory records.</p>
                     </div>
+
                 </div>
- 
-                <div class="meal-record-count">
-                    <i class="fas fa-folder-open"></i>
-                    <strong>{{ $totalItems }}</strong>
-                    {{ $totalItems == 1 ? 'Item' : 'Items' }}
+
+                <div class="table-heading-actions">
+
+                    <span class="record-counter">
+                        <i class="fas fa-folder-open"></i>
+                        {{ $totalItems }} Items
+                    </span>
+
+                    <button type="submit"
+                            form="bulkDeleteMealItemsForm"
+                            class="meal-bulk-delete-btn"
+                            onclick="return confirmMealBulkDelete()">
+
+                        <i class="fas fa-trash-alt"></i>
+                        Bulk Delete
+
+                        <span id="selectedMealCount">0</span>
+
+                    </button>
+
                 </div>
+
             </div>
- 
-            <div class="meal-table-wrapper">
+
+            <div class="table-responsive">
+
                 <table class="meal-table">
+
                     <thead>
                         <tr>
+                            <th class="checkbox-column">
+                                <input type="checkbox"
+                                       id="selectAllMealItems"
+                                       class="meal-checkbox"
+                                       aria-label="Select all meal items">
+                            </th>
+
                             <th>#</th>
                             <th>Meal Item</th>
                             <th>Category</th>
                             <th>Current Stock</th>
                             <th>Minimum Stock</th>
                             <th>Status</th>
-                            <th class="actions-heading">Actions</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
- 
+
                     <tbody>
+
                         @forelse($itemsCollection as $item)
+
                             @php
                                 $currentStock = (float) ($item->current_stock ?? 0);
                                 $minimumStock = (float) ($item->minimum_stock ?? 0);
-                                $isLowStock   = $currentStock <= $minimumStock;
-                                $isActive     = $item->status === 'active';
+
+                                $isLowStock = $currentStock <= $minimumStock;
+                                $isActive = $item->status === 'active';
+
+                                $recordNumber = isset($items)
+                                    && method_exists($items, 'firstItem')
+                                    ? $items->firstItem() + $loop->index
+                                    : $loop->iteration;
                             @endphp
- 
+
                             <tr>
+
+                                {{-- SELECT RECORD --}}
+                                <td class="checkbox-column">
+
+                                    <input type="checkbox"
+                                           name="item_ids[]"
+                                           value="{{ $item->id }}"
+                                           class="meal-checkbox meal-item-checkbox"
+                                           form="bulkDeleteMealItemsForm"
+                                           aria-label="Select {{ $item->item_name }}">
+
+                                </td>
+
+                                {{-- NUMBER --}}
                                 <td>
                                     <span class="record-number">
-                                        @if(isset($items) && method_exists($items, 'firstItem'))
-                                            {{ $items->firstItem() + $loop->index }}
-                                        @else
-                                            {{ $loop->iteration }}
-                                        @endif
+                                        {{ $recordNumber }}
                                     </span>
                                 </td>
- 
+
+                                {{-- ITEM NAME --}}
                                 <td>
+
                                     <div class="meal-info">
-                                        <div class="meal-mini-icon">
+
+                                        <div class="meal-item-icon">
                                             <i class="fas fa-bowl-food"></i>
                                         </div>
- 
-                                        <div class="meal-details">
-                                            <div class="meal-name">
+
+                                        <div class="meal-item-details">
+
+                                            <strong>
                                                 {{ $item->item_name }}
-                                            </div>
- 
-                                            <div class="meal-type">
+                                            </strong>
+
+                                            <span>
                                                 <i class="fas fa-scale-balanced"></i>
                                                 {{ $item->unit ?: 'Unit not specified' }}
-                                            </div>
+                                            </span>
+
                                         </div>
+
                                     </div>
+
                                 </td>
- 
+
+                                {{-- CATEGORY --}}
                                 <td>
+
                                     @if($item->category)
                                         <span class="category-badge">
                                             <i class="fas fa-tag"></i>
                                             {{ $item->category }}
                                         </span>
                                     @else
-                                        <span class="diary-muted">—</span>
+                                        <span class="muted-text">—</span>
                                     @endif
+
                                 </td>
- 
+
+                                {{-- CURRENT STOCK --}}
                                 <td>
+
                                     <div class="stock-value">
-                                        <strong class="{{ $isLowStock ? 'low' : 'normal' }}">
+                                        <strong class="{{ $isLowStock ? 'stock-low' : 'stock-normal' }}">
                                             {{ number_format($currentStock, 2) }}
                                         </strong>
+
                                         <span>{{ $item->unit }}</span>
                                     </div>
- 
+
                                     @if($isLowStock)
-                                        <div class="low-stock-label">
+                                        <span class="low-stock-label">
                                             <i class="fas fa-triangle-exclamation"></i>
                                             Low Stock
-                                        </div>
+                                        </span>
                                     @endif
+
                                 </td>
- 
+
+                                {{-- MINIMUM STOCK --}}
                                 <td>
                                     <span class="minimum-stock">
                                         {{ number_format($minimumStock, 2) }}
                                         {{ $item->unit }}
                                     </span>
                                 </td>
- 
+
+                                {{-- STATUS --}}
                                 <td>
-                                    <span class="status-badge {{ $isActive ? 'active' : 'inactive' }}">
-                                        <span class="status-dot"></span>
+
+                                    <span class="meal-status {{ $isActive ? 'active' : 'inactive' }}">
+                                        <span></span>
                                         {{ $isActive ? 'Active' : 'Inactive' }}
                                     </span>
+
                                 </td>
- 
+
+                                {{-- ACTIONS --}}
                                 <td>
-                                    <div class="meal-actions">
- 
-                                        {{-- EDIT AND DELETE ONLY: NO STOCK IN / OUT BUTTON --}}
-                                        <a
-                                            href="{{ route('admin.meal.items.edit', $item) }}"
-                                            class="game-action-btn edit"
-                                            title="Edit Meal Item"
-                                            aria-label="Edit {{ $item->item_name }}">
+
+                                    <div class="meal-row-actions">
+
+                                        <a href="{{ route('admin.meal.items.edit', $item) }}"
+                                           class="meal-action-btn edit"
+                                           title="Edit Meal Item">
+
                                             <i class="fas fa-pen"></i>
+
                                         </a>
- 
-                                        <form
-                                            method="POST"
-                                            action="{{ route('admin.meal.items.destroy', $item) }}"
-                                            onsubmit="return confirm('Are you sure you want to delete this meal item?');">
+
+                                        <form method="POST"
+                                              action="{{ route('admin.meal.items.destroy', $item) }}"
+                                              onsubmit="return confirm('Are you sure you want to delete this meal item?')">
+
                                             @csrf
                                             @method('DELETE')
- 
-                                            <button
-                                                type="submit"
-                                                class="game-action-btn delete"
-                                                title="Delete Meal Item"
-                                                aria-label="Delete {{ $item->item_name }}">
+
+                                            <button type="submit"
+                                                    class="meal-action-btn delete"
+                                                    title="Delete Meal Item">
+
                                                 <i class="fas fa-trash-alt"></i>
+
                                             </button>
+
                                         </form>
- 
+
                                     </div>
+
                                 </td>
+
                             </tr>
+
                         @empty
+
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
+
                                     <div class="meal-empty-state">
-                                        <div class="empty-state-icon">
+
+                                        <div class="empty-icon">
                                             <i class="fas fa-box-open"></i>
                                         </div>
- 
+
                                         <h4>No Meal Items Found</h4>
- 
+
                                         <p>
-                                            No meal items match your current search
-                                            or filters.
+                                            No inventory records match your current
+                                            search or filters.
                                         </p>
- 
-                                        <div class="empty-state-actions">
+
+                                        <div class="empty-actions">
+
                                             @if($hasFilters)
                                                 <a href="{{ route('admin.meal.items.index') }}"
-                                                   class="diary-reset-btn">
+                                                   class="meal-outline-btn">
                                                     <i class="fas fa-rotate-left"></i>
                                                     Clear Filters
                                                 </a>
                                             @endif
- 
-                                            <a href="{{ route('admin.meal.items.create') }}">
-                                               class="diary-primary-btn">
+
+                                            <a href="{{ route('admin.meal.items.create') }}"
+                                               class="meal-primary-btn">
                                                 <i class="fas fa-plus"></i>
                                                 Add Meal Item
                                             </a>
+
                                         </div>
+
                                     </div>
+
                                 </td>
                             </tr>
+
                         @endforelse
+
                     </tbody>
+
                 </table>
+
             </div>
- 
+
             {{-- PAGINATION --}}
             @if(isset($items) && method_exists($items, 'hasPages') && $items->hasPages())
+
                 <div class="meal-pagination">
+
                     <div class="pagination-info">
                         Showing
                         <strong>{{ $items->firstItem() }}</strong>
@@ -505,57 +592,68 @@
                         <strong>{{ $items->total() }}</strong>
                         items
                     </div>
- 
+
                     <div>
                         {{ $items->withQueryString()->onEachSide(1)->links() }}
                     </div>
+
                 </div>
+
             @endif
- 
-            {{-- FOOTER --}}
+
             @if($totalItems > 0)
-                <div class="meal-card-footer">
-                    <div>
-                        Showing
-                        <strong>{{ $itemsCollection->count() }}</strong>
+
+                <div class="table-footer">
+
+                    <span>
+                        Showing <strong>{{ $itemsCollection->count() }}</strong>
                         item(s) on this page
-                    </div>
- 
-                    <div class="footer-status">
+                    </span>
+
+                    <span class="footer-success">
                         <i class="fas fa-circle-check"></i>
                         Inventory loaded successfully
-                    </div>
+                    </span>
+
                 </div>
+
             @endif
- 
+
         </section>
- 
-        {{-- RECENT STOCK MOVEMENTS: HISTORY ONLY --}}
+
+        {{-- RECENT STOCK MOVEMENTS --}}
         @if(isset($transactions))
-            <section class="meal-table-card meal-movements-card">
- 
-                <div class="meal-panel-header">
-                    <div class="panel-title-wrap">
-                        <div class="panel-title-icon">
+
+            <section class="meal-card movements-card">
+
+                <div class="table-heading">
+
+                    <div class="table-heading-main">
+
+                        <div class="heading-icon">
                             <i class="fas fa-clock-rotate-left"></i>
                         </div>
- 
+
                         <div>
                             <div class="section-eyebrow">TRANSACTION HISTORY</div>
                             <h3>Recent Stock Movements</h3>
-                            <p>Review previously recorded stock-in and stock-out transactions.</p>
+                            <p>Review stock-in and stock-out transactions.</p>
                         </div>
+
                     </div>
- 
+
                     <a href="{{ route('admin.meal.items.stock.index') }}"
-                       class="diary-reset-btn">
+                       class="meal-outline-btn">
                         View All
                         <i class="fas fa-arrow-right"></i>
                     </a>
+
                 </div>
- 
-                <div class="meal-table-wrapper">
+
+                <div class="table-responsive">
+
                     <table class="meal-table movements-table">
+
                         <thead>
                             <tr>
                                 <th>Meal Item</th>
@@ -565,101 +663,136 @@
                                 <th>Supplier / Reason</th>
                             </tr>
                         </thead>
- 
+
                         <tbody>
+
                             @forelse($transactions as $transaction)
+
                                 <tr>
+
                                     <td>
+
                                         <div class="meal-info">
-                                            <div class="meal-mini-icon">
+
+                                            <div class="meal-item-icon">
                                                 <i class="fas fa-bowl-food"></i>
                                             </div>
- 
-                                            <div class="meal-details">
-                                                <div class="meal-name">
+
+                                            <div class="meal-item-details">
+
+                                                <strong>
                                                     {{ $transaction->mealItem->item_name ?? 'Unknown Item' }}
-                                                </div>
- 
-                                                <div class="meal-type">
+                                                </strong>
+
+                                                <span>
                                                     <i class="fas fa-tag"></i>
                                                     {{ $transaction->mealItem->category ?? 'Uncategorized' }}
-                                                </div>
+                                                </span>
+
                                             </div>
+
                                         </div>
+
                                     </td>
- 
+
                                     <td>
+
                                         @if($transaction->transaction_type === 'stock_in')
+
                                             <span class="transaction-badge stock-in">
                                                 <i class="fas fa-arrow-down"></i>
                                                 Stock In
                                             </span>
+
                                         @else
+
                                             <span class="transaction-badge stock-out">
                                                 <i class="fas fa-arrow-up"></i>
                                                 Stock Out
                                             </span>
+
                                         @endif
+
                                     </td>
- 
+
                                     <td>
+
                                         <div class="stock-value">
-                                            <strong class="normal">
+                                            <strong class="stock-normal">
                                                 {{ number_format((float) $transaction->quantity, 2) }}
                                             </strong>
+
                                             <span>{{ $transaction->unit }}</span>
                                         </div>
+
                                     </td>
- 
+
                                     <td>
+
                                         @if($transaction->transaction_date)
-                                            <div class="event-date">
+
+                                            <span class="movement-date">
                                                 <i class="far fa-calendar-alt"></i>
                                                 {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y') }}
-                                            </div>
+                                            </span>
+
                                         @else
-                                            <span class="diary-muted">—</span>
+
+                                            <span class="muted-text">—</span>
+
                                         @endif
+
                                     </td>
- 
+
                                     <td>
+
                                         @php
                                             $reference = $transaction->transaction_type === 'stock_in'
                                                 ? $transaction->supplier
                                                 : $transaction->reason;
                                         @endphp
- 
-                                        @if($reference)
-                                            <span class="reference-text">{{ $reference }}</span>
-                                        @else
-                                            <span class="diary-muted">—</span>
-                                        @endif
+
+                                        {{ $reference ?: '—' }}
+
                                     </td>
+
                                 </tr>
+
                             @empty
+
                                 <tr>
                                     <td colspan="5">
+
                                         <div class="meal-empty-state">
-                                            <div class="empty-state-icon">
+
+                                            <div class="empty-icon">
                                                 <i class="fas fa-clock-rotate-left"></i>
                                             </div>
- 
+
                                             <h4>No Stock Movements Yet</h4>
- 
+
                                             <p>
-                                                Recorded stock transactions will
-                                                appear here.
+                                                Stock transactions will appear here
+                                                after inventory movements are recorded.
                                             </p>
+
                                         </div>
+
                                     </td>
                                 </tr>
+
                             @endforelse
+
                         </tbody>
+
                     </table>
+
                 </div>
- 
+
                 @if(method_exists($transactions, 'hasPages') && $transactions->hasPages())
+
                     <div class="meal-pagination">
+
                         <div class="pagination-info">
                             Showing
                             <strong>{{ $transactions->firstItem() }}</strong>
@@ -669,27 +802,29 @@
                             <strong>{{ $transactions->total() }}</strong>
                             movements
                         </div>
- 
+
                         <div>
                             {{ $transactions->withQueryString()->onEachSide(1)->links() }}
                         </div>
+
                     </div>
+
                 @endif
- 
+
             </section>
+
         @endif
- 
+
     </div>
 </div>
- 
+
 <style>
 /* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM
-   MEAL ITEMS — INDEX PAGE
-   Same tokens, cards, buttons and layout as Sports Achievements.
-   Every selector is scoped under .meal-items-page.
+   SCHOOL DIARY DESIGN SYSTEM
+   MEAL ITEMS DASHBOARD
+   Warm Paper | Forest Ink | Cream | Earthy Accents
 ========================================================= */
- 
+
 .meal-items-page {
     --ink: #263b35;
     --ink-dark: #1d302b;
@@ -701,708 +836,597 @@
     --paper-bg: #f7f6f0;
     --chalk: #f4f0df;
     --blue: #2b5d8a;
-    --amber: #a87543;
     --green: #3a8060;
+    --amber: #a87543;
     --red: #bd5148;
-    --cyan: #527f79;
     --serif: Georgia, "Times New Roman", serif;
     --hand: "Segoe Print", "Comic Sans MS", cursive;
- 
+
     min-height: calc(100vh - 70px);
-    color: var(--text);
     background: var(--paper-bg);
+    color: var(--text);
     font-family: "Public Sans", Inter, Arial, sans-serif;
 }
- 
+
 .meal-items-page *,
 .meal-items-page *::before,
 .meal-items-page *::after {
     box-sizing: border-box;
 }
- 
-.meal-items-page a,
-.meal-items-page button {
-    transition: color .18s ease, background .18s ease,
-        border-color .18s ease, transform .18s ease,
-        box-shadow .18s ease;
-}
- 
+
 .meal-items-page .container-fluid {
     width: 100%;
     max-width: 1650px;
-    margin: 0 auto;
+    margin: auto;
 }
- 
-.meal-items-page .meal-hero,
-.meal-items-page .meal-filter-card,
-.meal-items-page .meal-table-card {
+
+.meal-items-page a,
+.meal-items-page button {
+    transition: all .2s ease;
+}
+
+.meal-items-page .meal-card,
+.meal-items-page .meal-hero {
     border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--paper);
 }
- 
+
 /* HERO */
- 
+
 .meal-items-page .meal-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(270px, 1fr);
-    position: relative;
+    grid-template-columns: 1.5fr 1fr;
     overflow: hidden;
     margin-bottom: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 18px rgba(38, 59, 53, .045);
+    box-shadow: 0 5px 18px rgba(38,59,53,.045);
 }
- 
-.meal-items-page .meal-hero::before {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    top: 0;
-    bottom: 0;
-    left: 34px;
-    width: 2px;
-    background: rgba(189, 81, 72, .35);
-}
- 
-.meal-items-page .meal-hero-content {
+
+.meal-items-page .hero-main {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 17px;
-    min-width: 0;
-    padding: 29px 28px 29px 56px;
+    padding: 32px 28px 32px 55px;
     background:
-        radial-gradient(ellipse at top left, rgba(244, 240, 223, .65), transparent 65%),
+        radial-gradient(ellipse at top left, rgba(244,240,223,.7), transparent 65%),
         var(--paper);
 }
- 
-.meal-items-page .meal-hero-icon {
+
+.meal-items-page .hero-main::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 33px;
+    width: 2px;
+    background: rgba(189,81,72,.35);
+}
+
+.meal-items-page .hero-icon,
+.meal-items-page .heading-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 54px;
-    width: 54px;
-    height: 54px;
+    flex: 0 0 45px;
+    width: 45px;
+    height: 45px;
     border: 1px solid #e6dfce;
-    border-radius: 12px;
+    border-radius: 10px;
     color: var(--ink);
     background: var(--chalk);
-    font-size: 22px;
+    font-size: 18px;
 }
- 
-.meal-items-page .meal-hero-text {
+
+.meal-items-page .hero-copy {
     min-width: 0;
 }
- 
-.meal-items-page .meal-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 7px;
+
+.meal-items-page .hero-breadcrumb,
+.meal-items-page .section-eyebrow {
+    margin-bottom: 6px;
     color: var(--amber);
     font-size: 9px;
     font-weight: 800;
-    letter-spacing: 1.3px;
+    letter-spacing: 1.2px;
 }
- 
-.meal-items-page .meal-breadcrumb span {
+
+.meal-items-page .hero-breadcrumb span {
+    padding: 0 6px;
     color: #b8b09e;
 }
- 
-.meal-items-page .meal-hero-text h2 {
-    margin: 0 0 7px;
+
+.meal-items-page .hero-copy h2 {
+    margin: 0 0 8px;
     color: var(--ink);
     font-family: var(--serif);
     font-size: 29px;
     font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -.45px;
 }
- 
-.meal-items-page .meal-hero-text p {
+
+.meal-items-page .hero-copy p {
     max-width: 540px;
     margin: 0;
     color: var(--muted);
     font-size: 13px;
-    line-height: 1.75;
+    line-height: 1.8;
 }
- 
-.meal-items-page .meal-hero-note {
+
+.meal-items-page .hero-note {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 7px;
+    gap: 8px;
     margin-top: 13px;
     color: var(--green);
     font-size: 11px;
     font-weight: 700;
 }
- 
-.meal-items-page .meal-hero-actions {
+
+.meal-items-page .hero-side {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    min-height: 245px;
+    min-height: 235px;
     padding: 25px;
     color: #e9efe2;
-    background:
-        radial-gradient(ellipse at 20% 0, rgba(255,255,255,.09), transparent 60%),
-        linear-gradient(135deg, #344f43 0%, #20352c 100%);
+    background: linear-gradient(135deg,#344f43,#20352c);
     text-align: center;
 }
- 
+
 .meal-items-page .hero-handwritten {
     color: var(--chalk);
     font-family: var(--hand);
-    font-size: 23px;
-    line-height: 1.3;
+    font-size: 22px;
 }
- 
-.meal-items-page .meal-hero-actions p {
-    max-width: 300px;
+
+.meal-items-page .hero-side p {
+    max-width: 310px;
     margin: 0;
     color: #d2dccf;
     font-size: 12px;
-    line-height: 1.75;
+    line-height: 1.8;
 }
- 
-/* LOCKED BUTTON STYLES */
- 
-.meal-items-page .diary-primary-btn {
+
+/* BUTTONS */
+
+.meal-items-page .meal-primary-btn,
+.meal-items-page .meal-outline-btn,
+.meal-items-page .meal-apply-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 40px;
-    padding: 10px 16px;
-    border: 1px solid var(--ink);
+    min-height: 39px;
+    padding: 9px 14px;
     border-radius: 7px;
-    color: #fff !important;
-    background: var(--ink);
     font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.2;
+    font-size: 11px;
+    font-weight: 800;
     text-decoration: none !important;
-    white-space: nowrap;
     cursor: pointer;
+    white-space: nowrap;
 }
- 
-.meal-items-page .diary-primary-btn:hover {
+
+.meal-items-page .meal-primary-btn {
+    border: 1px solid var(--ink);
+    color: white !important;
+    background: var(--ink);
+}
+
+.meal-items-page .meal-primary-btn:hover {
     transform: translateY(-2px);
     border-color: var(--ink-hover);
-    color: #fff !important;
     background: var(--ink-hover);
-    box-shadow: 0 5px 13px rgba(29, 48, 43, .14);
+    color: white !important;
 }
- 
-.meal-items-page .meal-hero-actions .hero-primary-btn {
-    border-color: #f1ead8;
+
+.meal-items-page .hero-side .meal-primary-btn {
+    border-color: var(--chalk);
     color: var(--ink) !important;
-    background: #f1ead8;
+    background: var(--chalk);
 }
- 
-.meal-items-page .meal-hero-actions .hero-primary-btn:hover {
-    border-color: #fff8e8;
-    color: var(--ink-dark) !important;
-    background: #fff8e8;
+
+.meal-items-page .meal-outline-btn {
+    border: 1px solid #deded2;
+    color: #59675d;
+    background: var(--paper);
 }
- 
+
+.meal-items-page .meal-outline-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: #f4f3e9;
+}
+
+.meal-items-page .meal-apply-btn {
+    border: 1px solid var(--ink);
+    color: white;
+    background: var(--ink);
+}
+
 /* ALERTS */
- 
-.meal-items-page .meal-success-alert,
-.meal-items-page .meal-error-alert {
+
+.meal-items-page .meal-alert {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 11px;
+    margin-bottom: 18px;
     padding: 13px 16px;
-    border-radius: 9px;
+    border: 1px solid;
+    border-radius: 8px;
     font-size: 12px;
     font-weight: 700;
 }
- 
-.meal-items-page .meal-success-alert {
-    border: 1px solid #cfe3d1;
+
+.meal-items-page .meal-alert.success {
+    border-color: #cfe3d1;
     color: #347849;
     background: #f1f8ef;
 }
- 
-.meal-items-page .meal-error-alert {
+
+.meal-items-page .meal-alert.error {
     align-items: flex-start;
-    border: 1px solid #f0d5ce;
+    border-color: #f0d5ce;
     color: #a84840;
     background: #fff4ef;
 }
- 
-.meal-items-page .meal-error-alert ul {
-    padding-left: 18px;
-    font-weight: 600;
-}
- 
-.meal-items-page .success-icon,
-.meal-items-page .error-icon {
-    display: inline-flex;
+
+.meal-items-page .meal-alert button {
+    display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 27px;
-    width: 27px;
-    height: 27px;
-    border-radius: 50%;
-}
- 
-.meal-items-page .success-icon { background: #dcefd9; }
-.meal-items-page .error-icon { background: #fbe0d8; }
- 
-.meal-items-page .alert-close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 30px;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     margin-left: auto;
     border: 0;
     border-radius: 6px;
-    color: #68746a;
+    color: inherit;
     background: transparent;
     cursor: pointer;
 }
- 
-.meal-items-page .alert-close:hover {
-    color: var(--ink);
-    background: #e5efdf;
-}
- 
-/* KPI CARDS */
- 
+
+/* KPI */
+
 .meal-items-page .meal-kpis {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4,minmax(0,1fr));
     gap: 18px;
     margin: 34px 0 25px;
 }
- 
+
 .meal-items-page .meal-kpi {
     --kpi-color: var(--blue);
- 
-    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 13px;
     min-width: 0;
-    padding: 22px 20px 16px;
+    padding: 21px 19px 15px;
     border: 1px solid var(--line);
     border-top: 4px solid var(--kpi-color);
     border-radius: 9px;
     background: var(--paper);
-    box-shadow: 0 4px 13px rgba(38, 59, 53, .045);
-    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 4px 13px rgba(38,59,53,.045);
 }
- 
-/* Folder tabs from the locked design */
- 
-.meal-items-page .meal-kpi::before {
-    position: absolute;
-    top: -25px;
-    left: 15px;
-    padding: 5px 12px 4px;
-    border-radius: 6px 6px 0 0;
-    color: #fff;
-    background: var(--kpi-color);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: .25px;
-}
- 
-.meal-items-page .meal-kpi.blue  { --kpi-color: #2b5d8a; }
+
+.meal-items-page .meal-kpi.blue { --kpi-color: #2b5d8a; }
 .meal-items-page .meal-kpi.green { --kpi-color: #3a8060; }
 .meal-items-page .meal-kpi.amber { --kpi-color: #a87543; }
-.meal-items-page .meal-kpi.red   { --kpi-color: #bd5148; }
- 
-.meal-items-page .meal-kpi.blue::before  { content: "Items"; }
-.meal-items-page .meal-kpi.green::before { content: "Active"; }
-.meal-items-page .meal-kpi.amber::before { content: "Low Stock"; }
-.meal-items-page .meal-kpi.red::before   { content: "Movements"; }
- 
+.meal-items-page .meal-kpi.red { --kpi-color: #bd5148; }
+
 .meal-items-page .meal-kpi:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 22px rgba(38, 59, 53, .09);
+    box-shadow: 0 9px 20px rgba(38,59,53,.08);
 }
- 
+
 .meal-items-page .kpi-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-}
- 
-.meal-items-page .kpi-label {
+    gap: 10px;
     color: var(--muted);
     font-size: 11px;
     font-weight: 700;
-    line-height: 1.5;
 }
- 
-.meal-items-page .meal-kpi .kpi-icon {
+
+.meal-items-page .kpi-top i {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 43px;
-    width: 43px;
-    height: 43px;
-    border: 1px solid color-mix(in srgb, var(--kpi-color) 14%, white);
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid color-mix(in srgb,var(--kpi-color) 15%,white);
+    border-radius: 9px;
     color: var(--kpi-color);
-    background: color-mix(in srgb, var(--kpi-color) 10%, white);
-    font-size: 17px;
+    background: color-mix(in srgb,var(--kpi-color) 10%,white);
+    font-size: 16px;
 }
- 
+
 .meal-items-page .kpi-value {
     color: var(--ink);
     font-family: var(--serif);
-    font-size: 35px;
+    font-size: 34px;
     font-weight: 700;
     line-height: 1.1;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
 }
- 
-.meal-items-page .kpi-caption {
+
+.meal-items-page .kpi-footer {
     display: flex;
     align-items: center;
-    gap: 8px;
-    min-height: 35px;
-    padding-top: 11px;
+    gap: 7px;
+    min-height: 34px;
+    padding-top: 10px;
     border-top: 1px dashed #d8d1bf;
     color: var(--muted);
-    font-size: 11px;
-    line-height: 1.6;
+    font-size: 10px;
 }
- 
-.meal-items-page .kpi-caption i {
-    flex: 0 0 auto;
+
+.meal-items-page .kpi-footer i {
     color: var(--kpi-color);
 }
- 
-/* FILTER PANEL */
- 
-.meal-items-page .meal-filter-card {
+
+/* GENERAL CARDS */
+
+.meal-items-page .meal-card {
     overflow: hidden;
     margin-bottom: 24px;
-    box-shadow: 0 4px 14px rgba(38, 59, 53, .035);
+    box-shadow: 0 4px 15px rgba(38,59,53,.035);
 }
- 
-.meal-items-page .filter-heading {
+
+.meal-items-page .section-heading,
+.meal-items-page .table-heading {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 19px 20px 16px;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 18px 20px;
     border-bottom: 1px dashed #d8d1bf;
-    background: #fffefa;
 }
- 
-.meal-items-page .filter-heading-icon,
-.meal-items-page .panel-title-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
-    border: 1px solid #e3e2d5;
-    border-radius: 9px;
-    color: var(--ink);
-    background: var(--chalk);
-    font-size: 14px;
+
+.meal-items-page .section-heading {
+    justify-content: flex-start;
 }
- 
-.meal-items-page .section-eyebrow {
-    margin-bottom: 4px;
-    color: var(--amber);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
- 
-.meal-items-page .filter-heading h3,
-.meal-items-page .panel-title-wrap h3 {
+
+.meal-items-page .heading-content h3,
+.meal-items-page .table-heading h3 {
     margin: 0;
     color: var(--ink);
     font-family: var(--serif);
     font-size: 18px;
     font-weight: 700;
 }
- 
-.meal-items-page .filter-heading p,
-.meal-items-page .panel-title-wrap p {
+
+.meal-items-page .heading-content p,
+.meal-items-page .table-heading p {
     margin: 5px 0 0;
     color: var(--muted);
     font-size: 11px;
-    line-height: 1.6;
 }
- 
-.meal-items-page .reset-heading-btn {
+
+.meal-items-page .heading-reset {
     margin-left: auto;
 }
- 
-.meal-items-page .meal-filter-card form {
-    padding: 19px 20px 20px;
+
+/* FILTERS */
+
+.meal-items-page .filter-card form {
+    padding: 19px 20px;
 }
- 
-.meal-items-page .meal-filter-grid {
+
+.meal-items-page .filter-grid {
     display: grid;
-    grid-template-columns:
-        minmax(200px, 2fr)
-        minmax(130px, 1fr)
-        auto;
+    grid-template-columns: minmax(200px,2fr) minmax(140px,1fr) auto;
     align-items: end;
-    gap: 12px;
+    gap: 13px;
 }
- 
-.meal-items-page .diary-filter-group {
+
+.meal-items-page .filter-group {
     min-width: 0;
 }
- 
-.meal-items-page .diary-filter-group label {
+
+.meal-items-page .filter-group label {
     display: block;
     margin-bottom: 7px;
     color: #68766d;
     font-size: 11px;
     font-weight: 700;
 }
- 
-.meal-items-page .diary-control,
-.meal-items-page .diary-search-input {
+
+.meal-items-page .meal-control,
+.meal-items-page .search-control {
     width: 100%;
-    min-width: 0;
     height: 41px;
     border: 1px solid #deded2;
     border-radius: 7px;
     outline: none;
     color: var(--text);
-    background: #fffefa;
+    background: var(--paper);
     font-family: inherit;
     font-size: 12px;
-    transition: border-color .18s ease, box-shadow .18s ease;
 }
- 
-.meal-items-page .diary-control {
+
+.meal-items-page .meal-control {
     padding: 0 10px;
 }
- 
-.meal-items-page .diary-control:focus,
-.meal-items-page .diary-search-input:focus-within {
-    border-color: #789382;
-    box-shadow: 0 0 0 3px rgba(58, 128, 96, .11);
-}
- 
-.meal-items-page .diary-search-input {
+
+.meal-items-page .search-control {
     display: flex;
     align-items: center;
     gap: 9px;
     padding: 0 11px;
 }
- 
-.meal-items-page .diary-search-input > i {
-    flex: 0 0 auto;
+
+.meal-items-page .search-control i {
     color: #929b8f;
-    font-size: 12px;
 }
- 
-.meal-items-page .diary-search-input input {
+
+.meal-items-page .search-control input {
     width: 100%;
-    min-width: 0;
     height: 100%;
     padding: 0;
     border: 0;
-    outline: 0;
+    outline: none;
     color: var(--text);
     background: transparent;
     font: inherit;
 }
- 
-.meal-items-page .diary-search-input input::placeholder {
-    color: #929b8f;
+
+.meal-items-page .meal-control:focus,
+.meal-items-page .search-control:focus-within {
+    border-color: #789382;
+    box-shadow: 0 0 0 3px rgba(58,128,96,.1);
 }
- 
-.meal-items-page .diary-filter-actions {
+
+.meal-items-page .filter-actions {
     display: flex;
-    align-items: center;
     gap: 8px;
 }
- 
-.meal-items-page .diary-apply-btn,
-.meal-items-page .diary-reset-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-height: 41px;
-    padding: 0 13px;
-    border-radius: 7px;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 800;
-    text-decoration: none !important;
-    white-space: nowrap;
-    cursor: pointer;
-}
- 
-.meal-items-page .diary-apply-btn {
-    border: 1px solid var(--ink);
-    color: #fff;
-    background: var(--ink);
-}
- 
-.meal-items-page .diary-apply-btn:hover {
-    transform: translateY(-1px);
-    border-color: var(--ink-hover);
-    color: #fff;
-    background: var(--ink-hover);
-}
- 
-.meal-items-page .diary-reset-btn {
-    border: 1px solid #deded2;
-    color: #59675d;
-    background: #fffefa;
-}
- 
-.meal-items-page .diary-reset-btn:hover {
-    border-color: #b7c4b7;
-    color: var(--ink);
-    background: #f5f4eb;
-}
- 
-/* ACTIVE FILTERS */
- 
-.meal-items-page .meal-active-filters {
+
+.meal-items-page .active-filters {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
     padding: 11px 20px;
     border-top: 1px solid #eeece3;
     background: #faf9f4;
 }
- 
-.meal-items-page .active-filter-items {
+
+.meal-items-page .active-filter-list {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 7px;
-    min-width: 0;
+    gap: 8px;
 }
- 
-.meal-items-page .active-filter-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-right: 3px;
+
+.meal-items-page .active-filter-title,
+.meal-items-page .filter-results {
     color: var(--muted);
     font-size: 10px;
     font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .3px;
 }
- 
-.meal-items-page .active-filter-label i {
-    color: var(--green);
-}
- 
+
 .meal-items-page .filter-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    max-width: 220px;
+    max-width: 230px;
     padding: 5px 9px;
-    overflow: hidden;
+    overflow-wrap: anywhere;
     border: 1px solid #e6dfc9;
     border-radius: 6px;
     color: #765e32;
     background: #faf5e7;
     font-size: 10px;
     font-weight: 700;
-    overflow-wrap: anywhere;
 }
- 
-.meal-items-page .filter-chip i {
-    color: var(--amber);
-}
- 
-.meal-items-page .filter-result-count {
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-}
- 
-/* RECORDS PANEL */
- 
-.meal-items-page .meal-table-card {
-    overflow: hidden;
-    margin-bottom: 24px;
-    box-shadow: 0 5px 17px rgba(38, 59, 53, .04);
-}
- 
-.meal-items-page .meal-panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 18px 21px;
-    border-bottom: 1px dashed #d8d1bf;
-    background: var(--paper);
-}
- 
-.meal-items-page .panel-title-wrap {
+
+/* TABLE HEADER */
+
+.meal-items-page .table-heading-main {
     display: flex;
     align-items: center;
     gap: 12px;
     min-width: 0;
 }
- 
-.meal-items-page .meal-record-count {
+
+.meal-items-page .table-heading-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.meal-items-page .record-counter {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 7px;
-    min-height: 31px;
+    min-height: 32px;
     padding: 6px 11px;
     border: 1px solid var(--line);
     border-radius: 20px;
     color: var(--muted);
     background: #faf9f4;
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
     white-space: nowrap;
 }
- 
-.meal-items-page .meal-record-count i,
-.meal-items-page .meal-record-count strong {
-    color: var(--ink);
+
+/* BULK DELETE */
+
+.meal-items-page .meal-bulk-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 8px 13px;
+    border: 1px solid #bd5148;
+    border-radius: 7px;
+    color: white;
+    background: #bd5148;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
 }
- 
+
+.meal-items-page .meal-bulk-delete-btn:hover {
+    transform: translateY(-2px);
+    border-color: #963b34;
+    background: #963b34;
+}
+
+.meal-items-page #selectedMealCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 20px;
+    color: #bd5148;
+    background: white;
+    font-size: 10px;
+}
+
+/* CHECKBOX */
+
+.meal-items-page .meal-checkbox {
+    width: 17px;
+    height: 17px;
+    accent-color: #bd5148;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.meal-items-page .checkbox-column {
+    width: 45px;
+    text-align: center !important;
+}
+
 /* TABLE */
- 
-.meal-items-page .meal-table-wrapper {
+
+.meal-items-page .table-responsive {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
- 
+
 .meal-items-page .meal-table {
     width: 100%;
     min-width: 1000px;
     margin: 0;
     border-collapse: collapse;
 }
- 
+
 .meal-items-page .movements-table {
     min-width: 820px;
 }
- 
+
 .meal-items-page .meal-table thead th {
     padding: 13px 14px;
     border-bottom: 1px solid #e5e3d8;
@@ -1412,10 +1436,10 @@
     font-weight: 800;
     text-align: left;
     text-transform: uppercase;
-    letter-spacing: .45px;
+    letter-spacing: .4px;
     white-space: nowrap;
 }
- 
+
 .meal-items-page .meal-table tbody td {
     padding: 13px 14px;
     border-bottom: 1px solid #eeece3;
@@ -1423,23 +1447,17 @@
     font-size: 12px;
     vertical-align: middle;
 }
- 
-.meal-items-page .meal-table tbody tr {
-    transition: background .18s ease;
-}
- 
+
 .meal-items-page .meal-table tbody tr:hover {
     background: #faf9f2;
 }
- 
+
 .meal-items-page .meal-table tbody tr:last-child td {
     border-bottom: none;
 }
- 
-.meal-items-page .meal-table .actions-heading {
-    text-align: right;
-}
- 
+
+/* ITEM INFORMATION */
+
 .meal-items-page .record-number {
     display: inline-flex;
     align-items: center;
@@ -1453,17 +1471,15 @@
     font-size: 11px;
     font-weight: 800;
 }
- 
-/* MEAL ITEM */
- 
+
 .meal-items-page .meal-info {
     display: flex;
     align-items: center;
     gap: 10px;
     min-width: 190px;
 }
- 
-.meal-items-page .meal-mini-icon {
+
+.meal-items-page .meal-item-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1476,13 +1492,16 @@
     background: var(--chalk);
     font-size: 14px;
 }
- 
-.meal-items-page .meal-details {
+
+.meal-items-page .meal-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     min-width: 0;
 }
- 
-.meal-items-page .meal-name {
-    max-width: 210px;
+
+.meal-items-page .meal-item-details strong {
+    max-width: 220px;
     overflow: hidden;
     color: var(--ink);
     font-size: 12px;
@@ -1490,22 +1509,17 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
- 
-.meal-items-page .meal-type {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 4px;
+
+.meal-items-page .meal-item-details span {
     color: #858e82;
     font-size: 10px;
 }
- 
-.meal-items-page .meal-type i {
+
+.meal-items-page .meal-item-details span i {
+    margin-right: 4px;
     color: var(--amber);
 }
- 
-/* CATEGORY */
- 
+
 .meal-items-page .category-badge {
     display: inline-flex;
     align-items: center;
@@ -1517,31 +1531,35 @@
     background: #f0f5f8;
     font-size: 10px;
     font-weight: 700;
-    white-space: nowrap;
 }
- 
+
 /* STOCK */
- 
+
 .meal-items-page .stock-value {
     display: flex;
     align-items: baseline;
     gap: 5px;
     white-space: nowrap;
 }
- 
+
 .meal-items-page .stock-value strong {
     font-size: 12px;
     font-weight: 800;
 }
- 
-.meal-items-page .stock-value strong.normal { color: var(--green); }
-.meal-items-page .stock-value strong.low    { color: var(--red); }
- 
+
+.meal-items-page .stock-normal {
+    color: var(--green);
+}
+
+.meal-items-page .stock-low {
+    color: var(--red);
+}
+
 .meal-items-page .stock-value span {
     color: var(--muted);
     font-size: 10px;
 }
- 
+
 .meal-items-page .low-stock-label {
     display: inline-flex;
     align-items: center;
@@ -1555,38 +1573,17 @@
     font-size: 9px;
     font-weight: 800;
 }
- 
+
 .meal-items-page .minimum-stock {
     color: #647168;
     font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
 }
- 
-/* DATE AND REFERENCE */
- 
-.meal-items-page .event-date {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text);
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-}
- 
-.meal-items-page .event-date i {
-    color: var(--blue);
-}
- 
-.meal-items-page .reference-text {
-    color: #647168;
-    font-size: 11px;
-}
- 
-/* STATUS AND TRANSACTION BADGES */
- 
-.meal-items-page .status-badge {
+
+/* STATUS */
+
+.meal-items-page .meal-status {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1594,36 +1591,86 @@
     border-radius: 20px;
     font-size: 10px;
     font-weight: 800;
-    white-space: nowrap;
 }
- 
-.meal-items-page .status-dot {
+
+.meal-items-page .meal-status > span {
     width: 6px;
     height: 6px;
-    flex: 0 0 6px;
     border-radius: 50%;
 }
- 
-.meal-items-page .status-badge.active {
+
+.meal-items-page .meal-status.active {
     border: 1px solid #cfe5d3;
     color: #347849;
     background: #edf7ed;
 }
- 
-.meal-items-page .status-badge.active .status-dot {
+
+.meal-items-page .meal-status.active > span {
     background: #3a8060;
 }
- 
-.meal-items-page .status-badge.inactive {
+
+.meal-items-page .meal-status.inactive {
     border: 1px solid #f0d5ce;
     color: #bd5148;
     background: #fff1ed;
 }
- 
-.meal-items-page .status-badge.inactive .status-dot {
+
+.meal-items-page .meal-status.inactive > span {
     background: #bd5148;
 }
- 
+
+.meal-items-page .muted-text {
+    color: #929a8e;
+}
+
+/* ACTION BUTTONS */
+
+.meal-items-page .meal-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.meal-items-page .meal-row-actions form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.meal-items-page .meal-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 33px;
+    height: 33px;
+    padding: 0;
+    border: 1px solid #dedfd4;
+    border-radius: 7px;
+    color: #68746a;
+    background: var(--paper);
+    font-size: 11px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.meal-items-page .meal-action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.meal-items-page .meal-action-btn.edit:hover {
+    border-color: #e6d0a8;
+    color: var(--amber);
+    background: #fcf7e9;
+}
+
+.meal-items-page .meal-action-btn.delete:hover {
+    border-color: #f0c9c2;
+    color: var(--red);
+    background: #fff1ed;
+}
+
+/* TRANSACTIONS */
+
 .meal-items-page .transaction-badge {
     display: inline-flex;
     align-items: center;
@@ -1632,150 +1679,107 @@
     border-radius: 6px;
     font-size: 10px;
     font-weight: 800;
-    white-space: nowrap;
 }
- 
+
 .meal-items-page .transaction-badge.stock-in {
     border: 1px solid #cfe5d3;
     color: #347849;
     background: #edf7ed;
 }
- 
+
 .meal-items-page .transaction-badge.stock-out {
     border: 1px solid #f0d5ce;
     color: #bd5148;
     background: #fff1ed;
 }
- 
-.meal-items-page .diary-muted {
-    color: #929a8e;
+
+.meal-items-page .movement-date {
+    color: var(--text);
     font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
 }
- 
-/* ACTION BUTTONS */
- 
-.meal-items-page .meal-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
+
+.meal-items-page .movement-date i {
+    margin-right: 5px;
+    color: var(--blue);
 }
- 
-.meal-items-page .meal-actions form {
-    display: inline-flex;
-    margin: 0;
-}
- 
-.meal-items-page .game-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 1px solid #dedfd4;
-    border-radius: 7px;
-    color: #68746a;
-    background: #fffefa;
-    font-size: 11px;
-    text-decoration: none !important;
-    cursor: pointer;
-}
- 
-.meal-items-page .game-action-btn:hover {
-    transform: translateY(-2px);
-}
- 
-.meal-items-page .game-action-btn.edit:hover {
-    border-color: #e6d0a8;
-    color: var(--amber);
-    background: #fcf7e9;
-}
- 
-.meal-items-page .game-action-btn.delete:hover {
-    border-color: #f0c9c2;
-    color: var(--red);
-    background: #fff1ed;
-}
- 
+
 /* EMPTY STATE */
- 
+
 .meal-items-page .meal-empty-state {
-    padding: 60px 20px;
+    padding: 55px 20px;
     text-align: center;
 }
- 
-.meal-items-page .empty-state-icon {
+
+.meal-items-page .empty-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 16px;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 15px;
     border: 1px solid #e5dfcc;
     border-radius: 14px;
     color: var(--ink);
     background: var(--chalk);
-    font-size: 27px;
+    font-size: 25px;
 }
- 
+
 .meal-items-page .meal-empty-state h4 {
     margin: 0 0 8px;
     color: var(--ink);
     font-family: var(--serif);
     font-size: 21px;
-    font-weight: 700;
 }
- 
+
 .meal-items-page .meal-empty-state p {
-    max-width: 450px;
-    margin: 0 auto 18px;
+    max-width: 440px;
+    margin: 0 auto 17px;
     color: var(--muted);
     font-size: 12px;
     line-height: 1.8;
 }
- 
-.meal-items-page .empty-state-actions {
+
+.meal-items-page .empty-actions {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
     gap: 9px;
 }
- 
+
 /* PAGINATION */
- 
+
 .meal-items-page .meal-pagination {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 15px;
-    padding: 16px 20px;
+    padding: 15px 20px;
     border-top: 1px dashed #d8d1bf;
-    background: var(--paper);
 }
- 
+
 .meal-items-page .pagination-info {
     color: var(--muted);
     font-size: 11px;
 }
- 
+
 .meal-items-page .pagination-info strong {
     color: var(--ink);
-    font-weight: 800;
 }
- 
+
 .meal-items-page .meal-pagination nav {
     margin: 0;
 }
- 
+
 .meal-items-page .meal-pagination .pagination {
     flex-wrap: wrap;
     gap: 4px;
     margin: 0;
 }
- 
+
 .meal-items-page .meal-pagination .page-link {
     display: inline-flex;
     align-items: center;
@@ -1790,259 +1794,212 @@
     font-size: 12px;
     box-shadow: none;
 }
- 
-.meal-items-page .meal-pagination .page-link:hover {
-    border-color: #bfcbbd;
-    color: var(--ink-hover);
-    background: #f5f4eb;
-}
- 
+
 .meal-items-page .meal-pagination .page-item.active .page-link {
     border-color: var(--ink);
-    color: #fff;
+    color: white;
     background: var(--ink);
 }
- 
-.meal-items-page .meal-pagination .page-item.disabled .page-link {
-    color: #a9aea5;
-    background: #f7f6f0;
-}
- 
+
 /* FOOTER */
- 
-.meal-items-page .meal-card-footer {
+
+.meal-items-page .table-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    min-height: 53px;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-height: 52px;
     padding: 12px 20px;
     border-top: 1px dashed #d8d1bf;
     color: var(--muted);
     background: #faf9f4;
     font-size: 11px;
 }
- 
-.meal-items-page .meal-card-footer strong {
+
+.meal-items-page .table-footer strong {
     color: var(--ink);
 }
- 
-.meal-items-page .footer-status {
+
+.meal-items-page .footer-success {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     color: #68766d;
     font-size: 10px;
 }
- 
-.meal-items-page .footer-status i {
+
+.meal-items-page .footer-success i {
     color: var(--green);
 }
- 
-/* TABLET */
- 
-@media (max-width: 1250px) {
+
+/* RESPONSIVE */
+
+@media(max-width:1200px) {
     .meal-items-page .meal-kpis {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2,minmax(0,1fr));
     }
- 
-    .meal-items-page .meal-filter-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    .meal-items-page .filter-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
     }
- 
-    .meal-items-page .diary-filter-actions {
+
+    .meal-items-page .filter-actions {
         grid-column: span 2;
     }
 }
- 
-@media (max-width: 900px) {
+
+@media(max-width:900px) {
     .meal-items-page .meal-hero {
         grid-template-columns: 1fr;
     }
- 
-    .meal-items-page .meal-hero-actions {
-        min-height: 165px;
+
+    .meal-items-page .hero-side {
+        min-height: 175px;
     }
 }
- 
-/* MOBILE */
- 
-@media (max-width: 650px) {
+
+@media(max-width:650px) {
     .meal-items-page .container-fluid {
         padding-top: 18px !important;
         padding-bottom: 18px !important;
     }
- 
-    .meal-items-page .meal-hero::before {
+
+    .meal-items-page .hero-main {
+        align-items: flex-start;
+        padding: 22px 15px 22px 43px;
+    }
+
+    .meal-items-page .hero-main::before {
         left: 22px;
     }
- 
-    .meal-items-page .meal-hero-content {
-        align-items: flex-start;
-        gap: 12px;
-        padding: 22px 16px 22px 42px;
+
+    .meal-items-page .hero-icon {
+        flex-basis: 42px;
+        width: 42px;
+        height: 42px;
     }
- 
-    .meal-items-page .meal-hero-icon {
-        flex-basis: 43px;
-        width: 43px;
-        height: 43px;
-        border-radius: 9px;
-        font-size: 18px;
-    }
- 
-    .meal-items-page .meal-hero-text h2 {
+
+    .meal-items-page .hero-copy h2 {
         font-size: 23px;
     }
- 
-    .meal-items-page .meal-hero-text p {
+
+    .meal-items-page .hero-copy p {
         font-size: 12px;
     }
- 
-    .meal-items-page .meal-hero-note {
-        align-items: flex-start;
-        font-size: 10px;
-    }
- 
-    .meal-items-page .meal-hero-actions {
-        min-height: 155px;
-        padding: 20px;
-    }
- 
+
     .meal-items-page .meal-kpis {
         gap: 15px;
         margin-top: 30px;
     }
- 
+
     .meal-items-page .meal-kpi {
-        padding: 20px 16px 15px;
+        padding: 18px 14px 14px;
     }
- 
+
     .meal-items-page .kpi-value {
-        font-size: 30px;
+        font-size: 29px;
     }
- 
-    .meal-items-page .filter-heading {
+
+    .meal-items-page .section-heading,
+    .meal-items-page .table-heading {
         align-items: flex-start;
         flex-wrap: wrap;
-        padding: 16px;
+        padding: 15px;
     }
- 
-    .meal-items-page .filter-heading h3 {
+
+    .meal-items-page .heading-content h3,
+    .meal-items-page .table-heading h3 {
         font-size: 16px;
     }
- 
-    .meal-items-page .reset-heading-btn {
+
+    .meal-items-page .heading-reset {
         margin-left: 0;
     }
- 
-    .meal-items-page .meal-filter-card form {
+
+    .meal-items-page .filter-card form {
         padding: 15px;
     }
- 
-    .meal-items-page .meal-filter-grid {
+
+    .meal-items-page .filter-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
     }
- 
-    .meal-items-page .diary-filter-actions {
+
+    .meal-items-page .filter-actions {
         grid-column: auto;
     }
- 
-    .meal-items-page .diary-filter-actions > * {
+
+    .meal-items-page .filter-actions > * {
         flex: 1;
     }
- 
-    .meal-items-page .meal-active-filters {
+
+    .meal-items-page .table-heading-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .meal-items-page .active-filters {
         align-items: flex-start;
         flex-direction: column;
-        padding: 11px 15px;
+        padding: 12px 15px;
     }
- 
-    .meal-items-page .filter-result-count {
-        white-space: normal;
-    }
- 
-    .meal-items-page .meal-panel-header {
-        align-items: flex-start;
-        padding: 15px;
-    }
- 
-    .meal-items-page .panel-title-wrap h3 {
-        font-size: 16px;
-    }
- 
-    .meal-items-page .meal-record-count {
-        gap: 5px;
-        padding: 5px 7px;
-    }
- 
+
     .meal-items-page .meal-pagination {
         align-items: flex-start;
         flex-direction: column;
         padding: 14px 15px;
     }
- 
-    .meal-items-page .meal-card-footer {
+
+    .meal-items-page .table-footer {
         align-items: flex-start;
         flex-direction: column;
         padding: 13px 15px;
     }
 }
- 
-@media (max-width: 400px) {
+
+@media(max-width:400px) {
     .meal-items-page .meal-kpis {
         grid-template-columns: 1fr;
     }
- 
-    .meal-items-page .meal-panel-header {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
- 
-    .meal-items-page .panel-title-icon {
-        flex-basis: 34px;
-        width: 34px;
-        height: 34px;
-    }
- 
-    .meal-items-page .diary-filter-actions {
+
+    .meal-items-page .table-heading-actions {
         align-items: stretch;
         flex-direction: column;
     }
- 
-    .meal-items-page .diary-apply-btn,
-    .meal-items-page .diary-reset-btn {
+
+    .meal-items-page .record-counter,
+    .meal-items-page .meal-bulk-delete-btn {
+        justify-content: center;
         width: 100%;
     }
- 
-    .meal-items-page .active-filter-items {
-        align-items: flex-start;
-    }
- 
-    .meal-items-page .filter-chip {
-        max-width: 100%;
-    }
- 
-    .meal-items-page .empty-state-actions {
+
+    .meal-items-page .filter-actions {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .meal-items-page .filter-actions > * {
         width: 100%;
     }
- 
-    .meal-items-page .empty-state-actions > a {
+
+    .meal-items-page .empty-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .meal-items-page .empty-actions > * {
         width: 100%;
     }
 }
- 
+
 /* ACCESSIBILITY */
- 
+
 .meal-items-page :focus-visible {
-    outline: 3px solid rgba(82, 127, 121, .45);
+    outline: 3px solid rgba(82,127,121,.45);
     outline-offset: 3px;
 }
- 
-@media (prefers-reduced-motion: reduce) {
+
+@media(prefers-reduced-motion:reduce) {
     .meal-items-page *,
     .meal-items-page *::before,
     .meal-items-page *::after {
@@ -2052,7 +2009,77 @@
     }
 }
 </style>
- 
-@endsection
- 
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const selectAll = document.getElementById('selectAllMealItems');
+
+    const checkboxes = Array.from(
+        document.querySelectorAll('.meal-item-checkbox')
+    );
+
+    const selectedCount = document.getElementById('selectedMealCount');
+
+    function updateMealSelection() {
+
+        const selected = checkboxes.filter(function (checkbox) {
+            return checkbox.checked;
+        });
+
+        if (selectedCount) {
+            selectedCount.textContent = selected.length;
+        }
+
+        if (selectAll) {
+
+            selectAll.checked =
+                checkboxes.length > 0 &&
+                selected.length === checkboxes.length;
+
+            selectAll.indeterminate =
+                selected.length > 0 &&
+                selected.length < checkboxes.length;
+        }
+    }
+
+    if (selectAll) {
+
+        selectAll.addEventListener('change', function () {
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+
+            updateMealSelection();
+        });
+    }
+
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', updateMealSelection);
+    });
+
+    updateMealSelection();
+
+});
+
+function confirmMealBulkDelete() {
+
+    const selected = document.querySelectorAll(
+        '.meal-item-checkbox:checked'
+    );
+
+    if (selected.length === 0) {
+        alert('Please select at least one meal item.');
+        return false;
+    }
+
+    return confirm(
+        'Are you sure you want to delete ' +
+        selected.length +
+        ' selected meal item(s)? This action cannot be undone.'
+    );
+}
+</script>
+
+@endsection

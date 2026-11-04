@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\FeeStructure;
 use App\Models\FeeStructureItem;
 use App\Models\FeeType;
-use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
+use App\Models\StudentFee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class FeeStructureController extends Controller
 {
@@ -20,166 +22,90 @@ class FeeStructureController extends Controller
     |--------------------------------------------------------------------------
     */
 
+    public function index(Request $request)
+    {
+        // UPDATE 1: check the filters first
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:100'],
+            'academic_year' => ['nullable', 'string', 'max:50'],
+            'class_id'      => ['nullable', 'integer'],
+            'status'        => ['nullable', Rule::in(['Active', 'Inactive'])],
+        ]);
 
-public function index(Request $request)
-{
-    $query = FeeStructure::with([
-        'schoolClass',
-        'section',
-        'items.feeType',
-    ]);
+        $query = FeeStructure::with([
+            'schoolClass',
+            'section',
+            'items.feeType',
+        ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEARCH
-    |--------------------------------------------------------------------------
-    */
+        // SEARCH
+        if ($request->filled('search')) {
 
-    if ($request->filled('search')) {
+            $search = trim($request->search);
 
-        $search = $request->search;
+            $query->where(function ($q) use ($search) {
 
-        $query->where(function ($q) use ($search) {
+                $q->where('structure_name', 'like', "%{$search}%")
+                    ->orWhere('academic_year', 'like', "%{$search}%")
+                    ->orWhereHas('schoolClass', function ($classQuery) use ($search) {
+                        $classQuery->where('class_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('section', function ($sectionQuery) use ($search) {
+                        $sectionQuery->where('section_name', 'like', "%{$search}%");
+                    });
+            });
+        }
 
-            $q->where('structure_name', 'like', "%{$search}%")
-                ->orWhere('academic_year', 'like', "%{$search}%")
-                ->orWhereHas('schoolClass', function ($classQuery) use ($search) {
+        // ACADEMIC YEAR FILTER
+        if ($request->filled('academic_year')) {
+            $query->where('academic_year', $request->academic_year);
+        }
 
-                    $classQuery->where(
-                        'class_name',
-                        'like',
-                        "%{$search}%"
-                    );
+        // CLASS FILTER
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $request->class_id);
+        }
 
-                })
-                ->orWhereHas('section', function ($sectionQuery) use ($search) {
+        // STATUS FILTER
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
-                    $sectionQuery->where(
-                        'section_name',
-                        'like',
-                        "%{$search}%"
-                    );
+        $feeStructures = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-                });
+        // FILTER DATA
+        $academicYears = Student::query()
+            ->whereNotNull('academic_year')
+            ->where('academic_year', '!=', '')
+            ->select('academic_year')
+            ->distinct()
+            ->orderByDesc('academic_year')
+            ->pluck('academic_year');
 
-        });
-    }
+        $classes = DB::table('classes')
+            ->orderBy('class_name')
+            ->get();
 
+        // DASHBOARD COUNTS
+        $totalStructures    = FeeStructure::count();
+        $activeStructures   = FeeStructure::where('status', 'Active')->count();
+        $inactiveStructures = FeeStructure::where('status', 'Inactive')->count();
 
-    /*
-    |--------------------------------------------------------------------------
-    | ACADEMIC YEAR FILTER
-    |--------------------------------------------------------------------------
-    */
-
-    if ($request->filled('academic_year')) {
-
-        $query->where(
-            'academic_year',
-            $request->academic_year
+        return view(
+            'admin.fees.fee-structures.index',
+            compact(
+                'feeStructures',
+                'academicYears',
+                'classes',
+                'totalStructures',
+                'activeStructures',
+                'inactiveStructures'
+            )
         );
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLASS FILTER
-    |--------------------------------------------------------------------------
-    */
-
-    if ($request->filled('class_id')) {
-
-        $query->where(
-            'class_id',
-            $request->class_id
-        );
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STATUS FILTER
-    |--------------------------------------------------------------------------
-    */
-
-    if ($request->filled('status')) {
-
-        $query->where(
-            'status',
-            $request->status
-        );
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PAGINATION
-    |--------------------------------------------------------------------------
-    */
-
-    $feeStructures = $query
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER DATA
-    |--------------------------------------------------------------------------
-    */
-
-    $academicYears = Student::query()
-        ->whereNotNull('academic_year')
-        ->where('academic_year', '!=', '')
-        ->select('academic_year')
-        ->distinct()
-        ->orderByDesc('academic_year')
-        ->pluck('academic_year');
-
-
-    $classes = DB::table('classes')
-        ->orderBy('class_name')
-        ->get();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD COUNTS
-    |--------------------------------------------------------------------------
-    */
-
-    $totalStructures = FeeStructure::count();
-
-    $activeStructures = FeeStructure::where(
-        'status',
-        'Active'
-    )->count();
-
-    $inactiveStructures = FeeStructure::where(
-        'status',
-        'Inactive'
-    )->count();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RETURN VIEW
-    |--------------------------------------------------------------------------
-    */
-
-    return view(
-        'admin.fees.fee-structures.index',
-        compact(
-            'feeStructures',
-            'academicYears',
-            'classes',
-            'totalStructures',
-            'activeStructures',
-            'inactiveStructures'
-        )
-    );
-}
 
     /*
     |--------------------------------------------------------------------------
@@ -191,11 +117,7 @@ public function index(Request $request)
     {
         $academicYears = Student::query()
             ->whereNotNull('academic_year')
-            ->where(
-                'academic_year',
-                '!=',
-                ''
-            )
+            ->where('academic_year', '!=', '')
             ->select('academic_year')
             ->distinct()
             ->orderByDesc('academic_year')
@@ -212,14 +134,9 @@ public function index(Request $request)
 
         return view(
             'admin.fees.fee-structures.create',
-            compact(
-                'academicYears',
-                'classes',
-                'feeTypes'
-            )
+            compact('academicYears', 'classes', 'feeTypes')
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -229,254 +146,33 @@ public function index(Request $request)
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'academic_year' => [
-                'required',
-                'string',
-                'max:50',
-            ],
+        $validated = $request->validate($this->structureRules());
 
-            'class_id' => [
-                'required',
-                'exists:classes,id',
-            ],
+        // UPDATE 2: extra checks (section, list sizes, duplicates)
+        $this->extraChecks($validated, null);
 
-            'section_id' => [
-                'nullable',
-                'exists:sections,id',
-            ],
-
-            'structure_name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'status' => [
-                'required',
-                'in:Active,Inactive',
-            ],
-
-            'fee_type_id' => [
-                'required',
-                'array',
-                'min:1',
-            ],
-
-            'fee_type_id.*' => [
-                'required',
-            ],
-
-            'manual_fee_name' => [
-                'nullable',
-                'array',
-            ],
-
-            'manual_fee_name.*' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'amount' => [
-                'required',
-                'array',
-                'min:1',
-            ],
-
-            'amount.*' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
-
-            'due_date' => [
-                'nullable',
-                'array',
-            ],
-
-            'due_date.*' => [
-                'nullable',
-                'date',
-            ],
-        ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Section Belongs To Selected Class
-        |--------------------------------------------------------------------------
-        */
-
-        if (!empty($validated['section_id'])) {
-
-            $sectionExists = Section::query()
-                ->where('id', $validated['section_id'])
-                ->where(
-                    'class_id',
-                    $validated['class_id']
-                )
-                ->exists();
-
-            if (!$sectionExists) {
-
-                return back()
-                    ->withErrors([
-                        'section_id' =>
-                            'The selected section does not belong to the selected class.',
-                    ])
-                    ->withInput();
-            }
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Save Everything In Transaction
-        |--------------------------------------------------------------------------
-        */
-
-        DB::transaction(function () use ($validated) {
+        $feeStructure = DB::transaction(function () use ($validated) {
 
             $feeStructure = FeeStructure::create([
-                'academic_year' =>
-                    $validated['academic_year'],
-
-                'class_id' =>
-                    $validated['class_id'],
-
-                'section_id' =>
-                    $validated['section_id'] ?? null,
-
-                'structure_name' =>
-                    $validated['structure_name'],
-
-                'status' =>
-                    $validated['status'],
+                'academic_year'  => $validated['academic_year'],
+                'class_id'       => $validated['class_id'],
+                'section_id'     => $validated['section_id'] ?? null,
+                'structure_name' => $validated['structure_name'],
+                'status'         => $validated['status'],
             ]);
 
+            $this->saveItems($feeStructure, $validated);
 
-            $feeTypeIds =
-                $validated['fee_type_id'];
-
-            $manualFeeNames =
-                $validated['manual_fee_name'] ?? [];
-
-            $amounts =
-                $validated['amount'];
-
-            $dueDates =
-                $validated['due_date'] ?? [];
-
-
-            foreach ($feeTypeIds as $index => $feeTypeId) {
-
-                $amount =
-                    (float) ($amounts[$index] ?? 0);
-
-                $dueDate =
-                    $dueDates[$index] ?? null;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | MANUAL / CUSTOM FEE
-                |--------------------------------------------------------------------------
-                */
-
-                if ($feeTypeId === 'manual') {
-
-                    $manualName =
-                        trim(
-                            $manualFeeNames[$index] ?? ''
-                        );
-
-
-                    if ($manualName === '') {
-
-                        throw new \Exception(
-                            'Manual fee name is required.'
-                        );
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Create a Fee Type automatically
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $feeType = FeeType::create([
-                        'name' => $manualName,
-                        'category' => 'Other',
-                        'frequency' => 'One Time',
-                        'amount' => $amount,
-                        'description' =>
-                            'Manually created fee type.',
-                        'status' => 'Active',
-                    ]);
-
-                    $feeTypeId =
-                        $feeType->id;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | EXISTING FEE TYPE
-                |--------------------------------------------------------------------------
-                */
-
-                else {
-
-                    $feeTypeExists =
-                        FeeType::where(
-                            'id',
-                            $feeTypeId
-                        )->exists();
-
-                    if (!$feeTypeExists) {
-
-                        throw new \Exception(
-                            'Selected fee type does not exist.'
-                        );
-                    }
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Save Fee Structure Item
-                |--------------------------------------------------------------------------
-                */
-
-                FeeStructureItem::create([
-                    'fee_structure_id' =>
-                        $feeStructure->id,
-
-                    'fee_type_id' =>
-                        $feeTypeId,
-
-                    'amount' =>
-                        $amount,
-
-                    'due_date' =>
-                        $dueDate,
-                ]);
-            }
+            return $feeStructure;
         });
 
+        // UPDATE 3: write a log entry for fee amounts
+        $this->logChange($feeStructure, 'Fee structure created', $validated);
 
         return redirect()
-            ->route(
-                'admin.fees.fee-structures.index'
-            )
-            ->with(
-                'success',
-                'Fee structure created successfully.'
-            );
+            ->route('admin.fees.fee-structures.index')
+            ->with('success', 'Fee structure created successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -498,7 +194,6 @@ public function index(Request $request)
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | EDIT
@@ -515,11 +210,7 @@ public function index(Request $request)
 
         $academicYears = Student::query()
             ->whereNotNull('academic_year')
-            ->where(
-                'academic_year',
-                '!=',
-                ''
-            )
+            ->where('academic_year', '!=', '')
             ->select('academic_year')
             ->distinct()
             ->orderByDesc('academic_year')
@@ -536,15 +227,9 @@ public function index(Request $request)
 
         return view(
             'admin.fees.fee-structures.edit',
-            compact(
-                'feeStructure',
-                'academicYears',
-                'classes',
-                'feeTypes'
-            )
+            compact('feeStructure', 'academicYears', 'classes', 'feeTypes')
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -552,222 +237,57 @@ public function index(Request $request)
     |--------------------------------------------------------------------------
     */
 
-    public function update(
-        Request $request,
-        FeeStructure $feeStructure
-    ) {
-        $validated = $request->validate([
-            'academic_year' => [
-                'required',
-                'string',
-                'max:50',
-            ],
+    public function update(Request $request, FeeStructure $feeStructure)
+    {
+        // UPDATE 4: already assigned to students? Only name + status can change.
+        $alreadyAssigned = StudentFee::where('fee_structure_id', $feeStructure->id)
+            ->exists();
 
-            'class_id' => [
-                'required',
-                'exists:classes,id',
-            ],
+        if ($alreadyAssigned) {
 
-            'section_id' => [
-                'nullable',
-                'exists:sections,id',
-            ],
-
-            'structure_name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'status' => [
-                'required',
-                'in:Active,Inactive',
-            ],
-
-            'fee_type_id' => [
-                'required',
-                'array',
-                'min:1',
-            ],
-
-            'fee_type_id.*' => [
-                'required',
-            ],
-
-            'manual_fee_name' => [
-                'nullable',
-                'array',
-            ],
-
-            'manual_fee_name.*' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'amount' => [
-                'required',
-                'array',
-                'min:1',
-            ],
-
-            'amount.*' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
-
-            'due_date' => [
-                'nullable',
-                'array',
-            ],
-
-            'due_date.*' => [
-                'nullable',
-                'date',
-            ],
-        ]);
-
-
-        if (!empty($validated['section_id'])) {
-
-            $sectionExists = Section::query()
-                ->where(
-                    'id',
-                    $validated['section_id']
-                )
-                ->where(
-                    'class_id',
-                    $validated['class_id']
-                )
-                ->exists();
-
-            if (!$sectionExists) {
-
-                return back()
-                    ->withErrors([
-                        'section_id' =>
-                            'The selected section does not belong to the selected class.',
-                    ])
-                    ->withInput();
-            }
-        }
-
-
-        DB::transaction(function () use (
-            $validated,
-            $feeStructure
-        ) {
-
-            $feeStructure->update([
-                'academic_year' =>
-                    $validated['academic_year'],
-
-                'class_id' =>
-                    $validated['class_id'],
-
-                'section_id' =>
-                    $validated['section_id'] ?? null,
-
-                'structure_name' =>
-                    $validated['structure_name'],
-
-                'status' =>
-                    $validated['status'],
+            $data = $request->validate([
+                'structure_name' => ['required', 'string', 'max:255'],
+                'status'         => ['required', Rule::in(['Active', 'Inactive'])],
             ]);
 
+            $feeStructure->update($data);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Remove Old Items
-            |--------------------------------------------------------------------------
-            */
+            $this->logChange($feeStructure, 'Fee structure name/status updated', $data);
 
-            $feeStructure
-                ->items()
-                ->delete();
+            return redirect()
+                ->route('admin.fees.fee-structures.show', $feeStructure)
+                ->with(
+                    'success',
+                    'This structure is already assigned to students, so only the name and status were updated. To change amounts, create a new fee structure.'
+                );
+        }
 
+        $validated = $request->validate($this->structureRules());
 
-            $feeTypeIds =
-                $validated['fee_type_id'];
+        $this->extraChecks($validated, $feeStructure->id);
 
-            $manualFeeNames =
-                $validated['manual_fee_name'] ?? [];
+        DB::transaction(function () use ($validated, $feeStructure) {
 
-            $amounts =
-                $validated['amount'];
+            $feeStructure->update([
+                'academic_year'  => $validated['academic_year'],
+                'class_id'       => $validated['class_id'],
+                'section_id'     => $validated['section_id'] ?? null,
+                'structure_name' => $validated['structure_name'],
+                'status'         => $validated['status'],
+            ]);
 
-            $dueDates =
-                $validated['due_date'] ?? [];
+            // Remove old items, then save the new ones
+            $feeStructure->items()->delete();
 
-
-            foreach ($feeTypeIds as $index => $feeTypeId) {
-
-                $amount =
-                    (float) ($amounts[$index] ?? 0);
-
-                $dueDate =
-                    $dueDates[$index] ?? null;
-
-
-                if ($feeTypeId === 'manual') {
-
-                    $manualName =
-                        trim(
-                            $manualFeeNames[$index] ?? ''
-                        );
-
-                    if ($manualName === '') {
-
-                        throw new \Exception(
-                            'Manual fee name is required.'
-                        );
-                    }
-
-
-                    $feeType = FeeType::create([
-                        'name' => $manualName,
-                        'category' => 'Other',
-                        'frequency' => 'One Time',
-                        'amount' => $amount,
-                        'description' =>
-                            'Manually created fee type.',
-                        'status' => 'Active',
-                    ]);
-
-                    $feeTypeId =
-                        $feeType->id;
-                }
-
-
-                FeeStructureItem::create([
-                    'fee_structure_id' =>
-                        $feeStructure->id,
-
-                    'fee_type_id' =>
-                        $feeTypeId,
-
-                    'amount' =>
-                        $amount,
-
-                    'due_date' =>
-                        $dueDate,
-                ]);
-            }
+            $this->saveItems($feeStructure, $validated);
         });
 
+        $this->logChange($feeStructure, 'Fee structure updated', $validated);
 
         return redirect()
-            ->route(
-                'admin.fees.fee-structures.show',
-                $feeStructure
-            )
-            ->with(
-                'success',
-                'Fee structure updated successfully.'
-            );
+            ->route('admin.fees.fee-structures.show', $feeStructure)
+            ->with('success', 'Fee structure updated successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -775,21 +295,29 @@ public function index(Request $request)
     |--------------------------------------------------------------------------
     */
 
-    public function destroy(
-        FeeStructure $feeStructure
-    ) {
-        $feeStructure->delete();
+    public function destroy(FeeStructure $feeStructure)
+    {
+        // UPDATE 5: a structure used by students must never be deleted
+        if (StudentFee::where('fee_structure_id', $feeStructure->id)->exists()) {
+            return back()->with(
+                'error',
+                'This fee structure is assigned to students, so it cannot be deleted. You can set it to Inactive instead.'
+            );
+        }
+
+        $this->logChange($feeStructure, 'Fee structure deleted', [
+            'structure_name' => $feeStructure->structure_name,
+        ]);
+
+        DB::transaction(function () use ($feeStructure) {
+            $feeStructure->items()->delete();
+            $feeStructure->delete();
+        });
 
         return redirect()
-            ->route(
-                'admin.fees.fee-structures.index'
-            )
-            ->with(
-                'success',
-                'Fee structure deleted successfully.'
-            );
+            ->route('admin.fees.fee-structures.index')
+            ->with('success', 'Fee structure deleted successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -799,17 +327,200 @@ public function index(Request $request)
 
     public function sections($classId)
     {
+        $classId = (int) $classId;
+
         $sections = Section::query()
-            ->where(
-                'class_id',
-                $classId
-            )
+            ->where('class_id', $classId)
             ->orderBy('section_name')
-            ->get([
-                'id',
-                'section_name',
-            ]);
+            ->get(['id', 'section_name']);
 
         return response()->json($sections);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS (used by store + update)
+    |--------------------------------------------------------------------------
+    */
+
+    private function structureRules(): array
+    {
+        return [
+            'academic_year'  => ['required', 'string', 'max:50'],
+            'class_id'       => ['required', 'integer', 'exists:classes,id'],
+            'section_id'     => ['nullable', 'integer', 'exists:sections,id'],
+            'structure_name' => ['required', 'string', 'max:255'],
+            'status'         => ['required', Rule::in(['Active', 'Inactive'])],
+
+            'fee_type_id'   => ['required', 'array', 'min:1', 'max:30'],
+
+            // must be "manual" or a real fee type
+            'fee_type_id.*' => [
+                'required',
+                function ($attribute, $value, $fail) {
+
+                    if ($value === 'manual') {
+                        return;
+                    }
+
+                    if (
+                        !is_scalar($value) ||
+                        !ctype_digit((string) $value) ||
+                        !FeeType::whereKey((int) $value)->exists()
+                    ) {
+                        $fail('Selected fee type is not valid.');
+                    }
+                },
+            ],
+
+            'manual_fee_name'   => ['nullable', 'array'],
+            'manual_fee_name.*' => ['nullable', 'string', 'max:255'],
+
+            'amount'   => ['required', 'array', 'min:1', 'max:30'],
+            'amount.*' => ['required', 'numeric', 'min:0', 'max:9999999', 'decimal:0,2'],
+
+            'due_date'   => ['nullable', 'array'],
+            'due_date.*' => ['nullable', 'date_format:Y-m-d'],
+        ];
+    }
+
+    private function extraChecks(array $validated, ?int $ignoreId): void
+    {
+        // Section must belong to the selected class
+        if (!empty($validated['section_id'])) {
+
+            $sectionOk = Section::query()
+                ->where('id', $validated['section_id'])
+                ->where('class_id', $validated['class_id'])
+                ->exists();
+
+            if (!$sectionOk) {
+                throw ValidationException::withMessages([
+                    'section_id' => 'The selected section does not belong to the selected class.',
+                ]);
+            }
+        }
+
+        // Fee types and amounts must have the same number of rows
+        if (count($validated['fee_type_id']) !== count($validated['amount'])) {
+            throw ValidationException::withMessages([
+                'amount' => 'Every fee row needs an amount.',
+            ]);
+        }
+
+        // Same fee type cannot be added twice
+        $ids = array_filter(
+            $validated['fee_type_id'],
+            fn ($v) => $v !== 'manual'
+        );
+
+        if (count($ids) !== count(array_unique($ids))) {
+            throw ValidationException::withMessages([
+                'fee_type_id' => 'The same fee type is added more than once.',
+            ]);
+        }
+
+        // Manual rows need a name
+        foreach ($validated['fee_type_id'] as $index => $feeTypeId) {
+            if (
+                $feeTypeId === 'manual' &&
+                trim($validated['manual_fee_name'][$index] ?? '') === ''
+            ) {
+                throw ValidationException::withMessages([
+                    'manual_fee_name' => 'Manual fee name is required.',
+                ]);
+            }
+        }
+
+        // Same structure (year + class + section) cannot exist twice
+        $duplicate = FeeStructure::query()
+            ->where('academic_year', $validated['academic_year'])
+            ->where('class_id', $validated['class_id'])
+            ->where('section_id', $validated['section_id'] ?? null)
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->exists();
+
+        if ($duplicate) {
+            throw ValidationException::withMessages([
+                'structure_name' => 'A fee structure already exists for this year, class and section.',
+            ]);
+        }
+    }
+
+    private function saveItems(FeeStructure $feeStructure, array $validated): void
+    {
+        $manualNames = $validated['manual_fee_name'] ?? [];
+        $dueDates    = $validated['due_date'] ?? [];
+
+        foreach ($validated['fee_type_id'] as $index => $feeTypeId) {
+
+            $amount  = round((float) $validated['amount'][$index], 2);
+            $dueDate = $dueDates[$index] ?? null;
+
+            if ($feeTypeId === 'manual') {
+
+                $manualName = trim($manualNames[$index]);
+
+                // reuse an existing fee type with the same name
+                $feeType = FeeType::firstOrCreate(
+                    ['name' => $manualName],
+                    [
+                        'category'    => 'Other',
+                        'frequency'   => 'One Time',
+                        'amount'      => $amount,
+                        'description' => 'Manually created fee type.',
+                        'status'      => 'Active',
+                    ]
+                );
+
+                $feeTypeId = $feeType->id;
+            }
+
+            FeeStructureItem::create([
+                'fee_structure_id' => $feeStructure->id,
+                'fee_type_id'      => (int) $feeTypeId,
+                'amount'           => $amount,
+                'due_date'         => $dueDate ?: null,
+            ]);
+        }
+    }
+
+    private function logChange(FeeStructure $feeStructure, string $message, array $data): void
+    {
+        activity()
+            ->performedOn($feeStructure)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'structure_name' => $data['structure_name'] ?? $feeStructure->structure_name,
+                'academic_year'  => $data['academic_year'] ?? $feeStructure->academic_year,
+                'amounts'        => $data['amount'] ?? null,
+                'status'         => $data['status'] ?? $feeStructure->status,
+            ])
+            ->log($message);
+    }
+    /**
+ * Bulk delete multiple records.
+ */
+public function bulkDestroy(Request $request)
+{
+    $request->validate([
+        'ids'   => 'required|array|min:1',
+        'ids.*' => 'integer|exists:teachers,id',   // ← change table name
+    ]);
+
+    $count = Teacher::whereIn('id', $request->ids)->delete();  // ← change Model
+
+    return redirect()
+        ->route('admin.teachers.index')                          // ← change route
+        ->with('success', $count . ' teacher(s) deleted successfully.');
+}
+
+    public function getActivitylogOptions(): LogOptions
+{
+    return LogOptions::defaults()
+        ->logAll()
+        ->logOnlyDirty()
+        ->dontSubmitEmptyLogs();
+}
+
 }

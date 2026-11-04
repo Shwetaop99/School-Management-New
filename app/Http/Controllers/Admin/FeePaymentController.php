@@ -7,9 +7,20 @@ use App\Models\FeePayment;
 use App\Models\StudentFee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class FeePaymentController extends Controller
 {
+    // Allowed payment methods (one place, used everywhere)
+    private const METHODS = [
+        'Cash',
+        'UPI',
+        'Card',
+        'Bank Transfer',
+        'Cheque',
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | PAYMENT HISTORY
@@ -18,99 +29,51 @@ class FeePaymentController extends Controller
 
     public function index(Request $request)
     {
+        // UPDATE 1: check the filters first
+        $request->validate([
+            'search'         => ['nullable', 'string', 'max:100'],
+            'payment_method' => ['nullable', Rule::in(self::METHODS)],
+            'payment_date'   => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
         $query = FeePayment::with([
             'studentFee.student',
             'studentFee.feeStructure.schoolClass',
             'studentFee.feeStructure.section',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | SEARCH
-        |--------------------------------------------------------------------------
-        */
-
+        // SEARCH
         if ($request->filled('search')) {
 
             $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
 
-                $q->where(
-                    'receipt_number',
-                    'like',
-                    "%{$search}%"
-                )
+                $q->where('receipt_number', 'like', "%{$search}%")
+                    ->orWhere('transaction_reference', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'studentFee.student',
+                        function ($studentQuery) use ($search) {
 
-                ->orWhere(
-                    'transaction_reference',
-                    'like',
-                    "%{$search}%"
-                )
-
-                ->orWhereHas(
-                    'studentFee.student',
-                    function ($studentQuery) use ($search) {
-
-                        $studentQuery
-                            ->where(
-                                'student_id',
-                                'like',
-                                "%{$search}%"
-                            )
-                            ->orWhere(
-                                'first_name',
-                                'like',
-                                "%{$search}%"
-                            )
-                            ->orWhere(
-                                'middle_name',
-                                'like',
-                                "%{$search}%"
-                            )
-                            ->orWhere(
-                                'last_name',
-                                'like',
-                                "%{$search}%"
-                            );
-                    }
-                );
+                            $studentQuery
+                                ->where('student_id', 'like', "%{$search}%")
+                                ->orWhere('first_name', 'like', "%{$search}%")
+                                ->orWhere('middle_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        }
+                    );
             });
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PAYMENT METHOD FILTER
-        |--------------------------------------------------------------------------
-        */
-
+        // PAYMENT METHOD FILTER
         if ($request->filled('payment_method')) {
-
-            $query->where(
-                'payment_method',
-                $request->payment_method
-            );
+            $query->where('payment_method', $request->payment_method);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PAYMENT DATE FILTER
-        |--------------------------------------------------------------------------
-        */
-
+        // PAYMENT DATE FILTER
         if ($request->filled('payment_date')) {
-
-            $query->whereDate(
-                'payment_date',
-                $request->payment_date
-            );
+            $query->whereDate('payment_date', $request->payment_date);
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAYMENTS
-        |--------------------------------------------------------------------------
-        */
 
         $payments = $query
             ->latest('payment_date')
@@ -118,12 +81,7 @@ class FeePaymentController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        /*
-        |--------------------------------------------------------------------------
-        | SUMMARY
-        |--------------------------------------------------------------------------
-        */
-
+        // SUMMARY
         $totalPayments = FeePayment::count();
 
         $totalCollected = FeePayment::sum('amount');
@@ -133,10 +91,8 @@ class FeePaymentController extends Controller
             now()->toDateString()
         )->sum('amount');
 
-        $cashCollected = FeePayment::where(
-            'payment_method',
-            'Cash'
-        )->sum('amount');
+        $cashCollected = FeePayment::where('payment_method', 'Cash')
+            ->sum('amount');
 
         return view(
             'admin.fees.payment-history.index',
@@ -149,7 +105,6 @@ class FeePaymentController extends Controller
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -173,49 +128,32 @@ class FeePaymentController extends Controller
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | STORE PAYMENT
     |--------------------------------------------------------------------------
     */
 
-    public function store(
-        Request $request,
-        StudentFee $studentFee
-    ) {
-        $studentFee->load('payments');
-
-        /*
-        |--------------------------------------------------------------------------
-        | CURRENT BALANCE
-        |--------------------------------------------------------------------------
-        */
-
-        $balance = (float) $studentFee->balance_amount;
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDATION
-        |--------------------------------------------------------------------------
-        */
-
+    public function store(Request $request, StudentFee $studentFee)
+    {
+        // UPDATE 2: stronger checks (date, remarks, decimals)
         $validated = $request->validate([
             'amount' => [
                 'required',
                 'numeric',
                 'gt:0',
-                'lte:' . $balance,
+                'decimal:0,2',
             ],
 
             'payment_date' => [
                 'required',
-                'date',
+                'date_format:Y-m-d',
+                'before_or_equal:today',
             ],
 
             'payment_method' => [
                 'required',
-                'in:Cash,UPI,Card,Bank Transfer,Cheque',
+                Rule::in(self::METHODS),
             ],
 
             'transaction_reference' => [
@@ -227,30 +165,31 @@ class FeePaymentController extends Controller
             'remarks' => [
                 'nullable',
                 'string',
+                'max:500',
             ],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE PAYMENT + UPDATE STUDENT FEE
-        |--------------------------------------------------------------------------
-        */
+        DB::transaction(function () use ($validated, $studentFee) {
 
-        DB::transaction(function () use (
-            $validated,
-            $studentFee
-        ) {
+            // UPDATE 3: lock this fee row so nobody else can pay at the
+            // same moment. Then read the REAL balance again.
+            $fee = StudentFee::whereKey($studentFee->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-            $paymentAmount = (float) $validated['amount'];
+            $balance       = round((float) $fee->balance_amount, 2);
+            $paymentAmount = round((float) $validated['amount'], 2);
 
-            /*
-            |--------------------------------------------------------------------------
-            | GENERATE UNIQUE RECEIPT NUMBER
-            |--------------------------------------------------------------------------
-            */
+            // Amount can never be more than the balance
+            if ($paymentAmount > $balance) {
+                throw ValidationException::withMessages([
+                    'amount' => 'Amount cannot be more than the balance ('
+                        . number_format($balance, 2) . ').',
+                ]);
+            }
 
+            // Unique receipt number
             do {
-
                 $receiptNumber =
                     'REC-' .
                     now()->format('YmdHis') .
@@ -258,121 +197,38 @@ class FeePaymentController extends Controller
                     random_int(100, 999);
 
             } while (
-                FeePayment::where(
-                    'receipt_number',
-                    $receiptNumber
-                )->exists()
+                FeePayment::where('receipt_number', $receiptNumber)->exists()
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE PAYMENT
-            |--------------------------------------------------------------------------
-            */
-
+            // Create payment
             FeePayment::create([
-                'student_fee_id' =>
-                    $studentFee->id,
-
-                'receipt_number' =>
-                    $receiptNumber,
-
-                'amount' =>
-                    $paymentAmount,
-
-                'payment_date' =>
-                    $validated['payment_date'],
-
-                'payment_method' =>
-                    $validated['payment_method'],
-
-                'transaction_reference' =>
-                    $validated['transaction_reference']
-                    ?? null,
-
-                'remarks' =>
-                    $validated['remarks']
-                    ?? null,
+                'student_fee_id'        => $fee->id,
+                'receipt_number'        => $receiptNumber,
+                'amount'                => $paymentAmount,
+                'payment_date'          => $validated['payment_date'],
+                'payment_method'        => $validated['payment_method'],
+                'transaction_reference' => $validated['transaction_reference'] ?? null,
+                'remarks'               => $validated['remarks'] ?? null,
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE PAID AMOUNT
-            |--------------------------------------------------------------------------
-            */
+            // New amounts
+            $newPaidAmount = round((float) $fee->paid_amount + $paymentAmount, 2);
+            $newBalance    = round(max(0, $balance - $paymentAmount), 2);
 
-            $newPaidAmount =
-                (float) $studentFee->paid_amount
-                + $paymentAmount;
+            $newStatus = $newBalance <= 0 ? 'Paid' : 'Partial';
 
-            /*
-            |--------------------------------------------------------------------------
-            | CALCULATE NEW BALANCE
-            |--------------------------------------------------------------------------
-            */
-
-            $newBalance =
-                max(
-                    0,
-                    (float) $studentFee->balance_amount
-                    - $paymentAmount
-                );
-
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE STATUS
-            |--------------------------------------------------------------------------
-            */
-
-            if ($newBalance <= 0) {
-
-                $newStatus = 'Paid';
-
-            } elseif ($newPaidAmount > 0) {
-
-                $newStatus = 'Partial';
-
-            } else {
-
-                $newStatus = 'Pending';
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE STUDENT FEE
-            |--------------------------------------------------------------------------
-            */
-
-            $studentFee->update([
-
-                'paid_amount' =>
-                    $newPaidAmount,
-
-                'balance_amount' =>
-                    $newBalance,
-
-                'status' =>
-                    $newStatus,
+            // Update student fee
+            $fee->update([
+                'paid_amount'    => $newPaidAmount,
+                'balance_amount' => $newBalance,
+                'status'         => $newStatus,
             ]);
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
-
         return redirect()
-            ->route(
-                'admin.fees.student-fees.show',
-                $studentFee
-            )
-            ->with(
-                'success',
-                'Payment recorded successfully.'
-            );
+            ->route('admin.fees.student-fees.show', $studentFee)
+            ->with('success', 'Payment recorded successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -394,4 +250,8 @@ class FeePaymentController extends Controller
             compact('feePayment')
         );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

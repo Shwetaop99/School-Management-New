@@ -156,7 +156,7 @@
         </section>
 
         {{-- BOOKS TABLE --}}
-        <section class="library-table-card">
+        <section class="library-table-card" id="libraryPanel">
 
             <div class="library-panel-header">
                 <div class="panel-title-wrap">
@@ -171,12 +171,63 @@
                     </div>
                 </div>
 
-                <div class="library-record-count">
-                    <i class="fas fa-folder-open"></i>
-                    <strong>{{ $totalBooks }}</strong>
-                    {{ $totalBooks == 1 ? 'Book' : 'Books' }}
+                <div class="library-header-actions">
+                    <div class="library-record-count">
+                        <i class="fas fa-folder-open"></i>
+                        <strong>{{ $totalBooks }}</strong>
+                        {{ $totalBooks == 1 ? 'Book' : 'Books' }}
+                    </div>
+
+                    @if($books->count() > 0)
+                        <button type="button" class="bulk-btn" id="libEnterDeleteMode">
+                            <i class="fas fa-trash-can"></i>
+                            Bulk Delete
+                        </button>
+                    @endif
                 </div>
             </div>
+
+            {{-- DELETE MODE BAR --}}
+            <div class="bulk-bar" id="libDeleteBar">
+
+                <div class="bulk-left">
+                    <span class="bulk-mode-badge">
+                        <i class="fas fa-trash-can"></i>
+                        Delete Mode
+                    </span>
+
+                    <label class="bulk-select-all">
+                        <input type="checkbox"
+                               id="libSelectAllBar"
+                               aria-label="Select all books on this page">
+                        Select all on this page
+                    </label>
+
+                    <span>
+                        <span class="bulk-count" id="libSelectedCount">0</span>
+                        record(s) selected
+                    </span>
+                </div>
+
+                <div class="bulk-actions">
+                    <button type="button" class="bulk-cancel-btn" id="libCancelDeleteMode">
+                        <i class="fas fa-xmark"></i>
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            class="bulk-delete-btn"
+                            id="libDeleteSelected"
+                            disabled>
+                        <i class="fas fa-trash"></i>
+                        Delete Selected
+                    </button>
+                </div>
+
+            </div>
+
+            {{-- Security token used by bulk delete --}}
+            <input type="hidden" id="libCsrf" value="{{ csrf_token() }}">
 
             {{-- FILTERS --}}
             <form method="GET"
@@ -220,6 +271,11 @@
                 <table class="library-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="check-col">
+                                <input type="checkbox"
+                                       id="libSelectAllTable"
+                                       aria-label="Select all books on this page">
+                            </th>
                             <th scope="col">#</th>
                             <th scope="col">Book</th>
                             <th scope="col">ISBN</th>
@@ -238,6 +294,14 @@
                             @endphp
 
                             <tr>
+                                <td class="check-col">
+                                    <input type="checkbox"
+                                           class="lib-row-check"
+                                           value="{{ $book->id }}"
+                                           data-url="{{ route('admin.library.books.destroy', $book) }}"
+                                           aria-label="Select {{ $book->title }}">
+                                </td>
+
                                 <td>
                                     <span class="record-number">
                                         {{ $books->firstItem() + $loop->index }}
@@ -334,7 +398,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8">
+                                <td colspan="9">
                                     <div class="library-empty-state">
                                         <div class="empty-state-icon">
                                             <i class="fas fa-book-open"></i>
@@ -875,6 +939,14 @@
     line-height: 1.6;
 }
 
+.library-page .library-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 .library-page .library-record-count {
     display: inline-flex;
     align-items: center;
@@ -894,6 +966,157 @@
 .library-page .library-record-count i,
 .library-page .library-record-count strong {
     color: var(--ink);
+}
+
+/* BULK DELETE */
+
+.library-page .bulk-btn,
+.library-page .bulk-cancel-btn,
+.library-page .bulk-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.library-page .bulk-btn {
+    border-color: #efcdc6;
+    color: var(--red);
+    background: var(--paper);
+}
+
+.library-page .bulk-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--red);
+    color: #fff;
+    background: var(--red);
+    box-shadow: 0 5px 13px rgba(189, 81, 72, .2);
+}
+
+.library-page .bulk-cancel-btn {
+    border-color: var(--line);
+    color: var(--ink);
+    background: #fff;
+}
+
+.library-page .bulk-cancel-btn:hover {
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
+}
+
+.library-page .bulk-delete-btn {
+    border-color: var(--red);
+    color: #fff;
+    background: var(--red);
+}
+
+.library-page .bulk-delete-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: #a5423a;
+    background: #a5423a;
+}
+
+.library-page .bulk-delete-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.library-page .bulk-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 12px 21px;
+    border-bottom: 1px solid #f0d5ce;
+    background: #fff6f3;
+}
+
+.library-page .bulk-bar.is-active {
+    display: flex;
+}
+
+.library-page .bulk-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    color: #a5423a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.library-page .bulk-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    color: #fff;
+    background: var(--red);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+
+.library-page .bulk-select-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.library-page .bulk-count {
+    color: var(--red);
+    font-weight: 800;
+}
+
+.library-page .bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Checkbox column: hidden until delete mode */
+.library-page .check-col {
+    display: none;
+    width: 46px;
+    text-align: center !important;
+}
+
+.library-page .library-table-card.delete-mode .check-col {
+    display: table-cell;
+}
+
+.library-page .library-table input[type="checkbox"],
+.library-page .bulk-select-all input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--red);
+}
+
+.library-page .library-table tbody tr.is-selected,
+.library-page .library-table tbody tr.is-selected:hover {
+    background: #fff6f3;
+}
+
+/* Single-row delete is hidden while bulk mode is on */
+.library-page .library-table-card.delete-mode .game-action-btn.delete {
+    display: none;
 }
 
 /* FILTERS */
@@ -1428,6 +1651,7 @@
 
     .library-page .library-panel-header {
         align-items: flex-start;
+        flex-wrap: wrap;
         padding: 15px;
     }
 
@@ -1435,9 +1659,26 @@
         font-size: 16px;
     }
 
-    .library-page .library-record-count {
-        gap: 5px;
-        padding: 5px 7px;
+    .library-page .library-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .library-page .library-header-actions .bulk-btn {
+        flex: 1;
+    }
+
+    .library-page .bulk-bar {
+        padding: 12px 15px;
+    }
+
+    .library-page .bulk-actions {
+        width: 100%;
+    }
+
+    .library-page .bulk-actions .bulk-cancel-btn,
+    .library-page .bulk-actions .bulk-delete-btn {
+        flex: 1;
     }
 
     .library-page .library-filters {
@@ -1492,5 +1733,101 @@
     }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const panel       = document.getElementById('libraryPanel');
+    const enterBtn    = document.getElementById('libEnterDeleteMode');
+    const cancelBtn   = document.getElementById('libCancelDeleteMode');
+    const deleteBar   = document.getElementById('libDeleteBar');
+    const deleteBtn   = document.getElementById('libDeleteSelected');
+    const selectBar   = document.getElementById('libSelectAllBar');
+    const selectTable = document.getElementById('libSelectAllTable');
+    const countEl     = document.getElementById('libSelectedCount');
+    const csrfInput   = document.getElementById('libCsrf');
+
+    // No books on this page, so there is nothing to bulk delete
+    if (!enterBtn || !panel || !selectTable) return;
+
+    const rowChecks = () => Array.from(document.querySelectorAll('.lib-row-check'));
+
+    function updateCount() {
+        const checks  = rowChecks();
+        const checked = checks.filter(c => c.checked);
+        const all     = checks.length > 0 && checked.length === checks.length;
+        const some    = checked.length > 0 && !all;
+
+        countEl.textContent = checked.length;
+        deleteBtn.disabled  = checked.length === 0;
+
+        selectBar.checked   = all;
+        selectTable.checked = all;
+        selectBar.indeterminate   = some;
+        selectTable.indeterminate = some;
+
+        checks.forEach(c => c.closest('tr').classList.toggle('is-selected', c.checked));
+    }
+
+    function setDeleteMode(on) {
+        panel.classList.toggle('delete-mode', on);
+        deleteBar.classList.toggle('is-active', on);
+        enterBtn.style.display = on ? 'none' : '';
+
+        if (!on) {
+            rowChecks().forEach(c => c.checked = false);
+        }
+
+        updateCount();
+    }
+
+    function toggleAll(state) {
+        rowChecks().forEach(c => c.checked = state);
+        updateCount();
+    }
+
+    enterBtn.addEventListener('click', () => setDeleteMode(true));
+    cancelBtn.addEventListener('click', () => setDeleteMode(false));
+    selectBar.addEventListener('change', e => toggleAll(e.target.checked));
+    selectTable.addEventListener('change', e => toggleAll(e.target.checked));
+    rowChecks().forEach(c => c.addEventListener('change', updateCount));
+
+    deleteBtn.addEventListener('click', async function () {
+        const checked = rowChecks().filter(c => c.checked);
+        if (!checked.length) return;
+
+        const n = checked.length;
+        const message = 'You selected ' + n + ' record' + (n > 1 ? 's' : '') + '.\n\n' +
+                        'Are you sure you want to delete ' + (n > 1 ? 'these books' : 'this book') + '?\n' +
+                        'This action cannot be undone.';
+
+        if (!confirm(message)) return;
+
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="fas fa-hourglass-half"></i> Deleting...';
+
+        // Uses the existing single-delete route once per ticked row (one at a time)
+        for (const c of checked) {
+            const body = new FormData();
+            body.append('_token', csrfInput.value);
+            body.append('_method', 'DELETE');
+
+            try {
+                await fetch(c.dataset.url, {
+                    method: 'POST',
+                    body: body,
+                    redirect: 'manual',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+            } catch (e) {
+                // keep going; the reload below shows what is left
+            }
+        }
+
+        window.location.reload();
+    });
+
+});
+</script>
 
 @endsection

@@ -108,6 +108,16 @@
       onsubmit="return confirm('Are you sure you want to restore this backup? Your current school data may be replaced.');">
     @csrf
 
+    <input type="text" name="confirm_text" placeholder="Type RESTORE" required autocomplete="off">
+@error('confirm_text')
+    <div style="color:red">{{ $message }}</div>
+@enderror
+
+<input type="password" name="password" placeholder="Your login password" required autocomplete="current-password">
+@error('password')
+    <div style="color:red">{{ $message }}</div>
+@enderror
+
     <button type="submit"
             class="btn btn-warning btn-sm">
         <i class="fa-solid fa-rotate-left me-1"></i>

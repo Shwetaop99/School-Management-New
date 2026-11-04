@@ -75,6 +75,7 @@ class FeeReportController extends Controller
             'totalBalance'
         ));
     }
+<<<<<<< HEAD
 
     /**
      * Download the filtered fee report as PDF.
@@ -139,4 +140,10 @@ class FeeReportController extends Controller
 
         return $pdf->download('fee-report-' . now()->format('Y-m-d') . '.pdf');
     }
+=======
+    /**
+ * Bulk delete multiple records.
+ */
+
+>>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
 }
