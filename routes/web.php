@@ -3955,6 +3955,12 @@ use App\Http\Controllers\SuperAdmin\SchoolRegistryController;
 use App\Http\Controllers\SuperAdmin\SchoolAdminController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SubscriptionPlanController;
+use App\Http\Controllers\SuperAdmin\UserManagementController as SuperAdminUserManagementController;
+use App\Http\Middleware\EnsureSuperAdminPermission;
+use App\Http\Controllers\SuperAdmin\RolePermissionController as SuperAdminRolePermissionController;
+use App\Http\Controllers\SuperAdmin\Reports\SchoolReportController;
+
+
 
 Route::middleware('auth:super_admin')->group(function () {
     Route::get('/settings/security', [
@@ -4064,6 +4070,102 @@ Route::get('/subscriptions/{subscription}/edit', [
             // Routes requiring completed 2FA
             Route::middleware(EnsureSuperAdminTwoFactor::class)
                 ->group(function () {
+
+                // Super Admin Roles & Permissions
+Route::get('/roles', [
+    SuperAdminRolePermissionController::class,
+    'index'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.view')
+    ->name('roles.index');
+
+Route::post('/roles', [
+    SuperAdminRolePermissionController::class,
+    'store'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.create')
+    ->name('roles.store');
+
+Route::put('/roles/{role}', [
+    SuperAdminRolePermissionController::class,
+    'update'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.edit')
+    ->whereNumber('role')
+    ->name('roles.update');
+
+Route::delete('/roles/{role}', [
+    SuperAdminRolePermissionController::class,
+    'destroy'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.delete')
+    ->whereNumber('role')
+    ->name('roles.destroy');
+
+    // School Reports
+Route::get('/reports/schools', [
+    SchoolReportController::class,
+    'index',
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':reports.schools.view')
+    ->name('reports.schools');
+
+               // Super Admin User Management
+
+// View users
+Route::get('/users', [
+    SuperAdminUserManagementController::class,
+    'index',
+])->middleware(EnsureSuperAdminPermission::class . ':users.view')
+  ->name('users.index');
+
+// Show create form
+Route::get('/users/create', [
+    SuperAdminUserManagementController::class,
+    'create',
+])->middleware(EnsureSuperAdminPermission::class . ':users.create')
+  ->name('users.create');
+
+// Save new user
+Route::post('/users', [
+    SuperAdminUserManagementController::class,
+    'store',
+])->middleware(EnsureSuperAdminPermission::class . ':users.create')
+  ->name('users.store');
+
+// View user details
+Route::get('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'show',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.view')
+  ->name('users.show');
+
+// Show edit form
+Route::get('/users/{user}/edit', [
+    SuperAdminUserManagementController::class,
+    'edit',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.edit')
+  ->name('users.edit');
+
+// Update user
+Route::put('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'update',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.edit')
+  ->name('users.update');
+
+// Delete user
+Route::delete('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'destroy',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.delete')
+  ->name('users.destroy');
+
+    
 
                     // School Registry
                     Route::prefix('schools')
