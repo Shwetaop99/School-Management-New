@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\Result;
 use App\Models\Student;
+use App\Models\Scholarship\MeritConcession;
+use App\Models\Scholarship\MeritConcessionSlab;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,12 +35,6 @@ class MeritConcessionController extends Controller
 
         $aggregateQuery = DB::table('results')
             ->join('exams', 'exams.id', '=', 'results.exam_id')
-            ->join(
-                'exam_subjects',
-                'exam_subjects.id',
-                '=',
-                'results.exam_subject_id'
-            )
             ->join('students', 'students.id', '=', 'results.student_id')
             ->whereIn('exams.id', $annualExamIds)
             ->select(
@@ -56,29 +52,13 @@ class MeritConcessionController extends Controller
                 'exams.academic_year'
             )
             ->selectRaw(
-                'SUM(COALESCE(results.marks_obtained, 0)) AS obtained_marks'
+                'COALESCE(results.obtained_marks, 0) AS obtained_marks'
             )
             ->selectRaw(
-                'SUM(exam_subjects.maximum_marks) AS total_marks'
-            )
-            ->groupBy(
-                'results.student_id',
-                'results.exam_id',
-                'students.first_name',
-                'students.middle_name',
-                'students.last_name',
-                'students.student_id',
-                'students.roll_number',
-                'students.class',
-                'students.section',
-                'exams.exam_name',
-                'exams.exam_type',
-                'exams.academic_year'
+                'COALESCE(results.total_marks, 0) AS total_marks'
             );
 
-        $aggregateQuery->havingRaw(
-            'SUM(exam_subjects.maximum_marks) > 0'
-        );
+        $aggregateQuery->where('results.total_marks', '>', 0);
 
         if ($request->filled('search')) {
             $search = trim($request->search);
@@ -238,24 +218,91 @@ class MeritConcessionController extends Controller
     }
 
     /**
-     * Store scholarship settings.
+     * Store scholarship configuration and its percentage slabs.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'academic_year' => 'required|string|max:20',
-            'minimum_percentage' => 'required|numeric|min:0|max:100',
-            'scholarship_percentage' => 'required|numeric|min:0|max:100',
             'description' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'slabs' => 'required|array|min:1',
+            'slabs.*.minimum_percentage' => 'required|numeric|min:0|max:100',
+            'slabs.*.maximum_percentage' => 'nullable|numeric|min:0|max:100',
+            'slabs.*.scholarship_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
-        return redirect()
-            ->route('admin.merit-concession.index')
-            ->with('success', 'Scholarship percentage rule saved successfully.');
-    }
+        $slabs = collect($validated['slabs'])
+            ->map(function ($slab) {
+                $slab['minimum_percentage'] = (float) $slab['minimum_percentage'];
+                $slab['maximum_percentage'] =
+                    ($slab['maximum_percentage'] ?? '') === ''
+                        ? null
+                        : (float) $slab['maximum_percentage'];
+                $slab['scholarship_percentage'] =
+                    (float) $slab['scholarship_percentage'];
 
-    /**
+                return $slab;
+            })
+            ->sortBy('minimum_percentage')
+            ->values();
+
+        $previousMaximum = null;
+
+        foreach ($slabs as $index => $slab) {
+            $minimum = $slab['minimum_percentage'];
+            $maximum = $slab['maximum_percentage'];
+
+            if ($maximum !== null && $maximum < $minimum) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "slabs.$index.maximum_percentage" =>
+                        'The maximum percentage must be at least the minimum percentage.',
+                ]);
+            }
+
+            if ($previousMaximum !== null && $minimum <= $previousMaximum) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'slabs' =>
+                        'Scholarship percentage ranges must not overlap. Please check the minimum and maximum percentages.',
+                ]);
+            }
+
+            if ($previousMaximum === null && $index > 0) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'slabs' =>
+                        'An open-ended slab must be the final percentage range.',
+                ]);
+            }
+
+            $previousMaximum = $maximum;
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $slabs) {
+            $firstSlab = $slabs->first();
+
+            $rule = MeritConcession::create([
+                'academic_year' => $validated['academic_year'],
+                'minimum_percentage' => $firstSlab['minimum_percentage'],
+                'scholarship_percentage' => $firstSlab['scholarship_percentage'],
+                'description' => $validated['description'] ?? null,
+                'status' => $validated['status'],
+            ]);
+
+            foreach ($slabs as $index => $slab) {
+                $rule->slabs()->create([
+                    'minimum_percentage' => $slab['minimum_percentage'],
+                    'maximum_percentage' => $slab['maximum_percentage'],
+                    'scholarship_percentage' => $slab['scholarship_percentage'],
+                    'sort_order' => $index,
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('admin.scholarship.merit.concession.index')
+            ->with('success', 'Scholarship rule and concession slabs saved successfully.');
+    }
+/**
      * Display a result record.
      */
     public function show(Result $result)

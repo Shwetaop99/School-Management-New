@@ -43,6 +43,12 @@
                         Create Backup
                     </button>
                 </form>
+            <div class="form-hero-actions">
+                <div class="hero-action-group">
+                    <form action="{{ route('admin.backup.create') }}"
+                          method="POST"
+                          onsubmit="return confirm('Create a new backup? This may take a moment.');">
+                        @csrf
 
                 <a href="{{ route('admin.backup.restore') }}" class="backup-secondary-btn">
                     <i class="bi bi-arrow-counterclockwise"></i>
@@ -203,6 +209,68 @@
 
             @endif
 
+                                                <span class="file-name">
+                                                    {{ $backup['name'] }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        {{-- BACKUP TYPE --}}
+                                        <td>
+                                            <span class="type-badge">
+                                                {{ $backup['type'] }}
+                                            </span>
+                                        </td>
+
+                                        {{-- FILE SIZE --}}
+                                        <td class="size-cell">
+                                            {{ number_format($backup['size'] / 1024, 2) }} KB
+                                        </td>
+
+                                        {{-- CREATED DATE --}}
+                                        <td class="date-cell">
+                                            {{ $backup['date'] }}
+                                        </td>
+
+                                        {{-- ACTIONS --}}
+                                        <td class="text-end">
+                                            <div class="row-actions">
+
+                                                {{-- DOWNLOAD BACKUP --}}
+                                                <a href="{{ route('admin.backup.download', ['backup' => $backup['name']]) }}"
+                                                   class="diary-action-btn download-btn"
+                                                   title="Download backup">
+                                                    <i class="fas fa-download"></i>
+                                                    Download
+                                                </a>
+
+                                                {{-- DELETE BACKUP --}}
+                                                <form action="{{ route('admin.backup.destroy', ['backup' => $backup['name']]) }}"
+                                                      method="POST"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Permanently delete this backup? This cannot be undone.');">
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button type="submit"
+                                                            class="diary-action-btn delete-btn"
+                                                            title="Delete backup">
+                                                        <i class="fas fa-trash"></i>
+                                                        Delete
+                                                    </button>
+                                                </form>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                @endif
+
+            </div>
         </section>
 
     </div>
@@ -825,3 +893,4 @@
 </style>
 
 @endsection
+

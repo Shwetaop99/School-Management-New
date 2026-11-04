@@ -52,12 +52,27 @@ class SuperAdminLoginController extends Controller
             ->where('email', $email)
             ->first();
 
-        $valid = $user
-            && $user->status === 'Active'
-            && $user->role
-            && $user->role->status === 'Active'
-            && $user->role->name === 'super_admin'
-            && Hash::check($credentials['password'], $user->password);
+        $user = User::with(['role', 'superAdminRole'])
+    ->where('email', $email)
+    ->first();
+
+$isPrimarySuperAdmin = $user
+    && $user->hasRole('super_admin')
+    && $user->super_admin_role_id === null;
+
+$isPlatformStaff = $user
+    && $user->hasRole('super_admin')
+    && $user->super_admin_role_id !== null
+    && $user->superAdminRole
+    && $user->superAdminRole->status === 'Active';
+
+$valid = $user
+    && $user->status === 'Active'
+    && $user->role
+    && $user->role->status === 'Active'
+    && ($isPrimarySuperAdmin || $isPlatformStaff)
+    && Hash::check($credentials['password'], $user->password);
+
 
         if (! $valid) {
             RateLimiter::hit($key, 900);

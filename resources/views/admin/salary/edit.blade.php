@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+﻿
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
 @extends('layouts.app')
 
 @section('title', 'Edit Salary')
@@ -410,7 +414,45 @@
         <div class="salary-alert" role="alert">
             Please fix the highlighted fields and try again.
         </div>
+<<<<<<< HEAD
     @endif
+=======
+
+
+        <div class="summary-box">
+
+            <span>Attendance</span>
+
+            <strong id="topAttendance">
+                {{ number_format((float) $attendancePercentage, 2) }}%
+            </strong>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            <span>Deduction Rate</span>
+
+            <strong id="topDeductionRate">
+                {{ number_format((float) $deductionRate, 2) }}%
+            </strong>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            <span>Final Net Salary</span>
+
+            <strong id="topNetSalary">
+                â‚¹{{ number_format((float) $netSalary, 2) }}
+            </strong>
+
+        </div>
+
+    </div>
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
 
 
     <form
@@ -736,8 +778,25 @@
                             step="0.01"
                         >
 
+<<<<<<< HEAD
                         <div class="salary-help">
                             Percentage of basic salary. Example: 5 means 5% of basic salary.
+=======
+                    </div>
+
+
+                    <div class="deduction-info">
+
+                        <span>
+                            Deduction Amount
+                        </span>
+
+                        <div
+                            class="deduction-amount"
+                            id="deductionAmountDisplay"
+                        >
+                            â‚¹{{ number_format((float) $deductions, 2) }}
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
                         </div>
 
                         @error('deduction_rate')
@@ -905,8 +964,69 @@
 
                 <div class="salary-field full">
 
+<<<<<<< HEAD
                     <label class="salary-label" for="remarks">
                         Remarks
+=======
+                    <strong id="grossSalaryDisplay">
+                        â‚¹{{ number_format((float) $grossSalary, 2) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <span>
+                        Total Deductions
+                    </span>
+
+                    <strong id="totalDeductionDisplay">
+                        â‚¹{{ number_format((float) $deductions, 2) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <span>
+                        Final Net Salary
+                    </span>
+
+                    <strong id="netSalaryDisplay">
+                        â‚¹{{ number_format((float) $netSalary, 2) }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PAYMENT DETAILS
+        ================================================== -->
+
+        <div class="salary-card">
+
+            <div class="section-title">
+
+                <i class="fas fa-credit-card"></i>
+
+                <h3>Payment Details</h3>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Payment Status <span class="required">*</span>
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
                     </label>
 
                     <textarea
@@ -953,6 +1073,47 @@
 
             </div>
 
+<<<<<<< HEAD
+=======
+
+            <div class="form-group">
+
+                <textarea
+                    name="remarks"
+                    class="form-control"
+                    placeholder="Enter salary remarks..."
+                >{{ old('remarks', $teacherSalary->remarks) }}</textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="form-actions">
+
+            <a
+                href="{{ route('admin.salary.index') }}"
+                class="btn btn-secondary"
+            >
+                <i class="fas fa-arrow-left"></i>
+                Cancel
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                id="updateSalaryBtn"
+            >
+                <i class="fas fa-save"></i>
+                Update Salary
+            </button>
+
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
         </div>
 
     </form>
@@ -1036,12 +1197,32 @@
 
             staffSelect.value = previousExists ? String(previousValue) : '';
 
+<<<<<<< HEAD
             if (staffSelect.value) {
                 if (isTeacher(category)) {
                     teacherIdInput.value = staffSelect.value;
                 } else {
                     otherStaffIdInput.value = staffSelect.value;
                 }
+=======
+    const topNetSalary =
+        document.getElementById('topNetSalary');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CURRENCY
+    |--------------------------------------------------------------------------
+    */
+
+    function formatCurrency(value) {
+
+        return 'â‚¹' + Number(value || 0).toLocaleString(
+            'en-IN',
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
             }
 
             staffSelect.disabled = !category || matchingOptions.length === 0;
@@ -1172,4 +1353,10 @@
     });
 </script>
 
+<<<<<<< HEAD
 @endsection
+=======
+@endsection
+
+
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9

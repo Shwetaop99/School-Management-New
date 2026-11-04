@@ -1,10 +1,11 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Generate Salary')
 @section('page-title', 'Generate Salary')
 
 @section('content')
 
+<<<<<<< HEAD
 @php
     $staffTypes = [
         'Teacher'      => 'Teacher',
@@ -24,6 +25,8 @@
     }
 @endphp
 
+=======
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
 <div class="teacher-salary-create-page">
     <div class="tsc-container">
 

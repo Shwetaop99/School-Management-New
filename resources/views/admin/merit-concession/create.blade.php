@@ -6,10 +6,6 @@
 @section('content')
 
 <style>
-/* =========================================================
-   SCHOLARSHIP RULES — SCHOOL DIARY DESIGN
-========================================================= */
-
 .scholarship-rule-page {
     --ink: #263b35;
     --ink-2: #1d302b;
@@ -31,7 +27,6 @@
     font-size: 13px;
 }
 
-/* Simple Header */
 .scholarship-rule-page .rule-header {
     display: flex;
     align-items: center;
@@ -89,7 +84,6 @@
     color: var(--ink);
 }
 
-/* Validation Errors */
 .scholarship-rule-page .alert {
     margin-bottom: 22px;
     padding: 15px 18px;
@@ -109,7 +103,6 @@
     margin-top: 5px;
 }
 
-/* Paper Cards */
 .scholarship-rule-page .rule-card {
     position: relative;
     margin-bottom: 27px;
@@ -135,7 +128,6 @@
     background: var(--blue);
 }
 
-/* Section Titles */
 .scholarship-rule-page .section-title {
     display: flex;
     align-items: center;
@@ -177,7 +169,6 @@
     line-height: 1.6;
 }
 
-/* Form Fields */
 .scholarship-rule-page .form-label {
     display: block;
     margin-bottom: 8px;
@@ -264,7 +255,6 @@
     line-height: 1.65;
 }
 
-/* Scholarship Slabs */
 .scholarship-rule-page .rule-preview {
     padding: 21px;
     border: 1px dashed #d9d1bd;
@@ -329,7 +319,13 @@
     color: var(--red);
 }
 
-/* Form Actions */
+.scholarship-rule-page .preview-note {
+    margin-top: 13px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
 .scholarship-rule-page .form-actions {
     display: flex;
     align-items: center;
@@ -388,7 +384,6 @@
     outline-offset: 3px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .scholarship-rule-page {
         padding-bottom: 20px;
@@ -449,37 +444,26 @@
 
 <div class="scholarship-rule-page">
 
-    {{-- Simple Header --}}
     <div class="rule-header">
-
         <div class="rule-header-content">
-
             <h2>
                 <i class="fas fa-award me-2"></i>
                 Scholarship Rules
             </h2>
-
             <p>
                 Define scholarship concessions based on students' Annual Exam percentages.
             </p>
-
         </div>
 
-        <a
-            href="{{ route('admin.scholarship.merit.concession.index') }}"
-            class="back-btn"
-        >
+        <a href="{{ route('admin.scholarship.merit.concession.index') }}"
+           class="back-btn">
             <i class="fas fa-arrow-left"></i>
             Back to Scholarship
         </a>
-
     </div>
 
-    {{-- Validation Errors --}}
     @if ($errors->any())
-
         <div class="alert alert-danger" role="alert">
-
             <strong>
                 <i class="fas fa-exclamation-circle me-1"></i>
                 Please check the following:
@@ -490,275 +474,195 @@
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-
         </div>
-
     @endif
 
-    <form
-        action="{{ route('admin.scholarship.merit.concession.store') }}"
-        method="POST"
-    >
-
+    <form action="{{ route('admin.scholarship.merit.concession.store') }}"
+          method="POST">
         @csrf
 
-        {{-- Scholarship Rule Details --}}
         <div class="rule-card">
-
             <div class="section-title">
-
                 <div class="section-icon">
                     <i class="fas fa-sliders-h"></i>
                 </div>
-
                 <div>
                     <h5>Scholarship Rule Details</h5>
-
                     <span>
                         Set the minimum Annual Exam percentage and scholarship concession.
                     </span>
                 </div>
-
             </div>
 
             <div class="row g-4">
 
-                {{-- Academic Year --}}
                 <div class="col-md-6">
-
                     <label for="academic_year" class="form-label">
                         Academic Year <span class="required">*</span>
                     </label>
 
-                    <select
-                        id="academic_year"
-                        name="academic_year"
-                        class="form-select"
-                        required
-                    >
-
-                        <option value="">
-                            Select Academic Year
-                        </option>
+                    <select id="academic_year" name="academic_year"
+                            class="form-select" required>
+                        <option value="">Select Academic Year</option>
 
                         @forelse ($academicYears as $academicYear)
-
-                            <option
-                                value="{{ $academicYear }}"
-                                {{ old('academic_year') == $academicYear ? 'selected' : '' }}
-                            >
+                            <option value="{{ $academicYear }}"
+                                {{ old('academic_year') == $academicYear ? 'selected' : '' }}>
                                 {{ $academicYear }}
                             </option>
-
                         @empty
-
                             <option value="" disabled>
                                 No Annual Exam Academic Year Available
                             </option>
-
                         @endforelse
-
                     </select>
 
                     <div class="help-text">
                         Academic years are fetched from existing Annual Exam results.
                     </div>
-
                 </div>
 
-                {{-- Minimum Percentage --}}
                 <div class="col-md-6">
-
-                    <label for="minimum_percentage" class="form-label">
-                        Minimum Percentage <span class="required">*</span>
-                    </label>
-
-                    <div class="input-group">
-
-                        <input
-                            id="minimum_percentage"
-                            type="number"
-                            name="minimum_percentage"
-                            class="form-control"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value="{{ old('minimum_percentage') }}"
-                            placeholder="Example: 80"
-                            required
-                        >
-
-                        <span class="input-group-text">%</span>
-
-                    </div>
-
-                    <div class="help-text">
-                        Students achieving this Annual Exam percentage or above qualify for this rule.
-                    </div>
-
-                </div>
-
-                {{-- Scholarship Percentage --}}
-                <div class="col-md-6">
-
-                    <label for="scholarship_percentage" class="form-label">
-                        Scholarship Percentage <span class="required">*</span>
-                    </label>
-
-                    <div class="input-group">
-
-                        <input
-                            id="scholarship_percentage"
-                            type="number"
-                            name="scholarship_percentage"
-                            class="form-control"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value="{{ old('scholarship_percentage') }}"
-                            placeholder="Example: 35"
-                            required
-                        >
-
-                        <span class="input-group-text">%</span>
-
-                    </div>
-
-                    <div class="help-text">
-                        Scholarship concession percentage assigned to eligible students.
-                    </div>
-
-                </div>
-
-                {{-- Status --}}
-                <div class="col-md-6">
-
                     <label for="status" class="form-label">
                         Status <span class="required">*</span>
                     </label>
 
-                    <select
-                        id="status"
-                        name="status"
-                        class="form-select"
-                        required
-                    >
-
-                        <option
-                            value="active"
-                            {{ old('status', 'active') === 'active' ? 'selected' : '' }}
-                        >
+                    <select id="status" name="status" class="form-select" required>
+                        <option value="active"
+                            {{ old('status', 'active') === 'active' ? 'selected' : '' }}>
                             Active
                         </option>
 
-                        <option
-                            value="inactive"
-                            {{ old('status') === 'inactive' ? 'selected' : '' }}
-                        >
+                        <option value="inactive"
+                            {{ old('status') === 'inactive' ? 'selected' : '' }}>
                             Inactive
                         </option>
-
                     </select>
 
                     <div class="help-text">
                         Select whether this scholarship rule should be active or inactive.
                     </div>
-
                 </div>
 
-                {{-- Description --}}
                 <div class="col-12">
-
                     <label for="description" class="form-label">
                         Description
                     </label>
 
-                    <textarea
-                        id="description"
-                        name="description"
-                        class="form-control"
-                        placeholder="Enter any additional details about this scholarship rule..."
-                    >{{ old('description') }}</textarea>
+                    <textarea id="description"
+                              name="description"
+                              class="form-control"
+                              placeholder="Enter any additional details about this scholarship rule...">{{ old('description') }}</textarea>
 
                     <div class="help-text">
                         Optional additional details about the scholarship rule.
                     </div>
-
                 </div>
 
             </div>
-
         </div>
-
-        {{-- Scholarship Concession Slabs --}}
+        {{-- Configurable Scholarship Concession Slabs --}}
         <div class="rule-card">
-
             <div class="section-title">
-
                 <div class="section-icon">
                     <i class="fas fa-chart-line"></i>
                 </div>
-
                 <div>
                     <h5>Scholarship Concession Slabs</h5>
-
                     <span>
-                        Reference guide for Annual Exam percentages and scholarship concessions.
+                        Configure percentage ranges and their scholarship concessions.
                     </span>
                 </div>
-
             </div>
 
-            <div class="rule-preview">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div class="help-text">
+                    Enter ranges from lowest to highest. Use 0–100 for percentage values.
+                </div>
+                <button type="button" class="btn-save" id="add-slab">
+                    <i class="fas fa-plus me-1"></i> Add Slab
+                </button>
+            </div>
 
+            <div id="slab-rows">
+                @php
+                    $initialSlabs = old('slabs', [
+                        ['minimum_percentage' => '0', 'maximum_percentage' => '59.99', 'scholarship_percentage' => '0'],
+                        ['minimum_percentage' => '60', 'maximum_percentage' => '69.99', 'scholarship_percentage' => '10'],
+                        ['minimum_percentage' => '70', 'maximum_percentage' => '79.99', 'scholarship_percentage' => '25'],
+                        ['minimum_percentage' => '80', 'maximum_percentage' => '100', 'scholarship_percentage' => '35'],
+                    ]);
+                @endphp
+
+                @foreach ($initialSlabs as $index => $slab)
+                    <div class="slab-editor-row border rounded-3 p-3 mb-3" data-slab-row>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <strong class="slab-row-title">Slab {{ $loop->iteration }}</strong>
+                            <button type="button" class="btn-cancel remove-slab">
+                                <i class="fas fa-trash me-1"></i> Remove
+                            </button>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Minimum Exam Percentage (%) <span class="required">*</span></label>
+                                <input type="number"
+                                       class="form-control slab-minimum"
+                                       name="slabs[{{ $index }}][minimum_percentage]"
+                                       min="0" max="100" step="0.01"
+                                       value="{{ $slab['minimum_percentage'] ?? '' }}"
+                                       required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Maximum Exam Percentage (%)</label>
+                                <input type="number"
+                                       class="form-control slab-maximum"
+                                       name="slabs[{{ $index }}][maximum_percentage]"
+                                       min="0" max="100" step="0.01"
+                                       value="{{ $slab['maximum_percentage'] ?? '' }}"
+                                       placeholder="Example: 79.99">
+                                <div class="help-text">Leave blank for an open-ended range.</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Scholarship Concession (%) <span class="required">*</span></label>
+                                <input type="number"
+                                       class="form-control slab-scholarship"
+                                       name="slabs[{{ $index }}][scholarship_percentage]"
+                                       min="0" max="100" step="0.01"
+                                       value="{{ $slab['scholarship_percentage'] ?? '' }}"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="rule-preview mt-4">
                 <h6>
-                    Annual Exam Percentage
-                    <i class="fas fa-arrow-right"></i>
-                    Scholarship Concession
+                    <i class="fas fa-eye me-2"></i>
+                    Live Scholarship Preview
                 </h6>
-
-                <div class="slab">
-                    <span>90% and above</span>
-                    <span class="slab-scholarship">50% Scholarship</span>
+                <div id="slab-preview-list">
+                    <div class="slab">
+                        <span>Configure your slabs above</span>
+                        <span class="slab-percent">Preview</span>
+                    </div>
                 </div>
-
-                <div class="slab">
-                    <span>80% – 89.99%</span>
-                    <span class="slab-scholarship">35% Scholarship</span>
-                </div>
-
-                <div class="slab">
-                    <span>70% – 79.99%</span>
-                    <span class="slab-scholarship">25% Scholarship</span>
-                </div>
-
-                <div class="slab">
-                    <span>60% – 69.99%</span>
-                    <span class="slab-scholarship">10% Scholarship</span>
-                </div>
-
-                <div class="slab">
-                    <span>Below 60%</span>
-                    <span class="slab-percent">Not Eligible</span>
-                </div>
-
             </div>
 
-            <div class="help-text mt-3">
+            <div class="preview-note mt-3">
                 <i class="fas fa-info-circle me-1"></i>
-                These slabs are a visual reference. The saved rule uses the Minimum
-                Percentage and Scholarship Percentage entered above.
+                Every slab is saved separately. Percentage ranges must not overlap, and an
+                open-ended range must be the final slab. Review the live preview before saving.
             </div>
-
         </div>
 
-        {{-- Form Actions --}}
-        <div class="form-actions">
 
-            <a
-                href="{{ route('admin.scholarship.merit.concession.index') }}"
-                class="btn-cancel"
-            >
+        <div class="form-actions">
+            <a href="{{ route('admin.scholarship.merit.concession.index') }}"
+               class="btn-cancel">
                 <i class="fas fa-times"></i>
                 Cancel
             </a>
@@ -767,11 +671,170 @@
                 <i class="fas fa-save"></i>
                 Save Scholarship Rule
             </button>
-
         </div>
-
     </form>
-
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rowsContainer = document.getElementById('slab-rows');
+    const previewContainer = document.getElementById('slab-preview-list');
+    const addButton = document.getElementById('add-slab');
+
+    if (!rowsContainer || !previewContainer || !addButton) {
+        return;
+    }
+
+    function formatPercentage(value) {
+        return Number(value).toLocaleString('en-US', {
+            maximumFractionDigits: 2,
+            useGrouping: false
+        });
+    }
+
+    function renumberRows() {
+        rowsContainer.querySelectorAll('[data-slab-row]').forEach(function (row, index) {
+            row.querySelector('.slab-row-title').textContent = 'Slab ' + (index + 1);
+
+            row.querySelector('.slab-minimum').name =
+                'slabs[' + index + '][minimum_percentage]';
+            row.querySelector('.slab-maximum').name =
+                'slabs[' + index + '][maximum_percentage]';
+            row.querySelector('.slab-scholarship').name =
+                'slabs[' + index + '][scholarship_percentage]';
+
+            const removeButton = row.querySelector('.remove-slab');
+            removeButton.disabled = rowsContainer.querySelectorAll('[data-slab-row]').length <= 1;
+        });
+    }
+
+    function updatePreview() {
+        const rows = Array.from(rowsContainer.querySelectorAll('[data-slab-row]'));
+        previewContainer.replaceChildren();
+
+        let validRows = 0;
+
+        rows.forEach(function (row) {
+            const minimumInput = row.querySelector('.slab-minimum');
+            const maximumInput = row.querySelector('.slab-maximum');
+            const scholarshipInput = row.querySelector('.slab-scholarship');
+
+            const minimum = minimumInput.value.trim();
+            const maximum = maximumInput.value.trim();
+            const scholarship = scholarshipInput.value.trim();
+
+            if (minimum === '' || scholarship === '') {
+                return;
+            }
+
+            if (!Number.isFinite(Number(minimum)) ||
+                !Number.isFinite(Number(scholarship)) ||
+                Number(minimum) < 0 || Number(minimum) > 100 ||
+                Number(scholarship) < 0 || Number(scholarship) > 100) {
+                return;
+            }
+
+            if (maximum !== '' &&
+                (!Number.isFinite(Number(maximum)) ||
+                 Number(maximum) < Number(minimum) ||
+                 Number(maximum) > 100)) {
+                return;
+            }
+
+            const rangeLabel = maximum === ''
+                ? formatPercentage(minimum) + '% and above'
+                : formatPercentage(minimum) + '% – ' + formatPercentage(maximum) + '%';
+
+            const item = document.createElement('div');
+            item.className = 'slab';
+
+            const range = document.createElement('span');
+            range.textContent = rangeLabel;
+
+            const concession = document.createElement('span');
+            concession.className = 'slab-scholarship';
+            concession.textContent = formatPercentage(scholarship) + '% Scholarship';
+
+            item.append(range, concession);
+            previewContainer.appendChild(item);
+            validRows++;
+        });
+
+        if (validRows === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'slab';
+            empty.textContent = 'Enter valid slab percentages to see the preview.';
+            previewContainer.appendChild(empty);
+        }
+    }
+
+    function createSlabRow(index) {
+        const row = document.createElement('div');
+        row.className = 'slab-editor-row border rounded-3 p-3 mb-3';
+        row.setAttribute('data-slab-row', '');
+
+        row.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong class="slab-row-title">Slab ${index + 1}</strong>
+                <button type="button" class="btn-cancel remove-slab">
+                    <i class="fas fa-trash me-1"></i> Remove
+                </button>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Minimum Exam Percentage (%) <span class="required">*</span></label>
+                    <input type="number" class="form-control slab-minimum"
+                           min="0" max="100" step="0.01" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Maximum Exam Percentage (%)</label>
+                    <input type="number" class="form-control slab-maximum"
+                           min="0" max="100" step="0.01" placeholder="Example: 79.99">
+                    <div class="help-text">Leave blank for an open-ended range.</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Scholarship Concession (%) <span class="required">*</span></label>
+                    <input type="number" class="form-control slab-scholarship"
+                           min="0" max="100" step="0.01" required>
+                </div>
+            </div>
+        `;
+
+        return row;
+    }
+
+    addButton.addEventListener('click', function () {
+        const count = rowsContainer.querySelectorAll('[data-slab-row]').length;
+        rowsContainer.appendChild(createSlabRow(count));
+        renumberRows();
+        updatePreview();
+    });
+
+    rowsContainer.addEventListener('click', function (event) {
+        const button = event.target.closest('.remove-slab');
+
+        if (!button) {
+            return;
+        }
+
+        const rows = rowsContainer.querySelectorAll('[data-slab-row]');
+
+        if (rows.length <= 1) {
+            return;
+        }
+
+        button.closest('[data-slab-row]').remove();
+        renumberRows();
+        updatePreview();
+    });
+
+    rowsContainer.addEventListener('input', function () {
+        updatePreview();
+    });
+
+    renumberRows();
+    updatePreview();
+});
+</script>
 
 @endsection

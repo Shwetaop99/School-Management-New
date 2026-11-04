@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\ExamReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
+use App\Models\SchoolSetting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -57,11 +58,16 @@ class ExamReportController extends Controller
     {
         $exams = $this->filteredExams($request)->get();
 
+        $schoolSetting = SchoolSetting::query()->first();
+
         $pdf = Pdf::loadView('allReports.examReport.pdf', [
             'exams' => $exams,
             'generatedAt' => now(),
             'academicYear' => $request->input('academic_year'),
             'totalExams' => $exams->count(),
+            'schoolSetting' => $schoolSetting,
+            'schoolName' => trim((string) ($schoolSetting->school_name ?? '')) ?: 'School Management System',
+            'schoolLogo' => $schoolSetting->logo_url ?? null,
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('exam-report-' . now()->format('Y-m-d') . '.pdf');

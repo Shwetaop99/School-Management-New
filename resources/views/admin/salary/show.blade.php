@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'View Salary')
 @section('page-title', 'Salary Details')
@@ -1049,28 +1049,28 @@
                     <div class="salary-item">
                         <div class="salary-label">Basic Salary</div>
                         <div class="salary-value">
-                            ₹{{ number_format((float) $teacherSalary->basic_salary, 2) }}
+                            â‚¹{{ number_format((float) $teacherSalary->basic_salary, 2) }}
                         </div>
                     </div>
 
                     <div class="salary-item">
                         <div class="salary-label">Allowances</div>
                         <div class="salary-value">
-                            ₹{{ number_format((float) $teacherSalary->allowances, 2) }}
+                            â‚¹{{ number_format((float) $teacherSalary->allowances, 2) }}
                         </div>
                     </div>
 
                     <div class="salary-item">
                         <div class="salary-label">Deductions</div>
                         <div class="salary-value">
-                            ₹{{ number_format((float) $teacherSalary->deductions, 2) }}
+                            â‚¹{{ number_format((float) $teacherSalary->deductions, 2) }}
                         </div>
                     </div>
 
                     <div class="salary-item net">
                         <div class="salary-label">Net Salary</div>
                         <div class="salary-value">
-                            ₹{{ number_format((float) $teacherSalary->net_salary, 2) }}
+                            â‚¹{{ number_format((float) $teacherSalary->net_salary, 2) }}
                         </div>
                     </div>
                 </div>
@@ -1223,26 +1223,26 @@
                 <tbody>
                     <tr>
                         <td>Basic Salary</td>
-                        <td>₹{{ number_format((float) $teacherSalary->basic_salary, 2) }}</td>
+                        <td>â‚¹{{ number_format((float) $teacherSalary->basic_salary, 2) }}</td>
                     </tr>
                     <tr>
                         <td>Allowances</td>
-                        <td>₹{{ number_format((float) $teacherSalary->allowances, 2) }}</td>
+                        <td>â‚¹{{ number_format((float) $teacherSalary->allowances, 2) }}</td>
                     </tr>
                     <tr class="deduction">
                         <td>Deductions</td>
-                        <td>- ₹{{ number_format((float) $teacherSalary->deductions, 2) }}</td>
+                        <td>- â‚¹{{ number_format((float) $teacherSalary->deductions, 2) }}</td>
                     </tr>
                     <tr class="net-row">
                         <td>NET SALARY PAYABLE</td>
-                        <td>₹{{ number_format((float) $teacherSalary->net_salary, 2) }}</td>
+                        <td>â‚¹{{ number_format((float) $teacherSalary->net_salary, 2) }}</td>
                     </tr>
                 </tbody>
             </table>
 
             <div class="net-pay-box">
                 <span class="net-pay-label">Net Amount Paid</span>
-                <span class="net-pay-amount">₹{{ number_format((float) $teacherSalary->net_salary, 2) }}</span>
+                <span class="net-pay-amount">â‚¹{{ number_format((float) $teacherSalary->net_salary, 2) }}</span>
             </div>
         </div>
 
@@ -1305,7 +1305,7 @@
             This is a computer-generated salary receipt and does not require a physical stamp
             unless required by the institution.
             <br>
-            Gurukul Vidyalaya • School Management System
+            Gurukul Vidyalaya â€¢ School Management System
         </div>
     </div>
 </div>
@@ -1330,12 +1330,18 @@ function closeReceipt() {
 
 function shareReceipt() {
     const receiptNumber = 'SAL-{{ str_pad($teacherSalary->id, 5, '0', STR_PAD_LEFT) }}';
+<<<<<<< HEAD
     const staffName = @json($personName);
     const department = @json($typeLabel);
     const amount = '₹{{ number_format((float) $teacherSalary->net_salary, 2) }}';
     const text = 'Salary Receipt ' + receiptNumber +
         '\n' + department + ': ' + staffName +
         '\nNet Salary: ' + amount;
+=======
+    const teacherName = @json(trim(($teacherSalary->teacher->first_name ?? '') . ' ' . ($teacherSalary->teacher->last_name ?? '')));
+    const amount = 'â‚¹{{ number_format((float) $teacherSalary->net_salary, 2) }}';
+    const text = 'Salary Receipt ' + receiptNumber + '\nTeacher: ' + teacherName + '\nNet Salary: ' + amount;
+>>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
 
     if (navigator.share) {
         navigator.share({ title: 'Salary Receipt', text: text });

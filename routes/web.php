@@ -22,9 +22,20 @@ use App\Http\Controllers\Sports\AchievementController;
 
 use App\Http\Controllers\Sports\EquipmentController;
 
+/*
 
+\|--------------------------------------------------------------------------
 
+\| Fees Controllers
 
+\|--------------------------------------------------------------------------
+
+*/
+
+use App\Http\Controllers\Admin\FeeStructureController;
+use App\Http\Controllers\Admin\FeeTypeController;
+use App\Http\Controllers\Admin\StudentFeeController;
+use App\Http\Controllers\Admin\FeePaymentController;
 
 /*
 
@@ -88,6 +99,8 @@ use App\Http\Controllers\Admin\LeaveApplicationController;
 use App\Http\Controllers\Admin\ClassTeacherController;
 
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\StudentBulkImportController;
+use App\Http\Controllers\Admin\BulkStudentController;
 
 use App\Http\Controllers\Admin\StudentProfileController;
 
@@ -114,6 +127,7 @@ use App\Http\Controllers\Admin\AgeReportController;
 use App\Http\Controllers\Admin\IdCardTemplateController;
 
 use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\SportsReportController;
 
 use App\Http\Controllers\Admin\StaffReportController;
 
@@ -141,20 +155,22 @@ use App\Http\Controllers\Admin\ExamHolidayController;
 
 use App\Http\Controllers\Admin\StudentReportController;
 
+use App\Http\Controllers\Admin\StudentAttendanceReportController;
+
 use App\Http\Controllers\Admin\MealReportController;
 
 use App\Http\Controllers\Admin\TransportReportController;
 
+
+
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Admin\BackupController;
-use App\Http\Controllers\Admin\FeeStructureController;
-use App\Http\Controllers\Admin\StudentFeeController;
-use App\Http\Controllers\Admin\FeePaymentController;
 use App\Http\Controllers\Admin\FeeReportController;
 use App\Http\Controllers\SuperAdmin\Auth\SuperAdminLoginController;
 
 use App\Http\Middleware\EnsureSuperAdmin;
 
+use App\Http\Controllers\Admin\ScholarshipReportController;
 
 
 
@@ -238,6 +254,7 @@ use App\Http\Controllers\Sports\SportsController;
 
 
 use App\Http\Controllers\Scholarship\MeritConcessionController;
+use App\Http\Controllers\Scholarship\MeritConcessionRuleController;
 use App\Http\Controllers\Scholarship\ScholarshipExamController;
 
 
@@ -478,10 +495,37 @@ Route::post('/settings/security/disable', [
             Route::get('/reports', [ReportsController::class, 'index'])
                 ->name('reports.index');
 
+            Route::get('/reports/payroll', [ReportsController::class, 'payroll'])
+                ->name('reports.payroll');
+
+            Route::get('/reports/payroll/pdf', [ReportsController::class, 'payrollPdf'])
+                ->name('reports.payroll.pdf');
+
             Route::get('/reports/students', [StudentReportController::class, 'index'])
                 ->name('reports.students');
             Route::get('/reports/students/pdf', [StudentReportController::class, 'pdf'])
                 ->name('reports.students.pdf');
+
+                        // Student Report - Class, Section and Student Flow
+            Route::get('/reports/students/class', [StudentReportController::class, 'classStudents'])
+                ->name('reports.students.class');
+
+            Route::get('/reports/students/class/pdf', [StudentReportController::class, 'classPdf'])
+                ->name('reports.students.class.pdf');
+
+            Route::get('/reports/students/class/excel', [StudentReportController::class, 'classExcel'])
+                ->name('reports.students.class.excel');
+
+            // Individual Student Report Profile
+            Route::get('/reports/students/profile/{student}', [StudentReportController::class, 'profile'])
+                ->name('reports.students.profile');
+
+            Route::get('/reports/students/profile/{student}/pdf', [StudentReportController::class, 'profilePdf'])
+                ->name('reports.students.profile.pdf');
+
+            Route::get('/reports/students/profile/{student}/excel', [StudentReportController::class, 'profileExcel'])
+                ->name('reports.students.profile.excel');    
+
 
                 Route::get('/students/bulk-create', [
     \App\Http\Controllers\Admin\StudentController::class,
@@ -511,32 +555,45 @@ Route::get('/students/export', [
 
             Route::get('/reports/staff', [StaffReportController::class, 'index'])
                 ->name('reports.staff');
-            Route::get('/reports/staff/{otherStaff}', [StaffReportController::class, 'show'])
-                ->name('reports.staff.show');
             Route::get('/reports/staff/pdf', [StaffReportController::class, 'pdf'])
                 ->name('reports.staff.pdf');
             Route::get('/reports/staff/excel', [StaffReportController::class, 'excel'])
                 ->name('reports.staff.excel');
 
+            Route::get('/reports/staff/{otherStaff}/pdf', [StaffReportController::class, 'profilePdf'])
+                ->name('reports.staff.show.pdf');
+            Route::get('/reports/staff/{otherStaff}/excel', [StaffReportController::class, 'profileExcel'])
+                ->name('reports.staff.show.excel');
+            Route::get('/reports/staff/{otherStaff}', [StaffReportController::class, 'show'])
+                ->name('reports.staff.show');
+
            
+ 
  // SPORTS REPORT
  // ---------------------------------------------------------
-/*
-Route::get('/reports/sports', [
-    SportsReportController::class,
-    'index'
-])->name('reports.sports');
+Route::get('/allReports/sports', [SportsReportController::class, 'index'])
+    ->name('reports.sports');
 
-Route::get('/reports/sports/pdf', [
-    SportsReportController::class,
-    'pdf'
-])->name('reports.sports.pdf');
+Route::get('/allReports/sports/games', [SportsReportController::class, 'games'])
+    ->name('reports.sports.games');
 
-Route::get('/reports/sports/excel', [
-    SportsReportController::class,
-    'excel'
-])->name('reports.sports.excel');
-*/
+Route::get('/allReports/sports/achievements', [SportsReportController::class, 'achievements'])
+    ->name('reports.sports.achievements');
+
+Route::get('/allReports/sports/equipment', [SportsReportController::class, 'equipment'])
+    ->name('reports.sports.equipment');
+
+
+ // SCHOLARSHIP REPORT
+Route::get('/allReports/scholarshipReport', [ScholarshipReportController::class, 'index'])
+    ->name('reports.scholarship');
+
+Route::get('/allReports/scholarshipReport/merit-concession', [ScholarshipReportController::class, 'meritConcession'])
+    ->name('reports.scholarship.merit-concession');
+
+Route::get('/allReports/scholarshipReport/exams', [ScholarshipReportController::class, 'exams'])
+    ->name('reports.scholarship.exams');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -695,6 +752,51 @@ Route::get('/reports/teacher-attendance/excel', [
     'teacherExcel'
 ])->name('reports.teacher-attendance.excel');
 
+Route::get('/reports/teacher-attendance/{teacher}/pdf', [
+    AttendanceReportController::class,
+    'teacherProfilePdf'
+])->whereNumber('teacher')->name('reports.teacher-attendance.profile.pdf');
+
+Route::get('/reports/teacher-attendance/{teacher}/excel', [
+    AttendanceReportController::class,
+    'teacherProfileExcel'
+])->whereNumber('teacher')->name('reports.teacher-attendance.profile.excel');
+Route::get('/reports/teacher-attendance/{teacher}', [
+    AttendanceReportController::class,
+    'teacherProfile'
+])->whereNumber('teacher')->name('reports.teacher-attendance.profile');
+
+// ---------------------------------------------------------
+// STUDENT ATTENDANCE REPORT
+// ---------------------------------------------------------
+
+Route::get('/reports/student-attendance', [
+    StudentAttendanceReportController::class,
+    'index'
+])->name('reports.student-attendance');
+
+Route::get('/reports/student-attendance/class', [
+    StudentAttendanceReportController::class,
+    'classStudents'
+])->name('reports.student-attendance.class');
+
+Route::get('/reports/student-attendance/{student}/pdf', [
+    StudentAttendanceReportController::class,
+    'profilePdf'
+])->whereNumber('student')
+  ->name('reports.student-attendance.profile.pdf');
+
+Route::get('/reports/student-attendance/{student}/excel', [
+    StudentAttendanceReportController::class,
+    'profileExcel'
+])->whereNumber('student')
+  ->name('reports.student-attendance.profile.excel');
+
+Route::get('/reports/student-attendance/{student}', [
+    StudentAttendanceReportController::class,
+    'profile'
+])->whereNumber('student')
+  ->name('reports.student-attendance.profile');
 
                 
 
@@ -783,9 +885,49 @@ Route::get('/reports/teacher-attendance/excel', [
 Route::get('/reports/fees', [FeeReportController::class, 'index'])
     ->name('reports.fees');
 
+Route::get('/reports/fees/pdf', [FeeReportController::class, 'pdf'])
+    ->name('reports.fees.pdf');
+
     
 Route::get('/transport/reports', [TransportReportController::class, 'index'])
     ->name('transport.reports.student-search');
+
+
+Route::get('/reports/transport', [
+    TransportReportController::class,
+    'index',
+])->name('reports.transport');
+
+Route::get('/reports/transport/student-travel', [
+    TransportReportController::class,
+    'studentTravel',
+])->name('reports.transport.student-travel');
+
+Route::get('/reports/transport/student-travel/pdf', [
+    TransportReportController::class,
+    'studentTravelPdf',
+])->name('reports.transport.student-travel.pdf');
+
+Route::get('/reports/transport/student-travel/excel', [
+    TransportReportController::class,
+    'studentTravelExcel',
+])->name('reports.transport.student-travel.excel');
+
+Route::get('/reports/transport/vehicle', [
+    TransportReportController::class,
+    'vehicle',
+])->name('reports.transport.vehicle');
+
+Route::get('/reports/transport/vehicle/pdf', [
+    TransportReportController::class,
+    'vehiclePdf',
+])->name('reports.transport.vehicle.pdf');
+
+Route::get('/reports/transport/vehicle/excel', [
+    TransportReportController::class,
+    'vehicleExcel',
+])->name('reports.transport.vehicle.excel');
+
 
 
 
@@ -848,6 +990,12 @@ Route::get('/transport/reports', [TransportReportController::class, 'index'])
 
                 // ---------------------------------------------------------
 // CLASS REPORTS
+Route::prefix('class-reports')->name('class-reports.')->controller(\App\Http\Controllers\Admin\ClassReportController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/classes', 'classes')->name('classes');
+    Route::get('/subjects', 'subjects')->name('subjects');
+});
+
 // ---------------------------------------------------------
 
                 /*
@@ -988,6 +1136,19 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
 
 
+            Route::get('/students/bulk-create', [BulkStudentController::class, 'create'])
+                ->name('students.bulk-create');
+
+            Route::post('/students/bulk-create', [BulkStudentController::class, 'store'])
+                ->name('students.bulk-store');
+
+            Route::get('/students/export', [StudentController::class, 'export'])->name('students.export');
+
+            Route::get('/students/import/template', [StudentBulkImportController::class, 'downloadTemplate'])
+                ->name('students.import.template');
+
+            Route::post('/students/import', [StudentBulkImportController::class, 'import'])
+                ->name('students.import');
             Route::resource(
 
                 'students',
@@ -1184,6 +1345,17 @@ Route::prefix('scholarship')
                 Route::get('/', 'index')->name('index');
                 Route::get('/create', 'create')->name('create');
                 Route::post('/', 'store')->name('store');
+
+                // Saved scholarship rules management (separate from student results).
+                Route::get('/rules', [MeritConcessionRuleController::class, 'index'])
+                    ->name('rules');
+                Route::get('/rules/{rule}/edit', [MeritConcessionRuleController::class, 'edit'])
+                    ->name('rules.edit');
+                Route::put('/rules/{rule}', [MeritConcessionRuleController::class, 'update'])
+                    ->name('rules.update');
+                Route::delete('/rules/{rule}', [MeritConcessionRuleController::class, 'destroy'])
+                    ->name('rules.destroy');
+
                 Route::get('/{result}', 'show')->name('show');
                 Route::get('/{result}/edit', 'edit')->name('edit');
                 Route::put('/{result}', 'update')->name('update');
@@ -1488,6 +1660,9 @@ Route::prefix('scholarship')
             */
 
 
+
+            Route::get('/bonafide/students/{class}', [BonafideCertificateController::class, 'students'])->name('bonafide.students');
+            Route::get('/bonafide/classes', [BonafideCertificateController::class, 'classes'])->name('bonafide.classes');
 
             Route::prefix('bonafide-certificate')
 
@@ -2037,7 +2212,7 @@ Route::post('teachers/import', [
                 'classPdf'
             ])->name('timetable.class.pdf');
 
-         // Weekly timetable tools — place BEFORE the {timetable} routes.
+         // Weekly timetable tools   place BEFORE the {timetable} routes.
 
 Route::get('/timetable/weekly/fetch', [
     TimetableController::class,
@@ -2505,18 +2680,6 @@ Route::post('/timetable/weekly/import', [
 
 
 
-            Route::resource(
-
-                'teachers',
-
-                TeacherController::class
-
-            );
-
-
-
-
-
             /*
 
             |--------------------------------------------------------------------------
@@ -2787,6 +2950,11 @@ Route::get('/reports/exams', [
     'index',
 ])->name('reports.exams');
 
+Route::get('/reports/exams/pdf', [
+    \App\Http\Controllers\Admin\ExamReportController::class,
+    'pdf',
+])->name('reports.exams.pdf');
+
 
 
 
@@ -3031,6 +3199,9 @@ Route::get('/caste-report/pdf-download', [
     'pdfDownload',
 ])->name('caste-report.pdf-download');
 
+            Route::get('/caste-report/print', [CasteReportController::class, 'print'])->name('caste-report.print');
+
+            Route::get('/caste-report/pdf-download', [CasteReportController::class, 'pdfDownload'])->name('caste-report.pdf-download');
 
 
 
@@ -3600,7 +3771,7 @@ Route::get(
 
             Route::get(
 
-                '/student-supply-kits/{studentSupplyKit}/print',
+                '/student-supply-kits/print',
 
                 [
 
@@ -3676,6 +3847,10 @@ Route::get('/student-supply-kits', [StudentSupplyKitController::class, 'index'])
 
 
 
+Route::get('/student-supply-kits/distribution/create', [StudentSupplyKitController::class, 'distributionCreate'])->name('student-supply-kits.distribution.create');
+Route::get('/student-supply-kits/distribution/students', [StudentSupplyKitController::class, 'distributionStudents'])->name('student-supply-kits.distribution.students');
+Route::post('/student-supply-kits/distribution', [StudentSupplyKitController::class, 'distributionStore'])->name('student-supply-kits.distribution.store');
+
 Route::get('/student-supply-kits/create', [StudentSupplyKitController::class, 'create'])
 
     ->name('student-supply-kits.create');
@@ -3708,7 +3883,7 @@ Route::get('/student-supply-kits/supply-items', [StudentSupplyKitController::cla
 
 
 
-Route::get('/student-supply-kits/{studentSupplyKit}/print', [StudentSupplyKitController::class, 'print'])
+Route::get('/student-supply-kits/print', [StudentSupplyKitController::class, 'print'])
 
     ->name('student-supply-kits.print');
 
@@ -3735,9 +3910,6 @@ Route::put('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitControlle
 Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'destroy'])
 
     ->name('student-supply-kits.destroy');
-
-
-
 
 
 
@@ -3886,6 +4058,29 @@ Route::prefix('meal/items')
 
 /*
 |--------------------------------------------------------------------------
+| 
+/*
+|--------------------------------------------------------------------------
+| TRANSPORT REPORTS
+|--------------------------------------------------------------------------
+*/
+Route::prefix('reports/transport')
+    ->name('reports.transport.')
+    ->group(function () {
+        Route::get('/', [TransportReportController::class, 'index'])->name('index');
+        Route::get('/student-travel', [TransportReportController::class, 'studentTravel'])->name('student-travel');
+        Route::get('/student-travel/pdf', [TransportReportController::class, 'studentTravelPdf'])->name('student-travel.pdf');
+        Route::get('/student-travel/excel', [TransportReportController::class, 'studentTravelExcel'])->name('student-travel.excel');
+        Route::get('/vehicle', [TransportReportController::class, 'vehicle'])->name('vehicle');
+        Route::get('/vehicle/pdf', [TransportReportController::class, 'vehiclePdf'])->name('vehicle.pdf');
+        Route::get('/vehicle/excel', [TransportReportController::class, 'vehicleExcel'])->name('vehicle.excel');
+    });
+
+Route::get('/transport/reports/student-search', [TransportReportController::class, 'index'])
+    ->name('transport.reports.student-search');
+
+/*
+|--------------------------------------------------------------------------
 | MEAL MANAGEMENT MAIN MENU
 |--------------------------------------------------------------------------
 */
@@ -3955,6 +4150,12 @@ use App\Http\Controllers\SuperAdmin\SchoolRegistryController;
 use App\Http\Controllers\SuperAdmin\SchoolAdminController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SubscriptionPlanController;
+use App\Http\Controllers\SuperAdmin\UserManagementController as SuperAdminUserManagementController;
+use App\Http\Middleware\EnsureSuperAdminPermission;
+use App\Http\Controllers\SuperAdmin\RolePermissionController as SuperAdminRolePermissionController;
+use App\Http\Controllers\SuperAdmin\Reports\SchoolReportController;
+
+
 
 Route::middleware('auth:super_admin')->group(function () {
     Route::get('/settings/security', [
@@ -4064,6 +4265,102 @@ Route::get('/subscriptions/{subscription}/edit', [
             // Routes requiring completed 2FA
             Route::middleware(EnsureSuperAdminTwoFactor::class)
                 ->group(function () {
+
+                // Super Admin Roles & Permissions
+Route::get('/roles', [
+    SuperAdminRolePermissionController::class,
+    'index'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.view')
+    ->name('roles.index');
+
+Route::post('/roles', [
+    SuperAdminRolePermissionController::class,
+    'store'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.create')
+    ->name('roles.store');
+
+Route::put('/roles/{role}', [
+    SuperAdminRolePermissionController::class,
+    'update'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.edit')
+    ->whereNumber('role')
+    ->name('roles.update');
+
+Route::delete('/roles/{role}', [
+    SuperAdminRolePermissionController::class,
+    'destroy'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.delete')
+    ->whereNumber('role')
+    ->name('roles.destroy');
+
+    // School Reports
+Route::get('/reports/schools', [
+    SchoolReportController::class,
+    'index',
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':reports.schools.view')
+    ->name('reports.schools');
+
+               // Super Admin User Management
+
+// View users
+Route::get('/users', [
+    SuperAdminUserManagementController::class,
+    'index',
+])->middleware(EnsureSuperAdminPermission::class . ':users.view')
+  ->name('users.index');
+
+// Show create form
+Route::get('/users/create', [
+    SuperAdminUserManagementController::class,
+    'create',
+])->middleware(EnsureSuperAdminPermission::class . ':users.create')
+  ->name('users.create');
+
+// Save new user
+Route::post('/users', [
+    SuperAdminUserManagementController::class,
+    'store',
+])->middleware(EnsureSuperAdminPermission::class . ':users.create')
+  ->name('users.store');
+
+// View user details
+Route::get('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'show',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.view')
+  ->name('users.show');
+
+// Show edit form
+Route::get('/users/{user}/edit', [
+    SuperAdminUserManagementController::class,
+    'edit',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.edit')
+  ->name('users.edit');
+
+// Update user
+Route::put('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'update',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.edit')
+  ->name('users.update');
+
+// Delete user
+Route::delete('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'destroy',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.delete')
+  ->name('users.destroy');
+
+    
 
                     // School Registry
                     Route::prefix('schools')
@@ -4190,3 +4487,105 @@ Route::get('/subscriptions/{subscription}/edit', [
                 });
         });
     });
+
+
+
+   Route::prefix('fees')
+    ->name('fees.')
+    ->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | FEE TYPES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource(
+        'fee-types',
+        FeeTypeController::class
+    )->names('fee-types');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FEE STRUCTURE SECTIONS AJAX
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        'fee-structures/sections/{classId}',
+        [
+            FeeStructureController::class,
+            'sections'
+        ]
+    )->name('fee-structures.sections');
+    
+    Route::get(
+    'student-fees/{studentFee}/payment',
+    [FeePaymentController::class, 'create']
+)->name('student-fees.payment.create');
+
+Route::post(
+    'student-fees/{studentFee}/payment',
+    [FeePaymentController::class, 'store']
+)->name('student-fees.payment.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FEE STRUCTURES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource(
+        'fee-structures',
+        FeeStructureController::class
+    )->names('fee-structures');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT FEES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource(
+        'student-fees',
+        StudentFeeController::class
+    )->only([
+        'index',
+        'create',
+        'store',
+        'show',
+        'destroy',
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAYMENT HISTORY
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        'payment-history',
+        [
+            FeePaymentController::class,
+            'index'
+        ]
+    )->name('payment-history.index');
+
+
+    Route::get(
+        'payment-history/{feePayment}',
+        [
+            FeePaymentController::class,
+            'show'
+        ]
+    )->name('payment-history.show');
+
+});
+ 
+
+
+
+

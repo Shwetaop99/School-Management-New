@@ -20,6 +20,14 @@
 
     $securityUrl  = Route::has('super-admin.security') ? route('super-admin.security') : null;
 
+    $usersUrl = Route::has('super-admin.users.index')
+    ? route('super-admin.users.index')
+    : url('/control-panel/users');
+
+$rolesUrl = Route::has('super-admin.roles.index')
+    ? route('super-admin.roles.index')
+    : url('/control-panel/roles');
+
     $logoutUrl    = Route::has('super-admin.logout') ? route('super-admin.logout') : null;
 
 
@@ -53,6 +61,12 @@
         'search'   => '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
 
         'arrow'    => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+
+        'settings' => '<path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.8Z"/>',
+
+'user-cog' => '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6"/><path d="M19 14v2m0 4v-2m-3-2h2m4 0h-2m-3.5-3.5 1.4 1.4m3.8 3.8 1.4 1.4m0-6.6-1.4 1.4m-3.8 3.8-1.4 1.4"/>',
+
+'roles' => '<path d="M12 3 4 7v5c0 5 3.5 8 8 10 4.5-2 8-5 8-10V7l-8-4Z"/><path d="m9 12 2 2 4-4"/>',
 
     ];
 
@@ -1199,35 +1213,95 @@ $workspaceNav = [
 
         }
 
+        .settings-menu {
+    margin-top: 4px;
+}
 
+.settings-toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    list-style: none;
+}
 
-        .empty-icon svg.i { width: 24px; height: 24px; }
+.settings-toggle::-webkit-details-marker {
+    display: none;
+}
 
-        .empty h4 { margin: 0 0 6px; font-family: Manrope, sans-serif; font-size: 15px; }
+.settings-chevron {
+    margin-left: auto;
+    transition: transform .2s ease;
+}
 
-        .empty p { margin: 0; color: var(--muted); font-size: 13px; }
+.settings-menu[open] .settings-chevron {
+    transform: rotate(180deg);
+}
 
+.settings-submenu {
+    display: grid;
+    gap: 4px;
+    padding: 6px 0 4px 32px;
+}
 
+/* Settings dropdown */
+.settings-menu {
+    display: block;
+    margin-top: 4px;
+}
 
-        .panel-foot {
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    min-height: 43px;
+    padding: 0 12px;
+    gap: 12px;
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #c5d4cb;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    list-style: none;
+}
 
-            display: flex;
+.settings-toggle::-webkit-details-marker {
+    display: none;
+}
 
-            justify-content: space-between;
+.settings-toggle > svg:first-child {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+}
 
-            gap: 12px;
+.settings-chevron {
+    width: 15px;
+    height: 15px;
+    margin-left: auto;
+    transition: transform .2s ease;
+}
 
-            padding: 13px 21px;
+.settings-menu[open] .settings-chevron {
+    transform: rotate(180deg);
+}
 
-            border-top: 1px solid var(--line);
+.settings-submenu {
+    display: grid;
+    gap: 4px;
+    margin: 5px 0 5px 15px;
+    padding: 5px 0 5px 13px;
+    border-left: 1px solid rgba(255,255,255,.16);
+}
 
-            background: #fbfcfb;
+.settings-submenu .nav-item {
+    min-height: 39px;
+    font-size: 13px;
+}
 
-            color: var(--muted);
-
-            font-size: 11.5px;
-
-        }
 
 
 
@@ -1474,27 +1548,71 @@ $workspaceNav = [
 
 
 
-        @if ($securityUrl)
+       
+<div class="nav-label">Administration</div>
 
-            <div class="nav-label">Administration</div>
+<nav class="nav" aria-label="Administration navigation">
 
-            <nav class="nav" aria-label="Administration navigation">
+    {{-- Security Settings --}}
+    @if ($securityUrl)
+        <a href="{{ $securityUrl }}"
+           class="nav-item {{ request()->routeIs('super-admin.security') ? 'active' : '' }}"
+           @if(request()->routeIs('super-admin.security')) aria-current="page" @endif>
 
-                <a href="{{ $securityUrl }}"
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+                {!! $icons['shield'] !!}
+            </svg>
 
-                   class="nav-item {{ request()->routeIs('super-admin.security') ? 'active' : '' }}"
+            Security settings
+        </a>
+    @endif
 
-                   @if(request()->routeIs('super-admin.security')) aria-current="page" @endif>
+    {{-- Settings Dropdown --}}
+    <details class="settings-menu"
+        {{ request()->routeIs('super-admin.users.*', 'super-admin.roles.*') ? 'open' : '' }}>
 
-                    <svg class="i" viewBox="0 0 24 24" aria-hidden="true">{!! $icons['shield'] !!}</svg>
+        <summary class="nav-item settings-toggle
+            {{ request()->routeIs('super-admin.users.*', 'super-admin.roles.*') ? 'active' : '' }}">
 
-                    Security settings
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+                {!! $icons['settings'] !!}
+            </svg>
 
-                </a>
+            Settings
 
-            </nav>
+            <svg class="i settings-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"/>
+            </svg>
+        </summary>
 
-        @endif
+        <div class="settings-submenu">
+
+            {{-- User Management --}}
+            <a href="{{ $usersUrl }}"
+               class="nav-item {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
+
+                <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+                    {!! $icons['user-cog'] !!}
+                </svg>
+
+                User Management
+            </a>
+
+            {{-- Roles and Permissions --}}
+            <a href="{{ $rolesUrl }}"
+               class="nav-item {{ request()->routeIs('super-admin.roles.*') ? 'active' : '' }}">
+
+                <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+                    {!! $icons['roles'] !!}
+                </svg>
+
+                Roles & Permissions
+            </a>
+
+        </div>
+    </details>
+
+</nav>
 
 
 

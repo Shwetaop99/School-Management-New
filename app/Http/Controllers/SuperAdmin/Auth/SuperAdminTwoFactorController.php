@@ -89,9 +89,12 @@ class SuperAdminTwoFactorController extends Controller
 
     RateLimiter::clear($key);
 
-    $request->session()->put('super_admin_2fa_verified', true);
-    $request->session()->forget('super_admin_2fa_pending');
+// Regenerate the session ID after successful verification.
+$request->session()->regenerate();
 
-    return redirect()->route('super-admin.dashboard');
+$request->session()->put('super_admin_2fa_verified', true);
+$request->session()->forget('super_admin_2fa_pending');
+
+return redirect()->route('super-admin.dashboard');
 }
 }
