@@ -1,1650 +1,1532 @@
 
 @extends('layouts.app')
 
-@section('title', 'Create Fee Structure')
+@section('title', 'Create Fee Structure | Admin')
+@section('page-title', 'Create Fee Structure')
 
 @section('content')
 
-<style>
-    .fee-page {
-        background: #f4f7fb;
-        min-height: calc(100vh - 64px);
-        padding: 25px;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-
-    .page-title {
-        margin: 0;
-        font-size: 27px;
-        font-weight: 700;
-        color: #1f2937;
-    }
-
-    .page-subtitle {
-        margin: 5px 0 0;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 10px 17px;
-        border-radius: 9px;
-        background: #fff;
-        color: #374151;
-        text-decoration: none;
-        border: 1px solid #e5e7eb;
-        font-weight: 600;
-        transition: .2s;
-    }
-
-    .back-btn:hover {
-        color: #1769d1;
-        border-color: #1769d1;
-        background: #f8fbff;
-    }
-
-    .form-card {
-        background: #fff;
-        border-radius: 16px;
-        border: 1px solid #e7ebf2;
-        box-shadow: 0 5px 20px rgba(31, 41, 55, .06);
-        overflow: hidden;
-        margin-bottom: 22px;
-    }
-
-    .card-header-custom {
-        padding: 18px 22px;
-        background: linear-gradient(135deg, #147cf5, #6c63ff);
-        color: #fff;
-    }
-
-    .card-header-custom h5 {
-        margin: 0;
-        font-size: 17px;
-        font-weight: 700;
-    }
-
-    .card-header-custom p {
-        margin: 4px 0 0;
-        font-size: 13px;
-        opacity: .9;
-    }
-
-    .card-body-custom {
-        padding: 24px;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 7px;
-        font-size: 14px;
-    }
-
-    .required {
-        color: #dc3545;
-    }
-
-    .form-control,
-    .form-select {
-        min-height: 44px;
-        border: 1px solid #dce2ea;
-        border-radius: 9px;
-        font-size: 14px;
-        box-shadow: none !important;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #147cf5;
-        box-shadow: 0 0 0 3px rgba(20, 124, 245, .10) !important;
-    }
-
-    .form-select:disabled {
-        background-color: #f3f4f6;
-        cursor: not-allowed;
-    }
-
-    .field-help {
-        font-size: 12px;
-        color: #8a94a6;
-        margin-top: 5px;
-    }
-
-    .fee-table-wrapper {
-        overflow-x: auto;
-    }
-
-    .fee-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    .fee-table th {
-        background: #f6f8fc;
-        color: #4b5563;
-        font-size: 13px;
-        font-weight: 700;
-        padding: 13px 10px;
-        border-bottom: 1px solid #e5e7eb;
-        white-space: nowrap;
-    }
-
-    .fee-table td {
-        padding: 10px;
-        border-bottom: 1px solid #edf0f5;
-        vertical-align: top;
-    }
-
-    .fee-table .form-control,
-    .fee-table .form-select {
-        min-width: 130px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | MANUAL FEE FIELD
-    |--------------------------------------------------------------------------
-    */
-
-    .manual-fee-name {
-        margin-top: 8px;
-        display: none;
-    }
-
-    .manual-label {
-        display: none;
-        margin-top: 6px;
-        font-size: 11px;
-        color: #6c63ff;
-        font-weight: 600;
-    }
-
-    .manual-fee-name.is-invalid {
-        border-color: #dc3545 !important;
-    }
-
-    .add-row-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        border: 1px solid #147cf5;
-        color: #147cf5;
-        background: #fff;
-        border-radius: 8px;
-        padding: 9px 15px;
-        font-size: 13px;
-        font-weight: 600;
-        transition: .2s;
-    }
-
-    .add-row-btn:hover {
-        background: #147cf5;
-        color: #fff;
-    }
-
-    .remove-row-btn {
-        width: 38px;
-        height: 38px;
-        border: 1px solid #f1c5ca;
-        color: #dc3545;
-        background: #fff;
-        border-radius: 8px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: .2s;
-    }
-
-    .remove-row-btn:hover {
-        background: #dc3545;
-        color: #fff;
-        border-color: #dc3545;
-    }
-
-    .total-box {
-        background: #f5f8ff;
-        border: 1px solid #dbe7ff;
-        border-radius: 12px;
-        padding: 16px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 18px;
-    }
-
-    .total-label {
-        font-size: 14px;
-        font-weight: 700;
-        color: #4b5563;
-    }
-
-    .total-amount {
-        font-size: 22px;
-        font-weight: 800;
-        color: #1769d1;
-    }
-
-    .bottom-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        padding-top: 5px;
-        padding-bottom: 25px;
-    }
-
-    .btn-cancel {
-        background: #fff;
-        border: 1px solid #d9dee7;
-        color: #4b5563;
-        padding: 11px 20px;
-        border-radius: 9px;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    .btn-save {
-        border: 0;
-        background: linear-gradient(135deg, #147cf5, #6c63ff);
-        color: #fff;
-        padding: 11px 22px;
-        border-radius: 9px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 5px 14px rgba(20, 124, 245, .20);
-    }
-
-    .btn-save:hover {
-        opacity: .94;
-    }
-
-    .alert-danger-custom {
-        background: #fff1f2;
-        border: 1px solid #fecdd3;
-        color: #9f1239;
-        border-radius: 10px;
-        padding: 14px 17px;
-        margin-bottom: 20px;
-    }
-
-    .alert-danger-custom ul {
-        margin: 6px 0 0 20px;
-    }
-
-    .manual-info {
-        margin-top: 14px;
-        padding: 12px 15px;
-        background: #f6f4ff;
-        border: 1px solid #e4defe;
-        border-radius: 9px;
-        color: #5b52a3;
-        font-size: 12px;
-    }
-
-    @media (max-width: 768px) {
-
-        .fee-page {
-            padding: 15px;
-        }
-
-        .page-title {
-            font-size: 22px;
-        }
-
-        .card-body-custom {
-            padding: 17px;
-        }
-
-        .bottom-actions {
-            flex-direction: column;
-        }
-
-        .btn-cancel,
-        .btn-save {
-            width: 100%;
-            text-align: center;
-        }
-    }
-</style>
-
-
-<div class="fee-page">
-
-    {{-- PAGE HEADER --}}
-    <div class="page-header">
-
-        <div>
-
-            <h1 class="page-title">
-                Create Fee Structure
-            </h1>
-
-            <p class="page-subtitle">
-                Create a fee structure for an academic year, class and section.
-            </p>
-
-        </div>
-
-        <a
-            href="{{ route('admin.fees.fee-structures.index') }}"
-            class="back-btn"
-        >
-            <i class="bi bi-arrow-left"></i>
-            Back to Fee Structures
-        </a>
-
-    </div>
-
-
-    {{-- VALIDATION ERRORS --}}
-    @if ($errors->any())
-
-        <div class="alert-danger-custom">
-
-            <strong>
-                <i class="bi bi-exclamation-triangle me-1"></i>
-                Please fix the following errors:
-            </strong>
-
-            <ul>
-
-                @foreach ($errors->all() as $error)
-
-                    <li>
-                        {{ $error }}
-                    </li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    <form
-        action="{{ route('admin.fees.fee-structures.store') }}"
-        method="POST"
-        id="feeStructureForm"
-    >
-
-        @csrf
-
-
-        {{-- BASIC INFORMATION --}}
-        <div class="form-card">
-
-            <div class="card-header-custom">
-
-                <h5>
-                    <i class="bi bi-building me-2"></i>
-                    Basic Information
-                </h5>
-
-                <p>
-                    Select the academic year, class and section.
-                </p>
-
+<div class="fee-create-page">
+    <div class="container-fluid py-4">
+
+        {{-- PAGE HERO --}}
+        <section class="form-hero">
+            <div class="form-hero-content">
+                <div class="form-hero-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+
+                <div class="form-hero-text">
+                    <div class="form-breadcrumb">
+                        FEES <span>/</span> FEE STRUCTURES <span>/</span> CREATE
+                    </div>
+
+                    <h2>Create Fee Structure</h2>
+                    <p>Configure academic fees, class, section and payment components.</p>
+                </div>
             </div>
 
+            <div class="form-hero-actions">
+                <a href="{{ route('admin.fees.fee-structures.index') }}"
+                   class="diary-reset-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Fee Structures
+                </a>
+            </div>
+        </section>
 
-            <div class="card-body-custom">
+        {{-- VALIDATION ERRORS --}}
+        @if($errors->any())
+            <div class="form-error-alert" role="alert">
+                <span class="error-icon">
+                    <i class="fas fa-exclamation"></i>
+                </span>
 
-                <div class="row g-4">
+                <div class="error-copy">
+                    <strong>Please correct the following errors:</strong>
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
 
+                <button type="button"
+                        class="alert-close"
+                        onclick="this.parentElement.remove();"
+                        aria-label="Close alert">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        @endif
 
-                    {{-- ACADEMIC YEAR --}}
-                    <div class="col-md-6">
+        <form action="{{ route('admin.fees.fee-structures.store') }}"
+              method="POST"
+              id="feeStructureForm">
+            @csrf
 
-                        <label
-                            for="academic_year"
-                            class="form-label"
-                        >
-                            Academic Year
-                            <span class="required">*</span>
-                        </label>
+            {{-- BASIC INFORMATION --}}
+            <section class="form-card">
 
-                        <select
-                            name="academic_year"
-                            id="academic_year"
-                            class="form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Select Academic Year
-                            </option>
-
-                            @foreach($academicYears ?? [] as $year)
-
-                                <option
-                                    value="{{ $year }}"
-                                    {{ old('academic_year') == $year ? 'selected' : '' }}
-                                >
-                                    {{ $year }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        <div class="field-help">
-                            Academic years are taken from existing student data.
+                <div class="form-panel-header">
+                    <div class="panel-title-wrap">
+                        <div class="panel-title-icon">
+                            <i class="fas fa-school"></i>
                         </div>
 
-                        @error('academic_year')
-
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
+                        <div>
+                            <div class="section-eyebrow">ACADEMIC DETAILS</div>
+                            <h3>Basic Information</h3>
+                            <p>Choose the academic year, class and section.</p>
+                        </div>
                     </div>
 
+                    <div class="required-info">
+                        <span>*</span> Required fields
+                    </div>
+                </div>
 
-                    {{-- CLASS --}}
-                    <div class="col-md-6">
+                <div class="form-body">
 
-                        <label
-                            for="class_id"
-                            class="form-label"
-                        >
-                            Class
-                            <span class="required">*</span>
-                        </label>
+                    <div class="form-section">
+                        <div class="section-heading">
+                            <div class="section-heading-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
 
-                        <select
-                            name="class_id"
-                            id="class_id"
-                            class="form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Select Class
-                            </option>
-
-                            @foreach($classes ?? [] as $class)
-
-                                <option
-                                    value="{{ $class->id }}"
-                                    {{ old('class_id') == $class->id ? 'selected' : '' }}
-                                >
-                                    {{ $class->class_name }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        <div class="field-help">
-                            Select a class to load its sections.
+                            <div>
+                                <h4>Class & Academic Details</h4>
+                                <span>Define which students this fee structure applies to.</span>
+                            </div>
                         </div>
 
-                        @error('class_id')
+                        <div class="form-grid">
 
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
+                            {{-- ACADEMIC YEAR --}}
+                            <div class="diary-filter-group">
+                                <label for="academic_year">
+                                    Academic Year <span class="required">*</span>
+                                </label>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-calendar-alt input-icon"></i>
+
+                                    <select name="academic_year"
+                                            id="academic_year"
+                                            class="diary-control with-icon @error('academic_year') is-invalid @enderror"
+                                            required>
+                                        <option value="">Select Academic Year</option>
+
+                                        @foreach($academicYears ?? [] as $year)
+                                            <option value="{{ $year }}"
+                                                @selected((string)old('academic_year') === (string)$year)>
+                                                {{ $year }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="field-help">
+                                    <i class="fas fa-circle-info"></i>
+                                    Academic years are taken from existing student data.
+                                </div>
+
+                                @error('academic_year')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
                             </div>
 
-                        @enderror
+                            {{-- CLASS --}}
+                            <div class="diary-filter-group">
+                                <label for="class_id">
+                                    Class <span class="required">*</span>
+                                </label>
 
-                    </div>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-chalkboard input-icon"></i>
 
+                                    <select name="class_id"
+                                            id="class_id"
+                                            class="diary-control with-icon @error('class_id') is-invalid @enderror"
+                                            required>
+                                        <option value="">Select Class</option>
 
-                    {{-- SECTION --}}
-                    <div class="col-md-6">
+                                        @foreach($classes ?? [] as $class)
+                                            <option value="{{ $class->id }}"
+                                                @selected((string)old('class_id') === (string)$class->id)>
+                                                {{ $class->class_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                        <label
-                            for="section_id"
-                            class="form-label"
-                        >
-                            Section
-                        </label>
+                                <div class="field-help">
+                                    <i class="fas fa-circle-info"></i>
+                                    Select a class to load its available sections.
+                                </div>
 
-                        <select
-                            name="section_id"
-                            id="section_id"
-                            class="form-select"
-                            disabled
-                        >
+                                @error('class_id')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                            <option value="">
-                                Select Section
-                            </option>
+                            {{-- SECTION --}}
+                            <div class="diary-filter-group">
+                                <label for="section_id">Section</label>
 
-                        </select>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-users input-icon"></i>
 
-                        <div
-                            class="field-help"
-                            id="sectionHelp"
-                        >
-                            Select a class first.
+                                    <select name="section_id"
+                                            id="section_id"
+                                            class="diary-control with-icon"
+                                            disabled>
+                                        <option value="">All Sections</option>
+                                    </select>
+                                </div>
+
+                                <div class="field-help" id="sectionHelp">
+                                    <i class="fas fa-circle-info"></i>
+                                    Select a class first.
+                                </div>
+
+                                @error('section_id')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- STRUCTURE NAME --}}
+                            <div class="diary-filter-group">
+                                <label for="structure_name">
+                                    Structure Name <span class="required">*</span>
+                                </label>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-file-signature input-icon"></i>
+
+                                    <input type="text"
+                                           name="structure_name"
+                                           id="structure_name"
+                                           class="diary-control with-icon @error('structure_name') is-invalid @enderror"
+                                           placeholder="Example: 2026-27 Class 5 Fee Structure"
+                                           value="{{ old('structure_name') }}"
+                                           maxlength="255"
+                                           required>
+                                </div>
+
+                                @error('structure_name')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- STATUS --}}
+                            <div class="diary-filter-group">
+                                <label for="status">
+                                    Status <span class="required">*</span>
+                                </label>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-toggle-on input-icon"></i>
+
+                                    <select name="status"
+                                            id="status"
+                                            class="diary-control with-icon"
+                                            required>
+                                        <option value="Active"
+                                            @selected(old('status', 'Active') === 'Active')>
+                                            Active
+                                        </option>
+
+                                        <option value="Inactive"
+                                            @selected(old('status') === 'Inactive')>
+                                            Inactive
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
-
-                        @error('section_id')
-
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- STRUCTURE NAME --}}
-                    <div class="col-md-6">
-
-                        <label
-                            for="structure_name"
-                            class="form-label"
-                        >
-                            Structure Name
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            name="structure_name"
-                            id="structure_name"
-                            class="form-control"
-                            value="{{ old('structure_name') }}"
-                            placeholder="Example: 2026-27 Class 5 Fee Structure"
-                            required
-                        >
-
-                        @error('structure_name')
-
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- STATUS --}}
-                    <div class="col-md-6">
-
-                        <label
-                            for="status"
-                            class="form-label"
-                        >
-                            Status
-                            <span class="required">*</span>
-                        </label>
-
-                        <select
-                            name="status"
-                            id="status"
-                            class="form-select"
-                            required
-                        >
-
-                            <option
-                                value="Active"
-                                {{ old('status', 'Active') == 'Active' ? 'selected' : '' }}
-                            >
-                                Active
-                            </option>
-
-                            <option
-                                value="Inactive"
-                                {{ old('status') == 'Inactive' ? 'selected' : '' }}
-                            >
-                                Inactive
-                            </option>
-
-                        </select>
-
                     </div>
 
                 </div>
+            </section>
 
-            </div>
+            {{-- FEE COMPONENTS --}}
+            <section class="form-card fee-items-card">
 
-        </div>
-
-
-        {{-- FEE ITEMS --}}
-        <div class="form-card">
-
-            <div class="card-header-custom">
-
-                <h5>
-                    <i class="bi bi-cash-stack me-2"></i>
-                    Fee Items
-                </h5>
-
-                <p>
-                    Select an existing fee type or create a manual fee.
-                </p>
-
-            </div>
-
-
-            <div class="card-body-custom">
-
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-
-                    <div>
-
-                        <strong class="text-dark">
-                            Fee Components
-                        </strong>
-
-                        <div class="field-help">
-                            You can select an existing fee type or choose Manual / Custom Fee.
+                <div class="form-panel-header">
+                    <div class="panel-title-wrap">
+                        <div class="panel-title-icon">
+                            <i class="fas fa-money-check-alt"></i>
                         </div>
 
+                        <div>
+                            <div class="section-eyebrow">FEE REGISTER</div>
+                            <h3>Fee Components</h3>
+                            <p>Add existing fee types or create custom fee components.</p>
+                        </div>
                     </div>
 
-                    <button
-                        type="button"
-                        class="add-row-btn"
-                        id="addFeeRow"
-                    >
-                        <i class="bi bi-plus-circle"></i>
-                        Add Fee
-                    </button>
-
+                    <div class="fee-count-badge">
+                        <i class="fas fa-list-ul"></i>
+                        Fee Items
+                    </div>
                 </div>
 
+                <div class="form-body">
 
-                <div class="fee-table-wrapper">
+                    <div class="fee-toolbar">
+                        <div>
+                            <h4>Fee Breakdown</h4>
+                            <p>Enter the amount and optional due date for each fee.</p>
+                        </div>
 
-                    <table class="fee-table">
+                        <button type="button"
+                                class="diary-add-btn"
+                                id="addFeeRow">
+                            <i class="fas fa-plus"></i>
+                            Add Fee
+                        </button>
+                    </div>
 
-                        <thead>
+                    {{-- FEE TABLE --}}
+                    <div class="fee-table-wrapper">
+                        <table class="fee-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:36%">Fee Type</th>
+                                    <th style="width:22%">Amount (₹)</th>
+                                    <th style="width:25%">Due Date</th>
+                                    <th style="width:12%;text-align:center">Action</th>
+                                </tr>
+                            </thead>
 
-                            <tr>
+                            <tbody id="feeItemsBody">
 
-                                <th style="width:34%;">
-                                    Fee Type
-                                </th>
+                                @php
+                                    $oldFeeTypes = old('fee_type_id', ['']);
+                                    $oldAmounts = old('amount', []);
+                                    $oldDueDates = old('due_date', []);
+                                    $oldManualNames = old('manual_fee_name', []);
+                                @endphp
 
-                                <th style="width:20%;">
-                                    Amount
-                                </th>
-
-                                <th style="width:22%;">
-                                    Due Date
-                                </th>
-
-                                <th style="width:12%; text-align:center;">
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="feeItemsBody">
-
-                            @if(old('fee_type_id'))
-
-                                @foreach(old('fee_type_id') as $index => $oldFeeType)
+                                @foreach($oldFeeTypes as $index => $oldFeeType)
 
                                     <tr class="fee-row">
 
                                         <td>
-
-                                            <select
-                                                name="fee_type_id[]"
-                                                class="form-select fee-type-select"
-                                                required
-                                            >
-
-                                                <option value="">
-                                                    Select Fee Type
-                                                </option>
+                                            <select name="fee_type_id[]"
+                                                    class="diary-control fee-type-select"
+                                                    required>
+                                                <option value="">Select Fee Type</option>
 
                                                 @foreach($feeTypes ?? [] as $feeType)
-
-                                                    <option
-                                                        value="{{ $feeType->id }}"
-                                                        data-amount="{{ $feeType->amount }}"
-                                                        {{ (string) $oldFeeType === (string) $feeType->id ? 'selected' : '' }}
-                                                    >
+                                                    <option value="{{ $feeType->id }}"
+                                                            data-amount="{{ $feeType->amount }}"
+                                                            @selected((string)$oldFeeType === (string)$feeType->id)>
                                                         {{ $feeType->name }}
                                                     </option>
-
                                                 @endforeach
 
-                                                <option
-                                                    value="manual"
-                                                    {{ (string) $oldFeeType === 'manual' ? 'selected' : '' }}
-                                                >
+                                                <option value="manual"
+                                                    @selected((string)$oldFeeType === 'manual')>
                                                     + Manual / Custom Fee
                                                 </option>
-
                                             </select>
 
+                                            <div class="manual-label">Custom Fee Name</div>
 
-                                            <div class="manual-label">
-                                                Custom Fee Name
+                                            <input type="text"
+                                                   name="manual_fee_name[]"
+                                                   class="diary-control manual-fee-name"
+                                                   value="{{ $oldManualNames[$index] ?? '' }}"
+                                                   placeholder="Enter custom fee name"
+                                                   maxlength="255">
+                                        </td>
+
+                                        <td>
+                                            <div class="input-wrapper">
+                                                <i class="fas fa-rupee-sign input-icon"></i>
+
+                                                <input type="number"
+                                                       name="amount[]"
+                                                       class="diary-control with-icon amount-input"
+                                                       value="{{ $oldAmounts[$index] ?? '' }}"
+                                                       min="0"
+                                                       step="0.01"
+                                                       placeholder="0.00"
+                                                       required>
                                             </div>
-
-                                            <input
-                                                type="text"
-                                                name="manual_fee_name[]"
-                                                class="form-control manual-fee-name"
-                                                value="{{ old('manual_fee_name.' . $index) }}"
-                                                placeholder="Enter custom fee name"
-                                            >
-
                                         </td>
-
 
                                         <td>
+                                            <div class="input-wrapper">
+                                                <i class="fas fa-calendar input-icon"></i>
 
-                                            <input
-                                                type="number"
-                                                name="amount[]"
-                                                class="form-control amount-input"
-                                                value="{{ old('amount.' . $index) }}"
-                                                min="0"
-                                                step="0.01"
-                                                placeholder="0.00"
-                                                required
-                                            >
-
+                                                <input type="date"
+                                                       name="due_date[]"
+                                                       class="diary-control with-icon"
+                                                       value="{{ $oldDueDates[$index] ?? '' }}">
+                                            </div>
                                         </td>
-
-
-                                        <td>
-
-                                            <input
-                                                type="date"
-                                                name="due_date[]"
-                                                class="form-control"
-                                                value="{{ old('due_date.' . $index) }}"
-                                            >
-
-                                        </td>
-
 
                                         <td class="text-center">
-
-                                            <button
-                                                type="button"
-                                                class="remove-row-btn remove-fee-row"
-                                                title="Remove"
-                                            >
-                                                <i class="bi bi-trash"></i>
+                                            <button type="button"
+                                                    class="remove-row-btn remove-fee-row"
+                                                    title="Remove fee">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
-
                                         </td>
 
                                     </tr>
 
                                 @endforeach
 
-                            @else
+                            </tbody>
+                        </table>
+                    </div>
 
-                                <tr class="fee-row">
+                    {{-- MANUAL FEE INFORMATION --}}
+                    <div class="manual-info">
+                        <div class="manual-info-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
 
-                                    <td>
+                        <div>
+                            <strong>Custom Fee Information</strong>
+                            <p>
+                                Choose <strong>Manual / Custom Fee</strong> when the required
+                                fee type is not available in the existing list. Enter the
+                                custom fee name and amount manually.
+                            </p>
+                        </div>
+                    </div>
 
-                                        <select
-                                            name="fee_type_id[]"
-                                            class="form-select fee-type-select"
-                                            required
-                                        >
+                    {{-- TOTAL --}}
+                    <div class="total-box">
+                        <div class="total-information">
+                            <div class="total-icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
 
-                                            <option value="">
-                                                Select Fee Type
-                                            </option>
+                            <div>
+                                <strong>Total Fee Amount</strong>
+                                <span>Calculated automatically from all fee items.</span>
+                            </div>
+                        </div>
 
-                                            @foreach($feeTypes ?? [] as $feeType)
-
-                                                <option
-                                                    value="{{ $feeType->id }}"
-                                                    data-amount="{{ $feeType->amount }}"
-                                                >
-                                                    {{ $feeType->name }}
-                                                </option>
-
-                                            @endforeach
-
-                                            <option value="manual">
-                                                + Manual / Custom Fee
-                                            </option>
-
-                                        </select>
-
-
-                                        <div class="manual-label">
-                                            Custom Fee Name
-                                        </div>
-
-                                        <input
-                                            type="text"
-                                            name="manual_fee_name[]"
-                                            class="form-control manual-fee-name"
-                                            placeholder="Enter custom fee name"
-                                        >
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <input
-                                            type="number"
-                                            name="amount[]"
-                                            class="form-control amount-input"
-                                            min="0"
-                                            step="0.01"
-                                            placeholder="0.00"
-                                            required
-                                        >
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <input
-                                            type="date"
-                                            name="due_date[]"
-                                            class="form-control"
-                                        >
-
-                                    </td>
-
-
-                                    <td class="text-center">
-
-                                        <button
-                                            type="button"
-                                            class="remove-row-btn remove-fee-row"
-                                            title="Remove"
-                                        >
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-
-                                    </td>
-
-                                </tr>
-
-                            @endif
-
-                        </tbody>
-
-                    </table>
+                        <div class="total-amount">
+                            <span class="currency-symbol">₹</span>
+                            <span id="totalAmount">0.00</span>
+                        </div>
+                    </div>
 
                 </div>
+            </section>
 
+            {{-- ACTIONS --}}
+            <div class="form-actions">
+                <a href="{{ route('admin.fees.fee-structures.index') }}"
+                   class="diary-reset-btn">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
 
-                <div class="manual-info">
-
-                    <i class="bi bi-info-circle me-1"></i>
-
-                    <strong>Manual Fee:</strong>
-
-                    Choose
-                    <strong>+ Manual / Custom Fee</strong>
-                    when the fee is not available in the existing Fee Type list.
-
-                    Enter its name and amount manually.
-
-                </div>
-
-
-                <div class="total-box">
-
-                    <span class="total-label">
-                        Total Fee Amount
-                    </span>
-
-                    <span class="total-amount">
-                        &#8377;
-                        <span id="totalAmount">
-                            0.00
-                        </span>
-                    </span>
-
-                </div>
-
+                <button type="submit"
+                        id="saveButton"
+                        class="diary-primary-btn">
+                    <i class="fas fa-check"></i>
+                    Save Fee Structure
+                </button>
             </div>
 
-        </div>
-
-
-        {{-- ACTIONS --}}
-        <div class="bottom-actions">
-
-            <a
-                href="{{ route('admin.fees.fee-structures.index') }}"
-                class="btn-cancel"
-            >
-                Cancel
-            </a>
-
-            <button
-                type="submit"
-                class="btn-save"
-            >
-                <i class="bi bi-check-circle me-1"></i>
-                Save Fee Structure
-            </button>
-
-        </div>
-
-    </form>
-
+        </form>
+    </div>
 </div>
 
+<style>
+/* =========================================================
+   SCHOOL DIARY DESIGN SYSTEM
+   FEE STRUCTURE — CREATE
+   Scoped exclusively to .fee-create-page
+========================================================= */
+
+.fee-create-page {
+    --ink: #263b35;
+    --ink-dark: #1d302b;
+    --ink-hover: #456854;
+    --text: #34423d;
+    --muted: #78827a;
+    --line: #e5e1d5;
+    --paper: #fffefa;
+    --paper-bg: #f7f6f0;
+    --chalk: #f4f0df;
+    --blue: #2b5d8a;
+    --amber: #a87543;
+    --green: #3a8060;
+    --red: #bd5148;
+    --serif: Georgia, "Times New Roman", serif;
+
+    min-height: calc(100vh - 70px);
+    color: var(--text);
+    background: var(--paper-bg);
+    font-family: "Public Sans", Inter, Arial, sans-serif;
+}
+
+.fee-create-page *,
+.fee-create-page *::before,
+.fee-create-page *::after {
+    box-sizing: border-box;
+}
+
+.fee-create-page a,
+.fee-create-page button {
+    transition: color .18s ease, background .18s ease,
+        border-color .18s ease, transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.fee-create-page .container-fluid {
+    width: 100%;
+    max-width: 1650px;
+    margin: 0 auto;
+}
+
+.fee-create-page .form-hero,
+.fee-create-page .form-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+}
+
+/* HERO */
+
+.fee-create-page .form-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 18px rgba(38,59,53,.045);
+}
+
+.fee-create-page .form-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 34px;
+    width: 2px;
+    background: rgba(189,81,72,.35);
+}
+
+.fee-create-page .form-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    min-width: 0;
+    padding: 26px 28px 26px 56px;
+    background: radial-gradient(ellipse at top left,rgba(244,240,223,.65),transparent 65%),var(--paper);
+}
+
+.fee-create-page .form-hero-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    border: 1px solid #e6dfce;
+    border-radius: 12px;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 22px;
+}
+
+.fee-create-page .form-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 7px;
+    color: var(--amber);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+}
+
+.fee-create-page .form-breadcrumb span {
+    color: #b8b09e;
+}
+
+.fee-create-page .form-hero-text h2 {
+    margin: 0 0 7px;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 29px;
+    font-weight: 700;
+}
+
+.fee-create-page .form-hero-text p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.75;
+}
+
+.fee-create-page .form-hero-actions {
+    padding: 0 28px;
+}
+
+/* BUTTONS */
+
+.fee-create-page .diary-primary-btn,
+.fee-create-page .diary-reset-btn,
+.fee-create-page .diary-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 41px;
+    padding: 10px 16px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none !important;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.fee-create-page .diary-primary-btn {
+    border: 1px solid var(--ink);
+    color: white;
+    background: var(--ink);
+}
+
+.fee-create-page .diary-primary-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--ink-hover);
+    color: white;
+    background: var(--ink-hover);
+    box-shadow: 0 5px 13px rgba(29,48,43,.14);
+}
+
+.fee-create-page .diary-primary-btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.fee-create-page .diary-reset-btn {
+    border: 1px solid #deded2;
+    color: #59675d;
+    background: #fffefa;
+}
+
+.fee-create-page .diary-reset-btn:hover {
+    border-color: #b7c4b7;
+    color: var(--ink);
+    background: #f5f4eb;
+}
+
+.fee-create-page .diary-add-btn {
+    border: 1px solid var(--ink);
+    color: white;
+    background: var(--ink);
+}
+
+.fee-create-page .diary-add-btn:hover {
+    transform: translateY(-2px);
+    background: var(--ink-hover);
+}
+
+/* ALERT */
+
+.fee-create-page .form-error-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border: 1px solid #f0d5ce;
+    border-radius: 9px;
+    color: #a84840;
+    background: #fff4ef;
+    font-size: 12px;
+}
+
+.fee-create-page .error-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 27px;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background: #fbe0d8;
+}
+
+.fee-create-page .error-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.fee-create-page .error-copy strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.fee-create-page .error-copy ul {
+    margin: 0;
+    padding-left: 18px;
+    line-height: 1.7;
+}
+
+.fee-create-page .alert-close {
+    border: 0;
+    color: #68746a;
+    background: transparent;
+    cursor: pointer;
+}
+
+/* FORM CARD */
+
+.fee-create-page .form-card {
+    overflow: hidden;
+    margin-bottom: 23px;
+    box-shadow: 0 5px 17px rgba(38,59,53,.04);
+}
+
+.fee-create-page .form-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 21px;
+    border-bottom: 1px dashed #d8d1bf;
+}
+
+.fee-create-page .panel-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.fee-create-page .panel-title-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e3e2d5;
+    border-radius: 9px;
+    color: var(--ink);
+    background: var(--chalk);
+}
+
+.fee-create-page .section-eyebrow {
+    margin-bottom: 4px;
+    color: var(--amber);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.fee-create-page .panel-title-wrap h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.fee-create-page .panel-title-wrap p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.fee-create-page .required-info,
+.fee-create-page .fee-count-badge {
+    flex-shrink: 0;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    color: var(--muted);
+    background: #faf9f4;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.fee-create-page .required-info span {
+    color: var(--red);
+}
+
+.fee-create-page .form-body {
+    padding: 24px 22px;
+}
+
+.fee-create-page .form-section {
+    padding-bottom: 12px;
+}
+
+.fee-create-page .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 20px;
+}
+
+.fee-create-page .section-heading-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e3e2d5;
+    border-radius: 9px;
+    color: var(--ink);
+    background: var(--chalk);
+}
+
+.fee-create-page .section-heading h4 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 16px;
+}
+
+.fee-create-page .section-heading span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* GRID */
+
+.fee-create-page .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    align-items: start;
+    gap: 20px 16px;
+}
+
+.fee-create-page .diary-filter-group {
+    min-width: 0;
+}
+
+.fee-create-page .diary-filter-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #68766d;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.fee-create-page .required {
+    color: var(--red);
+}
+
+.fee-create-page .input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.fee-create-page .input-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    z-index: 2;
+    transform: translateY(-50%);
+    color: #929b8f;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.fee-create-page .diary-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 41px;
+    padding: 0 11px;
+    border: 1px solid #deded2;
+    border-radius: 7px;
+    outline: none;
+    color: var(--text);
+    background: #fffefa;
+    font-family: inherit;
+    font-size: 12px;
+    box-shadow: none;
+}
+
+.fee-create-page .diary-control.with-icon {
+    padding-left: 35px;
+}
+
+.fee-create-page select.diary-control {
+    cursor: pointer;
+}
+
+.fee-create-page .diary-control:focus {
+    border-color: #789382;
+    box-shadow: 0 0 0 3px rgba(58,128,96,.11);
+}
+
+.fee-create-page .diary-control:disabled {
+    background: #f5f4eb;
+    cursor: not-allowed;
+    opacity: .75;
+}
+
+.fee-create-page .diary-control.is-invalid {
+    border-color: var(--red);
+    background: #fff8f5;
+}
+
+.fee-create-page .field-help {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+.fee-create-page .field-help i {
+    margin-top: 2px;
+    color: var(--amber);
+}
+
+.fee-create-page .field-error {
+    margin-top: 6px;
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* FEE TOOLBAR */
+
+.fee-create-page .fee-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 17px;
+}
+
+.fee-create-page .fee-toolbar h4 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 16px;
+}
+
+.fee-create-page .fee-toolbar p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* TABLE */
+
+.fee-create-page .fee-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.fee-create-page .fee-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    background: #fffefa;
+}
+
+.fee-create-page .fee-table thead th {
+    padding: 13px 12px;
+    border-bottom: 1px solid var(--line);
+    color: #59675d;
+    background: #f5f3e9;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.fee-create-page .fee-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eeeade;
+    vertical-align: top;
+}
+
+.fee-create-page .fee-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.fee-create-page .fee-table .diary-control {
+    min-width: 130px;
+}
+
+.fee-create-page .fee-table select.diary-control {
+    min-width: 200px;
+}
+
+.fee-create-page .fee-table .input-wrapper .diary-control {
+    min-width: 130px;
+}
+
+/* MANUAL FEE */
+
+.fee-create-page .manual-fee-name {
+    display: none;
+    margin-top: 9px;
+}
+
+.fee-create-page .manual-label {
+    display: none;
+    margin-top: 9px;
+    margin-bottom: 6px;
+    color: var(--amber);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.fee-create-page .manual-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 17px;
+    padding: 13px 15px;
+    border: 1px solid #e6dfc9;
+    border-radius: 8px;
+    color: #765e32;
+    background: #faf5e7;
+}
+
+.fee-create-page .manual-info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e6dfc9;
+    border-radius: 8px;
+    background: white;
+}
+
+.fee-create-page .manual-info strong {
+    font-size: 11px;
+}
+
+.fee-create-page .manual-info p {
+    margin: 4px 0 0;
+    color: #8a7447;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+/* REMOVE BUTTON */
+
+.fee-create-page .remove-row-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 37px;
+    height: 37px;
+    border: 1px solid #efd2cd;
+    border-radius: 7px;
+    color: var(--red);
+    background: #fffefa;
+    cursor: pointer;
+}
+
+.fee-create-page .remove-row-btn:hover {
+    border-color: var(--red);
+    color: white;
+    background: var(--red);
+}
+
+/* TOTAL */
+
+.fee-create-page .total-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 19px;
+    padding: 17px 20px;
+    border: 1px solid #d9dfcf;
+    border-radius: 9px;
+    background: #f5f6ed;
+}
+
+.fee-create-page .total-information {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fee-create-page .total-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 39px;
+    width: 39px;
+    height: 39px;
+    border: 1px solid #d9dfcf;
+    border-radius: 9px;
+    color: var(--green);
+    background: white;
+}
+
+.fee-create-page .total-information strong {
+    display: block;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.fee-create-page .total-information span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.fee-create-page .total-amount {
+    color: var(--ink);
+    font-size: 24px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.fee-create-page .currency-symbol {
+    color: var(--green);
+}
+
+/* ACTIONS */
+
+.fee-create-page .form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 0 25px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px) {
+    .fee-create-page .form-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .fee-create-page .form-hero-actions {
+        padding: 0 28px 22px 56px;
+    }
+}
+
+@media(max-width:650px) {
+    .fee-create-page .container-fluid {
+        padding-top: 18px !important;
+        padding-bottom: 18px !important;
+    }
+
+    .fee-create-page .form-hero::before {
+        left: 22px;
+    }
+
+    .fee-create-page .form-hero-content {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 22px 16px 18px 42px;
+    }
+
+    .fee-create-page .form-hero-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+        font-size: 18px;
+    }
+
+    .fee-create-page .form-hero-text h2 {
+        font-size: 23px;
+    }
+
+    .fee-create-page .form-hero-text p {
+        font-size: 12px;
+    }
+
+    .fee-create-page .form-hero-actions {
+        padding: 0 16px 20px 42px;
+    }
+
+    .fee-create-page .form-hero-actions .diary-reset-btn {
+        width: 100%;
+    }
+
+    .fee-create-page .form-panel-header {
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .fee-create-page .required-info,
+    .fee-create-page .fee-count-badge {
+        display: none;
+    }
+
+    .fee-create-page .form-body {
+        padding: 18px 15px;
+    }
+
+    .fee-create-page .form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .fee-create-page .fee-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .fee-create-page .diary-add-btn {
+        width: 100%;
+    }
+
+    .fee-create-page .total-box {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .fee-create-page .total-amount {
+        font-size: 22px;
+    }
+
+    .fee-create-page .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .fee-create-page .form-actions > * {
+        width: 100%;
+    }
+
+    .fee-create-page .diary-control {
+        font-size: 16px;
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .fee-create-page *,
+    .fee-create-page *::before,
+    .fee-create-page *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    const classSelect = document.getElementById('class_id');
-    const sectionSelect = document.getElementById('section_id');
+    /* =====================================================
+       CLASS AND SECTION AJAX
+    ===================================================== */
+
+    const classEl = document.getElementById('class_id');
+    const sectionEl = document.getElementById('section_id');
     const sectionHelp = document.getElementById('sectionHelp');
 
-    const feeItemsBody = document.getElementById('feeItemsBody');
-    const addFeeRow = document.getElementById('addFeeRow');
-    const totalAmount = document.getElementById('totalAmount');
+    const selectedSection = @json(old('section_id', ''));
 
-    /*
-    |--------------------------------------------------------------------------
-    | SECTION LOADING
-    |--------------------------------------------------------------------------
-    */
+    const sectionsUrl = "{{ route('admin.fees.fee-structures.sections', ['class' => '__ID__']) }}";
 
-    function loadSections(classId, selectedSection = '') {
+    async function loadSections() {
 
-        sectionSelect.disabled = true;
+        sectionEl.innerHTML = '<option value="">All Sections</option>';
+        sectionEl.disabled = true;
 
-        sectionSelect.innerHTML =
-            '<option value="">Loading sections...</option>';
-
-        if (sectionHelp) {
-            sectionHelp.textContent = 'Loading sections...';
-        }
-
-        if (!classId) {
-
-            sectionSelect.innerHTML =
-                '<option value="">Select Section</option>';
-
-            sectionSelect.disabled = true;
-
-            if (sectionHelp) {
-                sectionHelp.textContent = 'Select a class first.';
-            }
-
+        if (!classEl.value) {
+            sectionHelp.innerHTML =
+                '<i class="fas fa-circle-info"></i> Select a class first.';
             return;
         }
 
-        const url =
-            "{{ route('admin.fees.sections', ['classId' => '__CLASS_ID__']) }}"
-                .replace(
-                    '__CLASS_ID__',
-                    encodeURIComponent(classId)
-                );
+        sectionHelp.textContent = 'Loading sections...';
 
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin',
-            cache: 'no-store'
-        })
-        .then(function (response) {
+        try {
+            const response = await fetch(
+                sectionsUrl.replace('__ID__', encodeURIComponent(classEl.value)),
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }
+            );
 
             if (!response.ok) {
-                throw new Error(
-                    'HTTP Error: ' + response.status
+                throw new Error('HTTP error: ' + response.status);
+            }
+
+            let result = await response.text();
+
+            result = result.replace(/^\uFEFF/, '').trim();
+
+            const sections = JSON.parse(result);
+
+            if (!Array.isArray(sections)) {
+                throw new Error('Invalid sections response');
+            }
+
+            sections.forEach(section => {
+                const option = new Option(
+                    section.section_name,
+                    section.id
                 );
-            }
 
-            return response.json();
-        })
-        .then(function (sections) {
-
-            sectionSelect.innerHTML =
-                '<option value="">All Sections</option>';
-
-            if (!Array.isArray(sections) || sections.length === 0) {
-
-                sectionSelect.innerHTML =
-                    '<option value="">No sections available</option>';
-
-                sectionSelect.disabled = false;
-
-                if (sectionHelp) {
-                    sectionHelp.textContent =
-                        'No sections found for this class.';
-                }
-
-                return;
-            }
-
-            sections.forEach(function (section) {
-
-                const option =
-                    document.createElement('option');
-
-                option.value = section.id;
-                option.textContent = section.section_name;
-
-                if (
-                    selectedSection &&
-                    String(section.id) ===
-                    String(selectedSection)
-                ) {
+                if (String(section.id) === String(selectedSection)) {
                     option.selected = true;
                 }
 
-                sectionSelect.appendChild(option);
+                sectionEl.add(option);
             });
 
-            sectionSelect.disabled = false;
+            sectionEl.disabled = false;
 
-            if (sectionHelp) {
-                sectionHelp.textContent =
-                    sections.length +
-                    ' section(s) available.';
-            }
-        })
-        .catch(function (error) {
+            sectionHelp.innerHTML = sections.length
+                ? '<i class="fas fa-circle-info"></i> Select a section or choose All Sections.'
+                : '<i class="fas fa-circle-info"></i> No sections found for this class.';
 
-            console.error(
-                'Section loading error:',
-                error
-            );
+        } catch (error) {
+            console.error('Could not load sections:', error);
 
-            sectionSelect.innerHTML =
-                '<option value="">Unable to load sections</option>';
-
-            sectionSelect.disabled = false;
-
-            if (sectionHelp) {
-                sectionHelp.textContent =
-                    'Unable to load sections.';
-            }
-        });
+            sectionHelp.textContent =
+                'Unable to load sections. Please try again.';
+        }
     }
 
+    classEl.addEventListener('change', function () {
+        loadSections();
+    });
 
-    if (classSelect) {
-
-        classSelect.addEventListener(
-            'change',
-            function () {
-
-                loadSections(this.value);
-
-            }
-        );
+    if (classEl.value) {
+        loadSections();
     }
 
+    /* =====================================================
+       FEE ROWS
+    ===================================================== */
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESTORE OLD CLASS / SECTION
-    |--------------------------------------------------------------------------
-    */
+    const feeBody = document.getElementById('feeItemsBody');
+    const addFeeButton = document.getElementById('addFeeRow');
+    const totalAmount = document.getElementById('totalAmount');
 
-    const oldClass = @json(old('class_id'));
-    const oldSection = @json(old('section_id'));
+    function updateManualField(row) {
 
-    if (oldClass) {
+        const feeSelect = row.querySelector('.fee-type-select');
+        const manualInput = row.querySelector('.manual-fee-name');
+        const manualLabel = row.querySelector('.manual-label');
+        const isManual = feeSelect.value === 'manual';
 
-        classSelect.value = oldClass;
+        manualInput.style.display = isManual ? 'block' : 'none';
+        manualLabel.style.display = isManual ? 'block' : 'none';
 
-        loadSections(
-            oldClass,
-            oldSection
-        );
+        manualInput.required = isManual;
+
+        if (!isManual) {
+            manualInput.classList.remove('is-invalid');
+        }
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | TOTAL CALCULATION
-    |--------------------------------------------------------------------------
-    */
-
-    function calculateTotal() {
+    function updateTotal() {
 
         let total = 0;
 
-        document
-            .querySelectorAll('.amount-input')
-            .forEach(function (input) {
+        feeBody.querySelectorAll('.amount-input').forEach(input => {
+            const amount = parseFloat(input.value);
 
-                const amount =
-                    parseFloat(input.value) || 0;
-
+            if (!isNaN(amount) && amount > 0) {
                 total += amount;
-            });
-
-        if (totalAmount) {
-
-            totalAmount.textContent =
-                total.toFixed(2);
-        }
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW / HIDE MANUAL FEE FIELD
-    |--------------------------------------------------------------------------
-    */
-
-    function handleFeeTypeChange(select) {
-
-        const row =
-            select.closest('.fee-row');
-
-        if (!row) {
-            return;
-        }
-
-        const manualInput =
-            row.querySelector('.manual-fee-name');
-
-        const manualLabel =
-            row.querySelector('.manual-label');
-
-        const amountInput =
-            row.querySelector('.amount-input');
-
-        if (!manualInput || !amountInput) {
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | MANUAL / CUSTOM FEE
-        |--------------------------------------------------------------------------
-        */
-
-        if (select.value === 'manual') {
-
-            manualLabel.style.display = 'block';
-
-            manualInput.style.display = 'block';
-
-            manualInput.required = true;
-
-            amountInput.value = '';
-
-            manualInput.focus();
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NORMAL FEE TYPE
-        |--------------------------------------------------------------------------
-        */
-
-        else {
-
-            manualLabel.style.display = 'none';
-
-            manualInput.style.display = 'none';
-
-            manualInput.required = false;
-
-            manualInput.classList.remove('is-invalid');
-
-            manualInput.value = '';
-
-
-            const selectedOption =
-                select.options[
-                    select.selectedIndex
-                ];
-
-
-            if (
-                selectedOption &&
-                selectedOption.dataset.amount !== undefined &&
-                selectedOption.dataset.amount !== ''
-            ) {
-
-                amountInput.value =
-                    selectedOption.dataset.amount;
-
-            } else {
-
-                amountInput.value = '';
             }
-        }
-
-
-        calculateTotal();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIALIZE ROW
-    |--------------------------------------------------------------------------
-    */
-
-    function initializeRow(row) {
-
-        const select =
-            row.querySelector('.fee-type-select');
-
-        const amountInput =
-            row.querySelector('.amount-input');
-
-        const manualInput =
-            row.querySelector('.manual-fee-name');
-
-        const manualLabel =
-            row.querySelector('.manual-label');
-
-
-        if (select) {
-
-            /*
-            | Use change event
-            */
-
-            select.addEventListener(
-                'change',
-                function () {
-
-                    handleFeeTypeChange(this);
-
-                }
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | IMPORTANT:
-            | Initialize the current state immediately.
-            |--------------------------------------------------------------------------
-            */
-
-            if (select.value === 'manual') {
-
-                if (manualLabel) {
-                    manualLabel.style.display = 'block';
-                }
-
-                if (manualInput) {
-
-                    manualInput.style.display = 'block';
-
-                    manualInput.required = true;
-                }
-
-            } else {
-
-                if (manualLabel) {
-                    manualLabel.style.display = 'none';
-                }
-
-                if (manualInput) {
-
-                    manualInput.style.display = 'none';
-
-                    manualInput.required = false;
-                }
-            }
-        }
-
-
-        if (amountInput) {
-
-            amountInput.addEventListener(
-                'input',
-                calculateTotal
-            );
-        }
-
-
-        if (manualInput) {
-
-            manualInput.addEventListener(
-                'input',
-                function () {
-
-                    manualInput.classList.remove(
-                        'is-invalid'
-                    );
-
-                }
-            );
-        }
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIALIZE EXISTING ROWS
-    |--------------------------------------------------------------------------
-    */
-
-    document
-        .querySelectorAll('.fee-row')
-        .forEach(function (row) {
-
-            initializeRow(row);
-
         });
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | ADD NEW FEE ROW
-    |--------------------------------------------------------------------------
-    */
-
-    if (addFeeRow && feeItemsBody) {
-
-        addFeeRow.addEventListener(
-            'click',
-            function () {
-
-                const row =
-                    document.createElement('tr');
-
-                row.className =
-                    'fee-row';
-
-
-                row.innerHTML = `
-                    <td>
-
-                        <select
-                            name="fee_type_id[]"
-                            class="form-select fee-type-select"
-                            required
-                        >
-
-                            <option value="">
-                                Select Fee Type
-                            </option>
-
-                            @foreach($feeTypes ?? [] as $feeType)
-
-                                <option
-                                    value="{{ $feeType->id }}"
-                                    data-amount="{{ $feeType->amount }}"
-                                >
-                                    {{ $feeType->name }}
-                                </option>
-
-                            @endforeach
-
-                            <option value="manual">
-                                + Manual / Custom Fee
-                            </option>
-
-                        </select>
-
-                        <div class="manual-label">
-                            Custom Fee Name
-                        </div>
-
-                        <input
-                            type="text"
-                            name="manual_fee_name[]"
-                            class="form-control manual-fee-name"
-                            placeholder="Enter custom fee name"
-                        >
-
-                    </td>
-
-
-                    <td>
-
-                        <input
-                            type="number"
-                            name="amount[]"
-                            class="form-control amount-input"
-                            min="0"
-                            step="0.01"
-                            placeholder="0.00"
-                            required
-                        >
-
-                    </td>
-
-
-                    <td>
-
-                        <input
-                            type="date"
-                            name="due_date[]"
-                            class="form-control"
-                        >
-
-                    </td>
-
-
-                    <td class="text-center">
-
-                        <button
-                            type="button"
-                            class="remove-row-btn remove-fee-row"
-                            title="Remove"
-                        >
-                            <i class="bi bi-trash"></i>
-                        </button>
-
-                    </td>
-                `;
-
-
-                feeItemsBody.appendChild(row);
-
-                initializeRow(row);
-
-                calculateTotal();
-
-            }
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | REMOVE FEE ROW
-    |--------------------------------------------------------------------------
-    */
-
-    document.addEventListener(
-        'click',
-        function (event) {
-
-            const removeButton =
-                event.target.closest(
-                    '.remove-fee-row'
-                );
-
-            if (!removeButton) {
-                return;
-            }
-
-            const rows =
-                document.querySelectorAll(
-                    '.fee-row'
-                );
-
-            if (rows.length <= 1) {
-
-                alert(
-                    'At least one fee component is required.'
-                );
-
-                return;
-            }
-
-            const row =
-                removeButton.closest('.fee-row');
-
-            if (row) {
-                row.remove();
-            }
-
-            calculateTotal();
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIAL TOTAL
-    |--------------------------------------------------------------------------
-    */
-
-    calculateTotal();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORM VALIDATION
-    |--------------------------------------------------------------------------
-    */
-
-    const form =
-        document.getElementById(
-            'feeStructureForm'
-        );
-
-
-    if (form) {
-
-        form.addEventListener(
-            'submit',
-            function (event) {
-
-                let valid = true;
-
-
-                document
-                    .querySelectorAll('.fee-row')
-                    .forEach(function (row) {
-
-                        const select =
-                            row.querySelector(
-                                '.fee-type-select'
-                            );
-
-                        const manualInput =
-                            row.querySelector(
-                                '.manual-fee-name'
-                            );
-
-                        const amountInput =
-                            row.querySelector(
-                                '.amount-input'
-                            );
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | MANUAL NAME VALIDATION
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if (
-                            select &&
-                            select.value === 'manual'
-                        ) {
-
-                            if (
-                                !manualInput ||
-                                manualInput.value.trim() === ''
-                            ) {
-
-                                valid = false;
-
-                                if (manualInput) {
-
-                                    manualInput.classList.add(
-                                        'is-invalid'
-                                    );
-
-                                    manualInput.focus();
-                                }
-
-                            } else {
-
-                                manualInput.classList.remove(
-                                    'is-invalid'
-                                );
-                            }
-                        }
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | AMOUNT VALIDATION
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if (
-                            amountInput &&
-                            (
-                                amountInput.value === '' ||
-                                parseFloat(amountInput.value) < 0
-                            )
-                        ) {
-
-                            valid = false;
-
-                            amountInput.classList.add(
-                                'is-invalid'
-                            );
-
-                        } else if (amountInput) {
-
-                            amountInput.classList.remove(
-                                'is-invalid'
-                            );
-                        }
-
-                    });
-
-
-                if (!valid) {
-
-                    event.preventDefault();
-
-                    alert(
-                        'Please complete all fee details correctly.'
-                    );
-                }
-
-            }
-        );
+        totalAmount.textContent = total.toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
+
+    function createFeeRow() {
+
+        const row = document.createElement('tr');
+        row.className = 'fee-row';
+
+        row.innerHTML = `
+            <td>
+                <select name="fee_type_id[]"
+                        class="diary-control fee-type-select"
+                        required>
+                    <option value="">Select Fee Type</option>
+
+                    @foreach($feeTypes ?? [] as $feeType)
+                        <option value="{{ $feeType->id }}"
+                                data-amount="{{ $feeType->amount }}">
+                            {{ $feeType->name }}
+                        </option>
+                    @endforeach
+
+                    <option value="manual">+ Manual / Custom Fee</option>
+                </select>
+
+                <div class="manual-label">Custom Fee Name</div>
+
+                <input type="text"
+                       name="manual_fee_name[]"
+                       class="diary-control manual-fee-name"
+                       placeholder="Enter custom fee name"
+                       maxlength="255">
+            </td>
+
+            <td>
+                <div class="input-wrapper">
+                    <i class="fas fa-rupee-sign input-icon"></i>
+                    <input type="number"
+                           name="amount[]"
+                           class="diary-control with-icon amount-input"
+                           min="0"
+                           step="0.01"
+                           placeholder="0.00"
+                           required>
+                </div>
+            </td>
+
+            <td>
+                <div class="input-wrapper">
+                    <i class="fas fa-calendar input-icon"></i>
+                    <input type="date"
+                           name="due_date[]"
+                           class="diary-control with-icon">
+                </div>
+            </td>
+
+            <td class="text-center">
+                <button type="button"
+                        class="remove-row-btn remove-fee-row"
+                        title="Remove fee">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        `;
+
+        feeBody.appendChild(row);
+
+        updateManualField(row);
+        updateTotal();
+
+        row.querySelector('.fee-type-select').focus();
+    }
+
+    addFeeButton.addEventListener('click', createFeeRow);
+
+    feeBody.addEventListener('change', function (event) {
+
+        if (event.target.classList.contains('fee-type-select')) {
+
+            const row = event.target.closest('.fee-row');
+            const selectedOption = event.target.selectedOptions[0];
+
+            updateManualField(row);
+
+            // Automatically fill the default amount when available.
+            if (selectedOption && selectedOption.dataset.amount !== undefined
+                && selectedOption.dataset.amount !== '') {
+
+                const amountInput = row.querySelector('.amount-input');
+
+                if (!amountInput.value) {
+                    amountInput.value = selectedOption.dataset.amount;
+                }
+            }
+
+            updateTotal();
+        }
+    });
+
+    feeBody.addEventListener('input', function (event) {
+
+        if (event.target.classList.contains('amount-input')) {
+            updateTotal();
+        }
+    });
+
+    feeBody.addEventListener('click', function (event) {
+
+        const removeButton = event.target.closest('.remove-fee-row');
+
+        if (!removeButton) return;
+
+        const rows = feeBody.querySelectorAll('.fee-row');
+
+        if (rows.length <= 1) {
+            alert('At least one fee item is required.');
+            return;
+        }
+
+        removeButton.closest('.fee-row').remove();
+        updateTotal();
+    });
+
+    // Restore manual fields and calculate total on page load.
+    feeBody.querySelectorAll('.fee-row').forEach(row => {
+        updateManualField(row);
+    });
+
+    updateTotal();
+
+    /* =====================================================
+       FORM SUBMISSION
+    ===================================================== */
+
+    const form = document.getElementById('feeStructureForm');
+    const saveButton = document.getElementById('saveButton');
+
+    form.addEventListener('submit', function (event) {
+
+        // Validate manual fee names.
+        let valid = true;
+
+        feeBody.querySelectorAll('.fee-row').forEach(row => {
+
+            const feeSelect = row.querySelector('.fee-type-select');
+            const manualInput = row.querySelector('.manual-fee-name');
+
+            if (feeSelect.value === 'manual' && !manualInput.value.trim()) {
+                manualInput.classList.add('is-invalid');
+                valid = false;
+            } else {
+                manualInput.classList.remove('is-invalid');
+            }
+        });
+
+        if (!valid) {
+            event.preventDefault();
+            alert('Please enter a name for every manual fee.');
+            return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    });
 
 });
 </script>

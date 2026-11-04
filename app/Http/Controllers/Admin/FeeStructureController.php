@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Class\SchoolClass;
 use App\Models\FeeStructure;
 use App\Models\FeeStructureItem;
 use App\Models\FeeType;
-use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentFee;
 use Illuminate\Http\Request;
@@ -21,10 +21,8 @@ class FeeStructureController extends Controller
     | INDEX
     |--------------------------------------------------------------------------
     */
-
     public function index(Request $request)
     {
-        // UPDATE 1: check the filters first
         $request->validate([
             'search'        => ['nullable', 'string', 'max:100'],
             'academic_year' => ['nullable', 'string', 'max:50'],
@@ -38,35 +36,29 @@ class FeeStructureController extends Controller
             'items.feeType',
         ]);
 
-        // SEARCH
         if ($request->filled('search')) {
-
             $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
-
                 $q->where('structure_name', 'like', "%{$search}%")
                     ->orWhere('academic_year', 'like', "%{$search}%")
                     ->orWhereHas('schoolClass', function ($classQuery) use ($search) {
                         $classQuery->where('class_name', 'like', "%{$search}%");
                     })
                     ->orWhereHas('section', function ($sectionQuery) use ($search) {
-                        $sectionQuery->where('section_name', 'like', "%{$search}%");
+                        $sectionQuery->where('section', 'like', "%{$search}%");
                     });
             });
         }
 
-        // ACADEMIC YEAR FILTER
         if ($request->filled('academic_year')) {
             $query->where('academic_year', $request->academic_year);
         }
 
-        // CLASS FILTER
         if ($request->filled('class_id')) {
             $query->where('class_id', $request->class_id);
         }
 
-        // STATUS FILTER
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -76,35 +68,14 @@ class FeeStructureController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // FILTER DATA
-        $academicYears = Student::query()
-            ->whereNotNull('academic_year')
-            ->where('academic_year', '!=', '')
-            ->select('academic_year')
-            ->distinct()
-            ->orderByDesc('academic_year')
-            ->pluck('academic_year');
-
-        $classes = DB::table('classes')
-            ->orderBy('class_name')
-            ->get();
-
-        // DASHBOARD COUNTS
-        $totalStructures    = FeeStructure::count();
-        $activeStructures   = FeeStructure::where('status', 'Active')->count();
-        $inactiveStructures = FeeStructure::where('status', 'Inactive')->count();
-
-        return view(
-            'admin.fees.fee-structures.index',
-            compact(
-                'feeStructures',
-                'academicYears',
-                'classes',
-                'totalStructures',
-                'activeStructures',
-                'inactiveStructures'
-            )
-        );
+        return view('admin.fees.fee-structures.index', [
+            'feeStructures'      => $feeStructures,
+            'academicYears'      => $this->getAcademicYears(),
+            'classes'            => $this->getClasses(),
+            'totalStructures'    => FeeStructure::count(),
+            'activeStructures'   => FeeStructure::where('status', 'Active')->count(),
+            'inactiveStructures' => FeeStructure::where('status', 'Inactive')->count(),
+        ]);
     }
 
     /*
@@ -112,30 +83,14 @@ class FeeStructureController extends Controller
     | CREATE
     |--------------------------------------------------------------------------
     */
-
     public function create()
     {
-        $academicYears = Student::query()
-            ->whereNotNull('academic_year')
-            ->where('academic_year', '!=', '')
-            ->select('academic_year')
-            ->distinct()
-            ->orderByDesc('academic_year')
-            ->pluck('academic_year');
-
-        $classes = DB::table('classes')
-            ->orderBy('class_name')
-            ->get();
-
-        $feeTypes = FeeType::query()
-            ->where('status', 'Active')
-            ->orderBy('name')
-            ->get();
-
-        return view(
-            'admin.fees.fee-structures.create',
-            compact('academicYears', 'classes', 'feeTypes')
-        );
+        return view('admin.fees.fee-structures.create', [
+            'academicYears' => $this->getAcademicYears(),
+            'classes'       => $this->getClasses(),
+            'classSections' => $this->getClassSectionMap(),
+            'feeTypes'      => $this->getActiveFeeTypes(),
+        ]);
     }
 
     /*
@@ -143,16 +98,13 @@ class FeeStructureController extends Controller
     | STORE
     |--------------------------------------------------------------------------
     */
-
     public function store(Request $request)
     {
         $validated = $request->validate($this->structureRules());
 
-        // UPDATE 2: extra checks (section, list sizes, duplicates)
         $this->extraChecks($validated, null);
 
         $feeStructure = DB::transaction(function () use ($validated) {
-
             $feeStructure = FeeStructure::create([
                 'academic_year'  => $validated['academic_year'],
                 'class_id'       => $validated['class_id'],
@@ -166,7 +118,6 @@ class FeeStructureController extends Controller
             return $feeStructure;
         });
 
-        // UPDATE 3: write a log entry for fee amounts
         $this->logChange($feeStructure, 'Fee structure created', $validated);
 
         return redirect()
@@ -179,7 +130,6 @@ class FeeStructureController extends Controller
     | SHOW
     |--------------------------------------------------------------------------
     */
-
     public function show(FeeStructure $feeStructure)
     {
         $feeStructure->load([
@@ -188,10 +138,7 @@ class FeeStructureController extends Controller
             'items.feeType',
         ]);
 
-        return view(
-            'admin.fees.fee-structures.show',
-            compact('feeStructure')
-        );
+        return view('admin.fees.fee-structures.show', compact('feeStructure'));
     }
 
     /*
@@ -199,7 +146,6 @@ class FeeStructureController extends Controller
     | EDIT
     |--------------------------------------------------------------------------
     */
-
     public function edit(FeeStructure $feeStructure)
     {
         $feeStructure->load([
@@ -208,27 +154,13 @@ class FeeStructureController extends Controller
             'items.feeType',
         ]);
 
-        $academicYears = Student::query()
-            ->whereNotNull('academic_year')
-            ->where('academic_year', '!=', '')
-            ->select('academic_year')
-            ->distinct()
-            ->orderByDesc('academic_year')
-            ->pluck('academic_year');
-
-        $classes = DB::table('classes')
-            ->orderBy('class_name')
-            ->get();
-
-        $feeTypes = FeeType::query()
-            ->where('status', 'Active')
-            ->orderBy('name')
-            ->get();
-
-        return view(
-            'admin.fees.fee-structures.edit',
-            compact('feeStructure', 'academicYears', 'classes', 'feeTypes')
-        );
+        return view('admin.fees.fee-structures.edit', [
+            'feeStructure'  => $feeStructure,
+            'academicYears' => $this->getAcademicYears(),
+            'classes'       => $this->getClasses(),
+            'classSections' => $this->getClassSectionMap(),
+            'feeTypes'      => $this->getActiveFeeTypes(),
+        ]);
     }
 
     /*
@@ -236,15 +168,14 @@ class FeeStructureController extends Controller
     | UPDATE
     |--------------------------------------------------------------------------
     */
-
     public function update(Request $request, FeeStructure $feeStructure)
     {
-        // UPDATE 4: already assigned to students? Only name + status can change.
-        $alreadyAssigned = StudentFee::where('fee_structure_id', $feeStructure->id)
-            ->exists();
+        $alreadyAssigned = StudentFee::where(
+            'fee_structure_id',
+            $feeStructure->id
+        )->exists();
 
         if ($alreadyAssigned) {
-
             $data = $request->validate([
                 'structure_name' => ['required', 'string', 'max:255'],
                 'status'         => ['required', Rule::in(['Active', 'Inactive'])],
@@ -252,7 +183,11 @@ class FeeStructureController extends Controller
 
             $feeStructure->update($data);
 
-            $this->logChange($feeStructure, 'Fee structure name/status updated', $data);
+            $this->logChange(
+                $feeStructure,
+                'Fee structure name/status updated',
+                $data
+            );
 
             return redirect()
                 ->route('admin.fees.fee-structures.show', $feeStructure)
@@ -267,7 +202,6 @@ class FeeStructureController extends Controller
         $this->extraChecks($validated, $feeStructure->id);
 
         DB::transaction(function () use ($validated, $feeStructure) {
-
             $feeStructure->update([
                 'academic_year'  => $validated['academic_year'],
                 'class_id'       => $validated['class_id'],
@@ -276,7 +210,6 @@ class FeeStructureController extends Controller
                 'status'         => $validated['status'],
             ]);
 
-            // Remove old items, then save the new ones
             $feeStructure->items()->delete();
 
             $this->saveItems($feeStructure, $validated);
@@ -294,11 +227,11 @@ class FeeStructureController extends Controller
     | DESTROY
     |--------------------------------------------------------------------------
     */
-
     public function destroy(FeeStructure $feeStructure)
     {
-        // UPDATE 5: a structure used by students must never be deleted
-        if (StudentFee::where('fee_structure_id', $feeStructure->id)->exists()) {
+        if (
+            StudentFee::where('fee_structure_id', $feeStructure->id)->exists()
+        ) {
             return back()->with(
                 'error',
                 'This fee structure is assigned to students, so it cannot be deleted. You can set it to Inactive instead.'
@@ -321,44 +254,83 @@ class FeeStructureController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | LOAD SECTIONS
+    | AJAX: LOAD SECTIONS BY CLASS
     |--------------------------------------------------------------------------
+    | Uses school_classes table.
+    | One class can have multiple rows, one for each section.
     */
+ public function sections($classId)
+{
+    $class = SchoolClass::query()
+        ->where('status', 1)
+        ->findOrFail((int) $classId);
 
-    public function sections($classId)
-    {
-        $classId = (int) $classId;
+    $sections = SchoolClass::query()
+        ->where('status', 1)
+        ->where('class_name', $class->class_name)
+        ->whereNotNull('section')
+        ->where('section', '!=', '')
+        ->orderBy('section')
+        ->get(['id', 'section'])
+        ->map(function ($row) {
+            return [
+                'id' => $row->id,
+                'section_name' => $row->section,
+            ];
+        })
+        ->values();
 
-        $sections = Section::query()
-            ->where('class_id', $classId)
-            ->orderBy('section_name')
-            ->get(['id', 'section_name']);
-
-        return response()->json($sections);
-    }
-
+    return response()->json($sections);
+}
     /*
     |--------------------------------------------------------------------------
-    | HELPERS (used by store + update)
+    | VALIDATION RULES
     |--------------------------------------------------------------------------
     */
-
     private function structureRules(): array
     {
+        $classTable = (new SchoolClass())->getTable();
+
         return [
-            'academic_year'  => ['required', 'string', 'max:50'],
-            'class_id'       => ['required', 'integer', 'exists:classes,id'],
-            'section_id'     => ['nullable', 'integer', 'exists:sections,id'],
-            'structure_name' => ['required', 'string', 'max:255'],
-            'status'         => ['required', Rule::in(['Active', 'Inactive'])],
+            'academic_year' => [
+                'required',
+                'string',
+                'max:50',
+            ],
 
-            'fee_type_id'   => ['required', 'array', 'min:1', 'max:30'],
+            'class_id' => [
+                'required',
+                'integer',
+                Rule::exists($classTable, 'id')->where('status', 1),
+            ],
 
-            // must be "manual" or a real fee type
+            'section_id' => [
+                'nullable',
+                'integer',
+                Rule::exists($classTable, 'id')->where('status', 1),
+            ],
+
+            'structure_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'status' => [
+                'required',
+                Rule::in(['Active', 'Inactive']),
+            ],
+
+            'fee_type_id' => [
+                'required',
+                'array',
+                'min:1',
+                'max:30',
+            ],
+
             'fee_type_id.*' => [
                 'required',
                 function ($attribute, $value, $fail) {
-
                     if ($value === 'manual') {
                         return;
                     }
@@ -373,45 +345,88 @@ class FeeStructureController extends Controller
                 },
             ],
 
-            'manual_fee_name'   => ['nullable', 'array'],
-            'manual_fee_name.*' => ['nullable', 'string', 'max:255'],
+            'manual_fee_name' => [
+                'nullable',
+                'array',
+            ],
 
-            'amount'   => ['required', 'array', 'min:1', 'max:30'],
-            'amount.*' => ['required', 'numeric', 'min:0', 'max:9999999', 'decimal:0,2'],
+            'manual_fee_name.*' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
 
-            'due_date'   => ['nullable', 'array'],
-            'due_date.*' => ['nullable', 'date_format:Y-m-d'],
+            'amount' => [
+                'required',
+                'array',
+                'min:1',
+                'max:30',
+            ],
+
+            'amount.*' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:9999999',
+                'decimal:0,2',
+            ],
+
+            'due_date' => [
+                'nullable',
+                'array',
+            ],
+
+            'due_date.*' => [
+                'nullable',
+                'date_format:Y-m-d',
+            ],
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | EXTRA VALIDATION
+    |--------------------------------------------------------------------------
+    */
     private function extraChecks(array $validated, ?int $ignoreId): void
     {
-        // Section must belong to the selected class
+        $class = SchoolClass::query()
+            ->where('status', 1)
+            ->find($validated['class_id']);
+
+        if (!$class) {
+            throw ValidationException::withMessages([
+                'class_id' => 'Selected class is not available.',
+            ]);
+        }
+
         if (!empty($validated['section_id'])) {
+            $section = SchoolClass::query()
+                ->where('status', 1)
+                ->find($validated['section_id']);
 
-            $sectionOk = Section::query()
-                ->where('id', $validated['section_id'])
-                ->where('class_id', $validated['class_id'])
-                ->exists();
-
-            if (!$sectionOk) {
+            if (
+                !$section ||
+                $section->class_name !== $class->class_name
+            ) {
                 throw ValidationException::withMessages([
                     'section_id' => 'The selected section does not belong to the selected class.',
                 ]);
             }
         }
 
-        // Fee types and amounts must have the same number of rows
-        if (count($validated['fee_type_id']) !== count($validated['amount'])) {
+        if (
+            count($validated['fee_type_id']) !==
+            count($validated['amount'])
+        ) {
             throw ValidationException::withMessages([
                 'amount' => 'Every fee row needs an amount.',
             ]);
         }
 
-        // Same fee type cannot be added twice
         $ids = array_filter(
             $validated['fee_type_id'],
-            fn ($v) => $v !== 'manual'
+            fn ($value) => $value !== 'manual'
         );
 
         if (count($ids) !== count(array_unique($ids))) {
@@ -420,7 +435,6 @@ class FeeStructureController extends Controller
             ]);
         }
 
-        // Manual rows need a name
         foreach ($validated['fee_type_id'] as $index => $feeTypeId) {
             if (
                 $feeTypeId === 'manual' &&
@@ -432,12 +446,14 @@ class FeeStructureController extends Controller
             }
         }
 
-        // Same structure (year + class + section) cannot exist twice
         $duplicate = FeeStructure::query()
             ->where('academic_year', $validated['academic_year'])
             ->where('class_id', $validated['class_id'])
             ->where('section_id', $validated['section_id'] ?? null)
-            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->when(
+                $ignoreId,
+                fn ($q) => $q->where('id', '!=', $ignoreId)
+            )
             ->exists();
 
         if ($duplicate) {
@@ -447,21 +463,25 @@ class FeeStructureController extends Controller
         }
     }
 
-    private function saveItems(FeeStructure $feeStructure, array $validated): void
-    {
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE FEE ITEMS
+    |--------------------------------------------------------------------------
+    */
+    private function saveItems(
+        FeeStructure $feeStructure,
+        array $validated
+    ): void {
         $manualNames = $validated['manual_fee_name'] ?? [];
-        $dueDates    = $validated['due_date'] ?? [];
+        $dueDates = $validated['due_date'] ?? [];
 
         foreach ($validated['fee_type_id'] as $index => $feeTypeId) {
-
-            $amount  = round((float) $validated['amount'][$index], 2);
+            $amount = round((float) $validated['amount'][$index], 2);
             $dueDate = $dueDates[$index] ?? null;
 
             if ($feeTypeId === 'manual') {
-
                 $manualName = trim($manualNames[$index]);
 
-                // reuse an existing fee type with the same name
                 $feeType = FeeType::firstOrCreate(
                     ['name' => $manualName],
                     [
@@ -485,8 +505,16 @@ class FeeStructureController extends Controller
         }
     }
 
-    private function logChange(FeeStructure $feeStructure, string $message, array $data): void
-    {
+    /*
+    |--------------------------------------------------------------------------
+    | ACTIVITY LOG
+    |--------------------------------------------------------------------------
+    */
+    private function logChange(
+        FeeStructure $feeStructure,
+        string $message,
+        array $data
+    ): void {
         activity()
             ->performedOn($feeStructure)
             ->causedBy(auth()->user())
@@ -498,29 +526,81 @@ class FeeStructureController extends Controller
             ])
             ->log($message);
     }
-    /**
- * Bulk delete multiple records.
- */
-public function bulkDestroy(Request $request)
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRIVATE HELPERS
+    |--------------------------------------------------------------------------
+    */
+
+    private function getAcademicYears()
+    {
+        return Student::query()
+            ->whereNotNull('academic_year')
+            ->where('academic_year', '!=', '')
+            ->select('academic_year')
+            ->distinct()
+            ->orderByDesc('academic_year')
+            ->pluck('academic_year');
+    }
+
+    /*
+     * Get only active manually created classes.
+     * Return one representative row per class name.
+     */
+   private function getClasses()
 {
-    $request->validate([
-        'ids'   => 'required|array|min:1',
-        'ids.*' => 'integer|exists:teachers,id',   // ← change table name
-    ]);
-
-    $count = Teacher::whereIn('id', $request->ids)->delete();  // ← change Model
-
-    return redirect()
-        ->route('admin.teachers.index')                          // ← change route
-        ->with('success', $count . ' teacher(s) deleted successfully.');
+    return SchoolClass::query()
+        ->where('status', 1)
+        ->whereNotNull('class_name')
+        ->where('class_name', '!=', '')
+        ->orderBy('class_name')
+        ->orderBy('id')
+        ->get()
+        ->unique(fn ($class) => strtolower(trim($class->class_name)))
+        ->values();
 }
 
-    public function getActivitylogOptions(): LogOptions
-{
-    return LogOptions::defaults()
-        ->logAll()
-        ->logOnlyDirty()
-        ->dontSubmitEmptyLogs();
-}
+    /*
+     * [class_id => [
+     *     ['id' => 1, 'section_name' => 'A']
+     * ]]
+     */
+    private function getClassSectionMap(): array
+    {
+        $map = [];
 
+        $groups = SchoolClass::query()
+            ->where('status', 1)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->orderBy('class_name')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn ($row) => strtolower(trim($row->class_name)));
+
+        foreach ($groups as $rows) {
+            $first = $rows->first();
+
+            $map[$first->id] = $rows
+                ->filter(fn ($row) => filled($row->section))
+                ->sortBy('section')
+                ->map(fn ($row) => [
+                    'id'           => $row->id,
+                    'section_name' => $row->section,
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $map;
+    }
+
+    private function getActiveFeeTypes()
+    {
+        return FeeType::query()
+            ->where('status', 'Active')
+            ->orderBy('name')
+            ->get();
+    }
 }
