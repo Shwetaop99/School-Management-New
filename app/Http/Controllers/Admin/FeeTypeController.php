@@ -37,21 +37,16 @@ class FeeTypeController extends Controller
             ->withQueryString();
 
         // Statistics
-        $totalTypes = FeeType::count();
+        $totalTypes     = FeeType::count();
+        $activeTypes    = FeeType::where('status', 'Active')->count();
+        $inactiveTypes  = FeeType::where('status', 'Inactive')->count();
 
-        $activeTypes = FeeType::where('status', 'Active')->count();
-
-        $inactiveTypes = FeeType::where('status', 'Inactive')->count();
-
-        return view(
-            'admin.fees.fee-types.index',
-            compact(
-                'feeTypes',
-                'totalTypes',
-                'activeTypes',
-                'inactiveTypes'
-            )
-        );
+        return view('admin.fees.fee-types.index', compact(
+            'feeTypes',
+            'totalTypes',
+            'activeTypes',
+            'inactiveTypes'
+        ));
     }
 
     /**
@@ -59,46 +54,11 @@ class FeeTypeController extends Controller
      */
     public function create()
     {
-        $feeTypeOptions = [
-            'Tuition Fee',
-            'Admission Fee',
-            'Examination Fee',
-            'Annual Fee',
-            'Computer Fee',
-            'Library Fee',
-            'Sports Fee',
-            'Activity Fee',
-            'Transport Fee',
-            'Laboratory Fee',
-            'Uniform Fee',
-            'Books Fee',
-            'Other Fee',
-        ];
-
-        $categories = [
-            'Academic',
-            'Administrative',
-            'Facility',
-            'Transport',
-            'Other',
-        ];
-
-        $frequencies = [
-            'One Time',
-            'Monthly',
-            'Quarterly',
-            'Half Yearly',
-            'Yearly',
-        ];
-
-        return view(
-            'admin.fees.fee-types.create',
-            compact(
-                'feeTypeOptions',
-                'categories',
-                'frequencies'
-            )
-        );
+        return view('admin.fees.fee-types.create', [
+            'feeTypeOptions' => $this->feeTypeOptions(),
+            'categories'     => $this->categories(),
+            'frequencies'    => $this->frequencies(),
+        ]);
     }
 
     /**
@@ -107,27 +67,19 @@ class FeeTypeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-
-            'category' => 'required|string|max:100',
-
-            'frequency' => 'required|string|max:100',
-
-            'amount' => 'required|numeric|min:0|max:99999999.99',
-
+            'name'        => 'required|string|max:255',
+            'category'    => 'required|string|max:100',
+            'frequency'   => 'required|string|max:100',
+            'amount'      => 'required|numeric|min:0|max:99999999.99',
             'description' => 'nullable|string|max:1000',
-
-            'status' => 'required|in:Active,Inactive',
+            'status'      => 'required|in:Active,Inactive',
         ]);
 
         FeeType::create($validated);
 
         return redirect()
             ->route('admin.fees.fee-types.index')
-            ->with(
-                'success',
-                'Fee type created successfully.'
-            );
+            ->with('success', 'Fee type created successfully.');
     }
 
     /**
@@ -135,47 +87,12 @@ class FeeTypeController extends Controller
      */
     public function edit(FeeType $feeType)
     {
-        $feeTypeOptions = [
-            'Tuition Fee',
-            'Admission Fee',
-            'Examination Fee',
-            'Annual Fee',
-            'Computer Fee',
-            'Library Fee',
-            'Sports Fee',
-            'Activity Fee',
-            'Transport Fee',
-            'Laboratory Fee',
-            'Uniform Fee',
-            'Books Fee',
-            'Other Fee',
-        ];
-
-        $categories = [
-            'Academic',
-            'Administrative',
-            'Facility',
-            'Transport',
-            'Other',
-        ];
-
-        $frequencies = [
-            'One Time',
-            'Monthly',
-            'Quarterly',
-            'Half Yearly',
-            'Yearly',
-        ];
-
-        return view(
-            'admin.fees.fee-types.edit',
-            compact(
-                'feeType',
-                'feeTypeOptions',
-                'categories',
-                'frequencies'
-            )
-        );
+        return view('admin.fees.fee-types.edit', [
+            'feeType'        => $feeType,
+            'feeTypeOptions' => $this->feeTypeOptions(),
+            'categories'     => $this->categories(),
+            'frequencies'    => $this->frequencies(),
+        ]);
     }
 
     /**
@@ -184,27 +101,19 @@ class FeeTypeController extends Controller
     public function update(Request $request, FeeType $feeType)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-
-            'category' => 'required|string|max:100',
-
-            'frequency' => 'required|string|max:100',
-
-            'amount' => 'required|numeric|min:0|max:99999999.99',
-
+            'name'        => 'required|string|max:255',
+            'category'    => 'required|string|max:100',
+            'frequency'   => 'required|string|max:100',
+            'amount'      => 'required|numeric|min:0|max:99999999.99',
             'description' => 'nullable|string|max:1000',
-
-            'status' => 'required|in:Active,Inactive',
+            'status'      => 'required|in:Active,Inactive',
         ]);
 
         $feeType->update($validated);
 
         return redirect()
             ->route('admin.fees.fee-types.index')
-            ->with(
-                'success',
-                'Fee type updated successfully.'
-            );
+            ->with('success', 'Fee type updated successfully.');
     }
 
     /**
@@ -212,10 +121,7 @@ class FeeTypeController extends Controller
      */
     public function show(FeeType $feeType)
     {
-        return view(
-            'admin.fees.fee-types.show',
-            compact('feeType')
-        );
+        return view('admin.fees.fee-types.show', compact('feeType'));
     }
 
     /**
@@ -227,9 +133,51 @@ class FeeTypeController extends Controller
 
         return redirect()
             ->route('admin.fees.fee-types.index')
-            ->with(
-                'success',
-                'Fee type deleted successfully.'
-            );
+            ->with('success', 'Fee type deleted successfully.');
+    }
+
+    // ─────────────────────────────────────────────
+    // Private Helpers
+    // ─────────────────────────────────────────────
+
+    private function feeTypeOptions(): array
+    {
+        return [
+            'Tuition Fee',
+            'Admission Fee',
+            'Examination Fee',
+            'Annual Fee',
+            'Computer Fee',
+            'Library Fee',
+            'Sports Fee',
+            'Activity Fee',
+            'Transport Fee',
+            'Laboratory Fee',
+            'Uniform Fee',
+            'Books Fee',
+            'Other Fee',
+        ];
+    }
+
+    private function categories(): array
+    {
+        return [
+            'Academic',
+            'Administrative',
+            'Facility',
+            'Transport',
+            'Other',
+        ];
+    }
+
+    private function frequencies(): array
+    {
+        return [
+            'One Time',
+            'Monthly',
+            'Quarterly',
+            'Half Yearly',
+            'Yearly',
+        ];
     }
 }

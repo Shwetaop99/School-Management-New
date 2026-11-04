@@ -444,7 +444,9 @@ Route::post('/backup/restore/{backup}', [BackupController::class, 'restoreBackup
             Route::get('/fees/fee-structures/{feeStructure}/edit', [FeeStructureController::class, 'edit'])->name('fees.fee-structures.edit');
             Route::put('/fees/fee-structures/{feeStructure}', [FeeStructureController::class, 'update'])->name('fees.fee-structures.update');
             Route::delete('/fees/fee-structures/{feeStructure}', [FeeStructureController::class, 'destroy'])->name('fees.fee-structures.destroy');
-            Route::get('/fees/classes/{classId}/sections', [FeeStructureController::class, 'sections'])->name('fees.sections');
+            Route::get('/fees/classes/{class}/sections', [FeeStructureController::class, 'sections'])->name('fees.fee-structures.sections');
+           Route::get('fee-structures/sections/{class}', [FeeStructureController::class, 'sections'])
+    ->name('fee-structures.sections');
 
             // Student fees
             Route::get('/fees/student-fees', [StudentFeeController::class, 'index'])->name('fees.student-fees.index');

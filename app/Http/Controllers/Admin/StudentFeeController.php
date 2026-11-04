@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Class\SchoolClass;
 use App\Models\FeeStructure;
 use App\Models\Student;
 use App\Models\StudentFee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class StudentFeeController extends Controller
@@ -20,7 +20,6 @@ class StudentFeeController extends Controller
 
     public function index(Request $request)
     {
-        // UPDATE 1: check the filters first
         $request->validate([
             'search'        => ['nullable', 'string', 'max:100'],
             'academic_year' => ['nullable', 'string', 'max:50'],
@@ -38,7 +37,6 @@ class StudentFeeController extends Controller
             $search = trim($request->search);
 
             $query->whereHas('student', function ($q) use ($search) {
-
                 $q->where('student_id', 'like', "%{$search}%")
                     ->orWhere('first_name', 'like', "%{$search}%")
                     ->orWhere('middle_name', 'like', "%{$search}%")
@@ -111,7 +109,8 @@ class StudentFeeController extends Controller
             ->orderByDesc('academic_year')
             ->pluck('academic_year');
 
-        $classes = DB::table('classes')
+        // ✅ Use the SchoolClass model instead of DB::table('classes')
+        $classes = SchoolClass::query()
             ->orderBy('class_name')
             ->get();
 
@@ -144,7 +143,6 @@ class StudentFeeController extends Controller
 
     public function store(Request $request)
     {
-        // UPDATE 2: stronger checks
         $validated = $request->validate([
             'student_id' => [
                 'required',
@@ -197,7 +195,7 @@ class StudentFeeController extends Controller
         $feeStructure = FeeStructure::with('items')
             ->findOrFail($validated['fee_structure_id']);
 
-        // UPDATE 3: same fee cannot be given twice to the same student
+        // same fee cannot be given twice to the same student
         $alreadyAssigned = StudentFee::where('student_id', $validated['student_id'])
             ->where('fee_structure_id', $validated['fee_structure_id'])
             ->exists();
@@ -221,7 +219,7 @@ class StudentFeeController extends Controller
         $discountAmount = round((float) ($validated['discount_amount'] ?? 0), 2);
         $fineAmount     = round((float) ($validated['fine_amount'] ?? 0), 2);
 
-        // UPDATE 4: discount can never be more than the total fee
+        // discount can never be more than the total fee
         if ($discountAmount > $totalAmount) {
             return back()
                 ->withInput()
@@ -235,7 +233,7 @@ class StudentFeeController extends Controller
 
         $status = $balanceAmount > 0 ? 'Pending' : 'Paid';
 
-        // UPDATE 5: academic year comes from the fee structure
+        // academic year comes from the fee structure
         $academicYear = $feeStructure->academic_year
             ?: $validated['academic_year'];
 
@@ -288,7 +286,7 @@ class StudentFeeController extends Controller
 
     public function destroy(StudentFee $studentFee)
     {
-        // UPDATE 6: a fee with payments must never be deleted
+        // a fee with payments must never be deleted
         if (
             $studentFee->payments()->exists() ||
             (float) $studentFee->paid_amount > 0
