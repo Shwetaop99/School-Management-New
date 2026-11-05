@@ -9,37 +9,35 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('subscription_payments', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('school_id')
-                ->constrained('schools')
+            $table->foreignId('subscription_id')
+                ->constrained('subscriptions')
                 ->cascadeOnDelete();
 
-            $table->foreignId('subscription_plan_id')
-                ->constrained('subscription_plans')
-                ->restrictOnDelete();
+            $table->decimal('amount', 10, 2);
 
-            $table->string('type', 20)->default('paid');
+            $table->string('payment_method', 30);
+            $table->string('reference_number')->nullable();
+
+            $table->dateTime('paid_at')->nullable();
+
             $table->string('status', 20)->default('pending');
-
-            $table->dateTime('starts_at')->nullable();
-            $table->dateTime('ends_at')->nullable();
-
-            // Actual agreed price, including negotiated pricing.
-            $table->decimal('agreed_price', 10, 2)->default(0);
 
             $table->text('notes')->nullable();
 
+            $table->unsignedBigInteger('confirmed_by')->nullable();
+            $table->dateTime('confirmed_at')->nullable();
+
             $table->timestamps();
 
-            $table->index(['school_id', 'status']);
-            $table->index(['status', 'ends_at']);
+            $table->index(['subscription_id', 'status']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('subscription_payments');
     }
 };

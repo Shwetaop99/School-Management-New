@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -9,10 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasColumn('school_settings', 'school_id')) {
+            Schema::table('school_settings', function (Blueprint $table) {
+                $table->unsignedBigInteger('school_id')->nullable();
+            });
+        }
+
         Schema::table('school_settings', function (Blueprint $table) {
-            $table->foreignId('school_id')
-                ->nullable()
-                ->constrained('schools')
+            $table->foreign('school_id')
+                ->references('id')
+                ->on('schools')
                 ->nullOnDelete();
         });
     }
@@ -20,7 +25,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('school_settings', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('school_id');
+            $table->dropForeign(['school_id']);
+        });
+
+        Schema::table('school_settings', function (Blueprint $table) {
+            $table->dropColumn('school_id');
         });
     }
 };

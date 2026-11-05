@@ -4,17 +4,14 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
-<<<<<<< HEAD
     use HasFactory, Notifiable;
-=======
-    use HasFactory, Notifiable, LogsActivity;
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
 
     /**
      * Mass assignable fields.
@@ -27,14 +24,6 @@ class User extends Authenticatable
         'password',
         'status',
         'role_id',
-<<<<<<< HEAD
-        'super_admin_role_id',
-        'school_id',
-        'phone',
-        'two_factor_secret',
-        'two_factor_enabled',
-=======
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
     ];
 
     /**
@@ -55,7 +44,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-<<<<<<< HEAD
             'two_factor_enabled' => 'boolean',
             'super_admin_two_factor_enabled' => 'boolean',
         ];
@@ -87,29 +75,11 @@ class User extends Authenticatable
      * Check school-level permission.
      */
     public function can($ability, $arguments = []): bool
-=======
-        ];
-    }
-
-    /**
-     * User belongs to one role.
-     */
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
-
-    /**
-     * Check permission helper.
-     */
-    public function hasPermission($permission)
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
     {
         if (!$this->role) {
             return false;
         }
 
-<<<<<<< HEAD
         return $this->role
             ->permissions()
             ->where('name', $ability)
@@ -127,15 +97,11 @@ class User extends Authenticatable
 
         return $this->role
             ->permissions()
-=======
-        return $this->role->permissions()
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
             ->where('name', $permission)
             ->exists();
     }
 
     /**
-<<<<<<< HEAD
      * Check school-level role.
      */
     public function hasRole($roleName): bool
@@ -186,19 +152,4 @@ class User extends Authenticatable
             ->where('name', $permission)
             ->exists();
     }
-=======
-     * Check role helper.
-     */
-    public function hasRole($roleName)
-    {
-        return optional($this->role)->name === $roleName;
-    }
-    public function getActivitylogOptions(): LogOptions
-{
-    return LogOptions::defaults()
-        ->logOnly(['name', 'login_id', 'email', 'status', 'role_id'])
-        ->logOnlyDirty()
-        ->dontSubmitEmptyLogs();
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
-}
 }

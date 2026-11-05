@@ -94,7 +94,6 @@ $query = Student::query()
             ->values()
             ->toArray();
 
-<<<<<<< HEAD
         $totalStudents = Student::where('school_id', $schoolId)->count();
 
         $totalActiveStudents = Student::where('school_id', $schoolId)
@@ -132,27 +131,6 @@ $totalFemaleStudents = Student::where('school_id', $schoolId)
                 'sections'
             )
         );
-=======
-        $totalStudents = Student::count();
-        $totalActiveStudents = Student::where('status', 'active')->count();
-        $totalInactiveStudents = Student::where('status', '!=', 'active')->count();
-        $totalMaleStudents = Student::where('gender', 'Male')->count();
-        $totalFemaleStudents = Student::where('gender', 'Female')->count();
-
-        $students = $query->orderByDesc('id')->paginate(10)->withQueryString();
-
-        return view('admin.students.index', compact(
-            'students',
-            'totalStudents',
-            'totalActiveStudents',
-            'totalInactiveStudents',
-            'totalMaleStudents',
-            'totalFemaleStudents',
-            'academicYears',
-            'classes',
-            'sections'
-        ));
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
     }
 
     /*
@@ -198,7 +176,6 @@ $totalFemaleStudents = Student::where('school_id', $schoolId)
             $validated['state'] = $request->input('state', 'Maharashtra');
             $validated['status'] = $request->input('status', 'active');
 
-<<<<<<< HEAD
     $schoolId = auth()->user()->school_id;
 
 if (!$schoolId) {
@@ -208,12 +185,6 @@ if (!$schoolId) {
 $validated['school_id'] = $schoolId;
 
     DB::beginTransaction();
-=======
-            $validated['admission_class'] = $request->input('admission_class');
-            $validated['class'] = $request->input('admission_class');
-            $validated['section'] = $request->input('section');
-            $validated['medium'] = $request->input('medium');
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
 
             $validated['previous_school_board'] = $request->input('previous_school_board', $request->input('board'));
             $validated['district'] = $request->input('district', $request->input('district_id'));

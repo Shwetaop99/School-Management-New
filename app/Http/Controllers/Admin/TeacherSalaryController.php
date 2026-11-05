@@ -3,10 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-=======
-use App\Models\LeaveApplication;
->>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
 use App\Models\OtherStaff;
 use App\Models\Teacher;
 use App\Models\TeacherSalary;
@@ -50,7 +46,6 @@ class TeacherSalaryController extends Controller
             ->orderBy('first_name')
             ->get();
 
-<<<<<<< HEAD
         $otherStaff = OtherStaff::where('status', 'Active')
             ->orderBy('name')
             ->get();
@@ -64,11 +59,6 @@ class TeacherSalaryController extends Controller
             'admin.salary.create',
             compact('teachers', 'otherStaff', 'selectedType')
         );
-=======
-        $otherStaff = OtherStaff::orderBy('name')->get();
-
-        return view('admin.salary.create', compact('teachers', 'otherStaff'));
->>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
     }
 
     /*
@@ -287,11 +277,7 @@ class TeacherSalaryController extends Controller
 
         return redirect()
             ->route('admin.salary.index')
-<<<<<<< HEAD
             ->with('success', 'Salary updated successfully.');
-=======
-            ->with('success', 'Teacher salary updated successfully.');
->>>>>>> 5097401e035f6ddb619e47de212e38b7d10f9eb9
     }
 
     /*

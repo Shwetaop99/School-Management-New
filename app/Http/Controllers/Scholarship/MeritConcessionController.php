@@ -232,7 +232,6 @@ class MeritConcessionController extends Controller
             'slabs.*.scholarship_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
-<<<<<<< HEAD
         $slabs = collect($validated['slabs'])
             ->map(function ($slab) {
                 $slab['minimum_percentage'] = (float) $slab['minimum_percentage'];
@@ -242,12 +241,6 @@ class MeritConcessionController extends Controller
                         : (float) $slab['maximum_percentage'];
                 $slab['scholarship_percentage'] =
                     (float) $slab['scholarship_percentage'];
-=======
-        return redirect()
-            ->route('admin.scholarship.merit.concession.index')
-            ->with('success', 'Scholarship percentage rule saved successfully.');
-    }
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
 
                 return $slab;
             })
@@ -438,12 +431,4 @@ class MeritConcessionController extends Controller
                 'Scholarship record removed from view. Original result remains unchanged.'
             );
     }
-<<<<<<< HEAD
 }
-=======
-    /**
- * Bulk delete multiple records.
- */
-
-}
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
