@@ -1,41 +1,23 @@
-<?php
+﻿<?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * The teacher_attendances table is handled by
+     * the October 3 migration.
+     */
     public function up(): void
     {
-        Schema::create('teacher_attendances', function (Blueprint $table) {
-            $table->id();
-
-            $table->foreignId('teacher_id')
-                  ->constrained('teachers')
-                  ->cascadeOnDelete();
-
-            $table->date('attendance_date');
-
-            $table->enum('status', [
-                'Present',
-                'Absent',
-                'Half Day',
-                'Late'
-            ])->default('Present');
-
-            $table->decimal('overtime_hours', 5, 2)->default(0);
-
-            $table->text('remarks')->nullable();
-
-            $table->timestamps();
-
-            $table->unique(['teacher_id', 'attendance_date']);
-        });
+        // Intentionally empty to prevent duplicate table creation.
     }
 
+    /**
+     * Do not drop the shared table during rollback.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('teacher_attendances');
+        // Intentionally empty to preserve existing attendance data.
     }
 };

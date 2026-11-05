@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 
 
@@ -22,9 +22,20 @@ use App\Http\Controllers\Sports\AchievementController;
 
 use App\Http\Controllers\Sports\EquipmentController;
 
+/*
 
+\|--------------------------------------------------------------------------
 
+\| Fees Controllers
 
+\|--------------------------------------------------------------------------
+
+*/
+
+use App\Http\Controllers\Admin\FeeStructureController;
+use App\Http\Controllers\Admin\FeeTypeController;
+use App\Http\Controllers\Admin\StudentFeeController;
+use App\Http\Controllers\Admin\FeePaymentController;
 
 /*
 
@@ -88,6 +99,8 @@ use App\Http\Controllers\Admin\LeaveApplicationController;
 use App\Http\Controllers\Admin\ClassTeacherController;
 
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\StudentBulkImportController;
+use App\Http\Controllers\Admin\BulkStudentController;
 
 use App\Http\Controllers\Admin\StudentProfileController;
 
@@ -152,10 +165,11 @@ use App\Http\Controllers\Admin\TransportReportController;
 
 use App\Http\Controllers\Class\SchoolClassController;
 use App\Http\Controllers\Admin\BackupController;
-use App\Http\Controllers\Admin\FeeStructureController;
-use App\Http\Controllers\Admin\StudentFeeController;
-use App\Http\Controllers\Admin\FeePaymentController;
 use App\Http\Controllers\Admin\FeeReportController;
+use App\Http\Controllers\SuperAdmin\Auth\SuperAdminLoginController;
+
+use App\Http\Middleware\EnsureSuperAdmin;
+
 use App\Http\Controllers\Admin\ScholarshipReportController;
 
 
@@ -285,22 +299,14 @@ Route::prefix('admin')
 
 
         Route::get('/login', [
+    \App\Http\Controllers\Admin\Auth\LoginController::class,
+    'showLogin',
+])->name('login');
 
-            LoginController::class,
-
-            'showLogin'
-
-        ])->name('login');
-
-
-
-        Route::post('/login', [
-
-            LoginController::class,
-
-            'login'
-
-        ])->name('login.submit');
+Route::post('/login', [
+    \App\Http\Controllers\Admin\Auth\LoginController::class,
+    'login',
+])->name('login.submit');
     
 
 // Backup & Recovery
@@ -1197,6 +1203,19 @@ Route::get('/library/reports/excel', [LibraryReportDownloadController::class, 'e
 
 
 
+            Route::get('/students/bulk-create', [BulkStudentController::class, 'create'])
+                ->name('students.bulk-create');
+
+            Route::post('/students/bulk-create', [BulkStudentController::class, 'store'])
+                ->name('students.bulk-store');
+
+            Route::get('/students/export', [StudentController::class, 'export'])->name('students.export');
+
+            Route::get('/students/import/template', [StudentBulkImportController::class, 'downloadTemplate'])
+                ->name('students.import.template');
+
+            Route::post('/students/import', [StudentBulkImportController::class, 'import'])
+                ->name('students.import');
             Route::resource(
 
                 'students',
@@ -1708,6 +1727,9 @@ Route::prefix('scholarship')
             */
 
 
+
+            Route::get('/bonafide/students/{class}', [BonafideCertificateController::class, 'students'])->name('bonafide.students');
+            Route::get('/bonafide/classes', [BonafideCertificateController::class, 'classes'])->name('bonafide.classes');
 
             Route::prefix('bonafide-certificate')
 
@@ -3244,6 +3266,9 @@ Route::get('/caste-report/pdf-download', [
     'pdfDownload',
 ])->name('caste-report.pdf-download');
 
+            Route::get('/caste-report/print', [CasteReportController::class, 'print'])->name('caste-report.print');
+
+            Route::get('/caste-report/pdf-download', [CasteReportController::class, 'pdfDownload'])->name('caste-report.pdf-download');
 
 
 
@@ -3813,7 +3838,7 @@ Route::get(
 
             Route::get(
 
-                '/student-supply-kits/{studentSupplyKit}/print',
+                '/student-supply-kits/print',
 
                 [
 
@@ -3889,6 +3914,10 @@ Route::get('/student-supply-kits', [StudentSupplyKitController::class, 'index'])
 
 
 
+Route::get('/student-supply-kits/distribution/create', [StudentSupplyKitController::class, 'distributionCreate'])->name('student-supply-kits.distribution.create');
+Route::get('/student-supply-kits/distribution/students', [StudentSupplyKitController::class, 'distributionStudents'])->name('student-supply-kits.distribution.students');
+Route::post('/student-supply-kits/distribution', [StudentSupplyKitController::class, 'distributionStore'])->name('student-supply-kits.distribution.store');
+
 Route::get('/student-supply-kits/create', [StudentSupplyKitController::class, 'create'])
 
     ->name('student-supply-kits.create');
@@ -3921,7 +3950,7 @@ Route::get('/student-supply-kits/supply-items', [StudentSupplyKitController::cla
 
 
 
-Route::get('/student-supply-kits/{studentSupplyKit}/print', [StudentSupplyKitController::class, 'print'])
+Route::get('/student-supply-kits/print', [StudentSupplyKitController::class, 'print'])
 
     ->name('student-supply-kits.print');
 
@@ -3948,9 +3977,6 @@ Route::put('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitControlle
 Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitController::class, 'destroy'])
 
     ->name('student-supply-kits.destroy');
-
-
-
 
 
 
@@ -4099,6 +4125,29 @@ Route::prefix('meal/items')
 
 /*
 |--------------------------------------------------------------------------
+| 
+/*
+|--------------------------------------------------------------------------
+| TRANSPORT REPORTS
+|--------------------------------------------------------------------------
+*/
+Route::prefix('reports/transport')
+    ->name('reports.transport.')
+    ->group(function () {
+        Route::get('/', [TransportReportController::class, 'index'])->name('index');
+        Route::get('/student-travel', [TransportReportController::class, 'studentTravel'])->name('student-travel');
+        Route::get('/student-travel/pdf', [TransportReportController::class, 'studentTravelPdf'])->name('student-travel.pdf');
+        Route::get('/student-travel/excel', [TransportReportController::class, 'studentTravelExcel'])->name('student-travel.excel');
+        Route::get('/vehicle', [TransportReportController::class, 'vehicle'])->name('vehicle');
+        Route::get('/vehicle/pdf', [TransportReportController::class, 'vehiclePdf'])->name('vehicle.pdf');
+        Route::get('/vehicle/excel', [TransportReportController::class, 'vehicleExcel'])->name('vehicle.excel');
+    });
+
+Route::get('/transport/reports/student-search', [TransportReportController::class, 'index'])
+    ->name('transport.reports.student-search');
+
+/*
+|--------------------------------------------------------------------------
 | MEAL MANAGEMENT MAIN MENU
 |--------------------------------------------------------------------------
 */
@@ -4147,4 +4196,476 @@ Route::prefix('meal/logs')
 
  });
     });
+
+
+
+  
+
+/*
+|--------------------------------------------------------------------------
+| PORTAL SELECTION HOMEPAGE
+|--------------------------------------------------------------------------
+*/
+
+Route::view('/', 'portal-selection')->name('portal.selection');
+
+
+
+use App\Http\Controllers\SuperAdmin\Auth\SuperAdminSecurityController;
+use App\Http\Controllers\SuperAdmin\Auth\SuperAdminTwoFactorController;
+use App\Http\Middleware\EnsureSuperAdminTwoFactor;
+use App\Http\Controllers\SuperAdmin\SchoolRegistryController;
+use App\Http\Controllers\SuperAdmin\SchoolAdminController;
+use App\Http\Controllers\SuperAdmin\SubscriptionController;
+use App\Http\Controllers\SuperAdmin\SubscriptionPlanController;
+use App\Http\Controllers\SuperAdmin\UserManagementController as SuperAdminUserManagementController;
+use App\Http\Middleware\EnsureSuperAdminPermission;
+use App\Http\Controllers\SuperAdmin\RolePermissionController as SuperAdminRolePermissionController;
+use App\Http\Controllers\SuperAdmin\Reports\SchoolReportController;
+
+
+
+
+Route::middleware('auth:super_admin')->group(function () {
+    Route::get('/settings/security', [
+        SuperAdminSecurityController::class,
+        'security',
+    ])->name('security');
+
+    Route::post('/settings/security/enable', [
+        SuperAdminSecurityController::class,
+        'enable',
+    ])->middleware('throttle:5,1')->name('security.enable');
+
+    Route::post('/settings/security/disable', [
+        SuperAdminSecurityController::class,
+        'disable',
+    ])->middleware('throttle:5,1')->name('security.disable');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| SUPER ADMIN PORTAL AUTHENTICATION
+|--------------------------------------------------------------------------
+*/
+
+
+
+ 
+Route::prefix('control-panel')
+    ->name('super-admin.')
+    ->group(function () {
+
+        // Super Admin login
+        Route::get('/login', [
+            SuperAdminLoginController::class,
+            'showLogin',
+        ])->name('login');
+
+        Route::post('/login', [
+            SuperAdminLoginController::class,
+            'login',
+        ])->middleware('throttle:10,1')
+          ->name('login.submit');
+
+        // All authenticated Super Admin routes
+        Route::middleware(EnsureSuperAdmin::class)->group(function () {
+
+            Route::post('/logout', [
+                SuperAdminLoginController::class,
+                'logout',
+            ])->name('logout');
+
+            // Security settings: accessible before 2FA is enabled
+            Route::get('/settings/security', [
+                SuperAdminSecurityController::class,
+                'security',
+            ])->name('security');
+
+            Route::post('/settings/security/enable', [
+                SuperAdminSecurityController::class,
+                'enable',
+            ])->middleware('throttle:5,1')
+              ->name('security.enable');
+
+            Route::post('/settings/security/disable', [
+                SuperAdminSecurityController::class,
+                'disable',
+            ])->middleware('throttle:5,1')
+              ->name('security.disable');
+
+            // Two-factor authentication challenge
+            Route::get('/2fa/challenge', [
+                SuperAdminTwoFactorController::class,
+                'challenge',
+            ])->name('2fa.challenge');
+
+            Route::post('/2fa/verify', [
+                SuperAdminTwoFactorController::class,
+                'verify',
+            ])->middleware('throttle:5,1')
+              ->name('2fa.verify');
+
+              Route::get('/subscriptions/{subscription}', [
+    SubscriptionController::class,
+    'show',
+])->whereNumber('subscription')
+  ->name('subscriptions.show');
+
+Route::get('/subscriptions/{subscription}/edit', [
+    SubscriptionController::class,
+    'edit',
+])->whereNumber('subscription')
+  ->name('subscriptions.edit');
+
+  Route::put('/subscriptions/{subscription}', [
+    SubscriptionController::class,
+    'update',
+])->whereNumber('subscription')
+  ->name('subscriptions.update');
+
+            // Dashboard requires completed 2FA
+            Route::get('/dashboard', function () {
+                return view('super-admin.dashboard');
+            })->middleware(EnsureSuperAdminTwoFactor::class)
+              ->name('dashboard');
+
+            // Routes requiring completed 2FA
+            Route::middleware(EnsureSuperAdminTwoFactor::class)
+                ->group(function () {
+
+                // Super Admin Roles & Permissions
+Route::get('/roles', [
+    SuperAdminRolePermissionController::class,
+    'index'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.view')
+    ->name('roles.index');
+
+Route::post('/roles', [
+    SuperAdminRolePermissionController::class,
+    'store'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.create')
+    ->name('roles.store');
+
+Route::put('/roles/{role}', [
+    SuperAdminRolePermissionController::class,
+    'update'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.edit')
+    ->whereNumber('role')
+    ->name('roles.update');
+
+Route::delete('/roles/{role}', [
+    SuperAdminRolePermissionController::class,
+    'destroy'
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':roles.delete')
+    ->whereNumber('role')
+    ->name('roles.destroy');
+
+    // School Reports
+Route::get('/reports/schools', [
+    SchoolReportController::class,
+    'index',
+])
+    ->middleware(EnsureSuperAdminPermission::class . ':reports.schools.view')
+    ->name('reports.schools');
+
+    // School Reports
+Route::get('/reports/schools/export/excel', [SchoolReportController::class, 'exportExcel'])
+    ->name('reports.schools.excel');
+
+Route::get('/reports/schools/export/pdf', [SchoolReportController::class, 'exportPdf'])
+    ->name('reports.schools.pdf');
+
+Route::get('/reports/schools/print', [SchoolReportController::class, 'print'])
+    ->name('reports.schools.print');
+
+               // Super Admin User Management
+
+// View users
+Route::get('/users', [
+    SuperAdminUserManagementController::class,
+    'index',
+])->middleware(EnsureSuperAdminPermission::class . ':users.view')
+  ->name('users.index');
+
+// Show create form
+Route::get('/users/create', [
+    SuperAdminUserManagementController::class,
+    'create',
+])->middleware(EnsureSuperAdminPermission::class . ':users.create')
+  ->name('users.create');
+
+// Save new user
+Route::post('/users', [
+    SuperAdminUserManagementController::class,
+    'store',
+])->middleware(EnsureSuperAdminPermission::class . ':users.create')
+  ->name('users.store');
+
+// View user details
+Route::get('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'show',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.view')
+  ->name('users.show');
+
+// Show edit form
+Route::get('/users/{user}/edit', [
+    SuperAdminUserManagementController::class,
+    'edit',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.edit')
+  ->name('users.edit');
+
+// Update user
+Route::put('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'update',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.edit')
+  ->name('users.update');
+
+// Delete user
+Route::delete('/users/{user}', [
+    SuperAdminUserManagementController::class,
+    'destroy',
+])->whereNumber('user')
+  ->middleware(EnsureSuperAdminPermission::class . ':users.delete')
+  ->name('users.destroy');
+
+    
+
+                    // School Registry
+                    Route::prefix('schools')
+                        ->name('schools.')
+                        ->group(function () {
+
+                            Route::get('/', [
+                                SchoolRegistryController::class,
+                                'index',
+                            ])->name('index');
+
+                            Route::get('/create', [
+                                SchoolRegistryController::class,
+                                'create',
+                            ])->name('create');
+
+                            Route::post('/', [
+                                SchoolRegistryController::class,
+                                'store',
+                            ])->middleware('throttle:5,1')
+                              ->name('store');
+
+                            // School administrator management
+                            Route::get('/admin/create', [
+                                SchoolAdminController::class,
+                                'create',
+                            ])->name('admin.create');
+
+                            Route::post('/admin', [
+                                SchoolAdminController::class,
+                                'store',
+                            ])->middleware('throttle:5,1')
+                              ->name('admin.store');
+
+                            Route::get('/{school}/edit', [
+                                SchoolRegistryController::class,
+                                'edit',
+                            ])->whereNumber('school')
+                              ->name('edit');
+
+                            Route::get('/{school}', [
+                                SchoolRegistryController::class,
+                                'show',
+                            ])->whereNumber('school')
+                              ->name('show');
+
+                            Route::put('/{school}', [
+                                SchoolRegistryController::class,
+                                'update',
+                            ])->whereNumber('school')
+                              ->name('update');
+
+                            Route::patch('/{school}/status', [
+                                SchoolRegistryController::class,
+                                'updateStatus',
+                            ])->whereNumber('school')
+                              ->name('status');
+                        });
+
+                   
+                    // Subscription Management
+                    Route::get('/subscriptions', [
+                        SubscriptionController::class,
+                        'index',
+                    ])->name('subscriptions.index');
+
+                    Route::get('/subscriptions/assign', [
+                        SubscriptionController::class,
+                        'create',
+                    ])->name('subscriptions.assign');
+
+                    Route::post('/subscriptions/assign', [
+                        SubscriptionController::class,
+                        'storeAssignment',
+                    ])->middleware('throttle:10,1')
+                      ->name('subscriptions.assign.store');
+
+                    // Record an offline payment
+                    Route::get(
+                        '/subscriptions/{subscription}/payments/create',
+                        [SubscriptionController::class, 'createPayment']
+                    )->whereNumber('subscription')
+                     ->name('subscriptions.payments.create');
+
+                    Route::post(
+                        '/subscriptions/{subscription}/payments',
+                        [SubscriptionController::class, 'storePayment']
+                    )->whereNumber('subscription')
+                     ->middleware('throttle:10,1')
+                     ->name('subscriptions.payments.store');
+
+                    // Confirm payment and activate subscription
+                    Route::post(
+                        '/subscriptions/{subscription}/payments/{payment}/confirm',
+                        [SubscriptionController::class, 'confirmPayment']
+                    )->whereNumber('subscription')
+                     ->whereNumber('payment')
+                     ->middleware('throttle:10,1')
+                     ->name('subscriptions.payments.confirm');
+
+                    // Subscription Plan Management
+                    Route::prefix('subscription-plans')
+                        ->name('subscription-plans.')
+                        ->group(function () {
+
+                            Route::get('/', [
+                                SubscriptionPlanController::class,
+                                'index',
+                            ])->name('index');
+
+                            Route::get('/{subscriptionPlan}/edit', [
+                                SubscriptionPlanController::class,
+                                'edit',
+                            ])->whereNumber('subscriptionPlan')
+                              ->name('edit');
+
+                            Route::put('/{subscriptionPlan}', [
+                                SubscriptionPlanController::class,
+                                'update',
+                            ])->whereNumber('subscriptionPlan')
+                              ->middleware('throttle:10,1')
+                              ->name('update');
+                        });
+                });
+        });
+    });
+
+
+
+   Route::prefix('fees')
+    ->name('fees.')
+    ->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | FEE TYPES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource(
+        'fee-types',
+        FeeTypeController::class
+    )->names('fee-types');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FEE STRUCTURE SECTIONS AJAX
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        'fee-structures/sections/{classId}',
+        [
+            FeeStructureController::class,
+            'sections'
+        ]
+    )->name('fee-structures.sections');
+    
+    Route::get(
+    'student-fees/{studentFee}/payment',
+    [FeePaymentController::class, 'create']
+)->name('student-fees.payment.create');
+
+Route::post(
+    'student-fees/{studentFee}/payment',
+    [FeePaymentController::class, 'store']
+)->name('student-fees.payment.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FEE STRUCTURES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource(
+        'fee-structures',
+        FeeStructureController::class
+    )->names('fee-structures');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT FEES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource(
+        'student-fees',
+        StudentFeeController::class
+    )->only([
+        'index',
+        'create',
+        'store',
+        'show',
+        'destroy',
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAYMENT HISTORY
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        'payment-history',
+        [
+            FeePaymentController::class,
+            'index'
+        ]
+    )->name('payment-history.index');
+
+
+    Route::get(
+        'payment-history/{feePayment}',
+        [
+            FeePaymentController::class,
+            'show'
+        ]
+    )->name('payment-history.show');
+
+});
+ 
+
+
+
+
 

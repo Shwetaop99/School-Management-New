@@ -18,49 +18,43 @@ class LoginController extends Controller
     }
 
     /**
-     * Handle user login.
+     * Handle login using Login ID or email.
      */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => [
+            'login' => [
                 'required',
-                'email',
+                'string',
+                'max:255',
             ],
-
             'password' => [
                 'required',
                 'string',
             ],
         ]);
 
+        $login = trim($credentials['login']);
+
         /*
         |--------------------------------------------------------------------------
-        | Find User
+        | Find User By Login ID Or Email
         |--------------------------------------------------------------------------
-        |
-        | Users log in using the email address assigned to their account.
-        |
         */
 
         $user = User::with('role')
-            ->where('email', $credentials['email'])
+            ->where(function ($query) use ($login) {
+                $query->where('login_id', $login)
+                    ->orWhere('email', $login);
+            })
             ->first();
-
-        /*
-        |--------------------------------------------------------------------------
-        | User Not Found
-        |--------------------------------------------------------------------------
-        */
 
         if (!$user) {
             return back()
                 ->withErrors([
-                    'email' => 'Invalid email or password.',
+                    'login' => 'Invalid Login ID/email or password.',
                 ])
-                ->withInput(
-                    $request->only('email')
-                );
+                ->withInput($request->only('login'));
         }
 
         /*
@@ -72,11 +66,9 @@ class LoginController extends Controller
         if ($user->status !== 'Active') {
             return back()
                 ->withErrors([
-                    'email' => 'This account is inactive. Please contact the administrator.',
+                    'login' => 'This account is inactive. Please contact the administrator.',
                 ])
-                ->withInput(
-                    $request->only('email')
-                );
+                ->withInput($request->only('login'));
         }
 
         /*
@@ -88,11 +80,9 @@ class LoginController extends Controller
         if (!$user->role) {
             return back()
                 ->withErrors([
-                    'email' => 'No role has been assigned to this account. Please contact the administrator.',
+                    'login' => 'No role has been assigned to this account. Please contact the administrator.',
                 ])
-                ->withInput(
-                    $request->only('email')
-                );
+                ->withInput($request->only('login'));
         }
 
         /*
@@ -104,36 +94,43 @@ class LoginController extends Controller
         if ($user->role->status !== 'Active') {
             return back()
                 ->withErrors([
-                    'email' => 'The role assigned to this account is inactive. Please contact the administrator.',
+                    'login' => 'The role assigned to this account is inactive. Please contact the administrator.',
                 ])
-                ->withInput(
-                    $request->only('email')
-                );
+                ->withInput($request->only('login'));
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Authenticate Email + Password
+        | Keep Super Admin Login Separate
         |--------------------------------------------------------------------------
         */
 
-        $remember = $request->boolean('remember');
-
-        if (!Auth::attempt(
-            [
-                'email' => $credentials['email'],
-                'password' => $credentials['password'],
-            ],
-            $remember
-        )) {
+        if ($user->role->name === 'super_admin') {
             return back()
                 ->withErrors([
-                    'email' => 'Invalid email or password.',
+                    'login' => 'Please use the Super Admin login page for this account.',
                 ])
-                ->withInput(
-                    $request->only('email')
-                );
+                ->withInput($request->only('login'));
         }
+
+        /*
+|--------------------------------------------------------------------------
+| Authenticate User And Password
+|--------------------------------------------------------------------------
+*/
+
+$remember = $request->boolean('remember');
+
+if (!Auth::attempt([
+    'email' => $user->email,
+    'password' => $credentials['password'],
+], $remember)) {
+    return back()
+        ->withErrors([
+            'login' => 'Invalid Login ID/email or password.',
+        ])
+        ->withInput($request->only('login'));
+}
 
         /*
         |--------------------------------------------------------------------------
@@ -145,7 +142,7 @@ class LoginController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Reset 2FA Verification
+        | Reset Two-Factor Verification
         |--------------------------------------------------------------------------
         */
 
@@ -164,7 +161,7 @@ class LoginController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Continue to 2FA
+        | Continue Existing Two-Factor Flow
         |--------------------------------------------------------------------------
         */
 

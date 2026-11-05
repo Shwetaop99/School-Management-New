@@ -10,7 +10,15 @@ class TeachersExport implements FromCollection, WithHeadings
 {
     public function collection()
     {
+        $schoolId = auth()->user()?->school_id;
+
+        // Never export all schools' teachers if no school is assigned.
+        if (!$schoolId) {
+            return collect();
+        }
+
         return Teacher::query()
+            ->where('school_id', $schoolId)
             ->select([
                 'teacher_id',
                 'first_name',

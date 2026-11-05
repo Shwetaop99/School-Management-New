@@ -238,6 +238,24 @@
             <section class="tt-step">
                 <div class="tt-step-head">
                     <span class="tt-step-no">1</span>
+
+
+
+            {{-- =================================================
+                 BASIC INFORMATION
+            ================================================== --}}
+
+            <div class="form-section">
+
+                <div class="section-title">
+
+                    <div class="section-icon">
+                        <i class="bi bi-clipboard-data"></i>
+        {{-- Details --}}
+        <div class="tt-card">
+            <section class="tt-section">
+                <div class="tt-section-heading">
+                    <div class="tt-section-icon"><i class="bi bi-clipboard-data"></i></div>
                     <div>
                         <h2>Choose class and week</h2>
                         <p>Select the academic year, class, section and the Monday the week starts.</p>

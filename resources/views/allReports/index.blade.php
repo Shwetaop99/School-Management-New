@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Reports')
 @section('page-title', 'Reports')
@@ -1240,5 +1240,397 @@
     }
 }
 </style>
+
+
+<div class="reports-page">
+
+    {{-- PAGE HEADER --}}
+    <div class="reports-header">
+
+        <h2>
+            Reports
+        </h2>
+
+        <p>
+            Generate and view reports for different areas of the school.
+        </p>
+
+    </div>
+
+
+    {{-- REPORT CARDS --}}
+    <div class="reports-grid">
+
+
+        {{-- 1. STUDENT --}}
+        <a href="{{ route('admin.reports.students') }}" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Student Reports
+                </h3>
+
+                <p>
+                    Student information, profiles and academic records.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 2. FACULTY --}}
+        <a href="{{ route('admin.teachers.reports.index') }}" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Faculty Reports
+                </h3>
+
+                <p>
+                    Faculty details, allocation and teaching records.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 3. STAFF --}}
+        <a href="{{ route('admin.reports.staff') }}" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-users"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Staff Reports
+                </h3>
+
+                <p>
+                    Non-teaching staff and employee information.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 5. ATTENDANCE --}}
+        <a href="{{ route('admin.attendance.report') }}" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Attendance Reports
+                </h3>
+
+                <p>
+                    Student and faculty attendance summaries.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 6. FEES --}}
+       <a href="{{ route('admin.fees.student-fees.index') }}" class="report-card">
+            <div class="report-icon">
+                <i class="fas fa-indian-rupee-sign"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Fee Reports
+                </h3>
+
+                <p>
+                    Fee collection, payments and pending fees.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 7. EXAM --}}
+
+<a href="{{ route('admin.reports.exams') }}" class="report-card">
+
+
+            <div class="report-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Exam Reports
+                </h3>
+
+                <p>
+                    Examination schedules and examination records.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 8. RESULT --}}
+        <a href="{{ route('admin.reports.results.index') }}" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-chart-column"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Result Reports
+                </h3>
+
+                <p>
+                    Marks, grades and student result summaries.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 9. LIBRARY --}}
+        <a href="{{ route('admin.library.reports.index') }}" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-book"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Library Reports
+                </h3>
+
+                <p>
+                    Books, issues, returns, overdue books and fines.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 10. TRANSPORT --}}
+        <a href="{{ route('admin.transport.reports.student-search') }}" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-bus"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Transport Reports
+                </h3>
+
+                <p>
+                    Routes, vehicles, drivers and student transport.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 11. MEAL --}}
+        <a href="{{ route('admin.meal.logs.index') }}" class="report-card">
+
+    <div class="report-icon">
+        <i class="fas fa-utensils"></i>
+    </div>
+
+    <div class="report-info">
+
+        <h3>
+            Meal Reports
+        </h3>
+
+        <p>
+            Meal stock, usage and inventory records.
+        </p>
+
+    </div>
+
+    <div class="report-arrow">
+        <i class="fas fa-chevron-right"></i>
+    </div>
+
+</a>
+
+
+        {{-- 12. PAYROLL --}}
+        <a href="#" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-money-check-dollar"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Payroll Reports
+                </h3>
+
+                <p>
+                    Salary, payroll and employee payment records.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 13. SPORTS --}}
+        <a href="#" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-futbol"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Sports Reports
+                </h3>
+
+                <p>
+                    Sports activities and student participation.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 14. SCHOLARSHIP --}}
+        <a href="#" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Scholarship Reports
+                </h3>
+
+                <p>
+                    Scholarship applications and student records.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+        {{-- 15. CLASS --}}
+        <a href="#" class="report-card">
+
+            <div class="report-icon">
+                <i class="fas fa-chalkboard"></i>
+            </div>
+
+            <div class="report-info">
+
+                <h3>
+                    Class Reports
+                </h3>
+
+                <p>
+                    Classes, divisions, subjects and class records.
+                </p>
+
+            </div>
+
+            <div class="report-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </a>
+
+
+    </div>
+
+</div>
+
+@endsection
 
 @endsection
