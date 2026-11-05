@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 
 
@@ -779,7 +779,6 @@ Route::get('/reports/student-attendance/{student}/pdf', [
     'profilePdf'
 ])->whereNumber('student')
   ->name('reports.student-attendance.profile.pdf');
-
 Route::get('/reports/student-attendance/{student}/excel', [
     StudentAttendanceReportController::class,
     'profileExcel'
@@ -891,6 +890,31 @@ Route::get('/reports/transport', [
     TransportReportController::class,
     'index',
 ])->name('reports.transport');
+Route::get('/reports/transport/students', [
+    TransportReportController::class,
+    'studentTransportIndex',
+])->name('reports.transport.students');
+// STUDENT TRANSPORT REPORT DETAILS
+
+Route::get('/reports/transport/students/class', [
+    TransportReportController::class,
+    'studentTransportClass',
+])->name('reports.transport.students.class');
+
+Route::get('/reports/transport/students/{id}', [
+    TransportReportController::class,
+    'studentTransportShow',
+])->name('reports.transport.students.show');
+
+Route::get('/reports/transport/students/{id}/pdf', [
+    TransportReportController::class,
+    'studentTransportPdf',
+])->name('reports.transport.students.pdf');
+
+Route::get('/reports/transport/students/{id}/excel', [
+    TransportReportController::class,
+    'studentTransportExcel',
+])->name('reports.transport.students.excel');
 
 Route::get('/reports/transport/student-travel', [
     TransportReportController::class,
@@ -917,10 +941,53 @@ Route::get('/reports/transport/vehicle/pdf', [
     'vehiclePdf',
 ])->name('reports.transport.vehicle.pdf');
 
+
+// ---------------------------------------------------------
+// INDIVIDUAL REGISTERED VEHICLE REPORTS
+// ---------------------------------------------------------
+
+Route::get('/reports/transport/vehicles', [
+    TransportReportController::class,
+    'vehicles',
+])->name('reports.transport.vehicles');
+
+Route::get('/reports/transport/vehicles/{id}/pdf', [
+    TransportReportController::class,
+    'vehicleIndividualPdf',
+])->name('reports.transport.vehicles.pdf');
+
+Route::get('/reports/transport/vehicles/{id}/excel', [
+    TransportReportController::class,
+    'vehicleIndividualExcel',
+])->name('reports.transport.vehicles.excel');
+
+Route::get('/reports/transport/vehicles/{id}', [
+    TransportReportController::class,
+    'vehicleShow',
+])->name('reports.transport.vehicles.show');
 Route::get('/reports/transport/vehicle/excel', [
     TransportReportController::class,
     'vehicleExcel',
 ])->name('reports.transport.vehicle.excel');
+Route::get('/reports/transport/routes', [
+    TransportReportController::class,
+    'routes',
+])->name('reports.transport.routes');
+
+Route::get('/reports/transport/routes/{id}/excel', [
+    TransportReportController::class,
+    'routeExcel',
+])->name('reports.transport.routes.excel');
+
+Route::get('/reports/transport/routes/{id}/pdf', [
+    TransportReportController::class,
+    'routePdf',
+])->name('reports.transport.routes.pdf');
+
+Route::get('/reports/transport/routes/{id}', [
+    TransportReportController::class,
+    'routeShow',
+])->name('reports.transport.routes.show');
 
 
 
@@ -4080,3 +4147,4 @@ Route::prefix('meal/logs')
 
  });
     });
+

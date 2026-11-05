@@ -1,20 +1,29 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Student Attendance Profile</title>
+    <title>Student Transport Profile</title>
+
     <style>
         @page {
             size: A4 landscape;
             margin: 25px 30px;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: DejaVu Sans, sans-serif;
             color: #26352e;
             font-size: 10px;
+            line-height: 1.45;
+            margin: 0;
         }
+
+        /* SCHOOL HEADER - MATCHES ATTENDANCE PDF */
 
         .school-header {
             text-align: center;
@@ -49,256 +58,611 @@
             color: #263b35;
         }
 
-        .student-heading {
-            background: #f3ead8;
-            padding: 10px;
-            border: 1px solid #d4cfc2;
-            font-size: 12px;
+        .section-heading {
+            background: #344f43;
+            color: #ffffff;
+            font-size: 9px;
             font-weight: bold;
-            margin-bottom: 10px;
+            padding: 8px 10px;
+            margin: 13px 0 0;
+            letter-spacing: .4px;
         }
 
-        .details-table,
-        .attendance-table,
-        .summary-table {
+        /* STUDENT INFORMATION */
+
+        .student-table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 12px;
         }
 
-        .details-table {
-            margin-bottom: 16px;
+        .student-table td {
+            border: 1px solid #e5e1d5;
+            padding: 8px;
+            vertical-align: middle;
         }
 
-        .details-table td {
-            padding: 7px 8px;
-            border: 1px solid #e2ded4;
-            width: 25%;
-        }
-
-        .field-label {
-            display: block;
-            color: #68766e;
+        .student-label {
+            width: 15%;
+            background: #f5f3e9;
+            color: #526258;
             font-size: 8px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
+            font-weight: bold;
         }
 
-        .field-value {
-            font-weight: bold;
-            color: #2c3e36;
-        }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: bold;
+        .student-value {
+            width: 35%;
             color: #263b35;
-            margin: 15px 0 8px;
-        }
-
-        .attendance-table th {
-            background: #2c3e36;
-            color: #fff;
-            padding: 9px 7px;
-            text-align: left;
             font-size: 9px;
-        }
-
-        .attendance-table td {
-            padding: 8px 7px;
-            border: 1px solid #e5e1d8;
-            font-size: 9px;
-        }
-
-        .attendance-table tr:nth-child(even) {
-            background: #f8f7f3;
-        }
-
-        .status-present {
-            color: #1a6b3c;
             font-weight: bold;
         }
 
-        .status-absent {
-            color: #b3443b;
-            font-weight: bold;
-        }
+        /* TRANSPORT HISTORY */
 
-        .summary-table {
-            margin-top: 8px;
-        }
-
-        .summary-table td {
-            width: 25%;
-            padding: 12px 8px;
-            border: 1px solid #d4cfc2;
-            background: #f8f7f3;
-            text-align: center;
-        }
-
-        .summary-label {
-            color: #5c6b64;
+        .history-intro {
             font-size: 8px;
+            color: #68756c;
+            padding: 8px 0 10px;
+        }
+
+        .assignment-card {
+            width: 100%;
+            border: 1px solid #d8dfd7;
+            border-collapse: collapse;
+            margin-bottom: 13px;
+            page-break-inside: avoid;
+        }
+
+        .assignment-header {
+            background: #e9eee8;
+            border-bottom: 1px solid #cbd5cc;
+        }
+
+        .assignment-header td {
+            padding: 9px 10px;
+            vertical-align: middle;
+        }
+
+        .assignment-number {
+            color: #263b35;
+            font-size: 9px;
             font-weight: bold;
+            letter-spacing: .4px;
+        }
+
+        .assignment-status {
+            text-align: right;
+        }
+
+        .assignment-body {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .assignment-body td {
+            width: 50%;
+            padding: 0;
+            vertical-align: top;
+            border-bottom: 1px solid #eeeae0;
+        }
+
+        .assignment-body td:first-child {
+            border-right: 1px solid #eeeae0;
+        }
+
+        .detail-cell {
+            padding: 8px 10px;
+        }
+
+        .detail-label {
+            display: block;
+            font-size: 7px;
+            color: #7b857b;
             text-transform: uppercase;
-        }
-
-        .summary-value {
-            font-size: 18px;
             font-weight: bold;
-            color: #2c3e36;
-            margin-top: 5px;
+            letter-spacing: .35px;
+            margin-bottom: 3px;
         }
 
-        .green {
-            color: #1a6b3c;
+        .detail-value {
+            display: block;
+            font-size: 9px;
+            color: #263b35;
+            font-weight: bold;
+            word-wrap: break-word;
         }
+
+        .status {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 7px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #e5f1e7;
+            color: #347447;
+        }
+
+        .status-inactive {
+            background: #f7e8e5;
+            color: #a34d43;
+        }
+
+        .status-neutral {
+            background: #f1eee5;
+            color: #74694e;
+        }
+
+        .assignment-footer {
+            background: #faf9f5;
+        }
+
+        .assignment-footer td {
+            padding: 8px 10px;
+            border-top: 1px solid #e5e1d5;
+        }
+
+        .remarks-label {
+            font-size: 7px;
+            font-weight: bold;
+            color: #7b857b;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .remarks-value {
+            font-size: 9px;
+            color: #39483e;
+        }
+
+        .empty-state {
+            border: 1px solid #e5e1d5;
+            background: #faf9f5;
+            text-align: center;
+            padding: 22px 10px;
+            color: #7b857b;
+            font-size: 9px;
+        }
+
+        /* FOOTER */
 
         .footer {
-            margin-top: 18px;
+            position: fixed;
+            bottom: -20px;
+            left: 0;
+            right: 0;
             border-top: 1px solid #d4cfc2;
             padding-top: 8px;
             color: #7b857b;
             font-size: 8px;
-            text-align: right;
         }
 
-        .no-records {
-            text-align: center;
-            padding: 15px;
-            color: #777;
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .footer-right {
+            text-align: right;
         }
     </style>
 </head>
+
 <body>
 
-    <div class="school-header">
-        @if(!empty($schoolSetting?->logo_url))
-            <img src="{{ $schoolSetting->logo_url }}" class="school-logo" alt="School Logo">
+@php
+    $records = $student->transportRecords ?? collect();
+
+    $schoolName = $school?->school_name ?? 'School Name';
+    $schoolAddress = $school?->address ?? '';
+    $schoolCity = $school?->city ?? '';
+    $schoolDistrict = $school?->district ?? '';
+    $schoolState = $school?->state ?? '';
+    $schoolPhone = $school?->phone ?? '';
+    $schoolEmail = $school?->email ?? '';
+
+    $logoUrl = $school?->logo_url ?? null;
+
+    if (empty($logoUrl) && !empty($school?->logo)) {
+        $logoUrl = asset('storage/' . ltrim($school->logo, '/'));
+    }
+
+    $studentName = $student->full_name
+        ?? trim(collect([
+            $student->first_name ?? '',
+            $student->middle_name ?? '',
+            $student->last_name ?? '',
+        ])->filter()->implode(' '));
+
+    $cleanValue = function ($value) {
+        return ($value !== null && trim((string) $value) !== '')
+            ? $value
+            : '—';
+    };
+
+    $formatWords = function ($value) {
+        if ($value === null || trim((string) $value) === '') {
+            return '—';
+        }
+
+        return ucwords(str_replace('_', ' ', (string) $value));
+    };
+
+    $formatDate = function ($date) {
+        if (empty($date)) {
+            return '—';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($date)->format('d M Y');
+        } catch (\Throwable $e) {
+            return '—';
+        }
+    };
+
+    $formatTime = function ($time) {
+        if (empty($time)) {
+            return '—';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($time)->format('h:i A');
+        } catch (\Throwable $e) {
+            return $time;
+        }
+    };
+
+    $formatAmount = function ($amount) {
+        return $amount !== null && $amount !== ''
+            ? number_format((float) $amount, 2)
+            : '—';
+    };
+
+    $getStatusClass = function ($status) {
+        $status = strtolower(trim((string) $status));
+
+        if (in_array($status, ['active', 'running'])) {
+            return 'status-active';
+        }
+
+        if (in_array($status, ['inactive', 'cancelled', 'canceled', 'stopped'])) {
+            return 'status-inactive';
+        }
+
+        return 'status-neutral';
+    };
+
+    $getPaymentClass = function ($status) {
+        $status = strtolower(trim((string) $status));
+
+        if ($status === 'paid') {
+            return 'status-active';
+        }
+
+        if (in_array($status, ['pending', 'unpaid', 'due'])) {
+            return 'status-inactive';
+        }
+
+        return 'status-neutral';
+    };
+@endphp
+
+{{-- SCHOOL HEADER: LOGO, NAME AND CONTACT DETAILS --}}
+
+<div class="school-header">
+
+    @if(!empty($logoUrl))
+        <img
+            src="{{ $logoUrl }}"
+            class="school-logo"
+            alt="School Logo"
+        >
+    @endif
+
+    <div class="school-name">
+        {{ $schoolName }}
+    </div>
+
+    <div class="school-details">
+
+        {{ $schoolAddress }}
+
+        @if(!empty($schoolCity))
+            , {{ $schoolCity }}
         @endif
 
-        <div class="school-name">
-            {{ $schoolSetting->school_name ?? 'School Name' }}
-        </div>
+        @if(!empty($schoolDistrict))
+            , {{ $schoolDistrict }}
+        @endif
 
-        <div class="school-details">
-            {{ $schoolSetting->address ?? '' }}
-            @if(!empty($schoolSetting?->city)), {{ $schoolSetting->city }}@endif
-            @if(!empty($schoolSetting?->district)), {{ $schoolSetting->district }}@endif
-            @if(!empty($schoolSetting?->state)), {{ $schoolSetting->state }}@endif
-            @if(!empty($schoolSetting?->phone)) | Phone: {{ $schoolSetting->phone }}@endif
-            @if(!empty($schoolSetting?->email)) | Email: {{ $schoolSetting->email }}@endif
-        </div>
+        @if(!empty($schoolState))
+            , {{ $schoolState }}
+        @endif
+
+        @if(!empty($schoolPhone))
+            | Phone: {{ $schoolPhone }}
+        @endif
+
+        @if(!empty($schoolEmail))
+            | Email: {{ $schoolEmail }}
+        @endif
+
     </div>
 
-    <div class="report-title">STUDENT ATTENDANCE PROFILE</div>
+</div>
 
-    <div class="student-heading">
-        {{ $student->full_name ?? 'Student' }}
-        &nbsp; | &nbsp;
-        Student ID: {{ $student->student_id ?? $student->id }}
-    </div>
+{{-- REPORT TITLE --}}
 
-    <table class="details-table">
-        <tr>
-            <td>
-                <span class="field-label">Student Name</span>
-                <span class="field-value">{{ $student->full_name ?? 'Not available' }}</span>
-            </td>
-            <td>
-                <span class="field-label">Student ID</span>
-                <span class="field-value">{{ $student->student_id ?? $student->id }}</span>
-            </td>
-            <td>
-                <span class="field-label">Roll Number</span>
-                <span class="field-value">{{ $student->roll_number ?? 'Not available' }}</span>
-            </td>
-            <td>
-                <span class="field-label">Class</span>
-                <span class="field-value">{{ $student->class ?? 'Not available' }}</span>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <span class="field-label">Division</span>
-                <span class="field-value">{{ $student->section ?? 'Not available' }}</span>
-            </td>
-            <td>
-                <span class="field-label">Academic Year</span>
-                <span class="field-value">{{ $academicYear ?? 'Not available' }}</span>
-            </td>
-            <td>
-                <span class="field-label">From Date</span>
-                <span class="field-value">
-                    {{ !empty($fromDate) ? \Carbon\Carbon::parse($fromDate)->format('d M Y') : 'All Dates' }}
-                </span>
-            </td>
-            <td>
-                <span class="field-label">To Date</span>
-                <span class="field-value">
-                    {{ !empty($toDate) ? \Carbon\Carbon::parse($toDate)->format('d M Y') : 'All Dates' }}
-                </span>
-            </td>
-        </tr>
-    </table>
+<div class="report-title">
+    STUDENT TRANSPORT PROFILE
+</div>
 
-    <div class="section-title">Daily Attendance History</div>
+{{-- STUDENT INFORMATION --}}
 
-    <table class="attendance-table">
-        <thead>
-            <tr>
-                <th width="7%">#</th>
-                <th width="20%">Attendance Date</th>
-                <th width="18%">Day</th>
-                <th width="20%">Status</th>
-                <th width="35%">Remarks</th>
+<div class="section-heading">
+    STUDENT INFORMATION
+</div>
+
+<table class="student-table">
+    <tr>
+        <td class="student-label">Student Name</td>
+        <td class="student-value">
+            {{ $cleanValue($studentName) }}
+        </td>
+
+        <td class="student-label">Student ID</td>
+        <td class="student-value">
+            {{ $cleanValue($student->student_id ?? $student->id) }}
+        </td>
+    </tr>
+
+    <tr>
+        <td class="student-label">Class</td>
+        <td class="student-value">
+            {{ $cleanValue($student->class ?? null) }}
+        </td>
+
+        <td class="student-label">Section</td>
+        <td class="student-value">
+            {{ $cleanValue($student->section ?? null) }}
+        </td>
+    </tr>
+
+    <tr>
+        <td class="student-label">Academic Year</td>
+        <td class="student-value">
+            {{ $cleanValue($student->academic_year ?? null) }}
+        </td>
+
+        <td class="student-label">Date of Birth</td>
+        <td class="student-value">
+            {{ $formatDate($student->date_of_birth ?? null) }}
+        </td>
+    </tr>
+</table>
+
+{{-- TRANSPORT ASSIGNMENT DETAILS & HISTORY --}}
+
+<div class="section-heading">
+    TRANSPORT ASSIGNMENT DETAILS & HISTORY
+</div>
+
+<div class="history-intro">
+    Individual transport assignment records, including route, vehicle,
+    pickup and drop information, fee details, payment status and assignment period.
+</div>
+
+@if($records->isNotEmpty())
+
+    @foreach($records as $index => $record)
+
+        <table class="assignment-card">
+
+            {{-- ASSIGNMENT HEADER --}}
+
+            <tr class="assignment-header">
+                <td>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td class="assignment-number">
+                                TRANSPORT ASSIGNMENT —
+                                {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
+                            </td>
+
+                            <td class="assignment-status">
+                                <span class="status {{ $getStatusClass($record->transport_status ?? '') }}">
+                                    {{ $formatWords($record->transport_status ?? null) }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @forelse($attendanceRecords as $index => $attendance)
-                @php
-                    $status = strtolower(trim($attendance->status ?? ''));
-                    $attendanceDate = \Carbon\Carbon::parse($attendance->attendance_date);
-                @endphp
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $attendanceDate->format('d M Y') }}</td>
-                    <td>{{ $attendanceDate->format('l') }}</td>
-                    <td class="{{ $status === 'present' ? 'status-present' : ($status === 'absent' ? 'status-absent' : '') }}">
-                        {{ ucwords(str_replace('_', ' ', $attendance->status ?? 'Not specified')) }}
+
+            {{-- VERTICAL TWO-COLUMN DETAILS --}}
+
+            <tr>
+                <td style="padding:0;">
+
+                    <table class="assignment-body">
+
+                        <tr>
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Route</span>
+                                    <span class="detail-value">
+                                        {{ $cleanValue($record->route ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Vehicle</span>
+                                    <span class="detail-value">
+                                        {{ $cleanValue($record->vehicle ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Transport Type</span>
+                                    <span class="detail-value">
+                                        {{ $formatWords($record->transport_type ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Transport Fee</span>
+                                    <span class="detail-value">
+                                        @if($record->transport_fee !== null && $record->transport_fee !== '')
+                                            ₹ {{ $formatAmount($record->transport_fee) }}
+                                        @else
+                                            —
+                                        @endif
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Pickup Point</span>
+                                    <span class="detail-value">
+                                        {{ $cleanValue($record->pickup_point ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Drop Point</span>
+                                    <span class="detail-value">
+                                        {{ $cleanValue($record->drop_point ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Pickup Time</span>
+                                    <span class="detail-value">
+                                        {{ $formatTime($record->pickup_time ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Drop Time</span>
+                                    <span class="detail-value">
+                                        {{ $formatTime($record->drop_time ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Fee Frequency</span>
+                                    <span class="detail-value">
+                                        {{ $formatWords($record->fee_frequency ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Payment Status</span>
+                                    <span class="detail-value">
+                                        <span class="status {{ $getPaymentClass($record->payment_status ?? '') }}">
+                                            {{ $formatWords($record->payment_status ?? null) }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Assignment Start Date</span>
+                                    <span class="detail-value">
+                                        {{ $formatDate($record->start_date ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="detail-cell">
+                                    <span class="detail-label">Assignment End Date</span>
+                                    <span class="detail-value">
+                                        {{ $formatDate($record->end_date ?? null) }}
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </td>
+            </tr>
+
+            {{-- REMARKS --}}
+
+            @if(!empty(trim((string) ($record->remarks ?? ''))))
+                <tr class="assignment-footer">
+                    <td>
+                        <div class="remarks-label">
+                            Additional Remarks
+                        </div>
+
+                        <div class="remarks-value">
+                            {{ $record->remarks }}
+                        </div>
                     </td>
-                    <td>{{ $attendance->remarks ?: '—' }}</td>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="no-records">No attendance records found.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            @endif
 
-    <div class="section-title">Attendance Summary</div>
+        </table>
 
-    <table class="summary-table">
+    @endforeach
+
+@else
+
+    <div class="empty-state">
+        No transport assignment records are available for this student.
+    </div>
+
+@endif
+
+{{-- FOOTER --}}
+
+<div class="footer">
+    <table class="footer-table">
         <tr>
             <td>
-                <div class="summary-label">Present Days</div>
-                <div class="summary-value green">{{ $attendanceSummary['present'] ?? 0 }}</div>
+                {{ $schoolName }} | Student Transport Report
             </td>
-            <td>
-                <div class="summary-label">Absent Days</div>
-                <div class="summary-value">{{ $attendanceSummary['absent'] ?? 0 }}</div>
-            </td>
-            
-            <td>
-                <div class="summary-label">Attendance Percentage</div>
-                <div class="summary-value green">{{ number_format($attendanceSummary['percentage'] ?? 0, 2) }}%</div>
+
+            <td class="footer-right">
+                Generated on {{ now()->format('d M Y, h:i A') }}
             </td>
         </tr>
     </table>
-
-    <div class="footer">
-        Generated on {{ now()->format('d M Y, h:i A') }}
-    </div>
+</div>
 
 </body>
 </html>

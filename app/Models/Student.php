@@ -225,4 +225,16 @@ class Student extends Model
             'student_id'
         );
     }
+    /*
+    |--------------------------------------------------------------------------
+    | Transport Records
+    |--------------------------------------------------------------------------
+    */
+    public function transportRecords(): HasMany
+    {
+        return $this->hasMany(
+            \App\Models\Transport\TransportRecord::class,
+            'student_id'
+        );
+    }
 }

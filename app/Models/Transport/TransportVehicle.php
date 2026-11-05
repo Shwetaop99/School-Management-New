@@ -3,6 +3,7 @@
 namespace App\Models\Transport;
 
 use App\Models\OtherStaff;
+use App\Models\Transport\TransportRoute;
 use Illuminate\Database\Eloquent\Model;
 
 class TransportVehicle extends Model
@@ -47,5 +48,9 @@ class TransportVehicle extends Model
             OtherStaff::class,
             'driver_id'
         );
+    }
+    public function routes()
+    {
+        return $this->hasMany(TransportRoute::class, 'vehicle_id');
     }
 }
