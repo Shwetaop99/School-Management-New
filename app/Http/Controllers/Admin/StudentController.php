@@ -692,6 +692,42 @@ public function store(Request $request)
                 'digits:6'
             ],
 
+            'appar_id' => [
+    'nullable',
+    'string',
+    'regex:/^[0-9]{12}$/',
+    Rule::unique('students', 'appar_id')->ignore($student->id),
+],
+
+'pen_no' => [
+    'nullable',
+    'string',
+    'regex:/^[0-9]{11,14}$/',
+    Rule::unique('students', 'pen_no')->ignore($student->id),
+],
+
+'saral_id' => [
+    'nullable',
+    'string',
+    'max:50',
+    'regex:/^[a-zA-Z0-9\/_-]+$/',
+    Rule::unique('students', 'saral_id')->ignore($student->id),
+],
+
+'register_no' => [
+    'required',
+    'string',
+    'max:50',
+    Rule::unique('students', 'register_no')->ignore($student->id),
+],
+
+'book_no' => [
+    'required',
+    'string',
+    'max:50',
+    Rule::unique('students', 'book_no')->ignore($student->id),
+],
+
         ], [
 
             'aadhar_card_no.digits' =>
@@ -720,6 +756,21 @@ public function store(Request $request)
 
             'profile_image.max' =>
                 'Profile image must not exceed 5 MB.',
+
+                'appar_id.regex' => 'APAAR ID must contain exactly 12 digits.',
+'appar_id.unique' => 'This APAAR ID is already assigned to another student.',
+
+'pen_no.regex' => 'PEN Number must contain 11 to 14 digits.',
+'pen_no.unique' => 'This PEN Number is already assigned to another student.',
+
+'saral_id.regex' => 'Saral ID can contain letters, numbers, slash, hyphen and underscore only.',
+'saral_id.unique' => 'This Saral ID is already assigned to another student.',
+
+'register_no.required' => 'Register Number is required.',
+'register_no.unique' => 'This Register Number is already assigned to another student.',
+
+'book_no.required' => 'Book Number is required.',
+'book_no.unique' => 'This Book Number is already assigned to another student.',
         ]);
 
         /*
@@ -797,23 +848,7 @@ public function store(Request $request)
                 $student->status ?? 'active'
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | PROFILE IMAGE
-        |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        |
-        | PHP creates a temporary file such as:
-        |
-        | C:\xampp82\tmp\php57F3.tmp
-        |
-        | We NEVER save that path.
-        |
-        | The temporary file is uploaded to Cloudinary.
-        | Only the Cloudinary HTTPS URL is saved.
-        |
-        */
+        
 
         if ($request->hasFile('profile_image')) {
 
@@ -1429,6 +1464,11 @@ private function validateStudent(
         'date_of_birth' => ['nullable', 'date'],
         'birth_place' => ['nullable', 'string', 'max:255'],
 
+        /*
+        |--------------------------------------------------------------------------
+        | AADHAAR
+        |--------------------------------------------------------------------------
+        */
         'aadhar_card_no' => [
             'nullable',
             'string',
@@ -1445,11 +1485,7 @@ private function validateStudent(
             },
         ],
 
-        'phone' => [
-            'nullable',
-            'regex:/^[6-9][0-9]{9}$/',
-        ],
-
+        'phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
         'email' => ['nullable', 'email', 'max:255'],
 
         'profile_image' => [
@@ -1465,10 +1501,10 @@ private function validateStudent(
         |--------------------------------------------------------------------------
         */
         'academic_year' => ['nullable', 'string', 'max:20'],
-        'class' => ['nullable', 'string', 'max:20'],
-        'current_class' => ['nullable', 'string', 'max:20'],
+        'class' => ['nullable', 'string', 'max:50'],
+        'current_class' => ['nullable', 'string', 'max:50'],
         'section' => ['nullable', 'string', 'max:20'],
-        'admission_class' => ['nullable', 'string', 'max:20'],
+        'admission_class' => ['nullable', 'string', 'max:50'],
         'admission_date' => ['nullable', 'date'],
 
         /*
@@ -1477,44 +1513,53 @@ private function validateStudent(
         |--------------------------------------------------------------------------
         */
 
-        // Exactly 8 digits, such as 20261042.
-        'register_no' => [
-            'required',
+        // APAAR ID: exactly 12 digits.
+        'appar_id' => [
+            'nullable',
             'string',
-            'regex:/^[0-9]{8}$/',
-            Rule::unique('students', 'register_no')
+            'regex:/^[0-9]{12}$/',
+            Rule::unique('students', 'appar_id')
                 ->ignore($student?->id),
         ],
 
-        // LIB- followed by exactly 5 digits, such as LIB-10254.
-        'book_no' => [
-            'required',
-            'string',
-            'regex:/^LIB-[0-9]{5}$/i',
-            Rule::unique('students', 'book_no')
-                ->ignore($student?->id),
-        ],
-
-        // PEN: exactly 11 digits; first digit cannot be zero.
+        // PEN Number: 11 to 14 digits.
         'pen_no' => [
             'nullable',
             'string',
-            'regex:/^[1-9][0-9]{10}$/',
+            'regex:/^[0-9]{11,14}$/',
             Rule::unique('students', 'pen_no')
                 ->ignore($student?->id),
         ],
 
-        // SARAL ID: exactly 19 digits.
+        // Saral ID: state-specific; no universal fixed length.
         'saral_id' => [
             'nullable',
             'string',
-            'regex:/^[0-9]{19}$/',
+            'max:50',
+            'regex:/^[a-zA-Z0-9\/_-]+$/',
             Rule::unique('students', 'saral_id')
                 ->ignore($student?->id),
         ],
 
+        // Register Number: institutional identifier.
+        'register_no' => [
+            'required',
+            'string',
+            'max:50',
+            Rule::unique('students', 'register_no')
+                ->ignore($student?->id),
+        ],
+
+        // Book Number: institutional identifier.
+        'book_no' => [
+            'required',
+            'string',
+            'max:50',
+            Rule::unique('students', 'book_no')
+                ->ignore($student?->id),
+        ],
+
         'roll_number' => ['nullable', 'string', 'max:50'],
-        'appar_id' => ['nullable', 'string', 'max:100'],
 
         /*
         |--------------------------------------------------------------------------
@@ -1588,73 +1633,78 @@ private function validateStudent(
         'pincode' => ['nullable', 'digits:6'],
 
     ], [
-        /*
-        |--------------------------------------------------------------------------
-        | CUSTOM ERROR MESSAGES
-        |--------------------------------------------------------------------------
-        */
-        'first_name.required' => 'First name is required.',
+        'first_name.required' =>
+            'First name is required.',
 
-        'phone.regex' => 'Please enter a valid 10-digit mobile number.',
-        'father_phone.regex' => 'Please enter a valid 10-digit father mobile number.',
-        'mother_phone.regex' => 'Please enter a valid 10-digit mother mobile number.',
-        'guardian_phone.regex' => 'Please enter a valid 10-digit guardian mobile number.',
+        'phone.regex' =>
+            'Please enter a valid 10-digit mobile number.',
 
-        'pincode.digits' => 'Pincode must contain exactly 6 digits.',
+        'father_phone.regex' =>
+            'Please enter a valid 10-digit father mobile number.',
 
-        'profile_image.image' => 'Please upload a valid image file.',
-        'profile_image.mimes' => 'Profile image must be JPG, JPEG, PNG or WEBP.',
-        'profile_image.max' => 'Profile image must not exceed 2 MB.',
+        'mother_phone.regex' =>
+            'Please enter a valid 10-digit mother mobile number.',
 
-        'register_no.required' => 'Register Number is required.',
-        'register_no.regex' => 'Register Number must contain exactly 8 digits.',
-        'register_no.unique' => 'This Register Number is already assigned to another student.',
+        'guardian_phone.regex' =>
+            'Please enter a valid 10-digit guardian mobile number.',
 
-        'book_no.required' => 'Book Number is required.',
-        'book_no.regex' => 'Book Number must follow the format LIB-10254.',
-        'book_no.unique' => 'This Book Number is already assigned to another student.',
+        'pincode.digits' =>
+            'Pincode must contain exactly 6 digits.',
 
-        'pen_no.regex' => 'PEN must contain exactly 11 digits and cannot start with zero.',
-        'pen_no.unique' => 'This PEN is already assigned to another student.',
+        'profile_image.image' =>
+            'Please upload a valid image file.',
 
-        'saral_id.regex' => 'Saral ID must contain exactly 19 digits.',
-        'saral_id.unique' => 'This Saral ID is already assigned to another student.',
+        'profile_image.mimes' =>
+            'Profile image must be JPG, JPEG, PNG or WEBP.',
 
-        'aadhar_card_no.regex' => 'Aadhaar must contain 12 digits and cannot start with 0 or 1.',
-        'aadhar_card_no.unique' => 'This Aadhaar number is already assigned to another student.',
+        'profile_image.max' =>
+            'Profile image must not exceed 2 MB.',
+
+        'aadhar_card_no.regex' =>
+            'Aadhaar must contain exactly 12 digits and cannot start with 0 or 1.',
+
+        'aadhar_card_no.unique' =>
+            'This Aadhaar number is already assigned to another student.',
+
+        'appar_id.regex' =>
+            'APAAR ID must contain exactly 12 digits.',
+
+        'appar_id.unique' =>
+            'This APAAR ID is already assigned to another student.',
+
+        'pen_no.regex' =>
+            'PEN Number must contain 11 to 14 digits.',
+
+        'pen_no.unique' =>
+            'This PEN Number is already assigned to another student.',
+
+        'saral_id.regex' =>
+            'Saral ID can contain letters, numbers, slash, hyphen and underscore only.',
+
+        'saral_id.unique' =>
+            'This Saral ID is already assigned to another student.',
+
+        'register_no.required' =>
+            'Register Number is required.',
+
+        'register_no.max' =>
+            'Register Number cannot exceed 50 characters.',
+
+        'register_no.unique' =>
+            'This Register Number is already assigned to another student.',
+
+        'book_no.required' =>
+            'Book Number is required.',
+
+        'book_no.max' =>
+            'Book Number cannot exceed 50 characters.',
+
+        'book_no.unique' =>
+            'This Book Number is already assigned to another student.',
     ]);
 }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | GENERATE STUDENT ID
-    |--------------------------------------------------------------------------
-    */
-
-    /*
-|--------------------------------------------------------------------------
-| GENERATE STUDENT ID
-|--------------------------------------------------------------------------
-|
-| Supported placeholders:
-|
-| {YEAR}           = 2026
-| {YY}             = 26
-| {CLASS}          = Student's class
-| {SECTION}        = Student's section
-| {NUMBER}         = Sequential number
-|
-| Example:
-|
-| STU-{YEAR}-{NUMBER}
-| â†’ STU-2026-0001
-|
-| SCH-{YY}-{CLASS}{SECTION}-{NUMBER}
-| â†’ SCH-26-10A-0001
-|
-|--------------------------------------------------------------------------
-*/
 
 private function generateStudentId(
     ?string $class = null,
@@ -2879,10 +2929,64 @@ public function import(Request $request)
                     'section' => 'nullable|string|max:20',
                     'phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
                     'email' => 'nullable|email|max:255',
-                    'aadhar_card_no' => 'nullable|digits:12',
                     'father_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
                     'mother_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
                     'guardian_phone' => ['nullable', 'regex:/^[6-9][0-9]{9}$/'],
+                    // APAAR ID: exactly 12 digits.
+'appar_id' => [
+    'nullable',
+    'string',
+    'regex:/^[0-9]{12}$/',
+    Rule::unique('students', 'appar_id'),
+],
+
+// PEN Number: 11 to 14 digits.
+'pen_no' => [
+    'nullable',
+    'string',
+    'regex:/^[0-9]{11,14}$/',
+    Rule::unique('students', 'pen_no'),
+],
+
+// Saral ID: state-specific format.
+'saral_id' => [
+    'nullable',
+    'string',
+    'max:50',
+    'regex:/^[a-zA-Z0-9\/_-]+$/',
+    Rule::unique('students', 'saral_id'),
+],
+
+// Institutional Register Number.
+'register_no' => [
+    'required',
+    'string',
+    'max:50',
+    Rule::unique('students', 'register_no'),
+],
+
+// Institutional Book Number.
+'book_no' => [
+    'required',
+    'string',
+    'max:50',
+    Rule::unique('students', 'book_no'),
+],
+
+'aadhar_card_no' => [
+    'nullable',
+    'string',
+    'regex:/^[2-9][0-9]{11}$/',
+    Rule::unique('students', 'aadhar_card_no'),
+    function ($attribute, $value, $fail) {
+        if (
+            filled($value) &&
+            !$this->isValidAadhaarVerhoeff((string) $value)
+        ) {
+            $fail('Please enter a valid Aadhaar number.');
+        }
+    },
+],
                 ]
             );
 

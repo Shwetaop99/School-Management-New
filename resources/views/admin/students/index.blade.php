@@ -1520,7 +1520,7 @@
                 ready when you need them.
             </p>
 
-            <a href="{{ route('admin.students.bulk-create') }}"
+            <a href="{{ route('admin.students.create') }}"
                class="diary-primary-btn">
                 <i class="bi bi-person-plus-fill"></i>
                 Add Student

@@ -454,355 +454,325 @@
 
 
             {{-- =================================================
-                TAB 2 : ACADEMIC
-            ================================================== --}}
-            <div class="tab-content-section"
-                 id="tab-academic">
+    TAB 2 : ACADEMIC
+================================================== --}}
+<div class="tab-content-section" id="tab-academic">
 
-                <div class="section-heading">
+    <div class="section-heading">
+        <div class="section-icon">
+            <i class="bi bi-mortarboard-fill"></i>
+        </div>
 
-                    <div class="section-icon">
-                        <i class="bi bi-mortarboard-fill"></i>
-                    </div>
+        <div>
+            <h5>Academic Information</h5>
+            <p>Enter admission and academic details.</p>
+        </div>
+    </div>
 
-                    <div>
-                        <h5>Academic Information</h5>
-                        <p>Enter admission and academic details.</p>
-                    </div>
+    <div class="row g-3">
 
-                </div>
+        {{-- Academic Year --}}
+        <div class="col-md-4">
+            <label class="form-label">
+                Academic Year <span class="text-danger">*</span>
+            </label>
 
+            <input type="text"
+                   name="academic_year"
+                   class="form-control"
+                   value="{{ old('academic_year', date('Y').'-'.(date('Y') + 1)) }}"
+                   required>
+        </div>
 
-                <div class="row g-3">
+        {{-- Section --}}
+        <div class="col-md-4">
+            <label class="form-label">
+                Section <span class="text-danger">*</span>
+            </label>
 
-                    <div class="col-md-4">
+            <select name="section"
+                    id="section"
+                    class="form-select"
+                    required>
+                <option value="">Select Section</option>
+            </select>
+        </div>
 
-                        <label class="form-label">
-                            Academic Year
-                            <span class="text-danger">*</span>
-                        </label>
+        {{-- Roll Number --}}
+        <div class="col-md-4">
+            <label class="form-label">Roll Number</label>
 
-                        <input type="text"
-                               name="academic_year"
-                               class="form-control"
-                               value="{{ old('academic_year', date('Y').'-'.(date('Y') + 1)) }}"
-                               required>
+            <input type="text"
+                   name="roll_number"
+                   id="roll_number"
+                   class="form-control"
+                   value="{{ old('roll_number') }}"
+                   placeholder="Enter Roll Number">
+        </div>
 
-                    </div>
-                    
+        {{-- Admission Class --}}
+        <div class="col-md-4">
+            <label class="form-label">Admission Class</label>
 
-<div class="col-md-4">
+            <select name="admission_class"
+                    id="admission_class"
+                    class="form-select">
 
-    <label class="form-label">
-        Section
-        <span class="text-danger">*</span>
-    </label>
+                <option value="">Select Class</option>
 
-    <select name="section"
-            id="section"
-            class="form-select"
-            required>
+                @foreach($classes as $class)
+                    <option value="{{ $class }}"
+                        {{ old('admission_class') == $class ? 'selected' : '' }}>
+                        {{ $class }}
+                    </option>
+                @endforeach
 
-        <option value="">Select Section</option>
+            </select>
+        </div>
 
-    </select>
+        {{-- Admission Date --}}
+        <div class="col-md-4">
+            <label class="form-label">Admission Date</label>
 
+            <input type="date"
+                   name="admission_date"
+                   id="admission_date"
+                   class="form-control"
+                   value="{{ old('admission_date') }}">
+        </div>
+
+        {{-- Register Number --}}
+        <div class="col-md-4">
+            <label for="register_no" class="form-label">
+                Register Number
+            </label>
+
+            <input type="text"
+                   name="register_no"
+                   id="register_no"
+                   class="form-control identifier-field"
+                   value="{{ old('register_no') }}"
+                   placeholder="Enter Register Number"
+                   maxlength="30"
+                   pattern="[A-Za-z0-9/-]+"
+                   title="Only letters, numbers, hyphens and slashes are allowed."
+                   autocomplete="off"
+                   spellcheck="false">
+
+            <small class="text-muted">
+                Letters, numbers, - and / allowed.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="register_no_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- Book Number --}}
+        <div class="col-md-4">
+            <label for="book_no" class="form-label">
+                Book Number
+            </label>
+
+            <input type="text"
+                   name="book_no"
+                   id="book_no"
+                   class="form-control identifier-field"
+                   value="{{ old('book_no') }}"
+                   placeholder="Enter Book Number"
+                   maxlength="30"
+                   pattern="[A-Za-z0-9/-]+"
+                   title="Only letters, numbers, hyphens and slashes are allowed."
+                   autocomplete="off"
+                   spellcheck="false">
+
+            <small class="text-muted">
+                Letters, numbers, - and / allowed.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="book_no_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- APAAR ID --}}
+        <div class="col-md-4">
+            <label for="appar_id" class="form-label">
+                APAAR ID
+            </label>
+
+            <input type="text"
+                   name="appar_id"
+                   id="appar_id"
+                   class="form-control identifier-field"
+                   value="{{ old('appar_id') }}"
+                   placeholder="Enter 12-digit APAAR ID"
+                   maxlength="12"
+                   minlength="12"
+                   inputmode="numeric"
+                   pattern="[0-9]{12}"
+                   title="APAAR ID must contain exactly 12 digits."
+                   autocomplete="off">
+
+            <small class="text-muted">
+                Enter exactly 12 digits.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="appar_id_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- PEN Number --}}
+        <div class="col-md-4">
+            <label for="pen_no" class="form-label">
+                PEN Number
+            </label>
+
+            <input type="text"
+                   name="pen_no"
+                   id="pen_no"
+                   class="form-control identifier-field"
+                   value="{{ old('pen_no') }}"
+                   placeholder="Enter PEN Number"
+                   maxlength="14"
+                   minlength="11"
+                   inputmode="numeric"
+                   pattern="[0-9]{11,14}"
+                   title="PEN Number must contain 11 to 14 digits."
+                   autocomplete="off">
+
+            <small class="text-muted">
+                Enter 11 to 14 digits.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="pen_no_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- Saral ID --}}
+        <div class="col-md-4">
+            <label for="saral_id" class="form-label">
+                Saral ID
+            </label>
+
+            <input type="text"
+                   name="saral_id"
+                   id="saral_id"
+                   class="form-control identifier-field"
+                   value="{{ old('saral_id') }}"
+                   placeholder="Enter Saral ID"
+                   maxlength="30"
+                   pattern="[A-Za-z0-9/-]+"
+                   title="Only letters, numbers, hyphens and slashes are allowed."
+                   autocomplete="off"
+                   spellcheck="false">
+
+            <small class="text-muted">
+                Letters, numbers, - and / allowed.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="saral_id_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- Medium --}}
+        <div class="col-md-4">
+            <label class="form-label">Medium</label>
+
+            <select name="medium" class="form-select">
+                <option value="">Select Medium</option>
+
+                <option value="Marathi"
+                    {{ old('medium') == 'Marathi' ? 'selected' : '' }}>
+                    Marathi
+                </option>
+
+                <option value="English"
+                    {{ old('medium') == 'English' ? 'selected' : '' }}>
+                    English
+                </option>
+
+                <option value="Semi-English"
+                    {{ old('medium') == 'Semi-English' ? 'selected' : '' }}>
+                    Semi-English
+                </option>
+            </select>
+        </div>
+
+        {{-- Mother Tongue --}}
+        <div class="col-md-4">
+            <label class="form-label">Mother Tongue</label>
+
+            <input type="text"
+                   name="mother_tongue"
+                   class="form-control"
+                   value="{{ old('mother_tongue') }}">
+        </div>
+
+        {{-- Nationality --}}
+        <div class="col-md-4">
+            <label class="form-label">Nationality</label>
+
+            <input type="text"
+                   name="nationality"
+                   class="form-control"
+                   value="{{ old('nationality', 'Indian') }}">
+        </div>
+
+        {{-- Religion --}}
+        <div class="col-md-4">
+            <label class="form-label">Religion</label>
+
+            <input type="text"
+                   name="religion"
+                   class="form-control"
+                   value="{{ old('religion') }}">
+        </div>
+
+        {{-- Caste --}}
+        <div class="col-md-4">
+            <label class="form-label">Caste</label>
+
+            <input type="text"
+                   name="caste"
+                   class="form-control"
+                   value="{{ old('caste') }}">
+        </div>
+
+        {{-- Sub Caste --}}
+        <div class="col-md-4">
+            <label class="form-label">Sub Caste</label>
+
+            <input type="text"
+                   name="sub_caste"
+                   class="form-control"
+                   value="{{ old('sub_caste') }}">
+        </div>
+
+        {{-- Status --}}
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+
+            <select name="status" class="form-select">
+
+                <option value="active"
+                    {{ old('status', 'active') == 'active' ? 'selected' : '' }}>
+                    Active
+                </option>
+
+                <option value="inactive"
+                    {{ old('status') == 'inactive' ? 'selected' : '' }}>
+                    Inactive
+                </option>
+
+            </select>
+        </div>
+
+    </div>
 </div>
-
-<div class="col-md-4">
-
-    <label class="form-label">
-        Roll Number
-    </label>
-
-    <input type="text"
-           name="roll_number"
-           id="roll_number"
-           class="form-control"
-           value="{{ old('roll_number') }}"
-           placeholder="Enter Roll Number">
-
-</div>
-
-
-<div class="col-md-4">
-
-    <label class="form-label">
-        Admission Class
-    </label>
-
-    <select name="admission_class"
-            id="admission_class"
-            class="form-select">
-
-        <option value="">Select Class</option>
-
-        @foreach($classes as $class)
-            <option value="{{ $class }}"
-                {{ old('admission_class') == $class ? 'selected' : '' }}>
-                {{ $class }}
-            </option>
-        @endforeach
-
-    </select>
-
-</div>
-
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Admission Date
-                        </label>
-
-                        <input type="date"
-       name="admission_date"
-       id="admission_date"
-       class="form-control"
-       value="{{ old('admission_date') }}">
-
-                    </div>
-
-
-                    
-<div class="col-md-4">
-    <label for="register_no" class="form-label">
-        Register Number
-    </label>
-
-    <input type="text"
-           name="register_no"
-           id="register_no"
-           class="form-control"
-           value="{{ old('register_no') }}"
-           placeholder="Enter Register Number"
-           maxlength="30"
-           pattern="[A-Za-z0-9/-]+"
-           title="Use letters, numbers, hyphens, or slashes."
-           autocomplete="off">
-
-    <small class="text-danger d-none"
-           id="register_no_error"
-           role="alert"></small>
-</div>
-
-<div class="col-md-4">
-    <label for="book_no" class="form-label">
-        Book Number
-    </label>
-
-    <input type="text"
-           name="book_no"
-           id="book_no"
-           class="form-control"
-           value="{{ old('book_no') }}"
-           placeholder="Enter Book Number"
-           maxlength="30"
-           pattern="[A-Za-z0-9/-]+"
-           title="Use letters, numbers, hyphens, or slashes."
-           autocomplete="off">
-
-    <small class="text-danger d-none"
-           id="book_no_error"
-           role="alert"></small>
-</div>
-
-<div class="col-md-4">
-    <label for="appar_id" class="form-label">
-        APAAR ID
-    </label>
-
-    <input type="text"
-           name="appar_id"
-           id="appar_id"
-           class="form-control"
-           value="{{ old('appar_id') }}"
-           placeholder="Enter APAAR ID"
-           maxlength="12"
-           inputmode="numeric"
-           pattern="[0-9]{12}"
-           title="APAAR ID must contain exactly 12 digits."
-           autocomplete="off">
-
-    <small class="text-danger d-none"
-           id="appar_id_error"
-           role="alert"></small>
-</div>
-
-<div class="col-md-4">
-    <label for="pen_no" class="form-label">
-        PEN Number
-    </label>
-
-    <input type="text"
-           name="pen_no"
-           id="pen_no"
-           class="form-control"
-           value="{{ old('pen_no') }}"
-           placeholder="Enter PEN Number"
-           maxlength="20"
-           pattern="[A-Za-z0-9/-]+"
-           title="Use letters, numbers, hyphens, or slashes."
-           autocomplete="off">
-
-    <small class="text-danger d-none"
-           id="pen_no_error"
-           role="alert"></small>
-</div>
-
-<div class="col-md-4">
-    <label for="saral_id" class="form-label">
-        Saral ID
-    </label>
-
-    <input type="text"
-           name="saral_id"
-           id="saral_id"
-           class="form-control"
-           value="{{ old('saral_id') }}"
-           placeholder="Enter Saral ID"
-           maxlength="30"
-           pattern="[A-Za-z0-9/-]+"
-           title="Use letters, numbers, hyphens, or slashes."
-           autocomplete="off">
-
-    <small class="text-danger d-none"
-           id="saral_id_error"
-           role="alert"></small>
-</div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Medium
-                        </label>
-
-                        <select name="medium"
-                                class="form-select">
-
-                            <option value="">
-                                Select Medium
-                            </option>
-
-                            <option value="Marathi"
-                                {{ old('medium') == 'Marathi' ? 'selected' : '' }}>
-                                Marathi
-                            </option>
-
-                            <option value="English"
-                                {{ old('medium') == 'English' ? 'selected' : '' }}>
-                                English
-                            </option>
-
-                            <option value="Semi-English"
-                                {{ old('medium') == 'Semi-English' ? 'selected' : '' }}>
-                                Semi-English
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Mother Tongue
-                        </label>
-
-                        <input type="text"
-                               name="mother_tongue"
-                               class="form-control"
-                               value="{{ old('mother_tongue') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Nationality
-                        </label>
-
-                        <input type="text"
-                               name="nationality"
-                               class="form-control"
-                               value="{{ old('nationality', 'Indian') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Religion
-                        </label>
-
-                        <input type="text"
-                               name="religion"
-                               class="form-control"
-                               value="{{ old('religion') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Caste
-                        </label>
-
-                        <input type="text"
-                               name="caste"
-                               class="form-control"
-                               value="{{ old('caste') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Sub Caste
-                        </label>
-
-                        <input type="text"
-                               name="sub_caste"
-                               class="form-control"
-                               value="{{ old('sub_caste') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Status
-                        </label>
-
-                        <select name="status"
-                                class="form-select">
-
-                            <option value="active"
-                                {{ old('status', 'active') == 'active' ? 'selected' : '' }}>
-                                Active
-                            </option>
-
-                            <option value="inactive"
-                                {{ old('status') == 'inactive' ? 'selected' : '' }}>
-                                Inactive
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </div>
-
 
             {{-- =================================================
                 TAB 3 : PARENTS
@@ -2062,26 +2032,35 @@ document.addEventListener('DOMContentLoaded', function () {
     */
 
     function errorElement(field) {
-        if (!field || !field.name || !field.parentElement) return null;
+    if (!field || !field.name) return null;
 
-        const parent = field.parentElement;
+    // Reuse existing error element if available.
+    let error = $(field.name + '_error');
 
-        let error = Array.from(parent.children).find(element =>
-            element.dataset &&
-            element.dataset.validationFor === field.name
-        );
-
-        if (!error) {
-            error = document.createElement('small');
-            error.className = 'text-danger d-block mt-1';
-            error.dataset.validationFor = field.name;
-            error.setAttribute('role', 'alert');
-            field.insertAdjacentElement('afterend', error);
-        }
-
+    if (error) {
+        error.dataset.validationFor = field.name;
         return error;
     }
 
+    const parent = field.parentElement;
+    if (!parent) return null;
+
+    error = Array.from(parent.children).find(element =>
+        element.dataset &&
+        element.dataset.validationFor === field.name
+    );
+
+    if (!error) {
+        error = document.createElement('small');
+        error.className = 'text-danger d-block mt-1';
+        error.dataset.validationFor = field.name;
+        error.setAttribute('role', 'alert');
+
+        field.insertAdjacentElement('afterend', error);
+    }
+
+    return error;
+}
     function showFieldError(field, message) {
         if (!field) return;
 
@@ -2111,78 +2090,141 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function validateField(field) {
-        if (
-            !field ||
-            field.disabled ||
-            field.type === 'hidden' ||
-            ['button', 'submit', 'reset'].includes(field.type)
-        ) {
-            return true;
-        }
-
-        const value = String(field.value ?? '').trim();
-        const name = field.name || '';
-        let message = '';
-
-        if (
-            (field.required || requiredFieldNames.includes(name)) &&
-            !value
-        ) {
-            message = 'This field is required.';
-        } else if (
-            value &&
-            name === 'aadhar_card_no' &&
-            !/^\d{12}$/.test(value)
-        ) {
-            message = 'Aadhaar must contain exactly 12 digits.';
-        } else if (
-            value &&
-            phoneFieldNames.includes(name) &&
-            !/^[6-9]\d{9}$/.test(value)
-        ) {
-            message = 'Enter a valid 10-digit Indian mobile number starting with 6–9.';
-        } else if (
-            value &&
-            field.type === 'email' &&
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-        ) {
-            message = 'Enter a valid email address.';
-        } else if (
-            value &&
-            name === 'pincode' &&
-            !/^\d{6}$/.test(value)
-        ) {
-            message = 'Pincode must contain exactly 6 digits.';
-        } else if (
-            field.type === 'file' &&
-            field.files &&
-            field.files.length
-        ) {
-            const file = field.files[0];
-
-            if (
-                name === 'profile_image' &&
-                !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
-            ) {
-                message = 'Only JPG, PNG, and WEBP images are allowed.';
-            } else if (
-                name === 'profile_image' &&
-                file.size > 5 * 1024 * 1024
-            ) {
-                message = 'The image must not exceed 5 MB.';
-            }
-        } else if (value && !field.validity.valid) {
-            message = field.validationMessage || 'Please enter a valid value.';
-        }
-
-        if (message) {
-            showFieldError(field, message);
-            return false;
-        }
-
-        clearFieldError(field);
+    if (
+        !field ||
+        field.disabled ||
+        field.type === 'hidden' ||
+        ['button', 'submit', 'reset'].includes(field.type)
+    ) {
         return true;
     }
+
+    const value = String(field.value ?? '').trim();
+    const name = field.name || '';
+    let message = '';
+
+    if (
+        (field.required || requiredFieldNames.includes(name)) &&
+        !value
+    ) {
+        message = 'This field is required.';
+    }
+
+    // Aadhaar validation
+    else if (
+        value &&
+        name === 'aadhar_card_no' &&
+        !/^\d{12}$/.test(value)
+    ) {
+        message = 'Aadhaar must contain exactly 12 digits.';
+    }
+
+    // Parent and student mobile validation
+    else if (
+        value &&
+        phoneFieldNames.includes(name) &&
+        !/^[6-9]\d{9}$/.test(value)
+    ) {
+        message = 'Enter a valid 10-digit Indian mobile number starting with 6–9.';
+    }
+
+    // Email validation
+    else if (
+        value &&
+        field.type === 'email' &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    ) {
+        message = 'Enter a valid email address.';
+    }
+
+    // Pincode validation
+    else if (
+        value &&
+        name === 'pincode' &&
+        !/^\d{6}$/.test(value)
+    ) {
+        message = 'Pincode must contain exactly 6 digits.';
+    }
+
+    // Register Number validation
+    else if (
+        value &&
+        name === 'register_no' &&
+        !/^[A-Za-z0-9/-]{1,30}$/.test(value)
+    ) {
+        message = 'Register Number can contain only letters, numbers, hyphens and slashes (maximum 30 characters).';
+    }
+
+    // Book Number validation
+    else if (
+        value &&
+        name === 'book_no' &&
+        !/^[A-Za-z0-9/-]{1,30}$/.test(value)
+    ) {
+        message = 'Book Number can contain only letters, numbers, hyphens and slashes (maximum 30 characters).';
+    }
+
+    // APAAR ID validation
+    else if (
+        value &&
+        name === 'appar_id' &&
+        !/^\d{12}$/.test(value)
+    ) {
+        message = 'APAAR ID must contain exactly 12 digits.';
+    }
+
+    // PEN Number validation
+    else if (
+        value &&
+        name === 'pen_no' &&
+        !/^\d{11,14}$/.test(value)
+    ) {
+        message = 'PEN Number must contain 11 to 14 digits.';
+    }
+
+    // Saral ID validation
+    else if (
+        value &&
+        name === 'saral_id' &&
+        !/^[A-Za-z0-9/-]{1,30}$/.test(value)
+    ) {
+        message = 'Saral ID can contain only letters, numbers, hyphens and slashes (maximum 30 characters).';
+    }
+
+    // Profile image validation
+    else if (
+        field.type === 'file' &&
+        field.files &&
+        field.files.length
+    ) {
+        const file = field.files[0];
+
+        if (
+            name === 'profile_image' &&
+            !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+        ) {
+            message = 'Only JPG, PNG, and WEBP images are allowed.';
+        } else if (
+            name === 'profile_image' &&
+            file.size > 5 * 1024 * 1024
+        ) {
+            message = 'The image must not exceed 5 MB.';
+        }
+    }
+
+    // Other HTML pattern and input validations
+    else if (value && !field.validity.valid) {
+        message = field.validationMessage || 'Please enter a valid value.';
+    }
+
+    if (message) {
+        showFieldError(field, message);
+        return false;
+    }
+
+    clearFieldError(field);
+    return true;
+}
 
     function fieldsInSection(section) {
         if (!section) return [];
@@ -2353,38 +2395,44 @@ document.addEventListener('DOMContentLoaded', function () {
             String(today.getDate()).padStart(2, '0');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | NUMERIC INPUTS
-    |--------------------------------------------------------------------------
-    */
+   /*
+|--------------------------------------------------------------------------
+| NUMERIC INPUTS
+|--------------------------------------------------------------------------
+*/
 
-    function numericOnly(element, maxLength) {
-        if (!element) return;
+function numericOnly(element, maxLength) {
+    if (!element) return;
 
-        element.addEventListener('input', function () {
-            const originalValue = this.value;
+    element.addEventListener('input', function () {
+        const originalValue = this.value;
 
-            this.value = originalValue
-                .replace(/\D/g, '')
-                .substring(0, maxLength);
+        this.value = originalValue
+            .replace(/\D/g, '')
+            .substring(0, maxLength);
 
-            if (
-                this.value !== originalValue &&
-                this.classList.contains('is-invalid')
-            ) {
-                validateField(this);
-            }
-        });
-    }
-
-    numericOnly(aadhaar, 12);
-    numericOnly(phone, 10);
-    numericOnly(pincode, 6);
-
-    document.querySelectorAll('.parent-phone').forEach(input => {
-        numericOnly(input, 10);
+        if (
+            this.value !== originalValue &&
+            this.classList.contains('is-invalid')
+        ) {
+            validateField(this);
+        }
     });
+}
+
+// Existing numeric fields
+numericOnly(aadhaar, 12);
+numericOnly(phone, 10);
+numericOnly(pincode, 6);
+
+// Parent mobile numbers
+document.querySelectorAll('.parent-phone').forEach(input => {
+    numericOnly(input, 10);
+});
+
+// New academic identifier fields
+numericOnly($('appar_id'), 12);
+numericOnly($('pen_no'), 14);
 
     /*
     |--------------------------------------------------------------------------
