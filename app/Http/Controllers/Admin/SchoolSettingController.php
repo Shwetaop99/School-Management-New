@@ -323,8 +323,7 @@ class SchoolSettingController extends Controller
 
             'udise_code' => [
                 'nullable',
-                'string',
-                'max:50',
+                'regex:/^[0-9]{11}$/',
             ],
 
             /*
@@ -371,8 +370,7 @@ class SchoolSettingController extends Controller
 
             'phone' => [
                 'nullable',
-                'string',
-                'max:30',
+                'regex:/^(?:\+91[\s-]?)?[6-9][0-9]{4}[\s-]?[0-9]{5}$/',
             ],
 
             'email' => [
@@ -445,6 +443,9 @@ class SchoolSettingController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
+        ], [
+            'udise_code.regex' => 'UDISE code must contain exactly 11 digits.',
+            'phone.regex' => 'Enter a valid 10-digit Indian mobile number. You may optionally include +91.',
         ]) + [
 
             /*

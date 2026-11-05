@@ -830,27 +830,24 @@
 
 
 
-        <div class="sidebar-brand">
+        
+<div class="sidebar-brand">
+    <div class="brand-icon">
+        <img
+            src="{{ $school?->logo_url ?? asset('images/gurukullogo.png') }}"
+            alt="{{ $school?->school_name ?? 'School' }} logo"
+            onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
+        >
+    </div>
 
-            <div class="brand-icon">
-
-                <img src="{{ $schoolLogo ?? asset('images/gurukullogo.png') }}"
-
-                     alt="{{ $schoolName ?? 'School' }} logo"
-
-                     onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';">
-
-            </div>
-
-            <div>
-
-                <div class="brand-title">{{ $schoolName ?? 'Gurukul Vidyalaya' }}</div>
-
-                <div class="brand-subtitle">School management</div>
-
-            </div>
-
+    <div>
+        <div class="brand-title">
+            {{ $school?->school_name ?? 'Gurukul Vidyalaya' }}
         </div>
+        <div class="brand-subtitle">School management</div>
+    </div>
+</div>
+
 
 
 

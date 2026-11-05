@@ -67,9 +67,7 @@
 
                         <img
                             id="schoolLogoPreview"
-                            src="{{ $school?->logo
-                                ? asset('storage/' . $school->logo)
-                                : asset('images/gurukullogo.png') }}"
+                            src="{{ $school?->logo_url ?? asset('images/gurukullogo.png') }}"
                             alt="School Logo"
                             onerror="this.src='{{ asset('images/gurukullogo.png') }}'"
                         >
@@ -160,7 +158,12 @@
                             name="udise_code"
                             class="form-control"
                             value="{{ old('udise_code', $school?->udise_code) }}"
-                            placeholder="UDISE code"
+                            placeholder="Enter 11-digit UDISE code"
+                            maxlength="11"
+                            minlength="11"
+                            inputmode="numeric"
+                            pattern="[0-9]{11}"
+                            title="UDISE code must contain exactly 11 digits"
                         >
 
                     </div>
@@ -323,13 +326,15 @@
                 </label>
 
                 <input
-                    type="text"
+                    type="tel"
                     name="phone"
                     class="form-control"
                     value="{{ old('phone', $school?->phone) }}"
-                    placeholder="10 digit phone number"
-                    maxlength="10"
-                    inputmode="numeric"
+                    placeholder="98765 43210 or +91 98765 43210"
+                    maxlength="16"
+                    inputmode="tel"
+                    pattern="(?:\+91[\s-]?)?[6-9][0-9]{4}[\s-]?[0-9]{5}"
+                    title="Enter a valid 10-digit Indian mobile number, optionally with +91"
                 >
 
                 @error('phone')
@@ -567,7 +572,7 @@
                 >
 
                 <small class="text-muted">
-                    Example: 4 → 0001
+                    Example: 4 â†’ 0001
                 </small>
 
                 @error('student_id_length')
@@ -593,25 +598,25 @@
 
                 <div class="col-md-6">
                     <code>STU-{YEAR}-{NUMBER}</code>
-                    →
+                    â†’
                     <span>STU-2026-0001</span>
                 </div>
 
                 <div class="col-md-6">
                     <code>{YEAR}/{CLASS}/{NUMBER}</code>
-                    →
+                    â†’
                     <span>2026/10/0001</span>
                 </div>
 
                 <div class="col-md-6">
                     <code>SCH-{YY}-{CLASS}{SECTION}-{NUMBER}</code>
-                    →
+                    â†’
                     <span>SCH-26-10A-0001</span>
                 </div>
 
                 <div class="col-md-6">
                     <code>STUDENT-{NUMBER}</code>
-                    →
+                    â†’
                     <span>STUDENT-0001</span>
                 </div>
 
