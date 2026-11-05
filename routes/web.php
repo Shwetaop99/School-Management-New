@@ -4157,6 +4157,7 @@ use App\Http\Controllers\SuperAdmin\Reports\SchoolReportController;
 
 
 
+
 Route::middleware('auth:super_admin')->group(function () {
     Route::get('/settings/security', [
         SuperAdminSecurityController::class,
@@ -4304,6 +4305,16 @@ Route::get('/reports/schools', [
 ])
     ->middleware(EnsureSuperAdminPermission::class . ':reports.schools.view')
     ->name('reports.schools');
+
+    // School Reports
+Route::get('/reports/schools/export/excel', [SchoolReportController::class, 'exportExcel'])
+    ->name('reports.schools.excel');
+
+Route::get('/reports/schools/export/pdf', [SchoolReportController::class, 'exportPdf'])
+    ->name('reports.schools.pdf');
+
+Route::get('/reports/schools/print', [SchoolReportController::class, 'print'])
+    ->name('reports.schools.print');
 
                // Super Admin User Management
 

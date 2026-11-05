@@ -120,6 +120,24 @@ $workspaceNav = [
     false,
 ],
 
+[
+    'School management',
+    'school',
+    $schoolsUrl,
+    request()->routeIs('super-admin.schools.*'),
+    false,
+],
+
+[
+    'School Reports',
+    'activity',
+    Route::has('super-admin.reports.schools')
+        ? route('super-admin.reports.schools')
+        : url('/control-panel/reports/schools'),
+    request()->routeIs('super-admin.reports.*'),
+    false,
+],
+
 
     ['Payments',          'rupee',    null, false, true],
     ['School accounts',   'users',    null, false, true],
