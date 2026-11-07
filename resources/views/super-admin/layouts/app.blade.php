@@ -120,13 +120,7 @@ $workspaceNav = [
     false,
 ],
 
-[
-    'School management',
-    'school',
-    $schoolsUrl,
-    request()->routeIs('super-admin.schools.*'),
-    false,
-],
+
 
 [
     'School Reports',

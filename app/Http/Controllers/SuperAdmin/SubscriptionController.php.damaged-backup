@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #263445;
+        }
+
+        .error-card {
+            width: 100%;
+            max-width: 520px;
+            padding: 40px 30px;
+            text-align: center;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .error-code {
+            color: #147cf5;
+            font-size: 64px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 10px 0;
+            font-size: 26px;
+        }
+
+        p {
+            color: #64748b;
+            line-height: 1.7;
+        }
+
+        .message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .home-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 24px;
+            color: #fff;
+            background: #147cf5;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .home-button:hover {
+            background: #1769d1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-card">
+        <div class="error-code">403</div>
+
+        <h1>Access Denied</h1>
+
+        <p>
+            You do not have permission to access this page.
+        </p>
+
+        <div class="message">
+            {{ $exception->getMessage() ?: 'Please contact your administrator for assistance.' }}
+        </div>
+
+        <p>
+            If your subscription plan does not include this feature,
+            contact your school administrator or Super Admin about upgrading.
+        </p>
+
+        <a href="{{ url('/admin/dashboard') }}" class="home-button">
+            Back to Dashboard
+        </a>
+    </div>
+</body>
+</html>

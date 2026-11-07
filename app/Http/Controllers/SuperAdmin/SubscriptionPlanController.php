@@ -26,8 +26,10 @@ class SubscriptionPlanController extends Controller
         'advanced_reports' => 'Advanced Reports',
         'report_exports' => 'PDF and Excel Exports',
         'backups' => 'Database Backups',
-        'restore' => 'Database Restore',
-        'analytics' => 'Analytics',
+'restore' => 'Database Restore',
+'analytics' => 'Analytics',
+'transport' => 'Transport Management',
+'sports' => 'Sports Management',
     ];
 
     public function index()

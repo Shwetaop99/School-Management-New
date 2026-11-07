@@ -18,16 +18,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Student extends Model
 {
-<<<<<<< HEAD
     public function school(): BelongsTo
 {
     return $this->belongsTo(School::class);
 }
 
     use HasFactory, SoftDeletes;
-=======
-     use HasFactory, SoftDeletes,LogsActivity;
->>>>>>> 41ec77bbca7910b8e82a9f944ff0fcc4bbed263c
 
     protected $table = 'students';
 

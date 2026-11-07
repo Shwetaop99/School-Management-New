@@ -45,6 +45,10 @@ class LoginController extends Controller
 
         $login = trim($credentials['login']);
 
+        $ip = $request->ip();
+
+$key = 'admin-login:' . strtolower($login) . '|' . $ip;
+
         /*
         |--------------------------------------------------------------------------
         | Find User By Login ID Or Email
@@ -58,10 +62,10 @@ class LoginController extends Controller
             Log::warning('Login blocked (too many attempts)', ['ip' => $ip]);
 
             return back()
-                ->withErrors([
-                    'email' => "Too many login attempts. Please try again in {$minutes} minute(s).",
-                ])
-                ->withInput($request->only('email'));
+    ->withErrors([
+        'login' => "Too many login attempts. Please try again in {$minutes} minute(s).",
+    ])
+    ->withInput($request->only('login'));
         }
 
         $user = User::with('role')
@@ -71,13 +75,15 @@ class LoginController extends Controller
             })
             ->first();
 
-        if (!$user) {
-            return back()
-                ->withErrors([
-                    'login' => 'Invalid Login ID/email or password.',
-                ])
-                ->withInput($request->only('login'));
-        }
+      if (!$user) {
+    RateLimiter::hit($key, self::LOCK_SECONDS);
+
+    return back()
+        ->withErrors([
+            'login' => self::WRONG_LOGIN,
+        ])
+        ->withInput($request->only('login'));
+}
 
         /*
         |--------------------------------------------------------------------------
@@ -130,17 +136,21 @@ class LoginController extends Controller
 */
 
 $remember = $request->boolean('remember');
-
 if (!Auth::attempt([
     'email' => $user->email,
     'password' => $credentials['password'],
 ], $remember)) {
+
+    RateLimiter::hit($key, self::LOCK_SECONDS);
+
     return back()
         ->withErrors([
-            'login' => 'Invalid Login ID/email or password.',
+            'login' => self::WRONG_LOGIN,
         ])
         ->withInput($request->only('login'));
 }
+
+RateLimiter::clear($key);
 
         /*
         |--------------------------------------------------------------------------

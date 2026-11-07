@@ -1,1289 +1,1758 @@
-﻿<!DOCTYPE html>
-
+﻿
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>@yield('title', 'School Management')</title>
 
-    <script>document.documentElement.classList.add('is-loading');</script>
-
-
+    <script>
+        document.documentElement.classList.add('is-loading');
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-
-
     <style>
-
-        *{box-sizing:border-box;margin:0;padding:0}
-
-        :root{
-
-            --ink:#1d3a33; --ink-2:#2a4a41; --ink-line:rgba(238,242,230,.18);
-
-            --side-text:#d9e1d0; --chalk:#f2b632; --wood:#8a5a2c;
-
-            --accent:#2b5d8a; --accent-soft:#e6eef6;
-
-            --text:#26302c; --muted:#6a756f; --line:#e6e0d2; --bg:#fbf8f1; --white:#fff;
-
-            --red:#e4572e; --green:#3a9d6b;
-
-            --sidebar-width:268px; --header-height:66px;
-
-            --serif:'Fraunces',Georgia,serif; --hand:'Caveat','Comic Sans MS',cursive;
-
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        html{scroll-behavior:smooth}
-
-        body{font-family:'Public Sans',Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;font-size:14px}
-
-        a{text-decoration:none;color:inherit}
-
-        button{font-family:inherit}
-
-        :focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
-
-
-
-        .app-wrapper{min-height:100vh;display:flex}
-
-
-
-        /* ---------- Chalkboard sidebar ---------- */
-
-        .sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);z-index:1000;display:flex;flex-direction:column;transition:transform .3s ease;
-
-            background:radial-gradient(ellipse at 18% 8%,rgba(255,255,255,.08),transparent 55%),radial-gradient(ellipse at 85% 88%,rgba(255,255,255,.06),transparent 50%),var(--ink);
-
-            border-right:8px solid var(--wood);box-shadow:inset -3px 0 6px rgba(0,0,0,.28)}
-
-        .sidebar-brand{height:var(--header-height);display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:2px dashed var(--ink-line);flex-shrink:0}
-
-        .brand-icon{width:42px;height:42px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 3px var(--ink),0 0 0 4px var(--chalk)}
-
-        .brand-icon img{width:100%;height:100%;object-fit:contain}
-
-        .brand-title{font-family:var(--serif);font-size:16px;font-weight:700;color:#fff;line-height:1.2}
-
-        .brand-subtitle{font-family:var(--hand);font-size:17px;color:var(--chalk);line-height:1}
-
-
-
-        .sidebar-content{flex:1;overflow-y:auto;padding:8px 12px 18px 14px}
-
-        .sidebar-content::-webkit-scrollbar{width:5px}
-
-        .sidebar-content::-webkit-scrollbar-thumb{background:var(--ink-line);border-radius:10px}
-
-
-
-        .nav-group{font-family:var(--hand);font-size:21px;font-weight:700;color:var(--chalk);padding:16px 10px 4px;letter-spacing:.3px}
-
-
-
-        .nav-item{position:relative;width:100%;min-height:40px;display:flex;align-items:center;gap:12px;padding:9px 12px;margin-bottom:2px;border:none;border-radius:8px;background:transparent;color:var(--side-text);font-size:14px;font-weight:500;text-align:left;cursor:pointer;transition:background .15s,color .15s}
-
-        .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
-
-        .nav-item.active{background:rgba(242,182,50,.15);color:#fff}
-
-        .nav-item.active::before{content:"";position:absolute;left:-14px;top:8px;bottom:8px;width:5px;border-radius:0 5px 5px 0;background:var(--chalk)}
-
-        .nav-icon{width:20px;text-align:center;font-size:15px;flex-shrink:0;opacity:.9}
-
-        .nav-item.active .nav-icon{color:var(--chalk);opacity:1}
-
-        .nav-label{flex:1}
-
-        .nav-arrow{font-size:10px;transition:transform .2s}
-
-        .nav-item.open .nav-arrow{transform:rotate(90deg)}
-
-
-
-        .submenu{display:none;margin:2px 0 6px 22px;padding-left:12px;border-left:2px dashed var(--ink-line)}
-
-        .submenu.open{display:block}
-
-        .submenu-item{display:block;padding:7px 12px;margin-bottom:1px;border-radius:7px;color:var(--side-text);font-size:13.5px;transition:background .15s,color .15s}
-
-        .submenu-item:hover{color:#fff;background:rgba(255,255,255,.08)}
-
-        .submenu-item.active{color:var(--ink);background:var(--chalk);font-weight:600}
-
-
-
-        .logout-area{padding:12px 14px;border-top:2px dashed var(--ink-line);flex-shrink:0}
-
-        .logout-button{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;border-radius:8px;background:transparent;color:var(--side-text);font-size:14px;font-weight:500;cursor:pointer}
-
-        .logout-button:hover{background:rgba(228,87,46,.18);color:#ffb3a1}
-
-
-
-        /* ---------- Main ---------- */
-
-        .main-area{margin-left:var(--sidebar-width);width:calc(100% - var(--sidebar-width));min-height:100vh;display:flex;flex-direction:column}
-
-        .top-header{height:var(--header-height);background:var(--white);display:flex;align-items:center;gap:14px;padding:0 28px;position:sticky;top:0;z-index:900;border-bottom:1px solid var(--line)}
-
-        .top-header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:4px;background:linear-gradient(90deg,var(--red) 0 25%,var(--chalk) 25% 50%,var(--green) 50% 75%,var(--accent) 75% 100%)}
-
-        .menu-toggle{display:none;width:38px;height:38px;border:none;background:transparent;border-radius:8px;font-size:20px;color:var(--muted);cursor:pointer}
-
-        .page-title{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink)}
-
-        .header-actions{margin-left:auto;display:flex;align-items:center;gap:14px}
-
-        .header-date{font-size:13px;color:var(--muted);text-align:right;line-height:1.3}
-
-        .header-date b{display:block;font-family:var(--serif);font-size:15px;color:var(--ink)}
-
-        .admin-profile{display:flex;align-items:center;gap:10px;padding-left:14px;border-left:1px solid var(--line)}
-
-        .admin-avatar{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--chalk);display:flex;align-items:center;justify-content:center;font-family:var(--hand);font-weight:700;font-size:22px;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--wood)}
-
-
-
-        .avatar-wrap{position:relative;flex-shrink:0}
-
-        .status-dot{position:absolute;right:-1px;bottom:0;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid #fff}
-
-        .status-dot::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid #22c55e;opacity:0;animation:ping 2.2s ease-out infinite}
-
-        @keyframes ping{0%{transform:scale(.8);opacity:.7}100%{transform:scale(2);opacity:0}}
-
-        .online-pill{display:inline-flex;align-items:center;gap:5px;margin-left:6px;padding:1px 8px 1px 6px;border-radius:20px;background:#e3f6ea;color:#17843f;font-size:11px;font-weight:600;vertical-align:1px}
-
-        .online-pill i{width:6px;height:6px;border-radius:50%;background:#22c55e}
-
-        .admin-name{font-size:13px;font-weight:600;line-height:1.2}
-
-        .admin-role{font-size:12px;color:var(--muted)}
-
-
-
-        /* ruled notebook paper */
-
-        .main-content{flex:1;width:100%;padding:28px;background-color:var(--bg);background-image:repeating-linear-gradient(transparent 0 31px,rgba(43,93,138,.08) 31px 32px)}
-
-        .app-footer{min-height:46px;background:var(--white);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;color:var(--muted);font-size:12px}
-
-
-
-        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:999}
-
-
-
-        @media (max-width:1000px){
-
-            .sidebar{transform:translateX(-100%)}
-
-            .sidebar.mobile-open{transform:translateX(0)}
-
-            .sidebar-overlay.active{display:block}
-
-            .main-area{margin-left:0;width:100%}
-
-            .menu-toggle{display:block}
-
-            .top-header{padding:0 16px}
-
-            .header-date{display:none}
-
+        :root {
+            --ink: #1d3a33;
+            --ink-2: #2a4a41;
+            --ink-line: rgba(238, 242, 230, .18);
+            --side-text: #d9e1d0;
+            --chalk: #f2b632;
+            --wood: #8a5a2c;
+            --accent: #2b5d8a;
+            --accent-soft: #e6eef6;
+            --text: #26302c;
+            --muted: #6a756f;
+            --line: #e6e0d2;
+            --bg: #fbf8f1;
+            --white: #fff;
+            --red: #e4572e;
+            --green: #3a9d6b;
+            --sidebar-width: 268px;
+            --header-height: 66px;
+            --serif: 'Fraunces', Georgia, serif;
+            --hand: 'Caveat', 'Comic Sans MS', cursive;
         }
 
-        @media (max-width:700px){
-
-            .main-content{padding:16px}
-
-            .admin-info{display:none}
-
-            .app-footer{padding:12px 16px;flex-direction:column;gap:4px}
-
+        html {
+            scroll-behavior: smooth;
         }
 
-
-
-        /* ---------- Loaders ---------- */
-
-        #topbar{position:fixed;top:0;left:0;height:4px;width:0;z-index:3000;opacity:1;pointer-events:none;
-
-            background:linear-gradient(90deg,var(--red) 0 25%,var(--chalk) 25% 50%,var(--green) 50% 75%,var(--accent) 75% 100%);
-
-            border-radius:0 4px 4px 0;box-shadow:0 0 8px rgba(242,182,50,.6);transition:width .4s ease,opacity .35s ease}
-
-
-
-        /* skeleton: cards turn into shimmering placeholders until the page is ready */
-
-        .is-loading .paper,.is-loading .card{position:relative;overflow:hidden;border-color:transparent}
-
-        .is-loading .paper>*,.is-loading .card>*{visibility:hidden}
-
-        .is-loading .paper::after,.is-loading .card::after{content:"";position:absolute;inset:0;z-index:5;border-radius:inherit;
-
-            background:linear-gradient(90deg,#eee8d8 25%,#f9f5ea 50%,#eee8d8 75%);background-size:220% 100%;animation:shimmer 1.3s linear infinite}
-
-        .is-loading .kpi-tab{visibility:hidden}
-
-        @keyframes shimmer{0%{background-position:120% 0}100%{background-position:-120% 0}}
-
-
-
-        /* button spinner */
-
-        .btn-spin{display:inline-block;width:14px;height:14px;margin-right:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:spin .7s linear infinite}
-
-        .is-busy{pointer-events:none;opacity:.8}
-
-        @keyframes spin{to{transform:rotate(360deg)}}
-
-
-
-        /* full-screen loader for long actions (add data-loader="Message" to a form) */
-
-        .page-loader{position:fixed;inset:0;z-index:2500;display:none;align-items:center;justify-content:center;background:rgba(29,58,51,.65);backdrop-filter:blur(2px)}
-
-        .page-loader.show{display:flex}
-
-        .loader-card{min-width:260px;padding:26px 34px 22px;text-align:center;color:#fff;border-radius:14px;border:6px solid var(--wood);
-
-            background:radial-gradient(ellipse at 20% 0,rgba(255,255,255,.1),transparent 60%),var(--ink);box-shadow:0 18px 40px rgba(0,0,0,.35)}
-
-        .loader-dots{display:flex;justify-content:center;gap:9px;height:26px;margin-bottom:8px}
-
-        .loader-dots i{width:14px;height:14px;border-radius:50%;animation:bounce .9s ease-in-out infinite}
-
-        .loader-dots i:nth-child(1){background:var(--red)}
-
-        .loader-dots i:nth-child(2){background:var(--chalk);animation-delay:.12s}
-
-        .loader-dots i:nth-child(3){background:var(--green);animation-delay:.24s}
-
-        .loader-dots i:nth-child(4){background:#5aa0d6;animation-delay:.36s}
-
-        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-
-        .loader-text{font-family:var(--hand);font-size:26px;color:var(--chalk);line-height:1.1}
-
-        .loader-sub{font-size:12.5px;color:#c5d0bd;margin-top:4px}
-
-
-
-        @media (prefers-reduced-motion:reduce){.is-loading .paper::after,.is-loading .card::after{animation:none}}
-
-        @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-
-    </style>
-
-
-
-    @stack('styles')
-
-</head>
-
-
-
-<body>
-
-<div id="topbar"></div>
-
-
-
-<div class="page-loader" id="pageLoader" role="status" aria-live="polite">
-
-    <div class="loader-card">
-
-        <div class="loader-dots"><i></i><i></i><i></i><i></i></div>
-
-        <div class="loader-text" id="loaderText">Please wait...</div>
-
-        <div class="loader-sub">This may take a few moments.</div>
-
-    </div>
-
-</div>
-
-
-
-@php
-
-    /* Safe route helper: returns '#' if a route doesn't exist. */
-
-    $route = function ($name, $fallback = '#') {
-
-        try {
-
-            return \Illuminate\Support\Facades\Route::has($name)
-
-                ? route($name)
-
-                : $fallback;
-
-        } catch (\Throwable $e) {
-
-            return $fallback;
-
+        body {
+            font-family: 'Public Sans', Arial, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            font-size: 14px;
         }
 
-    };
-
-
-
-    /* Permission helper: super_admin sees everything, others need ANY listed permission. */
-
-    $user = auth()->user();
-
-    $isSuperAdmin = $user?->role?->name === 'super_admin';
-
-
-
-    $canAny = function (array $permissions) use ($user, $isSuperAdmin): bool {
-
-        if ($isSuperAdmin) {
-
-            return true;
-
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
+        button {
+            font-family: inherit;
+        }
 
+        :focus-visible {
+            outline: 2px solid var(--chalk);
+            outline-offset: 2px;
+        }
 
-        foreach ($permissions as $permission) {
+        .app-wrapper {
+            min-height: 100vh;
+            display: flex;
+        }
 
-            if ($user?->hasPermission($permission)) {
+        /* Chalkboard sidebar */
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: var(--sidebar-width);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: transform .3s ease;
+            background:
+                radial-gradient(ellipse at 18% 8%, rgba(255,255,255,.08), transparent 55%),
+                radial-gradient(ellipse at 85% 88%, rgba(255,255,255,.06), transparent 50%),
+                var(--ink);
+            border-right: 8px solid var(--wood);
+            box-shadow: inset -3px 0 6px rgba(0,0,0,.28);
+        }
 
-                return true;
+        .sidebar-brand {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 18px;
+            border-bottom: 2px dashed var(--ink-line);
+            flex-shrink: 0;
+        }
 
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 3px var(--ink), 0 0 0 4px var(--chalk);
+        }
+
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .brand-title {
+            font-family: var(--serif);
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-family: var(--hand);
+            font-size: 17px;
+            color: var(--chalk);
+            line-height: 1;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 18px 14px;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: var(--ink-line);
+            border-radius: 10px;
+        }
+
+        .nav-group {
+            font-family: var(--hand);
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--chalk);
+            padding: 16px 10px 4px;
+            letter-spacing: .3px;
+        }
+
+        .nav-item {
+            position: relative;
+            width: 100%;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 12px;
+            margin-bottom: 2px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--side-text);
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,.08);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: rgba(242,182,50,.15);
+            color: #fff;
+        }
+
+        .nav-item.active::before {
+            content: "";
+            position: absolute;
+            left: -14px;
+            top: 8px;
+            bottom: 8px;
+            width: 5px;
+            border-radius: 0 5px 5px 0;
+            background: var(--chalk);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+            flex-shrink: 0;
+            opacity: .9;
+        }
+
+        .nav-item.active .nav-icon {
+            color: var(--chalk);
+            opacity: 1;
+        }
+
+        .nav-label {
+            flex: 1;
+        }
+
+        .nav-arrow {
+            font-size: 10px;
+            transition: transform .2s;
+        }
+
+        .nav-item.open .nav-arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            display: none;
+            margin: 2px 0 6px 22px;
+            padding-left: 12px;
+            border-left: 2px dashed var(--ink-line);
+        }
+
+        .submenu.open {
+            display: block;
+        }
+
+        .submenu-item {
+            display: block;
+            padding: 7px 12px;
+            margin-bottom: 1px;
+            border-radius: 7px;
+            color: var(--side-text);
+            font-size: 13.5px;
+            transition: background .15s, color .15s;
+        }
+
+        .submenu-item:hover {
+            color: #fff;
+            background: rgba(255,255,255,.08);
+        }
+
+        .submenu-item.active {
+            color: var(--ink);
+            background: var(--chalk);
+            font-weight: 600;
+        }
+
+        .locked-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .locked-menu-item .lock-icon {
+            font-size: 11px;
+            color: var(--chalk);
+        }
+
+        .logout-area {
+            padding: 12px 14px;
+            border-top: 2px dashed var(--ink-line);
+            flex-shrink: 0;
+        }
+
+        .logout-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--side-text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: rgba(228,87,46,.18);
+            color: #ffb3a1;
+        }
+
+        /* Main layout */
+        .main-area {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-header {
+            height: var(--header-height);
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .top-header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 4px;
+            background: linear-gradient(
+                90deg,
+                var(--red) 0 25%,
+                var(--chalk) 25% 50%,
+                var(--green) 50% 75%,
+                var(--accent) 75% 100%
+            );
+        }
+
+        .menu-toggle {
+            display: none;
+            width: 38px;
+            height: 38px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 20px;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .page-title {
+            font-family: var(--serif);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-date {
+            font-size: 13px;
+            color: var(--muted);
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        .header-date b {
+            display: block;
+            font-family: var(--serif);
+            font-size: 15px;
+            color: var(--ink);
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 14px;
+            border-left: 1px solid var(--line);
+        }
+
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--ink);
+            color: var(--chalk);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--hand);
+            font-weight: 700;
+            font-size: 22px;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--wood);
+        }
+
+        .avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .status-dot {
+            position: absolute;
+            right: -1px;
+            bottom: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #22c55e;
+            border: 2px solid #fff;
+        }
+
+        .status-dot::after {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            border: 2px solid #22c55e;
+            opacity: 0;
+            animation: ping 2.2s ease-out infinite;
+        }
+
+        @keyframes ping {
+            0% { transform: scale(.8); opacity: .7; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .online-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 6px;
+            padding: 1px 8px 1px 6px;
+            border-radius: 20px;
+            background: #e3f6ea;
+            color: #17843f;
+            font-size: 11px;
+            font-weight: 600;
+            vertical-align: 1px;
+        }
+
+        .online-pill i {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .admin-name {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .admin-role {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+            padding: 28px;
+            background-color: var(--bg);
+            background-image: repeating-linear-gradient(
+                transparent 0 31px,
+                rgba(43,93,138,.08) 31px 32px
+            );
+        }
+
+        .app-footer {
+            min-height: 46px;
+            background: var(--white);
+            border-top: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,.45);
+            z-index: 999;
+        }
+
+        @media (max-width: 1000px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-area { margin-left: 0; width: 100%; }
+            .menu-toggle { display: block; }
+            .top-header { padding: 0 16px; }
+            .header-date { display: none; }
+        }
+
+        @media (max-width: 700px) {
+            .main-content { padding: 16px; }
+            .admin-info { display: none; }
+            .app-footer {
+                padding: 12px 16px;
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+
+        /* Loaders */
+        #topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            width: 0;
+            z-index: 3000;
+            opacity: 1;
+            pointer-events: none;
+            background: linear-gradient(
+                90deg,
+                var(--red) 0 25%,
+                var(--chalk) 25% 50%,
+                var(--green) 50% 75%,
+                var(--accent) 75% 100%
+            );
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 8px rgba(242,182,50,.6);
+            transition: width .4s ease, opacity .35s ease;
+        }
+
+        .is-loading .paper,
+        .is-loading .card {
+            position: relative;
+            overflow: hidden;
+            border-color: transparent;
+        }
+
+        .is-loading .paper > *,
+        .is-loading .card > * {
+            visibility: hidden;
+        }
+
+        .is-loading .paper::after,
+        .is-loading .card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #eee8d8 25%, #f9f5ea 50%, #eee8d8 75%);
+            background-size: 220% 100%;
+            animation: shimmer 1.3s linear infinite;
+        }
+
+        .is-loading .kpi-tab {
+            visibility: hidden;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 120% 0; }
+            100% { background-position: -120% 0; }
+        }
+
+        .btn-spin {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            margin-right: 8px;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            vertical-align: -2px;
+            animation: spin .7s linear infinite;
+        }
+
+        .is-busy {
+            pointer-events: none;
+            opacity: .8;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 2500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(29,58,51,.65);
+            backdrop-filter: blur(2px);
+        }
+
+        .page-loader.show {
+            display: flex;
+        }
+
+        .loader-card {
+            min-width: 260px;
+            padding: 26px 34px 22px;
+            text-align: center;
+            color: #fff;
+            border-radius: 14px;
+            border: 6px solid var(--wood);
+            background:
+                radial-gradient(ellipse at 20% 0, rgba(255,255,255,.1), transparent 60%),
+                var(--ink);
+            box-shadow: 0 18px 40px rgba(0,0,0,.35);
+        }
+
+        .loader-dots {
+            display: flex;
+            justify-content: center;
+            gap: 9px;
+            height: 26px;
+            margin-bottom: 8px;
+        }
+
+        .loader-dots i {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            animation: bounce .9s ease-in-out infinite;
+        }
+
+        .loader-dots i:nth-child(1) { background: var(--red); }
+        .loader-dots i:nth-child(2) { background: var(--chalk); animation-delay: .12s; }
+        .loader-dots i:nth-child(3) { background: var(--green); animation-delay: .24s; }
+        .loader-dots i:nth-child(4) { background: #5aa0d6; animation-delay: .36s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+
+        .loader-text {
+            font-family: var(--hand);
+            font-size: 26px;
+            color: var(--chalk);
+            line-height: 1.1;
+        }
+
+        .loader-sub {
+            font-size: 12.5px;
+            color: #c5d0bd;
+            margin-top: 4px;
+        }
+
+        /* Subscription popup */
+        .subscription-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .65);
+            backdrop-filter: blur(4px);
+        }
+
+        .subscription-modal.show {
+            display: flex;
+        }
+
+        .subscription-modal-box {
+            position: relative;
+            width: 100%;
+            max-width: 430px;
+            padding: 34px 28px 28px;
+            border-radius: 18px;
+            background: #fff;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+            animation: subscriptionPopupIn .2s ease-out;
+        }
+
+        @keyframes subscriptionPopupIn {
+            from { opacity: 0; transform: translateY(12px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .subscription-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            background: #f1f3f5;
+            color: #64748b;
+            font-size: 23px;
+            cursor: pointer;
+        }
+
+        .subscription-lock-icon {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: #fff4d6;
+            color: #c58b12;
+            font-size: 25px;
+        }
+
+        .subscription-small-label {
+            display: inline-block;
+            margin-bottom: 8px;
+            color: #b17b0b;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        .subscription-modal-box h2 {
+            margin-bottom: 10px;
+            color: #1d3a33;
+            font-family: var(--serif);
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        .subscription-modal-box p {
+            margin-bottom: 18px;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .subscription-info {
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 9px;
+            background: #f5f8fc;
+            color: #526579;
+            font-size: 12.5px;
+        }
+
+        .subscription-info i {
+            margin-right: 5px;
+            color: #2b5d8a;
+        }
+
+        .subscription-upgrade-btn {
+            width: 100%;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 9px;
+            background: #1d3a33;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .subscription-upgrade-btn:hover {
+            background: #2a4a41;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .is-loading .paper::after,
+            .is-loading .card::after {
+                animation: none;
             }
 
+            * {
+                transition: none !important;
+            }
         }
+    </style>
 
+    @stack('styles')
+</head>
 
+<body>
+<div id="topbar"></div>
 
-        return false;
+<div class="page-loader" id="pageLoader" role="status" aria-live="polite">
+    <div class="loader-card">
+        <div class="loader-dots"><i></i><i></i><i></i><i></i></div>
+        <div class="loader-text" id="loaderText">Please wait...</div>
+        <div class="loader-sub">This may take a few moments.</div>
+    </div>
+</div>
 
+@php
+    /* Safe route helper */
+    $route = function ($name, $fallback = '#') {
+        try {
+            return \Illuminate\Support\Facades\Route::has($name)
+                ? route($name)
+                : $fallback;
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
     };
 
+    /* Permission helper */
+    $user = auth()->user();
+    $isSuperAdmin = $user?->role?->name === 'super_admin';
 
+    // Current subscription information for dynamic sidebar locks.
+$currentSubscription = null;
+$currentPlanFeatures = [];
+$hasValidSubscription = false;
+$currentPlanName = null;
+
+if ($user && !$isSuperAdmin) {
+    $currentSubscription = \App\Models\Subscription::query()
+        ->where('school_id', $user->school_id)
+        ->where('status', 'active')
+        ->whereNotNull('starts_at')
+        ->whereNotNull('ends_at')
+        ->where('starts_at', '<=', now())
+        ->where('ends_at', '>', now())
+        ->with('plan')
+        ->orderByDesc('starts_at')
+        ->orderByDesc('created_at')
+        ->first();
+
+    $hasValidSubscription =
+        $currentSubscription &&
+        $currentSubscription->plan &&
+        $currentSubscription->plan->is_active;
+
+    if ($hasValidSubscription) {
+        $currentPlanFeatures = $currentSubscription->plan->features ?? [];
+        $currentPlanName = $currentSubscription->plan->name;
+    }
+}
+
+$subscriptionFeatureResolver = app(
+    \App\Http\Middleware\CheckSubscriptionFeature::class
+);
+
+    $canAny = function (array $permissions) use ($user, $isSuperAdmin): bool {
+        if ($isSuperAdmin) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if ($user?->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    };
 
     /*
-
-     * Sidebar definition.
-
-     * l = label, i = icon, a = route patterns that mark the item active,
-
-     * r = route (single link) or c = children [label, route name],
-
-     * p = (optional) permissions - item is shown if the user has ANY of them.
-
+     * Sidebar menu:
+     * l = label
+     * i = icon
+     * a = active route patterns
+     * r = single route
+     * c = child links
+     * p = permissions
+     * subscription_locked = temporary UI lock
      */
-
     $menu = [
-
-    'Main' => [
-
-        [
-            'l' => 'Dashboard',
-            'i' => 'fa-gauge-high',
-            'a' => ['admin.dashboard'],
-            'r' => 'admin.dashboard',
-            'p' => ['dashboard.view'],
-        ],
-
-        [
-            'l' => 'Student',
-            'i' => 'fa-user-graduate',
-            'a' => [
-                'admin.students.*',
-                'admin.student-profile.*',
-                'admin.student-documents.*',
-                'admin.id-card.*',
-                'admin.student-general-register.*',
-                'admin.government-schemes.*',
-                'admin.student-health.*',
+        'Main' => [
+            [
+                'l' => 'Dashboard',
+                'i' => 'fa-gauge-high',
+                'a' => ['admin.dashboard'],
+                'r' => 'admin.dashboard',
+                'p' => ['dashboard.view'],
             ],
-            'c' => [
-                ['All Students', 'admin.students.index'],
-                ['Student Profile', 'admin.student-profile.index'],
-                ['Student Documents', 'admin.student-documents.index'],
-                ['Student ID', 'admin.id-card.index'],
-                ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
-                ['Student Register', 'admin.student-general-register.index'],
-                ['Government Schemes', 'admin.government-schemes.index'],
-                ['Student Health', 'admin.student-health.index'],
-            ],
-            'p' => [
-                'students.view',
-                'students.create',
-                'students.edit',
-                'students.delete',
-            ],
-
-
 
             [
-    'l' => 'Scholarship',
-    'i' => 'fa-graduation-cap',
-    'a' => ['admin.scholarship.*'],
-    'c' => [
-        ['Merit Concession', 'admin.scholarship.merit.concession.index'],
-        ['Scholarship Exam', 'admin.scholarship.exams.index'],
-    ],
-],
-
-
-
-            
-
-
-
-            [
-
-                'l' => 'Reports',
-
-                'i' => 'fa-chart-pie',
-
-                'a' => ['admin.reports.*'],
-
-                'r' => 'admin.reports.index',
-
-            ],
-
-
-
-            [
-
-                'l' => 'Settings',
-
-                'i' => 'fa-gear',
-
+                'l' => 'Student',
+                'i' => 'fa-user-graduate',
                 'a' => [
+                    'admin.students.*',
+                    'admin.student-profile.*',
+                    'admin.student-documents.*',
+                    'admin.id-card.*',
+                    'admin.student-general-register.*',
+                    'admin.government-schemes.*',
+                    'admin.student-health.*',
+                ],
+                'c' => [
+                    ['All Students', 'admin.students.index'],
+                    ['Student Profile', 'admin.student-profile.index'],
+                    ['Student Documents', 'admin.student-documents.index'],
+                    ['Student ID', 'admin.id-card.index'],
+                    ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
+                    ['Student Register', 'admin.student-general-register.index'],
+                    ['Government Schemes', 'admin.government-schemes.index'],
+                    ['Student Health', 'admin.student-health.index'],
+                ],
+                'p' => [
+                    'students.view',
+                    'students.create',
+                    'students.edit',
+                    'students.delete',
+                ],
+            ],
 
-                    'admin.settings.*',
+            [
+                'l' => 'Faculty (Teacher)',
+                'i' => 'fa-chalkboard-user',
+                'a' => [
+                    'admin.teachers.*',
+                    'admin.leave-applications.*',
+                ],
+                'c' => [
+                    ['All Faculty', 'admin.teachers.index'],
+                    ['Teacher Allocation', 'admin.teachers.assign-class.index'],
+                    ['Leave Applications', 'admin.leave-applications.index'],
+                ],
+                'p' => [
+                    'faculty.view',
+                    'faculty.create',
+                    'faculty.edit',
+                    'faculty.delete',
+                ],
+            ],
 
-                    'backup.*',
+            [
+                'l' => 'Other Staff',
+                'i' => 'fa-users',
+                'a' => ['admin.other-staff.*'],
+                'c' => [
+                    ['All Staff', 'admin.other-staff.index'],
+                    ['Add Staff', 'admin.other-staff.create'],
+                ],
+                'p' => [
+                    'staff.view',
+                    'staff.create',
+                    'staff.edit',
+                    'staff.delete',
+                ],
+            ],
 
-                    'admin.2fa.*',
+            [
+                'l' => 'Time Table',
+                'i' => 'fa-table-cells',
+                'a' => ['admin.timetable.*'],
+                'c' => [
+                    ['Class Timetable', 'admin.timetable.class'],
+                    ['Teacher Timetable', 'admin.timetable.teacher'],
+                    ['Create Timetable', 'admin.timetable.create'],
+                ],
+                'p' => [
+                    'timetable.view',
+                    'timetable.create',
+                    'timetable.edit',
+                ],
+            ],
 
+            [
+                'l' => 'Attendance',
+                'i' => 'fa-check',
+                'a' => [
+                    'admin.attendance.*',
+                    'admin.teachers.attendance.*',
+                ],
+                'c' => [
+                    ['Student Attendance', 'admin.attendance.index'],
+                    ['Faculty Attendance', 'admin.teachers.attendance.index'],
+                ],
+                'p' => [
+                    'attendance.view',
+                    'attendance.create',
+                    'attendance.edit',
+                ],
+            ],
+
+            [
+                'l' => 'Fees',
+                'i' => 'fa-indian-rupee-sign',
+                'a' => [
+                    'admin.fees.fee-structures.*',
+                    'admin.fees.student-fees.*',
+                    'admin.fees.payment-history.*',
+                ],
+                'c' => [
+                    ['Fee Structure', 'admin.fees.fee-structures.index'],
+                    ['Student Fee', 'admin.fees.student-fees.index'],
+                    ['Payment History', 'admin.fees.payment-history.index'],
+                ],
+                'p' => [
+                    'fees.view',
+                    'fees.create',
+                    'fees.edit',
+                    'fees.delete',
                 ],
 
-              'c' => [
-    ['School Profile', 'admin.settings.index'],
-    ['User Roles & Permission', 'admin.settings.roles.index'],
-    ['User Assign', 'admin.settings.users.index'],
-    ['Add User', 'admin.settings.users.index'],
-    ['Security', 'admin.2fa.security'],
-    ['Backup & Recovery', 'admin.backup.index'],
-],
-
+                // TEMPORARY: This locks Fees for all users who can see this menu.
+                'subscription_locked' => true,
             ],
 
-        ],
+            [
+                'l' => 'Class',
+                'i' => 'fa-chalkboard',
+                'a' => ['admin.classes.*', 'admin.subjects.*'],
+                'c' => [
+                    ['Classes', 'admin.classes.index'],
+                    ['Subjects', 'admin.subjects.index'],
+                ],
+                'p' => [
+                    'classes.view',
+                    'classes.create',
+                    'classes.edit',
+                    'classes.delete',
+                ],
+            ],
 
-        [
-            'l' => 'Faculty (Teacher)',
-            'i' => 'fa-chalkboard-user',
-            'a' => [
-                'admin.teachers.*',
-                'admin.leave-applications.*',
+            [
+                'l' => 'Exam',
+                'i' => 'fa-file-lines',
+                'a' => [
+                    'admin.exams.*',
+                    'admin.exam-classes.*',
+                    'admin.exam-subjects.*',
+                    'admin.exam-sessions.*',
+                    'admin.exam-holidays.*',
+                    'admin.exam-schedules.*',
+                ],
+                'r' => 'admin.exams.index',
+                'p' => [
+                    'exams.view',
+                    'exams.create',
+                    'exams.edit',
+                    'exams.delete',
+                ],
             ],
-            'c' => [
-                ['All Faculty', 'admin.teachers.index'],
-                ['Teacher Allocation', 'admin.teachers.assign-class.index'],
-                ['Leave Applications', 'admin.leave-applications.index'],
-            ],
-            'p' => [
-                'faculty.view',
-                'faculty.create',
-                'faculty.edit',
-                'faculty.delete',
-            ],
-        ],
 
-        [
-            'l' => 'Other Staff',
-            'i' => 'fa-users',
-            'a' => ['admin.other-staff.*'],
-            'c' => [
-                ['All Staff', 'admin.other-staff.index'],
-                ['Add Staff', 'admin.other-staff.create'],
+            [
+                'l' => 'Scholarship',
+                'i' => 'fa-graduation-cap',
+                'a' => ['admin.scholarship.*'],
+                'c' => [
+                    ['Merit Concession', 'admin.scholarship.merit.concession.index'],
+                    ['Scholarship Exam', 'admin.scholarship.exams.index'],
+                ],
+                'p' => [
+                    'scholarship.view',
+                    'scholarship.create',
+                    'scholarship.edit',
+                ],
             ],
-            'p' => [
-                'staff.view',
-                'staff.create',
-                'staff.edit',
-                'staff.delete',
-            ],
-        ],
 
-        [
-            'l' => 'Time Table',
-            'i' => 'fa-table-cells',
-            'a' => ['admin.timetable.*'],
-            'c' => [
-                ['Class Timetable', 'admin.timetable.class'],
-                ['Teacher Timetable', 'admin.timetable.teacher'],
-                ['Create Timetable', 'admin.timetable.create'],
+            [
+                'l' => 'Result',
+                'i' => 'fa-chart-column',
+                'a' => ['admin.results.*'],
+                'c' => [
+                    ['Result Dashboard', 'admin.results.index'],
+                    ['Enter Marks', 'admin.results.generate'],
+                    ['Publish Result', 'admin.results.class-results'],
+                    ['Top Three', 'admin.results.history'],
+                    ['Result Report', 'admin.reports.results.index'],
+                ],
+                'p' => [
+                    'results.view',
+                    'results.create',
+                    'results.edit',
+                ],
             ],
-            'p' => [
-                'timetable.view',
-                'timetable.create',
-                'timetable.edit',
-            ],
-        ],
 
-        [
-            'l' => 'Attendance',
-            'i' => 'fa-check',
-            'a' => [
-                'admin.attendance.*',
-                'admin.teachers.attendance.*',
-            ],
-            'c' => [
-                ['Student Attendance', 'admin.attendance.index'],
-                ['Faculty Attendance', 'admin.teachers.attendance.index'],
-            ],
-            'p' => [
-                'attendance.view',
-                'attendance.create',
-                'attendance.edit',
-            ],
-        ],
-
-        [
-            'l' => 'Fees',
-            'i' => 'fa-indian-rupee-sign',
-            'a' => [
-                'admin.fees.fee-structures.*',
-                'admin.fees.student-fees.*',
-                'admin.fees.payment-history.*',
-            ],
-            'c' => [
-                ['Fee Structure', 'admin.fees.fee-structures.index'],
-                ['Student Fee', 'admin.fees.student-fees.index'],
-                ['Payment History', 'admin.fees.payment-history.index'],
-            ],
-            'p' => [
-                'fees.view',
-                'fees.create',
-                'fees.edit',
-                'fees.delete',
+            [
+                'l' => 'Library',
+                'i' => 'fa-book',
+                'a' => ['admin.library.*'],
+                'c' => [
+                    ['Total Books', 'admin.library.books.index'],
+                    ['Issues / Returns / Fine', 'admin.library.issues.index'],
+                    ['Librarian', 'admin.library.librarian.index'],
+                    ['Reports', 'admin.library.reports.index'],
+                ],
+                'p' => [
+                    'library.view',
+                    'library.create',
+                    'library.edit',
+                    'library.delete',
+                ],
             ],
         ],
 
-        [
-            'l' => 'Class',
-            'i' => 'fa-chalkboard',
-            'a' => ['admin.classes.*', 'admin.subjects.*'],
-            'c' => [
-                ['Classes', 'admin.classes.index'],
-                ['Subjects', 'admin.subjects.index'],
+        'Other' => [
+            [
+                'l' => 'Notice',
+                'i' => 'fa-flag',
+                'a' => ['admin.notices.*'],
+                'c' => [
+                    ['All Notices', 'admin.notices.index'],
+                    ['Add Notice', 'admin.notices.create'],
+                ],
+                'p' => [
+                    'notices.view',
+                    'notices.create',
+                    'notices.edit',
+                    'notices.delete',
+                ],
             ],
-            'p' => [
-                'classes.view',
-                'classes.create',
-                'classes.edit',
-                'classes.delete',
+
+            [
+                'l' => 'Transport',
+                'i' => 'fa-bus',
+                'a' => [
+                    'admin.transport.records.*',
+                    'admin.transport.routes.*',
+                    'admin.transport.vehicles.*',
+                ],
+                'c' => [
+                    ['Transport Records', 'admin.transport.records.index'],
+                    ['Routes', 'admin.transport.routes.index'],
+                    ['Vehicles', 'admin.transport.vehicles.index'],
+                ],
+                'p' => [
+                    'transport.view',
+                    'transport.create',
+                    'transport.edit',
+                    'transport.delete',
+                ],
+            ],
+
+            [
+                'l' => 'Payroll',
+                'i' => 'fa-money-check-dollar',
+                'a' => ['admin.salary.*'],
+                'r' => 'admin.salary.index',
+                'p' => [
+                    'payroll.view',
+                    'payroll.create',
+                    'payroll.edit',
+                ],
+            ],
+
+            [
+                'l' => 'Meal Management',
+                'i' => 'fa-utensils',
+                'a' => [
+                    'admin.meal.*',
+                    'admin.meals.*',
+                ],
+                'c' => [
+                    ['Meal Items', 'admin.meal.items.index'],
+                    ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
+                    ['Logs', 'admin.meal.logs.index'],
+                ],
+                'p' => [
+                    'meals.view',
+                    'meals.create',
+                    'meals.edit',
+                ],
+            ],
+
+            [
+                'l' => 'Sports',
+                'i' => 'fa-futbol',
+                'a' => ['admin.sports.*'],
+                'c' => [
+                    ['Games / Events', 'admin.sports.games.index'],
+                    ['Achievements', 'admin.sports.achievements.index'],
+                    ['Sports Equipments', 'admin.sports.equipment.index'],
+                ],
+                'p' => [
+                    'sports.view',
+                    'sports.create',
+                    'sports.edit',
+                ],
+            ],
+
+            [
+                'l' => 'Reports',
+                'i' => 'fa-chart-pie',
+                'a' => ['admin.reports.*'],
+                'r' => 'admin.reports.index',
+                'p' => [
+                    'reports.view',
+                ],
+            ],
+
+            [
+                'l' => 'Settings',
+                'i' => 'fa-gear',
+                'a' => [
+                    'admin.settings.*',
+                    'backup.*',
+                    'admin.2fa.*',
+                    'admin.activity-log.*',
+                ],
+                'c' => [
+                    ['School Profile', 'admin.settings.index'],
+                    ['User Roles & Permission', 'admin.settings.roles.index'],
+                    ['Add User', 'admin.settings.users.index'],
+                    ['Security', 'admin.2fa.security'],
+                    ['Backup & Recovery', 'admin.backup.index'],
+                    ['Activity Log', 'admin.activity-log.index'],
+                ],
+                'p' => [
+                    'settings.view',
+                    'settings.edit',
+                ],
             ],
         ],
-
-        [
-            'l' => 'Exam',
-            'i' => 'fa-file-lines',
-            'a' => [
-                'admin.exams.*',
-                'admin.exam-classes.*',
-                'admin.exam-subjects.*',
-                'admin.exam-sessions.*',
-                'admin.exam-holidays.*',
-                'admin.exam-schedules.*',
-            ],
-            'r' => 'admin.exams.index',
-            'p' => [
-                'exams.view',
-                'exams.create',
-                'exams.edit',
-                'exams.delete',
-            ],
-        ],
-
-        [
-            'l' => 'Scholarship',
-            'i' => 'fa-graduation-cap',
-            'a' => ['admin.scholarship.*'],
-            'c' => [
-                ['Merit Concession', 'admin.scholarship.merit.concession.index'],
-                ['Scholarship Exam', 'admin.scholarship.exams.index'],
-            ],
-            'p' => [
-                'scholarship.view',
-                'scholarship.create',
-                'scholarship.edit',
-            ],
-        ],
-
-        [
-            'l' => 'Result',
-            'i' => 'fa-chart-column',
-            'a' => ['admin.results.*'],
-            'c' => [
-                ['Result Dashboard', 'admin.results.index'],
-                ['Enter Marks', 'admin.results.generate'],
-                ['Publish Result', 'admin.results.class-results'],
-                ['Top Three', 'admin.results.history'],
-                ['Result Report', 'admin.reports.results.index'],
-            ],
-            'p' => [
-                'results.view',
-                'results.create',
-                'results.edit',
-            ],
-        ],
-
-        [
-            'l' => 'Library',
-            'i' => 'fa-book',
-            'a' => ['admin.library.*'],
-            'c' => [
-                ['Total Books', 'admin.library.books.index'],
-                ['Issues / Returns / Fine', 'admin.library.issues.index'],
-                ['Librarian', 'admin.library.librarian.index'],
-                ['Reports', 'admin.library.reports.index'],
-            ],
-            'p' => [
-                'library.view',
-                'library.create',
-                'library.edit',
-                'library.delete',
-            ],
-        ],
-    ],
-
-    'Other' => [
-
-        [
-            'l' => 'Notice',
-            'i' => 'fa-flag',
-            'a' => ['admin.notices.*'],
-            'c' => [
-                ['All Notices', 'admin.notices.index'],
-                ['Add Notice', 'admin.notices.create'],
-            ],
-            'p' => [
-                'notices.view',
-                'notices.create',
-                'notices.edit',
-                'notices.delete',
-            ],
-        ],
-
-        [
-            'l' => 'Transport',
-            'i' => 'fa-bus',
-            'a' => [
-                'admin.transport.records.*',
-                'admin.transport.routes.*',
-                'admin.transport.vehicles.*',
-            ],
-            'c' => [
-                ['Transport Records', 'admin.transport.records.index'],
-                ['Routes', 'admin.transport.routes.index'],
-                ['Vehicles', 'admin.transport.vehicles.index'],
-            ],
-            'p' => [
-                'transport.view',
-                'transport.create',
-                'transport.edit',
-                'transport.delete',
-            ],
-        ],
-
-        [
-            'l' => 'Payroll',
-            'i' => 'fa-money-check-dollar',
-            'a' => ['admin.salary.*'],
-            'r' => 'admin.salary.index',
-            'p' => [
-                'payroll.view',
-                'payroll.create',
-                'payroll.edit',
-            ],
-        ],
-
-        [
-            'l' => 'Meal Management',
-            'i' => 'fa-utensils',
-            'a' => [
-                'admin.meal.*',
-                'admin.meals.*',
-            ],
-            'c' => [
-                ['Meal Items', 'admin.meal.items.index'],
-                ['Stock In / Stock Out', 'admin.meal.items.stock.index'],
-                ['Logs', 'admin.meal.logs.index'],
-            ],
-            'p' => [
-                'meals.view',
-                'meals.create',
-                'meals.edit',
-            ],
-        ],
-
-        [
-            'l' => 'Sports',
-            'i' => 'fa-futbol',
-            'a' => ['admin.sports.*'],
-            'c' => [
-                ['Games / Events', 'admin.sports.games.index'],
-                ['Achievements', 'admin.sports.achievements.index'],
-                ['Sports Equipments', 'admin.sports.equipment.index'],
-            ],
-            'p' => [
-                'sports.view',
-                'sports.create',
-                'sports.edit',
-            ],
-        ],
-
-        [
-            'l' => 'Reports',
-            'i' => 'fa-chart-pie',
-            'a' => ['admin.reports.*'],
-            'r' => 'admin.reports.index',
-            'p' => [
-                'reports.view',
-            ],
-        ],
-
-        [
-            'l' => 'Settings',
-            'i' => 'fa-gear',
-            'a' => [
-                'admin.settings.*',
-                'backup.*',
-                'admin.2fa.*',
-                'admin.activity-log.*',
-            ],
-            'c' => [
-                ['School Profile', 'admin.settings.index'],
-                ['User Roles & Permission', 'admin.settings.roles.index'],
-                ['Add User', 'admin.settings.users.index'],
-                ['Security', 'admin.2fa.security'],
-                ['Backup & Recovery', 'admin.backup.index'],
-                ['Activity Log', 'admin.activity-log.index'],
-            ],
-            'p' => [
-                'settings.view',
-                'settings.edit',
-            ],
-        ],
-    ],
-];
-
-
+    ];
 @endphp
-
-
 
 <div class="app-wrapper">
 
-
-
-    {{-- ================= SIDEBAR ================= --}}
-
+    {{-- SIDEBAR --}}
     <aside class="sidebar" id="sidebar">
 
-
-
         <div class="sidebar-brand">
-
             <div class="brand-icon">
-
-                <img src="{{ $schoolLogo ?? asset('images/gurukullogo.png') }}"
-
-                     alt="{{ $schoolName ?? 'School' }} logo"
-
-                     onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';">
-
+                <img
+                    src="{{ $schoolLogo ?? asset('images/gurukullogo.png') }}"
+                    alt="{{ $schoolName ?? 'School' }} logo"
+                    onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
+                >
             </div>
 
             <div>
-
                 <div class="brand-title">{{ $schoolName ?? 'Gurukul Vidyalaya' }}</div>
-
                 <div class="brand-subtitle">School management</div>
-
             </div>
-
         </div>
-
-
 
         <nav class="sidebar-content" aria-label="Main navigation">
 
+            @foreach ($menu as $group => $items)
+                @php
+                    $visible = collect($items)
+                        ->filter(fn ($item) => empty($item['p']) || $canAny($item['p']))
+                        ->values();
+                @endphp
 
+                @continue($visible->isEmpty())
 
-@foreach ($menu as $group => $items)
-    @php
-        $visible = collect($items)
-            ->filter(fn ($item) => empty($item['p']) || $canAny($item['p']))
-            ->values();
-    @endphp
+                <div class="nav-group">{{ $group }}</div>
 
-    @continue($visible->isEmpty())
-
-    <div class="nav-group">{{ $group }}</div>
-
-    @foreach ($visible as $item)
-        @php
-            $patterns = $item['a'] ?? [];
-            $isActive = !empty($patterns) && request()->routeIs(...$patterns);
-            $id = \Illuminate\Support\Str::slug($group . '-' . $item['l']);
-            $children = $item['c'] ?? [];
-            $childActive = collect($children)->contains(
-                fn ($child) => isset($child[1]) && request()->routeIs($child[1])
-            );
-            $itemActive = $isActive || $childActive;
-        @endphp
-
-        @if (!empty($children))
-            <button
-                type="button"
-                class="nav-item has-submenu {{ $itemActive ? 'active open' : '' }}"
-                data-submenu="{{ $id }}"
-                aria-expanded="{{ $itemActive ? 'true' : 'false' }}"
-            >
-                <span class="nav-icon"><i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i></span>
-                <span class="nav-label">{{ $item['l'] }}</span>
-                <i class="fas fa-chevron-right nav-arrow"></i>
-            </button>
-
-            <div class="submenu {{ $itemActive ? 'open' : '' }}" id="{{ $id }}">
-                @php $matched = false; @endphp
-                @foreach ($children as $child)
+                @foreach ($visible as $item)
                     @php
-                        $childRoute = $child[1] ?? null;
-                        $childExists = $childRoute && \Illuminate\Support\Facades\Route::has($childRoute);
-                        $childIsActive = !$matched && $childExists && request()->routeIs($childRoute);
-                        if ($childIsActive) { $matched = true; }
+                        $patterns = $item['a'] ?? [];
+                        $isActive = !empty($patterns) && request()->routeIs(...$patterns);
+                        $id = \Illuminate\Support\Str::slug($group . '-' . $item['l']);
+                        $children = $item['c'] ?? [];
+
+                        $childActive = collect($children)->contains(
+                            fn ($child) => isset($child[1]) && request()->routeIs($child[1])
+                        );
+
+                        $itemActive = $isActive || $childActive;
+                        $isSubscriptionLocked = !empty($item['subscription_locked']);
                     @endphp
-                    @if ($childExists)
-                        <a href="{{ $route($childRoute) }}" class="submenu-item {{ $childIsActive ? 'active' : '' }}">
-                            {{ $child[0] ?? 'Menu item' }}
+
+                    @if (!empty($children))
+                        <button
+                            type="button"
+                            class="nav-item has-submenu {{ $itemActive ? 'active open' : '' }}"
+                            data-submenu="{{ $id }}"
+                            aria-expanded="{{ $itemActive ? 'true' : 'false' }}"
+                        >
+                            <span class="nav-icon">
+                                <i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i>
+                            </span>
+
+                            <span class="nav-label">{{ $item['l'] }}</span>
+                            <i class="fas fa-chevron-right nav-arrow"></i>
+                        </button>
+
+                        <div class="submenu {{ $itemActive ? 'open' : '' }}" id="{{ $id }}">
+                            @php $matched = false; @endphp
+
+                            @foreach ($children as $child)
+                                @php
+                                    $childRoute = $child[1] ?? null;
+                                    $childExists = $childRoute && \Illuminate\Support\Facades\Route::has($childRoute);
+                                    $childIsActive = !$matched && $childExists && request()->routeIs($childRoute);
+
+                                    if ($childIsActive) {
+                                        $matched = true;
+                                    }
+                                @endphp
+
+                                @if ($childExists)
+                                    <a
+                                        href="{{ $isSubscriptionLocked ? '#' : $route($childRoute) }}"
+                                        class="submenu-item {{ $childIsActive ? 'active' : '' }} {{ $isSubscriptionLocked ? 'locked-menu-item' : '' }}"
+                                        @if ($isSubscriptionLocked)
+                                            data-subscription-locked="true"
+                                            data-module-name="{{ $item['l'] }}"
+                                            aria-haspopup="dialog"
+                                        @endif
+                                    >
+                                        <span>{{ $child[0] ?? 'Menu item' }}</span>
+
+                                        @if ($isSubscriptionLocked)
+                                            <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
+                                        @endif
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+
+                    @elseif (!empty($item['r']) && \Illuminate\Support\Facades\Route::has($item['r']))
+                        <a href="{{ $route($item['r']) }}" class="nav-item {{ $itemActive ? 'active' : '' }}">
+                            <span class="nav-icon">
+                                <i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i>
+                            </span>
+                            <span class="nav-label">{{ $item['l'] }}</span>
                         </a>
                     @endif
                 @endforeach
-            </div>
-        @elseif (!empty($item['r']) && \Illuminate\Support\Facades\Route::has($item['r']))
-            <a href="{{ $route($item['r']) }}" class="nav-item {{ $itemActive ? 'active' : '' }}">
-                <span class="nav-icon"><i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i></span>
-                <span class="nav-label">{{ $item['l'] }}</span>
-            </a>
-        @endif
-    @endforeach
-@endforeach
+            @endforeach
 
-</nav>
-
-
+        </nav>
 
         <div class="logout-area">
-
             <form method="POST" action="{{ $route('admin.logout') }}">
-
                 @csrf
 
                 <button type="submit" class="logout-button">
-
-                    <span class="nav-icon"><i class="fas fa-arrow-right-from-bracket"></i></span>
-
+                    <span class="nav-icon">
+                        <i class="fas fa-arrow-right-from-bracket"></i>
+                    </span>
                     <span>Log out</span>
-
                 </button>
-
             </form>
-
         </div>
 
     </aside>
 
-
-
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-
-
-    {{-- ================= MAIN ================= --}}
-
+    {{-- MAIN --}}
     <div class="main-area">
-
-
 
         <header class="top-header">
 
             <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
-
                 <i class="fas fa-bars"></i>
-
             </button>
-
-
 
             <div class="page-title">@yield('page-title', 'Dashboard')</div>
 
-
-
             <div class="header-actions">
 
-                <div class="header-date"><b id="liveClock">{{ now()->format('h:i A') }}</b>{{ now()->format('l, d F Y') }}</div>
+                <div class="header-date">
+                    <b id="liveClock">{{ now()->format('h:i A') }}</b>
+                    {{ now()->format('l, d F Y') }}
+                </div>
 
                 <div class="admin-profile">
-
-                    <div class="avatar-wrap"><div class="admin-avatar">A</div><span class="status-dot" title="Online"></span></div>
-
-                    <div class="admin-info">
-
-                        <div class="admin-name">Admin <span class="online-pill"><i></i>Online</span></div>
-
-                        <div class="admin-role">Administrator</div>
-
+                    <div class="avatar-wrap">
+                        <div class="admin-avatar">A</div>
+                        <span class="status-dot" title="Online"></span>
                     </div>
 
+                    <div class="admin-info">
+                        <div class="admin-name">
+                            Admin
+                            <span class="online-pill"><i></i>Online</span>
+                        </div>
+                        <div class="admin-role">Administrator</div>
+                    </div>
                 </div>
 
             </div>
-
         </header>
 
-
-
         <main class="main-content">
-
             @yield('content')
-
         </main>
 
-
-
         <footer class="app-footer">
-
             <div>© {{ date('Y') }} Gurukul Vidyalaya. All rights reserved.</div>
-
             <div>School Management System v1.0.0</div>
-
         </footer>
 
     </div>
-
 </div>
 
+{{-- SUBSCRIPTION POPUP --}}
+<div
+    id="subscriptionUpgradeModal"
+    class="subscription-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="subscriptionModalTitle"
+    aria-hidden="true"
+>
+    <div class="subscription-modal-box">
 
+        <button
+            type="button"
+            class="subscription-modal-close"
+            id="subscriptionModalClose"
+            aria-label="Close popup"
+        >&times;</button>
 
+        <div class="subscription-lock-icon">
+            <i class="fas fa-lock"></i>
+        </div>
+
+        <span class="subscription-small-label">PLAN UPGRADE</span>
+
+        <h2 id="subscriptionModalTitle">Upgrade Your Subscription</h2>
+
+        <p id="subscriptionModalMessage">
+            This module is not included in your current subscription plan.
+        </p>
+
+        <div class="subscription-info">
+            <i class="fas fa-info-circle"></i>
+            Upgrade your plan to unlock this module.
+        </div>
+
+        <button
+            type="button"
+            class="subscription-upgrade-btn"
+            id="subscriptionModalOkay"
+        >
+            Okay, Got It
+        </button>
+
+    </div>
+</div>
+
+{{-- SIDEBAR AND MOBILE MENU --}}
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
     const buttons = document.querySelectorAll('.has-submenu');
 
-
-
     buttons.forEach(function (button) {
-
         button.addEventListener('click', function () {
 
             const menu = document.getElementById(this.dataset.submenu);
-
             if (!menu) return;
 
             const open = !menu.classList.contains('open');
 
-
-
             buttons.forEach(function (other) {
-
                 if (other !== button) {
-
                     other.classList.remove('open');
 
-                    const m = document.getElementById(other.dataset.submenu);
-
-                    if (m) m.classList.remove('open');
-
+                    const otherMenu = document.getElementById(other.dataset.submenu);
+                    if (otherMenu) otherMenu.classList.remove('open');
                 }
-
             });
 
-
-
             button.classList.toggle('open', open);
-
             menu.classList.toggle('open', open);
-
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
-
     });
-
-
 
     const sidebar = document.getElementById('sidebar');
-
     const overlay = document.getElementById('sidebarOverlay');
+    const menuToggle = document.getElementById('menuToggle');
 
+    if (menuToggle && sidebar && overlay) {
+        menuToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        });
 
-
-    document.getElementById('menuToggle').addEventListener('click', function () {
-
-        sidebar.classList.toggle('mobile-open');
-
-        overlay.classList.toggle('active');
-
-    });
-
-
-
-    overlay.addEventListener('click', function () {
-
-        sidebar.classList.remove('mobile-open');
-
-        overlay.classList.remove('active');
-
-    });
+        overlay.addEventListener('click', function () {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        });
+    }
 
 });
-
 </script>
 
-
-
+{{-- LIVE CLOCK --}}
 <script>
+(function () {
+    const el = document.getElementById('liveClock');
+    if (!el) return;
 
-(function(){
+    function tick() {
+        el.textContent = new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 
-    const el=document.getElementById('liveClock');
-
-    if(!el) return;
-
-    function tick(){el.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
-
-    tick(); setInterval(tick,15000);
-
+    tick();
+    setInterval(tick, 15000);
 })();
-
 </script>
 
-
-
+{{-- PAGE LOADERS --}}
 <script>
-
 (function () {
 
     const root = document.documentElement;
-
     const bar = document.getElementById('topbar');
-
     const loader = document.getElementById('pageLoader');
-
     const loaderText = document.getElementById('loaderText');
-
     const started = performance.now();
 
     let creep = null;
 
-
-
-    /* ----- top progress bar ----- */
-
     function barStart() {
+        if (!bar) return;
 
         clearInterval(creep);
 
         bar.style.transition = 'none';
-
         bar.style.opacity = 1;
-
         bar.style.width = '0';
-
         bar.offsetWidth;
 
         bar.style.transition = 'width .4s ease, opacity .35s ease';
 
-        let w = 12;
-
-        bar.style.width = w + '%';
+        let width = 12;
+        bar.style.width = width + '%';
 
         creep = setInterval(function () {
-
-            w += (90 - w) * 0.08;
-
-            bar.style.width = w + '%';
-
+            width += (90 - width) * 0.08;
+            bar.style.width = width + '%';
         }, 250);
-
     }
 
     function barDone() {
+        if (!bar) return;
 
         clearInterval(creep);
-
         bar.style.width = '100%';
 
-        setTimeout(function () { bar.style.opacity = 0; }, 350);
-
+        setTimeout(function () {
+            bar.style.opacity = 0;
+        }, 350);
     }
 
-
-
-    /* ----- skeleton: remove once page is ready (min 600 ms so it never flickers) ----- */
-
     function ready() {
-
         const wait = Math.max(0, 600 - (performance.now() - started));
 
-        setTimeout(function () { root.classList.remove('is-loading'); barDone(); }, wait);
-
+        setTimeout(function () {
+            root.classList.remove('is-loading');
+            barDone();
+        }, wait);
     }
 
     barStart();
 
-    if (document.readyState === 'complete') { ready(); } else { window.addEventListener('load', ready); }
+    if (document.readyState === 'complete') {
+        ready();
+    } else {
+        window.addEventListener('load', ready);
+    }
 
-    setTimeout(function () { root.classList.remove('is-loading'); }, 5000);
+    setTimeout(function () {
+        root.classList.remove('is-loading');
+    }, 5000);
 
+    /* Navigation links */
+    document.addEventListener('click', function (event) {
 
+        const link = event.target.closest('a[href]');
 
-    /* ----- navigation: links ----- */
-
-    document.addEventListener('click', function (e) {
-
-        const a = e.target.closest('a[href]');
-
-        if (!a || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
-
-        if (a.target === '_blank' || a.hasAttribute('download')) return;
-
-        const href = a.getAttribute('href');
-
-        if (!href || href.charAt(0) === '#' || href.indexOf('javascript:') === 0) return;
-
-        if (a.origin !== location.origin) return;
-
-        barStart();
-
-    });
-
-
-
-    /* ----- forms: button spinner + optional full-screen loader ----- */
-
-    document.addEventListener('submit', function (e) {
-
-        const form = e.target;
-
-        if (e.defaultPrevented) return;          // e.g. user pressed Cancel on a confirm()
-
-        barStart();
-
-
-
-        const btn = form.querySelector('button[type="submit"], button:not([type])');
-
-        if (btn && !btn.classList.contains('is-busy')) {
-
-            btn.classList.add('is-busy');
-
-            btn.setAttribute('aria-busy', 'true');
-
-            btn.insertAdjacentHTML('afterbegin', '<span class="btn-spin"></span>');
-
+        if (!link || event.defaultPrevented || event.button !== 0 ||
+            event.ctrlKey || event.metaKey || event.shiftKey) {
+            return;
         }
 
+        if (link.target === '_blank' || link.hasAttribute('download')) return;
 
+        const href = link.getAttribute('href');
 
-        const msg = form.getAttribute('data-loader');
+        if (!href || href.charAt(0) === '#' || href.indexOf('javascript:') === 0) {
+            return;
+        }
 
-        if (msg) {
+        if (link.origin !== location.origin) return;
 
-            loaderText.textContent = msg;
+        barStart();
+    });
 
+    /* Forms */
+    document.addEventListener('submit', function (event) {
+
+        const form = event.target;
+
+        if (event.defaultPrevented) return;
+
+        barStart();
+
+        const button = form.querySelector('button[type="submit"], button:not([type])');
+
+        if (button && !button.classList.contains('is-busy')) {
+            button.classList.add('is-busy');
+            button.setAttribute('aria-busy', 'true');
+            button.insertAdjacentHTML('afterbegin', '<span class="btn-spin"></span>');
+        }
+
+        const message = form.getAttribute('data-loader');
+
+        if (message && loader && loaderText) {
+            loaderText.textContent = message;
             loader.classList.add('show');
-
         }
-
     });
 
+    /* Browser Back button */
+    window.addEventListener('pageshow', function (event) {
 
+        if (!event.persisted) return;
 
-    /* ----- coming back with the browser Back button ----- */
+        if (loader) loader.classList.remove('show');
 
-    window.addEventListener('pageshow', function (e) {
+        document.querySelectorAll('.is-busy').forEach(function (button) {
+            button.classList.remove('is-busy');
+            button.removeAttribute('aria-busy');
 
-        if (!e.persisted) return;
-
-        loader.classList.remove('show');
-
-        document.querySelectorAll('.is-busy').forEach(function (b) {
-
-            b.classList.remove('is-busy');
-
-            b.removeAttribute('aria-busy');
-
-            const sp = b.querySelector('.btn-spin');
-
-            if (sp) sp.remove();
-
+            const spinner = button.querySelector('.btn-spin');
+            if (spinner) spinner.remove();
         });
 
         root.classList.remove('is-loading');
-
         barDone();
-
     });
 
 })();
+</script>
 
+{{-- SUBSCRIPTION POPUP BEHAVIOUR --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const modal = document.getElementById('subscriptionUpgradeModal');
+    const closeButton = document.getElementById('subscriptionModalClose');
+    const okayButton = document.getElementById('subscriptionModalOkay');
+    const message = document.getElementById('subscriptionModalMessage');
+
+    if (!modal) return;
+
+    function openSubscriptionPopup(moduleName) {
+        const module = moduleName || 'This module';
+
+        message.textContent =
+            module + ' is not included in your current subscription plan.';
+
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+
+        if (okayButton) okayButton.focus();
+    }
+
+    function closeSubscriptionPopup() {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    document.addEventListener('click', function (event) {
+
+        const lockedLink = event.target.closest('[data-subscription-locked="true"]');
+
+        if (!lockedLink) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        openSubscriptionPopup(lockedLink.dataset.moduleName);
+    }, true);
+
+    if (closeButton) {
+        closeButton.addEventListener('click', closeSubscriptionPopup);
+    }
+
+    if (okayButton) {
+        okayButton.addEventListener('click', closeSubscriptionPopup);
+    }
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeSubscriptionPopup();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal.classList.contains('show')) {
+            closeSubscriptionPopup();
+        }
+    });
+
+});
 </script>
 
 @php
-    $__denied = (!$isSuperAdmin && $user) ? \App\Support\Access::deniedRoutes($user) : [];
+    $__denied = (!$isSuperAdmin && $user)
+        ? \App\Support\Access::deniedRoutes($user)
+        : [];
 @endphp
+
 @if (!empty($__denied))
 <script>
 (function () {
-    const denied = @json($__denied).map(d => ({ m: d.m, re: new RegExp(d.re) }));
+
+    const denied = @json($__denied).map(function (item) {
+        return {
+            m: item.m,
+            re: new RegExp(item.re)
+        };
+    });
 
     function isDenied(url, method) {
+
         let path;
-        try { path = new URL(url, location.origin).pathname; } catch (e) { return false; }
+
+        try {
+            path = new URL(url, location.origin).pathname;
+        } catch (error) {
+            return false;
+        }
+
         method = method.toUpperCase();
-        return denied.some(d => d.m === method && d.re.test(path));
+
+        return denied.some(function (item) {
+            return item.m === method && item.re.test(path);
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('a[href]').forEach(function (a) {
-            if (isDenied(a.getAttribute('href'), 'GET')) a.remove();
+
+        document.querySelectorAll('a[href]').forEach(function (link) {
+            if (isDenied(link.getAttribute('href'), 'GET')) {
+                link.remove();
+            }
         });
-        document.querySelectorAll('form[action]').forEach(function (f) {
-            const spoof  = f.querySelector('input[name="_method"]');
-            const method = spoof ? spoof.value : (f.method || 'GET');
-            if (isDenied(f.getAttribute('action'), method)) f.remove();
+
+        document.querySelectorAll('form[action]').forEach(function (form) {
+
+            const spoof = form.querySelector('input[name="_method"]');
+            const method = spoof ? spoof.value : (form.method || 'GET');
+
+            if (isDenied(form.getAttribute('action'), method)) {
+                form.remove();
+            }
         });
+
     });
+
 })();
 </script>
 @endif
@@ -1293,5 +1762,4 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>

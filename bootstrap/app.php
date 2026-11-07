@@ -28,10 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
         |--------------------------------------------------------------------------
         */
 
+        
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'module'     => \App\Http\Middleware\CheckModuleAccess::class,
             'access' => \App\Http\Middleware\AutoAccess::class,
+            'subscription' => \App\Http\Middleware\CheckSubscriptionFeature::class,
         ]);
 
     })

@@ -208,20 +208,27 @@ Route::prefix('admin')
         | EVERYTHING BELOW NEEDS LOGIN + PERMISSION
         |----------------------------------------------------------------------
         */
+Route::middleware(['auth', 'access', 'subscription'])->group(function () {
 
-        Route::middleware(['auth', 'access'])->group(function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | NORMAL ADMIN DASHBOARD AND TWO-FACTOR AUTHENTICATION
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/dashboard', [DashboardController::class, 'index'])
+                ->name('dashboard');
+
+            Route::get('/2fa/setup', [TwoFactorController::class, 'showSetup'])
+                ->name('2fa.setup');
+
+            Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])
+                ->name('2fa.verify');
 
             /* ---------------- LOGOUT ---------------- */
 
-        Route::get('/login', [
-    \App\Http\Controllers\Admin\Auth\LoginController::class,
-    'showLogin',
-])->name('login');
 
-Route::post('/login', [
-    \App\Http\Controllers\Admin\Auth\LoginController::class,
-    'login',
-])->name('login.submit');
     
 
             Route::prefix('sports')
@@ -387,7 +394,9 @@ Route::post('/login', [
             Route::get('/teachers/attendance', [TeacherAttendanceController::class, 'index'])->name('teachers.attendance.index');
             Route::post('/teachers/attendance', [TeacherAttendanceController::class, 'store'])->name('teachers.attendance.store');
 
-            Route::get('/teachers/salary/attendance-data', [TeacherSalaryController::class, 'attendanceData'])->name('teachers.salary.attendance-data');
+          Route::get('/teachers/salary/attendance-data', [TeacherSalaryController::class, 'attendanceData'])
+    ->middleware(['auth', 'access'])
+    ->name('teachers.salary.attendance-data');
 
             Route::prefix('teachers/assign-class')
                 ->name('teachers.assign-class.')
@@ -3505,7 +3514,7 @@ Route::get(
 //delete all
 
 
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'access'])->group(function () {
 
     Route::post('teachers-bulk-delete', [TeacherController::class, 'bulkDestroy'])
         ->name('teachers.bulk-destroy');
@@ -3518,7 +3527,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
 
 
-
+Route::middleware(['auth', 'access', 'subscription'])->group(function (){
             Route::get(
 
                 '/student-supply-kits/print',
@@ -3661,7 +3670,7 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
 
     ->name('student-supply-kits.destroy');
 
-
+});
 
 
 
@@ -3679,7 +3688,7 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
 
 
 
-    Route::middleware('auth')->group(function () {
+ Route::middleware(['auth', 'access', 'subscription'])->group(function () {
 
 
 
@@ -3744,7 +3753,9 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
 
 
 
-Route::resource('subjects', SubjectController::class)->names('subjects');
+Route::middleware(['auth', 'access', 'subscription'])->group(function (){
+    Route::resource('subjects', SubjectController::class);
+});
 
 
 
