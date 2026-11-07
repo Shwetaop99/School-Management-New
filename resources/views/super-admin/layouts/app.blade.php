@@ -4,151 +4,189 @@
 
 
 
-    // ---- Who is signed in (uses the Super Admin guard, not the default one) -------------
+    $me        = auth('super_admin')->user();
 
-    $me       = auth('super_admin')->user();
-
-    $meName   = $me->name ?? 'Super Admin';
+    $meName    = $me->name ?? 'Super Admin';
 
     $meInitial = strtoupper(substr($meName, 0, 1));
 
 
 
-    // ---- Links -------------------------------------------------------------------------
+    $dashboardUrl = Route::has('super-admin.dashboard')
 
-    $dashboardUrl = Route::has('super-admin.dashboard') ? route('super-admin.dashboard') : url()->current();
+        ? route('super-admin.dashboard')
 
-    $securityUrl  = Route::has('super-admin.security') ? route('super-admin.security') : null;
+        : url()->current();
+
+
+
+    $schoolsUrl = Route::has('super-admin.schools.index')
+
+        ? route('super-admin.schools.index')
+
+        : url('/control-panel/schools');
+
+
+
+    $subscriptionsUrl = Route::has('super-admin.subscriptions.index')
+
+        ? route('super-admin.subscriptions.index')
+
+        : url('/control-panel/subscriptions');
+
+
+
+    $plansUrl = Route::has('super-admin.subscription-plans.index')
+
+        ? route('super-admin.subscription-plans.index')
+
+        : url('/control-panel/subscription-plans');
+
+
+
+    $supportUrl = Route::has('super-admin.support-requests.index')
+
+        ? route('super-admin.support-requests.index')
+
+        : url('/control-panel/support-requests');
+
+
+
+    $reportsUrl = Route::has('super-admin.reports.schools')
+
+        ? route('super-admin.reports.schools')
+
+        : url('/control-panel/reports/schools');
+
+
+
+    $securityUrl = Route::has('super-admin.security')
+
+        ? route('super-admin.security')
+
+        : null;
+
+
 
     $usersUrl = Route::has('super-admin.users.index')
-    ? route('super-admin.users.index')
-    : url('/control-panel/users');
 
-$rolesUrl = Route::has('super-admin.roles.index')
-    ? route('super-admin.roles.index')
-    : url('/control-panel/roles');
+        ? route('super-admin.users.index')
 
-    $logoutUrl    = Route::has('super-admin.logout') ? route('super-admin.logout') : null;
+        : url('/control-panel/users');
 
 
 
-    // ---- Line icons (24x24, stroke) ------------------------------------------------------
+    $rolesUrl = Route::has('super-admin.roles.index')
+
+        ? route('super-admin.roles.index')
+
+        : url('/control-panel/roles');
+
+        $auditLogsUrl = Route::has('super-admin.audit-logs.index')
+    ? route('super-admin.audit-logs.index')
+    : url('/control-panel/audit-logs');
+
+
+
+    $logoutUrl = Route::has('super-admin.logout')
+
+        ? route('super-admin.logout')
+
+        : null;
+
+
+
+    // Unread school-admin replies for sidebar badge
+
+    $unreadSupportCount = 0;
+
+    try {
+
+        if (class_exists(\App\Models\SupportTicketReply::class)) {
+
+            $unreadSupportCount = \App\Models\SupportTicketReply::query()
+
+                ->where('sender_type', 'school_admin')
+
+                ->whereNull('read_at')
+
+                ->count();
+
+        }
+
+    } catch (\Throwable $e) {
+
+        $unreadSupportCount = 0;
+
+    }
+
+
+
+    // Simple Font Awesome icon classes
 
     $icons = [
 
-        'grid'     => '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+        'grid'     => 'fa-th-large',
 
-        'school'   => '<path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/>',
+        'school'   => 'fa-school',
 
-        'card'     => '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+        'card'     => 'fa-credit-card',
 
-        'rupee'    => '<path d="M6 4h12M6 9h12M6 14h4a5 5 0 0 0 0-10M10 14l7 7"/>',
+        'layers'   => 'fa-layer-group',
 
-        'users'    => '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.5c2 .8 3 2.6 3 5.5"/>',
+        'rupee'    => 'fa-indian-rupee-sign',
 
-        'activity' => '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+        'users'    => 'fa-users',
 
-        'shield'   => '<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/>',
+        'activity' => 'fa-chart-line',
 
-        'logout'   => '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+        'support'  => 'fa-headset',
 
-        'check'    => '<path d="M20 6 9 17l-5-5"/>',
+        'report'   => 'fa-chart-column',
 
-        'pause'    => '<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',
+        'shield'   => 'fa-shield-halved',
 
-        'calendar' => '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>',
+        'logout'   => 'fa-right-from-bracket',
 
-        'search'   => '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+        'calendar' => 'fa-calendar-days',
 
-        'arrow'    => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+        'search'   => 'fa-magnifying-glass',
 
-        'settings' => '<path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.8Z"/>',
+        'arrow'    => 'fa-arrow-right',
 
-'user-cog' => '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6"/><path d="M19 14v2m0 4v-2m-3-2h2m4 0h-2m-3.5-3.5 1.4 1.4m3.8 3.8 1.4 1.4m0-6.6-1.4 1.4m-3.8 3.8-1.4 1.4"/>',
+        'settings' => 'fa-gear',
 
-'roles' => '<path d="M12 3 4 7v5c0 5 3.5 8 8 10 4.5-2 8-5 8-10V7l-8-4Z"/><path d="m9 12 2 2 4-4"/>',
+        'user-cog' => 'fa-user-gear',
+
+        'roles'    => 'fa-user-shield',
 
     ];
 
 
 
-    // Sidebar items: label, icon, href (null = planned, not clickable yet)
+    // label, icon key, href, isActive, isPlanned, badgeCount
+
+    $workspaceNav = [
+
+        ['Dashboard',         'grid',     $dashboardUrl,     request()->routeIs('super-admin.dashboard'),            false, 0],
+
+        ['School management', 'school',   $schoolsUrl,       request()->routeIs('super-admin.schools.*'),             false, 0],
+
+        ['Subscriptions',     'card',     $subscriptionsUrl, request()->routeIs('super-admin.subscriptions.*'),       false, 0],
+
+        ['Manage plans',      'layers',   $plansUrl,         request()->routeIs('super-admin.subscription-plans.*'),  false, 0],
+
+        ['Support Requests',  'support',  $supportUrl,       request()->routeIs('super-admin.support-requests.*'),    false, $unreadSupportCount],
+
+        ['School Reports',    'report',   $reportsUrl,       request()->routeIs('super-admin.reports.*'),             false, 0],
 
 
 
-$schoolsUrl = \Illuminate\Support\Facades\Route::has('super-admin.schools.index')
-
-    ? route('super-admin.schools.index')
-
-    : url('/control-panel/schools');
-
-
-
-$workspaceNav = [
-    [
-        'Dashboard',
-        'grid',
-        $dashboardUrl,
-        request()->routeIs('super-admin.dashboard'),
-        false,
-    ],
-    [
-        'School management',
-        'school',
-        $schoolsUrl,
-        request()->routeIs('super-admin.schools.*'),
-        false,
-    ],
-    
-[
-    'Subscriptions',
-    'card',
-    Route::has('super-admin.subscriptions.index')
-        ? route('super-admin.subscriptions.index')
-        : url('/control-panel/subscriptions'),
-    request()->routeIs('super-admin.subscriptions.*'),
-    false,
-],
-
-[
-    'Manage plans',
-    'card',
-    Route::has('super-admin.subscription-plans.index')
-        ? route('super-admin.subscription-plans.index')
-        : url('/control-panel/subscription-plans'),
-    request()->routeIs('super-admin.subscription-plans.*'),
-    false,
-],
-
-[
-    'School management',
-    'school',
-    $schoolsUrl,
-    request()->routeIs('super-admin.schools.*'),
-    false,
-],
-
-[
-    'School Reports',
-    'activity',
-    Route::has('super-admin.reports.schools')
-        ? route('super-admin.reports.schools')
-        : url('/control-panel/reports/schools'),
-    request()->routeIs('super-admin.reports.*'),
-    false,
-],
-
-
-    ['Payments',          'rupee',    null, false, true],
-    ['School accounts',   'users',    null, false, true],
-    ['System activity',   'activity', null, false, true],
-];
-
+    ];
 
 @endphp
 
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -163,11 +201,13 @@ $workspaceNav = [
 
 
 
-    <link rel="preconnect" href="https\://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 
-    <link rel="preconnect" href="https\://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https\://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght\@400;500;600;700&family=Manrope:wght\@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 
 
@@ -217,61 +257,57 @@ $workspaceNav = [
 
 
 
-        body {
+        * {
+    box-sizing: border-box;
+}
 
-            margin: 0;
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-            background: var(--canvas);
-
-            color: var(--ink);
-
-            font-family: 'DM Sans', sans-serif;
-
-            font-size: 15px;
-
-        }
+body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    overflow-x: hidden;
+}
 
 
 
         a { color: inherit; text-decoration: none; }
 
-        button, input { font: inherit; }
+        button, input, select, textarea { font: inherit; }
 
 
 
-        svg.i {
+        :focus-visible {
 
-            width: 19px;
+            outline: 3px solid rgba(47, 118, 88, .45);
 
-            height: 19px;
-
-            flex-shrink: 0;
-
-            fill: none;
-
-            stroke: currentColor;
-
-            stroke-width: 1.8;
-
-            stroke-linecap: round;
-
-            stroke-linejoin: round;
+            outline-offset: 2px;
 
         }
 
 
 
-        :focus-visible { outline: 3px solid rgba(47, 118, 88, .45); outline-offset: 2px; }
+        .layout {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
+    top: 0;
+}
 
 
 
-        /* =============================== Layout =============================== */
-
-        .layout { min-height: 100vh; display: flex; }
-
-
-
-        /* ------------------------------ Sidebar ------------------------------ */
+        /* Sidebar */
 
         .sidebar {
 
@@ -357,9 +393,33 @@ $workspaceNav = [
 
 
 
-        .brand-name { margin: 0; color: #fff; font-family: Manrope, sans-serif; font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
+        .brand-name {
 
-        .brand-caption { margin: 4px 0 0; color: #9db1a6; font-size: 12px; }
+            margin: 0;
+
+            color: #fff;
+
+            font-family: Manrope, sans-serif;
+
+            font-size: 15px;
+
+            font-weight: 800;
+
+            letter-spacing: -.3px;
+
+        }
+
+
+
+        .brand-caption {
+
+            margin: 4px 0 0;
+
+            color: #9db1a6;
+
+            font-size: 12px;
+
+        }
 
 
 
@@ -413,15 +473,85 @@ $workspaceNav = [
 
 
 
-        a.nav-item:hover { background: rgba(255, 255, 255, .07); color: #fff; }
+        .nav-item i {
+
+            width: 20px;
+
+            text-align: center;
+
+            font-size: 15px;
+
+            flex-shrink: 0;
+
+        }
 
 
 
-        .nav-item.active { background: rgba(255, 255, 255, .12); color: #fff; font-weight: 600; box-shadow: inset 3px 0 var(--orange); }
+        a.nav-item:hover {
+
+            background: rgba(255, 255, 255, .07);
+
+            color: #fff;
+
+        }
 
 
 
-        .nav-item.planned { color: #8da197; cursor: default; }
+        .nav-item.active {
+
+            background: rgba(255, 255, 255, .12);
+
+            color: #fff;
+
+            font-weight: 600;
+
+            box-shadow: inset 3px 0 var(--orange);
+
+        }
+
+
+
+        .nav-item.planned {
+
+            color: #8da197;
+
+            cursor: default;
+
+        }
+
+
+
+        .nav-count {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            min-width: 21px;
+
+            height: 21px;
+
+            margin-left: auto;
+
+            padding: 0 6px;
+
+            border-radius: 999px;
+
+            background: #dc3545;
+
+            color: #fff;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            line-height: 1;
+
+            font-variant-numeric: tabular-nums;
+
+        }
 
 
 
@@ -449,6 +579,142 @@ $workspaceNav = [
 
 
 
+        /* Settings */
+
+        .settings-menu {
+
+            display: block;
+
+            margin-top: 4px;
+
+        }
+
+
+
+        .settings-toggle {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            width: 100%;
+
+            min-height: 43px;
+
+            padding: 0 12px;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            background: transparent;
+
+            color: #c5d4cb;
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            list-style: none;
+
+        }
+
+
+
+        .settings-toggle::-webkit-details-marker { display: none; }
+
+
+
+        .settings-toggle i:first-child {
+
+            width: 20px;
+
+            text-align: center;
+
+            font-size: 15px;
+
+        }
+
+
+
+        .settings-toggle:hover {
+
+            background: rgba(255, 255, 255, .07);
+
+            color: #fff;
+
+        }
+
+
+
+        .settings-menu[open] > .settings-toggle,
+
+        .settings-toggle.is-active {
+
+            background: rgba(255, 255, 255, .12);
+
+            color: #fff;
+
+            font-weight: 600;
+
+            box-shadow: inset 3px 0 var(--orange);
+
+        }
+
+
+
+        .settings-chevron {
+
+            margin-left: auto;
+
+            font-size: 12px;
+
+            transition: transform .2s ease;
+
+        }
+
+
+
+        .settings-menu[open] .settings-chevron {
+
+            transform: rotate(180deg);
+
+        }
+
+
+
+        .settings-submenu {
+
+            display: grid;
+
+            gap: 4px;
+
+            margin: 4px 0 6px 14px;
+
+            padding: 4px 0 4px 12px;
+
+            border-left: 1px solid rgba(255, 255, 255, .16);
+
+        }
+
+
+
+        .settings-submenu .nav-item {
+
+            min-height: 39px;
+
+            font-size: 13px;
+
+        }
+
+
+
         .sidebar-bottom { margin-top: auto; padding-top: 18px; }
 
 
@@ -469,9 +735,35 @@ $workspaceNav = [
 
 
 
-        .security-title { display: flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; font-weight: 700; }
+        .security-title {
 
-        .security-copy { margin-top: 7px; color: #9db1a6; font-size: 12px; line-height: 1.6; }
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color: #fff;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+        }
+
+
+
+        .security-copy {
+
+            margin-top: 7px;
+
+            color: #9db1a6;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+
+        }
 
 
 
@@ -515,9 +807,35 @@ $workspaceNav = [
 
 
 
-        .profile-name { max-width: 150px; overflow: hidden; color: #fff; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .profile-name {
 
-        .profile-role { margin-top: 3px; color: #9db1a6; font-size: 11px; }
+            max-width: 150px;
+
+            overflow: hidden;
+
+            color: #fff;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+
+        }
+
+
+
+        .profile-role {
+
+            margin-top: 3px;
+
+            color: #9db1a6;
+
+            font-size: 11px;
+
+        }
 
 
 
@@ -557,13 +875,29 @@ $workspaceNav = [
 
 
 
-        .logout-btn:hover { background: rgba(231, 107, 69, .16); color: #fff; }
+        .logout-btn:hover {
+
+            background: rgba(231, 107, 69, .16);
+
+            color: #fff;
+
+        }
 
 
 
-        /* ------------------------------ Main column ------------------------------ */
+        /* Main */
 
-        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .main {
+
+            flex: 1;
+
+            min-width: 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
 
 
 
@@ -597,13 +931,43 @@ $workspaceNav = [
 
 
 
-        .crumb { margin-bottom: 5px; color: var(--muted); font-size: 12px; }
+        .crumb {
 
-        .topbar h1 { margin: 0; font-family: Manrope, sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+            margin-bottom: 5px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
 
 
 
-        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .topbar h1 {
+
+            margin: 0;
+
+            font-family: Manrope, sans-serif;
+
+            font-size: 22px;
+
+            font-weight: 800;
+
+            letter-spacing: -.5px;
+
+        }
+
+
+
+        .topbar-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+        }
 
 
 
@@ -628,10 +992,6 @@ $workspaceNav = [
             font-size: 12px;
 
         }
-
-
-
-        .date-chip svg.i { width: 15px; height: 15px; }
 
 
 
@@ -661,15 +1021,37 @@ $workspaceNav = [
 
 
 
-        .role-chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #39a56b; }
+        .role-chip::before {
+
+            content: '';
+
+            width: 7px;
+
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #39a56b;
+
+        }
 
 
 
-        .content { width: 100%; max-width: 1500px; margin: 0 auto; padding: 30px 34px 20px; }
+        .content {
+
+            width: 100%;
+
+            max-width: 1500px;
+
+            margin: 0 auto;
+
+            padding: 30px 34px 20px;
+
+        }
 
 
 
-        /* ------------------------------ Welcome ------------------------------ */
+        /* Shared page pieces */
 
         .welcome {
 
@@ -687,15 +1069,53 @@ $workspaceNav = [
 
 
 
-        .eyebrow { margin-bottom: 8px; color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+        .eyebrow {
+
+            margin-bottom: 8px;
+
+            color: var(--green);
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing: 1.4px;
+
+            text-transform: uppercase;
+
+        }
 
 
 
-        .welcome h2 { margin: 0; font-family: Manrope, sans-serif; font-size: clamp(26px, 2.5vw, 34px); line-height: 1.25; letter-spacing: -1px; }
+        .welcome h2 {
+
+            margin: 0;
+
+            font-family: Manrope, sans-serif;
+
+            font-size: clamp(26px, 2.5vw, 34px);
+
+            line-height: 1.25;
+
+            letter-spacing: -1px;
+
+        }
 
 
 
-        .welcome p { max-width: 610px; margin: 9px 0 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+        .welcome p {
+
+            max-width: 610px;
+
+            margin: 9px 0 0;
+
+            color: var(--muted);
+
+            font-size: 14px;
+
+            line-height: 1.7;
+
+        }
 
 
 
@@ -723,123 +1143,65 @@ $workspaceNav = [
 
             font-weight: 700;
 
-            transition: background .18s ease, transform .18s ease;
+        }
+
+
+
+        .welcome-action:hover { background: var(--navy-2); }
+
+
+
+        .section-heading {
+
+            display: flex;
+
+            align-items: flex-end;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin: 30px 0 15px;
 
         }
 
 
 
-        .welcome-action:hover { background: var(--navy-2); transform: translateY(-1px); }
+        .section-heading h3 {
 
-        .welcome-action svg.i { width: 16px; height: 16px; }
+            margin: 0;
+
+            font-family: Manrope, sans-serif;
+
+            font-size: 15px;
+
+            font-weight: 800;
+
+        }
 
 
 
-        /* ------------------------------ Snapshot banner ------------------------------ */
+        .section-heading p {
 
-        .status-banner {
+            margin: 4px 0 0;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
+
+
+
+        .kpis {
 
             display: grid;
 
-            grid-template-columns: auto minmax(0, 1fr) minmax(240px, .8fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
 
-            gap: 28px;
-
-            align-items: center;
-
-            margin-bottom: 8px;
-
-            padding: 24px 28px;
-
-            border: 1px solid #dbe8df;
-
-            border-radius: 16px;
-
-            background: linear-gradient(115deg, #fff 0%, #f3faf5 100%);
-
-            box-shadow: var(--shadow);
+            gap: 18px;
 
         }
-
-
-
-        .ring {
-
-            --p: 0;
-
-            position: relative;
-
-            display: grid;
-
-            place-items: center;
-
-            width: 104px;
-
-            height: 104px;
-
-            border-radius: 50%;
-
-            background: conic-gradient(var(--green) calc(var(--p) * 1%), #dfe9e2 0);
-
-        }
-
-
-
-        .ring::before { content: ''; position: absolute; inset: 11px; border-radius: 50%; background: #f9fcfa; }
-
-
-
-        .ring-text { position: relative; text-align: center; line-height: 1.1; }
-
-        .ring-text strong { display: block; font-family: Manrope, sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -.8px; }
-
-        .ring-text span { color: var(--muted); font-size: 10.5px; }
-
-
-
-        .banner-kicker { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
-
-        .banner-title { margin-top: 8px; font-family: Manrope, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
-
-        .banner-copy { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.6; }
-
-
-
-        .banner-stats { display: grid; gap: 12px; }
-
-
-
-        .bar-row { display: grid; gap: 7px; }
-
-        .bar-meta { display: flex; justify-content: space-between; gap: 12px; color: #52665b; font-size: 12px; font-weight: 700; }
-
-        .bar-meta strong { color: var(--ink); }
-
-        .bar-track { height: 9px; overflow: hidden; border-radius: 20px; background: #dfe9e2; }
-
-        .bar-fill { height: 100%; border-radius: inherit; }
-
-        .bar-fill.green { background: linear-gradient(90deg, #2f7658, #65ad82); }
-
-        .bar-fill.amber { background: linear-gradient(90deg, #d9962b, #ecc268); }
-
-
-
-        /* ------------------------------ Section headings ------------------------------ */
-
-        .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 15px; margin: 30px 0 15px; }
-
-        .section-heading h3 { margin: 0; font-family: Manrope, sans-serif; font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
-
-        .section-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
-
-        .section-note { color: var(--muted); font-size: 12px; }
-
-
-
-        /* ------------------------------ KPI cards ------------------------------ */
-
-        .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
 
 
 
@@ -867,63 +1229,75 @@ $workspaceNav = [
 
             box-shadow: 0 8px 22px rgba(23, 43, 39, .055);
 
-            transition: transform .2s ease, box-shadow .2s ease;
-
         }
 
 
 
-        .kpi:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(23, 43, 39, .11); }
-
-
-
-        .kpi::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--kpi-accent); }
-
-
-
-        .kpi::after {
+        .kpi::before {
 
             content: '';
 
             position: absolute;
 
-            right: -42px;
+            inset: 0 auto 0 0;
 
-            bottom: -52px;
+            width: 5px;
 
-            width: 120px;
-
-            height: 120px;
-
-            border-radius: 50%;
-
-            background: var(--kpi-glow);
-
-            pointer-events: none;
+            background: var(--kpi-accent);
 
         }
 
 
 
-        .kpi.blue  { --kpi-accent: var(--blue);  --kpi-glow: rgba(71, 120, 199, .09); }
+        .kpi.blue  { --kpi-accent: var(--blue); }
 
-        .kpi.green { --kpi-accent: var(--green); --kpi-glow: rgba(47, 118, 88, .09); }
+        .kpi.green { --kpi-accent: var(--green); }
 
-        .kpi.amber { --kpi-accent: var(--amber); --kpi-glow: rgba(184, 121, 24, .10); }
+        .kpi.amber { --kpi-accent: var(--amber); }
 
-        .kpi.red   { --kpi-accent: var(--red);   --kpi-glow: rgba(189, 81, 73, .09); }
-
-
-
-        .kpi-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .kpi.red   { --kpi-accent: var(--red); }
 
 
 
-        .kpi-label { color: var(--muted); font-size: 12px; font-weight: 700; }
+        .kpi-top {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+        }
 
 
 
-        .kpi-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; }
+        .kpi-label {
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+        }
+
+
+
+        .kpi-icon {
+
+            display: grid;
+
+            place-items: center;
+
+            width: 44px;
+
+            height: 44px;
+
+            border-radius: 12px;
+
+        }
 
 
 
@@ -939,13 +1313,7 @@ $workspaceNav = [
 
         .kpi-value {
 
-            position: relative;
-
-            z-index: 1;
-
             margin-top: 16px;
-
-            color: #1c332c;
 
             font-family: Manrope, sans-serif;
 
@@ -957,19 +1325,41 @@ $workspaceNav = [
 
             letter-spacing: -1.3px;
 
-            font-variant-numeric: tabular-nums;
+        }
+
+
+
+        .kpi-foot {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            margin-top: 14px;
+
+            color: #687a71;
+
+            font-size: 11.5px;
 
         }
 
 
 
-        .kpi-foot { position: relative; z-index: 1; display: flex; align-items: center; gap: 7px; margin-top: 14px; color: #687a71; font-size: 11.5px; }
+        .kpi-foot .dot {
 
-        .kpi-foot .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+            width: 6px;
+
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: currentColor;
+
+        }
 
 
-
-        /* ------------------------------ Directory panel ------------------------------ */
 
         .panel {
 
@@ -987,11 +1377,47 @@ $workspaceNav = [
 
 
 
-        .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 19px 21px; border-bottom: 1px solid var(--line); }
+        .panel-head {
 
-        .panel-head h3 { margin: 0; font-family: Manrope, sans-serif; font-size: 15px; font-weight: 800; }
+            display: flex;
 
-        .panel-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding: 19px 21px;
+
+            border-bottom: 1px solid var(--line);
+
+        }
+
+
+
+        .panel-head h3 {
+
+            margin: 0;
+
+            font-family: Manrope, sans-serif;
+
+            font-size: 15px;
+
+            font-weight: 800;
+
+        }
+
+
+
+        .panel-head p {
+
+            margin: 5px 0 0;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
 
 
 
@@ -1010,8 +1436,6 @@ $workspaceNav = [
             font-size: 11px;
 
             font-weight: 700;
-
-            white-space: nowrap;
 
         }
 
@@ -1067,17 +1491,25 @@ $workspaceNav = [
 
 
 
-        .search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(47, 118, 88, .12); }
+        .search input {
 
-        .search svg.i { width: 17px; height: 17px; }
+            flex: 1;
 
+            min-width: 0;
 
+            height: 100%;
 
-        .search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 13px; }
+            border: 0;
 
+            outline: 0;
 
+            background: transparent;
 
-        .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+            color: var(--ink);
+
+            font-size: 13px;
+
+        }
 
 
 
@@ -1099,15 +1531,19 @@ $workspaceNav = [
 
             cursor: pointer;
 
-            transition: background .15s ease, color .15s ease, border-color .15s ease;
-
         }
 
 
 
-        .chip:hover { border-color: #b9cbc1; }
+        .chip.is-on {
 
-        .chip.is-on { border-color: var(--navy); background: var(--navy); color: #fff; }
+            border-color: var(--navy);
+
+            background: var(--navy);
+
+            color: #fff;
+
+        }
 
 
 
@@ -1115,7 +1551,13 @@ $workspaceNav = [
 
 
 
-        table { width: 100%; border-collapse: collapse; }
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+        }
 
 
 
@@ -1143,37 +1585,35 @@ $workspaceNav = [
 
 
 
-        td { padding: 14px 21px; border-top: 1px solid #edf0ed; font-size: 13px; vertical-align: middle; white-space: nowrap; }
+        td {
+
+            padding: 14px 21px;
+
+            border-top: 1px solid #edf0ed;
+
+            font-size: 13px;
+
+            vertical-align: middle;
+
+            white-space: nowrap;
+
+        }
 
 
 
-        tbody tr:hover td { background: #fbfdfb; }
+        .code-chip {
 
+            display: inline-block;
 
+            padding: 5px 9px;
 
-        .school-cell { display: flex; align-items: center; gap: 11px; }
+            border-radius: 6px;
 
+            background: #f0f4f8;
 
+            color: #526d8b;
 
-        .school-avatar {
-
-            display: grid;
-
-            place-items: center;
-
-            flex: 0 0 38px;
-
-            width: 38px;
-
-            height: 38px;
-
-            border: 1px solid #dce9df;
-
-            border-radius: 11px;
-
-            background: #eff7f1;
-
-            color: var(--green);
+            font-size: 11px;
 
             font-weight: 800;
 
@@ -1181,157 +1621,327 @@ $workspaceNav = [
 
 
 
-        .school-name { color: var(--ink); font-weight: 700; }
+        .badge {
 
-        .school-sub { margin-top: 3px; color: #9aa59f; font-size: 11px; }
+            display: inline-flex;
 
+            align-items: center;
 
+            gap: 6px;
 
-        .code-chip { display: inline-block; padding: 5px 9px; border-radius: 6px; background: #f0f4f8; color: #526d8b; font-size: 11px; font-weight: 800; }
+            padding: 6px 10px;
 
+            border-radius: 20px;
 
+            font-size: 11px;
 
-        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid transparent; border-radius: 20px; font-size: 11px; font-weight: 800; }
-
-        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-        .badge.active   { border-color: #d3e9d9; background: #edf8f0; color: #2d8050; }
-
-        .badge.inactive { border-color: #f2d8d3; background: #fff2ef; color: #b54f43; }
-
-        .badge.other    { border-color: #eee3c7; background: #fff8e8; color: #9a7428; }
-
-
-
-        .muted { color: var(--muted); }
-
-
-
-        .empty { padding: 44px 20px; text-align: center; white-space: normal; }
-
-
-
-        .empty-icon {
-
-            display: grid;
-
-            place-items: center;
-
-            width: 52px;
-
-            height: 52px;
-
-            margin: 0 auto 12px;
-
-            border-radius: 14px;
-
-            background: #eff7f1;
-
-            color: var(--green);
+            font-weight: 800;
 
         }
 
-        .settings-menu {
-    margin-top: 4px;
-}
 
-.settings-toggle {
-    width: 100%;
-    border: 0;
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-    list-style: none;
-}
 
-.settings-toggle::-webkit-details-marker {
-    display: none;
-}
+        .badge::before {
 
-.settings-chevron {
-    margin-left: auto;
-    transition: transform .2s ease;
-}
+            content: '';
 
-.settings-menu[open] .settings-chevron {
-    transform: rotate(180deg);
-}
+            width: 6px;
 
-.settings-submenu {
-    display: grid;
-    gap: 4px;
-    padding: 6px 0 4px 32px;
-}
+            height: 6px;
 
-/* Settings dropdown */
-.settings-menu {
-    display: block;
-    margin-top: 4px;
-}
+            border-radius: 50%;
 
-.settings-toggle {
-    display: flex;
-    align-items: center;
-    min-height: 43px;
-    padding: 0 12px;
-    gap: 12px;
-    width: 100%;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: #c5d4cb;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    list-style: none;
-}
+            background: currentColor;
 
-.settings-toggle::-webkit-details-marker {
-    display: none;
-}
+        }
 
-.settings-toggle > svg:first-child {
-    width: 19px;
-    height: 19px;
-    flex-shrink: 0;
-}
 
-.settings-chevron {
-    width: 15px;
-    height: 15px;
-    margin-left: auto;
-    transition: transform .2s ease;
-}
 
-.settings-menu[open] .settings-chevron {
-    transform: rotate(180deg);
-}
+        .badge.active {
 
-.settings-submenu {
-    display: grid;
-    gap: 4px;
-    margin: 5px 0 5px 15px;
-    padding: 5px 0 5px 13px;
-    border-left: 1px solid rgba(255,255,255,.16);
-}
+            background: #edf8f0;
 
-.settings-submenu .nav-item {
-    min-height: 39px;
-    font-size: 13px;
-}
+            color: #2d8050;
+
+        }
+
+
+
+        .badge.inactive {
+
+            background: #fff2ef;
+
+            color: #b54f43;
+
+        }
+
+
+
+        .badge.other {
+
+            background: #fff8e8;
+
+            color: #9a7428;
+
+        }
+
+
+
+        .panel-foot {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            padding: 13px 21px;
+
+            border-top: 1px solid var(--line);
+
+            background: #fbfcfb;
+
+            color: var(--muted);
+
+            font-size: 11.5px;
+
+        }
+
+
+
+        .footer {
+
+            padding: 22px 20px 26px;
+
+            color: #99a49e;
+
+            font-size: 11px;
+
+            text-align: center;
+
+        }
 
 
 
 
-        .panel-foot strong { color: var(--ink); }
+        /* Dashboard overview components */
+        .i {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex: 0 0 auto;
+        }
 
+        .welcome-action {
+            min-height: 48px;
+            white-space: nowrap;
+        }
 
+        .welcome-action .i {
+            width: 17px;
+            height: 17px;
+        }
 
-        .footer { padding: 22px 20px 26px; color: #99a49e; font-size: 11px; text-align: center; }
+        .status-banner {
+            display: grid;
+            grid-template-columns: 104px minmax(220px, 1fr) minmax(230px, .8fr);
+            align-items: center;
+            gap: 22px;
+            padding: 22px 24px;
+            margin: 22px 0 28px;
+            border: 1px solid #e3ebe5;
+            border-radius: 16px;
+            background: linear-gradient(115deg, #fff 0%, #f2f8f3 100%);
+            box-shadow: var(--shadow);
+        }
 
+        .ring {
+            --p: 0;
+            display: grid;
+            place-items: center;
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: conic-gradient(var(--green) calc(var(--p) * 1%), #e5ece7 0);
+            position: relative;
+        }
 
+        .ring::before {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: #fff;
+        }
 
-        /* =============================== Responsive =============================== */
+        .ring-text {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 1px;
+            text-align: center;
+        }
+
+        .ring-text strong {
+            font: 800 20px/1.1 Manrope, sans-serif;
+            color: var(--ink);
+        }
+
+        .ring-text span {
+            color: var(--muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        .banner-kicker {
+            margin-bottom: 5px;
+            color: var(--green);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .banner-title {
+            color: var(--ink);
+            font: 800 17px/1.35 Manrope, sans-serif;
+        }
+
+        .banner-copy {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .banner-stats {
+            display: grid;
+            gap: 14px;
+        }
+
+        .bar-row {
+            display: grid;
+            gap: 6px;
+        }
+
+        .bar-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            color: #65746c;
+            font-size: 11px;
+        }
+
+        .bar-meta strong {
+            color: var(--ink);
+            font-size: 12px;
+        }
+
+        .bar-track {
+            height: 7px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: #e8eee9;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: inherit;
+            transition: width .25s ease;
+        }
+
+        .bar-fill.green { background: var(--green); }
+        .bar-fill.amber { background: var(--amber); }
+
+        .section-note {
+            color: var(--muted);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .school-cell {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 180px;
+        }
+
+        .school-avatar {
+            display: grid;
+            place-items: center;
+            flex: 0 0 38px;
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: var(--green-soft);
+            color: var(--green);
+            font: 800 14px Manrope, sans-serif;
+        }
+
+        .school-name {
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .school-sub {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .empty-row td {
+            padding: 34px 20px;
+            white-space: normal;
+        }
+
+        .empty {
+            display: grid;
+            justify-items: center;
+            gap: 8px;
+            max-width: 360px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .empty-icon {
+            display: grid;
+            place-items: center;
+            width: 46px;
+            height: 46px;
+            margin-bottom: 3px;
+            border-radius: 14px;
+            background: #f0f5f1;
+            color: var(--green);
+        }
+
+        .empty h4 {
+            margin: 0;
+            color: var(--ink);
+            font: 800 14px Manrope, sans-serif;
+        }
+
+        .empty p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
 
         @media (max-width: 1180px) {
 
@@ -1343,166 +1953,109 @@ $workspaceNav = [
 
             .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-            .status-banner { grid-template-columns: auto minmax(0, 1fr); }
-
-            .banner-stats { grid-column: 1 / -1; }
-
         }
 
 
+
+        @media (max-width: 1000px) {
+            .status-banner {
+                grid-template-columns: 82px minmax(0, 1fr);
+            }
+            .ring {
+                width: 78px;
+                height: 78px;
+            }
+            .banner-stats {
+                grid-column: 1 / -1;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
 
         @media (max-width: 850px) {
 
             .layout { display: block; }
 
+            .sidebar {
 
+                position: static;
 
-            .sidebar { position: static; width: 100%; height: auto; padding: 15px 16px; }
+                width: 100%;
 
-            .brand { padding-bottom: 14px; }
+                height: auto;
 
-            .nav-label, .security-card, .profile { display: none; }
+                padding: 15px 16px;
 
+            }
 
+            .nav-label, .security-card, .profile, .settings-menu { display: none; }
 
-            .nav { display: flex; gap: 5px; padding-top: 12px; overflow-x: auto; }
+            .nav {
 
-            .nav-item { flex: 0 0 auto; min-height: 38px; padding: 0 12px; white-space: nowrap; }
+                display: flex;
 
-            .nav-item.active { box-shadow: inset 0 -3px var(--orange); }
+                gap: 5px;
 
-            .nav-soon { display: none; }
+                padding-top: 12px;
 
+                overflow-x: auto;
 
+            }
 
-            .sidebar-bottom { display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 0; }
+            .nav-item {
+
+                flex: 0 0 auto;
+
+                min-height: 38px;
+
+                white-space: nowrap;
+
+            }
+
+            .sidebar-bottom {
+
+                display: flex;
+
+                justify-content: flex-end;
+
+                margin-top: 8px;
+
+                padding-top: 0;
+
+            }
 
             .logout-form { margin: 0; }
 
-            .logout-btn { width: auto; padding: 8px 10px; }
-
-
-
-            .topbar { position: static; min-height: 68px; }
-
-            .status-banner { grid-template-columns: 1fr; gap: 20px; justify-items: start; }
-
-            .banner-stats { width: 100%; }
+            .logout-btn { width: auto; }
 
         }
 
 
 
         @media (max-width: 600px) {
-
-            .topbar { align-items: flex-start; padding: 14px 16px; }
-
-            .topbar h1 { font-size: 17px; }
-
             .date-chip { display: none; }
-
             .content { padding: 22px 14px; }
-
-
-
             .welcome { display: block; }
-
-            .welcome-action { margin-top: 16px; }
-
-
-
-            .status-banner { padding: 20px; }
-
-            .banner-title { font-size: 18px; }
-
-
-
-            .section-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
-
-
-
-            .kpis { grid-template-columns: 1fr; gap: 12px; }
-
-            .kpi { min-height: 0; padding: 18px 18px 16px 22px; }
-
-            .kpi-value { margin-top: 12px; font-size: 30px; }
-
-
-
-            .panel-head { align-items: flex-start; padding: 16px; }
-
-            .toolbar { padding: 12px 16px; }
-
-            .search { width: 100%; }
-
-
-
-            /* table -> cards */
-
-            .table-wrap { padding: 10px; background: #f8faf8; }
-
-            table, tbody, tr, td { display: block; width: 100%; }
-
-            thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-
-
-
-            tbody tr { margin-bottom: 10px; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
-
-            tbody tr:last-child { margin-bottom: 0; }
-
-            tbody tr:hover td { background: transparent; }
-
-            tr[hidden] { display: none; }
-
-
-
-            td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-top: 1px solid #edf0ed; text-align: right; white-space: normal; }
-
-
-
-            td::before {
-
-                content: attr(data-label);
-
-                color: #87938d;
-
-                font-size: 10px;
-
-                font-weight: 800;
-
-                letter-spacing: .6px;
-
-                text-align: left;
-
-                text-transform: uppercase;
-
+            .welcome-action {
+                margin-top: 16px;
+                white-space: normal;
             }
-
-
-
-            td.cell-school { display: block; padding: 13px; border-top: 0; background: #fbfcfb; text-align: left; }
-
-            td.cell-school::before { display: none; }
-
-
-
-            tr.empty-row td { display: block; padding: 0; border: 0; }
-
-            tr.empty-row td::before { display: none; }
-
-
-
-            .panel-foot { flex-direction: column; gap: 4px; padding: 12px 15px; }
-
-        }
-
-
-
-        @media (prefers-reduced-motion: reduce) {
-
-            *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
-
+            .kpis { grid-template-columns: 1fr; }
+            .status-banner {
+                grid-template-columns: 1fr;
+                justify-items: start;
+                padding: 18px;
+            }
+            .banner-stats {
+                width: 100%;
+                grid-template-columns: 1fr;
+            }
+            .section-heading { align-items: flex-start; }
+            .panel-head, .panel-foot {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .toolbar { align-items: stretch; }
+            .search { width: 100%; }
         }
 
     </style>
@@ -1510,8 +2063,11 @@ $workspaceNav = [
 </head>
 
 <body>
+
 <div class="layout">
-    {{-- Shared Super Admin sidebar --}}
+
+
+
     <aside class="sidebar">
 
         <div class="brand">
@@ -1534,15 +2090,25 @@ $workspaceNav = [
 
         <nav class="nav" aria-label="Main navigation">
 
-            @foreach ($workspaceNav as [$label, $icon, $href, $isActive, $isPlanned])
+            @foreach ($workspaceNav as $item)
+
+                @php
+
+                    [$label, $icon, $href, $isActive, $isPlanned] = $item;
+
+                    $badgeCount = $item[5] ?? 0;
+
+                @endphp
+
+
 
                 @if ($isPlanned)
 
-                    <span class="nav-item planned" title="Coming soon" aria-disabled="true">
+                    <span class="nav-item planned" title="Coming soon">
 
-                        <svg class="i" viewBox="0 0 24 24" aria-hidden="true">{!! $icons[$icon] !!}</svg>
+                        <i class="fas {{ $icons[$icon] }}"></i>
 
-                        {{ $label }}
+                        <span>{{ $label }}</span>
 
                         <span class="nav-soon">Planned</span>
 
@@ -1550,11 +2116,21 @@ $workspaceNav = [
 
                 @else
 
-                    <a href="{{ $href }}" class="nav-item {{ $isActive ? 'active' : '' }}" @if($isActive) aria-current="page" @endif>
+                    <a href="{{ $href }}"
 
-                        <svg class="i" viewBox="0 0 24 24" aria-hidden="true">{!! $icons[$icon] !!}</svg>
+                       class="nav-item {{ $isActive ? 'active' : '' }}"
 
-                        {{ $label }}
+                       @if($isActive) aria-current="page" @endif>
+
+                        <i class="fas {{ $icons[$icon] }}"></i>
+
+                        <span>{{ $label }}</span>
+
+                        @if ($badgeCount > 0)
+
+                            <span class="nav-count">{{ $badgeCount > 99 ? '99+' : $badgeCount }}</span>
+
+                        @endif
 
                     </a>
 
@@ -1566,71 +2142,74 @@ $workspaceNav = [
 
 
 
-       
-<div class="nav-label">Administration</div>
+        <div class="nav-label">Administration</div>
 
-<nav class="nav" aria-label="Administration navigation">
+        <nav class="nav" aria-label="Administration navigation">
 
-    {{-- Security Settings --}}
-    @if ($securityUrl)
-        <a href="{{ $securityUrl }}"
-           class="nav-item {{ request()->routeIs('super-admin.security') ? 'active' : '' }}"
-           @if(request()->routeIs('super-admin.security')) aria-current="page" @endif>
+            @if ($securityUrl)
 
-            <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
-                {!! $icons['shield'] !!}
-            </svg>
+                <a href="{{ $securityUrl }}"
 
-            Security settings
-        </a>
-    @endif
+                   class="nav-item {{ request()->routeIs('super-admin.security') ? 'active' : '' }}">
 
-    {{-- Settings Dropdown --}}
-    <details class="settings-menu"
-        {{ request()->routeIs('super-admin.users.*', 'super-admin.roles.*') ? 'open' : '' }}>
+                    <i class="fas {{ $icons['shield'] }}"></i>
 
-        <summary class="nav-item settings-toggle
-            {{ request()->routeIs('super-admin.users.*', 'super-admin.roles.*') ? 'active' : '' }}">
+                    Security settings
 
-            <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
-                {!! $icons['settings'] !!}
-            </svg>
+                </a>
 
-            Settings
+            @endif
 
-            <svg class="i settings-chevron" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m6 9 6 6 6-6"/>
-            </svg>
-        </summary>
 
-        <div class="settings-submenu">
 
-            {{-- User Management --}}
-            <a href="{{ $usersUrl }}"
-               class="nav-item {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
+            <details class="settings-menu"
+    {{ request()->routeIs('super-admin.users.*', 'super-admin.roles.*', 'super-admin.audit-logs.*') ? 'open' : '' }}>
 
-                <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
-                    {!! $icons['user-cog'] !!}
-                </svg>
+                <summary class="settings-toggle {{ request()->routeIs('super-admin.users.*', 'super-admin.roles.*', 'super-admin.audit-logs.*') ? 'is-active' : '' }}">
 
-                User Management
-            </a>
+                    <i class="fas {{ $icons['settings'] }}"></i>
 
-            {{-- Roles and Permissions --}}
-            <a href="{{ $rolesUrl }}"
-               class="nav-item {{ request()->routeIs('super-admin.roles.*') ? 'active' : '' }}">
+                    <span>Settings</span>
 
-                <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
-                    {!! $icons['roles'] !!}
-                </svg>
+                    <i class="fas fa-chevron-down settings-chevron"></i>
 
-                Roles & Permissions
-            </a>
+                </summary>
 
-        </div>
-    </details>
 
-</nav>
+
+                <div class="settings-submenu">
+
+                    <a href="{{ $usersUrl }}"
+
+                       class="nav-item {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
+
+                        <i class="fas {{ $icons['user-cog'] }}"></i>
+
+                        User Management
+
+                    </a>
+
+                    <a href="{{ $rolesUrl }}"
+
+                       class="nav-item {{ request()->routeIs('super-admin.roles.*') ? 'active' : '' }}">
+
+                        <i class="fas {{ $icons['roles'] }}"></i>
+
+                        Roles &amp; Permissions
+
+                    </a>
+
+                    <a href="{{ $auditLogsUrl }}"
+   class="nav-item {{ request()->routeIs('super-admin.audit-logs.*') ? 'active' : '' }}">
+    <i class="fas fa-clipboard-list"></i>
+    Audit Logs
+</a>
+
+                </div>
+
+            </details>
+
+        </nav>
 
 
 
@@ -1640,13 +2219,17 @@ $workspaceNav = [
 
                 <div class="security-title">
 
-                    <svg class="i" viewBox="0 0 24 24" aria-hidden="true">{!! $icons['shield'] !!}</svg>
+                    <i class="fas {{ $icons['shield'] }}"></i>
 
                     System workspace
 
                 </div>
 
-                <div class="security-copy">Use this console to oversee registered schools and platform-wide access.</div>
+                <div class="security-copy">
+
+                    Use this console to oversee registered schools and platform-wide access.
+
+                </div>
 
             </div>
 
@@ -1654,7 +2237,7 @@ $workspaceNav = [
 
             <div class="profile">
 
-                <div class="avatar" aria-hidden="true">{{ $meInitial }}</div>
+                <div class="avatar">{{ $meInitial }}</div>
 
                 <div>
 
@@ -1676,7 +2259,7 @@ $workspaceNav = [
 
                     <button type="submit" class="logout-btn">
 
-                        <svg class="i" viewBox="0 0 24 24" aria-hidden="true">{!! $icons['logout'] !!}</svg>
+                        <i class="fas {{ $icons['logout'] }}"></i>
 
                         Sign out securely
 
@@ -1689,7 +2272,11 @@ $workspaceNav = [
         </div>
 
     </aside>
+
+
+
     <div class="main">
+
         <header class="topbar">
 
             <div>
@@ -1700,13 +2287,11 @@ $workspaceNav = [
 
             </div>
 
-
-
             <div class="topbar-right">
 
                 <div class="date-chip">
 
-                    <svg class="i" viewBox="0 0 24 24" aria-hidden="true">{!! $icons['calendar'] !!}</svg>
+                    <i class="fas {{ $icons['calendar'] }}"></i>
 
                     {{ now()->format('D, d M Y') }}
 
@@ -1717,12 +2302,31 @@ $workspaceNav = [
             </div>
 
         </header>
+
+
+
         <main class="content">
+
             @yield('content')
+
         </main>
-        <footer class="footer">&copy; {{ date('Y') }} School Central &middot; Super Admin Console</footer>
+
+
+
+        <footer class="footer">
+
+            &copy; {{ date('Y') }} School Central &middot; Super Admin Console
+
+        </footer>
+
     </div>
+
 </div>
+
+
+
 @stack('scripts')
+
 </body>
+
 </html>

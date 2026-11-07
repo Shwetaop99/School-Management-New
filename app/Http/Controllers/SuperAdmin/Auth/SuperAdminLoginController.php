@@ -88,6 +88,12 @@ $valid = $user
 
         $request->session()->regenerate();
 
+        app(\App\Services\AuditLogService::class)->log(
+    'login',
+    'Authentication',
+    'Super Admin logged in successfully.'
+);
+
         $request->session()->forget([
             'super_admin_2fa_verified',
             'super_admin_2fa_pending',
@@ -104,8 +110,17 @@ $valid = $user
             ->with('status', 'Set up two-factor authentication to continue.');
     }
 
+    
+
     public function logout(Request $request)
     {
+
+    app(\App\Services\AuditLogService::class)->log(
+    'logout',
+    'Authentication',
+    'Super Admin logged out successfully.'
+);
+
         Auth::guard('super_admin')->logout();
 
         $request->session()->forget([

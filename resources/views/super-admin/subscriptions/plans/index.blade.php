@@ -26,64 +26,6 @@
     </div>
 @endif
 
-{{-- Overview cards --}}
-<div class="kpis plans-kpis">
-    <div class="kpi blue">
-        <div class="kpi-top">
-            <span class="kpi-label">Total plans</span>
-            <span class="kpi-icon">
-                <svg class="i" viewBox="0 0 24 24">
-                    <path d="m12 3 9 5-9 5-9-5 9-5Z"/>
-                    <path d="m3 12 9 5 9-5M3 16l9 5 9-5"/>
-                </svg>
-            </span>
-        </div>
-        <div class="kpi-value">{{ $totalPlans }}</div>
-        <div class="kpi-foot">Configured subscription plans</div>
-    </div>
-
-    <div class="kpi green">
-        <div class="kpi-top">
-            <span class="kpi-label">Active plans</span>
-            <span class="kpi-icon">
-                <svg class="i" viewBox="0 0 24 24">
-                    <path d="m5 12 4 4L19 6"/>
-                    <circle cx="12" cy="12" r="10"/>
-                </svg>
-            </span>
-        </div>
-        <div class="kpi-value">{{ $activePlans }}</div>
-        <div class="kpi-foot">Available for assignment</div>
-    </div>
-
-    <div class="kpi amber">
-        <div class="kpi-top">
-            <span class="kpi-label">Free trial</span>
-            <span class="kpi-icon">
-                <svg class="i" viewBox="0 0 24 24">
-                    <rect x="3" y="4" width="18" height="17" rx="2"/>
-                    <path d="M8 2v4M16 2v4M3 10h18"/>
-                </svg>
-            </span>
-        </div>
-        <div class="kpi-value">30</div>
-        <div class="kpi-foot">Days with full feature access</div>
-    </div>
-
-    <div class="kpi red">
-        <div class="kpi-top">
-            <span class="kpi-label">Billing method</span>
-            <span class="kpi-icon">
-                <svg class="i" viewBox="0 0 24 24">
-                    <path d="M6 4h12M6 9h12M6 14h4a5 5 0 0 0 0-10M10 14l7 7"/>
-                </svg>
-            </span>
-        </div>
-        <div class="kpi-value plans-manual">Manual</div>
-        <div class="kpi-foot">Offline payment confirmation</div>
-    </div>
-</div>
-
 {{-- Plan section --}}
 <div class="section-heading plans-section-heading">
     <div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeder;
+namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
@@ -224,6 +224,7 @@ class RolePermissionSeeder extends Seeder
             ['students.bonafide', 'Manage Bonafide Certificates', 'Students'],
             ['students.caste_report', 'View Caste Reports', 'Students'],
             ['students.age_report', 'View Age Reports', 'Students'],
+            
 
             // Faculty and staff
             ['faculty.import', 'Import Faculty', 'Faculty'],
@@ -331,6 +332,10 @@ class RolePermissionSeeder extends Seeder
             ['reports.export', 'Export Reports', 'Reports'],
             ['reports.print', 'Print Reports', 'Reports'],
 
+            // Support Tickets
+['support-tickets.view', 'View Support Tickets', 'Support Tickets'],
+['support-tickets.create', 'Create Support Tickets', 'Support Tickets'],
+
             // Settings and administration
             ['roles.create', 'Create Roles', 'Roles & Permissions'],
             ['roles.edit', 'Edit Roles', 'Roles & Permissions'],
@@ -375,18 +380,121 @@ class RolePermissionSeeder extends Seeder
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Super Admin receives every permission
-        |--------------------------------------------------------------------------
-        */
+        
+/*
+|--------------------------------------------------------------------------
+| Super Admin receives every permission
+|--------------------------------------------------------------------------
+*/
 
-        $superAdmin = Role::where('name', 'super_admin')->first();
+$superAdmin = Role::where('name', 'super_admin')->first();
 
-        if ($superAdmin) {
-            $superAdmin->permissions()->sync(
-                Permission::pluck('id')->all()
-            );
-        }
+if ($superAdmin) {
+    $superAdmin->permissions()->sync(
+        Permission::pluck('id')->all()
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| School Admin receives school management permissions
+|--------------------------------------------------------------------------
+*/
+
+$admin = Role::where('name', 'admin')->first();
+
+if ($admin) {
+    $adminPermissions = [
+        'dashboard.view',
+        'students.view',
+        'students.create',
+        'students.edit',
+        'students.delete',
+        'faculty.view',
+        'faculty.create',
+        'faculty.edit',
+        'faculty.delete',
+        'staff.view',
+        'staff.create',
+        'staff.edit',
+        'staff.delete',
+        'library.view',
+        'notices.view',
+        'notices.create',
+        'notices.edit',
+        'notices.delete',
+        'attendance.view',
+        'fees.view',
+        'exams.view',
+        'reports.view',
+        'settings.view',
+        'classes.view',
+        'classes.create',
+        'classes.edit',
+        'classes.delete',
+        'timetable.view',
+        'timetable.create',
+        'timetable.edit',
+        'results.view',
+        'results.create',
+        'results.edit',
+        'payroll.view',
+        'payroll.create',
+        'payroll.edit',
+        'fees.create',
+        'fees.edit',
+        'fees.delete',
+        'exams.create',
+        'exams.edit',
+        'exams.delete',
+        'support-tickets.view',
+        'support-tickets.create',
+        // Transport
+'transport.records.view',
+'transport.records.create',
+'transport.records.edit',
+'transport.records.delete',
+'transport.routes.view',
+'transport.vehicles.view',
+
+// Meal Management
+'meal.items.view',
+'meal.items.create',
+'meal.items.edit',
+'meal.items.delete',
+'meal.stock.view',
+'meal.stock.create',
+'meal.stock.edit',
+'meal.stock.delete',
+
+// Sports
+'sports.games.view',
+'sports.games.create',
+'sports.games.edit',
+'sports.achievements.view',
+'sports.achievements.create',
+'sports.achievements.edit',
+'sports.equipment.view',
+'sports.equipment.create',
+'sports.equipment.edit',
+
+// Scholarship
+'scholarship.exams.view',
+'scholarship.exams.create',
+'scholarship.exams.edit',
+'scholarship.exams.delete',
+'merit-concessions.view',
+'merit-concessions.create',
+'merit-concessions.edit',
+'merit-concessions.delete',
+    ];
+
+    $permissionIds = Permission::whereIn('name', $adminPermissions)
+        ->pluck('id')
+        ->all();
+
+    $admin->permissions()->sync($permissionIds);
+}
     }
 }
+

@@ -100,25 +100,20 @@ class DashboardController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    private function countTable(string $table): int
+    private function countTable(string $table, int $schoolId): int
 {
     if (!Schema::hasTable($table)) {
         return 0;
     }
 
-    $query = DB::table($table);
-
-    $user = auth()->user();
-
-    if (
-        $user &&
-        $user->school_id &&
-        Schema::hasColumn($table, 'school_id')
-    ) {
-        $query->where('school_id', $user->school_id);
+    // Never count records globally for a school dashboard.
+    if (!Schema::hasColumn($table, 'school_id')) {
+        return 0;
     }
 
-    return (int) $query->count();
+    return (int) DB::table($table)
+        ->where('school_id', $schoolId)
+        ->count();
 }
 
     /*

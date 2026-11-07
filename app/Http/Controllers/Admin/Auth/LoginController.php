@@ -140,6 +140,12 @@ if (!Auth::attempt([
 
         $request->session()->regenerate();
 
+        app(\App\Services\AuditLogService::class)->log(
+    'login',
+    'Authentication',
+    'School Admin logged in successfully.'
+);
+
         /*
         |--------------------------------------------------------------------------
         | Reset Two-Factor Verification
@@ -173,6 +179,13 @@ if (!Auth::attempt([
      */
     public function logout(Request $request)
     {
+
+    app(\App\Services\AuditLogService::class)->log(
+    'logout',
+    'Authentication',
+    'School Admin logged out successfully.'
+);
+
         Auth::logout();
 
         $request->session()->invalidate();

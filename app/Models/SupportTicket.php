@@ -6,20 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class SupportTicket extends Model
 {
     protected $fillable = [
-        'school_id',
-        'user_id',
-        'ticket_number',
-        'subject',
-        'category',
-        'priority',
-        'status',
-        'description',
-        'resolved_at',
-        'closed_at',
-    ];
+    'school_id',
+    'user_id',
+    'template_id',
+    'ticket_number',
+    'subject',
+    'category',
+    'priority',
+    'status',
+    'description',
+    'resolved_at',
+    'closed_at',
+];
 
     protected function casts(): array
     {
@@ -39,8 +41,14 @@ class SupportTicket extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function replies(): HasMany
-    {
-        return $this->hasMany(SupportTicketReply::class);
-    }
+   public function replies()
+{
+    return $this->hasMany(SupportTicketReply::class, 'support_ticket_id')
+        ->orderBy('created_at', 'asc');
+}
+
+    public function template(): BelongsTo
+{
+    return $this->belongsTo(SupportTicketTemplate::class, 'template_id');
+}
 }

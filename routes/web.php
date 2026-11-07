@@ -3957,6 +3957,58 @@ Route::delete('/student-supply-kits/{studentSupplyKit}', [StudentSupplyKitContro
 
         */
 
+        /*
+|--------------------------------------------------------------------------
+| SUPPORT & COMPLAINTS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/support-tickets', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'index'
+])->name('support-tickets.index');
+
+Route::get('/support-tickets/create', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'create'
+])->name('support-tickets.create');
+
+Route::post('/support-tickets', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'store'
+])->name('support-tickets.store');
+
+// Custom Support Ticket
+Route::get('/support-tickets/custom', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'custom'
+])->name('support-tickets.custom');
+
+// Support Ticket Template Selection
+Route::get('/support-tickets/template/{template}', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'selectTemplate'
+])->name('support-tickets.template');
+
+Route::get('/support-tickets/my-requests', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'myTickets'
+])->name('support-tickets.my-requests');
+
+Route::post('/support-tickets/{id}/reply', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'reply'
+])->name('support-tickets.reply');
+
+Route::get('/support-tickets/{id}', [
+    \App\Http\Controllers\Admin\SupportTicketController::class,
+    'show'
+])->name('support-tickets.show');
+
+
+
+
+
 
 
         Route::post('/logout', [
@@ -4154,6 +4206,9 @@ use App\Http\Controllers\SuperAdmin\UserManagementController as SuperAdminUserMa
 use App\Http\Middleware\EnsureSuperAdminPermission;
 use App\Http\Controllers\SuperAdmin\RolePermissionController as SuperAdminRolePermissionController;
 use App\Http\Controllers\SuperAdmin\Reports\SchoolReportController;
+use App\Http\Controllers\Admin\SupportTicketController;
+use App\Http\Controllers\SuperAdmin\SupportRequestController;
+use App\Http\Controllers\SuperAdmin\AuditLogController;
 
 
 
@@ -4239,6 +4294,9 @@ Route::prefix('control-panel')
             ])->middleware('throttle:5,1')
               ->name('2fa.verify');
 
+              Route::get('/audit-logs', [AuditLogController::class, 'index'])
+    ->name('audit-logs.index');
+
               Route::get('/subscriptions/{subscription}', [
     SubscriptionController::class,
     'show',
@@ -4266,6 +4324,35 @@ Route::get('/subscriptions/{subscription}/edit', [
             // Routes requiring completed 2FA
             Route::middleware(EnsureSuperAdminTwoFactor::class)
                 ->group(function () {
+
+                Route::post(
+    '/support-tickets/{id}/reply',
+    [SupportTicketController::class, 'reply']
+)->name('support-tickets.reply');
+
+// Support Request Management
+Route::prefix('support-requests')
+    ->name('support-requests.')
+    ->group(function () {
+
+        // View all requests
+        Route::get('/', [SupportRequestController::class, 'index'])
+            ->name('index');
+
+        // View individual request and conversation
+        Route::get('/{id}', [SupportRequestController::class, 'show'])
+            ->name('show');
+
+        // Send reply
+        Route::post('/{id}/reply', [SupportRequestController::class, 'reply'])
+            ->name('reply');
+
+        // Update request status
+        Route::patch('/{id}/status', [SupportRequestController::class, 'updateStatus'])
+            ->name('status.update');
+    });
+
+                
 
                 // Super Admin Roles & Permissions
 Route::get('/roles', [
@@ -4331,6 +4418,8 @@ Route::get('/users/create', [
     'create',
 ])->middleware(EnsureSuperAdminPermission::class . ':users.create')
   ->name('users.create');
+
+  
 
 // Save new user
 Route::post('/users', [
