@@ -9,29 +9,75 @@ use App\Models\SupplyStockTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use App\Models\SchoolSetting;
 
 class SupplyStockController extends Controller
 {
     /**
-     * Stock list
+     * Display stock list.
      */
-    public function index()
-    {
-        $academicYear = request('academic_year', '2026-27');
+    /**
+ * Display stock list.
+ */
+public function index()
+{
+    $academicYear = request('academic_year', '2026-27');
 
-        $stocks = SupplyStock::with('supplyItem')
-            ->where('academic_year', $academicYear)
-            ->orderBy('id', 'desc')
-            ->get();
+    // Get all active supply items.
+    $supplyItems = SupplyItem::where('status', true)
+        ->orderBy('item_name')
+        ->get();
 
-        return view('admin.supply-stocks.index', compact(
-            'stocks',
-            'academicYear'
-        ));
+    // Automatically create missing stock records for this academic year.
+    foreach ($supplyItems as $item) {
+        SupplyStock::firstOrCreate(
+            [
+                'supply_item_id' => $item->id,
+                'academic_year' => $academicYear,
+            ],
+            [
+                'quantity' => 0,
+                'minimum_quantity' => 0,
+                'status' => true,
+            ]
+        );
     }
 
+    // Load all stock records with their related supply items.
+    $stocks = SupplyStock::with('supplyItem')
+        ->where('academic_year', $academicYear)
+        ->whereHas('supplyItem', function ($query) {
+            $query->where('status', true);
+        })
+        ->orderBy('id', 'desc')
+        ->get();
+
+    // Dashboard statistics.
+    $totalItems = $stocks->count();
+
+    $totalQuantity = $stocks->sum('quantity');
+
+    $lowStockCount = $stocks->filter(function ($stock) {
+        return $stock->status &&
+               $stock->quantity <= $stock->minimum_quantity;
+    })->count();
+
+    $activeStockCount = $stocks->where('status', true)->count();
+
+    return view('admin.supply-stocks.index', compact(
+        'stocks',
+        'supplyItems',
+        'academicYear',
+        'totalItems',
+        'totalQuantity',
+        'lowStockCount',
+        'activeStockCount'
+    ));
+}
+
     /**
-     * Receive stock
+     * Receive new stock.
      */
     public function receive(Request $request)
     {
@@ -41,28 +87,12 @@ class SupplyStockController extends Controller
                 'integer',
                 Rule::exists('supply_items', 'id'),
             ],
-
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
-
-            'quantity' => [
-                'required',
-                'integer',
-                'min:1',
-            ],
-
-            'remarks' => [
-                'nullable',
-                'string',
-                'max:1000',
-            ],
+            'academic_year' => ['required', 'string', 'max:20'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'remarks' => ['nullable', 'string', 'max:1000'],
         ]);
 
         DB::transaction(function () use ($validated) {
-
             $stock = SupplyStock::firstOrCreate(
                 [
                     'supply_item_id' => $validated['supply_item_id'],
@@ -75,14 +105,19 @@ class SupplyStockController extends Controller
                 ]
             );
 
-            $stock->quantity += $validated['quantity'];
+            // Lock the existing stock row before changing its balance.
+            $stock = SupplyStock::whereKey($stock->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $stock->quantity += (int) $validated['quantity'];
             $stock->save();
 
             SupplyStockTransaction::create([
                 'supply_item_id' => $validated['supply_item_id'],
                 'academic_year' => $validated['academic_year'],
                 'transaction_type' => 'receive',
-                'quantity' => $validated['quantity'],
+                'quantity' => (int) $validated['quantity'],
                 'balance_quantity' => $stock->quantity,
                 'reference_type' => 'stock_receive',
                 'reference_id' => null,
@@ -91,14 +126,17 @@ class SupplyStockController extends Controller
             ]);
         });
 
-        return back()->with(
-            'success',
-            'Stock received successfully.'
-        );
+        return redirect()
+            ->route('admin.supply-stocks.index', [
+                'academic_year' => $validated['academic_year'],
+            ])
+            ->with('success', 'Stock received successfully.');
     }
 
     /**
-     * Adjust stock
+     * Adjust stock quantity.
+     * Positive quantity increases stock.
+     * Negative quantity decreases stock.
      */
     public function adjust(Request $request)
     {
@@ -108,28 +146,12 @@ class SupplyStockController extends Controller
                 'integer',
                 Rule::exists('supply_items', 'id'),
             ],
-
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
-
-            'quantity' => [
-                'required',
-                'integer',
-                'not_in:0',
-            ],
-
-            'remarks' => [
-                'required',
-                'string',
-                'max:1000',
-            ],
+            'academic_year' => ['required', 'string', 'max:20'],
+            'quantity' => ['required', 'integer', 'not_in:0'],
+            'remarks' => ['required', 'string', 'max:1000'],
         ]);
 
         DB::transaction(function () use ($validated) {
-
             $stock = SupplyStock::firstOrCreate(
                 [
                     'supply_item_id' => $validated['supply_item_id'],
@@ -142,13 +164,17 @@ class SupplyStockController extends Controller
                 ]
             );
 
-            $newQuantity = $stock->quantity + $validated['quantity'];
+            $stock = SupplyStock::whereKey($stock->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $adjustment = (int) $validated['quantity'];
+            $newQuantity = $stock->quantity + $adjustment;
 
             if ($newQuantity < 0) {
-                abort(
-                    422,
-                    'Stock quantity cannot become negative.'
-                );
+                throw ValidationException::withMessages([
+                    'quantity' => 'The adjustment cannot reduce stock below zero. Current available stock: ' . $stock->quantity,
+                ]);
             }
 
             $stock->quantity = $newQuantity;
@@ -158,7 +184,10 @@ class SupplyStockController extends Controller
                 'supply_item_id' => $validated['supply_item_id'],
                 'academic_year' => $validated['academic_year'],
                 'transaction_type' => 'adjustment',
-                'quantity' => abs($validated['quantity']),
+
+                // Keep the sign so the history shows increase or decrease.
+                'quantity' => $adjustment,
+
                 'balance_quantity' => $stock->quantity,
                 'reference_type' => 'stock_adjustment',
                 'reference_id' => null,
@@ -167,14 +196,15 @@ class SupplyStockController extends Controller
             ]);
         });
 
-        return back()->with(
-            'success',
-            'Stock adjusted successfully.'
-        );
+        return redirect()
+            ->route('admin.supply-stocks.index', [
+                'academic_year' => $validated['academic_year'],
+            ])
+            ->with('success', 'Stock adjusted successfully.');
     }
 
     /**
-     * Stock transaction history
+     * Display transaction history for an item.
      */
     public function history($supplyItemId)
     {
@@ -182,21 +212,35 @@ class SupplyStockController extends Controller
 
         $item = SupplyItem::findOrFail($supplyItemId);
 
-        $transactions = SupplyStockTransaction::where(
-                'supply_item_id',
-                $supplyItemId
-            )
+        $transactions = SupplyStockTransaction::with('creator')
+            ->where('supply_item_id', $supplyItemId)
             ->where('academic_year', $academicYear)
             ->latest('id')
             ->get();
 
-        return view(
-            'admin.supply-stocks.history',
-            compact(
-                'item',
-                'transactions',
-                'academicYear'
-            )
-        );
+        return view('admin.supply-stocks.history', compact(
+            'item',
+            'transactions',
+            'academicYear'
+        ));
     }
+
+   public function print()
+{
+    $academicYear = request('academic_year', '2026-27');
+
+    $stocks = SupplyStock::with('supplyItem')
+        ->where('academic_year', $academicYear)
+        ->orderBy('id', 'desc')
+        ->get();
+
+    $schoolSetting = \App\Models\SchoolSetting::first();
+
+    return view('admin.supply-stocks.print', compact(
+        'stocks',
+        'academicYear',
+        'schoolSetting'
+    ));
+}
+
 }

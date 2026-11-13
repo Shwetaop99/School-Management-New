@@ -396,6 +396,7 @@
 
     $menu = [
 
+<<<<<<< HEAD
     'Main' => [
 
         [
@@ -404,6 +405,267 @@
             'a' => ['admin.dashboard'],
             'r' => 'admin.dashboard',
             'p' => ['dashboard.view'],
+=======
+
+
+        'Main' => [
+
+
+
+            [
+
+                'l' => 'Dashboard',
+
+                'i' => 'fa-gauge-high',
+
+                'a' => ['admin.dashboard'],
+
+                'r' => 'admin.dashboard',
+
+                'p' => ['dashboard.view'],
+
+            ],
+
+
+
+[
+    'l' => 'Student',
+    'i' => 'fa-user-graduate',
+    'a' => [
+        'admin.students.*',
+        'admin.student-profile.*',
+        'admin.student-documents.*',
+        'admin.id-card.*',
+        
+       
+        'admin.student-general-register.*',
+        'admin.government-schemes.*',
+        'admin.student-health.*',
+      
+    ],
+    'c' => [
+        ['All Students', 'admin.students.index'],
+        ['Student Profile', 'admin.student-profile.index'],
+        ['Student Documents', 'admin.student-documents.index'],
+        ['Student ID', 'admin.id-card.index'],
+        ['School Supplies (Kit)', 'admin.student-supply-kits.index'],
+    
+        ['Student Register', 'admin.student-general-register.index'],
+        ['Government Schemes', 'admin.government-schemes.index'],
+        ['Student Health', 'admin.student-health.index'],
+    ],
+    'p' => [
+        'students.view',
+        'students.create',
+        'students.edit',
+        'students.delete',
+    ],
+],
+
+
+         [
+    'l' => 'Faculty (Teacher)',
+    'i' => 'fa-chalkboard-user',
+    'a' => [
+        'admin.teachers.*',
+        'admin.leave-applications.*',
+    ],
+    'c' => [
+        ['All Faculty', 'admin.teachers.index'],
+        ['Teacher Allocation', 'admin.teachers.assign-class.index'],
+        ['Leave Applications', 'admin.leave-applications.index'],
+    ],
+    'p' => [
+        'faculty.view',
+        'faculty.create',
+        'faculty.edit',
+        'faculty.delete',
+    ],
+],
+
+            [
+
+                'l' => 'Other Staff',
+
+                'i' => 'fa-users',
+
+                'a' => ['admin.other-staff.*'],
+
+                'c' => [
+
+                    ['All Staff', 'admin.other-staff.index'],
+
+                    ['Add Staff', 'admin.other-staff.create'],
+
+                ],
+
+            ],
+
+
+
+            [
+
+                'l' => 'Time Table',
+
+                'i' => 'fa-table-cells',
+
+                'a' => ['admin.timetable.*'],
+
+                'c' => [
+
+                    ['Class Timetable', 'admin.timetable.class'],
+
+                    ['Teacher Timetable', 'admin.timetable.teacher'],
+
+                    ['Create Timetable', 'admin.timetable.create'],
+
+                ],
+
+            ],
+
+
+
+            [
+
+                'l' => 'Attendance',
+
+                'i' => 'fa-check',
+
+                'a' => [
+
+                    'admin.attendance.*',
+
+                    'admin.teachers.attendance.*',
+
+                ],
+
+                'c' => [
+
+                    ['Student Attendance', 'admin.attendance.index'],
+
+                    ['Faculty Attendance', 'admin.teachers.attendance.index'],
+
+                ],
+
+            ],
+
+
+
+         [
+    'l' => 'Fees',
+    'i' => 'fa-indian-rupee-sign',
+    'a' => [
+        'admin.fees.fee-structures.*',
+        'admin.fees.student-fees.*',
+        'admin.fees.payment-history.*',
+    ],
+    'c' => [
+        ['Fee Structure', 'admin.fees.fee-structures.index'],
+        ['Student Fee', 'admin.fees.student-fees.index'],
+        ['Payment History', 'admin.fees.payment-history.index'],
+    ],
+],
+
+[
+
+                'l' => 'Class',
+
+                'i' => 'fa-chalkboard',
+
+                'a' => ['admin.classes.*', 'admin.subjects.*'],
+
+                'c' => [
+
+                    ['Classes', 'admin.classes.index'],
+
+                    ['Subjects', 'admin.subjects.index'],
+
+                ],
+
+            ],
+
+            [
+
+                'l' => 'Exam',
+
+                'i' => 'fa-file-lines',
+
+                'a' => [
+
+                    'admin.exams.*',
+
+                    'admin.exam-classes.*',
+
+                    'admin.exam-subjects.*',
+
+                    'admin.exam-sessions.*',
+
+                    'admin.exam-holidays.*',
+
+                    'admin.exam-schedules.*',
+
+                ],
+
+                'r' => 'admin.exams.index',
+
+            ],
+
+            [
+    'l' => 'Scholarship',
+    'i' => 'fa-graduation-cap',
+    'a' => ['admin.scholarship.*'],
+    'c' => [
+        ['Merit Concession', 'admin.scholarship.merit.concession.index'],
+        ['Scholarship Exam', 'admin.scholarship.exams.index'],
+    ],
+],
+
+
+
+   
+
+
+
+[
+    'l' => 'Results',
+    'i' => 'fa-chart-column',
+    'a' => [
+        'admin.results.*',
+        'admin.reports.results.*',
+    ],
+    'c' => [
+        ['Result Dashboard', 'admin.results.index'],
+        ['Enter Marks', 'admin.results.marks'],
+        ['Publish Results', 'admin.results.generate'],
+    ],
+],
+
+
+
+
+            [
+
+                'l' => 'Library',
+
+                'i' => 'fa-book',
+
+                'a' => ['admin.library.*'],
+
+                'c' => [
+
+                    ['Total Books', 'admin.library.books.index'],
+
+                    ['Issues / Returns / Fine', 'admin.library.issues.index'],
+
+                    ['Librarian', 'admin.library.librarian.index'],
+
+                    ['Reports', 'admin.library.reports.index'],
+
+                ],
+
+            ],
+
+>>>>>>> school-module-updates
         ],
 
         [
@@ -789,27 +1051,24 @@
 
 
 
-        <div class="sidebar-brand">
+        
+<div class="sidebar-brand">
+    <div class="brand-icon">
+        <img
+            src="{{ $school?->logo_url ?? asset('images/gurukullogo.png') }}"
+            alt="{{ $school?->school_name ?? 'School' }} logo"
+            onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
+        >
+    </div>
 
-            <div class="brand-icon">
-
-                <img src="{{ $schoolLogo ?? asset('images/gurukullogo.png') }}"
-
-                     alt="{{ $schoolName ?? 'School' }} logo"
-
-                     onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';">
-
-            </div>
-
-            <div>
-
-                <div class="brand-title">{{ $schoolName ?? 'Gurukul Vidyalaya' }}</div>
-
-                <div class="brand-subtitle">School management</div>
-
-            </div>
-
+    <div>
+        <div class="brand-title">
+            {{ $school?->school_name ?? 'Gurukul Vidyalaya' }}
         </div>
+        <div class="brand-subtitle">School management</div>
+    </div>
+</div>
+
 
 
 

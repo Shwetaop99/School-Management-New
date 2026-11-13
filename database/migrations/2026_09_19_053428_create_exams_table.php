@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -11,17 +12,19 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Preserve the existing exams table.
+        if (Schema::hasTable('exams')) {
+            return;
+        }
+
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
 
             $table->string('academic_year', 20);
-
             $table->string('exam_name');
-
             $table->string('exam_type', 100);
 
             $table->date('start_date')->nullable();
-
             $table->date('end_date')->nullable();
 
             $table->text('description')->nullable();
@@ -29,7 +32,7 @@ return new class extends Migration
             $table->enum('status', [
                 'active',
                 'inactive',
-                'completed'
+                'completed',
             ])->default('active');
 
             $table->foreignId('created_by')
@@ -50,6 +53,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('exams');
+        // Intentionally do not drop the existing exams table.
+        // It is managed by the newer exam migration structure.
     }
 };

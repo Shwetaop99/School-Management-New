@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Caste / Category Report | Admin')
@@ -25,7 +26,23 @@
         $school->pincode ?? null,
     ])->filter()->implode(', ');
 
-    $classNames = collect($classes)
+    /*
+    |--------------------------------------------------------------------------
+    | Selected filters
+    |--------------------------------------------------------------------------
+    */
+    $selectedClass = trim((string) request('class', ''));
+    $selectedYear = trim((string) request('academic_year', ''));
+    $selectedSection = trim((string) request('section', ''));
+    $selectedCaste = trim((string) request('caste', ''));
+
+    /*
+    |--------------------------------------------------------------------------
+    | Class dropdown options
+    |--------------------------------------------------------------------------
+    | Keep every class in the dropdown so another class can be selected.
+    */
+    $allClassNames = collect($classes)
         ->map(function ($item) {
             return trim((string) (
                 is_object($item) ? ($item->class_name ?? '') : $item
@@ -35,7 +52,34 @@
         ->unique(fn ($name) => strtolower($name))
         ->values();
 
+    /*
+    |--------------------------------------------------------------------------
+    | Report class columns
+    |--------------------------------------------------------------------------
+    | If a class is selected, show only that class in the report table.
+    | Otherwise, show all classes.
+    */
+    $classNames = $selectedClass !== ''
+        ? $allClassNames->filter(function ($name) use ($selectedClass) {
+            return strcasecmp($name, $selectedClass) === 0;
+        })->values()
+        : $allClassNames;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filter report rows in the view as an additional safeguard
+    |--------------------------------------------------------------------------
+    */
     $reportRows = collect($report);
+
+    if ($selectedClass !== '') {
+        $reportRows = $reportRows->filter(function ($row) use ($selectedClass) {
+            return strcasecmp(
+                trim((string) ($row->class ?? '')),
+                $selectedClass
+            ) === 0;
+        })->values();
+    }
 
     $groupedReport = $reportRows->groupBy(function ($row) {
         return trim((string) ($row->caste ?? 'Not Specified'))
@@ -55,14 +99,16 @@
     $calculatedGrandBoys = 0;
     $calculatedGrandGirls = 0;
     $calculatedGrandTotal = 0;
+
+    /*
+     * Calculate the displayed student count from the filtered report rows.
+     */
+    $displayGrandTotal = (int) $reportRows->sum(function ($row) {
+        return (int) ($row->boys ?? 0) + (int) ($row->girls ?? 0);
+    });
 @endphp
 
 <style>
-    /* =========================================================
-       SCHOOL DIARY DESIGN SYSTEM — CASTE / CATEGORY REPORT
-       LOCKED VERSION
-    ========================================================= */
-
     .caste-report-page {
         width: 100%;
         min-height: calc(100vh - 60px);
@@ -79,7 +125,8 @@
         box-sizing: border-box;
     }
 
-    /* ---------- PAGE HEADER ---------- */
+    /* PAGE HEADER */
+
     .report-header-card {
         position: relative;
         overflow: hidden;
@@ -94,8 +141,6 @@
     }
 
     .report-header-content {
-        position: relative;
-        z-index: 1;
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
@@ -119,7 +164,6 @@
     .report-breadcrumb a {
         color: #34775a;
         text-decoration: none;
-        transition: color .2s ease;
     }
 
     .report-breadcrumb a:hover {
@@ -150,7 +194,6 @@
         border: 1px solid #d0e2d0;
         border-radius: 12px;
         font-size: 22px;
-        box-shadow: 0 2px 6px rgba(52, 119, 90, .08);
     }
 
     .report-title {
@@ -177,7 +220,8 @@
         flex-wrap: wrap;
     }
 
-    /* ---------- BUTTONS ---------- */
+    /* BUTTONS */
+
     .btn-scheme-print,
     .btn-scheme-pdf,
     .btn-scheme-apply,
@@ -196,21 +240,21 @@
         text-decoration: none;
         border: 1px solid transparent;
         transition: all .18s ease;
+        white-space: nowrap;
     }
 
-    .btn-scheme-print {
+    .btn-scheme-print,
+    .btn-scheme-apply {
         color: #fffefa;
         background: linear-gradient(135deg, #34775a, #2d6a50);
         border-color: #34775a;
-        box-shadow: 0 3px 10px rgba(52, 119, 90, .18);
     }
 
-    .btn-scheme-print:hover {
+    .btn-scheme-print:hover,
+    .btn-scheme-apply:hover {
         color: #fffefa;
         background: linear-gradient(135deg, #245a43, #1f4f3a);
         border-color: #245a43;
-        box-shadow: 0 5px 14px rgba(36, 90, 67, .22);
-        transform: translateY(-1px);
     }
 
     .btn-scheme-pdf {
@@ -220,21 +264,9 @@
     }
 
     .btn-scheme-pdf:hover {
+        color: #8a3a34;
         background: #fde4de;
         border-color: #dba39a;
-    }
-
-    .btn-scheme-apply {
-        color: #fffefa;
-        background: linear-gradient(135deg, #34775a, #2d6a50);
-        border-color: #34775a;
-        box-shadow: 0 2px 8px rgba(52, 119, 90, .15);
-    }
-
-    .btn-scheme-apply:hover {
-        color: #fffefa;
-        background: linear-gradient(135deg, #245a43, #1f4f3a);
-        border-color: #245a43;
     }
 
     .btn-scheme-reset {
@@ -249,7 +281,8 @@
         border-color: #c5c0b0;
     }
 
-    /* ---------- FILTER CARD ---------- */
+    /* FILTER CARD */
+
     .filter-card,
     .report-card {
         background: #fffefa;
@@ -287,10 +320,11 @@
         color: #34775a;
     }
 
-    .filter-badge-applied {
+    .filter-badge-applied,
+    .filter-badge {
         display: inline-flex;
         align-items: center;
-        padding: 5px 11px;
+        padding: 5px 10px;
         background: #eaf3e9;
         color: #245a43;
         border: 1px solid #c5dcc8;
@@ -327,10 +361,6 @@
         transition: border-color .18s ease, box-shadow .18s ease;
     }
 
-    .filter-select:hover {
-        border-color: #c5d1c2;
-    }
-
     .filter-select:focus {
         border-color: #6e9a7c;
         box-shadow: 0 0 0 3px rgba(52, 119, 90, .10);
@@ -364,20 +394,10 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: .4px;
-        margin-right: 2px;
     }
 
-    .filter-badge {
-        background: #eaf3e9;
-        color: #245a43;
-        border: 1px solid #c5dcc8;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 10px;
-        font-weight: 650;
-    }
+    /* REPORT TABLE */
 
-    /* ---------- REPORT CARD ---------- */
     .report-count {
         font-size: 11px;
         color: #7a857d;
@@ -390,7 +410,7 @@
 
     .report-table {
         width: 100%;
-        min-width: 1150px;
+        min-width: 450px;
         border-collapse: collapse;
         margin: 0;
     }
@@ -485,7 +505,8 @@
         border-color: #2d6a50 !important;
     }
 
-    /* ---------- EMPTY STATE ---------- */
+    /* EMPTY STATE */
+
     .empty-report {
         padding: 56px 24px;
         text-align: center;
@@ -519,12 +540,12 @@
         line-height: 1.5;
     }
 
-    /* School profile is only displayed on the printed report. */
     .print-school-profile {
         display: none;
     }
 
-    /* ---------- RESPONSIVE ---------- */
+    /* RESPONSIVE */
+
     @media (max-width: 991px) {
         .report-header-content {
             flex-direction: column;
@@ -539,11 +560,6 @@
         }
     }
 
-    
-@media print {
-    @page {
-        size: A4 landscape;
-        margin: 8mm;
     @media (max-width: 767.98px) {
         .report-header-card {
             padding: 18px 16px;
@@ -563,11 +579,6 @@
         .filter-content {
             padding: 16px;
         }
-
-        .btn-scheme-print,
-        .btn-scheme-pdf {
-            flex: 1;
-        }
     }
 
     @media (max-width: 480px) {
@@ -581,15 +592,18 @@
 
         .report-actions {
             flex-direction: column;
+            align-items: stretch;
         }
 
-        .btn-scheme-print,
-        .btn-scheme-pdf {
+        .report-actions .btn-scheme-print,
+        .report-actions .btn-scheme-pdf,
+        .report-actions .btn-scheme-reset {
             width: 100%;
         }
     }
 
-    /* ---------- PRINT STYLES ---------- */
+    /* PRINT */
+
     @media print {
         @page {
             size: A4 landscape;
@@ -750,10 +764,382 @@
             transition-duration: .01ms !important;
         }
     }
+
+    /* ==========================================
+   COMPACT DASHBOARD HERO HEADER
+========================================== */
+
+.caste-report-page .marks-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32%;
+    gap: 16px;
+    align-items: stretch;
+    min-height: 220px;
+    padding: 18px 8px 18px 30px;
+    margin-bottom: 22px;
+    background: #fffefa;
+    border: 1px solid #e8dfce;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(40, 55, 45, .04);
+}
+
+.caste-report-page .marks-hero::before,
+.caste-report-page .marks-hero::after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    width: 1px;
+    height: 30px;
+    background: #f0e5d2;
+}
+
+.caste-report-page .marks-hero::before { top: 0; }
+.caste-report-page .marks-hero::after { bottom: 0; }
+
+.caste-report-page .marks-hero-left {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+    padding: 15px 15px 15px 28px;
+    border-left: 3px solid #e2b39b;
+}
+
+.caste-report-page .marks-hero-icon {
+    flex: 0 0 70px;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #e7ddca;
+    border-radius: 18px;
+    background: #f6f3e9;
+    color: #234437;
+    font-size: 29px;
+}
+
+.caste-report-page .marks-hero-content {
+    min-width: 0;
+}
+
+.caste-report-page .marks-hero-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 12px;
+    color: #78827e;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.caste-report-page .marks-hero-breadcrumb a {
+    color: #34775a;
+    text-decoration: none;
+}
+
+.caste-report-page .marks-hero-breadcrumb i {
+    font-size: 11px;
+    color: #a6a69c;
+}
+
+.caste-report-page .marks-hero-title {
+    margin: 0;
+    color: #203c32;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(26px, 3vw, 36px);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.caste-report-page .marks-hero-description {
+    max-width: 550px;
+    margin: 12px 0;
+    color: #718078;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.caste-report-page .marks-hero-trust {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #286044;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.caste-report-page .marks-hero-trust i {
+    font-size: 15px;
+    color: #438a73;
+}
+
+/* RIGHT GREEN PANEL */
+
+.caste-report-page .marks-hero-right {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 180px;
+    padding: 18px 15px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #304f42, #193a30);
+    color: #fff;
+    text-align: center;
+    border-radius: 13px;
+}
+
+.caste-report-page .marks-hero-right::before,
+.caste-report-page .marks-hero-right::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.caste-report-page .marks-hero-right::before {
+    width: 230px;
+    height: 230px;
+    top: -155px;
+    right: -45px;
+    box-shadow:
+        0 0 0 17px rgba(255,255,255,.025),
+        0 0 0 35px rgba(255,255,255,.025);
+}
+
+.caste-report-page .marks-hero-right::after {
+    width: 190px;
+    height: 190px;
+    bottom: -165px;
+    left: -65px;
+}
+
+.caste-report-page .marks-hero-right-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,.23);
+    border-radius: 13px;
+    background: rgba(255,255,255,.08);
+    color: #f3d18e;
+    font-size: 19px;
+}
+
+.caste-report-page .marks-hero-tagline {
+    margin: 0 0 8px;
+    color: #f6d39a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    font-style: italic;
+    font-weight: 800;
+}
+
+.caste-report-page .marks-hero-right-description {
+    max-width: 300px;
+    margin: 0 auto 13px;
+    color: #f1f4f1;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.caste-report-page .marks-hero-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.caste-report-page .marks-hero-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 15px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 9px;
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 750;
+    transition: .2s ease;
+}
+
+.caste-report-page .marks-hero-action:hover {
+    background: rgba(255,255,255,.16);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.caste-report-page .marks-hero-action-primary {
+    background: #f3ead5;
+    border-color: #f3ead5;
+    color: #233e33;
+}
+
+.caste-report-page .marks-hero-action-primary:hover {
+    background: #fff4dc;
+    color: #233e33;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+    .caste-report-page .marks-hero {
+        grid-template-columns: 1fr;
+        padding: 18px;
+    }
+
+    .caste-report-page .marks-hero-left {
+        padding: 15px 10px 15px 20px;
+    }
+
+    .caste-report-page .marks-hero-right {
+        min-height: 165px;
+    }
+}
+
+@media (max-width: 600px) {
+    .caste-report-page .marks-hero {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .caste-report-page .marks-hero-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 8px 15px 15px;
+    }
+
+    .caste-report-page .marks-hero-icon {
+        width: 55px;
+        height: 55px;
+        flex-basis: 55px;
+        font-size: 23px;
+        border-radius: 14px;
+    }
+
+    .caste-report-page .marks-hero-title {
+        font-size: 27px;
+    }
+
+    .caste-report-page .marks-hero-description {
+        font-size: 11px;
+        margin: 9px 0;
+    }
+
+    .caste-report-page .marks-hero-right {
+        padding: 18px 12px;
+    }
+
+    .caste-report-page .marks-hero-actions {
+        width: 100%;
+    }
+
+    .caste-report-page .marks-hero-action {
+        flex: 1;
+    }
+}
 </style>
 
 <div class="caste-report-page">
+{{-- COMPACT CASTE REPORT HERO HEADER --}}
+<div class="marks-hero no-print">
 
+    {{-- LEFT CONTENT --}}
+    <div class="marks-hero-left">
+
+        <div class="marks-hero-icon">
+            <i class="bi bi-bar-chart-fill"></i>
+        </div>
+
+        <div class="marks-hero-content">
+
+            <div class="marks-hero-breadcrumb">
+                <a href="{{ route('admin.students.index') }}">
+                    Students
+                </a>
+
+                <i class="bi bi-chevron-right"></i>
+
+                <span>Reports</span>
+
+                <i class="bi bi-chevron-right"></i>
+
+                <span>Caste Report</span>
+            </div>
+
+            <h2 class="marks-hero-title">
+                Caste / Category Report
+            </h2>
+
+            <p class="marks-hero-description">
+                View class-wise caste and category distribution with
+                separate boys, girls and total student counts.
+            </p>
+
+            <div class="marks-hero-trust">
+                <i class="bi bi-shield-check"></i>
+                Accurate student category statistics
+            </div>
+
+        </div>
+    </div>
+
+    {{-- RIGHT GREEN PANEL --}}
+    <div class="marks-hero-right">
+
+        <div class="marks-hero-right-icon">
+            <i class="bi bi-people-fill"></i>
+        </div>
+
+        <h4 class="marks-hero-tagline">
+            Every Student Counts
+        </h4>
+
+        <p class="marks-hero-right-description">
+            Analyse student demographics and generate
+            organized caste and category reports.
+        </p>
+
+        <div class="marks-hero-actions">
+
+            <a href="{{ route('admin.student-documents.index') }}"
+               class="marks-hero-action">
+                <i class="bi bi-arrow-left"></i>
+                Back to Documents
+            </a>
+
+            <a href="{{ route('admin.caste-report.print', request()->query()) }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="marks-hero-action marks-hero-action-primary">
+                <i class="bi bi-printer"></i>
+                Print Report
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
     {{-- SCHOOL PROFILE: PRINT / PDF ONLY --}}
     <div class="print-school-profile">
         <img src="{{ $schoolLogo }}"
@@ -789,57 +1175,9 @@
         </div>
     </div>
 
-    {{-- ===================== PAGE HEADER ===================== --}}
-    <div class="report-header-card no-print">
-        <div class="report-header-content">
-            <div>
-                <div class="report-breadcrumb">
-                    <a href="{{ route('admin.students.index') }}">Students</a>
-                    <i class="bi bi-chevron-right"></i>
-                    <span>Caste Report</span>
-                </div>
+   
 
-                <div class="report-title-row">
-                    <div class="report-title-icon">
-                        <i class="bi bi-bar-chart-fill"></i>
-                    </div>
-                    <div>
-                        <h1 class="report-title">Caste / Category Report</h1>
-                        <p class="report-subtitle">Class-wise boys and girls summary</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="report-actions">
-                <a href="{{ route('admin.caste-report.print', request()->query()) }}"
-                   class="btn-scheme-print">
-                    <i class="bi bi-printer"></i>
-                    Print Report
-                </a>
-
-                <a href="{{ route('admin.caste-report.pdf-download', request()->query()) }}"
-                   class="btn-scheme-pdf">
-                    <i class="bi bi-file-earmark-pdf"></i>
-                    Download PDF
-                </a>
-            </div>
-        </div>
-<div class="report-actions no-print">
-    <a href="{{ route('admin.caste-report.print', request()->query()) }}"
-   class="btn btn-primary">
-    <i class="bi bi-printer me-1"></i>
-    Print Report
-</a>
-
-   <a href="{{ route('admin.caste-report.pdf-download', request()->query()) }}"
-   class="btn btn-danger">
-    <i class="bi bi-file-earmark-pdf me-1"></i>
-    Download PDF
-</a>
-</div>
-    </div>
-
-    {{-- ===================== FILTER CARD ===================== --}}
+    {{-- FILTER CARD --}}
     <div class="filter-card no-print">
         <div class="filter-card-header">
             <h5 class="filter-title">
@@ -855,100 +1193,118 @@
         <div class="filter-content">
             <form method="GET" action="{{ url()->current() }}">
                 <div class="row g-3">
+
+                    {{-- ACADEMIC YEAR --}}
                     <div class="col-xl-3 col-lg-3 col-md-6">
                         <label class="filter-label">Academic Year</label>
+
                         <select name="academic_year" class="filter-select">
                             <option value="">All Academic Years</option>
+
                             @foreach($academicYears as $year)
-                                <option value="{{ $year }}" @selected(request('academic_year') == $year)>
+                                <option value="{{ $year }}"
+                                    @selected($selectedYear == (string) $year)>
                                     {{ $year }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
+                    {{-- CLASS --}}
                     <div class="col-xl-2 col-lg-2 col-md-6">
                         <label class="filter-label">Class</label>
+
                         <select name="class" class="filter-select">
                             <option value="">All Classes</option>
-                            @foreach($classes as $class)
-                                @php
-                                    $classValue = is_object($class)
-                                        ? ($class->class_name ?? '')
-                                        : $class;
-                                @endphp
-                                <option value="{{ $classValue }}" @selected(request('class') == $classValue)>
+
+                            @foreach($allClassNames as $classValue)
+                                <option value="{{ $classValue }}"
+                                    @selected(strcasecmp($selectedClass, $classValue) === 0
+                                        && $selectedClass !== '')>
                                     {{ $classValue }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
+                    {{-- SECTION --}}
                     <div class="col-xl-2 col-lg-2 col-md-6">
                         <label class="filter-label">Section</label>
+
                         <select name="section" class="filter-select">
                             <option value="">All Sections</option>
+
                             @foreach($sections as $section)
-                                <option value="{{ $section }}" @selected(request('section') == $section)>
+                                <option value="{{ $section }}"
+                                    @selected($selectedSection == (string) $section)>
                                     {{ $section }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
+                    {{-- CASTE --}}
                     <div class="col-xl-3 col-lg-3 col-md-6">
                         <label class="filter-label">Caste</label>
+
                         <select name="caste" class="filter-select">
                             <option value="">All Castes</option>
+
                             @foreach($castes as $casteOption)
-                                <option value="{{ $casteOption }}" @selected(request('caste') == $casteOption)>
+                                <option value="{{ $casteOption }}"
+                                    @selected($selectedCaste == (string) $casteOption)>
                                     {{ $casteOption }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
+                    {{-- APPLY / RESET --}}
                     <div class="col-xl-2 col-lg-2 col-md-6">
                         <label class="filter-label">&nbsp;</label>
+
                         <div class="filter-buttons">
                             <button type="submit" class="btn-scheme-apply">
                                 <i class="bi bi-search"></i>
                                 Apply
                             </button>
+
                             <a href="{{ url()->current() }}"
                                class="btn-scheme-reset"
-                               title="Reset filters">
+                               title="Reset filters"
+                               aria-label="Reset filters">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </a>
                         </div>
                     </div>
                 </div>
 
+                {{-- ACTIVE FILTERS --}}
                 @if($hasFilters)
                     <div class="active-filters">
                         <span class="active-filter-label">Active:</span>
 
-                        @if(request('academic_year'))
+                        @if($selectedYear !== '')
                             <span class="filter-badge">
-                                Academic Year: {{ request('academic_year') }}
+                                Academic Year: {{ $selectedYear }}
                             </span>
                         @endif
 
-                        @if(request('class'))
+                        @if($selectedClass !== '')
                             <span class="filter-badge">
-                                Class: {{ request('class') }}
+                                Class: {{ $selectedClass }}
                             </span>
                         @endif
 
-                        @if(request('section'))
+                        @if($selectedSection !== '')
                             <span class="filter-badge">
-                                Section: {{ request('section') }}
+                                Section: {{ $selectedSection }}
                             </span>
                         @endif
 
-                        @if(request('caste'))
+                        @if($selectedCaste !== '')
                             <span class="filter-badge">
-                                Caste: {{ request('caste') }}
+                                Caste: {{ $selectedCaste }}
                             </span>
                         @endif
                     </div>
@@ -957,16 +1313,19 @@
         </div>
     </div>
 
-    {{-- ===================== REPORT CARD ===================== --}}
+    {{-- REPORT CARD --}}
     <div class="report-card">
         <div class="report-card-header">
             <h5>
                 <i class="bi bi-table"></i>
                 Caste / Category Summary
+                @if($selectedClass !== '')
+                    — Class {{ $selectedClass }}
+                @endif
             </h5>
 
             <span class="report-count">
-                {{ (int) $grandTotal }} students
+                {{ $displayGrandTotal }} students
             </span>
         </div>
 
@@ -1035,6 +1394,7 @@
                                         {{ $casteName }}
                                     </span>
                                 </td>
+
                                 <td class="gender-boys">Boys</td>
 
                                 @foreach($classNames as $className)
@@ -1059,7 +1419,7 @@
                                 <td class="total-cell">{{ $casteGirls }}</td>
                             </tr>
 
-                            {{-- CASTE TOTAL --}}
+                            {{-- CATEGORY TOTAL --}}
                             <tr class="category-total-row">
                                 <td class="gender-total">Total</td>
 
@@ -1094,12 +1454,18 @@
                 <div class="empty-report-icon">
                     <i class="bi bi-bar-chart"></i>
                 </div>
+
                 <h6>No Report Data Found</h6>
+
                 <p>
-                    @if($classNames->isEmpty())
-                        No classes were found in Class Management. Please add classes first.
+                    @if($classNames->isEmpty() && $selectedClass !== '')
+                        The selected class "{{ $selectedClass }}" was not found
+                        in the available class list.
+                    @elseif($classNames->isEmpty())
+                        No classes were found in Class Management.
+                        Please add classes first.
                     @else
-                        No active students match the selected filters.
+                        No students match the selected filters.
                     @endif
                 </p>
             </div>

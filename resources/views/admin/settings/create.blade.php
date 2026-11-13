@@ -118,7 +118,7 @@
 <style>
 /* =========================================================
    LOCKED SCHOOL DIARY DESIGN SYSTEM
-   ADD NEW SCHOOL — CREATE PAGE
+   ADD NEW SCHOOL â€” CREATE PAGE
    Same tokens, hero, cards and buttons as Users / Roles / etc.
 ========================================================= */
 

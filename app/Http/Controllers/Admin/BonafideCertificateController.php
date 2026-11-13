@@ -265,7 +265,6 @@ public function students($class)
         }
     }
 
-
 /**
  * Display a certificate.
  */
@@ -274,9 +273,11 @@ public function show($id)
     $certificate = BonafideCertificate::with('student')
         ->findOrFail($id);
 
+    $schoolSetting = \App\Models\SchoolSetting::first();
+
     return view(
         'admin.bonafide-certificate.show',
-        compact('certificate')
+        compact('certificate', 'schoolSetting')
     );
 }
 
@@ -288,9 +289,11 @@ public function print($id)
     $certificate = BonafideCertificate::with('student')
         ->findOrFail($id);
 
+    $schoolSetting = \App\Models\SchoolSetting::first();
+
     return view(
         'admin.bonafide-certificate.print',
-        compact('certificate')
+        compact('certificate', 'schoolSetting')
     );
 }
 

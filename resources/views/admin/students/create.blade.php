@@ -77,10 +77,12 @@
 {{-- =========================================================
     MAIN FORM
 ========================================================== --}}
-<form method="POST"
+<form id="studentForm"
       action="{{ route('admin.students.store') }}"
+      method="POST"
       enctype="multipart/form-data"
-      id="studentForm">
+      novalidate>
+    
 
     @csrf
 
@@ -452,325 +454,325 @@
 
 
             {{-- =================================================
-                TAB 2 : ACADEMIC
-            ================================================== --}}
-            <div class="tab-content-section"
-                 id="tab-academic">
+    TAB 2 : ACADEMIC
+================================================== --}}
+<div class="tab-content-section" id="tab-academic">
 
-                <div class="section-heading">
+    <div class="section-heading">
+        <div class="section-icon">
+            <i class="bi bi-mortarboard-fill"></i>
+        </div>
 
-                    <div class="section-icon">
-                        <i class="bi bi-mortarboard-fill"></i>
-                    </div>
+        <div>
+            <h5>Academic Information</h5>
+            <p>Enter admission and academic details.</p>
+        </div>
+    </div>
 
-                    <div>
-                        <h5>Academic Information</h5>
-                        <p>Enter admission and academic details.</p>
-                    </div>
+    <div class="row g-3">
 
-                </div>
+        {{-- Academic Year --}}
+        <div class="col-md-4">
+            <label class="form-label">
+                Academic Year <span class="text-danger">*</span>
+            </label>
 
+            <input type="text"
+                   name="academic_year"
+                   class="form-control"
+                   value="{{ old('academic_year', date('Y').'-'.(date('Y') + 1)) }}"
+                   required>
+        </div>
 
-                <div class="row g-3">
+        {{-- Section --}}
+        <div class="col-md-4">
+            <label class="form-label">
+                Section <span class="text-danger">*</span>
+            </label>
 
-                    <div class="col-md-4">
+            <select name="section"
+                    id="section"
+                    class="form-select"
+                    required>
+                <option value="">Select Section</option>
+            </select>
+        </div>
 
-                        <label class="form-label">
-                            Academic Year
-                            <span class="text-danger">*</span>
-                        </label>
+        {{-- Roll Number --}}
+        <div class="col-md-4">
+            <label class="form-label">Roll Number</label>
 
-                        <input type="text"
-                               name="academic_year"
-                               class="form-control"
-                               value="{{ old('academic_year', date('Y').'-'.(date('Y') + 1)) }}"
-                               required>
+            <input type="text"
+                   name="roll_number"
+                   id="roll_number"
+                   class="form-control"
+                   value="{{ old('roll_number') }}"
+                   placeholder="Enter Roll Number">
+        </div>
 
-                    </div>
-                    
+        {{-- Admission Class --}}
+        <div class="col-md-4">
+            <label class="form-label">Admission Class</label>
 
-<div class="col-md-4">
+            <select name="admission_class"
+                    id="admission_class"
+                    class="form-select">
 
-    <label class="form-label">
-        Section
-        <span class="text-danger">*</span>
-    </label>
+                <option value="">Select Class</option>
 
-    <select name="section"
-            id="section"
-            class="form-select"
-            required>
+                @foreach($classes as $class)
+                    <option value="{{ $class }}"
+                        {{ old('admission_class') == $class ? 'selected' : '' }}>
+                        {{ $class }}
+                    </option>
+                @endforeach
 
-        <option value="">Select Section</option>
+            </select>
+        </div>
 
-    </select>
+        {{-- Admission Date --}}
+        <div class="col-md-4">
+            <label class="form-label">Admission Date</label>
 
+            <input type="date"
+                   name="admission_date"
+                   id="admission_date"
+                   class="form-control"
+                   value="{{ old('admission_date') }}">
+        </div>
+
+        {{-- Register Number --}}
+        <div class="col-md-4">
+            <label for="register_no" class="form-label">
+                Register Number
+            </label>
+
+            <input type="text"
+                   name="register_no"
+                   id="register_no"
+                   class="form-control identifier-field"
+                   value="{{ old('register_no') }}"
+                   placeholder="Enter Register Number"
+                   maxlength="30"
+                   pattern="[A-Za-z0-9/-]+"
+                   title="Only letters, numbers, hyphens and slashes are allowed."
+                   autocomplete="off"
+                   spellcheck="false">
+
+            <small class="text-muted">
+                Letters, numbers, - and / allowed.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="register_no_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- Book Number --}}
+        <div class="col-md-4">
+            <label for="book_no" class="form-label">
+                Book Number
+            </label>
+
+            <input type="text"
+                   name="book_no"
+                   id="book_no"
+                   class="form-control identifier-field"
+                   value="{{ old('book_no') }}"
+                   placeholder="Enter Book Number"
+                   maxlength="30"
+                   pattern="[A-Za-z0-9/-]+"
+                   title="Only letters, numbers, hyphens and slashes are allowed."
+                   autocomplete="off"
+                   spellcheck="false">
+
+            <small class="text-muted">
+                Letters, numbers, - and / allowed.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="book_no_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- APAAR ID --}}
+        <div class="col-md-4">
+            <label for="appar_id" class="form-label">
+                APAAR ID
+            </label>
+
+            <input type="text"
+                   name="appar_id"
+                   id="appar_id"
+                   class="form-control identifier-field"
+                   value="{{ old('appar_id') }}"
+                   placeholder="Enter 12-digit APAAR ID"
+                   maxlength="12"
+                   minlength="12"
+                   inputmode="numeric"
+                   pattern="[0-9]{12}"
+                   title="APAAR ID must contain exactly 12 digits."
+                   autocomplete="off">
+
+            <small class="text-muted">
+                Enter exactly 12 digits.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="appar_id_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- PEN Number --}}
+        <div class="col-md-4">
+            <label for="pen_no" class="form-label">
+                PEN Number
+            </label>
+
+            <input type="text"
+                   name="pen_no"
+                   id="pen_no"
+                   class="form-control identifier-field"
+                   value="{{ old('pen_no') }}"
+                   placeholder="Enter PEN Number"
+                   maxlength="14"
+                   minlength="11"
+                   inputmode="numeric"
+                   pattern="[0-9]{11,14}"
+                   title="PEN Number must contain 11 to 14 digits."
+                   autocomplete="off">
+
+            <small class="text-muted">
+                Enter 11 to 14 digits.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="pen_no_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- Saral ID --}}
+        <div class="col-md-4">
+            <label for="saral_id" class="form-label">
+                Saral ID
+            </label>
+
+            <input type="text"
+                   name="saral_id"
+                   id="saral_id"
+                   class="form-control identifier-field"
+                   value="{{ old('saral_id') }}"
+                   placeholder="Enter Saral ID"
+                   maxlength="30"
+                   pattern="[A-Za-z0-9/-]+"
+                   title="Only letters, numbers, hyphens and slashes are allowed."
+                   autocomplete="off"
+                   spellcheck="false">
+
+            <small class="text-muted">
+                Letters, numbers, - and / allowed.
+            </small>
+
+            <small class="text-danger d-none d-block"
+                   id="saral_id_error"
+                   role="alert"></small>
+        </div>
+
+        {{-- Medium --}}
+        <div class="col-md-4">
+            <label class="form-label">Medium</label>
+
+            <select name="medium" class="form-select">
+                <option value="">Select Medium</option>
+
+                <option value="Marathi"
+                    {{ old('medium') == 'Marathi' ? 'selected' : '' }}>
+                    Marathi
+                </option>
+
+                <option value="English"
+                    {{ old('medium') == 'English' ? 'selected' : '' }}>
+                    English
+                </option>
+
+                <option value="Semi-English"
+                    {{ old('medium') == 'Semi-English' ? 'selected' : '' }}>
+                    Semi-English
+                </option>
+            </select>
+        </div>
+
+        {{-- Mother Tongue --}}
+        <div class="col-md-4">
+            <label class="form-label">Mother Tongue</label>
+
+            <input type="text"
+                   name="mother_tongue"
+                   class="form-control"
+                   value="{{ old('mother_tongue') }}">
+        </div>
+
+        {{-- Nationality --}}
+        <div class="col-md-4">
+            <label class="form-label">Nationality</label>
+
+            <input type="text"
+                   name="nationality"
+                   class="form-control"
+                   value="{{ old('nationality', 'Indian') }}">
+        </div>
+
+        {{-- Religion --}}
+        <div class="col-md-4">
+            <label class="form-label">Religion</label>
+
+            <input type="text"
+                   name="religion"
+                   class="form-control"
+                   value="{{ old('religion') }}">
+        </div>
+
+        {{-- Caste --}}
+        <div class="col-md-4">
+            <label class="form-label">Caste</label>
+
+            <input type="text"
+                   name="caste"
+                   class="form-control"
+                   value="{{ old('caste') }}">
+        </div>
+
+        {{-- Sub Caste --}}
+        <div class="col-md-4">
+            <label class="form-label">Sub Caste</label>
+
+            <input type="text"
+                   name="sub_caste"
+                   class="form-control"
+                   value="{{ old('sub_caste') }}">
+        </div>
+
+        {{-- Status --}}
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+
+            <select name="status" class="form-select">
+
+                <option value="active"
+                    {{ old('status', 'active') == 'active' ? 'selected' : '' }}>
+                    Active
+                </option>
+
+                <option value="inactive"
+                    {{ old('status') == 'inactive' ? 'selected' : '' }}>
+                    Inactive
+                </option>
+
+            </select>
+        </div>
+
+    </div>
 </div>
-
-<div class="col-md-4">
-
-    <label class="form-label">
-        Roll Number
-    </label>
-
-    <input type="text"
-           name="roll_number"
-           id="roll_number"
-           class="form-control"
-           value="{{ old('roll_number') }}"
-           placeholder="Enter Roll Number">
-
-</div>
-
-
-<div class="col-md-4">
-
-    <label class="form-label">
-        Admission Class
-    </label>
-
-    <select name="admission_class"
-            id="admission_class"
-            class="form-select">
-
-        <option value="">Select Class</option>
-
-        @foreach($classes as $class)
-            <option value="{{ $class }}"
-                {{ old('admission_class') == $class ? 'selected' : '' }}>
-                {{ $class }}
-            </option>
-        @endforeach
-
-    </select>
-
-</div>
-
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Admission Date
-                        </label>
-
-                        <input type="date"
-                               name="admission_date"
-                               class="form-control"
-                               value="{{ old('admission_date') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-    <label class="form-label">
-        Register Number
-    </label>
-
-    <input type="text"
-           name="register_no"
-           id="register_no"
-           class="form-control"
-           value="{{ old('register_no') }}"
-           placeholder="Enter Register Number">
-
-</div>
-
-
-                    <div class="col-md-4">
-
-    <label class="form-label">
-        Book Number
-    </label>
-
-    <input type="text"
-           name="book_no"
-           id="book_no"
-           class="form-control"
-           value="{{ old('book_no') }}"
-           placeholder="Enter Book Number">
-
-</div>
-
-
-                <div class="col-md-4">
-
-    <label class="form-label">
-        APAAR ID
-    </label>
-
-    <input type="text"
-           name="appar_id"
-           id="appar_id"
-           class="form-control"
-           value="{{ old('appar_id') }}"
-           placeholder="Enter APAAR ID">
-
-</div>
-
-
-                    <div class="col-md-4">
-
-    <label class="form-label">
-        PEN Number
-    </label>
-
-    <input type="text"
-           name="pen_no"
-           id="pen_no"
-           class="form-control"
-           value="{{ old('pen_no') }}"
-           placeholder="Enter PEN Number">
-
-</div>
-
-<div class="col-md-4">
-
-    <label class="form-label">
-        Saral ID
-    </label>
-
-    <input type="text"
-           name="saral_id"
-           id="saral_id"
-           class="form-control"
-           value="{{ old('saral_id') }}"
-           placeholder="Enter Saral ID">
-
-</div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Medium
-                        </label>
-
-                        <select name="medium"
-                                class="form-select">
-
-                            <option value="">
-                                Select Medium
-                            </option>
-
-                            <option value="Marathi"
-                                {{ old('medium') == 'Marathi' ? 'selected' : '' }}>
-                                Marathi
-                            </option>
-
-                            <option value="English"
-                                {{ old('medium') == 'English' ? 'selected' : '' }}>
-                                English
-                            </option>
-
-                            <option value="Semi-English"
-                                {{ old('medium') == 'Semi-English' ? 'selected' : '' }}>
-                                Semi-English
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Mother Tongue
-                        </label>
-
-                        <input type="text"
-                               name="mother_tongue"
-                               class="form-control"
-                               value="{{ old('mother_tongue') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Nationality
-                        </label>
-
-                        <input type="text"
-                               name="nationality"
-                               class="form-control"
-                               value="{{ old('nationality', 'Indian') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Religion
-                        </label>
-
-                        <input type="text"
-                               name="religion"
-                               class="form-control"
-                               value="{{ old('religion') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Caste
-                        </label>
-
-                        <input type="text"
-                               name="caste"
-                               class="form-control"
-                               value="{{ old('caste') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Sub Caste
-                        </label>
-
-                        <input type="text"
-                               name="sub_caste"
-                               class="form-control"
-                               value="{{ old('sub_caste') }}">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Status
-                        </label>
-
-                        <select name="status"
-                                class="form-select">
-
-                            <option value="active"
-                                {{ old('status', 'active') == 'active' ? 'selected' : '' }}>
-                                Active
-                            </option>
-
-                            <option value="inactive"
-                                {{ old('status') == 'inactive' ? 'selected' : '' }}>
-                                Inactive
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </div>
-
 
             {{-- =================================================
                 TAB 3 : PARENTS
@@ -1949,101 +1951,373 @@ STYLES — SCHOOL DIARY DESIGN SYSTEM (same as Transport Records)
 JAVASCRIPT
 ============================================================= --}}
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
 
-    /* =========================================================
-       TAB NAVIGATION
-    ========================================================== */
+    const $ = id => document.getElementById(id);
+
+    const studentForm = $('studentForm');
+    if (!studentForm) return;
 
     const tabs = Array.from(document.querySelectorAll('.registration-tab'));
     const sections = Array.from(document.querySelectorAll('.tab-content-section'));
 
-    const previousBtn = document.getElementById('previousBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
+    const previousBtn = $('previousBtn');
+    const nextBtn = $('nextBtn');
+    const submitBtn = $('submitBtn');
+    const cancelBtn = $('cancelBtn');
+
+    const classSelect = $('admission_class');
+    const sectionSelect = $('section');
+    const rollNumber = $('roll_number');
+
+    const aadhaar = $('aadhar_card_no');
+    const phone = $('phone');
+    const profileImage = $('profile_image');
+
+    const imagePreview = $('imagePreview');
+    const imagePlaceholder = $('imagePlaceholder');
+
+    const firstName = $('first_name');
+    const middleName = $('middle_name');
+    const lastName = $('last_name');
+    const marathiName = $('marathi_name');
+
+    const stateSelect = $('state_id');
+    const districtSelect = $('district_id');
+    const talukaSelect = $('taluka_id');
+    const locationSelect = $('city_village');
+    const pincode = $('pincode');
+
+    const stateName = $('state');
+    const districtName = $('district');
+    const talukaName = $('taluka');
+
+    const sectionsByClass = @json($sectionsByClass ?? []);
+
+    const oldDistrictId = @json(old('district_id'));
+    const oldTalukaId = @json(old('taluka_id'));
+    const oldLocation = @json(old('city_village'));
+    const oldPincode = @json(old('pincode'));
+    const oldSection = @json(old('section'));
+
+    const requiredFieldNames = [
+        'first_name',
+        'last_name',
+        'gender',
+        'academic_year',
+        'section'
+    ];
+
+    const phoneFieldNames = [
+        'phone',
+        'father_phone',
+        'mother_phone',
+        'guardian_phone'
+    ];
 
     let currentTab = 0;
+    let transliterationTimer = null;
+    let transliterationRequest = 0;
+    let districtRequest = 0;
+    let talukaRequest = 0;
+    let locationRequest = 0;
 
-    function showTab(index) {
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATION HELPERS
+    |--------------------------------------------------------------------------
+    */
 
-        if (index < 0) index = 0;
-        if (index >= tabs.length) index = tabs.length - 1;
+    function errorElement(field) {
+    if (!field || !field.name) return null;
 
+    // Reuse existing error element if available.
+    let error = $(field.name + '_error');
+
+    if (error) {
+        error.dataset.validationFor = field.name;
+        return error;
+    }
+
+    const parent = field.parentElement;
+    if (!parent) return null;
+
+    error = Array.from(parent.children).find(element =>
+        element.dataset &&
+        element.dataset.validationFor === field.name
+    );
+
+    if (!error) {
+        error = document.createElement('small');
+        error.className = 'text-danger d-block mt-1';
+        error.dataset.validationFor = field.name;
+        error.setAttribute('role', 'alert');
+
+        field.insertAdjacentElement('afterend', error);
+    }
+
+    return error;
+}
+    function showFieldError(field, message) {
+        if (!field) return;
+
+        field.classList.add('is-invalid');
+        field.setAttribute('aria-invalid', 'true');
+
+        const error = errorElement(field);
+
+        if (error) {
+            error.textContent = message || 'Please check this field.';
+            error.classList.remove('d-none');
+        }
+    }
+
+    function clearFieldError(field) {
+        if (!field) return;
+
+        field.classList.remove('is-invalid');
+        field.removeAttribute('aria-invalid');
+
+        const error = field.name ? errorElement(field) : null;
+
+        if (error) {
+            error.textContent = '';
+            error.classList.add('d-none');
+        }
+    }
+
+    function validateField(field) {
+    if (
+        !field ||
+        field.disabled ||
+        field.type === 'hidden' ||
+        ['button', 'submit', 'reset'].includes(field.type)
+    ) {
+        return true;
+    }
+
+    const value = String(field.value ?? '').trim();
+    const name = field.name || '';
+    let message = '';
+
+    if (
+        (field.required || requiredFieldNames.includes(name)) &&
+        !value
+    ) {
+        message = 'This field is required.';
+    }
+
+    // Aadhaar validation
+    else if (
+        value &&
+        name === 'aadhar_card_no' &&
+        !/^\d{12}$/.test(value)
+    ) {
+        message = 'Aadhaar must contain exactly 12 digits.';
+    }
+
+    // Parent and student mobile validation
+    else if (
+        value &&
+        phoneFieldNames.includes(name) &&
+        !/^[6-9]\d{9}$/.test(value)
+    ) {
+        message = 'Enter a valid 10-digit Indian mobile number starting with 6–9.';
+    }
+
+    // Email validation
+    else if (
+        value &&
+        field.type === 'email' &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    ) {
+        message = 'Enter a valid email address.';
+    }
+
+    // Pincode validation
+    else if (
+        value &&
+        name === 'pincode' &&
+        !/^\d{6}$/.test(value)
+    ) {
+        message = 'Pincode must contain exactly 6 digits.';
+    }
+
+    // Register Number validation
+    else if (
+        value &&
+        name === 'register_no' &&
+        !/^[A-Za-z0-9/-]{1,30}$/.test(value)
+    ) {
+        message = 'Register Number can contain only letters, numbers, hyphens and slashes (maximum 30 characters).';
+    }
+
+    // Book Number validation
+    else if (
+        value &&
+        name === 'book_no' &&
+        !/^[A-Za-z0-9/-]{1,30}$/.test(value)
+    ) {
+        message = 'Book Number can contain only letters, numbers, hyphens and slashes (maximum 30 characters).';
+    }
+
+    // APAAR ID validation
+    else if (
+        value &&
+        name === 'appar_id' &&
+        !/^\d{12}$/.test(value)
+    ) {
+        message = 'APAAR ID must contain exactly 12 digits.';
+    }
+
+    // PEN Number validation
+    else if (
+        value &&
+        name === 'pen_no' &&
+        !/^\d{11,14}$/.test(value)
+    ) {
+        message = 'PEN Number must contain 11 to 14 digits.';
+    }
+
+    // Saral ID validation
+    else if (
+        value &&
+        name === 'saral_id' &&
+        !/^[A-Za-z0-9/-]{1,30}$/.test(value)
+    ) {
+        message = 'Saral ID can contain only letters, numbers, hyphens and slashes (maximum 30 characters).';
+    }
+
+    // Profile image validation
+    else if (
+        field.type === 'file' &&
+        field.files &&
+        field.files.length
+    ) {
+        const file = field.files[0];
+
+        if (
+            name === 'profile_image' &&
+            !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+        ) {
+            message = 'Only JPG, PNG, and WEBP images are allowed.';
+        } else if (
+            name === 'profile_image' &&
+            file.size > 5 * 1024 * 1024
+        ) {
+            message = 'The image must not exceed 5 MB.';
+        }
+    }
+
+    // Other HTML pattern and input validations
+    else if (value && !field.validity.valid) {
+        message = field.validationMessage || 'Please enter a valid value.';
+    }
+
+    if (message) {
+        showFieldError(field, message);
+        return false;
+    }
+
+    clearFieldError(field);
+    return true;
+}
+
+    function fieldsInSection(section) {
+        if (!section) return [];
+
+        return Array.from(
+            section.querySelectorAll('input, select, textarea')
+        ).filter(field =>
+            !field.disabled &&
+            field.type !== 'hidden' &&
+            !['button', 'submit', 'reset'].includes(field.type)
+        );
+    }
+
+    function showTab(index, scroll = true) {
+        if (!sections.length) return;
+
+        index = Math.max(0, Math.min(index, sections.length - 1));
         currentTab = index;
 
         tabs.forEach((tab, i) => {
-            tab.classList.toggle('active', i === currentTab);
+            const active = i === index;
+
+            tab.classList.toggle('active', active);
+            tab.setAttribute('aria-selected', String(active));
         });
 
         sections.forEach((section, i) => {
-            section.classList.toggle('active', i === currentTab);
+            const active = i === index;
+
+            section.classList.toggle('active', active);
+            section.hidden = !active;
         });
 
         if (previousBtn) {
             previousBtn.style.display =
-                currentTab === 0 ? 'none' : 'inline-flex';
+                index === 0 ? 'none' : 'inline-flex';
         }
 
         if (nextBtn) {
             nextBtn.style.display =
-                currentTab === tabs.length - 1
-                    ? 'none'
-                    : 'inline-flex';
+                index === sections.length - 1 ? 'none' : 'inline-flex';
         }
 
         if (submitBtn) {
             submitBtn.style.display =
-                currentTab === tabs.length - 1
-                    ? 'inline-flex'
-                    : 'none';
+                index === sections.length - 1 ? 'inline-flex' : 'none';
         }
 
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        if (scroll) {
+            const card = document.querySelector('.student-registration-card');
+
+            if (card) {
+                card.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
     }
 
-
     function validateCurrentTab() {
-
         const section = sections[currentTab];
+        if (!section) return true;
 
-        if (!section) {
-            return true;
-        }
+        let firstInvalid = null;
 
-        const requiredFields = section.querySelectorAll(
-            'input[required], select[required], textarea[required]'
-        );
-
-        let valid = true;
-
-        requiredFields.forEach(field => {
-
-            if (!field.checkValidity()) {
-
-                field.classList.add('is-invalid');
-                valid = false;
-
-            } else {
-
-                field.classList.remove('is-invalid');
-
+        fieldsInSection(section).forEach(field => {
+            if (!validateField(field) && !firstInvalid) {
+                firstInvalid = field;
             }
-
         });
 
-        if (!valid) {
+        if (
+            currentTab === 1 &&
+            classSelect &&
+            sectionSelect &&
+            classSelect.value &&
+            !sectionSelect.value
+        ) {
+            showFieldError(
+                sectionSelect,
+                'Please select a section for the chosen class.'
+            );
 
-            const firstInvalid =
-                section.querySelector('.is-invalid');
+            if (!firstInvalid) firstInvalid = sectionSelect;
+        }
 
-            if (firstInvalid) {
-                firstInvalid.focus();
-            }
+        if (firstInvalid) {
+            firstInvalid.focus({ preventScroll: true });
+            firstInvalid.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
 
             return false;
         }
@@ -2051,191 +2325,154 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
+    studentForm.setAttribute('novalidate', 'novalidate');
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAB NAVIGATION
+    |--------------------------------------------------------------------------
+    */
 
     if (nextBtn) {
-        nextBtn.addEventListener('click', function () {
+        nextBtn.addEventListener('click', function (event) {
+            event.preventDefault();
 
             if (validateCurrentTab()) {
                 showTab(currentTab + 1);
             }
-
         });
     }
-
 
     if (previousBtn) {
-        previousBtn.addEventListener('click', function () {
-
-            /*
-             * IMPORTANT:
-             * Do NOT reset the form here.
-             * All entered values remain in the inputs.
-             */
-
+        previousBtn.addEventListener('click', function (event) {
+            event.preventDefault();
             showTab(currentTab - 1);
-
         });
     }
-
 
     tabs.forEach((tab, index) => {
+        tab.addEventListener('click', function (event) {
+            event.preventDefault();
 
-        tab.addEventListener('click', function () {
+            if (index <= currentTab) {
+                showTab(index);
+                return;
+            }
+
+            for (let i = currentTab; i < index; i++) {
+                showTab(i, false);
+
+                if (!validateCurrentTab()) {
+                    return;
+                }
+            }
+
             showTab(index);
         });
-
     });
 
-
     if (cancelBtn) {
-
-        cancelBtn.addEventListener('click', function () {
-
-            window.location.href =
-                "{{ route('admin.students.index') }}";
-
+        cancelBtn.addEventListener('click', function (event) {
+            event.preventDefault();
+            window.location.href = @json(route('admin.students.index'));
         });
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | ADMISSION DATE
+    |--------------------------------------------------------------------------
+    */
 
-    /* =========================================================
-       ADMISSION DATE
-       TODAY ONLY FOR NEW/EMPTY FORM
-    ========================================================== */
-
-    const admissionDate =
-        document.getElementById('admission_date');
+    const admissionDate = $('admission_date');
 
     if (admissionDate && !admissionDate.value) {
-
         const today = new Date();
 
-        const year = today.getFullYear();
-
-        const month = String(
-            today.getMonth() + 1
-        ).padStart(2, '0');
-
-        const day = String(
-            today.getDate()
-        ).padStart(2, '0');
-
         admissionDate.value =
-            `${year}-${month}-${day}`;
+            today.getFullYear() + '-' +
+            String(today.getMonth() + 1).padStart(2, '0') + '-' +
+            String(today.getDate()).padStart(2, '0');
     }
 
+   /*
+|--------------------------------------------------------------------------
+| NUMERIC INPUTS
+|--------------------------------------------------------------------------
+*/
 
-    /* =========================================================
-       NUMERIC INPUT
-    ========================================================== */
+function numericOnly(element, maxLength) {
+    if (!element) return;
 
-    function numericOnly(element, maxLength = null) {
+    element.addEventListener('input', function () {
+        const originalValue = this.value;
 
-        if (!element) return;
+        this.value = originalValue
+            .replace(/\D/g, '')
+            .substring(0, maxLength);
 
-        element.addEventListener('input', function () {
+        if (
+            this.value !== originalValue &&
+            this.classList.contains('is-invalid')
+        ) {
+            validateField(this);
+        }
+    });
+}
 
-            this.value =
-                this.value.replace(/\D/g, '');
+// Existing numeric fields
+numericOnly(aadhaar, 12);
+numericOnly(phone, 10);
+numericOnly(pincode, 6);
 
-            if (maxLength) {
+// Parent mobile numbers
+document.querySelectorAll('.parent-phone').forEach(input => {
+    numericOnly(input, 10);
+});
 
-                this.value =
-                    this.value.substring(0, maxLength);
+// New academic identifier fields
+numericOnly($('appar_id'), 12);
+numericOnly($('pen_no'), 14);
 
+    /*
+    |--------------------------------------------------------------------------
+    | INLINE VALIDATION
+    |--------------------------------------------------------------------------
+    */
+
+    studentForm.querySelectorAll('input, select, textarea').forEach(field => {
+        field.addEventListener('input', function () {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
             }
-
-        });
-    }
-
-
-    numericOnly(
-        document.getElementById('aadhar_card_no'),
-        12
-    );
-
-    numericOnly(
-        document.getElementById('phone'),
-        10
-    );
-
-    document
-        .querySelectorAll('.parent-phone')
-        .forEach(input => {
-            numericOnly(input, 10);
         });
 
-
-    /* =========================================================
-       AADHAAR
-    ========================================================== */
-
-    const aadhaar =
-        document.getElementById('aadhar_card_no');
-
-    const aadhaarError =
-        document.getElementById('aadharError');
-
-    if (aadhaar) {
-
-        aadhaar.addEventListener('input', function () {
-
-            this.classList.remove('is-invalid');
-
-            if (aadhaarError) {
-                aadhaarError.classList.add('d-none');
+        field.addEventListener('change', function () {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
             }
-
         });
-    }
 
-
-    /* =========================================================
-       PHONE
-    ========================================================== */
-
-    const phone =
-        document.getElementById('phone');
-
-    const phoneError =
-        document.getElementById('phoneError');
-
-    if (phone) {
-
-        phone.addEventListener('input', function () {
-
-            this.classList.remove('is-invalid');
-
-            if (phoneError) {
-                phoneError.classList.add('d-none');
+        field.addEventListener('blur', function () {
+            if (this.value.trim() !== '' || this.required) {
+                validateField(this);
             }
-
         });
-    }
+    });
 
-
-    /* =========================================================
-       PHOTO PREVIEW
-    ========================================================== */
-
-    const profileImage =
-        document.getElementById('profile_image');
-
-    const imagePreview =
-        document.getElementById('imagePreview');
-
-    const imagePlaceholder =
-        document.getElementById('imagePlaceholder');
+    /*
+    |--------------------------------------------------------------------------
+    | PHOTO PREVIEW AND VALIDATION
+    |--------------------------------------------------------------------------
+    */
 
     if (profileImage) {
-
         profileImage.addEventListener('change', function () {
+            clearFieldError(this);
 
-            const file = this.files[0];
+            const file = this.files && this.files[0];
 
             if (!file) {
-
                 if (imagePreview) {
                     imagePreview.style.display = 'none';
                     imagePreview.src = '';
@@ -2248,94 +2485,60 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (!file.type.startsWith('image/')) {
-
+            if (!validateField(this)) {
                 this.value = '';
-
-                alert('Please select a valid image file.');
-
                 return;
             }
 
             const reader = new FileReader();
 
             reader.onload = function (event) {
-
                 if (imagePreview) {
-
-                    imagePreview.src =
-                        event.target.result;
-
-                    imagePreview.style.display =
-                        'block';
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = 'block';
                 }
 
                 if (imagePlaceholder) {
-
-                    imagePlaceholder.style.display =
-                        'none';
+                    imagePlaceholder.style.display = 'none';
                 }
+            };
+
+            reader.onerror = function () {
+                showFieldError(
+                    profileImage,
+                    'Unable to read this image. Please choose another file.'
+                );
             };
 
             reader.readAsDataURL(file);
         });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | MARATHI NAME TRANSLITERATION
+    |--------------------------------------------------------------------------
+    */
 
-    /* =========================================================
-       MARATHI NAME
-    ========================================================== */
-
-    const firstName =
-        document.getElementById('first_name');
-
-    const middleName =
-        document.getElementById('middle_name');
-
-    const lastName =
-        document.getElementById('last_name');
-
-    const marathiName =
-        document.getElementById('marathi_name');
-
-    if (
-        firstName &&
-        middleName &&
-        lastName &&
-        marathiName
-    ) {
-
-        let transliterationTimer = null;
-        let requestCounter = 0;
-
+    if (firstName && middleName && lastName && marathiName) {
         async function transliterateToMarathi(text) {
-
             const value = text.trim();
-
-            if (!value) {
-                return '';
-            }
+            if (!value) return '';
 
             const url =
                 'https://inputtools.google.com/request' +
                 '?text=' + encodeURIComponent(value) +
-                '&ime=transliteration_en_mr' +
-                '&num=1' +
-                '&ie=utf-8' +
-                '&oe=utf-8' +
-                '&app=jsapi';
+                '&itc=mr-t-i0-und' +
+                '&num=5&cp=0&cs=1&ie=utf-8&oe=utf-8&app=demopage';
 
             try {
-
-                const response =
-                    await fetch(url);
+                const response = await fetch(url);
 
                 if (!response.ok) {
-                    return '';
+                    throw new Error('HTTP ' + response.status);
                 }
 
-                const data =
-                    await response.json();
+                const data = await response.json();
 
                 if (
                     !Array.isArray(data) ||
@@ -2346,183 +2549,124 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 return data[1]
-                    .map(item => {
-
-                        if (
-                            Array.isArray(item) &&
-                            Array.isArray(item[1]) &&
-                            item[1].length
-                        ) {
-                            return item[1][0];
-                        }
-
-                        return '';
-                    })
-                    .join(' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-
+                    .map(item =>
+                        Array.isArray(item) &&
+                        Array.isArray(item[1])
+                            ? item[1][0] || ''
+                            : ''
+                    )
+                    .find(Boolean) || '';
             } catch (error) {
-
-                console.error(
-                    'Marathi transliteration error:',
-                    error
-                );
-
+                console.error('Marathi transliteration failed:', error);
                 return '';
             }
         }
 
-
         async function generateMarathiName() {
+            if (marathiName.dataset.manual === '1') return;
 
-            if (marathiName.dataset.manual === '1') {
-                return;
-            }
+            const request = ++transliterationRequest;
 
-            const request =
-                ++requestCounter;
-
-            const parts = [
+            const englishParts = [
                 firstName.value.trim(),
                 middleName.value.trim(),
                 lastName.value.trim()
             ].filter(Boolean);
 
-            if (!parts.length) {
-
+            if (!englishParts.length) {
                 marathiName.value = '';
-
                 return;
             }
 
             const translatedParts = [];
 
-            for (const part of parts) {
+            for (const part of englishParts) {
+                const translated = await transliterateToMarathi(part);
 
-                const translated =
-                    await transliterateToMarathi(part);
+                if (request !== transliterationRequest) return;
 
-                if (request !== requestCounter) {
-                    return;
-                }
+                translatedParts.push(translated || part);
+            }
 
-                translatedParts.push(
-                    translated || part
+            if (
+                request === transliterationRequest &&
+                marathiName.dataset.manual !== '1'
+            ) {
+                marathiName.value = translatedParts.join(' ');
+                marathiName.dispatchEvent(
+                    new Event('input', { bubbles: true })
                 );
             }
-
-            if (marathiName.dataset.manual === '1') {
-                return;
-            }
-
-            marathiName.value =
-                translatedParts.join(' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
         }
 
-
         function scheduleMarathiGeneration() {
-
             marathiName.dataset.manual = '0';
 
             clearTimeout(transliterationTimer);
 
-            transliterationTimer =
-                setTimeout(
-                    generateMarathiName,
-                    350
-                );
+            transliterationTimer = setTimeout(
+                generateMarathiName,
+                500
+            );
         }
 
-
-        [
-            firstName,
-            middleName,
-            lastName
-        ].forEach(input => {
-
-            input.addEventListener(
-                'input',
-                scheduleMarathiGeneration
-            );
-
+        [firstName, middleName, lastName].forEach(input => {
+            input.addEventListener('input', scheduleMarathiGeneration);
+            input.addEventListener('change', scheduleMarathiGeneration);
         });
 
+        marathiName.addEventListener('input', function () {
+            this.dataset.manual = '1';
+        });
 
-        marathiName.addEventListener(
-            'input',
-            function () {
-
-                this.dataset.manual = '1';
-
-            }
-        );
+        if (
+            !marathiName.value.trim() &&
+            [firstName, middleName, lastName].some(input => input.value.trim())
+        ) {
+            marathiName.dataset.manual = '0';
+            scheduleMarathiGeneration();
+        }
     }
 
-
-    /* =========================================================
-       ADMISSION CLASS / SECTION
-       SOURCE = school_classes
-    ========================================================== */
-
-    const classSelect =
-        document.getElementById('admission_class');
-
-    const sectionSelect =
-        document.getElementById('section');
-
-    const sectionsByClass =
-        @json($sectionsByClass ?? []);
-
-    console.log(
-        'Admission Classes:',
-        sectionsByClass
-    );
-
+    /*
+    |--------------------------------------------------------------------------
+    | CLASS / SECTION DROPDOWN
+    |--------------------------------------------------------------------------
+    */
 
     function loadSections(selectedSection = '') {
+        if (!classSelect || !sectionSelect) return;
 
-        if (!classSelect || !sectionSelect) {
-            return;
-        }
-
-        const selectedClass =
-            classSelect.value;
+        const selectedClass = classSelect.value;
 
         sectionSelect.innerHTML =
             '<option value="">Select Section</option>';
 
         if (
             !selectedClass ||
-            !sectionsByClass[selectedClass]
+            !Object.prototype.hasOwnProperty.call(
+                sectionsByClass,
+                selectedClass
+            )
         ) {
-
-            sectionSelect.disabled = true;
-
+            sectionSelect.disabled = !selectedClass;
             return;
         }
 
-        const sections =
-            sectionsByClass[selectedClass];
+        const classSections = sectionsByClass[selectedClass];
 
-        sections.forEach(section => {
+        if (!Array.isArray(classSections) || !classSections.length) {
+            sectionSelect.disabled = false;
+            return;
+        }
 
-            const option =
-                document.createElement('option');
+        classSections.forEach(section => {
+            const option = document.createElement('option');
 
             option.value = section;
-
             option.textContent = section;
-
-            if (
-                String(section) ===
-                String(selectedSection)
-            ) {
-
-                option.selected = true;
-            }
+            option.selected =
+                String(section) === String(selectedSection);
 
             sectionSelect.appendChild(option);
         });
@@ -2530,888 +2674,542 @@ document.addEventListener('DOMContentLoaded', function () {
         sectionSelect.disabled = false;
     }
 
-
     if (classSelect) {
+        classSelect.addEventListener('change', function () {
+            loadSections('');
+            clearFieldError(sectionSelect);
+        });
+    }
 
-        classSelect.addEventListener(
-            'change',
-            function () {
+    loadSections(oldSection || '');
 
-                loadSections('');
+    if (rollNumber) {
+        rollNumber.disabled = false;
+    }
 
+    /*
+    |--------------------------------------------------------------------------
+    | LOCATION NAME SYNCHRONIZATION
+    |--------------------------------------------------------------------------
+    */
+
+    function syncLocationNames() {
+        if (stateSelect && stateName) {
+            const option = stateSelect.options[stateSelect.selectedIndex];
+            stateName.value = option ? option.text.trim() : '';
+        }
+
+        if (districtSelect && districtName) {
+            const option = districtSelect.options[districtSelect.selectedIndex];
+
+            districtName.value =
+                districtSelect.value && option ? option.text.trim() : '';
+        }
+
+        if (talukaSelect && talukaName) {
+            const option = talukaSelect.options[talukaSelect.selectedIndex];
+
+            talukaName.value =
+                talukaSelect.value && option ? option.text.trim() : '';
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOCATION API HELPER
+    |--------------------------------------------------------------------------
+    */
+
+    async function getLocationApi(url) {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
+        });
+
+        if (!response.ok) {
+            throw new Error('Location API returned HTTP ' + response.status);
+        }
+
+        const text = await response.text();
+
+        if (!text.trim()) {
+            throw new Error('Location API returned an empty response.');
+        }
+
+        let result;
+
+        try {
+            result = JSON.parse(text.replace(/^\uFEFF/, '').trim());
+        } catch (error) {
+            throw new Error('Location API returned invalid JSON.');
+        }
+
+        if (
+            !result ||
+            result.success !== true ||
+            !Array.isArray(result.data)
+        ) {
+            console.error('Invalid location API response:', result);
+            throw new Error('Invalid location API data.');
+        }
+
+        return result.data;
+    }
+
+    function setLocationMessage(id, message, isError = false) {
+        const element = $(id);
+        if (!element) return;
+
+        element.textContent = message || '';
+        element.classList.toggle('d-none', !message);
+        element.classList.toggle('text-danger', isError);
+        element.classList.toggle('text-muted', !isError);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD DISTRICTS
+    |--------------------------------------------------------------------------
+    */
+
+    async function loadDistricts(
+        stateId,
+        selectedDistrict = '',
+        selectedTaluka = '',
+        selectedLocation = '',
+        selectedPin = ''
+    ) {
+        const request = ++districtRequest;
+
+        if (!districtSelect) return;
+
+        districtSelect.innerHTML =
+            '<option value="">Loading districts...</option>';
+        districtSelect.disabled = true;
+
+        if (talukaSelect) {
+            talukaSelect.innerHTML =
+                '<option value="">Select District First</option>';
+            talukaSelect.disabled = true;
+        }
+
+        if (locationSelect) {
+            locationSelect.innerHTML =
+                '<option value="">Select Taluka First</option>';
+            locationSelect.disabled = true;
+        }
+
+        if (pincode) pincode.value = '';
+
+        setLocationMessage('districtError', '');
+        setLocationMessage('talukaError', '');
+        setLocationMessage('locationError', '');
+        setLocationMessage('districtLoading', 'Loading districts...');
+        setLocationMessage('talukaLoading', '');
+        setLocationMessage('locationLoading', '');
+
+        if (!stateId) {
+            districtSelect.innerHTML =
+                '<option value="">Select District</option>';
+            districtSelect.disabled = true;
+            setLocationMessage('districtLoading', '');
+            syncLocationNames();
+            return;
+        }
+
+        try {
+            const url =
+                @json(route('admin.locations.districts')) +
+                '?state_id=' + encodeURIComponent(stateId);
+
+            const districts = await getLocationApi(url);
+
+            if (request !== districtRequest) return;
+
+            districtSelect.innerHTML =
+                '<option value="">Select District</option>';
+
+            districts.forEach(district => {
+                const option = document.createElement('option');
+
+                option.value = district.id;
+                option.textContent = district.district_name;
+                option.selected =
+                    String(district.id) === String(selectedDistrict);
+
+                districtSelect.appendChild(option);
+            });
+
+            districtSelect.disabled = false;
+            setLocationMessage('districtLoading', '');
+            syncLocationNames();
+
+            if (selectedDistrict) {
+                await loadTalukas(
+                    selectedDistrict,
+                    selectedTaluka,
+                    selectedLocation,
+                    selectedPin
+                );
+            }
+        } catch (error) {
+            if (request !== districtRequest) return;
+
+            console.error('District API error:', error);
+
+            districtSelect.innerHTML =
+                '<option value="">Unable to load districts</option>';
+            districtSelect.disabled = false;
+
+            setLocationMessage('districtLoading', '');
+            setLocationMessage(
+                'districtError',
+                'Could not load districts. Please try again.',
+                true
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD TALUKAS / TEHSILS
+    |--------------------------------------------------------------------------
+    */
+
+    async function loadTalukas(
+        districtId,
+        selectedTaluka = '',
+        selectedLocation = '',
+        selectedPin = ''
+    ) {
+        const request = ++talukaRequest;
+
+        if (!talukaSelect) return;
+
+        if (!districtId) {
+            talukaSelect.innerHTML =
+                '<option value="">Select District First</option>';
+            talukaSelect.disabled = true;
+
+            if (locationSelect) {
+                locationSelect.innerHTML =
+                    '<option value="">Select Taluka First</option>';
+                locationSelect.disabled = true;
+            }
+
+            if (pincode) pincode.value = '';
+
+            syncLocationNames();
+            return;
+        }
+
+        talukaSelect.innerHTML =
+            '<option value="">Loading talukas...</option>';
+        talukaSelect.disabled = true;
+
+        if (locationSelect) {
+            locationSelect.innerHTML =
+                '<option value="">Select Taluka First</option>';
+            locationSelect.disabled = true;
+        }
+
+        if (pincode) pincode.value = '';
+
+        setLocationMessage('talukaError', '');
+        setLocationMessage('locationError', '');
+        setLocationMessage('talukaLoading', 'Loading talukas...');
+        setLocationMessage('locationLoading', '');
+
+        try {
+            const url =
+                @json(route('admin.locations.tehsils')) +
+                '?district_id=' + encodeURIComponent(districtId);
+
+            const talukas = await getLocationApi(url);
+
+            if (request !== talukaRequest) return;
+
+            talukaSelect.innerHTML =
+                '<option value="">Select Taluka / Tehsil</option>';
+
+            talukas.forEach(taluka => {
+                const option = document.createElement('option');
+
+                option.value = taluka.id;
+                option.textContent = taluka.tehsil_name;
+                option.selected =
+                    String(taluka.id) === String(selectedTaluka);
+
+                talukaSelect.appendChild(option);
+            });
+
+            talukaSelect.disabled = false;
+            setLocationMessage('talukaLoading', '');
+            syncLocationNames();
+
+            if (selectedTaluka) {
+                await loadLocations(
+                    selectedTaluka,
+                    selectedLocation,
+                    selectedPin
+                );
+            }
+        } catch (error) {
+            if (request !== talukaRequest) return;
+
+            console.error('Taluka API error:', error);
+
+            talukaSelect.innerHTML =
+                '<option value="">Unable to load talukas</option>';
+            talukaSelect.disabled = false;
+
+            setLocationMessage('talukaLoading', '');
+            setLocationMessage(
+                'talukaError',
+                'Could not load talukas. Please try again.',
+                true
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD CITY / VILLAGE
+    |--------------------------------------------------------------------------
+    */
+
+    async function loadLocations(
+        talukaId,
+        selectedLocation = '',
+        selectedPin = ''
+    ) {
+        const request = ++locationRequest;
+
+        if (!locationSelect) return;
+
+        if (!talukaId) {
+            locationSelect.innerHTML =
+                '<option value="">Select Taluka First</option>';
+            locationSelect.disabled = true;
+
+            if (pincode) pincode.value = '';
+
+            return;
+        }
+
+        locationSelect.innerHTML =
+            '<option value="">Loading locations...</option>';
+        locationSelect.disabled = true;
+
+        setLocationMessage('locationError', '');
+        setLocationMessage('locationLoading', 'Loading locations...');
+
+        try {
+            const url =
+                @json(route('admin.locations.locations')) +
+                '?tehsil_id=' + encodeURIComponent(talukaId);
+
+            const locations = await getLocationApi(url);
+
+            if (request !== locationRequest) return;
+
+            locationSelect.innerHTML =
+                '<option value="">Select City / Village</option>';
+
+            let matchedLocation = false;
+
+            locations.forEach(location => {
+                const option = document.createElement('option');
+
+                option.value = location.location_name;
+                option.textContent = location.pin_code
+                    ? location.location_name + ' - ' + location.pin_code
+                    : location.location_name;
+
+                option.dataset.locationId = location.id;
+                option.dataset.pincode = location.pin_code || '';
+
+                if (
+                    String(location.location_name) ===
+                    String(selectedLocation)
+                ) {
+                    option.selected = true;
+                    matchedLocation = true;
+                }
+
+                locationSelect.appendChild(option);
+            });
+
+            if (selectedLocation && !matchedLocation) {
+                const option = document.createElement('option');
+
+                option.value = selectedLocation;
+                option.textContent = selectedLocation;
+                option.selected = true;
+                option.dataset.pincode = selectedPin || '';
+
+                locationSelect.appendChild(option);
+            }
+
+            const selectedOption =
+                locationSelect.options[locationSelect.selectedIndex];
+
+            if (pincode) {
+                pincode.value =
+                    selectedOption?.dataset.pincode ||
+                    (selectedLocation ? selectedPin : '') ||
+                    '';
+            }
+
+            locationSelect.disabled = false;
+            setLocationMessage('locationLoading', '');
+        } catch (error) {
+            if (request !== locationRequest) return;
+
+            console.error('Location API error:', error);
+
+            locationSelect.innerHTML =
+                '<option value="">Unable to load locations</option>';
+            locationSelect.disabled = false;
+
+            setLocationMessage('locationLoading', '');
+            setLocationMessage(
+                'locationError',
+                'Could not load locations. Please try again.',
+                true
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOCATION CHANGE EVENTS
+    |--------------------------------------------------------------------------
+    */
+
+    if (stateSelect) {
+        stateSelect.addEventListener('change', function () {
+            syncLocationNames();
+            loadDistricts(this.value);
+        });
+    }
+
+    if (districtSelect) {
+        districtSelect.addEventListener('change', function () {
+            syncLocationNames();
+            loadTalukas(this.value);
+        });
+    }
+
+    if (talukaSelect) {
+        talukaSelect.addEventListener('change', function () {
+            syncLocationNames();
+            loadLocations(this.value);
+        });
+    }
+
+    if (locationSelect) {
+        locationSelect.addEventListener('change', function () {
+            const option = this.options[this.selectedIndex];
+
+            if (pincode) {
+                pincode.value = option?.dataset.pincode || '';
+            }
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INITIAL LOCATION LOAD
+    |--------------------------------------------------------------------------
+    */
+
+    if (stateSelect && stateSelect.value) {
+        loadDistricts(
+            stateSelect.value,
+            oldDistrictId || '',
+            oldTalukaId || '',
+            oldLocation || '',
+            oldPincode || ''
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | FORM SUBMISSION VALIDATION
+    |--------------------------------------------------------------------------
+    */
 
-    loadSections(
-        @json(old('section'))
-    );
+    studentForm.addEventListener('submit', function (event) {
+        syncLocationNames();
 
+        let firstInvalidField = null;
+        let firstInvalidTab = 0;
 
-    /* =========================================================
-       MANUAL ROLL NUMBER
-    ========================================================== */
+        sections.forEach((section, index) => {
+            fieldsInSection(section).forEach(field => {
+                if (!validateField(field) && !firstInvalidField) {
+                    firstInvalidField = field;
+                    firstInvalidTab = index;
+                }
+            });
+        });
 
-    const rollNumber =
-        document.getElementById('roll_number');
+        if (
+            classSelect &&
+            sectionSelect &&
+            classSelect.value &&
+            !sectionSelect.value
+        ) {
+            showFieldError(
+                sectionSelect,
+                'Please select a section for the chosen class.'
+            );
 
-    if (rollNumber) {
+            if (!firstInvalidField) {
+                firstInvalidField = sectionSelect;
 
-        rollNumber.disabled = false;
+                const academicIndex = sections.findIndex(
+                    section => section.id === 'tab-academic'
+                );
 
-    }
+                firstInvalidTab = academicIndex >= 0 ? academicIndex : 1;
+            }
+        }
 
+        if (firstInvalidField) {
+            event.preventDefault();
 
-    /* =========================================================
-   LOCATION API
-========================================================== */
+            showTab(firstInvalidTab, false);
 
-const stateSelect = document.getElementById('state_id');
+            requestAnimationFrame(() => {
+                firstInvalidField.focus({ preventScroll: true });
+                firstInvalidField.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            });
 
-console.log('STATE SELECT:', stateSelect);
-console.log('STATE ID:', stateSelect ? stateSelect.value : 'NOT FOUND');
-console.log(
-    'DISTRICT URL:',
-    "{{ route('admin.locations.districts') }}?state_id=" +
-    (stateSelect ? stateSelect.value : '')
-);
+            return;
+        }
 
-const districtSelect = document.getElementById('district_id');
-const talukaSelect = document.getElementById('taluka_id');
-const locationSelect = document.getElementById('city_village');
-
-const pincode = document.getElementById('pincode');
-
-const stateName = document.getElementById('state');
-const districtName = document.getElementById('district');
-const talukaName = document.getElementById('taluka');
-
-const oldDistrictId = @json(old('district_id'));
-const oldTalukaId = @json(old('taluka_id'));
-const oldLocation = @json(old('city_village'));
-const oldPincode = @json(old('pincode'));
-
-
-/* =========================================================
-   SYNC LOCATION NAMES
-========================================================== */
-
-function syncLocationNames() {
-
-    if (
-        stateSelect &&
-        stateName &&
-        stateSelect.value
-    ) {
-
-        const option =
-            stateSelect.options[stateSelect.selectedIndex];
-
-        stateName.value =
-            option ? option.text.trim() : '';
-    }
-
-
-    if (
-        districtSelect &&
-        districtName &&
-        districtSelect.value
-    ) {
-
-        const option =
-            districtSelect.options[
-                districtSelect.selectedIndex
-            ];
-
-        districtName.value =
-            option ? option.text.trim() : '';
-    }
-
-
-    if (
-        talukaSelect &&
-        talukaName &&
-        talukaSelect.value
-    ) {
-
-        const option =
-            talukaSelect.options[
-                talukaSelect.selectedIndex
-            ];
-
-        talukaName.value =
-            option ? option.text.trim() : '';
-    }
-}
-
-
-/* =========================================================
-   GET LOCATION API JSON
-========================================================== */
-
-async function getLocationApi(url) {
-
-    console.log('LOCATION API URL:', url);
-
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+        if (rollNumber) {
+            rollNumber.disabled = false;
         }
     });
 
-    const text = await response.text();
-
-    console.log(
-        'LOCATION API STATUS:',
-        response.status
-    );
-
-    console.log(
-        'LOCATION API RESPONSE:',
-        text
-    );
-
-    if (!response.ok) {
-
-        throw new Error(
-            'HTTP ' + response.status
-        );
-    }
-
-    if (!text.trim()) {
-
-        throw new Error(
-            'Empty API response'
-        );
-    }
-
-    let result;
-
-try {
-    // Remove UTF-8 BOM before parsing JSON
-    const cleanText = text.replace(/^\uFEFF/, '').trim();
-
-    result = JSON.parse(cleanText);
-} catch (error) {
-    console.error('JSON PARSE ERROR:', error);
-    throw new Error('Invalid JSON response');
-}
-
-
     /*
-     * Your API format:
-     *
-     * {
-     *     success: true,
-     *     data: [...]
-     * }
-     */
-
-    if (
-        !result ||
-        result.success !== true ||
-        !Array.isArray(result.data)
-    ) {
-
-        console.error(
-            'INVALID API DATA:',
-            result
-        );
-
-        throw new Error(
-            'Invalid location API data'
-        );
-    }
-
-
-    return result.data;
-}
-
-
-/* =========================================================
-   LOAD DISTRICTS
-========================================================== */
-
-async function loadDistricts(
-    stateId,
-    selectedDistrict = '',
-    selectedTaluka = '',
-    selectedLocation = ''
-) {
-
-    if (!districtSelect) {
-        return;
-    }
-
-
-    districtSelect.innerHTML =
-        '<option value="">Loading districts...</option>';
-
-    districtSelect.disabled = true;
-
-
-    if (talukaSelect) {
-
-        talukaSelect.innerHTML =
-            '<option value="">Select District First</option>';
-
-        talukaSelect.disabled = true;
-    }
-
-
-    if (locationSelect) {
-
-        locationSelect.innerHTML =
-            '<option value="">Select Taluka First</option>';
-
-        locationSelect.disabled = true;
-    }
-
-
-    if (pincode) {
-        pincode.value = '';
-    }
-
-
-    if (!stateId) {
-
-        districtSelect.innerHTML =
-            '<option value="">Select District</option>';
-
-        districtSelect.disabled = true;
-
-        return;
-    }
-
-
-    try {
-
-        const url =
-            "{{ route('admin.locations.districts') }}" +
-            '?state_id=' +
-            encodeURIComponent(stateId);
-
-
-        const districts =
-            await getLocationApi(url);
-
-
-        console.log(
-            'DISTRICTS:',
-            districts
-        );
-
-
-        districtSelect.innerHTML =
-            '<option value="">Select District</option>';
-
-
-        districts.forEach(function (district) {
-
-            const option =
-                document.createElement('option');
-
-            option.value =
-                district.id;
-
-            option.textContent =
-                district.district_name;
-
-
-            if (
-                String(district.id) ===
-                String(selectedDistrict)
-            ) {
-
-                option.selected = true;
-            }
-
-
-            districtSelect.appendChild(option);
-        });
-
-
-        districtSelect.disabled = false;
-
-        syncLocationNames();
-
-
-        /*
-         * Only load old values during
-         * initial page loading.
-         */
-
-        if (selectedDistrict) {
-
-            await loadTalukas(
-                selectedDistrict,
-                selectedTaluka,
-                selectedLocation
-            );
-        }
-
-    } catch (error) {
-
-        console.error(
-            'District API error:',
-            error
-        );
-
-
-       districtSelect.innerHTML =
-            '<option value="">Unable to load districts</option>';
-
-        districtSelect.disabled = false;
-    }
-}
-
-
-/* =========================================================
-   LOAD TALUKAS / TEHSILS
-========================================================== */
-
-async function loadTalukas(
-    districtId,
-    selectedTaluka = '',
-    selectedLocation = ''
-) {
-
-    if (!talukaSelect) {
-        return;
-    }
-
-
-    if (!districtId) {
-
-        talukaSelect.innerHTML =
-            '<option value="">Select District First</option>';
-
-        talukaSelect.disabled = true;
-
-        return;
-    }
-
-
-    talukaSelect.innerHTML =
-        '<option value="">Loading talukas...</option>';
-
-    talukaSelect.disabled = true;
-
-
-    if (locationSelect) {
-
-        locationSelect.innerHTML =
-            '<option value="">Select Taluka First</option>';
-
-        locationSelect.disabled = true;
-    }
-
-
-    if (pincode) {
-        pincode.value = '';
-    }
-
-
-    try {
-
-        const url =
-            "{{ route('admin.locations.tehsils') }}" +
-            '?district_id=' +
-            encodeURIComponent(districtId);
-
-
-        const talukas =
-            await getLocationApi(url);
-
-
-        console.log(
-            'TALUKAS:',
-            talukas
-        );
-
-
-        talukaSelect.innerHTML =
-            '<option value="">Select Taluka / Tehsil</option>';
-
-
-        talukas.forEach(function (taluka) {
-
-            const option =
-                document.createElement('option');
-
-            option.value =
-                taluka.id;
-
-            option.textContent =
-                taluka.tehsil_name;
-
-
-            if (
-                String(taluka.id) ===
-                String(selectedTaluka)
-            ) {
-
-                option.selected = true;
-            }
-
-
-            talukaSelect.appendChild(option);
-        });
-
-
-        talukaSelect.disabled = false;
-
-        syncLocationNames();
-
-
-        if (selectedTaluka) {
-
-            await loadLocations(
-                selectedTaluka,
-                selectedLocation
-            );
-        }
-
-    } catch (error) {
-
-        console.error(
-            'Taluka API error:',
-            error
-        );
-
-
-        talukaSelect.innerHTML =
-            '<option value="">Unable to load talukas</option>';
-
-        talukaSelect.disabled = false;
-    }
-}
-
-
-/* =========================================================
-   LOAD CITY / VILLAGE
-========================================================== */
-
-async function loadLocations(
-    talukaId,
-    selectedLocation = ''
-) {
-
-    if (!locationSelect) {
-        return;
-    }
-
-
-    if (!talukaId) {
-
-        locationSelect.innerHTML =
-            '<option value="">Select Taluka First</option>';
-
-        locationSelect.disabled = true;
-
-        return;
-    }
-
-
-    locationSelect.innerHTML =
-        '<option value="">Loading locations...</option>';
-
-    locationSelect.disabled = true;
-
-
-    try {
-
-        const url =
-            "{{ route('admin.locations.locations') }}" +
-            '?tehsil_id=' +
-            encodeURIComponent(talukaId);
-
-
-        const locations =
-            await getLocationApi(url);
-
-
-        console.log(
-            'LOCATIONS:',
-            locations
-        );
-
-
-        locationSelect.innerHTML =
-            '<option value="">Select City / Village</option>';
-
-
-        locations.forEach(function (location) {
-
-            const option =
-                document.createElement('option');
-
-
-            /*
-             * Database stores city_village
-             * as the location name.
-             */
-
-            option.value =
-                location.location_name;
-
-
-            option.textContent =
-                location.pin_code
-                    ? location.location_name +
-                      ' - ' +
-                      location.pin_code
-                    : location.location_name;
-
-
-            option.dataset.locationId =
-                location.id;
-
-
-            option.dataset.pincode =
-                location.pin_code || '';
-
-
-            if (
-                String(location.location_name) ===
-                String(selectedLocation)
-            ) {
-
-                option.selected = true;
-
-                if (
-                    pincode &&
-                    location.pin_code
-                ) {
-
-                    pincode.value =
-                        location.pin_code;
-                }
-            }
-
-
-            locationSelect.appendChild(option);
-        });
-
-
-        /*
-         * Keep old location after
-         * validation failure.
-         */
-
-        if (
-            selectedLocation &&
-            !Array.from(locationSelect.options)
-                .some(function (option) {
-
-                    return String(option.value) ===
-                        String(selectedLocation);
-                })
-        ) {
-
-            const option =
-                document.createElement('option');
-
-            option.value =
-                selectedLocation;
-
-            option.textContent =
-                selectedLocation;
-
-            option.selected = true;
-
-            locationSelect.appendChild(option);
-
-
-            if (
-                pincode &&
-                oldPincode
-            ) {
-
-                pincode.value =
-                    oldPincode;
-            }
-        }
-
-
-        locationSelect.disabled = false;
-
-    } catch (error) {
-
-        console.error(
-            'Location API error:',
-            error
-        );
-
-
-        locationSelect.innerHTML =
-            '<option value="">Unable to load locations</option>';
-
-        locationSelect.disabled = false;
-    }
-}
-
-
-/* =========================================================
-   STATE CHANGE
-========================================================== */
-
-if (stateSelect) {
-
-    stateSelect.addEventListener(
-        'change',
-        function () {
-
-            syncLocationNames();
-
-            /*
-             * New state means old
-             * district/taluka/location
-             * must be cleared.
-             */
-
-            loadDistricts(
-                this.value,
-                '',
-                '',
-                ''
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   DISTRICT CHANGE
-========================================================== */
-
-if (districtSelect) {
-
-    districtSelect.addEventListener(
-        'change',
-        function () {
-
-            syncLocationNames();
-
-            /*
-             * New district means
-             * old taluka/location must
-             * be cleared.
-             */
-
-            loadTalukas(
-                this.value,
-                '',
-                ''
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   TALUKA CHANGE
-========================================================== */
-
-if (talukaSelect) {
-
-    talukaSelect.addEventListener(
-        'change',
-        function () {
-
-            syncLocationNames();
-
-            /*
-             * New taluka means
-             * old location must be cleared.
-             */
-
-            loadLocations(
-                this.value,
-                ''
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   LOCATION CHANGE
-========================================================== */
-
-if (locationSelect) {
-
-    locationSelect.addEventListener(
-        'change',
-        function () {
-
-            const option =
-                this.options[
-                    this.selectedIndex
-                ];
-
-
-            if (
-                option &&
-                pincode
-            ) {
-
-                pincode.value =
-                    option.dataset.pincode || '';
-            }
-        }
-    );
-}
-
-
-/* =========================================================
-   INITIAL LOCATION LOAD
-========================================================== */
-
-if (
-    stateSelect &&
-    stateSelect.value
-) {
-
-    loadDistricts(
-        stateSelect.value,
-        oldDistrictId,
-        oldTalukaId,
-        oldLocation
-    );
-}
-
-    /* =========================================================
-       FORM SUBMIT
-    ========================================================== */
-
-    const studentForm =
-        document.getElementById('studentForm');
-
-    if (studentForm) {
-
-        studentForm.addEventListener(
-            'submit',
-            function (event) {
-
-                syncLocationNames();
-
-                let valid = true;
-
-
-                if (
-                    aadhaar &&
-                    aadhaar.value.trim() &&
-                    !/^\d{12}$/.test(
-                        aadhaar.value.trim()
-                    )
-                ) {
-
-                    aadhaar.classList.add(
-                        'is-invalid'
-                    );
-
-                    valid = false;
-                }
-
-
-                if (
-                    phone &&
-                    phone.value.trim() &&
-                    !/^[6-9]\d{9}$/.test(
-                        phone.value.trim()
-                    )
-                ) {
-
-                    phone.classList.add(
-                        'is-invalid'
-                    );
-
-                    valid = false;
-                }
-
-
-                document
-                    .querySelectorAll('.parent-phone')
-                    .forEach(input => {
-
-                        if (
-                            input.value.trim() &&
-                            !/^[6-9]\d{9}$/.test(
-                                input.value.trim()
-                            )
-                        ) {
-
-                            input.classList.add(
-                                'is-invalid'
-                            );
-
-                            valid = false;
-                        }
-                    });
-
-
-                if (!valid) {
-
-                    event.preventDefault();
-
-                    alert(
-                        'Please correct the highlighted fields.'
-                    );
-
-                    return;
-                }
-
-
-                /*
-                 * Manual Roll Number
-                 */
-
-                if (rollNumber) {
-                    rollNumber.disabled = false;
-                }
-
-            }
-        );
-    }
-
-
-    /* =========================================================
-       REMOVE INVALID STATE
-    ========================================================== */
-
-    document
-        .querySelectorAll(
-            '.form-control, .form-select'
-        )
-        .forEach(field => {
-
-            field.addEventListener(
-                'input',
-                function () {
-                    this.classList.remove('is-invalid');
-                }
-            );
-
-            field.addEventListener(
-                'change',
-                function () {
-                    this.classList.remove('is-invalid');
-                }
-            );
-        });
-
-
-    /* =========================================================
-       INITIAL TAB
-    ========================================================== */
-
-    showTab(0);
-
+    |--------------------------------------------------------------------------
+    | INITIAL TAB
+    |--------------------------------------------------------------------------
+    */
+
+    showTab(0, false);
 });
 </script>
+
 
 @endsection

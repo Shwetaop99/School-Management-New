@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Generate Exam Timetable')
@@ -43,31 +42,47 @@
     box-sizing: border-box;
 }
 
+/* =========================================================
+   PAGE HEADER - MATCHING EXAMINATION MANAGEMENT HEADER
+========================================================= */
+
 .exam-generate-page .eg-page-header {
     position: relative;
+    isolation: isolate;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 22px;
+    min-height: 180px;
     padding: 28px 30px;
     margin-bottom: 24px;
     overflow: hidden;
-    background: var(--eg-paper);
-    border: 1px solid var(--eg-line);
-    border-left: 5px solid var(--eg-forest);
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+    border: 1px solid rgba(196, 154, 69, .38);
+    border-left: 5px solid #c49a45;
     border-radius: var(--eg-radius);
-    box-shadow: var(--eg-shadow);
+    box-shadow: 0 10px 25px rgba(20, 47, 37, .14);
 }
 
 .exam-generate-page .eg-page-header::after {
     content: "";
     position: absolute;
-    width: 180px;
-    height: 180px;
-    right: 18%;
-    top: -115px;
-    border: 1px solid rgba(82, 127, 112, .13);
+    z-index: 0;
+    width: 340px;
+    height: 340px;
+    right: -70px;
+    top: -145px;
+    border: 1px solid rgba(226, 196, 127, .22);
     border-radius: 50%;
+    box-shadow:
+        0 0 0 28px rgba(255, 255, 255, .025),
+        0 0 0 58px rgba(255, 255, 255, .02),
+        0 0 0 90px rgba(255, 255, 255, .015);
     pointer-events: none;
 }
 
@@ -75,25 +90,30 @@
     position: relative;
     z-index: 1;
     min-width: 0;
+    flex: 1;
 }
 
 .exam-generate-page .eg-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    margin-bottom: 9px;
-    color: var(--eg-amber);
+    margin-bottom: 10px;
+    color: #e2c47f;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 1.6px;
     text-transform: uppercase;
 }
 
+.exam-generate-page .eg-eyebrow i {
+    color: #e2c47f;
+}
+
 .exam-generate-page .eg-page-title {
     margin: 0;
-    color: var(--eg-ink);
+    color: #fffefa;
     font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(25px, 3vw, 34px);
+    font-size: clamp(25px, 3vw, 35px);
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -.6px;
@@ -101,13 +121,13 @@
 
 .exam-generate-page .eg-page-subtitle {
     margin: 10px 0 0;
-    color: var(--eg-muted);
+    color: rgba(255, 254, 250, .76);
     font-size: 13px;
     line-height: 1.7;
 }
 
 .exam-generate-page .eg-page-subtitle strong {
-    color: var(--eg-text);
+    color: #fffefa;
     font-weight: 700;
 }
 
@@ -144,30 +164,30 @@
 }
 
 .exam-generate-page .eg-btn-outline {
-    color: var(--eg-ink);
-    background: var(--eg-paper);
-    border-color: var(--eg-line);
+    color: #fffefa;
+    background: rgba(255, 255, 255, .09);
+    border-color: rgba(255, 255, 255, .30);
 }
 
 .exam-generate-page .eg-btn-outline:hover {
-    color: var(--eg-dark);
-    background: var(--eg-cream);
-    border-color: #c9c4b5;
+    color: #20392d;
+    background: #fffefa;
+    border-color: #fffefa;
 }
 
 .exam-generate-page .eg-btn-primary {
     min-height: 49px;
     padding: 13px 22px;
-    color: var(--eg-ink);
-    background: var(--eg-cream-deep);
-    border-color: #e3dac3;
+    color: #1b3026;
+    background: #c49a45;
+    border-color: #c49a45;
     box-shadow: 0 4px 10px rgba(38, 59, 53, .07);
 }
 
 .exam-generate-page .eg-btn-primary:hover {
-    color: var(--eg-dark);
-    background: #fff5dc;
-    border-color: #d9cba8;
+    color: #17291f;
+    background: #d6b46a;
+    border-color: #d6b46a;
 }
 
 .exam-generate-page .eg-btn-primary:disabled {
@@ -386,7 +406,7 @@
     font-weight: 600;
 }
 
-/* Information / warning notices */
+/* Information notices */
 
 .exam-generate-page .eg-notice {
     display: flex;
@@ -881,6 +901,69 @@
     color: var(--eg-sage);
 }
 
+/* Configured subjects table */
+
+.eg-print-subjects-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #d9dee7;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.eg-print-subjects-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+    color: #252b36;
+}
+
+.eg-print-subjects-table thead th {
+    padding: 11px 12px;
+    background: #f0f2f5;
+    color: #252b36;
+    border: 1px solid #d9dee7;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.eg-print-subjects-table tbody td {
+    padding: 9px 12px;
+    border: 1px solid #d9dee7;
+    font-size: 12px;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+.eg-print-subjects-table .eg-print-number {
+    text-align: center;
+    color: #555e6d;
+}
+
+.eg-print-subjects-table .eg-print-class-cell {
+    background: #fafbfc;
+    font-weight: 600;
+}
+
+.eg-print-subjects-table .eg-print-section {
+    display: block;
+    margin-top: 3px;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.eg-print-subjects-table .eg-print-subject-cell {
+    font-weight: 500;
+}
+
+.eg-print-subjects-table tbody tr {
+    break-inside: avoid;
+}
+
 /* Responsive */
 
 @media (max-width: 1199px) {
@@ -996,6 +1079,29 @@
     }
 }
 
+@media print {
+    .eg-print-subjects-wrap {
+        overflow: visible !important;
+        border-radius: 0;
+    }
+
+    .eg-print-subjects-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .eg-print-subjects-table th,
+    .eg-print-subjects-table td {
+        padding: 6px 8px !important;
+        font-size: 10px !important;
+        overflow-wrap: break-word;
+    }
+
+    .eg-print-subjects-table thead {
+        display: table-header-group;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .exam-generate-page *,
     .exam-generate-page *::before,
@@ -1009,9 +1115,7 @@
 
 <div class="exam-generate-page">
 
-    {{-- =========================================================
-        PAGE HEADER
-    ========================================================== --}}
+    {{-- PAGE HEADER --}}
     <div class="eg-page-header">
 
         <div class="eg-header-content">
@@ -1041,16 +1145,15 @@
 
             <a href="{{ route('admin.exam-schedules.index', $exam) }}"
                class="eg-btn eg-btn-outline">
-
                 <i class="bi bi-arrow-left"></i>
                 Back to Timetable
-
             </a>
 
         </div>
 
     </div>
 
+    {{-- PAGE CONTEXT --}}
     <div class="eg-context-line">
         <i class="bi bi-house-door"></i>
         <span>Examinations</span>
@@ -1060,12 +1163,8 @@
         <span>Generate Timetable</span>
     </div>
 
-
-    {{-- =========================================================
-        VALIDATION ERRORS
-    ========================================================== --}}
+    {{-- VALIDATION ERRORS --}}
     @if($errors->any())
-
         <div class="eg-validation" role="alert">
 
             <div class="eg-validation-title">
@@ -1080,13 +1179,9 @@
             </ul>
 
         </div>
-
     @endif
 
-
-    {{-- =========================================================
-        EXAMINATION INFORMATION
-    ========================================================== --}}
+    {{-- EXAMINATION INFORMATION --}}
     <section class="eg-panel">
 
         <div class="eg-panel-header">
@@ -1096,7 +1191,6 @@
             </div>
 
             <div class="eg-panel-heading">
-
                 <h2 class="eg-panel-title">
                     Examination Information
                 </h2>
@@ -1104,7 +1198,6 @@
                 <p class="eg-panel-description">
                     Review the examination details before generating the timetable.
                 </p>
-
             </div>
 
         </div>
@@ -1114,47 +1207,28 @@
             <div class="eg-info-grid">
 
                 <div class="eg-info-item">
-
-                    <div class="eg-info-label">
-                        Examination
-                    </div>
-
+                    <div class="eg-info-label">Examination</div>
                     <div class="eg-info-value">
                         {{ $exam->exam_name ?? '-' }}
                     </div>
-
                 </div>
 
                 <div class="eg-info-item">
-
-                    <div class="eg-info-label">
-                        Academic Year
-                    </div>
-
+                    <div class="eg-info-label">Academic Year</div>
                     <div class="eg-info-value">
                         {{ $exam->academic_year ?? '-' }}
                     </div>
-
                 </div>
 
                 <div class="eg-info-item">
-
-                    <div class="eg-info-label">
-                        Exam Type
-                    </div>
-
+                    <div class="eg-info-label">Exam Type</div>
                     <div class="eg-info-value">
                         {{ $exam->exam_type ?? '-' }}
                     </div>
-
                 </div>
 
                 <div class="eg-info-item">
-
-                    <div class="eg-info-label">
-                        Examination Period
-                    </div>
-
+                    <div class="eg-info-label">Examination Period</div>
                     <div class="eg-info-value">
 
                         {{ $exam->start_date
@@ -1170,7 +1244,6 @@
                         }}
 
                     </div>
-
                 </div>
 
             </div>
@@ -1179,10 +1252,7 @@
 
     </section>
 
-
-    {{-- =========================================================
-        AUTOMATIC GENERATION FORM
-    ========================================================== --}}
+    {{-- AUTOMATIC GENERATION FORM --}}
     <section class="eg-panel">
 
         <div class="eg-panel-header">
@@ -1192,74 +1262,18 @@
             </div>
 
             <div class="eg-panel-heading">
-
                 <h2 class="eg-panel-title">
                     Automatic Timetable Generation
                 </h2>
 
                 <p class="eg-panel-description">
-                    Review the scheduling rules and choose the number of papers per day.
+                    Review the automatic scheduling rules. Paper counts are calculated for each class.
                 </p>
-
             </div>
 
         </div>
 
         <div class="eg-panel-body">
-
-            {{-- AUTOMATIC GENERATION EXPLANATION --}}
-            <div class="eg-notice eg-notice-info mb-4">
-
-                <div class="eg-notice-icon">
-                    <i class="bi bi-lightbulb"></i>
-                </div>
-
-                <div class="eg-notice-content">
-
-                    <div class="eg-notice-title">
-                        How automatic generation works
-                    </div>
-
-                    <ul>
-
-                        <li>
-                            Exam dates are taken automatically from the configured exam start and end dates.
-                        </li>
-
-                        <li>
-                            Saturdays and Sundays are automatically skipped.
-                        </li>
-
-                        <li>
-                            Configured examination holidays are automatically skipped.
-                        </li>
-
-                        <li>
-                            Every class gets its own independent subject sequence.
-                        </li>
-
-                        <li>
-                            Each class advances to its next subject after every paper slot.
-                        </li>
-
-                        <li>
-                            When a class finishes all its subjects, it is skipped for the remaining slots.
-                        </li>
-
-                        <li>
-                            Teachers are assigned later from the Edit Timetable screen.
-                        </li>
-
-                        <li>
-                            Manual examination sessions are not required.
-                        </li>
-
-                    </ul>
-
-                </div>
-
-            </div>
-
 
             <form method="POST"
                   action="{{ route('admin.exam-schedules.generate', $exam) }}"
@@ -1267,54 +1281,77 @@
 
                 @csrf
 
+                {{-- AUTOMATIC SCHEDULING PLAN --}}
+                @php
+                    $examTypeText = strtolower(str_replace(
+                        ['-', '_'],
+                        ' ',
+                        trim(($exam->exam_type ?? '') . ' ' . ($exam->exam_name ?? ''))
+                    ));
 
-                {{-- =====================================================
-                    PAPERS PER DAY AND AUTOMATIC TIMES
-                ====================================================== --}}
+                    if (
+                        str_contains($examTypeText, 'unit test') ||
+                        preg_match('/\but\b/', $examTypeText)
+                    ) {
+                        $maximumExamDays = 3;
+                        $examPlanName = 'Unit Test';
+
+                    } elseif (
+                        str_contains($examTypeText, 'mid sem') ||
+                        str_contains($examTypeText, 'midsemester') ||
+                        str_contains($examTypeText, 'mid term') ||
+                        str_contains($examTypeText, 'midterm')
+                    ) {
+                        $maximumExamDays = 7;
+                        $examPlanName = 'Mid-Semester';
+
+                    } elseif (
+                        str_contains($examTypeText, 'end sem') ||
+                        str_contains($examTypeText, 'endsemester') ||
+                        str_contains($examTypeText, 'end term') ||
+                        str_contains($examTypeText, 'final exam')
+                    ) {
+                        $maximumExamDays = 10;
+                        $examPlanName = 'End-Semester';
+
+                    } else {
+                        $maximumExamDays = 10;
+                        $examPlanName = 'Preliminary / Other';
+                    }
+                @endphp
+
                 <div class="row g-4">
 
                     <div class="col-lg-6">
 
-                        <label for="papers_per_day" class="eg-form-label">
-
-                            Papers Per Day
-                            <span class="eg-required">*</span>
-
+                        <label class="eg-form-label">
+                            Automatic Scheduling Plan
                         </label>
 
-                        <select name="papers_per_day"
-                                id="papers_per_day"
-                                class="eg-form-select"
-                                required>
+                        <div class="eg-time-container">
 
-                            <option value="">
-                                Select number of papers
-                            </option>
+                            <div class="eg-notice-title">
+                                {{ $examPlanName }} scheduling
+                            </div>
 
-                            <option value="1"
-                                {{ old('papers_per_day') == '1' ? 'selected' : '' }}>
-                                1 Paper Per Day
-                            </option>
+                            <p class="eg-section-note">
+                                Maximum {{ $maximumExamDays }} usable examination days.
+                                Saturdays, Sundays and configured holidays are skipped.
+                            </p>
 
-                            <option value="2"
-                                {{ old('papers_per_day') == '2' ? 'selected' : '' }}>
-                                2 Papers Per Day
-                            </option>
+                            <p class="eg-section-note">
+                                Paper counts are calculated independently for each class using its
+                                subjects and the available examination dates.
+                            </p>
 
-                            <option value="3"
-                                {{ old('papers_per_day') == '3' ? 'selected' : '' }}>
-                                3 Papers Per Day
-                            </option>
+                            <span class="eg-count eg-count-green">
+                                <i class="bi bi-calendar-check"></i>
+                                Automatic scheduling
+                            </span>
 
-                        </select>
-
-                        <div class="eg-form-help">
-                            <i class="bi bi-info-circle"></i>
-                            Choose how many papers each class can have on an examination day.
                         </div>
 
                     </div>
-
 
                     <div class="col-lg-6">
 
@@ -1327,56 +1364,37 @@
                             <div class="eg-time-grid">
 
                                 <div class="eg-time-card">
-
                                     <div class="eg-time-number">
                                         <i class="bi bi-1-circle"></i>
                                         Paper 1
                                     </div>
-
-                                    <div class="eg-time-value">
-                                        10:00 AM
-                                    </div>
-
+                                    <div class="eg-time-value">10:00 AM</div>
                                 </div>
 
                                 <div class="eg-time-card">
-
                                     <div class="eg-time-number">
                                         <i class="bi bi-2-circle"></i>
                                         Paper 2
                                     </div>
-
-                                    <div class="eg-time-value">
-                                        01:00 PM
-                                    </div>
-
+                                    <div class="eg-time-value">01:00 PM</div>
                                 </div>
 
                                 <div class="eg-time-card">
-
                                     <div class="eg-time-number">
                                         <i class="bi bi-3-circle"></i>
                                         Paper 3
                                     </div>
-
-                                    <div class="eg-time-value">
-                                        03:00 PM
-                                    </div>
-
+                                    <div class="eg-time-value">03:00 PM</div>
                                 </div>
 
                             </div>
 
                             <div class="eg-time-footnote">
-
                                 <i class="bi bi-info-circle"></i>
-
                                 <span>
-                                    Only the selected number of daily paper slots will be used.
-                                    The actual paper end time is calculated from the subject's
-                                    configured duration.
+                                    Additional daily slots are used only when needed. End times are
+                                    calculated from each subject's configured duration.
                                 </span>
-
                             </div>
 
                         </div>
@@ -1385,10 +1403,7 @@
 
                 </div>
 
-
-                {{-- =====================================================
-                    CLASSES INCLUDED
-                ====================================================== --}}
+                {{-- CLASSES INCLUDED --}}
                 <div class="eg-section">
 
                     <div class="eg-section-heading">
@@ -1411,18 +1426,15 @@
 
                     </div>
 
-
                     @if($examClasses->isEmpty())
 
                         <div class="eg-empty-state">
-
                             <i class="bi bi-exclamation-circle"></i>
 
                             <div>
                                 <strong>No classes configured.</strong>
                                 Add classes to this examination before generating the timetable.
                             </div>
-
                         </div>
 
                     @else
@@ -1447,11 +1459,9 @@
                                                 }}
 
                                                 @if($examClass->schoolClass->section ?? null)
-
                                                     <span class="eg-class-section">
                                                         Section: {{ $examClass->schoolClass->section }}
                                                     </span>
-
                                                 @endif
 
                                             </div>
@@ -1470,10 +1480,16 @@
 
                 </div>
 
+                {{-- CONFIGURED SUBJECTS --}}
+                @php
+                    $subjectsByClass = $examSubjects->groupBy(function ($item) {
+                        return $item->school_class_id
+                            ?? $item->class_id
+                            ?? $item->schoolClass?->id
+                            ?? 'unknown';
+                    });
+                @endphp
 
-                {{-- =====================================================
-                    CONFIGURED EXAM SUBJECTS
-                ====================================================== --}}
                 <div class="eg-section">
 
                     <div class="eg-section-heading">
@@ -1481,11 +1497,11 @@
                         <div>
                             <h3 class="eg-section-title">
                                 <i class="bi bi-journal-text"></i>
-                                Configured Exam Subjects
+                                Configured Subjects
                             </h3>
 
                             <p class="eg-section-note">
-                                Subjects, maximum marks, and durations used for scheduling.
+                                Subjects, maximum marks and paper durations configured for this examination.
                             </p>
                         </div>
 
@@ -1496,107 +1512,101 @@
 
                     </div>
 
+                    <div class="eg-table-wrap eg-print-subjects-wrap">
 
-                    @if($examSubjects->isEmpty())
+                        <table class="eg-table eg-print-subjects-table">
 
-                        <div class="eg-empty-state">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">No</th>
+                                    <th>Class</th>
+                                    <th>Subject</th>
+                                    <th class="text-center" style="width: 100px;">Max Marks</th>
+                                    <th class="text-center" style="width: 110px;">Duration</th>
+                                </tr>
+                            </thead>
 
-                            <i class="bi bi-exclamation-circle"></i>
+                            <tbody>
 
-                            <div>
-                                <strong>No examination subjects configured.</strong>
-                                Configure subjects for this examination before generating the timetable.
-                            </div>
+                                @php
+                                    $rowNumber = 1;
+                                @endphp
 
-                        </div>
+                                @forelse($subjectsByClass as $classSubjects)
 
-                    @else
+                                    @php
+                                        $first = $classSubjects->first();
+                                        $schoolClass = $first->schoolClass;
 
-                        <div class="eg-table-wrap">
+                                        $className = $schoolClass->class_name
+                                            ?? $schoolClass->name
+                                            ?? 'Unknown Class';
 
-                            <table class="eg-table">
+                                        $section = $schoolClass->section ?? null;
+                                    @endphp
 
-                                <thead>
-                                    <tr>
-
-                                        <th style="width: 65px;">#</th>
-                                        <th>Class</th>
-                                        <th>Subject</th>
-                                        <th class="text-center">Marks</th>
-                                        <th class="text-center">Duration</th>
-
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach($examSubjects as $index => $examSubject)
+                                    @foreach($classSubjects as $examSubject)
 
                                         <tr>
 
-                                            <td>
-                                                <span class="eg-row-number">
-                                                    {{ $index + 1 }}
-                                                </span>
+                                            <td class="eg-print-number">
+                                                {{ $rowNumber++ }}
                                             </td>
 
-                                            <td>
+                                            @if($loop->first)
 
-                                                <span class="eg-table-main">
-                                                    {{ $examSubject->schoolClass->class_name
-                                                        ?? $examSubject->schoolClass->name
-                                                        ?? '-'
-                                                    }}
-                                                </span>
+                                                <td rowspan="{{ $classSubjects->count() }}"
+                                                    class="eg-print-class-cell">
 
-                                                @if($examSubject->schoolClass->section ?? null)
+                                                    <strong>{{ $className }}</strong>
 
-                                                    <span class="eg-table-sub">
-                                                        Section: {{ $examSubject->schoolClass->section }}
-                                                    </span>
+                                                    @if($section)
+                                                        <span class="eg-print-section">
+                                                            Section {{ $section }}
+                                                        </span>
+                                                    @endif
 
-                                                @endif
+                                                </td>
 
-                                            </td>
+                                            @endif
 
-                                            <td>
-                                                <span class="eg-table-main">
-                                                    {{ $examSubject->subject->subject_name
-                                                        ?? 'Unknown Subject'
-                                                    }}
-                                                </span>
+                                            <td class="eg-print-subject-cell">
+                                                {{ $examSubject->subject->subject_name
+                                                    ?? 'Unknown Subject'
+                                                }}
                                             </td>
 
                                             <td class="text-center">
-                                                <span class="eg-marks">
-                                                    {{ $examSubject->maximum_marks ?? 0 }}
-                                                </span>
+                                                {{ $examSubject->maximum_marks ?? 0 }}
                                             </td>
 
                                             <td class="text-center">
-                                                <span class="eg-duration">
-                                                    {{ $examSubject->duration_minutes ?? 60 }} min
-                                                </span>
+                                                {{ $examSubject->duration_minutes ?? 60 }} min
                                             </td>
 
                                         </tr>
 
                                     @endforeach
 
-                                </tbody>
+                                @empty
 
-                            </table>
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            No examination subjects configured.
+                                        </td>
+                                    </tr>
 
-                        </div>
+                                @endforelse
 
-                    @endif
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
-
-                {{-- =====================================================
-                    CONFIGURED HOLIDAYS
-                ====================================================== --}}
+                {{-- CONFIGURED HOLIDAYS --}}
                 <div class="eg-section">
 
                     <div class="eg-section-heading">
@@ -1619,17 +1629,14 @@
 
                     </div>
 
-
                     @if($holidays->isEmpty())
 
                         <div class="eg-empty-state">
-
                             <i class="bi bi-calendar-check"></i>
 
                             <div>
                                 No additional examination holidays are configured.
                             </div>
-
                         </div>
 
                     @else
@@ -1647,11 +1654,9 @@
                                     </span>
 
                                     @if($holiday->holiday_name ?? null)
-
                                         <span class="eg-holiday-name">
                                             — {{ $holiday->holiday_name }}
                                         </span>
-
                                     @endif
 
                                 </div>
@@ -1664,10 +1669,7 @@
 
                 </div>
 
-
-                {{-- =====================================================
-                    REPLACE EXISTING TIMETABLE
-                ====================================================== --}}
+                {{-- REPLACE EXISTING TIMETABLE --}}
                 <div class="eg-section">
 
                     <div class="eg-section-heading">
@@ -1718,56 +1720,7 @@
 
                 </div>
 
-
-                {{-- =====================================================
-                    AUTOMATIC SCHEDULING RULES
-                ====================================================== --}}
-                <div class="eg-section">
-
-                    <div class="eg-notice eg-notice-success">
-
-                        <div class="eg-notice-icon">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-
-                        <div class="eg-notice-content">
-
-                            <div class="eg-notice-title">
-                                Automatic Scheduling Rules
-                            </div>
-
-                            <ul>
-
-                                <li>Start from the exam start date.</li>
-
-                                <li>End at the exam end date.</li>
-
-                                <li>Skip Saturday and Sunday.</li>
-
-                                <li>Skip configured examination holidays.</li>
-
-                                <li>Schedule subjects independently for each class.</li>
-
-                                <li>
-                                    Use the next available automatic paper slot for each class.
-                                </li>
-
-                                <li>Skip classes that finish all their subjects early.</li>
-
-                                <li>Leave teachers unassigned until manually edited.</li>
-
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- =====================================================
-                    FORM ACTIONS
-                ====================================================== --}}
+                {{-- FORM ACTIONS --}}
                 <div class="eg-form-footer">
 
                     <div class="eg-footer-note">
@@ -1776,7 +1729,8 @@
                     </div>
 
                     <a href="{{ route('admin.exam-schedules.index', $exam) }}"
-                       class="eg-btn eg-btn-outline">
+                       class="eg-btn eg-btn-outline"
+                       style="color: var(--eg-ink); background: #fffefa; border-color: var(--eg-line);">
 
                         <i class="bi bi-x-circle"></i>
                         Cancel
@@ -1802,18 +1756,13 @@
 
 </div>
 
-
-{{-- =========================================================
-    CONFIRMATION SCRIPT
-========================================================= --}}
+{{-- CONFIRMATION SCRIPT --}}
 @push('scripts')
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
     const form = document.getElementById('generateTimetableForm');
     const button = document.getElementById('generateButton');
-    const papersSelect = document.getElementById('papers_per_day');
     const replaceCheckbox = document.getElementById('replace_existing');
 
     if (!form) {
@@ -1824,68 +1773,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener('submit', function (event) {
 
-        /*
-         * Prevent duplicate submissions after a successful confirmation.
-         */
         if (submissionConfirmed) {
             event.preventDefault();
             return;
         }
 
-        if (!papersSelect || !papersSelect.value) {
-
-            event.preventDefault();
-
-            if (papersSelect) {
-                papersSelect.focus();
-                papersSelect.reportValidity();
-            }
-
-            alert('Please select Papers Per Day.');
-
-            return;
-        }
-
         let message =
             'Generate the examination timetable automatically?\n\n'
-            + 'Papers Per Day: '
-            + papersSelect.options[papersSelect.selectedIndex].text
-            + '\n\n'
-            + 'The system will automatically schedule subjects '
-            + 'for each class based on the examination dates.';
+            + 'The system will calculate paper counts independently for each class, '
+            + 'use configured subject durations, and skip weekends and examination holidays.';
 
         if (replaceCheckbox && replaceCheckbox.checked) {
-
             message +=
                 '\n\nWARNING: Existing timetable entries for this examination '
                 + 'will be deleted and replaced.';
         }
 
         if (!confirm(message)) {
-
             event.preventDefault();
-
             return;
         }
 
         submissionConfirmed = true;
 
         if (button) {
-
             button.disabled = true;
 
             button.innerHTML =
                 '<span class="spinner-border spinner-border-sm" '
                 + 'role="status" aria-hidden="true"></span> '
                 + 'Generating Timetable...';
-
         }
 
     });
 
 });
 </script>
-
 @endpush
 
 @endsection

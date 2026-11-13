@@ -15,6 +15,20 @@ use Illuminate\Validation\Rule;
 class KitTemplateController extends Controller
 {
     /**
+     * Get classes for dropdowns.
+     *
+     * Do not assume that every project stores active status as integer 1.
+     * Fetching all class records also helps diagnose missing dropdown values.
+     */
+    private function getClasses()
+    {
+        return SchoolClass::query()
+            ->orderBy('class_name')
+            ->orderBy('section')
+            ->get();
+    }
+
+    /**
      * Display kit templates.
      */
     public function index(Request $request)
@@ -25,89 +39,43 @@ class KitTemplateController extends Controller
             'items.supplyItem',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Search
-        |--------------------------------------------------------------------------
-        */
         if ($request->filled('search')) {
-            $search = trim($request->search);
+            $search = trim($request->input('search'));
 
             $query->where(function ($q) use ($search) {
                 $q->where('kit_name', 'like', "%{$search}%")
                     ->orWhere('academic_year', 'like', "%{$search}%")
                     ->orWhereHas('schoolClass', function ($classQuery) use ($search) {
-    $classQuery
-        ->where('class_name', 'like', "%{$search}%")
-        ->orWhere('section', 'like', "%{$search}%");
-})
+                        $classQuery->where('class_name', 'like', "%{$search}%")
+                            ->orWhere('section', 'like', "%{$search}%");
+                    })
                     ->orWhereHas('scheme', function ($schemeQuery) use ($search) {
-                        $schemeQuery
-                            ->where('scheme_name', 'like', "%{$search}%")
+                        $schemeQuery->where('scheme_name', 'like', "%{$search}%")
                             ->orWhere('scheme_code', 'like', "%{$search}%");
                     });
             });
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Class Filter
-        |--------------------------------------------------------------------------
-        */
         if ($request->filled('class_id')) {
-            $query->where('class_id', $request->class_id);
+            $query->where('class_id', $request->input('class_id'));
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Academic Year Filter
-        |--------------------------------------------------------------------------
-        */
         if ($request->filled('academic_year')) {
-            $query->where(
-                'academic_year',
-                $request->academic_year
-            );
+            $query->where('academic_year', $request->input('academic_year'));
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Status Filter
-        |--------------------------------------------------------------------------
-        */
         if ($request->filled('status')) {
-            $query->where(
-                'status',
-                $request->status
-            );
+            $query->where('status', $request->input('status'));
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Kit Templates
-        |--------------------------------------------------------------------------
-        */
         $kitTemplates = $query
             ->withCount('items')
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Class Dropdown
-        |--------------------------------------------------------------------------
-        */
-        $classes = SchoolClass::where('status', 1)
-            ->orderBy('class_name')
-            ->orderBy('section')
-            ->get();
+        $classes = $this->getClasses();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Academic Year Dropdown
-        |--------------------------------------------------------------------------
-        */
         $academicYears = KitTemplate::query()
             ->whereNotNull('academic_year')
             ->where('academic_year', '!=', '')
@@ -115,36 +83,19 @@ class KitTemplateController extends Controller
             ->orderByDesc('academic_year')
             ->pluck('academic_year');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics
-        |--------------------------------------------------------------------------
-        */
         $stats = [
             'total' => KitTemplate::count(),
-
-            'active' => KitTemplate::where(
-                'status',
-                'active'
-            )->count(),
-
-            'inactive' => KitTemplate::where(
-                'status',
-                'inactive'
-            )->count(),
-
+            'active' => KitTemplate::where('status', 'active')->count(),
+            'inactive' => KitTemplate::where('status', 'inactive')->count(),
             'items' => KitTemplateItem::count(),
         ];
 
-        return view(
-            'admin.kit-templates.index',
-            compact(
-                'kitTemplates',
-                'classes',
-                'academicYears',
-                'stats'
-            )
-        );
+        return view('admin.kit-templates.index', compact(
+            'kitTemplates',
+            'classes',
+            'academicYears',
+            'stats'
+        ));
     }
 
     /**
@@ -152,56 +103,36 @@ class KitTemplateController extends Controller
      */
     public function create()
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Government Schemes
-        |--------------------------------------------------------------------------
-        */
-        $schemes = GovernmentScheme::where('status', 'active')
+        $schemes = GovernmentScheme::query()
+            ->where('status', 'active')
             ->orderBy('scheme_name')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Supply Items
-        |--------------------------------------------------------------------------
-        */
-        $supplyItems = SupplyItem::where('status', 'active')
+        $supplyItems = SupplyItem::query()
+            ->where('status', 'active')
             ->orderBy('item_name')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Classes
-        |--------------------------------------------------------------------------
-        */
-        $classes = SchoolClass::where('status', 1)
-            ->orderBy('class_name')
-            ->orderBy('section')
-            ->get();
+        $classes = $this->getClasses();
 
-        return view(
-            'admin.kit-templates.create',
-            compact(
-                'schemes',
-                'supplyItems',
-                'classes'
-            )
-        );
+        return view('admin.kit-templates.create', compact(
+            'schemes',
+            'supplyItems',
+            'classes'
+        ));
     }
 
     /**
-     * Store kit template with items.
+     * Validate kit data shared by store and update.
      */
-    public function store(Request $request)
+    private function validateKit(Request $request): array
     {
-        $validated = $request->validate([
+        return $request->validate([
             'scheme_id' => [
                 'required',
                 'integer',
-                'exists:government_schemes,id',
+                Rule::exists('government_schemes', 'id'),
             ],
-
 
             'kit_name' => [
                 'required',
@@ -209,10 +140,11 @@ class KitTemplateController extends Controller
                 'max:255',
             ],
 
-            'class' => [
-                'nullable',
-                'string',
-                'max:100',
+            // The form must submit the selected SchoolClass ID.
+            'class_id' => [
+                'required',
+                'integer',
+                Rule::exists((new SchoolClass())->getTable(), 'id'),
             ],
 
             'academic_year' => [
@@ -228,10 +160,7 @@ class KitTemplateController extends Controller
 
             'status' => [
                 'required',
-                Rule::in([
-                    'active',
-                    'inactive',
-                ]),
+                Rule::in(['active', 'inactive']),
             ],
 
             'items' => [
@@ -243,7 +172,7 @@ class KitTemplateController extends Controller
             'items.*.supply_item_id' => [
                 'required',
                 'integer',
-                'exists:supply_items,id',
+                Rule::exists('supply_items', 'id'),
             ],
 
             'items.*.quantity' => [
@@ -258,9 +187,16 @@ class KitTemplateController extends Controller
                 'max:1000',
             ],
         ]);
+    }
+
+    /**
+     * Store kit template with its items.
+     */
+    public function store(Request $request)
+    {
+        $validated = $this->validateKit($request);
 
         DB::transaction(function () use ($validated) {
-
             $kitTemplate = KitTemplate::create([
                 'scheme_id' => $validated['scheme_id'],
                 'class_id' => $validated['class_id'],
@@ -282,10 +218,7 @@ class KitTemplateController extends Controller
 
         return redirect()
             ->route('admin.kit-templates.index')
-            ->with(
-                'success',
-                'Kit template created successfully.'
-            );
+            ->with('success', 'Government kit created successfully.');
     }
 
     /**
@@ -299,10 +232,7 @@ class KitTemplateController extends Controller
             'items.supplyItem',
         ]);
 
-        return view(
-            'admin.kit-templates.show',
-            compact('kitTemplate')
-        );
+        return view('admin.kit-templates.show', compact('kitTemplate'));
     }
 
     /**
@@ -316,111 +246,54 @@ class KitTemplateController extends Controller
             'items.supplyItem',
         ]);
 
-        $schemes = GovernmentScheme::where('status', 'active')
+        $schemes = GovernmentScheme::query()
+            ->where('status', 'active')
             ->orderBy('scheme_name')
             ->get();
 
-        $supplyItems = SupplyItem::where('status', 'active')
+        $supplyItems = SupplyItem::query()
+            ->where(function ($query) {
+                $query->where('status', 'active')
+                    ->orWhereNull('status');
+            })
             ->orderBy('item_name')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT
-        |--------------------------------------------------------------------------
-        | Keep the same status condition used in create().
-        */
-        $classes = SchoolClass::where('status', 1)
-            ->orderBy('class_name')
-            ->orderBy('section')
-            ->get();
+        $classes = $this->getClasses();
 
-        return view(
-            'admin.kit-templates.edit',
-            compact(
-                'kitTemplate',
-                'schemes',
-                'supplyItems',
-                'classes'
-            )
-        );
+        // Include existing kit items even if their supply item is inactive.
+        $existingSupplyItemIds = $kitTemplate->items
+            ->pluck('supply_item_id');
+
+        if ($existingSupplyItemIds->isNotEmpty()) {
+            $existingItems = SupplyItem::whereIn(
+                'id',
+                $existingSupplyItemIds
+            )->get();
+
+            $supplyItems = $supplyItems
+                ->concat($existingItems)
+                ->unique('id')
+                ->sortBy('item_name')
+                ->values();
+        }
+
+        return view('admin.kit-templates.edit', compact(
+            'kitTemplate',
+            'schemes',
+            'supplyItems',
+            'classes'
+        ));
     }
 
     /**
-     * Update kit template and items.
+     * Update kit template and its items.
      */
-    public function update(
-        Request $request,
-        KitTemplate $kitTemplate
-    ) {
-        $validated = $request->validate([
-            'scheme_id' => [
-                'required',
-                'integer',
-                'exists:government_schemes,id',
-            ],
+    public function update(Request $request, KitTemplate $kitTemplate)
+    {
+        $validated = $this->validateKit($request);
 
-            'kit_name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'class' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20',
-            ],
-
-            'description' => [
-                'nullable',
-                'string',
-            ],
-
-            'status' => [
-                'required',
-                Rule::in([
-                    'active',
-                    'inactive',
-                ]),
-            ],
-
-            'items' => [
-                'required',
-                'array',
-                'min:1',
-            ],
-
-            'items.*.supply_item_id' => [
-                'required',
-                'integer',
-                'exists:supply_items,id',
-            ],
-
-            'items.*.quantity' => [
-                'required',
-                'integer',
-                'min:1',
-            ],
-
-            'items.*.remarks' => [
-                'nullable',
-                'string',
-                'max:1000',
-            ],
-        ]);
-
-        DB::transaction(function () use (
-            $validated,
-            $kitTemplate
-        ) {
-
+        DB::transaction(function () use ($validated, $kitTemplate) {
             $kitTemplate->update([
                 'scheme_id' => $validated['scheme_id'],
                 'class_id' => $validated['class_id'],
@@ -430,18 +303,8 @@ class KitTemplateController extends Controller
                 'status' => $validated['status'],
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Remove Existing Items
-            |--------------------------------------------------------------------------
-            */
             $kitTemplate->items()->delete();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Add Updated Items
-            |--------------------------------------------------------------------------
-            */
             foreach ($validated['items'] as $item) {
                 KitTemplateItem::create([
                     'kit_template_id' => $kitTemplate->id,
@@ -453,14 +316,8 @@ class KitTemplateController extends Controller
         });
 
         return redirect()
-            ->route(
-                'admin.kit-templates.show',
-                $kitTemplate
-            )
-            ->with(
-                'success',
-                'Kit template updated successfully.'
-            );
+    ->route('admin.kit-templates.edit', $kitTemplate)
+    ->with('success', 'Government Kit updated successfully!');
     }
 
     /**
@@ -472,11 +329,6 @@ class KitTemplateController extends Controller
 
         return redirect()
             ->route('admin.kit-templates.index')
-            ->with(
-                'success',
-                'Kit template deleted successfully.'
-            );
+            ->with('success', 'Government kit deleted successfully.');
     }
 }
-
-

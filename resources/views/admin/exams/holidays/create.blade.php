@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Add Exam Holiday')
@@ -11,7 +10,11 @@
     <div class="eh-page-header">
 
         <div class="eh-header-copy">
-            <div class="eh-eyebrow">EXAMINATION MANAGEMENT</div>
+
+            <div class="eh-eyebrow">
+                <i class="bi bi-journal-bookmark-fill"></i>
+                EXAMINATION MANAGEMENT
+            </div>
 
             <div class="eh-title-row">
                 <h1 class="eh-page-title">Add Exam Holiday</h1>
@@ -29,6 +32,7 @@
                 <i class="bi bi-chevron-right"></i>
                 <span>Add Holiday</span>
             </div>
+
         </div>
 
         <div class="eh-header-actions">
@@ -147,6 +151,7 @@
 
                     {{-- HOLIDAY DATE --}}
                     <div class="eh-form-field">
+
                         <label for="holiday_date" class="eh-form-label">
                             <i class="bi bi-calendar-date"></i>
                             Holiday Date
@@ -206,10 +211,12 @@
                                 </strong>
                             </div>
                         </div>
+
                     </div>
 
                     {{-- STATUS --}}
                     <div class="eh-form-field">
+
                         <label for="status" class="eh-form-label">
                             <i class="bi bi-toggle-on"></i>
                             Holiday Status
@@ -250,22 +257,27 @@
                         </div>
 
                         <div class="eh-status-info" id="ehStatusInfo">
+
                             <div class="eh-status-info-icon" id="ehStatusIcon">
                                 <i class="bi bi-check-circle"></i>
                             </div>
 
                             <div>
                                 <strong id="ehStatusTitle">Active holiday</strong>
+
                                 <p id="ehStatusDescription">
                                     The timetable generator should skip this date
                                     when its holiday-checking logic is enabled.
                                 </p>
                             </div>
+
                         </div>
+
                     </div>
 
                     {{-- REASON --}}
                     <div class="eh-form-field eh-form-field-full">
+
                         <label for="reason" class="eh-form-label">
                             <i class="bi bi-chat-left-text"></i>
                             Reason
@@ -292,38 +304,45 @@
                         <div class="eh-field-help">
                             <i class="bi bi-info-circle"></i>
                             Add a short description explaining why this date is a holiday.
+
                             <span class="eh-character-count">
                                 <span id="ehReasonCount">{{ strlen(old('reason', '')) }}</span>/255
                             </span>
                         </div>
+
                     </div>
 
                 </div>
 
                 {{-- SCHEDULING NOTICE --}}
                 <div class="eh-notice">
+
                     <div class="eh-notice-icon">
                         <i class="bi bi-lightbulb"></i>
                     </div>
 
                     <div class="eh-notice-content">
                         <h3>Scheduling Tip</h3>
+
                         <p>
                             Add holidays before generating the examination timetable.
                             The timetable generation logic must check active holiday
                             records to avoid scheduling examinations on those dates.
                         </p>
                     </div>
+
                 </div>
 
                 {{-- FORM FOOTER --}}
                 <div class="eh-form-footer">
+
                     <div class="eh-footer-guidance">
                         <i class="bi bi-shield-check"></i>
                         Review the holiday details before saving.
                     </div>
 
                     <div class="eh-form-actions">
+
                         <a href="{{ route('admin.exam-holidays.index', $exam) }}"
                            class="eh-btn eh-btn-secondary">
                             <i class="bi bi-x-lg"></i>
@@ -334,7 +353,9 @@
                             <i class="bi bi-check2-circle"></i>
                             <span>Save Holiday</span>
                         </button>
+
                     </div>
+
                 </div>
 
             </form>
@@ -351,8 +372,7 @@
 
 <style>
 /* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM
-   Scoped exclusively to Exam Holidays Create
+   EXAM HOLIDAYS - SCHOOL DIARY DESIGN SYSTEM
 ========================================================= */
 
 .exam-holidays-page {
@@ -388,26 +408,69 @@
     text-decoration: none;
 }
 
-/* HEADER */
+/* =========================================================
+   EXAMINATION MANAGEMENT HEADER
+========================================================= */
 
 .eh-page-header {
+    position: relative;
+    isolation: isolate;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 24px;
+    min-height: 178px;
     margin-bottom: 25px;
+    padding: 26px 29px;
+    overflow: hidden;
+    border: 1px solid rgba(196, 154, 69, .38);
+    border-left: 4px solid #c49a45;
+    border-radius: 16px;
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+    box-shadow: 0 10px 25px rgba(20, 47, 37, .14);
+}
+
+.eh-page-header::after {
+    position: absolute;
+    z-index: -1;
+    top: -145px;
+    right: -70px;
+    width: 340px;
+    height: 340px;
+    border: 1px solid rgba(226, 196, 127, .22);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 28px rgba(255, 255, 255, .025),
+        0 0 0 58px rgba(255, 255, 255, .02),
+        0 0 0 90px rgba(255, 255, 255, .015);
+    content: "";
+    pointer-events: none;
 }
 
 .eh-header-copy {
+    position: relative;
+    z-index: 1;
     min-width: 0;
 }
 
 .eh-eyebrow {
-    margin-bottom: 8px;
-    color: var(--eh-sage);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 11px;
+    color: #e2c47f;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .15em;
+    letter-spacing: .16em;
+}
+
+.eh-eyebrow i {
+    font-size: 13px;
 }
 
 .eh-title-row {
@@ -419,7 +482,7 @@
 
 .eh-page-title {
     margin: 0;
-    color: var(--eh-ink);
+    color: #fffefa;
     font-family: Georgia, serif;
     font-size: clamp(26px, 3vw, 34px);
     font-weight: 700;
@@ -431,19 +494,19 @@
     display: inline-flex;
     align-items: center;
     padding: 6px 11px;
-    border: 1px solid var(--eh-line);
+    border: 1px solid rgba(226, 196, 127, .38);
     border-radius: 30px;
-    background: var(--eh-paper);
-    color: var(--eh-soft);
-    font-size: 11px;
+    background: rgba(226, 196, 127, .12);
+    color: #f0dba9;
+    font-size: 10px;
     font-weight: 700;
     white-space: nowrap;
 }
 
 .eh-page-description {
     margin: 9px 0 13px;
-    color: var(--eh-muted);
-    font-size: 13px;
+    color: rgba(255, 254, 250, .78);
+    font-size: 12px;
     line-height: 1.7;
 }
 
@@ -452,33 +515,37 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 9px;
-    color: var(--eh-muted);
-    font-size: 11px;
+    color: rgba(255, 254, 250, .68);
+    font-size: 10px;
 }
 
 .eh-breadcrumb a {
-    color: var(--eh-sage);
+    color: #e2c47f;
     font-weight: 700;
 }
 
 .eh-breadcrumb a:hover {
-    color: var(--eh-dark);
+    color: #fffefa;
 }
 
 .eh-breadcrumb i {
+    color: rgba(226, 196, 127, .75);
     font-size: 9px;
 }
 
 .eh-header-actions {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 9px;
     flex-shrink: 0;
-    padding-top: 17px;
 }
 
-/* BUTTONS */
+/* =========================================================
+   BUTTONS
+========================================================= */
 
 .exam-holidays-page .eh-btn {
     display: inline-flex;
@@ -494,8 +561,10 @@
     font-weight: 700;
     line-height: 1.3;
     cursor: pointer;
-    transition: background .18s ease, border-color .18s ease,
-                color .18s ease, transform .18s ease;
+    transition: background .18s ease,
+                border-color .18s ease,
+                color .18s ease,
+                transform .18s ease;
 }
 
 .exam-holidays-page .eh-btn:hover {
@@ -526,7 +595,26 @@
     color: var(--eh-dark);
 }
 
-/* SUMMARY CARDS */
+/* HEADER BACK BUTTON */
+
+.eh-page-header .eh-btn-secondary {
+    min-height: 43px;
+    padding: 11px 17px;
+    border-color: rgba(255, 255, 255, .30);
+    background: rgba(255, 255, 255, .09);
+    color: #fffefa;
+    backdrop-filter: blur(5px);
+}
+
+.eh-page-header .eh-btn-secondary:hover {
+    border-color: #fffefa;
+    background: #fffefa;
+    color: #20392d;
+}
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
 
 .eh-summary-grid {
     display: grid;
@@ -547,7 +635,8 @@
     border-radius: 12px;
     background: var(--eh-paper);
     box-shadow: 0 3px 10px rgb(38 59 53 / 3%);
-    transition: border-color .2s ease, box-shadow .2s ease,
+    transition: border-color .2s ease,
+                box-shadow .2s ease,
                 transform .2s ease;
 }
 
@@ -633,7 +722,9 @@
     color: var(--eh-muted);
 }
 
-/* VALIDATION */
+/* =========================================================
+   VALIDATION
+========================================================= */
 
 .eh-alert {
     display: flex;
@@ -685,7 +776,9 @@
     line-height: 1.8;
 }
 
-/* MAIN PANEL */
+/* =========================================================
+   MAIN PANEL
+========================================================= */
 
 .eh-panel {
     overflow: hidden;
@@ -760,7 +853,9 @@
     padding: 27px;
 }
 
-/* FORM GRID AND LABELS */
+/* =========================================================
+   FORM GRID AND LABELS
+========================================================= */
 
 .eh-form-grid {
     display: grid;
@@ -798,7 +893,9 @@
     font-weight: 500;
 }
 
-/* INPUTS */
+/* =========================================================
+   INPUTS
+========================================================= */
 
 .eh-input-wrap {
     display: flex;
@@ -915,7 +1012,9 @@
     white-space: nowrap;
 }
 
-/* EXAM PERIOD */
+/* =========================================================
+   EXAM PERIOD
+========================================================= */
 
 .eh-period-box {
     display: flex;
@@ -961,7 +1060,9 @@
     overflow-wrap: anywhere;
 }
 
-/* STATUS INFO */
+/* =========================================================
+   STATUS INFO
+========================================================= */
 
 .eh-status-info {
     display: flex;
@@ -1013,7 +1114,9 @@
     line-height: 1.75;
 }
 
-/* NOTICE */
+/* =========================================================
+   SCHEDULING NOTICE
+========================================================= */
 
 .eh-notice {
     display: flex;
@@ -1058,7 +1161,9 @@
     line-height: 1.8;
 }
 
-/* FORM FOOTER */
+/* =========================================================
+   FORM FOOTER
+========================================================= */
 
 .eh-form-footer {
     display: flex;
@@ -1093,7 +1198,9 @@
     gap: 9px;
 }
 
-/* PAGE FOOTER */
+/* =========================================================
+   PAGE FOOTER
+========================================================= */
 
 .eh-page-footer {
     display: flex;
@@ -1112,7 +1219,9 @@
     font-weight: 750;
 }
 
-/* ACCESSIBILITY */
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
 
 .exam-holidays-page a:focus-visible,
 .exam-holidays-page button:focus-visible,
@@ -1122,20 +1231,14 @@
     outline-offset: 3px;
 }
 
-/* RESPONSIVE */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media (max-width: 1100px) {
+
     .exam-holidays-page {
         padding: 20px;
-    }
-
-    .eh-page-header {
-        flex-direction: column;
-    }
-
-    .eh-header-actions {
-        justify-content: flex-start;
-        padding-top: 0;
     }
 
     .eh-summary-card {
@@ -1144,13 +1247,23 @@
 }
 
 @media (max-width: 767.98px) {
+
     .exam-holidays-page {
         padding: 14px;
     }
 
     .eh-page-header {
+        align-items: stretch;
+        flex-direction: column;
+        min-height: 0;
         gap: 17px;
         margin-bottom: 20px;
+        padding: 21px 19px;
+    }
+
+    .eh-page-header::after {
+        top: -180px;
+        right: -180px;
     }
 
     .eh-title-row {
@@ -1169,6 +1282,10 @@
     .eh-header-actions {
         width: 100%;
         justify-content: flex-start;
+    }
+
+    .eh-header-actions .eh-btn {
+        width: 100%;
     }
 
     .eh-summary-grid {
@@ -1239,8 +1356,13 @@
 }
 
 @media (max-width: 380px) {
+
     .exam-holidays-page {
         padding: 10px;
+    }
+
+    .eh-page-header {
+        padding: 18px 15px;
     }
 
     .eh-page-title {
@@ -1266,6 +1388,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .exam-holidays-page *,
     .exam-holidays-page *::before,
     .exam-holidays-page *::after {
@@ -1279,6 +1402,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const statusSelect = document.getElementById('status');
     const statusInfo = document.getElementById('ehStatusInfo');
     const statusIcon = document.getElementById('ehStatusIcon');
@@ -1286,20 +1410,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const statusDescription = document.getElementById('ehStatusDescription');
 
     function updateStatusInfo() {
+
         if (!statusSelect || !statusInfo) {
             return;
         }
 
         if (statusSelect.value === '1') {
+
             statusInfo.classList.remove('is-inactive');
+
             statusIcon.innerHTML = '<i class="bi bi-check-circle"></i>';
+
             statusTitle.textContent = 'Active holiday';
+
             statusDescription.textContent =
                 'The timetable generator should skip this date when its holiday-checking logic is enabled.';
+
         } else {
+
             statusInfo.classList.add('is-inactive');
+
             statusIcon.innerHTML = '<i class="bi bi-pause-circle"></i>';
+
             statusTitle.textContent = 'Inactive holiday';
+
             statusDescription.textContent =
                 'This record is marked inactive and should not be treated as a non-working day by the timetable generator.';
         }
@@ -1314,6 +1448,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const reasonCount = document.getElementById('ehReasonCount');
 
     function updateReasonCount() {
+
         if (reasonInput && reasonCount) {
             reasonCount.textContent = reasonInput.value.length;
         }
@@ -1323,6 +1458,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reasonInput.addEventListener('input', updateReasonCount);
         updateReasonCount();
     }
+
 });
 </script>
 

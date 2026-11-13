@@ -534,6 +534,153 @@
             transition-duration: .01ms !important;
         }
     }
+
+    
+/* Modern Edit Student UI refinements */
+.student-edit-page {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-size: 13px;
+    color: #263b35;
+}
+
+.student-edit-header {
+    padding: 26px;
+    border: 1px solid #e1e8df;
+    border-left: 5px solid #34775a;
+    border-radius: 16px;
+    box-shadow: 0 8px 28px rgba(38, 59, 53, 0.06);
+}
+
+.edit-title {
+    font-size: clamp(20px, 2vw, 27px);
+    letter-spacing: -0.6px;
+}
+
+.edit-subtitle {
+    font-size: 12px;
+}
+
+.edit-title-icon {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+    border-radius: 15px;
+}
+
+.student-id-badge {
+    padding: 10px 16px;
+    font-size: 12px;
+}
+
+.student-form-card {
+    border: 1px solid #e0e7dc;
+    border-radius: 16px;
+    box-shadow: 0 8px 28px rgba(38, 59, 53, 0.05);
+}
+
+.student-tabs {
+    gap: 6px;
+    padding: 12px 16px 0;
+    background: #f8f8f1;
+}
+
+.student-tabs .nav-link {
+    padding: 13px 16px;
+    border-radius: 10px 10px 0 0;
+    font-size: 12px;
+}
+
+.student-form-body {
+    padding: 28px;
+}
+
+.section-heading {
+    margin-bottom: 26px;
+    padding-bottom: 18px;
+}
+
+.section-heading h5 {
+    font-size: 16px;
+}
+
+.section-heading p {
+    font-size: 12px;
+}
+
+.form-label {
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.scheme-form-control,
+.scheme-form-select,
+.scheme-form-textarea,
+.form-control,
+.form-select {
+    min-height: 43px;
+    border-color: #dce3d9;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.scheme-form-textarea,
+textarea.form-control {
+    min-height: 110px;
+}
+
+.scheme-form-control:focus,
+.scheme-form-select:focus,
+.scheme-form-textarea:focus,
+.form-control:focus,
+.form-select:focus {
+    border-color: #34775a;
+    box-shadow: 0 0 0 4px rgba(52, 119, 90, 0.10);
+}
+
+.form-actions {
+    margin: 0 -28px -28px;
+    padding: 20px 28px;
+    border-radius: 0 0 16px 16px;
+}
+
+.btn-scheme-cancel,
+.btn-scheme-save {
+    min-height: 43px;
+    padding: 0 22px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.profile-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 16px;
+}
+
+@media (max-width: 767.98px) {
+    .student-edit-header {
+        padding: 18px;
+    }
+
+    .student-form-body {
+        padding: 18px 15px;
+    }
+
+    .student-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .student-tabs .nav-link {
+        padding: 11px 13px;
+    }
+
+    .form-actions {
+        margin: 0 -15px -18px;
+        padding: 16px 15px;
+    }
+}
+
 </style>
 
 <div class="student-edit-page">
@@ -768,27 +915,64 @@
                                    value="{{ old('academic_year', $student->academic_year) }}">
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label">Class</label>
-                            <select name="class" id="class" class="form-select scheme-form-select">
-                                @foreach(['Nursery','LKG','UKG','1','2','3','4','5','6','7','8','9','10','11','12'] as $class)
-                                    <option value="{{ $class }}" {{ old('class', $student->class) == $class ? 'selected' : '' }}>
-                                        {{ $class }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        
 
-                        <div class="col-md-4">
-                            <label class="form-label">Section</label>
-                            <select name="section" id="section" class="form-select scheme-form-select">
-                                @foreach(['A','B','C','D','E','F'] as $section)
-                                    <option value="{{ $section }}" {{ old('section', $student->section) == $section ? 'selected' : '' }}>
-                                        {{ $section }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+<div class="col-md-4">
+    <label for="class" class="form-label">
+        Class <span class="required">*</span>
+    </label>
+
+    <select
+        name="class"
+        id="class"
+        class="form-select scheme-form-select"
+        required
+    >
+        <option value="">Select Class</option>
+
+        @foreach($classes as $schoolClass)
+
+            @php
+                // Support both Eloquent objects and string values
+                if (is_object($schoolClass)) {
+                    $className = $schoolClass->class_name ?? '';
+                    $sectionName = $schoolClass->section ?? '';
+                } elseif (is_array($schoolClass)) {
+                    $className = $schoolClass['class_name'] ?? '';
+                    $sectionName = $schoolClass['section'] ?? '';
+                } else {
+                    $className = $schoolClass;
+                    $sectionName = '';
+                }
+
+                $className = (string) $className;
+                $sectionName = (string) $sectionName;
+
+                $selectedClass = (string) old('class', $student->class);
+            @endphp
+
+            @if($className !== '')
+                <option
+                    value="{{ $className }}"
+                    data-section="{{ $sectionName }}"
+                    {{ $selectedClass === $className ? 'selected' : '' }}
+                >
+                    {{ $className }}
+                    @if($sectionName !== '')
+                        — Section {{ $sectionName }}
+                    @endif
+                </option>
+            @endif
+
+        @endforeach
+    </select>
+
+    @error('class')
+        <div class="field-error">{{ $message }}</div>
+    @enderror
+</div>
+
+
 
                         <div class="col-md-4">
                             <label class="form-label">Roll Number</label>

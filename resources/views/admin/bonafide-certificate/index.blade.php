@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Bonafide Certificates | Admin')
 @section('page-title', 'Bonafide Certificates')
@@ -38,52 +38,68 @@
         @endif
 
         {{-- HERO --}}
-        <section class="health-hero">
-            <div class="health-hero-content">
-                <div class="health-hero-icon">
-                    <i class="fas fa-certificate"></i>
-                </div>
+<section class="health-hero">
 
-                <div class="health-hero-text">
-                    <div class="health-breadcrumb">
-                        <span>Certificate Management</span>
-                        <i class="fas fa-chevron-right"></i>
-                        <span>Bonafide Certificates</span>
-                    </div>
+    <div class="health-hero-content">
+        <div class="health-hero-icon">
+            <i class="fas fa-certificate"></i>
+        </div>
 
-                    <h2>Bonafide Certificates</h2>
-
-                    <p>
-                        Manage, issue and maintain student bonafide certificates
-                        from one place.
-                    </p>
-
-                    <div class="health-hero-note">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Official Student Documentation</span>
-                    </div>
-                </div>
+        <div class="health-hero-text">
+            <div class="health-breadcrumb">
+                <span>Certificate Management</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Bonafide Certificates</span>
             </div>
 
-            <div class="health-hero-actions">
-                <div class="hero-decoration">
-                    <i class="fas fa-file-signature"></i>
-                </div>
+            <h2>Bonafide Certificates</h2>
 
-                <div class="hero-handwritten">Verified. Trusted. Official.</div>
+            <p>
+                Manage, issue and maintain student bonafide certificates
+                from one place.
+            </p>
 
-                <p>
-                    Issue clean, consistent bonafide certificates
-                    whenever students need them.
-                </p>
-
-                <a href="{{ route('admin.bonafide.create') }}"
-                   class="diary-primary-btn">
-                    <i class="fas fa-plus"></i>
-                    Create Certificate
-                </a>
+            <div class="health-hero-note">
+                <i class="fas fa-shield-alt"></i>
+                <span>Official Student Documentation</span>
             </div>
-        </section>
+        </div>
+    </div>
+
+    <div class="health-hero-actions">
+        <div class="hero-decoration">
+            <i class="fas fa-file-signature"></i>
+        </div>
+
+        <div class="hero-handwritten">
+            Verified. Trusted. Official.
+        </div>
+
+        <p>
+            Issue clean, consistent bonafide certificates
+            whenever students need them.
+        </p>
+
+        <div class="hero-action-buttons">
+
+            {{-- Back to previous page --}}
+            <a href="{{ url()->previous() }}"
+               class="diary-back-btn">
+                <i class="fas fa-arrow-left"></i>
+                 Back
+            </a>
+
+            {{-- Create new certificate --}}
+            <a href="{{ route('admin.bonafide-certificate.classes') }}"
+               class="diary-primary-btn">
+                <i class="fas fa-plus"></i>
+                Create New Bonafide
+            </a>
+
+        </div>
+    </div>
+
+</section>
 
         {{-- KPI CARDS --}}
         <section class="health-kpis">
@@ -156,7 +172,7 @@
             </div>
 
             {{-- SEARCH AND FILTERS --}}
-            <form action="{{ route('admin.bonafide.index') }}"
+            <form action="{{ route('admin.bonafide-certificate.index') }}"
                   method="GET"
                   class="health-filter-panel">
 
@@ -190,7 +206,7 @@
                             <i class="fas fa-filter"></i> Search
                         </button>
 
-                        <a href="{{ route('admin.bonafide.index') }}"
+                        <a href="{{ route('admin.bonafide-certificate.index') }}"
                            class="diary-reset-btn"
                            title="Reset">
                             <i class="fas fa-rotate-left"></i> Reset
@@ -310,7 +326,7 @@
                                                 {{ $student->student_id }}
                                             </span>
                                         @else
-                                            <span class="diary-muted">—</span>
+                                            <span class="diary-muted">â€”</span>
                                         @endif
                                     </td>
 
@@ -318,13 +334,13 @@
                                     <td>
                                         @if($student && (!empty($student->class) || !empty($student->section)))
                                             <span class="health-chip class-chip">
-                                                {{ $student->class ?? '—' }}
+                                                {{ $student->class ?? 'â€”' }}
                                                 @if(!empty($student->section))
                                                     / {{ $student->section }}
                                                 @endif
                                             </span>
                                         @else
-                                            <span class="diary-muted">—</span>
+                                            <span class="diary-muted">â€”</span>
                                         @endif
                                     </td>
 
@@ -339,7 +355,7 @@
                                                 <div class="date-caption">Issue Date</div>
                                             </div>
                                         @else
-                                            <span class="diary-muted">—</span>
+                                            <span class="diary-muted">â€”</span>
                                         @endif
                                     </td>
 
@@ -351,7 +367,7 @@
                                                 {{ \Illuminate\Support\Str::limit($certificate->reason, 42) }}
                                             </span>
                                         @else
-                                            <span class="diary-muted">—</span>
+                                            <span class="diary-muted">â€”</span>
                                         @endif
                                     </td>
 
@@ -374,14 +390,14 @@
                                     <td>
                                         <div class="health-actions">
 
-                                            <a href="{{ route('admin.bonafide.show', $certificate->id) }}"
+                                            <a href="{{ route('admin.bonafide-certificate.show', $certificate->id) }}"
                                                class="health-action-btn view"
                                                title="View Certificate"
                                                aria-label="View certificate">
                                                 <i class="fas fa-eye"></i>
                                             </a>
 
-                                            <a href="{{ route('admin.bonafide.edit', $certificate->id) }}"
+                                            <a href="{{ route('admin.bonafide-certificate.edit', $certificate->id) }}"
                                                class="health-action-btn edit"
                                                title="Edit Certificate"
                                                aria-label="Edit certificate">
@@ -389,7 +405,7 @@
                                             </a>
 
                                             <form method="POST"
-                                                  action="{{ route('admin.bonafide.destroy', $certificate->id) }}"
+                                                  action="{{ route('admin.bonafide-certificate.destroy', $certificate->id) }}"
                                                   onsubmit="return confirm('Are you sure you want to delete this certificate?');"
                                                   style="display:inline;">
                                                 @csrf
@@ -460,13 +476,13 @@
 
                     <div class="empty-state-actions">
                         @if($hasFilters)
-                            <a href="{{ route('admin.bonafide.index') }}"
+                            <a href="{{ route('admin.bonafide-certificate.index') }}"
                                class="diary-primary-btn">
                                 <i class="fas fa-rotate-left"></i> Clear Search
                             </a>
                         @endif
 
-                        <a href="{{ route('admin.bonafide.create') }}"
+                        <a href="{{ route('admin.bonafide-certificate.create') }}"
                            class="diary-primary-btn">
                             <i class="fas fa-plus"></i> Create Certificate
                         </a>
@@ -480,7 +496,7 @@
 
 <style>
 /* ==========================================================
-   BONAFIDE CERTIFICATES — SCHOOL DIARY DESIGN SYSTEM
+   BONAFIDE CERTIFICATES â€” SCHOOL DIARY DESIGN SYSTEM
    Same tokens, surfaces, components & responsive rules
    as Student Health Records
 ========================================================== */
@@ -1002,7 +1018,7 @@
     gap: 16px;
 }
 
-/* Bonafide only has search → simpler grid */
+/* Bonafide only has search â†’ simpler grid */
 .bonafide-filter-grid {
     grid-template-columns: minmax(280px, 1fr) auto;
 }
@@ -1892,6 +1908,109 @@
         transition: none !important;
     }
 }
+
+.hero-action-buttons {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.diary-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 9px;
+    color: #f0e9d8;
+    background: rgba(255, 255, 255, .08);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.diary-back-btn:hover {
+    transform: translateY(-2px);
+    border-color: #fff;
+    color: #263b35;
+    background: #fffefa;
+    box-shadow: 0 5px 13px rgba(0, 0, 0, .12);
+}
+
+@media (max-width: 400px) {
+    .hero-action-buttons {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .hero-action-buttons .diary-back-btn,
+    .hero-action-buttons .diary-primary-btn {
+        width: 100%;
+    }
+}
+/* HERO ACTION BUTTONS */
+
+.hero-action-buttons {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.diary-back-btn {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 9px;
+    color: #f0e9d8;
+    background: rgba(255, 255, 255, .08);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.diary-back-btn:hover {
+    transform: translateY(-2px);
+    border-color: #fff;
+    color: #263b35;
+    background: #fffefa;
+    box-shadow: 0 5px 13px rgba(0, 0, 0, .12);
+}
+
+@media (max-width: 400px) {
+    .hero-action-buttons {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .hero-action-buttons .diary-back-btn,
+    .hero-action-buttons .diary-primary-btn {
+        width: 100%;
+    }
+}
 </style>
 
 @endsection
+
+

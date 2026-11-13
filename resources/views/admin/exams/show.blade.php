@@ -1,14 +1,15 @@
 @extends('layouts.app')
 
-@section('title', $exam->exam_name)
+@section('title', 'show-exam')
 
 @section('content')
 
 <div class="container-fluid py-4 exam-page">
 
-    {{-- SIMPLE PAGE HEADER --}}
+    {{-- DARK GREEN PAGE HEADER --}}
     <div class="page-header mb-4">
         <div class="header-main">
+
             <div class="header-title-wrap">
                 <a href="{{ route('admin.exams.index') }}"
                    class="back-button"
@@ -18,6 +19,7 @@
                 </a>
 
                 <div class="header-copy">
+
                     <div class="breadcrumb-text">
                         <a href="{{ route('admin.exams.index') }}">Examinations</a>
                         <i class="bi bi-chevron-right"></i>
@@ -25,7 +27,9 @@
                     </div>
 
                     <div class="d-flex align-items-center flex-wrap gap-2">
-                        <h4 class="page-title mb-0">{{ $exam->exam_name }}</h4>
+                        <h4 class="page-title mb-0">
+                            {{ $exam->exam_name }}
+                        </h4>
 
                         @php
                             $headerStatusClass = match($exam->status) {
@@ -46,6 +50,7 @@
                     <p class="page-subtitle mb-0">
                         Exam setup and timetable management
                     </p>
+
                 </div>
             </div>
 
@@ -62,6 +67,7 @@
                     All Exams
                 </a>
             </div>
+
         </div>
     </div>
 
@@ -573,9 +579,6 @@
 
 </div>
 
-{{-- =========================================================
-     LOCKED SCHOOL DIARY DESIGN SYSTEM
-========================================================= --}}
 <style>
     .exam-page {
         --diary-page: #f7f6f0;
@@ -623,13 +626,41 @@
         font-weight: 750;
     }
 
-    /* SIMPLE HEADER */
+    /* DARK GREEN AND GOLD HEADER */
 
     .exam-page .page-header {
-        padding: 0;
+        position: relative;
+        overflow: hidden;
+        padding: 25px 28px;
+        border-left: 4px solid #c49a45;
+        border-radius: 14px;
+        background: linear-gradient(
+            135deg,
+            #142f25 0%,
+            #1e4535 55%,
+            #285640 100%
+        );
+        box-shadow: 0 7px 20px rgba(20, 47, 37, .13);
+    }
+
+    .exam-page .page-header::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        right: -65px;
+        top: -115px;
+        border: 1px solid rgba(226, 196, 127, .18);
+        border-radius: 50%;
+        box-shadow:
+            0 0 0 25px rgba(226, 196, 127, .035),
+            0 0 0 50px rgba(226, 196, 127, .025);
+        pointer-events: none;
     }
 
     .exam-page .header-main {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -650,18 +681,18 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid var(--diary-line);
+        border: 1px solid rgba(226, 196, 127, .35);
         border-radius: 11px;
-        color: var(--diary-ink);
-        background: var(--diary-paper);
+        color: #f5e9c9;
+        background: rgba(255, 255, 255, .08);
         text-decoration: none;
         transition: .2s ease;
     }
 
     .exam-page .back-button:hover {
-        color: #fff;
-        background: var(--diary-forest);
-        border-color: var(--diary-forest);
+        color: #1d302b;
+        background: #e2c47f;
+        border-color: #e2c47f;
         transform: translateX(-2px);
     }
 
@@ -673,27 +704,28 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 5px;
-        color: var(--diary-muted);
+        margin-bottom: 6px;
+        color: rgba(255, 255, 255, .65);
         font-size: 11px;
     }
 
     .exam-page .breadcrumb-text a {
-        color: var(--diary-sage);
+        color: #e2c47f;
         text-decoration: none;
     }
 
     .exam-page .breadcrumb-text a:hover {
-        color: var(--diary-dark);
+        color: #fff;
         text-decoration: underline;
     }
 
     .exam-page .breadcrumb-text i {
         font-size: 9px;
+        color: rgba(226, 196, 127, .7);
     }
 
     .exam-page .page-title {
-        color: var(--diary-ink);
+        color: #fff;
         font-size: 23px;
         font-weight: 750;
         letter-spacing: -.45px;
@@ -701,8 +733,8 @@
     }
 
     .exam-page .page-subtitle {
-        margin-top: 5px;
-        color: var(--diary-muted);
+        margin-top: 6px;
+        color: rgba(255, 255, 255, .72);
         font-size: 12px;
     }
 
@@ -729,27 +761,28 @@
     }
 
     .exam-page .diary-btn-primary {
-        color: #fff;
-        background: var(--diary-forest);
-        border: 1px solid var(--diary-forest);
+        color: #1d302b;
+        background: #e2c47f;
+        border: 1px solid #e2c47f;
     }
 
     .exam-page .diary-btn-primary:hover {
-        color: var(--diary-dark);
-        background: #f1ead8;
-        border-color: #f1ead8;
+        color: #1d302b;
+        background: #f0d99f;
+        border-color: #f0d99f;
+        transform: translateY(-1px);
     }
 
     .exam-page .diary-btn-light {
-        color: var(--diary-ink);
-        background: var(--diary-paper);
-        border: 1px solid var(--diary-line);
+        color: #fff;
+        background: rgba(255, 255, 255, .09);
+        border: 1px solid rgba(255, 255, 255, .3);
     }
 
     .exam-page .diary-btn-light:hover {
-        color: #fff;
-        background: var(--diary-forest);
-        border-color: var(--diary-forest);
+        color: #1d302b;
+        background: #fff;
+        border-color: #fff;
     }
 
     .exam-page .diary-btn-outline-green {
@@ -1390,7 +1423,7 @@
 
     /* RESPONSIVE */
 
-    @media (max-width: 991.98px) {
+    @media (max-width: 767.98px) {
         .exam-page .overview-item {
             border-bottom: 1px solid var(--diary-line);
         }
@@ -1404,7 +1437,11 @@
         }
     }
 
-    @media (max-width: 767.98px) {
+    @media (max-width: 867.98px) {
+        .exam-page .page-header {
+            padding: 22px 20px;
+        }
+
         .exam-page .header-main {
             align-items: flex-start;
             flex-direction: column;
@@ -1460,10 +1497,14 @@
         }
     }
 
-    @media (max-width: 575.98px) {
+    @media (max-width: 767.98px) {
         .exam-page {
             padding-right: 12px !important;
             padding-left: 12px !important;
+        }
+
+        .exam-page .page-header {
+            padding: 19px 15px;
         }
 
         .exam-page .page-title {

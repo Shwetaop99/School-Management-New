@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Student Health Records | Admin')
@@ -6,12 +7,8 @@
 @section('content')
 
 @php
-    /*
-     * Classify a health status text into one of:
-     * good | referred | attention | unknown
-     */
     $classifyHealth = function ($text) {
-        $text = strtolower((string) $text);
+        $text = strtolower(trim((string) $text));
 
         if ($text === '') {
             return 'unknown';
@@ -36,7 +33,6 @@
     };
 
     $totalStudents = $students->total();
-
     $checkedCount = 0;
     $goodCount = 0;
     $attentionCount = 0;
@@ -52,7 +48,9 @@
 
         $checkedCount++;
 
-        $summaryClass = $classifyHealth($summaryRecord->overall_health_status);
+        $summaryClass = $classifyHealth(
+            $summaryRecord->overall_health_status
+        );
 
         if ($summaryClass === 'good') {
             $goodCount++;
@@ -61,10 +59,10 @@
         }
     }
 
-    $hasFilters = request('academic_year')
-        || request('class')
-        || request('section')
-        || request('search');
+    $hasFilters = request()->filled('academic_year')
+        || request()->filled('class')
+        || request()->filled('section')
+        || request()->filled('search');
 @endphp
 
 <div class="health-page">
@@ -73,7 +71,9 @@
         {{-- SUCCESS MESSAGE --}}
         @if(session('success'))
             <div class="health-alert" role="status">
-                <span class="success-icon"><i class="fas fa-check"></i></span>
+                <span class="success-icon">
+                    <i class="fas fa-check"></i>
+                </span>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -95,8 +95,8 @@
                     <h2>Student Health Records</h2>
 
                     <p>
-                        Manage annual student health checkup records,
-                        measurements and overall health status from one place.
+                        Manage annual student health checkups, measurements
+                        and health status from one place.
                     </p>
 
                     <div class="health-hero-note">
@@ -111,7 +111,9 @@
                     <i class="fas fa-notes-medical"></i>
                 </div>
 
-                <div class="hero-handwritten">Healthy Students. Happy Learning.</div>
+                <div class="hero-handwritten">
+                    Healthy Students. Happy Learning.
+                </div>
 
                 <p>
                     Every checkup matters. Keep annual health records
@@ -136,8 +138,14 @@
                         <i class="fas fa-users"></i>
                     </span>
                 </div>
-                <div class="kpi-value">{{ number_format($totalStudents) }}</div>
-                <div class="kpi-caption">Students matching your filters</div>
+
+                <div class="kpi-value">
+                    {{ number_format($totalStudents) }}
+                </div>
+
+                <div class="kpi-caption">
+                    Students matching your filters
+                </div>
             </article>
 
             <article class="health-kpi green">
@@ -147,8 +155,14 @@
                         <i class="fas fa-clipboard-check"></i>
                     </span>
                 </div>
-                <div class="kpi-value">{{ number_format($checkedCount) }}</div>
-                <div class="kpi-caption">With a checkup on this page</div>
+
+                <div class="kpi-value">
+                    {{ number_format($checkedCount) }}
+                </div>
+
+                <div class="kpi-caption">
+                    With a checkup on this page
+                </div>
             </article>
 
             <article class="health-kpi orange">
@@ -158,8 +172,14 @@
                         <i class="fas fa-check-circle"></i>
                     </span>
                 </div>
-                <div class="kpi-value">{{ number_format($goodCount) }}</div>
-                <div class="kpi-caption">Good status on this page</div>
+
+                <div class="kpi-value">
+                    {{ number_format($goodCount) }}
+                </div>
+
+                <div class="kpi-caption">
+                    Good status on this page
+                </div>
             </article>
 
             <article class="health-kpi red">
@@ -169,8 +189,14 @@
                         <i class="fas fa-exclamation-circle"></i>
                     </span>
                 </div>
-                <div class="kpi-value">{{ number_format($attentionCount) }}</div>
-                <div class="kpi-caption">Attention or referred on this page</div>
+
+                <div class="kpi-value">
+                    {{ number_format($attentionCount) }}
+                </div>
+
+                <div class="kpi-caption">
+                    Attention or referred on this page
+                </div>
             </article>
 
         </section>
@@ -183,6 +209,7 @@
                     <div class="panel-title-icon">
                         <i class="fas fa-notes-medical"></i>
                     </div>
+
                     <div>
                         <h3>Students Health Checkup</h3>
                         <p>View the latest checkup and manage health records.</p>
@@ -205,9 +232,13 @@
                     <div class="filter-heading-icon">
                         <i class="fas fa-sliders-h"></i>
                     </div>
+
                     <div>
                         <h4>Find Students</h4>
-                        <p>Filter by academic year, class and section, or search by student ID or name.</p>
+                        <p>
+                            Filter by academic year, class and section,
+                            or search by student ID or name.
+                        </p>
                     </div>
                 </div>
 
@@ -215,6 +246,7 @@
 
                     <div class="diary-filter-group">
                         <label for="academic_year">Academic Year</label>
+
                         <select name="academic_year"
                                 id="academic_year"
                                 class="diary-control">
@@ -231,6 +263,7 @@
 
                     <div class="diary-filter-group">
                         <label for="class">Class</label>
+
                         <select name="class"
                                 id="class"
                                 class="diary-control">
@@ -247,6 +280,7 @@
 
                     <div class="diary-filter-group">
                         <label for="section">Section</label>
+
                         <select name="section"
                                 id="section"
                                 class="diary-control">
@@ -263,8 +297,10 @@
 
                     <div class="diary-filter-group search-group">
                         <label for="search">Search Student</label>
+
                         <div class="diary-search-input">
                             <i class="fas fa-search"></i>
+
                             <input id="search"
                                    type="text"
                                    name="search"
@@ -276,13 +312,14 @@
 
                     <div class="diary-filter-actions">
                         <button type="submit" class="diary-apply-btn">
-                            <i class="fas fa-filter"></i> Filter
+                            <i class="fas fa-filter"></i>
+                            Filter
                         </button>
 
                         <a href="{{ route('admin.student-health.index') }}"
-                           class="diary-reset-btn"
-                           title="Reset">
-                            <i class="fas fa-rotate-left"></i> Reset
+                           class="diary-reset-btn">
+                            <i class="fas fa-rotate-left"></i>
+                            Reset
                         </a>
                     </div>
 
@@ -293,8 +330,10 @@
             @if($hasFilters)
                 <div class="health-active-filters">
                     <div class="active-filter-items">
+
                         <span class="active-filter-label">
-                            <i class="fas fa-filter"></i> Active filters
+                            <i class="fas fa-filter"></i>
+                            Active filters
                         </span>
 
                         @if(request('academic_year'))
@@ -332,7 +371,7 @@
                 </div>
             @endif
 
-            {{-- RECORDS TABLE --}}
+            {{-- STUDENT TABLE --}}
             @if($students->count())
 
                 <div class="health-table-wrapper">
@@ -377,14 +416,13 @@
                                 @endphp
 
                                 <tr>
-
                                     <td>
                                         <span class="health-row-number">
                                             {{ ($students->firstItem() ?? 0) + $loop->index }}
                                         </span>
                                     </td>
 
-                                    {{-- Student --}}
+                                    {{-- STUDENT --}}
                                     <td>
                                         <div class="student-info">
                                             <div class="student-avatar">
@@ -400,6 +438,7 @@
                                                 <div class="student-name">
                                                     {{ $studentName ?: 'N/A' }}
                                                 </div>
+
                                                 <div class="student-id">
                                                     <i class="fas fa-id-badge"></i>
                                                     ID: {{ $student->student_id ?? 'N/A' }}
@@ -408,25 +447,29 @@
                                         </div>
                                     </td>
 
-                                    {{-- Class --}}
+                                    {{-- CLASS --}}
                                     <td>
                                         @if(!empty($student->class))
-                                            <span class="health-chip class-chip">{{ $student->class }}</span>
+                                            <span class="health-chip class-chip">
+                                                {{ $student->class }}
+                                            </span>
                                         @else
                                             <span class="diary-muted">—</span>
                                         @endif
                                     </td>
 
-                                    {{-- Section --}}
+                                    {{-- SECTION --}}
                                     <td>
                                         @if(!empty($student->section))
-                                            <span class="health-chip section-chip">{{ $student->section }}</span>
+                                            <span class="health-chip section-chip">
+                                                {{ $student->section }}
+                                            </span>
                                         @else
                                             <span class="diary-muted">—</span>
                                         @endif
                                     </td>
 
-                                    {{-- Academic Year --}}
+                                    {{-- ACADEMIC YEAR --}}
                                     <td>
                                         @if(!empty($student->academic_year))
                                             <div class="health-date">
@@ -441,7 +484,7 @@
                                         @endif
                                     </td>
 
-                                    {{-- Latest Checkup --}}
+                                    {{-- LATEST CHECKUP --}}
                                     <td>
                                         @if($latestRecord && $latestRecord->checkup_date)
                                             <div class="health-date">
@@ -465,22 +508,24 @@
                                         @endif
                                     </td>
 
-                                    {{-- Height --}}
+                                    {{-- HEIGHT --}}
                                     <td>
                                         @if($latestRecord && $latestRecord->height !== null)
                                             <span class="health-measure">
-                                                {{ $latestRecord->height }} <small>cm</small>
+                                                {{ $latestRecord->height }}
+                                                <small>cm</small>
                                             </span>
                                         @else
                                             <span class="diary-muted">—</span>
                                         @endif
                                     </td>
 
-                                    {{-- Weight --}}
+                                    {{-- WEIGHT --}}
                                     <td>
                                         @if($latestRecord && $latestRecord->weight !== null)
                                             <span class="health-measure">
-                                                {{ $latestRecord->weight }} <small>kg</small>
+                                                {{ $latestRecord->weight }}
+                                                <small>kg</small>
                                             </span>
                                         @else
                                             <span class="diary-muted">—</span>
@@ -490,13 +535,15 @@
                                     {{-- BMI --}}
                                     <td>
                                         @if($latestRecord && $latestRecord->bmi !== null)
-                                            <span class="health-measure">{{ $latestRecord->bmi }}</span>
+                                            <span class="health-measure">
+                                                {{ $latestRecord->bmi }}
+                                            </span>
                                         @else
                                             <span class="diary-muted">—</span>
                                         @endif
                                     </td>
 
-                                    {{-- Health Status --}}
+                                    {{-- HEALTH STATUS --}}
                                     <td>
                                         @if($latestRecord && $latestRecord->overall_health_status)
 
@@ -518,20 +565,17 @@
                                             @endif
 
                                         @else
-
                                             <span class="health-status unknown">
                                                 <i class="fas fa-circle-minus"></i>
                                                 Not Recorded
                                             </span>
-
                                         @endif
                                     </td>
 
-                                    {{-- Actions --}}
+                                    {{-- ACTIONS --}}
                                     <td>
                                         <div class="health-actions">
 
-                                            {{-- ADD HEALTH RECORD --}}
                                             <a href="{{ route('admin.student-health.create', $student) }}"
                                                class="health-action-btn add"
                                                title="Add Health Record"
@@ -541,7 +585,6 @@
 
                                             @if($latestRecord)
 
-                                                {{-- VIEW --}}
                                                 <a href="{{ route('admin.student-health.show', $latestRecord) }}"
                                                    class="health-action-btn view"
                                                    title="View Latest Record"
@@ -549,7 +592,6 @@
                                                     <i class="fas fa-eye"></i>
                                                 </a>
 
-                                                {{-- EDIT --}}
                                                 <a href="{{ route('admin.student-health.edit', $latestRecord) }}"
                                                    class="health-action-btn edit"
                                                    title="Edit Latest Record"
@@ -557,9 +599,9 @@
                                                     <i class="fas fa-pen"></i>
                                                 </a>
 
-                                                {{-- PRINT --}}
                                                 <a href="{{ route('admin.student-health.print', $latestRecord) }}"
                                                    target="_blank"
+                                                   rel="noopener noreferrer"
                                                    class="health-action-btn print"
                                                    title="Print Latest Record"
                                                    aria-label="Print latest record">
@@ -570,7 +612,6 @@
 
                                         </div>
                                     </td>
-
                                 </tr>
 
                             @endforeach
@@ -578,27 +619,46 @@
                     </table>
                 </div>
 
-                {{-- PAGINATION --}}
+                {{-- IMPROVED PAGINATION --}}
                 @if($students->hasPages())
                     <div class="health-pagination">
+
                         <div class="pagination-info">
-                            Showing <strong>{{ $students->firstItem() }}</strong>
-                            to <strong>{{ $students->lastItem() }}</strong>
-                            of <strong>{{ $students->total() }}</strong> students
+                            <span class="pagination-info-label">
+                                Showing students
+                            </span>
+
+                            <strong>
+                                {{ number_format($students->firstItem() ?? 0) }}
+                            </strong>
+
+                            <span>to</span>
+
+                            <strong>
+                                {{ number_format($students->lastItem() ?? 0) }}
+                            </strong>
+
+                            <span>of</span>
+
+                            <strong>
+                                {{ number_format($students->total()) }}
+                            </strong>
                         </div>
 
                         <div class="pagination-links">
-                            {{ $students->withQueryString()->links() }}
+                            {{ $students->withQueryString()->onEachSide(1)->links('pagination::bootstrap-5') }}
                         </div>
+
                     </div>
                 @endif
 
                 {{-- FOOTER --}}
                 <div class="health-card-footer">
                     <div>
-                        Showing <strong>{{ $students->count() }}</strong>
+                        Showing <strong>{{ number_format($students->count()) }}</strong>
                         student(s) on this page
                     </div>
+
                     <div class="footer-status">
                         <i class="fas fa-circle-check"></i>
                         Data loaded successfully
@@ -614,6 +674,7 @@
                     </div>
 
                     <h4>No Students Found</h4>
+
                     <p>
                         No students match your selected filters.
                         Try adjusting your filters or go to the students list.
@@ -623,38 +684,37 @@
                         @if($hasFilters)
                             <a href="{{ route('admin.student-health.index') }}"
                                class="diary-primary-btn">
-                                <i class="fas fa-rotate-left"></i> Clear Filters
+                                <i class="fas fa-rotate-left"></i>
+                                Clear Filters
                             </a>
                         @endif
 
                         <a href="{{ route('admin.students.index') }}"
                            class="diary-primary-btn">
-                            <i class="fas fa-users"></i> Go to Students
+                            <i class="fas fa-users"></i>
+                            Go to Students
                         </a>
                     </div>
                 </div>
 
             @endif
+
         </section>
     </div>
 </div>
 
 <style>
 /* ==========================================================
-   STUDENT HEALTH RECORDS — SCHOOL DIARY DESIGN SYSTEM
-   Premium editorial dashboard | Responsive | Accessible
+   STUDENT HEALTH RECORDS — RESPONSIVE DIARY DESIGN
 ========================================================== */
 
 .health-page {
     --ink: #263b35;
-    --ink-dark: #1d302b;
-    --ink-soft: #40574a;
     --text: #39483e;
     --muted: #7b857b;
     --line: #e5e1d5;
     --paper: #fffefa;
     --chalk: #f5f3e9;
-    --sage: #527f70;
     --blue: #426b8a;
     --amber: #a87543;
     --green: #43835d;
@@ -675,8 +735,7 @@
 
 .health-page a,
 .health-page button {
-    transition: color .2s ease, background .2s ease,
-        border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    transition: all .2s ease;
 }
 
 .health-page .container-fluid {
@@ -702,7 +761,6 @@
     display: grid;
     grid-template-columns: minmax(0, 1.55fr) minmax(290px, .85fr);
     overflow: hidden;
-    margin-bottom: 36px;
 }
 
 .health-hero::before {
@@ -734,7 +792,6 @@
     border-radius: 16px;
     color: var(--ink);
     background: var(--chalk);
-    box-shadow: 0 3px 10px rgba(38, 59, 53, .04);
     font-size: 25px;
 }
 
@@ -756,18 +813,16 @@
 }
 
 .health-breadcrumb i {
-    color: #b1a895;
     font-size: 9px;
 }
 
 .health-hero-text h2 {
     margin: 0 0 11px;
     color: var(--ink);
-    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(26px, 2.2vw, 34px);
     font-weight: 700;
     line-height: 1.2;
-    letter-spacing: -.7px;
 }
 
 .health-hero-text p {
@@ -787,11 +842,6 @@
     color: #477858;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .15px;
-}
-
-.health-hero-note i {
-    font-size: 13px;
 }
 
 .health-hero-actions {
@@ -805,7 +855,7 @@
     padding: 30px 25px;
     overflow: hidden;
     color: #e8eee4;
-    background: linear-gradient(145deg, #344f43 0%, #20352c 100%);
+    background: linear-gradient(145deg, #344f43, #20352c);
     text-align: center;
 }
 
@@ -814,7 +864,7 @@
     position: absolute;
     width: 190px;
     height: 190px;
-    border: 1px solid rgba(255, 255, 255, .09);
+    border: 1px solid rgba(255,255,255,.09);
     border-radius: 50%;
     content: "";
     pointer-events: none;
@@ -838,10 +888,10 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    border: 1px solid rgba(255, 255, 255, .2);
+    border: 1px solid rgba(255,255,255,.2);
     border-radius: 12px;
     color: #ead7aa;
-    background: rgba(255, 255, 255, .07);
+    background: rgba(255,255,255,.07);
     font-size: 16px;
 }
 
@@ -849,7 +899,7 @@
     position: relative;
     z-index: 1;
     color: #f0e5c9;
-    font-family: var(--hand, cursive);
+    font-family: cursive;
     font-size: 23px;
     line-height: 1.4;
 }
@@ -881,7 +931,6 @@
     font-size: 11px;
     font-weight: 800;
     text-decoration: none;
-    white-space: nowrap;
 }
 
 .health-hero-actions .diary-primary-btn {
@@ -895,7 +944,6 @@
     border-color: #456854;
     color: #fff;
     background: #456854;
-    box-shadow: 0 6px 15px rgba(29, 48, 43, .13);
 }
 
 .health-hero-actions .diary-primary-btn:hover {
@@ -904,7 +952,7 @@
     background: #fff5dc;
 }
 
-/* SUCCESS MESSAGE */
+/* SUCCESS */
 
 .health-alert {
     display: flex;
@@ -928,7 +976,6 @@
     width: 31px;
     height: 31px;
     border-radius: 9px;
-    color: #347849;
     background: #deeedb;
 }
 
@@ -944,7 +991,6 @@
 .health-kpi {
     --kpi-color: #426b8a;
 
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -954,36 +1000,12 @@
     border-top: 3px solid var(--kpi-color);
     border-radius: 12px;
     background: var(--paper);
-    box-shadow: 0 3px 12px rgba(38, 59, 53, .025);
 }
 
 .health-kpi.blue { --kpi-color: #426b8a; }
 .health-kpi.green { --kpi-color: #43835d; }
 .health-kpi.orange { --kpi-color: #a87543; }
 .health-kpi.red { --kpi-color: #b95b50; }
-
-.health-kpi::before {
-    position: absolute;
-    top: -24px;
-    left: 17px;
-    padding: 5px 10px;
-    border-radius: 6px 6px 0 0;
-    color: #fff;
-    background: var(--kpi-color);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: .6px;
-}
-
-.health-kpi.blue::before { content: "STUDENTS"; }
-.health-kpi.green::before { content: "CHECKED"; }
-.health-kpi.orange::before { content: "GOOD"; }
-.health-kpi.red::before { content: "ATTENTION"; }
-
-.health-kpi:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 9px 22px rgba(38, 59, 53, .07);
-}
 
 .kpi-top {
     display: flex;
@@ -1014,7 +1036,7 @@
 
 .kpi-value {
     color: var(--ink);
-    font-family: var(--serif, Georgia, "Times New Roman", serif);
+    font-family: Georgia, "Times New Roman", serif;
     font-size: 35px;
     font-weight: 700;
     line-height: 1.1;
@@ -1042,7 +1064,6 @@
     gap: 16px;
     padding: 22px 24px;
     border-bottom: 1px solid #e9e5d9;
-    background: #fffefa;
 }
 
 .panel-title-wrap {
@@ -1070,10 +1091,9 @@
 .panel-title-wrap h3 {
     margin: 0;
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 19px;
     font-weight: 700;
-    letter-spacing: -.25px;
 }
 
 .panel-title-wrap p {
@@ -1099,12 +1119,11 @@
     white-space: nowrap;
 }
 
-.health-record-count i,
 .health-record-count strong {
     color: var(--ink);
 }
 
-/* FILTER PANEL */
+/* FILTERS */
 
 .health-filter-panel {
     margin: 0;
@@ -1130,7 +1149,7 @@
 .filter-heading h4 {
     margin: 0;
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 17px;
     font-weight: 700;
 }
@@ -1145,8 +1164,11 @@
 .health-filter-grid {
     display: grid;
     grid-template-columns:
-        minmax(140px, .8fr) minmax(140px, .8fr) minmax(140px, .8fr)
-        minmax(220px, 1.8fr) auto;
+        minmax(140px, .8fr)
+        minmax(140px, .8fr)
+        minmax(140px, .8fr)
+        minmax(220px, 1.8fr)
+        auto;
     align-items: end;
     gap: 16px;
 }
@@ -1175,7 +1197,6 @@
     background: #fffefa;
     font-family: inherit;
     font-size: 12px;
-    transition: border-color .2s ease, box-shadow .2s ease;
 }
 
 .diary-control {
@@ -1183,15 +1204,10 @@
     cursor: pointer;
 }
 
-.diary-control:hover,
-.diary-search-input:hover {
-    border-color: #bdcabb;
-}
-
 .diary-control:focus,
 .diary-search-input:focus-within {
     border-color: #739780;
-    box-shadow: 0 0 0 3px rgba(67, 131, 93, .1);
+    box-shadow: 0 0 0 3px rgba(67,131,93,.1);
 }
 
 .diary-search-input {
@@ -1204,7 +1220,6 @@
 .diary-search-input > i {
     flex: 0 0 auto;
     color: #829083;
-    font-size: 13px;
 }
 
 .diary-search-input input {
@@ -1254,11 +1269,9 @@
 }
 
 .diary-apply-btn:hover {
-    transform: translateY(-1px);
     border-color: #426652;
     color: #fff;
     background: #426652;
-    box-shadow: 0 4px 10px rgba(38, 59, 53, .12);
 }
 
 .diary-reset-btn {
@@ -1301,12 +1314,7 @@
     color: #758075;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .4px;
     text-transform: uppercase;
-}
-
-.active-filter-label i {
-    color: var(--green);
 }
 
 .filter-chip {
@@ -1324,10 +1332,6 @@
     font-weight: 700;
 }
 
-.filter-chip i {
-    color: var(--amber);
-}
-
 .filter-result-count {
     color: #788277;
     font-size: 10px;
@@ -1335,7 +1339,7 @@
     white-space: nowrap;
 }
 
-/* RECORDS TABLE */
+/* TABLE */
 
 .health-table-wrapper {
     width: 100%;
@@ -1374,7 +1378,6 @@
 
 .health-table tbody tr {
     background: #fffefa;
-    transition: background .18s ease;
 }
 
 .health-table tbody tr:hover {
@@ -1382,7 +1385,7 @@
 }
 
 .health-table tbody tr:last-child td {
-    border-bottom: none;
+    border-bottom: 0;
 }
 
 .health-table .actions-heading {
@@ -1404,7 +1407,7 @@
     font-weight: 800;
 }
 
-/* STUDENT */
+/* STUDENT DETAILS */
 
 .student-info {
     display: flex;
@@ -1463,7 +1466,7 @@
     color: var(--amber);
 }
 
-/* CHIPS */
+/* CHIPS AND MEASUREMENTS */
 
 .health-chip {
     display: inline-flex;
@@ -1488,8 +1491,6 @@
     color: #426b8a;
     background: #edf4f8;
 }
-
-/* DATES AND MEASUREMENTS */
 
 .health-date {
     min-width: 105px;
@@ -1533,7 +1534,7 @@
     font-size: 12px;
 }
 
-/* HEALTH STATUS */
+/* STATUS BADGES */
 
 .health-status {
     display: inline-flex;
@@ -1595,7 +1596,6 @@
     background: #fffefa;
     font-size: 11px;
     text-decoration: none;
-    cursor: pointer;
 }
 
 .health-action-btn:hover {
@@ -1609,7 +1609,6 @@
 }
 
 .health-action-btn.add:hover {
-    border-color: #b9d6b4;
     background: #edf6e9;
 }
 
@@ -1631,40 +1630,71 @@
     background: #edf3e9;
 }
 
-/* PAGINATION */
+/* IMPROVED PAGINATION */
 
 .health-pagination {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    padding: 17px 22px;
-    border-top: 1px solid #eae6da;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 18px 22px;
+    border-top: 1px solid #e5e1d5;
     background: #fffefa;
 }
 
 .pagination-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
     color: #7b857b;
-    font-size: 10px;
+    font-size: 11px;
+    line-height: 1.7;
 }
 
 .pagination-info strong {
-    color: var(--ink);
+    color: #263b35;
     font-weight: 800;
+}
+
+.pagination-info-label {
+    margin-right: 5px;
+    color: #526358;
+    font-weight: 700;
 }
 
 .pagination-links {
     min-width: 0;
+    max-width: 100%;
 }
 
 .pagination-links nav {
     margin: 0;
 }
 
+.pagination-links nav > div:first-child {
+    display: none;
+}
+
+.pagination-links nav > div:last-child {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 .pagination-links .pagination {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     gap: 5px;
+    margin: 0;
+    padding: 0;
+}
+
+.pagination-links .page-item {
     margin: 0;
 }
 
@@ -1672,32 +1702,48 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 34px;
-    min-height: 34px;
-    padding: 5px 10px;
-    border: 1px solid var(--line);
+    min-width: 35px;
+    min-height: 35px;
+    padding: 7px 11px;
+    border: 1px solid #e5e1d5;
     border-radius: 8px !important;
-    color: var(--ink);
-    background: var(--paper);
+    color: #40574a;
+    background: #fffefa;
+    font-family: inherit;
     font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-decoration: none;
     box-shadow: none;
 }
 
 .pagination-links .page-link:hover {
-    border-color: #b5c5b0;
-    color: #43835d;
-    background: #f2f4e9;
+    z-index: 2;
+    border-color: #b8c9b8;
+    color: #263b35;
+    background: #f1f4e9;
 }
 
 .pagination-links .page-item.active .page-link {
-    border-color: var(--ink);
+    z-index: 3;
+    border-color: #263b35;
     color: #fff;
-    background: var(--ink);
+    background: #263b35;
 }
 
 .pagination-links .page-item.disabled .page-link {
-    color: #a9aea5;
+    border-color: #ece9e0;
+    color: #b2b6ac;
     background: #f7f6f0;
+    cursor: not-allowed;
+}
+
+.pagination-links .page-link:focus {
+    position: relative;
+    z-index: 4;
+    outline: 2px solid #739780;
+    outline-offset: 2px;
+    box-shadow: none;
 }
 
 /* FOOTER */
@@ -1750,14 +1796,13 @@
     border-radius: 19px;
     color: var(--ink);
     background: var(--chalk);
-    box-shadow: 0 5px 13px rgba(38, 59, 53, .04);
     font-size: 27px;
 }
 
 .health-empty-state h4 {
     margin: 0 0 10px;
     color: var(--ink);
-    font-family: var(--serif, Georgia, serif);
+    font-family: Georgia, serif;
     font-size: 22px;
     font-weight: 700;
 }
@@ -1818,7 +1863,6 @@
     }
 
     .health-hero {
-        margin-bottom: 34px;
         border-radius: 12px;
     }
 
@@ -1871,7 +1915,7 @@
 
     .health-kpis {
         gap: 15px;
-        margin-top: 31px;
+        margin-top: 34px;
     }
 
     .health-kpi {
@@ -1970,12 +2014,36 @@
     .health-pagination {
         align-items: flex-start;
         flex-direction: column;
-        padding: 15px;
+        gap: 13px;
+        padding: 16px;
+    }
+
+    .pagination-info {
+        font-size: 10px;
     }
 
     .pagination-links {
+        width: 100%;
         max-width: 100%;
         overflow-x: auto;
+        padding: 3px 2px 6px;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .pagination-links nav > div:last-child {
+        justify-content: flex-start;
+    }
+
+    .pagination-links .pagination {
+        flex-wrap: nowrap;
+        width: max-content;
+    }
+
+    .pagination-links .page-link {
+        min-width: 34px;
+        min-height: 34px;
+        padding: 6px 9px;
     }
 
     .health-card-footer {

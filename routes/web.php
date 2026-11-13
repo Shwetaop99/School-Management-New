@@ -1282,45 +1282,167 @@ Route::delete(
 )->name('exam-holidays.destroy');
 
 
-        // Result Management
-        Route::get('/results', [ResultController::class, 'index'])
-            ->name('results.index');
 
-        Route::get('/results/generate', [ResultController::class, 'generate'])
-            ->name('results.generate');
+Route::prefix('exams/{exam}/exam-schedules')
+    ->name('exam-schedules.')
+    ->controller(ExamScheduleController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
 
-        Route::get('/results/class-results', [ResultController::class, 'classResults'])
-            ->name('results.class-results');
+        Route::get('/generate', 'generateForm')
+            ->name('generate.form');
 
-        Route::get('/results/{result}/history', [ResultController::class, 'history'])
-            ->name('results.history');
+        Route::post('/generate', 'generate')
+            ->name('generate');
 
-        Route::get('/results/{result}', [ResultController::class, 'show'])
-            ->name('results.show');
+        // Existing print and PDF
+        Route::get('/print', 'print')->name('print');
 
-            
+        Route::get('/pdf', 'pdf')->name('pdf');
+
+        // Bulk print and PDF
+        Route::get('/bulk-print', 'bulkPrint')
+            ->name('bulk-print');
+
+        Route::get('/bulk-pdf', 'bulkPdf')
+            ->name('bulk-pdf');
+
+        // Edit, update and delete
+        Route::get('/{timetable}/edit', 'edit')
+            ->name('edit');
+
+        Route::put('/{timetable}', 'update')
+            ->name('update');
+
+        Route::delete('/{timetable}', 'destroy')
+            ->name('destroy');
+    });
+
+
+
+
+        
+       
+// ---------------------------------------------------------
+// RESULT MANAGEMENT
+// ---------------------------------------------------------
+
+// Results dashboard
+Route::get('/results', [ResultController::class, 'index'])
+    ->name('results.index');
+
+// Enter marks page
+Route::get('/results/marks', [ResultController::class, 'marks'])
+    ->name('results.marks');
+
+// Load classes
+Route::get('/results/load-classes', [ResultController::class, 'loadClasses'])
+    ->name('results.load-classes');
+
+// Load sections
+Route::get('/results/load-sections', [ResultController::class, 'loadSections'])
+    ->name('results.load-sections');
+
+// Load subjects
+Route::get('/results/load-subjects', [ResultController::class, 'loadSubjects'])
+    ->name('results.load-subjects');
+
+// Save marks
+Route::post('/results/save-marks', [ResultController::class, 'saveMarks'])
+    ->name('results.save-marks');
+
+// Save marks distribution
+Route::post('/results/save-marks-distribution', [ResultController::class, 'saveMarksDistribution'])
+    ->name('results.save-marks-distribution');
+
+// Exam and class information
 Route::get('/results/exam-classes', [ResultController::class, 'getExamClasses'])
     ->name('results.exam-classes');
 
-    
-Route::get('/results/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])
-    ->name('results.bulk-whatsapp');
+// Class-wise results
+Route::get('/results/class-results', [ResultController::class, 'classResults'])
+    ->name('results.class-results');
 
-    
+// Load students
 Route::get('/results/load-students', [ResultController::class, 'loadStudents'])
     ->name('results.load-students');
 
-    
+// Verify all results for a class and section
+Route::post('/results/verify-class', [ResultController::class, 'verifyClassResults'])
+    ->name('results.verify-class');
+
+// Approve verified results for a class and section
+Route::post('/results/approve-class', [ResultController::class, 'approveClassResults'])
+    ->name('results.approve-class');
+
+// Publish approved results for a class and section
+Route::post('/results/publish-class', [ResultController::class, 'publishClassResults'])
+    ->name('results.publish-class');
+
+// Generate results page
+Route::get('/results/generate', [ResultController::class, 'generate'])
+    ->name('results.generate');
+
+// Generate results
 Route::post('/results/generate-result', [ResultController::class, 'generateResult'])
     ->name('results.generate-result');
 
+// Bulk WhatsApp
+Route::get('/results/bulk-whatsapp', [ResultController::class, 'bulkWhatsapp'])
+    ->name('results.bulk-whatsapp');
+
+// Individual result history
+Route::get('/results/{result}/history', [ResultController::class, 'history'])
+    ->whereNumber('result')
+    ->name('results.history');
+
+    // Individual historical result version
+Route::get(
+    '/results/{result}/history/{version}',
+    [ResultController::class, 'historyVersion']
+)
+    ->whereNumber('result')
+    ->whereNumber('version')
+    ->name('results.history-version');
+    
+    // Print individual result
+Route::get('/results/{result}/print', [ResultController::class, 'print'])
+    ->whereNumber('result')
+    ->name('results.print');
+
+    // Download individual result PDF
+Route::get('/results/{result}/pdf', [ResultController::class, 'pdf'])
+    ->whereNumber('result')
+    ->name('results.pdf');
+
+    // Verify individual result
+Route::post('/results/{result}/verify', [ResultController::class, 'verify'])
+    ->whereNumber('result')
+    ->name('results.verify');
+
+    // Approve individual result
+Route::post('/results/{result}/approve', [ResultController::class, 'approve'])
+    ->whereNumber('result')
+    ->name('results.approve');
+
+    Route::get('/results/{result}/whatsapp', [ResultController::class, 'whatsapp'])
+    ->whereNumber('result')
+    ->name('results.whatsapp');
+
+// Individual result publishing
+Route::post('/results/{result}/publish', [ResultController::class, 'publish'])
+    ->whereNumber('result')
+    ->name('results.publish');
+
+// Individual result details
+Route::get('/results/{result}', [ResultController::class, 'show'])
+    ->whereNumber('result')
+    ->name('results.show');
+
+    
 
 
-
-
-
-
-
+ 
 /*
 |--------------------------------------------------------------------------
 | SCHOLARSHIP MANAGEMENT
@@ -1649,100 +1771,73 @@ Route::prefix('scholarship')
 
 
 
-            /*
+           /*
+|--------------------------------------------------------------------------
+| BONAFIDE CERTIFICATE
+|--------------------------------------------------------------------------
+*/
 
-            |--------------------------------------------------------------------------
+Route::prefix('bonafide-certificate')
+    ->name('bonafide-certificate.')
+    ->group(function () {
 
-            | BONAFIDE CERTIFICATE
+        // Bonafide index
+        Route::get('/', [
+            BonafideCertificateController::class,
+            'index'
+        ])->name('index');
 
-            |--------------------------------------------------------------------------
+        // Class cards page - must be before /{bonafide}
+        Route::get('/classes', [
+            BonafideCertificateController::class,
+            'classes'
+        ])->name('classes');
 
-            */
+        // Students of selected class
+        Route::get('/students/{class}', [
+            BonafideCertificateController::class,
+            'students'
+        ])->name('students');
 
+        // Create bonafide
+        Route::get('/create', [
+            BonafideCertificateController::class,
+            'create'
+        ])->name('create');
 
+        Route::post('/', [
+            BonafideCertificateController::class,
+            'store'
+        ])->name('store');
+        // Edit bonafide
+        Route::get('/{bonafide}/edit', [
+            BonafideCertificateController::class,
+            'edit'
+        ])->name('edit');
+        // Update bonafide
+        Route::put('/{bonafide}', [
+            BonafideCertificateController::class,
+            'update'
+        ])->name('update');
 
-            Route::get('/bonafide/students/{class}', [BonafideCertificateController::class, 'students'])->name('bonafide.students');
-            Route::get('/bonafide/classes', [BonafideCertificateController::class, 'classes'])->name('bonafide.classes');
+        // Delete bonafide
+        Route::delete('/{bonafide}', [
+            BonafideCertificateController::class,
+            'destroy'
+        ])->name('destroy');
 
-            Route::prefix('bonafide-certificate')
+        // Show bonafide - keep this last
+        Route::get('/{bonafide}', [
+            BonafideCertificateController::class,
+            'show'
+        ])->name('show');
 
-                ->name('bonafide.')
+        Route::get('/{bonafide}/print', [
+    BonafideCertificateController::class,
+    'print'
+])->name('print');
 
-                ->group(function () {
-
-
-
-                    Route::get('/', [
-
-                        BonafideCertificateController::class,
-
-                        'index'
-
-                    ])->name('index');
-
-
-
-                    Route::get('/create', [
-
-                        BonafideCertificateController::class,
-
-                        'create'
-
-                    ])->name('create');
-
-
-
-                    Route::post('/', [
-
-                        BonafideCertificateController::class,
-
-                        'store'
-
-                    ])->name('store');
-
-
-
-                    Route::get('/{bonafide}/edit', [
-
-                        BonafideCertificateController::class,
-
-                        'edit'
-
-                    ])->name('edit');
-
-
-
-                    Route::get('/{bonafide}', [
-
-                        BonafideCertificateController::class,
-
-                        'show'
-
-                    ])->name('show');
-
-
-
-                    Route::put('/{bonafide}', [
-
-                        BonafideCertificateController::class,
-
-                        'update'
-
-                    ])->name('update');
-
-
-
-                    Route::delete('/{bonafide}', [
-
-                        BonafideCertificateController::class,
-
-                        'destroy'
-
-                    ])->name('destroy');
-
-                });
-
-
+    });
 
 
 
@@ -2164,6 +2259,11 @@ Route::post('teachers/import', [
     \App\Http\Controllers\Admin\TeacherController::class,
     'importExcel',
 ])->name('teachers.import');
+
+Route::post('/students/import', [
+    \App\Http\Controllers\Admin\StudentController::class,
+    'import',
+])->name('students.import');
 
             /*
 
@@ -2646,23 +2746,11 @@ Route::post('/timetable/weekly/import', [
 
 
 
-            Route::get('/age-report', [
+           Route::get('/admin/age-report', [AgeReportController::class, 'index'])
+    ->name('admin.age-report.index');
 
-                AgeReportController::class,
-
-                'index'
-
-            ])->name('age-report.index');
-
-
-
-            Route::get('/age-report/print', [
-
-                AgeReportController::class,
-
-                'print'
-
-            ])->name('age-report.print');
+Route::get('/admin/age-report/print', [AgeReportController::class, 'print'])
+    ->name('admin.age-report.print');
 
 
 
@@ -3398,16 +3486,6 @@ Route::get('/caste-report/pdf-download', [
             */
 
 
-
-
-
-
-
-
-            /* OTHER STAFF */
-
-
-
             /*
 
             |--------------------------------------------------------------------------
@@ -3515,7 +3593,10 @@ Route::get('/caste-report/pdf-download', [
             )->name('student-supply-kits.supply-items');
 
 
-            
+    Route::get(
+    '/student-supply-kits/history',
+    [StudentSupplyKitController::class, 'history']
+)->name('student-supply-kits.history');        
 Route::get(
     '/student-supply-kits/distribution/create',
     [\App\Http\Controllers\Admin\StudentSupplyKitController::class, 'distributionCreate']
@@ -3538,7 +3619,22 @@ Route::get(
 )->name('student-supply-kits.print-report');
 
 
+//supply stock
 
+Route::get('/supply-stocks', [SupplyStockController::class, 'index'])
+    ->name('supply-stocks.index');
+
+Route::post('/supply-stocks/receive', [SupplyStockController::class, 'receive'])
+    ->name('supply-stocks.receive');
+
+Route::post('/supply-stocks/adjust', [SupplyStockController::class, 'adjust'])
+    ->name('supply-stocks.adjust');
+
+Route::get('/supply-stocks/history/{supplyItemId}', [SupplyStockController::class, 'history'])
+    ->name('supply-stocks.history');
+
+    Route::get('/supply-stocks/print', [SupplyStockController::class, 'print'])
+    ->name('supply-stocks.print');
 
 
             /*
@@ -4689,3 +4785,26 @@ Route::post(
 
 
 
+    /*
+|--------------------------------------------------------------------------
+| PUBLIC STUDENT RESULT ROUTES
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/result', [PublicResultController::class, 'index'])
+    ->name('result.public');
+
+Route::post('/result/search', [PublicResultController::class, 'search'])
+    ->name('result.public.search');
+
+Route::get('/result/refresh-captcha', [PublicResultController::class, 'refreshCaptcha'])
+    ->name('result.public.refresh-captcha');
+
+Route::get('/result/{student}/pdf', [PublicResultController::class, 'pdf'])
+    ->name('result.public.pdf');
+
+Route::get('/result/{student}/download', [PublicResultController::class, 'downloadPdf'])
+    ->name('result.public.download');
+
+Route::get('/result/{student}', [PublicResultController::class, 'show'])
+    ->name('result.public.show');

@@ -147,1141 +147,186 @@ class ExamScheduleController extends Controller
     |
     */
 
-    public function generate(
-        Request $request,
-        Exam $exam
-    ) {
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Request
-        |--------------------------------------------------------------------------
-        */
+    public function generate(Request $request, Exam $exam)
+    {
+        $request->validate(['replace_existing' => ['nullable', 'boolean']]);
+        $replaceExisting = $request->boolean('replace_existing');
 
-        $validated = $request->validate([
-            'papers_per_day' => [
-                'required',
-                'integer',
-                'in:1,2,3',
-            ],
-
-            'replace_existing' => [
-                'nullable',
-                'boolean',
-            ],
-        ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Basic Exam Date Validation
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !$exam->start_date ||
-            !$exam->end_date
-        ) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'Exam start date and end date must be configured before generating the timetable.',
-            ]);
+        if (!$exam->start_date || !$exam->end_date) {
+            throw ValidationException::withMessages(['replace_existing' => 'Configure the exam start and end dates first.']);
+        }
+        $startDate = Carbon::parse($exam->start_date)->startOfDay();
+        $endDate = Carbon::parse($exam->end_date)->startOfDay();
+        if ($startDate->gt($endDate)) {
+            throw ValidationException::withMessages(['replace_existing' => 'Exam start date cannot be after exam end date.']);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Convert Exam Dates
-        |--------------------------------------------------------------------------
-        */
-
-        $examStartDate = Carbon::parse(
-            $exam->start_date
-        )->startOfDay();
-
-        $examEndDate = Carbon::parse(
-            $exam->end_date
-        )->startOfDay();
-
-
-        if ($examStartDate->gt($examEndDate)) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'Exam start date cannot be after exam end date.',
-            ]);
+        $existingCount = ExamTimetable::where('exam_id', $exam->id)->count();
+        if ($existingCount && !$replaceExisting) {
+            throw ValidationException::withMessages(['replace_existing' => "This exam already has {$existingCount} timetable entries. Select Replace Existing Timetable to regenerate it."]);
         }
 
-
-        $papersPerDay = (int) $validated['papers_per_day'];
-
-        $replaceExisting = $request->boolean(
-            'replace_existing'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Load Exam Classes
-        |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        | exam_classes table does NOT contain a status column.
-        |
-        */
-
-        $examClasses = ExamClass::with([
-            'schoolClass',
-        ])
-            ->where('exam_id', $exam->id)
-            ->orderBy('class_id')
-            ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure Classes Exist
-        |--------------------------------------------------------------------------
-        */
-
+        $examClasses = ExamClass::with('schoolClass')->where('exam_id', $exam->id)->orderBy('class_id')->get();
         if ($examClasses->isEmpty()) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'No classes have been added to this examination.',
-            ]);
+            throw ValidationException::withMessages(['replace_existing' => 'No classes have been added to this examination.']);
         }
+        $classIds = $examClasses->pluck('class_id')->filter()->unique()->values();
+        $subjectsByClass = ExamSubject::with(['schoolClass', 'subject'])
+            ->where('exam_id', $exam->id)->whereIn('class_id', $classIds)
+            ->where(fn ($q) => $q->whereNull('status')->orWhere('status', 1))
+            ->orderBy('class_id')->orderBy('id')->get()
+            ->groupBy('class_id')->map(fn (Collection $items) => $items->sortBy('id')->values());
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Load Exam Subjects
-        |--------------------------------------------------------------------------
-        */
-
-        $examSubjects = ExamSubject::with([
-            'schoolClass',
-            'subject',
-        ])
-            ->where('exam_id', $exam->id)
-            ->where(function ($query) {
-                $query->whereNull('status')
-                    ->orWhere('status', 1);
-            })
-            ->orderBy('class_id')
-            ->orderBy('id')
-            ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure Subjects Exist
-        |--------------------------------------------------------------------------
-        */
-
-        if ($examSubjects->isEmpty()) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'No examination subjects have been configured.',
-            ]);
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Selected Class IDs
-        |--------------------------------------------------------------------------
-        */
-
-        $classIds = $examClasses
-            ->pluck('class_id')
-            ->filter()
-            ->unique()
-            ->values();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Group Subjects By Class
-        |--------------------------------------------------------------------------
-        |
-        | Each class gets its own ordered subject queue.
-        |
-        */
-
-        $subjectsByClass = $examSubjects
-            ->whereIn(
-                'class_id',
-                $classIds
-            )
-            ->groupBy('class_id')
-            ->map(function (Collection $subjects) {
-                return $subjects
-                    ->sortBy('id')
-                    ->values();
-            });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure Every Selected Class Has Subjects
-        |--------------------------------------------------------------------------
-        */
-
-        $classesWithoutSubjects = [];
-
+        $missingClasses = [];
         foreach ($classIds as $classId) {
-
-            if (
-                !$subjectsByClass->has($classId) ||
-                $subjectsByClass
-                    ->get($classId)
-                    ->isEmpty()
-            ) {
-                $examClass = $examClasses->firstWhere(
-                    'class_id',
-                    $classId
-                );
-
-                $classesWithoutSubjects[] =
-                    $this->getClassDisplayName(
-                        $examClass?->schoolClass
-                    );
+            if ($subjectsByClass->get($classId, collect())->isEmpty()) {
+                $missingClasses[] = $this->getClassDisplayName($examClasses->firstWhere('class_id', $classId)?->schoolClass);
             }
         }
-
-
-        if (!empty($classesWithoutSubjects)) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'The following classes do not have any exam subjects configured: '
-                    . implode(
-                        ', ',
-                        $classesWithoutSubjects
-                    ),
-            ]);
+        if ($missingClasses) {
+            throw ValidationException::withMessages(['replace_existing' => 'No active exam subjects configured for: ' . implode(', ', $missingClasses) . '.']);
         }
 
+        $examType = strtolower(str_replace(['-', '_'], ' ', trim(($exam->exam_type ?? '') . ' ' . ($exam->exam_name ?? ''))));
+        $examType = preg_replace('/\s+/', ' ', $examType);
+        if (str_contains($examType, 'unit test') || preg_match('/\but\b/', $examType)) {
+            $maxDays = 3;
+        } elseif (str_contains($examType, 'mid sem') || str_contains($examType, 'midsemester') || str_contains($examType, 'mid term') || str_contains($examType, 'midterm')) {
+            $maxDays = 7;
+        } else {
+            $maxDays = 10;
+        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get Examination Holidays
-        |--------------------------------------------------------------------------
-        */
-
-        $holidayDates = ExamHoliday::where(
-            'exam_id',
-            $exam->id
-        )
-            ->where(function ($query) {
-                $query->whereNull('status')
-                    ->orWhere('status', 1);
-            })
-            ->pluck('holiday_date')
-            ->map(function ($date) {
-                return Carbon::parse($date)
-                    ->format('Y-m-d');
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Available Examination Dates
-        |--------------------------------------------------------------------------
-        |
-        | Saturday and Sunday are skipped.
-        | Configured examination holidays are skipped.
-        |
-        */
-
-        $availableDates = [];
-
-        $currentDate = $examStartDate->copy();
-
-        while ($currentDate->lte($examEndDate)) {
-
-            $dateString = $currentDate->format(
-                'Y-m-d'
-            );
-
-            $isWeekend =
-                $currentDate->isSaturday() ||
-                $currentDate->isSunday();
-
-            $isHoliday = in_array(
-                $dateString,
-                $holidayDates,
-                true
-            );
-
-            if (
-                !$isWeekend &&
-                !$isHoliday
-            ) {
-                $availableDates[] =
-                    $currentDate->copy();
+        $holidays = ExamHoliday::where('exam_id', $exam->id)
+            ->where(fn ($q) => $q->whereNull('status')->orWhere('status', 1))
+            ->pluck('holiday_date')->map(fn ($d) => Carbon::parse($d)->format('Y-m-d'))->unique()->all();
+        $dates = [];
+        $cursor = $startDate->copy();
+        while ($cursor->lte($endDate)) {
+            $date = $cursor->format('Y-m-d');
+            if (!$cursor->isWeekend() && !in_array($date, $holidays, true)) {
+                $dates[] = $cursor->copy();
             }
-
-            $currentDate->addDay();
+            $cursor->addDay();
+        }
+        $dates = array_slice($dates, 0, $maxDays);
+        if (!$dates) {
+            throw ValidationException::withMessages(['replace_existing' => 'No usable examination dates found. Weekends and configured holidays are skipped.']);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | No Available Dates
-        |--------------------------------------------------------------------------
-        */
-
-        if (empty($availableDates)) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'There are no available examination days between the exam start date and end date. Weekends and configured holidays are excluded.',
-            ]);
+        $dayCount = count($dates);
+        $dailyCounts = [];
+        $capacityErrors = [];
+        foreach ($subjectsByClass as $classId => $subjects) {
+            $count = $subjects->count();
+            $counts = array_fill(0, $dayCount, 0);
+            if ($count <= $dayCount) {
+                for ($i = 0; $i < $count; $i++) $counts[$i] = 1;
+            } else {
+                $base = intdiv($count, $dayCount);
+                $extra = $count % $dayCount;
+                for ($i = 0; $i < $dayCount; $i++) $counts[$i] = $base + ($i >= $dayCount - $extra ? 1 : 0);
+            }
+            if (max($counts) > 3) {
+                $name = $this->getClassDisplayName($examClasses->firstWhere('class_id', $classId)?->schoolClass);
+                $capacityErrors[] = "{$name} has {$count} subjects but the selected exam period allows no more than 3 papers per day.";
+            }
+            $dailyCounts[$classId] = $counts;
         }
+        if ($capacityErrors) throw ValidationException::withMessages(['replace_existing' => $capacityErrors]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Automatic Paper Time Slots
-        |--------------------------------------------------------------------------
-        |
-        | 1 paper:
-        | 10:00 AM
-        |
-        | 2 papers:
-        | 10:00 AM
-        | 01:00 PM
-        |
-        | 3 papers:
-        | 10:00 AM
-        | 01:00 PM
-        | 03:00 PM
-        |
-        */
-
-        $automaticSlots =
-            $this->getAutomaticTimeSlots(
-                $papersPerDay
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Subject Durations
-        |--------------------------------------------------------------------------
-        */
-
+        $planned = [];
         $durationErrors = [];
-
-        foreach (
-            $subjectsByClass
-            as $classId => $subjects
-        ) {
-
-            foreach (
-                $subjects
-                as $examSubject
-            ) {
-
-                $duration = (int) (
-                    $examSubject->duration_minutes
-                    ?? 60
-                );
-
-                if ($duration <= 0) {
-                    $duration = 60;
-                }
-
-
-                foreach (
-                    $automaticSlots
-                    as $slotIndex => $slot
-                ) {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Determine Maximum Allowed End Time
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (
-                        isset(
-                            $automaticSlots[
-                                $slotIndex + 1
-                            ]
-                        )
-                    ) {
-
-                        $maximumEnd =
-                            Carbon::createFromFormat(
-                                'H:i',
-                                $automaticSlots[
-                                    $slotIndex + 1
-                                ]['start']
-                            );
-
-                    } else {
-
-                        $maximumEnd =
-                            Carbon::createFromFormat(
-                                'H:i',
-                                '17:00'
-                            );
-                    }
-
-
-                    $slotStart =
-                        Carbon::createFromFormat(
-                            'H:i',
-                            $slot['start']
-                        );
-
-
-                    $calculatedEnd =
-                        $slotStart
-                            ->copy()
-                            ->addMinutes(
-                                $duration
-                            );
-
-
-                    if (
-                        $calculatedEnd
-                            ->gt($maximumEnd)
-                    ) {
-
-                        $className =
-                            $this->getClassDisplayName(
-                                $examSubject
-                                    ->schoolClass
-                            );
-
-                        $subjectName =
-                            $examSubject
-                                ->subject
-                                ?->subject_name
-                            ?? 'Unknown Subject';
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Only report if no slot can fit
-                        |--------------------------------------------------------------------------
-                        */
-
-                        $hasValidSlot = false;
-
-                        foreach (
-                            $automaticSlots
-                            as $checkSlot
-                        ) {
-
-                            $checkStart =
-                                Carbon::createFromFormat(
-                                    'H:i',
-                                    $checkSlot['start']
-                                );
-
-                            $checkEnd =
-                                $checkStart
-                                    ->copy()
-                                    ->addMinutes(
-                                        $duration
-                                    );
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Determine Maximum End For This Slot
-                            |--------------------------------------------------------------------------
-                            */
-
-                            if (
-                                isset(
-                                    $automaticSlots[
-                                        array_search(
-                                            $checkSlot,
-                                            $automaticSlots,
-                                            true
-                                        ) + 1
-                                    ]
-                                )
-                            ) {
-
-                                $nextIndex =
-                                    array_search(
-                                        $checkSlot,
-                                        $automaticSlots,
-                                        true
-                                    ) + 1;
-
-                                $checkMaximumEnd =
-                                    Carbon::createFromFormat(
-                                        'H:i',
-                                        $automaticSlots[
-                                            $nextIndex
-                                        ]['start']
-                                    );
-
-                            } else {
-
-                                $checkMaximumEnd =
-                                    Carbon::createFromFormat(
-                                        'H:i',
-                                        '17:00'
-                                    );
-                            }
-
-
-                            if (
-                                $checkEnd
-                                    ->lte(
-                                        $checkMaximumEnd
-                                    )
-                            ) {
-                                $hasValidSlot = true;
-                                break;
-                            }
-                        }
-
-
-                        if (!$hasValidSlot) {
-
-                            $durationErrors[] =
-                                "{$className} - {$subjectName} requires {$duration} minutes and cannot fit into any automatic paper slot.";
-                        }
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Stop After First Suitable Slot
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (
-                        $calculatedEnd
-                            ->lte($maximumEnd)
-                    ) {
+        foreach ($dates as $dayIndex => $date) {
+            foreach ($classIds as $classId) {
+                $subjects = $subjectsByClass->get($classId, collect());
+                $papersToday = $dailyCounts[$classId][$dayIndex] ?? 0;
+                $subjectIndex = array_sum(array_slice($dailyCounts[$classId], 0, $dayIndex));
+                $time = Carbon::createFromFormat('H:i', '10:00');
+                for ($i = 0; $i < $papersToday; $i++, $subjectIndex++) {
+                    $subject = $subjects->get($subjectIndex);
+                    if (!$subject) continue;
+                    $duration = (int) ($subject->duration_minutes ?? 60);
+                    if ($duration <= 0) $duration = 60;
+                    $end = $time->copy()->addMinutes($duration);
+                    if ($end->gt(Carbon::createFromFormat('H:i', '17:00'))) {
+                        $className = $this->getClassDisplayName($subject->schoolClass);
+                        $subjectName = $subject->subject?->subject_name ?? 'Unknown Subject';
+                        $durationErrors[] = "{$className} - {$subjectName} ({$duration} minutes) does not fit before 5:00 PM on {$date->format('d M Y')}. Extend the exam period or adjust the duration.";
                         break;
                     }
-                }
-            }
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Duration Errors
-        |--------------------------------------------------------------------------
-        */
-
-        if (!empty($durationErrors)) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    $durationErrors,
-            ]);
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Capacity Validation
-        |--------------------------------------------------------------------------
-        |
-        | Each class gets:
-        |
-        | available days × papers per day
-        |
-        */
-
-        $availableDayCount =
-            count($availableDates);
-
-        $capacityErrors = [];
-
-        foreach (
-            $subjectsByClass
-            as $classId => $subjects
-        ) {
-
-            $requiredPapers =
-                $subjects->count();
-
-            $availableCapacity =
-                $availableDayCount *
-                $papersPerDay;
-
-
-            if (
-                $requiredPapers >
-                $availableCapacity
-            ) {
-
-                $examClass =
-                    $examClasses->firstWhere(
-                        'class_id',
-                        $classId
-                    );
-
-                $className =
-                    $this->getClassDisplayName(
-                        $examClass?->schoolClass
-                    );
-
-
-                $capacityErrors[] =
-                    "{$className} requires {$requiredPapers} papers, but only {$availableCapacity} paper slots are available between the selected dates.";
-            }
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Capacity Errors
-        |--------------------------------------------------------------------------
-        */
-
-        if (!empty($capacityErrors)) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    $capacityErrors,
-            ]);
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Build Subject Pointers
-        |--------------------------------------------------------------------------
-        |
-        | Every class has its own pointer.
-        |
-        */
-
-        $subjectPointers = [];
-
-        foreach ($classIds as $classId) {
-            $subjectPointers[$classId] = 0;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Generate Entire Timetable In Memory
-        |--------------------------------------------------------------------------
-        |
-        | DATE
-        |   -> SLOT
-        |       -> CLASS
-        |           -> SUBJECT
-        |
-        */
-
-        $plannedRows = [];
-
-        foreach (
-            $availableDates
-            as $examDate
-        ) {
-
-            foreach (
-                $automaticSlots
-                as $slotIndex => $slot
-            ) {
-
-                foreach (
-                    $classIds
-                    as $classId
-                ) {
-
-                    $classSubjects =
-                        $subjectsByClass
-                            ->get($classId);
-
-                    $pointer =
-                        $subjectPointers[
-                            $classId
-                        ];
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Class Already Finished
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (
-                        !$classSubjects ||
-                        $pointer >=
-                        $classSubjects->count()
-                    ) {
-                        continue;
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Get Next Subject
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $examSubject =
-                        $classSubjects->get(
-                            $pointer
-                        );
-
-                    if (!$examSubject) {
-                        continue;
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Subject Duration
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $duration = (int) (
-                        $examSubject
-                            ->duration_minutes
-                        ?? 60
-                    );
-
-                    if ($duration <= 0) {
-                        $duration = 60;
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Automatic Start Time
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $startTime =
-                        Carbon::createFromFormat(
-                            'H:i',
-                            $slot['start']
-                        );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Automatic End Time
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $endTime =
-                        $startTime
-                            ->copy()
-                            ->addMinutes(
-                                $duration
-                            );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Check Against Next Paper
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (
-                        isset(
-                            $automaticSlots[
-                                $slotIndex + 1
-                            ]
-                        )
-                    ) {
-
-                        $nextSlotStart =
-                            Carbon::createFromFormat(
-                                'H:i',
-                                $automaticSlots[
-                                    $slotIndex + 1
-                                ]['start']
-                            );
-
-
-                        if (
-                            $endTime
-                                ->gt($nextSlotStart)
-                        ) {
-
-                            $className =
-                                $this->getClassDisplayName(
-                                    $examSubject
-                                        ->schoolClass
-                                );
-
-                            $subjectName =
-                                $examSubject
-                                    ->subject
-                                    ?->subject_name
-                                ?? 'Unknown Subject';
-
-
-                            throw ValidationException::withMessages([
-                                'papers_per_day' =>
-                                    "{$className} - {$subjectName} ({$duration} minutes) overlaps the next automatic paper slot.",
-                            ]);
-                        }
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Last Slot Must Finish By 5 PM
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (
-                        !isset(
-                            $automaticSlots[
-                                $slotIndex + 1
-                            ]
-                        )
-                    ) {
-
-                        $latestEnd =
-                            Carbon::createFromFormat(
-                                'H:i',
-                                '17:00'
-                            );
-
-
-                        if (
-                            $endTime->gt(
-                                $latestEnd
-                            )
-                        ) {
-
-                            $className =
-                                $this->getClassDisplayName(
-                                    $examSubject
-                                        ->schoolClass
-                                );
-
-                            $subjectName =
-                                $examSubject
-                                    ->subject
-                                    ?->subject_name
-                                ?? 'Unknown Subject';
-
-
-                            throw ValidationException::withMessages([
-                                'papers_per_day' =>
-                                    "{$className} - {$subjectName} cannot fit into the final automatic paper slot because it ends after 5:00 PM.",
-                            ]);
-                        }
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Create Planned Row
-                    |--------------------------------------------------------------------------
-                    |
-                    | session_id = null
-                    | teacher_id = null
-                    |
-                    */
-
-                    $plannedRows[] = [
-                        'exam_id' =>
-                            $exam->id,
-
-                        'class_id' =>
-                            $classId,
-
-                        'exam_subject_id' =>
-                            $examSubject->id,
-
-                        'session_id' =>
-                            null,
-
-                        'teacher_id' =>
-                            null,
-
-                        'exam_date' =>
-                            $examDate->format(
-                                'Y-m-d'
-                            ),
-
-                        'start_time' =>
-                            $startTime->format(
-                                'H:i:s'
-                            ),
-
-                        'end_time' =>
-                            $endTime->format(
-                                'H:i:s'
-                            ),
-
-                        'maximum_marks' =>
-                            (int) (
-                                $examSubject
-                                    ->maximum_marks
-                                ?? 0
-                            ),
-
-                        'duration_minutes' =>
-                            $duration,
-
-                        'status' =>
-                            true,
-
-                        'created_at' =>
-                            now(),
-
-                        'updated_at' =>
-                            now(),
+                    $planned[] = [
+                        'exam_id' => $exam->id,
+                        'class_id' => $classId,
+                        'exam_subject_id' => $subject->id,
+                        'session_id' => null,
+                        'teacher_id' => null,
+                        'exam_date' => $date->format('Y-m-d'),
+                        'start_time' => $time->format('H:i:s'),
+                        'end_time' => $end->format('H:i:s'),
+                        'maximum_marks' => (int) ($subject->maximum_marks ?? 0),
+                        'duration_minutes' => $duration,
+                        'status' => '1',
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Move Class To Next Subject
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $subjectPointers[
-                        $classId
-                    ]++;
+                    // Keep a 30-minute break between papers for the same class.
+                    $time = $end->copy()->addMinutes(30);
                 }
             }
         }
+        if ($durationErrors) throw ValidationException::withMessages(['replace_existing' => array_values(array_unique($durationErrors))]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Final Completeness Check
-        |--------------------------------------------------------------------------
-        */
-
-        $remainingErrors = [];
-
-        foreach (
-            $subjectsByClass
-            as $classId => $subjects
-        ) {
-
-            $scheduledCount =
-                $subjectPointers[
-                    $classId
-                ] ?? 0;
-
-            $requiredCount =
-                $subjects->count();
-
-
-            if (
-                $scheduledCount <
-                $requiredCount
-            ) {
-
-                $examClass =
-                    $examClasses->firstWhere(
-                        'class_id',
-                        $classId
-                    );
-
-                $className =
-                    $this->getClassDisplayName(
-                        $examClass?->schoolClass
-                    );
-
-                $remaining =
-                    $requiredCount -
-                    $scheduledCount;
-
-
-                $remainingErrors[] =
-                    "{$className}: {$remaining} subject(s) could not be scheduled.";
+        $scheduledCounts = collect($planned)->countBy('class_id');
+        $incomplete = [];
+        foreach ($subjectsByClass as $classId => $subjects) {
+            if ((int) ($scheduledCounts[$classId] ?? 0) !== $subjects->count()) {
+                $name = $this->getClassDisplayName($examClasses->firstWhere('class_id', $classId)?->schoolClass);
+                $incomplete[] = "{$name}: not all configured subjects could be scheduled.";
             }
         }
+        if ($incomplete) throw ValidationException::withMessages(['replace_existing' => $incomplete]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Stop If Any Subject Remains
-        |--------------------------------------------------------------------------
-        */
-
-        if (!empty($remainingErrors)) {
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    $remainingErrors,
-            ]);
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sort Planned Timetable
-        |--------------------------------------------------------------------------
-        */
-
-        usort(
-            $plannedRows,
-            function ($a, $b) {
-
-                $dateCompare =
-                    strcmp(
-                        $a['exam_date'],
-                        $b['exam_date']
-                    );
-
-                if ($dateCompare !== 0) {
-                    return $dateCompare;
-                }
-
-
-                $timeCompare =
-                    strcmp(
-                        $a['start_time'],
-                        $b['start_time']
-                    );
-
-                if ($timeCompare !== 0) {
-                    return $timeCompare;
-                }
-
-
-                return
-                    $a['class_id']
-                    <=>
-                    $b['class_id'];
-            }
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Save Everything In One Transaction
-        |--------------------------------------------------------------------------
-        */
-
+        usort($planned, fn ($a, $b) => strcmp($a['exam_date'], $b['exam_date']) ?: strcmp($a['start_time'], $b['start_time']) ?: ($a['class_id'] <=> $b['class_id']));
         try {
-
-            DB::transaction(
-                function () use (
-                    $exam,
-                    $plannedRows,
-                    $replaceExisting
-                ) {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Delete Existing Timetable If Requested
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if ($replaceExisting) {
-
-                        ExamTimetable::where(
-                            'exam_id',
-                            $exam->id
-                        )->delete();
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Insert New Timetable
-                    |--------------------------------------------------------------------------
-                    */
-
-                    foreach (
-                        array_chunk(
-                            $plannedRows,
-                            500
-                        )
-                        as $chunk
-                    ) {
-
-                        ExamTimetable::insert(
-                            $chunk
-                        );
-                    }
-                }
-            );
-
+            DB::transaction(function () use ($exam, $planned, $replaceExisting) {
+                if ($replaceExisting) ExamTimetable::where('exam_id', $exam->id)->delete();
+                foreach (array_chunk($planned, 500) as $chunk) ExamTimetable::insert($chunk);
+            });
         } catch (Throwable $e) {
-
             report($e);
-
-            throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'The examination timetable could not be generated. '
-                    . 'No timetable changes were saved. '
-                    . $e->getMessage(),
-            ]);
+            throw ValidationException::withMessages(['replace_existing' => 'Timetable generation failed and no changes were saved. Check the application log for details.']);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Success
-        |--------------------------------------------------------------------------
-        */
-
-        return redirect()
-            ->route(
-                'admin.exam-schedules.index',
-                $exam
-            )
-            ->with(
-                'success',
-                'Examination timetable generated successfully.'
-            );
+        return redirect()->route('admin.exam-schedules.index', $exam)
+            ->with('success', 'Examination timetable generated successfully using class-specific subject counts and saved paper durations.');
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | AUTOMATIC TIME SLOTS
-    |--------------------------------------------------------------------------
-    */
+  private function getAutomaticTimeSlots(
+    int $papersPerDay
+): array {
+    return match ($papersPerDay) {
+        1 => [
+            ['start' => '10:00'],
+        ],
 
-    private function getAutomaticTimeSlots(
-        int $papersPerDay
-    ): array {
+        2 => [
+            ['start' => '10:00'],
+            ['start' => '13:00'],
+        ],
 
-        return match ($papersPerDay) {
+        3 => [
+            ['start' => '10:00'],
+            ['start' => '12:00'],
+            ['start' => '14:00'],
+        ],
 
-            1 => [
-                [
-                    'start' => '10:00',
-                ],
-            ],
-
-            2 => [
-                [
-                    'start' => '10:00',
-                ],
-                [
-                    'start' => '13:00',
-                ],
-            ],
-
-            3 => [
-                [
-                    'start' => '10:00',
-                ],
-                [
-                    'start' => '13:00',
-                ],
-                [
-                    'start' => '15:00',
-                ],
-            ],
-
-            default => throw ValidationException::withMessages([
-                'papers_per_day' =>
-                    'Papers per day must be 1, 2, or 3.',
-            ]),
-        };
-    }
+        default => throw ValidationException::withMessages([
+            'papers_per_day' => 'Papers per day must be 1, 2, or 3.',
+        ]),
+    };
+}
 
 
     /*
@@ -1702,6 +747,7 @@ class ExamScheduleController extends Controller
         $school =
             SchoolSetting::first();
 
+$schoolSetting = $school;
 
         $logoData =
             $this->getSchoolLogoData(
@@ -1710,14 +756,15 @@ class ExamScheduleController extends Controller
 
 
         return view(
-            'admin.exams.exam-schedules.print',
-            compact(
-                'exam',
-                'timetables',
-                'school',
-                'logoData'
-            )
-        );
+    'admin.exams.exam-schedules.print',
+    compact(
+        'exam',
+        'timetables',
+        'school',
+        'schoolSetting',
+        'logoData'
+    )
+);
     }
 
 
@@ -1761,17 +808,18 @@ class ExamScheduleController extends Controller
             Pdf::loadView(
                 'admin.exams.exam-schedules.print',
                 compact(
-                    'exam',
-                    'timetables',
-                    'school',
-                    'logoData'
-                )
+    'exam',
+    'timetables',
+    'school',
+    'schoolSetting',
+    'logoData'
+)
             );
 
 
         $pdf->setPaper(
             'A4',
-            'landscape'
+            'portrait'
         );
 
 
@@ -1988,4 +1036,118 @@ class ExamScheduleController extends Controller
 
         return null;
     }
+
+/*
+|--------------------------------------------------------------------------
+| BULK PRINT TIMETABLE
+|--------------------------------------------------------------------------
+*/
+
+public function bulkPrint(Request $request, Exam $exam)
+{
+    [$timetables, $school, $logoData] =
+        $this->getBulkTimetableData($request, $exam);
+
+    // Normalize the result into individual timetable records.
+    $rows = collect($timetables)->flatMap(function ($item) {
+        return $item instanceof \Illuminate\Support\Collection
+            ? $item
+            : [$item];
+    });
+
+    // Sort and group by examination date.
+    $timetables = $rows
+        ->sortBy(function ($row) {
+            return $row->exam_date;
+        })
+        ->groupBy(function ($row) {
+            return \Carbon\Carbon::parse($row->exam_date)
+                ->format('Y-m-d');
+        });
+
+    return view(
+        'admin.exams.exam-schedules.bulk-print',
+        [
+            'exam' => $exam,
+            'timetables' => $timetables,
+            'school' => $school,
+            'logoData' => $logoData,
+            'printedDate' => now()->format('d/m/Y h:i A'),
+            'isPdf' => false,
+        ]
+    );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| BULK PDF TIMETABLE
+|--------------------------------------------------------------------------
+*/
+
+public function bulkPdf(Request $request, Exam $exam)
+{
+    [$timetables, $school, $logoData] =
+        $this->getBulkTimetableData($request, $exam);
+
+    // Normalize the result into individual timetable records.
+    $rows = collect($timetables)->flatMap(function ($item) {
+        return $item instanceof \Illuminate\Support\Collection
+            ? $item
+            : [$item];
+    });
+
+    // Sort and group by examination date.
+    $timetables = $rows
+        ->sortBy(function ($row) {
+            return $row->exam_date;
+        })
+        ->groupBy(function ($row) {
+            return \Carbon\Carbon::parse($row->exam_date)
+                ->format('Y-m-d');
+        });
+
+    $pdf = Pdf::loadView(
+        'admin.exams.exam-schedules.bulk-print',
+        [
+            'exam' => $exam,
+            'timetables' => $timetables,
+            'school' => $school,
+            'logoData' => $logoData,
+            'printedDate' => now()->format('d/m/Y h:i A'),
+            'isPdf' => true,
+        ]
+    )->setPaper('a4', 'portrait');
+
+    return $pdf->download(
+        'bulk-exam-timetable-' . $exam->id . '.pdf'
+    );
+}
+
+private function getBulkTimetableData(Request $request, Exam $exam): array
+{
+    $validated = $request->validate([
+        'class_ids' => ['sometimes', 'array'],
+        'class_ids.*' => ['integer'],
+    ]);
+
+    $query = ExamTimetable::with(['schoolClass', 'examSubject.subject', 'teacher'])
+        ->where('exam_id', $exam->id);
+
+    if (!empty($validated['class_ids'])) {
+        $query->whereIn('class_id', $validated['class_ids']);
+    }
+
+    $rows = $query->orderBy('exam_date')
+        ->orderBy('start_time')
+        ->orderBy('class_id')
+        ->get();
+
+    abort_if($rows->isEmpty(), 404, 'No saved timetable entries were found for this examination and class selection.');
+
+    $school = SchoolSetting::first();
+    $logoData = $this->getSchoolLogoData($school);
+
+    return [$rows->groupBy(fn ($row) => \Carbon\Carbon::parse($row->exam_date)->format('Y-m-d')), $school, $logoData];
+}
 }

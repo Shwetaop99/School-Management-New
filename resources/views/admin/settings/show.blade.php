@@ -53,7 +53,7 @@
 
                         @if($schoolSetting->logo)
 
-                            <img src="{{ asset('storage/' . $schoolSetting->logo) }}"
+                            <img src="{{ $schoolSetting->logo_url }}"
                                  alt="{{ $schoolSetting->school_name }}"
                                  class="img-fluid rounded border p-2"
                                  style="
@@ -106,7 +106,7 @@
                             <div class="info-box">
                                 <label>School Name</label>
                                 <div>
-                                    {{ $schoolSetting->school_name ?: '—' }}
+                                    {{ $schoolSetting->school_name ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -117,7 +117,7 @@
                             <div class="info-box">
                                 <label>School Code</label>
                                 <div>
-                                    {{ $schoolSetting->school_code ?: '—' }}
+                                    {{ $schoolSetting->school_code ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -128,7 +128,7 @@
                             <div class="info-box">
                                 <label>UDISE Code</label>
                                 <div>
-                                    {{ $schoolSetting->udise_code ?: '—' }}
+                                    {{ $schoolSetting->udise_code ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -139,7 +139,7 @@
                             <div class="info-box">
                                 <label>Address</label>
                                 <div style="white-space: pre-line;">
-                                    {{ $schoolSetting->address ?: '—' }}
+                                    {{ $schoolSetting->address ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -150,7 +150,7 @@
                             <div class="info-box">
                                 <label>City</label>
                                 <div>
-                                    {{ $schoolSetting->city ?: '—' }}
+                                    {{ $schoolSetting->city ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -161,7 +161,7 @@
                             <div class="info-box">
                                 <label>District</label>
                                 <div>
-                                    {{ $schoolSetting->district ?: '—' }}
+                                    {{ $schoolSetting->district ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -172,7 +172,7 @@
                             <div class="info-box">
                                 <label>State</label>
                                 <div>
-                                    {{ $schoolSetting->state ?: '—' }}
+                                    {{ $schoolSetting->state ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -183,7 +183,7 @@
                             <div class="info-box">
                                 <label>Pincode</label>
                                 <div>
-                                    {{ $schoolSetting->pincode ?: '—' }}
+                                    {{ $schoolSetting->pincode ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -194,7 +194,7 @@
                             <div class="info-box">
                                 <label>Phone</label>
                                 <div>
-                                    {{ $schoolSetting->phone ?: '—' }}
+                                    {{ $schoolSetting->phone ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -205,7 +205,7 @@
                             <div class="info-box">
                                 <label>Email</label>
                                 <div>
-                                    {{ $schoolSetting->email ?: '—' }}
+                                    {{ $schoolSetting->email ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -228,7 +228,7 @@
 
                                 @else
 
-                                    <div>—</div>
+                                    <div>â€”</div>
 
                                 @endif
 
@@ -241,7 +241,7 @@
                             <div class="info-box">
                                 <label>Principal Name</label>
                                 <div>
-                                    {{ $schoolSetting->principal_name ?: '—' }}
+                                    {{ $schoolSetting->principal_name ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -252,7 +252,7 @@
                             <div class="info-box">
                                 <label>Established Year</label>
                                 <div>
-                                    {{ $schoolSetting->established_year ?: '—' }}
+                                    {{ $schoolSetting->established_year ?: 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -263,7 +263,7 @@
                             <div class="info-box">
                                 <label>Profile Created</label>
                                 <div>
-                                    {{ $schoolSetting->created_at?->format('d M Y, h:i A') ?? '—' }}
+                                    {{ $schoolSetting->created_at?->format('d M Y, h:i A') ?? 'â€”' }}
                                 </div>
                             </div>
                         </div>
@@ -274,7 +274,7 @@
                             <div class="info-box">
                                 <label>Last Updated</label>
                                 <div>
-                                    {{ $schoolSetting->updated_at?->format('d M Y, h:i A') ?? '—' }}
+                                    {{ $schoolSetting->updated_at?->format('d M Y, h:i A') ?? 'â€”' }}
                                 </div>
                             </div>
                         </div>

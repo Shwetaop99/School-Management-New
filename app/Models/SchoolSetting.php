@@ -55,16 +55,17 @@ class SchoolSetting extends Model
      * The logo field contains the Cloudinary secure URL.
      */
     public function getLogoUrlAttribute(): string
-    {
-        if (!empty($this->logo)) {
-            return $this->logo;
-        }
-
-        return asset('images/gurukullogo.png');
+{
+    if (!empty($this->logo)) {
+        return $this->logo;
     }
 
-    public function school(): BelongsTo
+    return asset('images/gurukullogo.png');
+}
+
+public function school(): BelongsTo
 {
     return $this->belongsTo(School::class);
 }
 }
+

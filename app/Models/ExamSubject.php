@@ -17,6 +17,8 @@ class ExamSubject extends Model
         'exam_id',
         'class_id',
         'subject_id',
+        'internal_max_marks',
+        'theory_max_marks',
         'maximum_marks',
         'passing_marks',
         'duration_minutes',
@@ -24,23 +26,19 @@ class ExamSubject extends Model
     ];
 
     protected $casts = [
+        'internal_max_marks' => 'integer',
+        'theory_max_marks' => 'integer',
         'maximum_marks' => 'integer',
         'passing_marks' => 'integer',
         'duration_minutes' => 'integer',
         'status' => 'boolean',
     ];
 
-    /**
-     * Exam
-     */
     public function exam()
     {
         return $this->belongsTo(Exam::class);
     }
 
-    /**
-     * Existing class from Classes module
-     */
     public function schoolClass()
     {
         return $this->belongsTo(
@@ -49,9 +47,6 @@ class ExamSubject extends Model
         );
     }
 
-    /**
-     * Existing subject from Subjects module
-     */
     public function subject()
     {
         return $this->belongsTo(

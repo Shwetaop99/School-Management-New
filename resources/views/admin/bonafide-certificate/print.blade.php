@@ -95,7 +95,7 @@
     <style>
         @page {
             size: A4 landscape;
-            margin: 8mm;
+            margin: 5mm;
         }
 
         * {
@@ -353,74 +353,72 @@
             letter-spacing: .8px;
         }
 
-        .signature-area {
-            display: grid;
-            grid-template-columns: 1fr 100px 1fr;
-            gap: 18px;
-            align-items: end;
-            margin-top: 20px;
-        }
+        .certificate-footer {
+    margin-top: 20px;
+}
 
-        .signature {
-            text-align: center;
-            font-family: Arial, sans-serif;
-            font-size: 9px;
-        }
+.signature-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: end;
+    min-height: 85px;
+    padding: 0 35px;
+}
 
-        .signature-space {
-            height: 28px;
-        }
+.signature {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+}
 
-        .signature-line {
-            width: 75%;
-            margin: 0 auto 5px;
-            border-top: 1px solid #66776a;
-        }
+.signature-space {
+    height: 38px;
+}
 
-        .signature strong,
-        .signature span {
-            display: block;
-        }
+.signature-line {
+    width: 65%;
+    margin: 0 auto 6px;
+    border-top: 1px solid #52685a;
+}
 
-        .signature strong {
-            color: #263e2e;
-            font-size: 9px;
-        }
+.signature strong {
+    display: block;
+    color: #263e2e;
+    font-size: 9px;
+}
 
-        .signature span {
-            margin-top: 3px;
-            color: #6a7a6d;
-            font-size: 8px;
-        }
+.signature span {
+    display: block;
+    margin-top: 4px;
+    color: #6a7a6d;
+    font-size: 8px;
+}
 
-        .seal {
-            width: 66px;
-            height: 66px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: auto;
-            border: 1.5px dashed #7da486;
-            border-radius: 50%;
-            color: #477454;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            font-size: 8px;
-            font-weight: bold;
-            line-height: 1.5;
-        }
+.footer-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 13px;
+    padding: 7px 4px 0;
+    border-top: 1px solid #d8e4d9;
+    color: #718076;
+    font-family: Arial, sans-serif;
+    font-size: 7px;
+}
 
-        .footer-line {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 12px;
-            padding-top: 6px;
-            border-top: 1px solid #d8e4d9;
-            color: #7b897e;
-            font-family: Arial, sans-serif;
-            font-size: 7px;
-        }
+.footer-line span {
+    flex: 1;
+}
+
+.footer-line span:nth-child(2) {
+    text-align: center;
+}
+
+.footer-line span:last-child {
+    text-align: right;
+}
 
         @media print {
             html,
@@ -472,10 +470,6 @@
 <body>
 
     <div class="toolbar">
-        <a href="{{ route('admin.bonafide.show', $certificate->id) }}">
-            Back to Certificate
-        </a>
-
         <button type="button" onclick="window.print()">
             Print Certificate
         </button>
@@ -631,27 +625,28 @@
                     {{ $reason }}
                 </div>
             </section>
+            {{-- Signatures and footer --}}
+<footer class="certificate-footer">
 
-            {{-- Signatures and seal --}}
-            <footer class="signature-area">
-                <div class="signature">
-                    <div class="signature-space"></div>
-                    <div class="signature-line"></div>
-                    <strong>{{ $school?->principal_name ?? 'Principal' }}</strong>
-                    <span>Principal / Head of School</span>
-                </div>
+    <div class="signature-area">
 
-                <div class="seal">
-                    OFFICIAL<br> SCHOOL SEAL
-                </div>
+        <div class="signature">
+            <div class="signature-space"></div>
+            <div class="signature-line"></div>
+            <strong>{{ $school?->principal_name ?? 'Principal' }}</strong>
+            <span>Principal / Head of School</span>
+        </div>
 
-                <div class="signature">
-                    <div class="signature-space"></div>
-                    <div class="signature-line"></div>
-                    <strong>Class Teacher / Authorized Signatory</strong>
-                    <span>{{ $school?->school_name ?? 'School' }}</span>
-                </div>
-            </footer>
+        <div class="signature">
+            <div class="signature-space"></div>
+            <div class="signature-line"></div>
+            <strong>Class Teacher</strong>
+            <span>Authorized Signatory</span>
+        </div>
+
+    </div>
+
+</footer>
 
             <div class="footer-line">
                 <span>Issued by the school administration</span>

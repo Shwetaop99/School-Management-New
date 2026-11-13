@@ -104,20 +104,36 @@
                 </p>
 
                 <div class="hero-button-group">
-                    <a href="{{ route('admin.student-supply-kits.distribution.create') }}"
-                       class="diary-primary-btn">
-                        <i class="bi bi-box-arrow-in-down"></i> Kit Distribution
-                    </a>
 
-                    <a href="{{ route('admin.kit-templates.create') }}" class="diary-ghost-btn">
-                        <i class="bi bi-plus-lg"></i> Kit Creation
-                    </a>
+    <a href="{{ route('admin.student-supply-kits.distribution.create') }}"
+       class="diary-primary-btn">
+        <i class="bi bi-box-arrow-in-down"></i>
+        Kit Distribution
+    </a>
 
-                    <a href="{{ route($printRoute, request()->query()) }}"
-                       target="_blank" class="diary-ghost-btn">
-                        <i class="bi bi-printer"></i> Print
-                    </a>
-                </div>
+    <a href="{{ route('admin.kit-templates.index') }}"
+       class="diary-ghost-btn">
+        <i class="bi bi-plus-lg"></i>
+        Kit Creation
+    </a>
+
+    {{-- STOCK MANAGEMENT --}}
+    <a href="{{ route('admin.supply-stocks.index', [
+            'academic_year' => $academicYear
+        ]) }}"
+       class="diary-ghost-btn">
+        <i class="bi bi-boxes"></i>
+        Stock Management
+    </a>
+
+    <a href="{{ route($printRoute, request()->query()) }}"
+       target="_blank"
+       class="diary-ghost-btn">
+        <i class="bi bi-printer"></i>
+        Print
+    </a>
+
+</div>
             </div>
         </section>
 

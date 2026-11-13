@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Exam Timetable')
@@ -8,16 +7,13 @@
 <style>
 /* =========================================================
    SCHOOL DIARY — EXAM TIMETABLE
-   Scoped styles: exam-timetable-page
 ========================================================= */
 
 .exam-timetable-page {
     --et-page: #f7f6f0;
     --et-paper: #fffefa;
     --et-cream: #f5f3e9;
-    --et-cream-dark: #f1ead8;
     --et-ink: #263b35;
-    --et-ink-dark: #1d302b;
     --et-forest: #344f43;
     --et-green: #34775a;
     --et-green-soft: #e8f1e9;
@@ -31,8 +27,8 @@
     --et-text: #39483e;
     --et-line: #e5e1d5;
     --et-shadow: 0 8px 26px rgba(38, 59, 53, .055);
-    --et-radius: 16px;
 
+    width: 100%;
     padding: 26px;
     border-radius: 20px;
     background: var(--et-page);
@@ -49,29 +45,65 @@
     box-sizing: border-box;
 }
 
-/* Page heading */
+.exam-timetable-page a,
+.exam-timetable-page button {
+    transition: all .2s ease;
+}
+
+/* =========================================================
+   DARK GREEN PAGE HEADER — MATCH CREATE EXAM
+========================================================= */
 
 .exam-timetable-page .et-page-header {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 22px;
-    margin-bottom: 26px;
-    padding: 8px 0 8px 20px;
-    border-left: 4px solid var(--et-wood);
+    margin-bottom: 25px;
+    padding: 28px 30px;
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+
+    border: 1px solid #456b54;
+    border-left: 6px solid #c49a45;
+    border-radius: 14px;
+
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(20, 47, 37, .22);
+}
+
+.exam-timetable-page .et-page-header::after {
+    content: "";
+    position: absolute;
+    top: -115px;
+    right: 16%;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 .exam-timetable-page .et-header-copy {
+    position: relative;
+    z-index: 1;
     min-width: 0;
 }
 
 .exam-timetable-page .et-eyebrow {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 7px;
-    margin-bottom: 7px;
-    color: var(--et-wood);
-    font-size: 10px;
+    margin-bottom: 9px;
+    color: #e2c47f;
+    font-size: 11px;
     font-weight: 800;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -79,12 +111,11 @@
 
 .exam-timetable-page .et-page-title {
     margin: 0;
-    color: var(--et-ink);
+    color: #ffffff !important;
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(25px, 3vw, 34px);
     font-weight: 700;
     line-height: 1.2;
-    letter-spacing: -.7px;
 }
 
 .exam-timetable-page .et-page-icon {
@@ -94,72 +125,65 @@
     align-items: center;
     justify-content: center;
     margin-right: 7px;
-    border: 1px solid var(--et-line);
+    color: #f0d58e;
+    background: rgba(255, 255, 255, .10);
+    border: 1px solid rgba(255, 255, 255, .25);
     border-radius: 11px;
-    background: var(--et-cream);
-    color: var(--et-forest);
     font-size: 18px;
     vertical-align: middle;
 }
 
 .exam-timetable-page .et-page-subtitle {
-    margin: 9px 0 0;
-    color: var(--et-muted);
+    margin: 10px 0 0;
+    color: #d5e3da !important;
     font-size: 13px;
+    line-height: 1.7;
 }
-
-.exam-timetable-page .et-page-subtitle strong {
-    color: var(--et-ink);
-    font-weight: 750;
-}
-
-/* Buttons */
 
 .exam-timetable-page .et-header-actions {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-end;
     gap: 9px;
 }
 
+/* =========================================================
+   BUTTONS
+========================================================= */
+
 .exam-timetable-page .et-btn {
     display: inline-flex;
-    min-height: 41px;
+    min-height: 40px;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 10px 15px;
+    padding: 9px 14px;
     border: 1px solid transparent;
-    border-radius: 10px;
+    border-radius: 9px;
     font-family: inherit;
     font-size: 12px;
     font-weight: 750;
-    line-height: 1.3;
     text-decoration: none;
     cursor: pointer;
-    transition: background .2s ease, color .2s ease,
-        border-color .2s ease, transform .2s ease;
+    transition: .2s ease;
 }
 
 .exam-timetable-page .et-btn:hover {
     transform: translateY(-1px);
 }
 
-.exam-timetable-page .et-btn:focus-visible {
-    outline: 3px solid rgba(82, 127, 112, .28);
-    outline-offset: 2px;
-}
-
 .exam-timetable-page .et-btn-primary {
     border-color: var(--et-forest);
     background: var(--et-forest);
-    color: #fffefa;
+    color: #fff;
 }
 
 .exam-timetable-page .et-btn-primary:hover {
-    border-color: var(--et-ink-dark);
-    background: var(--et-ink-dark);
-    color: #fffefa;
+    background: #1d302b;
+    color: #fff;
 }
 
 .exam-timetable-page .et-btn-secondary {
@@ -171,39 +195,113 @@
 .exam-timetable-page .et-btn-secondary:hover {
     border-color: var(--et-sage);
     background: var(--et-cream);
-    color: var(--et-ink-dark);
-}
-
-.exam-timetable-page .et-btn-cream {
-    border-color: var(--et-cream-dark);
-    background: var(--et-cream-dark);
     color: var(--et-ink);
 }
 
-.exam-timetable-page .et-btn-cream:hover {
-    background: #fff5dc;
-    color: var(--et-ink-dark);
+.exam-timetable-page .et-btn-print {
+    border-color: #d6e3d8;
+    background: var(--et-green-soft);
+    color: var(--et-green);
 }
 
-.exam-timetable-page .et-btn-pdf {
+.exam-timetable-page .et-btn-print:hover {
+    border-color: var(--et-green);
+    background: var(--et-green);
+    color: #fff;
+}
+
+.exam-timetable-page .et-btn-bulk {
+    border-color: #d6e0eb;
+    background: var(--et-blue-soft);
+    color: var(--et-blue);
+}
+
+.exam-timetable-page .et-btn-bulk:hover {
+    border-color: var(--et-blue);
+    background: var(--et-blue);
+    color: #fff;
+}
+
+.exam-timetable-page .et-btn-bulk-pdf {
     border-color: #efd3ce;
     background: var(--et-red-soft);
     color: var(--et-red);
 }
 
-.exam-timetable-page .et-btn-pdf:hover {
+.exam-timetable-page .et-btn-bulk-pdf:hover {
     border-color: var(--et-red);
     background: var(--et-red);
     color: #fff;
 }
 
-/* Panels */
+/* Header button overrides */
+
+.exam-timetable-page .et-header-actions .et-btn {
+    min-height: 42px;
+    padding: 10px 15px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-secondary {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .4);
+}
+
+.exam-timetable-page .et-header-actions .et-btn-secondary:hover {
+    color: #142f25;
+    background: #c49a45;
+    border-color: #c49a45;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-primary {
+    color: #142f25;
+    background: #e2c47f;
+    border: 1px solid #e2c47f;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-primary:hover {
+    color: #142f25;
+    background: #f0d99e;
+    border-color: #f0d99e;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-print,
+.exam-timetable-page .et-header-actions .et-btn-bulk {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .10);
+    border: 1px solid rgba(255, 255, 255, .4);
+}
+
+.exam-timetable-page .et-header-actions .et-btn-print:hover,
+.exam-timetable-page .et-header-actions .et-btn-bulk:hover {
+    color: #142f25;
+    background: #c49a45;
+    border-color: #c49a45;
+}
+
+.exam-timetable-page .et-header-actions .et-btn-bulk-pdf {
+    color: #ffffff;
+    background: rgba(185, 91, 80, .22);
+    border: 1px solid rgba(255, 210, 200, .5);
+}
+
+.exam-timetable-page .et-header-actions .et-btn-bulk-pdf:hover {
+    color: #ffffff;
+    background: #b95b50;
+    border-color: #b95b50;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
 
 .exam-timetable-page .et-panel {
     margin-bottom: 22px;
     overflow: hidden;
     border: 1px solid var(--et-line);
-    border-radius: var(--et-radius);
+    border-radius: 16px;
     background: var(--et-paper);
     box-shadow: var(--et-shadow);
 }
@@ -213,7 +311,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 15px;
-    padding: 18px 22px;
+    padding: 17px 21px;
     border-bottom: 1px solid var(--et-line);
     background: rgba(245, 243, 233, .56);
 }
@@ -249,17 +347,11 @@
     color: var(--et-green);
 }
 
-.exam-timetable-page .et-icon-wood {
-    background: #f7eee0;
-    color: var(--et-wood);
-}
-
 .exam-timetable-page .et-panel-title {
     margin: 0;
     color: var(--et-ink);
     font-size: 15px;
     font-weight: 800;
-    line-height: 1.4;
 }
 
 .exam-timetable-page .et-panel-description {
@@ -269,67 +361,16 @@
 }
 
 .exam-timetable-page .et-panel-body {
-    padding: 22px;
+    padding: 21px;
 }
 
-.exam-timetable-page .et-panel-body.et-no-padding {
+.exam-timetable-page .et-no-padding {
     padding: 0;
 }
 
-/* Counts and badges */
-
-.exam-timetable-page .et-count {
-    display: inline-flex;
-    min-height: 29px;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 5px 10px;
-    border: 1px solid #d6e3d8;
-    border-radius: 8px;
-    background: var(--et-green-soft);
-    color: var(--et-green);
-    font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.exam-timetable-page .et-count-neutral {
-    border-color: var(--et-line);
-    background: var(--et-cream);
-    color: var(--et-ink);
-}
-
-.exam-timetable-page .et-status {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border: 1px solid #d6e3d8;
-    border-radius: 8px;
-    background: var(--et-green-soft);
-    color: var(--et-green);
-    font-size: 10px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.exam-timetable-page .et-status::before {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-    content: "";
-}
-
-.exam-timetable-page .et-status-inactive {
-    border-color: var(--et-line);
-    background: var(--et-cream);
-    color: var(--et-muted);
-}
-
-/* Information cards */
+/* =========================================================
+   INFORMATION CARDS
+========================================================= */
 
 .exam-timetable-page .et-info-grid {
     display: grid;
@@ -338,13 +379,13 @@
 }
 
 .exam-timetable-page .et-info-item {
+    position: relative;
     min-width: 0;
+    overflow: hidden;
     padding: 17px;
     border: 1px solid var(--et-line);
     border-radius: 12px;
-    background: #fffefa;
-    position: relative;
-    overflow: hidden;
+    background: var(--et-paper);
 }
 
 .exam-timetable-page .et-info-item::before {
@@ -377,7 +418,7 @@
     color: var(--et-muted);
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .7px;
+    letter-spacing: .6px;
     text-transform: uppercase;
 }
 
@@ -393,15 +434,38 @@
     font-weight: 800;
 }
 
-/* Timetable table */
+/* =========================================================
+   COUNT
+========================================================= */
+
+.exam-timetable-page .et-count {
+    display: inline-flex;
+    min-height: 29px;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border: 1px solid #d6e3d8;
+    border-radius: 8px;
+    background: var(--et-green-soft);
+    color: var(--et-green);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
 
 .exam-timetable-page .et-table-wrap {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .exam-timetable-page .et-table {
     width: 100%;
+    min-width: 850px;
     margin: 0;
     border-collapse: separate;
     border-spacing: 0;
@@ -410,21 +474,22 @@
 }
 
 .exam-timetable-page .et-table thead th {
-    padding: 15px 14px;
+    padding: 13px 12px;
     border-bottom: 1px solid var(--et-line);
     background: #f5f3e9;
     color: var(--et-ink);
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .55px;
+    letter-spacing: .5px;
     text-align: left;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
 .exam-timetable-page .et-table tbody td {
-    padding: 15px 14px;
+    padding: 13px 12px;
     border-bottom: 1px solid #eeebe2;
+    color: var(--et-text);
     vertical-align: middle;
 }
 
@@ -432,35 +497,19 @@
     border-bottom: 0;
 }
 
-.exam-timetable-page .et-table tbody tr {
-    transition: background .15s ease;
-}
-
 .exam-timetable-page .et-table tbody tr:hover {
     background: #fbfaf5;
 }
 
-.exam-timetable-page .et-table thead th:first-child,
-.exam-timetable-page .et-table tbody td:first-child {
-    padding-left: 22px;
-}
-
-.exam-timetable-page .et-table-primary {
-    color: var(--et-ink);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.exam-timetable-page .et-table-muted {
-    margin-top: 3px;
-    color: var(--et-muted);
-    font-size: 10px;
+.exam-timetable-page .et-table th:first-child,
+.exam-timetable-page .et-table td:first-child {
+    padding-left: 20px;
 }
 
 .exam-timetable-page .et-number {
     display: inline-flex;
-    width: 29px;
-    height: 29px;
+    width: 28px;
+    height: 28px;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--et-line);
@@ -474,14 +523,11 @@
 .exam-timetable-page .et-date {
     color: var(--et-ink);
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 750;
     white-space: nowrap;
 }
 
 .exam-timetable-page .et-time {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     color: var(--et-ink);
     font-size: 11px;
     font-weight: 750;
@@ -489,21 +535,20 @@
 }
 
 .exam-timetable-page .et-time i {
+    margin-right: 4px;
     color: var(--et-sage);
 }
 
 .exam-timetable-page .et-class-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 10px;
+    display: inline-block;
+    padding: 6px 9px;
     border: 1px solid #d5e3d7;
-    border-radius: 8px;
+    border-radius: 7px;
     background: var(--et-green-soft);
     color: var(--et-forest);
     font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
+    font-weight: 750;
+    line-height: 1.5;
 }
 
 .exam-timetable-page .et-subject {
@@ -515,7 +560,6 @@
 .exam-timetable-page .et-mark-chip {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
     padding: 6px 9px;
     border: 1px solid var(--et-line);
     border-radius: 7px;
@@ -533,112 +577,9 @@
     white-space: nowrap;
 }
 
-.exam-timetable-page .et-teacher {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 125px;
-}
-
-.exam-timetable-page .et-teacher-avatar {
-    display: inline-flex;
-    width: 31px;
-    height: 31px;
-    flex: 0 0 31px;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #d6e3d8;
-    border-radius: 10px;
-    background: var(--et-green-soft);
-    color: var(--et-green);
-    font-size: 13px;
-}
-
-.exam-timetable-page .et-teacher-name {
-    color: var(--et-ink);
-    font-size: 11px;
-    font-weight: 750;
-}
-
-.exam-timetable-page .et-unassigned {
-    color: var(--et-muted);
-    font-size: 11px;
-    font-style: italic;
-}
-
-/* Actions dropdown */
-
-.exam-timetable-page .et-action-cell {
-    text-align: right;
-    white-space: nowrap;
-}
-
-.exam-timetable-page .et-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.exam-timetable-page .et-action-toggle {
-    display: inline-flex;
-    width: 35px;
-    height: 35px;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--et-line);
-    border-radius: 9px;
-    background: var(--et-paper);
-    color: var(--et-ink);
-    cursor: pointer;
-    transition: background .2s ease, border-color .2s ease;
-}
-
-.exam-timetable-page .et-action-toggle:hover,
-.exam-timetable-page .et-action-toggle[aria-expanded="true"] {
-    border-color: var(--et-sage);
-    background: var(--et-cream);
-}
-
-.exam-timetable-page .dropdown-menu {
-    min-width: 165px;
-    padding: 6px;
-    border: 1px solid var(--et-line);
-    border-radius: 11px;
-    background: var(--et-paper);
-    box-shadow: 0 12px 28px rgba(38, 59, 53, .12);
-}
-
-.exam-timetable-page .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 10px;
-    border-radius: 7px;
-    color: var(--et-ink);
-    font-size: 12px;
-    font-weight: 650;
-}
-
-.exam-timetable-page .dropdown-item:hover,
-.exam-timetable-page .dropdown-item:focus {
-    background: var(--et-cream);
-    color: var(--et-ink-dark);
-}
-
-.exam-timetable-page .dropdown-item.et-delete-item {
-    color: var(--et-red);
-}
-
-.exam-timetable-page .dropdown-item.et-delete-item:hover,
-.exam-timetable-page .dropdown-item.et-delete-item:focus {
-    background: var(--et-red-soft);
-    color: var(--et-red);
-}
-
-.exam-timetable-page .dropdown-divider {
-    border-top-color: var(--et-line);
-}
-
-/* Empty state */
+/* =========================================================
+   EMPTY STATE
+========================================================= */
 
 .exam-timetable-page .et-empty-state {
     padding: 45px 22px;
@@ -651,9 +592,9 @@
     height: 70px;
     align-items: center;
     justify-content: center;
-    margin-bottom: 18px;
+    margin-bottom: 17px;
     border: 1px solid var(--et-line);
-    border-radius: 21px;
+    border-radius: 20px;
     background: var(--et-cream);
     color: var(--et-sage);
     font-size: 29px;
@@ -675,117 +616,127 @@
     line-height: 1.8;
 }
 
-.exam-timetable-page .et-empty-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-/* Responsive */
-
-@media (max-width: 1199.98px) {
+@media (max-width: 767.98px) {
     .exam-timetable-page .et-info-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 991.98px) {
-    .exam-timetable-page {
-        padding: 20px;
-    }
-
-    .exam-timetable-page .et-table {
-        min-width: 1100px;
-    }
-}
-
 @media (max-width: 767.98px) {
     .exam-timetable-page {
-        padding: 15px;
-        border-radius: 14px;
+        padding: 20px;
     }
 
     .exam-timetable-page .et-page-header {
         align-items: flex-start;
         flex-direction: column;
-        gap: 16px;
-        padding-left: 14px;
+        padding: 23px;
     }
 
-    .exam-timetable-page .et-page-title {
-        font-size: 26px;
+    .exam-timetable-page .et-header-actions {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    .exam-timetable-page {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .exam-timetable-page .et-page-header {
+        padding: 21px 18px;
     }
 
     .exam-timetable-page .et-header-actions {
         display: grid;
         width: 100%;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .exam-timetable-page .et-header-actions .et-btn {
         width: 100%;
-    }
-
-    .exam-timetable-page .et-panel-header {
-        align-items: flex-start;
-        padding: 15px;
-    }
-
-    .exam-timetable-page .et-panel-body {
-        padding: 16px;
-    }
-
-    .exam-timetable-page .et-panel-body.et-no-padding {
-        padding: 0;
+        padding: 9px 7px;
+        font-size: 11px;
     }
 
     .exam-timetable-page .et-info-grid {
         grid-template-columns: 1fr;
-        gap: 11px;
+        gap: 10px;
+    }
+
+    .exam-timetable-page .et-panel-header {
+        padding: 14px;
+    }
+
+    .exam-timetable-page .et-panel-body {
+        padding: 15px;
+    }
+
+    .exam-timetable-page .et-no-padding {
+        padding: 0;
     }
 
     .exam-timetable-page .et-empty-state {
         padding: 32px 15px;
     }
-
-    .exam-timetable-page .et-empty-title {
-        font-size: 20px;
-    }
 }
 
 @media (max-width: 420px) {
-    .exam-timetable-page .et-panel-heading {
-        align-items: flex-start;
+    .exam-timetable-page .et-header-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .exam-timetable-page .et-page-title {
+        font-size: 24px;
     }
 
     .exam-timetable-page .et-panel-title {
         font-size: 13px;
     }
-
-    .exam-timetable-page .et-count {
-        font-size: 10px;
-    }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .exam-timetable-page *,
-    .exam-timetable-page *::before,
-    .exam-timetable-page *::after {
-        scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+    .exam-timetable-page .et-page-header,
+    .exam-timetable-page .et-header-actions {
+        display: none !important;
+    }
+
+    .exam-timetable-page {
+        padding: 0;
+        background: #fff;
+    }
+
+    .exam-timetable-page .et-panel {
+        border: 1px solid #ddd;
+        box-shadow: none;
+    }
+
+    .exam-timetable-page .et-table {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    .exam-timetable-page .et-table th,
+    .exam-timetable-page .et-table td {
+        padding: 6px !important;
+        font-size: 9px !important;
     }
 }
 </style>
 
-
 <div class="exam-timetable-page">
 
-    {{-- =====================================================
-        PAGE HEADER
-    ====================================================== --}}
+    {{-- PAGE HEADER --}}
     <header class="et-page-header">
 
         <div class="et-header-copy">
@@ -803,46 +754,52 @@
             </h1>
 
             <p class="et-page-subtitle">
-
                 {{ $exam->exam_name }}
 
                 @if($exam->academic_year)
                     <span class="mx-1">·</span>
                     {{ $exam->academic_year }}
                 @endif
-
             </p>
 
         </div>
 
         <div class="et-header-actions">
 
-            <a
-                href="{{ route('admin.exam-schedules.generate.form', $exam) }}"
-                class="et-btn et-btn-primary"
-            >
+            <a href="{{ route('admin.exams.index') }}"
+               class="et-btn et-btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Back
+            </a>
+
+            <a href="{{ route('admin.exam-schedules.generate.form', $exam) }}"
+               class="et-btn et-btn-primary">
                 <i class="bi bi-magic"></i>
                 Generate Timetable
             </a>
 
-            @if($timetables->count())
+            @if($timetables->isNotEmpty())
 
-                <a
-                    href="{{ route('admin.exam-schedules.print', $exam) }}"
-                    target="_blank"
-                    rel="noopener"
-                    class="et-btn et-btn-secondary"
-                >
+                <a href="{{ route('admin.exam-schedules.print', $exam) }}"
+                   target="_blank"
+                   rel="noopener"
+                   class="et-btn et-btn-print">
                     <i class="bi bi-printer"></i>
                     Print
                 </a>
 
-                <a
-                    href="{{ route('admin.exam-schedules.pdf', $exam) }}"
-                    class="et-btn et-btn-pdf"
-                >
+                <a href="{{ route('admin.exam-schedules.bulk-print', $exam) }}"
+                   target="_blank"
+                   rel="noopener"
+                   class="et-btn et-btn-bulk">
+                    <i class="bi bi-printer-fill"></i>
+                    Bulk Print
+                </a>
+
+                <a href="{{ route('admin.exam-schedules.bulk-pdf', $exam) }}"
+                   class="et-btn et-btn-bulk-pdf">
                     <i class="bi bi-file-earmark-pdf"></i>
-                    PDF
+                    Bulk PDF
                 </a>
 
             @endif
@@ -851,10 +808,7 @@
 
     </header>
 
-
-    {{-- =====================================================
-        EXAM INFORMATION
-    ====================================================== --}}
+    {{-- EXAM INFORMATION --}}
     <section class="et-panel">
 
         <div class="et-panel-header">
@@ -884,7 +838,6 @@
             <div class="et-info-grid">
 
                 <div class="et-info-item">
-
                     <div class="et-info-label">
                         <i class="bi bi-journal-bookmark"></i>
                         Examination
@@ -893,11 +846,9 @@
                     <div class="et-info-value">
                         {{ $exam->exam_name }}
                     </div>
-
                 </div>
 
                 <div class="et-info-item">
-
                     <div class="et-info-label">
                         <i class="bi bi-calendar3"></i>
                         Academic Year
@@ -906,11 +857,9 @@
                     <div class="et-info-value">
                         {{ $exam->academic_year ?? '-' }}
                     </div>
-
                 </div>
 
                 <div class="et-info-item">
-
                     <div class="et-info-label">
                         <i class="bi bi-bookmark-check"></i>
                         Exam Type
@@ -919,11 +868,9 @@
                     <div class="et-info-value">
                         {{ $exam->exam_type ?? '-' }}
                     </div>
-
                 </div>
 
                 <div class="et-info-item">
-
                     <div class="et-info-label">
                         <i class="bi bi-files"></i>
                         Timetable Entries
@@ -932,7 +879,6 @@
                     <div class="et-info-value">
                         {{ $timetables->count() }}
                     </div>
-
                 </div>
 
             </div>
@@ -941,10 +887,7 @@
 
     </section>
 
-
-    {{-- =====================================================
-        EMPTY STATE
-    ====================================================== --}}
+    {{-- TIMETABLE CONTENT --}}
     @if($timetables->isEmpty())
 
         <section class="et-panel">
@@ -961,21 +904,15 @@
 
                 <p class="et-empty-description">
                     The timetable for this examination has not been generated yet.
-                    Generate a timetable to organize exam dates, paper timings,
-                    classes and teacher assignments in one place.
+                    Generate a timetable to organize examination dates, paper timings,
+                    classes and subjects in one place.
                 </p>
 
-                <div class="et-empty-actions">
-
-                    <a
-                        href="{{ route('admin.exam-schedules.generate.form', $exam) }}"
-                        class="et-btn et-btn-primary"
-                    >
-                        <i class="bi bi-magic"></i>
-                        Generate Timetable
-                    </a>
-
-                </div>
+                <a href="{{ route('admin.exam-schedules.generate.form', $exam) }}"
+                   class="et-btn et-btn-primary">
+                    <i class="bi bi-magic"></i>
+                    Generate Timetable
+                </a>
 
             </div>
 
@@ -983,9 +920,36 @@
 
     @else
 
-        {{-- =================================================
-            GENERATED TIMETABLE
-        ================================================== --}}
+        @php
+            /*
+             * Group schedules having the same date, time, subject,
+             * maximum marks and duration.
+             *
+             * This displays multiple classes in one row when they
+             * share the same examination schedule.
+             */
+            $groupedTimetables = $timetables->groupBy(function ($schedule) {
+
+                return implode('|', [
+                    $schedule->exam_date
+                        ? \Carbon\Carbon::parse($schedule->exam_date)->format('Y-m-d')
+                        : '',
+
+                    $schedule->start_time
+                        ? \Carbon\Carbon::parse($schedule->start_time)->format('H:i')
+                        : '',
+
+                    $schedule->end_time
+                        ? \Carbon\Carbon::parse($schedule->end_time)->format('H:i')
+                        : '',
+
+                    $schedule->examSubject?->subject?->subject_name ?? '',
+                    $schedule->maximum_marks ?? '',
+                    $schedule->duration_minutes ?? '',
+                ]);
+            })->sortKeys();
+        @endphp
+
         <section class="et-panel">
 
             <div class="et-panel-header">
@@ -997,26 +961,23 @@
                     </span>
 
                     <div>
-
                         <h2 class="et-panel-title">
                             Generated Examination Timetable
                         </h2>
 
                         <p class="et-panel-description">
-                            Ordered by date, time and class.
+                            Examination schedule arranged by date and time.
                         </p>
-
                     </div>
 
                 </div>
 
                 <span class="et-count">
-                    <i class="bi bi-files"></i>
-                    {{ $timetables->count() }} Papers
+                    {{ $groupedTimetables->count() }}
+                    {{ $groupedTimetables->count() === 1 ? 'Schedule' : 'Schedules' }}
                 </span>
 
             </div>
-
 
             <div class="et-panel-body et-no-padding">
 
@@ -1025,297 +986,125 @@
                     <table class="et-table">
 
                         <thead>
-
                             <tr>
-
-                                <th>#</th>
-
+                                <th width="55">#</th>
                                 <th>Date</th>
-
                                 <th>Time</th>
-
                                 <th>Class</th>
-
                                 <th>Subject</th>
-
-                                <th>Maximum Marks</th>
-
+                                <th>Max Marks</th>
                                 <th>Duration</th>
-
-                                <th>Teacher</th>
-
-                                <th>Status</th>
-
-                                <th style="text-align: right; padding-right: 22px;">
-                                    Action
-                                </th>
-
                             </tr>
-
                         </thead>
-
 
                         <tbody>
 
-                            @foreach($timetables as $index => $schedule)
+                            @foreach($groupedTimetables as $group)
+
+                                @php
+                                    $first = $group->first();
+
+                                    /*
+                                     * Remove duplicate class entries.
+                                     */
+                                    $classRows = $group
+                                        ->sortBy(function ($schedule) {
+                                            return (int) ($schedule->schoolClass->class_name ?? 0);
+                                        })
+                                        ->unique('class_id')
+                                        ->values();
+
+                                    $classNames = $classRows->map(function ($schedule) {
+
+                                        $name = $schedule->schoolClass->class_name ?? '-';
+                                        $section = $schedule->schoolClass->section ?? '';
+
+                                        return 'Class ' . $name
+                                            . ($section !== '' ? ' - ' . $section : '');
+                                    });
+
+                                    /*
+                                     * Show a class range only when:
+                                     * - Class names are numeric.
+                                     * - Numbers are consecutive.
+                                     * - No sections are assigned.
+                                     */
+                                    $numericClasses = $classRows->map(function ($schedule) {
+                                        return (int) ($schedule->schoolClass->class_name ?? 0);
+                                    })->values();
+
+                                    $isNumericRange = $numericClasses->isNotEmpty()
+                                        && $numericClasses->every(fn ($number) => $number > 0)
+                                        && $numericClasses->count() ===
+                                            ($numericClasses->last() - $numericClasses->first() + 1)
+                                        && $classRows->every(fn ($schedule) =>
+                                            empty($schedule->schoolClass->section)
+                                        );
+
+                                    $classLabel = $isNumericRange
+                                        ? 'Class ' . $numericClasses->first()
+                                            . ' to Class ' . $numericClasses->last()
+                                        : $classNames->implode(', ');
+                                @endphp
 
                                 <tr>
 
-                                    {{-- Number --}}
                                     <td>
-
                                         <span class="et-number">
-                                            {{ $index + 1 }}
+                                            {{ $loop->iteration }}
                                         </span>
-
                                     </td>
 
-
-                                    {{-- Date --}}
                                     <td>
-
-                                        @if($schedule->exam_date)
-
-                                            <div class="et-date">
-                                                {{ $schedule->exam_date->format('d M Y') }}
-                                            </div>
-
-                                            <div class="et-table-muted">
-                                                <i class="bi bi-calendar-week me-1"></i>
-                                                {{ $schedule->exam_date->format('l') }}
-                                            </div>
-
-                                        @else
-
-                                            <span class="et-table-muted">-</span>
-
-                                        @endif
-
+                                        <span class="et-date">
+                                            {{ $first->exam_date
+                                                ? \Carbon\Carbon::parse($first->exam_date)->format('d M Y')
+                                                : '-' }}
+                                        </span>
                                     </td>
 
-
-                                    {{-- Time --}}
                                     <td>
+                                        @if($first->start_time && $first->end_time)
 
-                                        @if($schedule->start_time && $schedule->end_time)
-
-                                            <div class="et-time">
+                                            <span class="et-time">
                                                 <i class="bi bi-clock"></i>
 
-                                                {{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }}
+                                                {{ \Carbon\Carbon::parse($first->start_time)->format('h:i A') }}
 
-                                                <span>–</span>
+                                                –
 
-                                                {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
-                                            </div>
+                                                {{ \Carbon\Carbon::parse($first->end_time)->format('h:i A') }}
+                                            </span>
 
                                         @else
-
-                                            <span class="et-table-muted">-</span>
-
+                                            -
                                         @endif
-
                                     </td>
 
-
-                                    {{-- Class --}}
                                     <td>
-
                                         <span class="et-class-chip">
-
-                                            <i class="bi bi-mortarboard"></i>
-
-                                            {{ $schedule->schoolClass->class_name ?? '-' }}
-
-                                            @if(!empty($schedule->schoolClass->section))
-                                                - {{ $schedule->schoolClass->section }}
-                                            @endif
-
+                                            {{ $classLabel }}
                                         </span>
-
                                     </td>
 
-
-                                    {{-- Subject --}}
                                     <td>
-
-                                        <div class="et-subject">
-                                            {{ $schedule->examSubject->subject->subject_name ?? '-' }}
-                                        </div>
-
-                                        @if(!empty($schedule->examSubject->subject->subject_code))
-
-                                            <div class="et-table-muted">
-                                                Code:
-                                                {{ $schedule->examSubject->subject->subject_code }}
-                                            </div>
-
-                                        @endif
-
+                                        <span class="et-subject">
+                                            {{ $first->examSubject?->subject?->subject_name ?? '-' }}
+                                        </span>
                                     </td>
 
-
-                                    {{-- Maximum Marks --}}
                                     <td>
-
                                         <span class="et-mark-chip">
-                                            <i class="bi bi-award"></i>
-                                            {{ $schedule->maximum_marks ?? '-' }}
+                                            {{ $first->maximum_marks ?? '-' }}
                                         </span>
-
                                     </td>
 
-
-                                    {{-- Duration --}}
                                     <td>
-
-                                        @if($schedule->duration_minutes)
-
-                                            <span class="et-duration">
-                                                <i class="bi bi-hourglass-split me-1"></i>
-                                                {{ $schedule->duration_minutes }} min
-                                            </span>
-
-                                        @else
-
-                                            <span class="et-table-muted">-</span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Teacher --}}
-                                    <td>
-
-                                        @if($schedule->teacher)
-
-                                            <div class="et-teacher">
-
-                                                <span class="et-teacher-avatar">
-                                                    <i class="bi bi-person"></i>
-                                                </span>
-
-                                                <span class="et-teacher-name">
-
-                                                    {{ trim(
-                                                        ($schedule->teacher->first_name ?? '') .
-                                                        ' ' .
-                                                        ($schedule->teacher->last_name ?? '')
-                                                    ) }}
-
-                                                </span>
-
-                                            </div>
-
-                                        @else
-
-                                            <span class="et-unassigned">
-                                                <i class="bi bi-person-dash me-1"></i>
-                                                Not Assigned
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Status --}}
-                                    <td>
-
-                                        @if($schedule->status)
-
-                                            <span class="et-status">
-                                                Active
-                                            </span>
-
-                                        @else
-
-                                            <span class="et-status et-status-inactive">
-                                                Inactive
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Action --}}
-                                    <td class="et-action-cell">
-
-                                        <div class="dropdown et-dropdown">
-
-                                            <button
-                                                class="et-action-toggle"
-                                                type="button"
-                                                data-bs-toggle="dropdown"
-                                                data-bs-boundary="viewport"
-                                                aria-expanded="false"
-                                                aria-label="Actions for timetable entry {{ $index + 1 }}"
-                                            >
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </button>
-
-
-                                            <ul class="dropdown-menu dropdown-menu-end">
-
-                                                <li>
-
-                                                    <a
-                                                        class="dropdown-item"
-                                                        href="{{ route(
-                                                            'admin.exam-schedules.edit',
-                                                            [
-                                                                'exam' => $exam->id,
-                                                                'schedule' => $schedule->id
-                                                            ]
-                                                        ) }}"
-                                                    >
-                                                        <i class="bi bi-pencil"></i>
-                                                        Edit
-                                                    </a>
-
-                                                </li>
-
-
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
-
-
-                                                <li>
-
-                                                    <form
-                                                        action="{{ route(
-                                                            'admin.exam-schedules.destroy',
-                                                            [
-                                                                'exam' => $exam->id,
-                                                                'schedule' => $schedule->id
-                                                            ]
-                                                        ) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('Delete this timetable entry?');"
-                                                    >
-
-                                                        @csrf
-                                                        @method('DELETE')
-
-                                                        <button
-                                                            type="submit"
-                                                            class="dropdown-item et-delete-item"
-                                                        >
-                                                            <i class="bi bi-trash"></i>
-                                                            Delete
-                                                        </button>
-
-                                                    </form>
-
-                                                </li>
-
-                                            </ul>
-
-                                        </div>
-
+                                        <span class="et-duration">
+                                            {{ $first->duration_minutes
+                                                ? $first->duration_minutes . ' min'
+                                                : '-' }}
+                                        </span>
                                     </td>
 
                                 </tr>

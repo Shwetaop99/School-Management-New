@@ -52,7 +52,7 @@
                     <h2>School Profile</h2>
 
                     <p>
-                        Manage your school’s official information used across
+                        Manage your schoolâ€™s official information used across
                         certificates, reports and other modules.
                     </p>
 
@@ -96,9 +96,7 @@
                 <div class="school-profile-header">
                     <div class="school-logo-wrap">
                         <img
-                            src="{{ $school->logo
-                                ? asset('storage/' . $school->logo)
-                                : asset('images/gurukullogo.png') }}"
+                            src="{{ $school->logo_url }}"
                             alt="School Logo"
                             onerror="this.src='{{ asset('images/gurukullogo.png') }}'"
                         >
@@ -303,7 +301,7 @@
                     <h4>No School Profile Found</h4>
 
                     <p>
-                        Add your school’s profile to use school information
+                        Add your schoolâ€™s profile to use school information
                         throughout certificates, reports and other modules.
                     </p>
 
@@ -325,7 +323,7 @@
 <style>
 /* =========================================================
    LOCKED SCHOOL DIARY DESIGN SYSTEM
-   SCHOOL PROFILE — PAGE
+   SCHOOL PROFILE â€” PAGE
    Same tokens, cards, buttons and layout as Meal Items / Library / etc.
    Every selector is scoped under .school-profile-page.
 ========================================================= */

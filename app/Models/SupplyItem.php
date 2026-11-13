@@ -31,9 +31,6 @@ class SupplyItem extends Model
 
     public function stock(): HasOne
 {
-    return $this->hasOne(
-        SupplyStock::class,
-        'supply_item_id'
-    );
+    return $this->hasOne(SupplyStock::class, 'supply_item_id');
 }
 }

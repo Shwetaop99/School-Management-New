@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Edit Exam Session')
@@ -9,17 +8,19 @@
 
     {{-- PAGE HEADER --}}
     <div class="exam-session-header">
+
         <div class="header-main">
 
             <div class="breadcrumb-line">
                 <a href="{{ route('admin.exam-sessions.index', $exam) }}">
-                    Examinations
+                    Examination Management
                 </a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Edit Exam Session</span>
             </div>
 
             <div class="header-title-row">
+
                 <div class="page-icon">
                     <i class="bi bi-pencil-square"></i>
                 </div>
@@ -28,6 +29,7 @@
                     <h1>Edit Exam Session</h1>
                     <p>Update the examination time slot and session settings.</p>
                 </div>
+
             </div>
 
         </div>
@@ -37,6 +39,7 @@
             <i class="bi bi-arrow-left"></i>
             <span>Back to Sessions</span>
         </a>
+
     </div>
 
 
@@ -44,16 +47,19 @@
     <div class="exam-summary">
 
         <div class="exam-summary-main">
+
             <div class="exam-icon">
                 <i class="bi bi-journal-text"></i>
             </div>
 
             <div class="exam-summary-details">
+
                 <span class="eyebrow">EXAMINATION DETAILS</span>
 
                 <h2>{{ $exam->exam_name }}</h2>
 
                 <div class="exam-meta">
+
                     <span>
                         <i class="bi bi-calendar3"></i>
                         Academic Year:
@@ -62,16 +68,21 @@
 
                     @if(!empty($exam->exam_type))
                         <span class="meta-separator">•</span>
+
                         <span>
                             <i class="bi bi-tag"></i>
                             {{ $exam->exam_type }}
                         </span>
                     @endif
+
                 </div>
+
             </div>
+
         </div>
 
         <div class="exam-summary-side">
+
             <div class="summary-side-icon">
                 <i class="bi bi-clock-history"></i>
             </div>
@@ -81,6 +92,7 @@
                 <strong>Session Time Slot</strong>
                 <small>Examination timetable configuration</small>
             </div>
+
         </div>
 
     </div>
@@ -88,6 +100,7 @@
 
     {{-- VALIDATION ERRORS --}}
     @if($errors->any())
+
         <div class="validation-panel" role="alert">
 
             <div class="validation-icon">
@@ -105,6 +118,7 @@
             </div>
 
         </div>
+
     @endif
 
 
@@ -142,12 +156,14 @@
                 <div class="form-section">
 
                     <div class="form-section-heading">
+
                         <span class="section-number">01</span>
 
                         <div>
                             <h3>Session Details</h3>
                             <p>Update the session name and availability status.</p>
                         </div>
+
                     </div>
 
 
@@ -161,6 +177,7 @@
                             </label>
 
                             <div class="input-shell">
+
                                 <span class="input-icon">
                                     <i class="bi bi-tag"></i>
                                 </span>
@@ -174,6 +191,7 @@
                                     placeholder="e.g. Morning Session"
                                     required
                                 >
+
                             </div>
 
                             @error('session_name')
@@ -202,6 +220,7 @@
                             @endphp
 
                             <div class="input-shell">
+
                                 <span class="input-icon">
                                     <i class="bi bi-toggle-on"></i>
                                 </span>
@@ -211,6 +230,7 @@
                                     name="status"
                                     class="form-select @error('status') is-invalid @enderror"
                                 >
+
                                     <option value="1"
                                         {{ $currentStatus == '1' ? 'selected' : '' }}>
                                         Active
@@ -220,7 +240,9 @@
                                         {{ $currentStatus == '0' ? 'selected' : '' }}>
                                         Inactive
                                     </option>
+
                                 </select>
+
                             </div>
 
                             @error('status')
@@ -234,6 +256,7 @@
                         </div>
 
                     </div>
+
                 </div>
 
 
@@ -241,12 +264,14 @@
                 <div class="form-section">
 
                     <div class="form-section-heading">
+
                         <span class="section-number">02</span>
 
                         <div>
                             <h3>Session Timing</h3>
                             <p>Set the examination start and end time.</p>
                         </div>
+
                     </div>
 
 
@@ -260,6 +285,7 @@
                             </label>
 
                             <div class="input-shell">
+
                                 <span class="input-icon">
                                     <i class="bi bi-play-circle"></i>
                                 </span>
@@ -275,6 +301,7 @@
                                     ) }}"
                                     required
                                 >
+
                             </div>
 
                             @error('start_time')
@@ -296,6 +323,7 @@
                             </label>
 
                             <div class="input-shell">
+
                                 <span class="input-icon">
                                     <i class="bi bi-stop-circle"></i>
                                 </span>
@@ -311,6 +339,7 @@
                                     ) }}"
                                     required
                                 >
+
                             </div>
 
                             @error('end_time')
@@ -324,6 +353,7 @@
                         </div>
 
                     </div>
+
                 </div>
 
 
@@ -335,11 +365,13 @@
                     </div>
 
                     <div class="preview-content">
+
                         <strong>Session Preview</strong>
 
                         <p id="sessionPreview" aria-live="polite">
                             Select the start and end time to preview the session duration.
                         </p>
+
                     </div>
 
                     <div class="duration-badge" id="durationBadge">
@@ -357,6 +389,7 @@
 
                     <div>
                         <strong>Timetable note</strong>
+
                         <p>
                             This session time will be used when generating the examination
                             timetable. Ensure the end time is later than the start time.
@@ -385,16 +418,20 @@
             </form>
 
         </div>
+
     </div>
 
 
     {{-- PAGE FOOTER --}}
     <div class="page-footer-note">
+
         <i class="bi bi-shield-check"></i>
+
         <span>
             School Diary <span class="footer-dot">•</span>
             Examination Management
         </span>
+
     </div>
 
 </div>
@@ -402,6 +439,7 @@
 
 {{-- PAGE STYLES --}}
 <style>
+
     .exam-session-page {
         --page: #f7f6f0;
         --paper: #fffefa;
@@ -415,6 +453,7 @@
         --sage: #527f70;
         --sage-light: #edf2ec;
         --danger: #b95b50;
+        --gold: #c49a45;
 
         padding: 24px;
         color: var(--text);
@@ -428,18 +467,65 @@
         box-sizing: border-box;
     }
 
-    /* HEADER */
+
+    /* =========================================
+       DARK GREEN / GOLD PAGE HEADER
+    ========================================= */
 
     .exam-session-header {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 20px;
+        gap: 24px;
+
+        min-height: 185px;
+        padding: 27px 30px;
         margin-bottom: 25px;
+
+        background: linear-gradient(
+            135deg,
+            #142f25 0%,
+            #1e4535 55%,
+            #285640 100%
+        );
+
+        border: 1px solid rgba(196, 154, 69, .38);
+        border-left: 4px solid #c49a45;
+        border-radius: 16px;
+
+        box-shadow: 0 10px 25px rgba(20, 47, 37, .14);
+    }
+
+    .exam-session-header::after {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        top: -145px;
+        right: -70px;
+
+        width: 340px;
+        height: 340px;
+
+        border: 1px solid rgba(226, 196, 127, .22);
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 28px rgba(255, 255, 255, .025),
+            0 0 0 58px rgba(255, 255, 255, .02),
+            0 0 0 90px rgba(255, 255, 255, .015);
+
+        pointer-events: none;
     }
 
     .header-main {
+        position: relative;
+        z-index: 1;
+        flex: 1;
         min-width: 0;
     }
 
@@ -448,81 +534,106 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 9px;
-        margin-bottom: 14px;
-        color: var(--muted);
-        font-size: 12px;
+
+        margin-bottom: 17px;
+
+        color: rgba(255, 254, 250, .68);
+        font-size: 11px;
+        font-weight: 500;
     }
 
     .breadcrumb-line a {
-        color: var(--soft-ink);
+        color: #e2c47f;
         text-decoration: none;
+        transition: color .18s ease;
     }
 
     .breadcrumb-line a:hover {
-        color: var(--ink-dark);
+        color: #fffefa;
         text-decoration: underline;
     }
 
     .breadcrumb-line i {
-        color: #a5a99e;
+        color: rgba(226, 196, 127, .75);
         font-size: 9px;
+    }
+
+    .breadcrumb-line span {
+        color: rgba(255, 254, 250, .88);
     }
 
     .header-title-row {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 15px;
     }
 
     .page-icon {
-        width: 46px;
-        height: 46px;
-        flex: 0 0 46px;
+        width: 49px;
+        height: 49px;
+        flex: 0 0 49px;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid var(--line);
+
+        border: 1px solid rgba(226, 196, 127, .38);
         border-radius: 12px;
-        background: var(--paper);
-        color: var(--ink);
-        font-size: 20px;
+
+        background: rgba(226, 196, 127, .13);
+        color: #e8cb8b;
+
+        font-size: 21px;
     }
 
     .header-title-row h1 {
         margin: 0;
-        color: var(--ink-dark);
+
+        color: #fffefa;
         font-family: Georgia, serif;
-        font-size: clamp(23px, 2.2vw, 30px);
+        font-size: clamp(26px, 3vw, 35px);
         font-weight: 700;
         letter-spacing: -.6px;
+        line-height: 1.2;
     }
 
     .header-title-row p {
-        margin: 5px 0 0;
-        color: var(--muted);
+        margin: 7px 0 0;
+
+        color: rgba(255, 254, 250, .76);
         font-size: 13px;
         line-height: 1.6;
     }
+
 
     /* BUTTONS */
 
     .diary-btn {
         min-height: 42px;
+
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
+
         padding: 10px 17px;
+
         border: 1px solid transparent;
         border-radius: 9px;
+
         font-family: inherit;
         font-size: 13px;
         font-weight: 600;
         line-height: 1.3;
+
         text-decoration: none;
         cursor: pointer;
-        transition: background .18s ease, border-color .18s ease,
-                    color .18s ease, transform .18s ease;
+
+        transition:
+            background .18s ease,
+            border-color .18s ease,
+            color .18s ease,
+            transform .18s ease;
     }
 
     .diary-btn:hover {
@@ -544,14 +655,47 @@
     .diary-btn-primary {
         background: var(--ink);
         border-color: var(--ink);
-        color: var(--paper);
+        color: #fffefa;
     }
 
     .diary-btn-primary:hover {
         background: var(--ink-dark);
         border-color: var(--ink-dark);
-        color: var(--paper);
+        color: #fffefa;
     }
+
+    /* HEADER BUTTON OVERRIDES */
+
+    .exam-session-header > .diary-btn {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+
+    .exam-session-header .diary-btn-secondary {
+        background: rgba(255, 255, 255, .09);
+        border-color: rgba(255, 255, 255, .30);
+        color: #fffefa;
+    }
+
+    .exam-session-header .diary-btn-secondary:hover {
+        background: #fffefa;
+        border-color: #fffefa;
+        color: #20392d;
+    }
+
+    .diary-btn-primary {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: #fffefa;
+    }
+
+    .diary-btn-primary:hover {
+        background: var(--ink-dark);
+        border-color: var(--ink-dark);
+        color: #fffefa;
+    }
+
 
     /* EXAM SUMMARY */
 
@@ -560,8 +704,10 @@
         align-items: center;
         justify-content: space-between;
         gap: 24px;
+
         padding: 22px;
         margin-bottom: 22px;
+
         background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 14px;
@@ -578,11 +724,14 @@
         width: 52px;
         height: 52px;
         flex: 0 0 52px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid #d9e0d5;
         border-radius: 13px;
+
         background: var(--sage-light);
         color: var(--ink);
         font-size: 22px;
@@ -596,6 +745,7 @@
     .summary-side-label {
         display: block;
         margin-bottom: 6px;
+
         color: var(--muted);
         font-size: 10px;
         font-weight: 700;
@@ -604,10 +754,12 @@
 
     .exam-summary-details h2 {
         margin: 0;
+
         color: var(--ink-dark);
         font-family: Georgia, serif;
         font-size: 21px;
         font-weight: 700;
+
         overflow-wrap: anywhere;
     }
 
@@ -616,7 +768,9 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 9px;
+
         margin-top: 9px;
+
         color: var(--muted);
         font-size: 12px;
     }
@@ -640,8 +794,10 @@
         display: flex;
         align-items: center;
         gap: 12px;
+
         min-width: 250px;
         padding: 14px 16px;
+
         background: var(--chalk);
         border: 1px solid var(--line);
         border-radius: 11px;
@@ -651,11 +807,14 @@
         width: 38px;
         height: 38px;
         flex: 0 0 38px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid var(--line);
         border-radius: 9px;
+
         background: var(--paper);
         color: var(--ink);
         font-size: 16px;
@@ -676,17 +835,21 @@
         line-height: 1.5;
     }
 
+
     /* VALIDATION */
 
     .validation-panel {
         display: flex;
         align-items: flex-start;
         gap: 13px;
+
         padding: 17px 19px;
         margin-bottom: 22px;
+
         background: #fff9f6;
         border: 1px solid #ead4cd;
         border-radius: 11px;
+
         color: #7e4038;
     }
 
@@ -694,9 +857,11 @@
         width: 35px;
         height: 35px;
         flex: 0 0 35px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         background: #f8e9e3;
         border-radius: 9px;
         font-size: 17px;
@@ -715,6 +880,7 @@
         line-height: 1.8;
     }
 
+
     /* FORM CARD */
 
     .form-card {
@@ -729,7 +895,9 @@
         display: flex;
         align-items: center;
         gap: 13px;
+
         padding: 21px 25px;
+
         border-bottom: 1px solid var(--line);
         background: var(--paper);
     }
@@ -738,11 +906,14 @@
         width: 42px;
         height: 42px;
         flex: 0 0 42px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid #dce3d9;
         border-radius: 11px;
+
         background: var(--sage-light);
         color: var(--ink);
         font-size: 18px;
@@ -779,6 +950,7 @@
         padding: 26px;
     }
 
+
     /* FORM SECTIONS */
 
     .form-section {
@@ -798,11 +970,14 @@
         width: 34px;
         height: 34px;
         flex: 0 0 34px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid var(--line);
         border-radius: 9px;
+
         background: var(--chalk);
         color: var(--ink);
         font-size: 12px;
@@ -850,13 +1025,16 @@
     .input-icon {
         width: 44px;
         min-width: 44px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         background: var(--chalk);
         border: 1px solid var(--line);
         border-right: 0;
         border-radius: 9px 0 0 9px;
+
         color: var(--soft-ink);
         font-size: 15px;
     }
@@ -866,15 +1044,20 @@
         width: 100%;
         min-width: 0;
         min-height: 45px;
+
         padding: 10px 12px;
+
         background-color: var(--paper);
         border: 1px solid var(--line);
         border-radius: 0 9px 9px 0;
+
         color: var(--text);
         font-family: inherit;
         font-size: 13px;
+
         box-shadow: none;
         outline: none;
+
         transition: border-color .18s ease, box-shadow .18s ease;
     }
 
@@ -904,14 +1087,17 @@
         line-height: 1.5;
     }
 
+
     /* SESSION PREVIEW */
 
     .session-preview {
         display: flex;
         align-items: center;
         gap: 13px;
+
         padding: 17px;
         margin-top: 3px;
+
         background: var(--chalk);
         border: 1px solid var(--line);
         border-radius: 11px;
@@ -921,11 +1107,14 @@
         width: 37px;
         height: 37px;
         flex: 0 0 37px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: 1px solid var(--line);
         border-radius: 9px;
+
         background: var(--paper);
         color: var(--ink);
         font-size: 16px;
@@ -956,11 +1145,15 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
+
         padding: 8px 12px;
+
         border: 1px solid #d9e0d5;
         border-radius: 8px;
+
         background: var(--paper);
         color: var(--ink);
+
         font-size: 12px;
         font-weight: 700;
         white-space: nowrap;
@@ -972,14 +1165,17 @@
         background: #fff9f6;
     }
 
+
     /* INFORMATION NOTICE */
 
     .info-notice {
         display: flex;
         align-items: flex-start;
         gap: 11px;
+
         padding: 15px 16px;
         margin-top: 13px;
+
         background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 10px;
@@ -1006,17 +1202,21 @@
         line-height: 1.7;
     }
 
-    /* ACTIONS */
+
+    /* FORM ACTIONS */
 
     .form-actions {
         display: flex;
         justify-content: flex-end;
         flex-wrap: wrap;
         gap: 10px;
+
         padding-top: 23px;
         margin-top: 24px;
+
         border-top: 1px solid var(--line);
     }
+
 
     /* FOOTER */
 
@@ -1025,7 +1225,9 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
+
         margin-top: 20px;
+
         color: var(--muted);
         font-size: 11px;
     }
@@ -1040,9 +1242,11 @@
         color: #b3b5a8;
     }
 
+
     /* RESPONSIVE */
 
     @media (max-width: 900px) {
+
         .exam-summary {
             align-items: stretch;
             flex-direction: column;
@@ -1051,9 +1255,11 @@
         .exam-summary-side {
             min-width: 0;
         }
+
     }
 
     @media (max-width: 767.98px) {
+
         .exam-session-page {
             padding: 16px;
             border-radius: 12px;
@@ -1062,7 +1268,9 @@
         .exam-session-header {
             align-items: flex-start;
             flex-direction: column;
-            gap: 15px;
+            gap: 17px;
+            padding: 22px 19px;
+            min-height: 0;
         }
 
         .exam-session-header > .diary-btn {
@@ -1075,9 +1283,9 @@
         }
 
         .page-icon {
-            width: 41px;
-            height: 41px;
-            flex-basis: 41px;
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
             font-size: 18px;
         }
 
@@ -1164,9 +1372,11 @@
         .form-actions .diary-btn {
             width: 100%;
         }
+
     }
 
     @media (max-width: 420px) {
+
         .duration-badge {
             padding: 7px 8px;
             font-size: 11px;
@@ -1176,9 +1386,11 @@
             gap: 9px;
             padding: 13px;
         }
+
     }
 
     @media (prefers-reduced-motion: reduce) {
+
         .exam-session-page *,
         .exam-session-page *::before,
         .exam-session-page *::after {
@@ -1187,7 +1399,9 @@
             animation-duration: .01ms !important;
             animation-iteration-count: 1 !important;
         }
+
     }
+
 </style>
 
 
@@ -1201,12 +1415,18 @@
         const durationBadge = document.getElementById('durationBadge');
         const sessionPreview = document.getElementById('sessionPreview');
 
-        if (!startInput || !endInput || !durationText ||
-            !durationBadge || !sessionPreview) {
+        if (
+            !startInput ||
+            !endInput ||
+            !durationText ||
+            !durationBadge ||
+            !sessionPreview
+        ) {
             return;
         }
 
         function formatTime(time) {
+
             const [hour, minute] = time.split(':').map(Number);
 
             const date = new Date();
@@ -1216,6 +1436,7 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
+
         }
 
         function updateDuration() {
@@ -1223,6 +1444,7 @@
             durationBadge.classList.remove('is-invalid');
 
             if (!startInput.value || !endInput.value) {
+
                 durationText.textContent = '--';
 
                 sessionPreview.textContent =
@@ -1239,11 +1461,13 @@
 
             const startTotal = (startHour * 60) + startMinute;
             const endTotal = (endHour * 60) + endMinute;
+
             const difference = endTotal - startTotal;
 
             if (difference <= 0) {
 
                 durationText.textContent = 'Invalid';
+
                 durationBadge.classList.add('is-invalid');
 
                 sessionPreview.textContent =
@@ -1258,11 +1482,15 @@
             const parts = [];
 
             if (hours > 0) {
-                parts.push(hours + (hours === 1 ? ' hour' : ' hours'));
+                parts.push(
+                    hours + (hours === 1 ? ' hour' : ' hours')
+                );
             }
 
             if (minutes > 0) {
-                parts.push(minutes + (minutes === 1 ? ' min' : ' min'));
+                parts.push(
+                    minutes + ' min'
+                );
             }
 
             durationText.textContent = parts.join(' ') || '0 min';
@@ -1275,14 +1503,17 @@
                 '. Total duration: ' +
                 durationText.textContent +
                 '.';
+
         }
 
         startInput.addEventListener('input', updateDuration);
         startInput.addEventListener('change', updateDuration);
+
         endInput.addEventListener('input', updateDuration);
         endInput.addEventListener('change', updateDuration);
 
         updateDuration();
+
     });
 </script>
 

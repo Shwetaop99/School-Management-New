@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
         Student Health Record -
@@ -13,81 +14,191 @@
             box-sizing: border-box;
         }
 
+        html {
+            width: 100%;
+        }
+
         body {
             margin: 0;
-            padding: 20px;
-            background: #f2f4f7;
-            font-family: Arial, Helvetica, sans-serif;
+            padding: 15px;
+            background: #f3f4f6;
             color: #222;
-            font-size: 13px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
         }
+
+        /* =====================================================
+           MAIN PAGE
+        ===================================================== */
 
         .print-page {
+            position: relative;
+            isolation: isolate;
             width: 210mm;
             min-height: 297mm;
-            margin: auto;
-            padding: 15mm;
+            margin: 0 auto;
+            padding: 12mm;
             background: #fff;
+            border: 4px double #222;
         }
+
+        .print-page::after {
+            content: "";
+            position: fixed;
+            inset: 1mm;
+            pointer-events: none;
+            z-index: 99999;
+        }
+
+        /* =====================================================
+           WATERMARK
+        ===================================================== */
+
+        .print-watermark {
+            position: absolute;
+            z-index: 0;
+            top: 50%;
+            left: 50%;
+            width: 420px;
+            height: 420px;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .print-watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0.07;
+        }
+
+        .print-page > :not(.print-watermark) {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =====================================================
+           SCHOOL HEADER
+        ===================================================== */
 
         .school-header {
+            display: grid;
+            grid-template-columns: 70px minmax(0, 1fr) 70px;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 5px 4px 8px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #111;
             text-align: center;
-            border-bottom: 2px solid #222;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
         }
 
-        .school-logo {
-            max-height: 75px;
-            max-width: 100px;
-            margin-bottom: 5px;
+        .school-header-logo {
+            grid-column: 1;
+            grid-row: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .school-header-logo img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .school-header-details {
+            grid-column: 2;
+            grid-row: 1;
+            min-width: 0;
         }
 
         .school-name {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 3px 0;
+            margin: 0 0 3px;
+            color: #111;
+            font-size: 17px;
+            font-weight: 800;
+            line-height: 1.2;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .school-address {
-            font-size: 13px;
-            line-height: 1.5;
+            color: #222;
+            font-size: 8px;
+            line-height: 1.35;
+            font-weight: 500;
+            overflow-wrap: anywhere;
         }
+
+        .school-contact,
+        .school-codes {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2px 8px;
+            font-size: 8px;
+        }
+
+        .school-contact span,
+        .school-codes span {
+            display: inline-block;
+        }
+
+        /* =====================================================
+           DOCUMENT TITLE
+        ===================================================== */
 
         .document-title {
             text-align: center;
-            margin: 12px 0 18px;
+            margin: 8px 0 10px;
         }
 
         .document-title h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 15px;
             text-transform: uppercase;
+            color: #111;
         }
 
         .document-title p {
-            margin: 5px 0 0;
-            font-size: 13px;
+            margin: 3px 0 0;
+            font-size: 9px;
+            color: #333;
         }
+
+        /* =====================================================
+           STUDENT INFORMATION
+        ===================================================== */
 
         .student-header {
             display: flex;
-            gap: 15px;
-            border: 1px solid #bbb;
-            padding: 12px;
-            margin-bottom: 15px;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            border: 1px solid #555;
+            padding: 8px;
+            margin-bottom: 9px;
+            background: rgba(255,255,255,0.35);
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
 
         .student-photo {
-            width: 90px;
-            height: 110px;
-            border: 1px solid #aaa;
+            width: 70px;
+            height: 85px;
+            border: 1px solid #555;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             flex-shrink: 0;
+            background: transparent;
         }
 
         .student-photo img {
@@ -97,73 +208,107 @@
         }
 
         .student-photo-placeholder {
-            color: #777;
-            font-size: 11px;
+            color: #555;
+            font-size: 8px;
             text-align: center;
         }
 
         .student-info {
             flex: 1;
+            min-width: 0;
         }
 
         .student-info table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .student-info td {
-            padding: 4px 6px;
+            padding: 3px 4px;
             vertical-align: top;
+            overflow-wrap: anywhere;
+            font-size: 9px;
+            line-height: 1.25;
         }
 
         .student-info .label {
-            width: 22%;
+            width: 20%;
             font-weight: 700;
+            color: #111;
         }
 
         .student-info .value {
-            width: 28%;
+            width: 30%;
+            color: #333;
         }
 
+        /* =====================================================
+           SECTIONS
+        ===================================================== */
+
         .section {
-            margin-top: 15px;
-            page-break-inside: avoid;
+            width: 100%;
+            margin-top: 9px;
         }
 
         .section-title {
-            background: #198754;
+            background: #222;
             color: #fff;
-            font-size: 14px;
+            font-size: 9px;
             font-weight: 700;
-            padding: 7px 9px;
+            padding: 5px 7px;
             margin-bottom: 0;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
+
+        /* =====================================================
+           DETAIL TABLES
+        ===================================================== */
 
         table.details {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
+            table-layout: fixed;
+            background: transparent;
         }
 
         table.details th,
         table.details td {
-            border: 1px solid #bbb;
-            padding: 6px 7px;
+            border: 1px solid #777;
+            padding: 4px 5px;
             text-align: left;
             vertical-align: top;
+            overflow-wrap: anywhere;
+            background: transparent;
+            font-size: 12px;
+            line-height: 1.25;
         }
 
         table.details th {
             width: 25%;
-            background: #f3f3f3;
+            background: #ededed;
+            color: #111;
             font-weight: 700;
         }
+
+        table.details td {
+            color: #222;
+        }
+
+        /* =====================================================
+           TWO COLUMN LAYOUT
+        ===================================================== */
 
         .two-column {
             display: table;
             width: 100%;
             table-layout: fixed;
+            border-spacing: 0;
         }
 
         .two-column .column {
@@ -173,22 +318,27 @@
         }
 
         .two-column .column:first-child {
-            padding-right: 6px;
+            padding-right: 5px;
         }
 
         .two-column .column:last-child {
-            padding-left: 6px;
+            padding-left: 5px;
         }
 
         .remarks {
-            min-height: 45px;
+            min-height: 35px;
         }
+
+        /* =====================================================
+           SIGNATURES
+        ===================================================== */
 
         .signature-area {
             display: table;
             width: 100%;
-            margin-top: 50px;
+            margin-top: 35px;
             page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .signature {
@@ -196,70 +346,464 @@
             width: 33.33%;
             text-align: center;
             vertical-align: bottom;
-            padding: 0 10px;
+            padding: 0 8px;
+            color: #222;
+            font-size: 9px;
         }
 
         .signature-line {
             border-top: 1px solid #222;
-            padding-top: 6px;
-            margin-top: 40px;
+            padding-top: 5px;
+            margin-top: 28px;
         }
 
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
         .footer {
-            margin-top: 20px;
-            padding-top: 8px;
-            border-top: 1px solid #aaa;
+            margin-top: 15px;
+            padding-top: 6px;
+            border-top: 1px solid #777;
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
-            color: #666;
+            align-items: center;
+            gap: 8px;
+            font-size: 8px;
+            color: #444;
         }
+
+        /* =====================================================
+           PRINT BUTTON
+        ===================================================== */
 
         .no-print {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .print-button {
-            border: 0;
-            background: #198754;
+            border: 1px solid #222;
+            background: #222;
             color: #fff;
-            padding: 9px 18px;
-            border-radius: 5px;
+            padding: 8px 16px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 11px;
         }
 
-        .back-button {
-            display: inline-block;
-            background: #6c757d;
-            color: #fff;
-            text-decoration: none;
-            padding: 9px 18px;
-            border-radius: 5px;
-            margin-right: 5px;
+        .print-button:hover {
+            background: #444;
+        }
+
+        /* =====================================================
+           A4 PRINT SETTINGS
+        ===================================================== */
+
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
         }
 
         @media print {
-            @page {
-                size: A4 portrait;
-                margin: 0;
-            }
 
+            html,
             body {
-                padding: 0;
-                background: #fff;
-            }
-
-            .print-page {
-                width: 210mm;
-                min-height: 297mm;
-                margin: 0;
-                padding: 12mm;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                color: #000 !important;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 7px !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .no-print {
                 display: none !important;
+            }
+
+            .print-page {
+                position: relative !important;
+                isolation: isolate !important;
+                width: 100% !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 4mm 5mm !important;
+                border: none !important;
+                background: #fff !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+            }
+
+            .print-page::after {
+                content: "";
+                position: fixed !important;
+                inset: 1mm !important;
+                border: 3px double #222 !important;
+                pointer-events: none !important;
+                z-index: 99999 !important;
+            }
+
+            /* WATERMARK */
+
+            .print-watermark {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 115mm !important;
+                height: 115mm !important;
+                transform: translate(-50%, -50%) !important;
+                display: flex !important;
+                z-index: 0 !important;
+                pointer-events: none !important;
+            }
+
+            .print-watermark img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+                opacity: 0.07 !important;
+            }
+
+            .print-page > :not(.print-watermark) {
+                position: relative !important;
+                z-index: 1 !important;
+            }
+
+            /* SCHOOL HEADER */
+
+            .school-header {
+                grid-template-columns: 55px minmax(0, 1fr) 55px !important;
+                gap: 6px !important;
+                padding: 3px 2px 5px !important;
+                margin-bottom: 6px !important;
+                border-bottom: 2px solid #000 !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .school-header-logo img {
+                width: 45px !important;
+                height: 45px !important;
+            }
+
+            .school-name {
+                font-size: 12px !important;
+                margin-bottom: 2px !important;
+            }
+
+            .school-address {
+                font-size: 6px !important;
+                line-height: 1.25 !important;
+            }
+
+            .school-contact,
+            .school-codes {
+                font-size: 6px !important;
+                gap: 1px 6px !important;
+            }
+
+            /* DOCUMENT TITLE */
+
+            .document-title {
+                margin: 5px 0 6px !important;
+                text-align: center !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .document-title h2 {
+                font-size: 10px !important;
+            }
+
+            .document-title p {
+                font-size: 7px !important;
+                margin-top: 2px !important;
+            }
+
+            /* STUDENT INFORMATION */
+
+            .student-header {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 6px !important;
+                padding: 5px !important;
+                margin-bottom: 5px !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .student-photo {
+                width: 48px !important;
+                height: 58px !important;
+                flex: 0 0 48px !important;
+            }
+
+            .student-photo-placeholder {
+                font-size: 6px !important;
+            }
+
+            .student-info {
+                flex: 1 !important;
+                min-width: 0 !important;
+            }
+
+            .student-info table {
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+
+            .student-info td {
+                padding: 2px 3px !important;
+                font-size: 6.5px !important;
+                line-height: 1.2 !important;
+            }
+
+            .student-info .label {
+                width: 20% !important;
+            }
+
+            .student-info .value {
+                width: 30% !important;
+            }
+
+            /* SECTIONS */
+
+            .section {
+                width: 100% !important;
+                margin-top: 5px !important;
+            }
+
+            .section-title {
+                padding: 3px 5px !important;
+                font-size: 7px !important;
+                background: #222 !important;
+                color: #fff !important;
+            }
+
+            /* TABLES */
+
+            table.details {
+                width: 100% !important;
+                table-layout: fixed !important;
+                margin-bottom: 3px !important;
+                border-collapse: collapse !important;
+                break-inside: auto !important;
+                page-break-inside: auto !important;
+            }
+
+            table.details tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            table.details th,
+            table.details td {
+                padding: 2.5px 3.5px !important;
+                font-size: 6.5px !important;
+                line-height: 1.2 !important;
+                border: 1px solid #777 !important;
+                overflow-wrap: anywhere !important;
+            }
+
+            table.details th {
+                background: #ededed !important;
+                color: #111 !important;
+            }
+
+            /* TWO COLUMNS */
+
+            .two-column {
+                display: table !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-spacing: 0 !important;
+            }
+
+            .two-column .column {
+                display: table-cell !important;
+                width: 50% !important;
+                vertical-align: top !important;
+            }
+
+            .two-column .column:first-child {
+                padding-right: 3px !important;
+            }
+
+            .two-column .column:last-child {
+                padding-left: 3px !important;
+            }
+
+            /* SIGNATURES */
+
+            .signature-area {
+                display: table !important;
+                width: 100% !important;
+                margin-top: 15px !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .signature {
+                display: table-cell !important;
+                width: 33.33% !important;
+                padding: 0 6px !important;
+                text-align: center !important;
+                vertical-align: bottom !important;
+                font-size: 6.5px !important;
+            }
+
+            .signature-line {
+                margin-top: 17px !important;
+                padding-top: 3px !important;
+                border-top: 1px solid #222 !important;
+            }
+
+            /* FOOTER */
+
+            .footer {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                width: 100% !important;
+                margin-top: 7px !important;
+                padding-top: 4px !important;
+                border-top: 1px solid #777 !important;
+                font-size: 6px !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+        }
+
+        /* =====================================================
+           SCREEN RESPONSIVENESS
+        ===================================================== */
+
+        @media screen and (max-width: 800px) {
+
+            body {
+                padding: 8px;
+            }
+
+            .print-page {
+                width: 100%;
+                min-height: auto;
+                padding: 12px;
+            }
+
+            .school-header {
+                grid-template-columns: 55px minmax(0, 1fr);
+                gap: 6px;
+            }
+
+            .school-header-logo img {
+                width: 48px;
+                height: 48px;
+            }
+
+            .school-name {
+                font-size: 14px;
+            }
+
+            .school-address {
+                font-size: 7px;
+            }
+
+            .school-contact,
+            .school-codes {
+                font-size: 7px;
+            }
+
+            .student-header {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .student-info {
+                width: 100%;
+            }
+
+            .student-info table {
+                table-layout: fixed;
+            }
+
+            .two-column {
+                display: block;
+            }
+
+            .two-column .column {
+                display: block;
+                width: 100%;
+                padding: 0 !important;
+            }
+
+            .print-watermark {
+                width: 250px;
+                height: 250px;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+
+            .school-header {
+                grid-template-columns: 45px minmax(0, 1fr);
+                gap: 5px;
+            }
+
+            .school-header-logo img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .school-name {
+                font-size: 12px;
+            }
+
+            .school-address {
+                font-size: 7px;
+            }
+
+            .student-info td {
+                padding: 3px 2px;
+                font-size: 8px;
+            }
+
+            .student-info .label {
+                width: 25%;
+            }
+
+            .student-info .value {
+                width: 25%;
+            }
+
+            .document-title h2 {
+                font-size: 12px;
+            }
+
+            table.details th,
+            table.details td {
+                padding: 3px 2px;
+                font-size: 8px;
+            }
+
+            .section-title {
+                font-size: 8px;
+            }
+
+            .signature-area {
+                margin-top: 25px;
+            }
+
+            .signature {
+                padding: 0 3px;
+                font-size: 8px;
+            }
+
+            .footer {
+                font-size: 7px;
             }
         }
     </style>
@@ -267,163 +811,128 @@
 
 <body>
 
-<div class="no-print">
-    <a
-        href="{{ route('admin.student-health.show', $healthRecord) }}"
-        class="back-button"
-    >
-        ← Back
-    </a>
+@php
+    $school = $schoolSetting ?? \App\Models\SchoolSetting::first();
 
+    $schoolLogo = null;
+
+    if (!empty($school?->logo)) {
+        $schoolLogo = preg_match('~^https?://~i', $school->logo)
+            ? $school->logo
+            : asset('storage/' . ltrim($school->logo, '/'));
+    } elseif (!empty($school?->school_logo)) {
+        $schoolLogo = preg_match('~^https?://~i', $school->school_logo)
+            ? $school->school_logo
+            : asset('storage/' . ltrim($school->school_logo, '/'));
+    }
+
+    $watermarkLogo = $schoolLogo ?: asset('images/gurukullogo.png');
+
+    $student = $healthRecord->student;
+@endphp
+
+{{-- PRINT BUTTON --}}
+
+<div class="no-print">
     <button
         type="button"
         class="print-button"
         onclick="window.print()"
     >
-        🖨 Print
+        Print Health Record
     </button>
 </div>
 
 <div class="print-page">
 
-    {{-- =========================================================
-         SCHOOL HEADER - DYNAMIC SCHOOL PROFILE
-    ========================================================== --}}
+    {{-- WATERMARK --}}
+
+    <div class="print-watermark" aria-hidden="true">
+        <img src="{{ $watermarkLogo }}" alt="">
+    </div>
+
+    {{-- SCHOOL HEADER --}}
+
     <div class="school-header">
 
-        {{-- SCHOOL LOGO --}}
-        @if(!empty($schoolSetting?->logo))
+        <div class="school-header-logo">
+            @if(!empty($schoolLogo))
+                <img src="{{ $schoolLogo }}" alt="School Logo">
+            @endif
+        </div>
 
-            @php
-                $schoolLogo = $schoolSetting->logo;
+        <div class="school-header-details">
 
-                if (
-                    !str_starts_with($schoolLogo, 'http://') &&
-                    !str_starts_with($schoolLogo, 'https://')
-                ) {
-                    $schoolLogo = asset($schoolLogo);
-                }
-            @endphp
-
-            <img
-                src="{{ $schoolLogo }}"
-                class="school-logo"
-                alt="{{ $schoolSetting->school_name ?? 'School Logo' }}"
-            >
-
-        @elseif(!empty($schoolSetting?->school_logo))
-
-            @php
-                $schoolLogo = $schoolSetting->school_logo;
-
-                if (
-                    !str_starts_with($schoolLogo, 'http://') &&
-                    !str_starts_with($schoolLogo, 'https://')
-                ) {
-                    $schoolLogo = asset($schoolLogo);
-                }
-            @endphp
-
-            <img
-                src="{{ $schoolLogo }}"
-                class="school-logo"
-                alt="{{ $schoolSetting->school_name ?? 'School Logo' }}"
-            >
-
-        @endif
-
-
-        {{-- SCHOOL NAME --}}
-        @if(!empty($schoolSetting?->school_name))
-            <div class="school-name">
-                {{ $schoolSetting->school_name }}
-            </div>
-        @endif
-
-
-        {{-- SCHOOL ADDRESS --}}
-        <div class="school-address">
-
-            @if(!empty($schoolSetting?->address))
-                {{ $schoolSetting->address }}
+            @if(!empty($school?->school_name))
+                <h1 class="school-name">
+                    {{ $school->school_name }}
+                </h1>
             @endif
 
-            @if(!empty($schoolSetting?->city))
-                , {{ $schoolSetting->city }}
-            @endif
+            <div class="school-address">
 
-            @if(!empty($schoolSetting?->district))
-                , {{ $schoolSetting->district }}
-            @endif
+                @php
+                    $addressParts = array_filter([
+                        $school?->address,
+                        $school?->city,
+                        $school?->district,
+                        $school?->state,
+                    ]);
 
-            @if(!empty($schoolSetting?->state))
-                , {{ $schoolSetting->state }}
-            @endif
+                    $fullAddress = implode(', ', $addressParts);
 
-            @if(!empty($schoolSetting?->pincode))
-                - {{ $schoolSetting->pincode }}
-            @endif
+                    if (!empty($school?->pincode)) {
+                        $fullAddress .= ($fullAddress ? ' - ' : '') . $school->pincode;
+                    }
+                @endphp
 
-            @if(
-                !empty($schoolSetting?->address) ||
-                !empty($schoolSetting?->city) ||
-                !empty($schoolSetting?->district) ||
-                !empty($schoolSetting?->state) ||
-                !empty($schoolSetting?->pincode)
-            )
-                <br>
-            @endif
-
-
-            {{-- PHONE --}}
-            @if(!empty($schoolSetting?->phone))
-                Phone: {{ $schoolSetting->phone }}
-            @endif
-
-
-            {{-- EMAIL --}}
-            @if(!empty($schoolSetting?->email))
-                @if(!empty($schoolSetting?->phone))
-                    &nbsp; | &nbsp;
+                @if($fullAddress)
+                    <div>{{ $fullAddress }}</div>
                 @endif
 
-                Email: {{ $schoolSetting->email }}
-            @endif
+                <div class="school-contact">
 
+                    @if(!empty($school?->phone))
+                        <span>Phone: {{ $school->phone }}</span>
+                    @endif
 
-            {{-- UDISE CODE --}}
-            @if(!empty($schoolSetting?->udise_code))
-                &nbsp; | &nbsp;
-                UDISE Code: {{ $schoolSetting->udise_code }}
-            @endif
+                    @if(!empty($school?->email))
+                        <span>Email: {{ $school->email }}</span>
+                    @endif
 
+                </div>
 
-            {{-- SCHOOL CODE --}}
-            @if(!empty($schoolSetting?->school_code))
-                &nbsp; | &nbsp;
-                School Code: {{ $schoolSetting->school_code }}
-            @endif
+                <div class="school-codes">
 
+                    @if(!empty($school?->udise_code))
+                        <span>UDISE Code: {{ $school->udise_code }}</span>
+                    @endif
+
+                    @if(!empty($school?->school_code))
+                        <span>School Code: {{ $school->school_code }}</span>
+                    @endif
+
+                </div>
+
+            </div>
         </div>
 
     </div>
 
+    {{-- DOCUMENT TITLE --}}
 
-    {{-- TITLE --}}
     <div class="document-title">
+
         <h2>Student Annual Health Checkup Record</h2>
 
         <p>
             Academic Year:
-            <strong>{{ $healthRecord->academic_year }}</strong>
+            <strong>{{ $healthRecord->academic_year ?? '-' }}</strong>
         </p>
+
     </div>
 
-
     {{-- STUDENT INFORMATION --}}
-    @php
-        $student = $healthRecord->student;
-    @endphp
 
     <div class="student-header">
 
@@ -446,98 +955,60 @@
 
         </div>
 
-
         <div class="student-info">
 
             <table>
 
                 <tr>
-
-                    <td class="label">
-                        Student ID
-                    </td>
-
+                    <td class="label">Student ID</td>
                     <td class="value">
                         {{ $student->student_id ?? '-' }}
                     </td>
 
-                    <td class="label">
-                        Roll No.
-                    </td>
-
+                    <td class="label">Roll No.</td>
                     <td class="value">
                         {{ $student->roll_number ?? '-' }}
                     </td>
-
                 </tr>
 
-
                 <tr>
-
-                    <td class="label">
-                        Student Name
-                    </td>
-
+                    <td class="label">Student Name</td>
                     <td class="value">
-
                         {{ trim(
                             ($student->first_name ?? '') . ' ' .
                             ($student->middle_name ?? '') . ' ' .
                             ($student->last_name ?? '')
                         ) ?: '-' }}
-
                     </td>
 
-                    <td class="label">
-                        Gender
-                    </td>
-
+                    <td class="label">Gender</td>
                     <td class="value">
                         {{ $student->gender ?? '-' }}
                     </td>
-
                 </tr>
 
-
                 <tr>
-
-                    <td class="label">
-                        Class
-                    </td>
-
+                    <td class="label">Class</td>
                     <td class="value">
                         {{ $student->class ?? '-' }}
                     </td>
 
-                    <td class="label">
-                        Section
-                    </td>
-
+                    <td class="label">Section</td>
                     <td class="value">
                         {{ $student->section ?? '-' }}
                     </td>
-
                 </tr>
 
-
                 <tr>
-
-                    <td class="label">
-                        Date of Birth
-                    </td>
-
+                    <td class="label">Date of Birth</td>
                     <td class="value">
                         {{ $student->date_of_birth?->format('d-m-Y') ?? '-' }}
                     </td>
 
-                    <td class="label">
-                        Aadhaar No.
-                    </td>
-
+                    <td class="label">Aadhaar No.</td>
                     <td class="value">
                         {{ $student->aadhar_card_no ?? '-' }}
                     </td>
-
                 </tr>
 
             </table>
@@ -546,8 +1017,8 @@
 
     </div>
 
-
     {{-- CHECKUP INFORMATION --}}
+
     <div class="section">
 
         <div class="section-title">
@@ -557,65 +1028,42 @@
         <table class="details">
 
             <tr>
-
-                <th>
-                    Checkup Date
-                </th>
-
+                <th>Checkup Date</th>
                 <td>
                     {{ $healthRecord->checkup_date?->format('d-m-Y') ?? '-' }}
                 </td>
 
-                <th>
-                    Checkup Type
-                </th>
-
+                <th>Checkup Type</th>
                 <td>
                     {{ $healthRecord->checkup_type ?? '-' }}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    Doctor / Medical Officer
-                </th>
-
+                <th>Doctor / Medical Officer</th>
                 <td>
                     {{ $healthRecord->doctor_name ?? '-' }}
                 </td>
 
-                <th>
-                    Health Center
-                </th>
-
+                <th>Health Center</th>
                 <td>
                     {{ $healthRecord->health_center ?? '-' }}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    Conducted By
-                </th>
-
+                <th>Conducted By</th>
                 <td colspan="3">
                     {{ $healthRecord->conducted_by ?? '-' }}
                 </td>
-
             </tr>
 
         </table>
 
     </div>
 
+    {{-- PHYSICAL MEASUREMENTS AND VISION --}}
 
-    {{-- PHYSICAL + VISION --}}
     <div class="two-column">
 
         <div class="column">
@@ -629,80 +1077,33 @@
                 <table class="details">
 
                     <tr>
-
-                        <th>
-                            Height
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->height ?? '-' }} cm
-                        </td>
-
+                        <th>Height</th>
+                        <td>{{ $healthRecord->height ?? '-' }} cm</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Weight
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->weight ?? '-' }} kg
-                        </td>
-
+                        <th>Weight</th>
+                        <td>{{ $healthRecord->weight ?? '-' }} kg</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            BMI
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->bmi ?? '-' }}
-                        </td>
-
+                        <th>BMI</th>
+                        <td>{{ $healthRecord->bmi ?? '-' }}</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Pulse Rate
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->pulse_rate ?? '-' }} bpm
-                        </td>
-
+                        <th>Pulse Rate</th>
+                        <td>{{ $healthRecord->pulse_rate ?? '-' }} bpm</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Blood Pressure
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->blood_pressure ?? '-' }}
-                        </td>
-
+                        <th>Blood Pressure</th>
+                        <td>{{ $healthRecord->blood_pressure ?? '-' }}</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Temperature
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->temperature ?? '-' }} °C
-                        </td>
-
+                        <th>Temperature</th>
+                        <td>{{ $healthRecord->temperature ?? '-' }} °C</td>
                     </tr>
 
                 </table>
@@ -710,7 +1111,6 @@
             </div>
 
         </div>
-
 
         <div class="column">
 
@@ -723,80 +1123,35 @@
                 <table class="details">
 
                     <tr>
-
-                        <th>
-                            Right Eye
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->vision_right ?? '-' }}
-                        </td>
-
+                        <th>Right Eye</th>
+                        <td>{{ $healthRecord->vision_right ?? '-' }}</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Left Eye
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->vision_left ?? '-' }}
-                        </td>
-
+                        <th>Left Eye</th>
+                        <td>{{ $healthRecord->vision_left ?? '-' }}</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Near Vision Right
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->near_vision_right ?? '-' }}
-                        </td>
-
+                        <th>Near Vision Right</th>
+                        <td>{{ $healthRecord->near_vision_right ?? '-' }}</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Near Vision Left
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->near_vision_left ?? '-' }}
-                        </td>
-
+                        <th>Near Vision Left</th>
+                        <td>{{ $healthRecord->near_vision_left ?? '-' }}</td>
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Spectacles
-                        </th>
-
+                        <th>Spectacles</th>
                         <td>
                             {{ $healthRecord->uses_spectacles ? 'Yes' : 'No' }}
                         </td>
-
                     </tr>
 
-
                     <tr>
-
-                        <th>
-                            Spectacle Power
-                        </th>
-
-                        <td>
-                            {{ $healthRecord->spectacle_power ?? '-' }}
-                        </td>
-
+                        <th>Spectacle Power</th>
+                        <td>{{ $healthRecord->spectacle_power ?? '-' }}</td>
                     </tr>
 
                 </table>
@@ -807,8 +1162,8 @@
 
     </div>
 
+    {{-- DENTAL EXAMINATION --}}
 
-    {{-- DENTAL --}}
     <div class="section">
 
         <div class="section-title">
@@ -818,52 +1173,27 @@
         <table class="details">
 
             <tr>
+                <th>Dental Status</th>
+                <td>{{ $healthRecord->dental_status ?? '-' }}</td>
 
-                <th>
-                    Dental Status
-                </th>
-
-                <td>
-                    {{ $healthRecord->dental_status ?? '-' }}
-                </td>
-
-                <th>
-                    Dental Caries
-                </th>
-
-                <td>
-                    {{ $healthRecord->dental_caries ?? '-' }}
-                </td>
-
+                <th>Dental Caries</th>
+                <td>{{ $healthRecord->dental_caries ?? '-' }}</td>
             </tr>
 
-
             <tr>
+                <th>Gum Problem</th>
+                <td>{{ $healthRecord->gum_problem ?? '-' }}</td>
 
-                <th>
-                    Gum Problem
-                </th>
-
-                <td>
-                    {{ $healthRecord->gum_problem ?? '-' }}
-                </td>
-
-                <th>
-                    Oral Hygiene
-                </th>
-
-                <td>
-                    {{ $healthRecord->oral_hygiene ?? '-' }}
-                </td>
-
+                <th>Oral Hygiene</th>
+                <td>{{ $healthRecord->oral_hygiene ?? '-' }}</td>
             </tr>
 
         </table>
 
     </div>
 
+    {{-- ENT EXAMINATION --}}
 
-    {{-- ENT --}}
     <div class="section">
 
         <div class="section-title">
@@ -873,65 +1203,34 @@
         <table class="details">
 
             <tr>
+                <th>Right Ear</th>
+                <td>{{ $healthRecord->right_ear ?? '-' }}</td>
 
-                <th>
-                    Right Ear
-                </th>
-
-                <td>
-                    {{ $healthRecord->right_ear ?? '-' }}
-                </td>
-
-                <th>
-                    Left Ear
-                </th>
-
-                <td>
-                    {{ $healthRecord->left_ear ?? '-' }}
-                </td>
-
+                <th>Left Ear</th>
+                <td>{{ $healthRecord->left_ear ?? '-' }}</td>
             </tr>
 
-
             <tr>
+                <th>Hearing Problem</th>
+                <td>{{ $healthRecord->hearing_problem ?? '-' }}</td>
 
-                <th>
-                    Hearing Problem
-                </th>
-
-                <td>
-                    {{ $healthRecord->hearing_problem ?? '-' }}
-                </td>
-
-                <th>
-                    Nose
-                </th>
-
-                <td>
-                    {{ $healthRecord->nose_status ?? '-' }}
-                </td>
-
+                <th>Nose</th>
+                <td>{{ $healthRecord->nose_status ?? '-' }}</td>
             </tr>
 
-
             <tr>
-
-                <th>
-                    Throat
-                </th>
-
+                <th>Throat</th>
                 <td colspan="3">
                     {{ $healthRecord->throat_status ?? '-' }}
                 </td>
-
             </tr>
 
         </table>
 
     </div>
 
-
     {{-- GENERAL HEALTH --}}
+
     <div class="section">
 
         <div class="section-title">
@@ -941,73 +1240,35 @@
         <table class="details">
 
             <tr>
+                <th>General Health</th>
+                <td>{{ $healthRecord->general_health ?? '-' }}</td>
 
-                <th>
-                    General Health
-                </th>
-
-                <td>
-                    {{ $healthRecord->general_health ?? '-' }}
-                </td>
-
-                <th>
-                    Skin
-                </th>
-
-                <td>
-                    {{ $healthRecord->skin_status ?? '-' }}
-                </td>
-
+                <th>Skin</th>
+                <td>{{ $healthRecord->skin_status ?? '-' }}</td>
             </tr>
 
-
             <tr>
+                <th>Respiratory</th>
+                <td>{{ $healthRecord->respiratory_status ?? '-' }}</td>
 
-                <th>
-                    Respiratory
-                </th>
-
-                <td>
-                    {{ $healthRecord->respiratory_status ?? '-' }}
-                </td>
-
-                <th>
-                    Heart
-                </th>
-
-                <td>
-                    {{ $healthRecord->heart_status ?? '-' }}
-                </td>
-
+                <th>Heart</th>
+                <td>{{ $healthRecord->heart_status ?? '-' }}</td>
             </tr>
 
-
             <tr>
+                <th>Abdomen</th>
+                <td>{{ $healthRecord->abdomen_status ?? '-' }}</td>
 
-                <th>
-                    Abdomen
-                </th>
-
-                <td>
-                    {{ $healthRecord->abdomen_status ?? '-' }}
-                </td>
-
-                <th>
-                    Musculoskeletal
-                </th>
-
-                <td>
-                    {{ $healthRecord->musculoskeletal_status ?? '-' }}
-                </td>
-
+                <th>Musculoskeletal</th>
+                <td>{{ $healthRecord->musculoskeletal_status ?? '-' }}</td>
             </tr>
 
         </table>
 
     </div>
 
+    {{-- NUTRITION AND ANEMIA --}}
 
-    {{-- NUTRITION --}}
     <div class="section">
 
         <div class="section-title">
@@ -1017,31 +1278,19 @@
         <table class="details">
 
             <tr>
+                <th>Nutritional Status</th>
+                <td>{{ $healthRecord->nutritional_status ?? '-' }}</td>
 
-                <th>
-                    Nutritional Status
-                </th>
-
-                <td>
-                    {{ $healthRecord->nutritional_status ?? '-' }}
-                </td>
-
-                <th>
-                    Anemia Screening
-                </th>
-
-                <td>
-                    {{ $healthRecord->anemia_screening ?? '-' }}
-                </td>
-
+                <th>Anemia Screening</th>
+                <td>{{ $healthRecord->anemia_screening ?? '-' }}</td>
             </tr>
 
         </table>
 
     </div>
 
-
     {{-- MEDICAL HISTORY --}}
+
     <div class="section">
 
         <div class="section-title">
@@ -1051,62 +1300,31 @@
         <table class="details">
 
             <tr>
-
-                <th>
-                    Known Health Condition
-                </th>
-
-                <td>
-                    {{ $healthRecord->known_health_condition ?? '-' }}
-                </td>
-
+                <th>Known Health Condition</th>
+                <td>{{ $healthRecord->known_health_condition ?? '-' }}</td>
             </tr>
 
-
             <tr>
-
-                <th>
-                    Allergy
-                </th>
-
-                <td>
-                    {{ $healthRecord->allergy ?? '-' }}
-                </td>
-
+                <th>Allergy</th>
+                <td>{{ $healthRecord->allergy ?? '-' }}</td>
             </tr>
 
-
             <tr>
-
-                <th>
-                    Current Medication
-                </th>
-
-                <td>
-                    {{ $healthRecord->current_medication ?? '-' }}
-                </td>
-
+                <th>Current Medication</th>
+                <td>{{ $healthRecord->current_medication ?? '-' }}</td>
             </tr>
 
-
             <tr>
-
-                <th>
-                    Medical History
-                </th>
-
-                <td>
-                    {{ $healthRecord->medical_history ?? '-' }}
-                </td>
-
+                <th>Medical History</th>
+                <td>{{ $healthRecord->medical_history ?? '-' }}</td>
             </tr>
 
         </table>
 
     </div>
 
+    {{-- REFERRAL AND FOLLOW-UP --}}
 
-    {{-- REFERRAL --}}
     <div class="section">
 
         <div class="section-title">
@@ -1116,86 +1334,48 @@
         <table class="details">
 
             <tr>
-
-                <th>
-                    Referral Required
-                </th>
-
+                <th>Referral Required</th>
                 <td>
                     {{ $healthRecord->referral_required ? 'Yes' : 'No' }}
                 </td>
 
-                <th>
-                    Referred To
-                </th>
-
-                <td>
-                    {{ $healthRecord->referral_to ?? '-' }}
-                </td>
-
+                <th>Referred To</th>
+                <td>{{ $healthRecord->referral_to ?? '-' }}</td>
             </tr>
 
-
             <tr>
-
-                <th>
-                    Referral Date
-                </th>
-
+                <th>Referral Date</th>
                 <td>
                     {{ $healthRecord->referral_date?->format('d-m-Y') ?? '-' }}
                 </td>
 
-                <th>
-                    Follow-up Date
-                </th>
-
+                <th>Follow-up Date</th>
                 <td>
                     {{ $healthRecord->follow_up_date?->format('d-m-Y') ?? '-' }}
                 </td>
-
             </tr>
 
-
             <tr>
+                <th>Follow-up Status</th>
+                <td>{{ $healthRecord->follow_up_status ?? '-' }}</td>
 
-                <th>
-                    Follow-up Status
-                </th>
-
-                <td>
-                    {{ $healthRecord->follow_up_status ?? '-' }}
-                </td>
-
-                <th>
-                    Follow-up Remarks
-                </th>
-
-                <td>
-                    {{ $healthRecord->follow_up_remarks ?? '-' }}
-                </td>
-
+                <th>Follow-up Remarks</th>
+                <td>{{ $healthRecord->follow_up_remarks ?? '-' }}</td>
             </tr>
 
-
             <tr>
-
-                <th>
-                    Treatment Advised
-                </th>
-
+                <th>Treatment Advised</th>
                 <td colspan="3">
                     {{ $healthRecord->treatment_advised ?? '-' }}
                 </td>
-
             </tr>
 
         </table>
 
     </div>
 
-
     {{-- FINAL ASSESSMENT --}}
+
     <div class="section">
 
         <div class="section-title">
@@ -1205,92 +1385,62 @@
         <table class="details">
 
             <tr>
-
-                <th>
-                    Overall Health Status
-                </th>
-
+                <th>Overall Health Status</th>
                 <td>
                     {{ $healthRecord->overall_health_status ?? '-' }}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    Doctor Remarks
-                </th>
-
+                <th>Doctor Remarks</th>
                 <td class="remarks">
                     {{ $healthRecord->doctor_remarks ?? '-' }}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    Teacher Remarks
-                </th>
-
+                <th>Teacher Remarks</th>
                 <td class="remarks">
                     {{ $healthRecord->teacher_remarks ?? '-' }}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    Parent Remarks
-                </th>
-
+                <th>Parent Remarks</th>
                 <td class="remarks">
                     {{ $healthRecord->parent_remarks ?? '-' }}
                 </td>
-
             </tr>
 
         </table>
 
     </div>
 
-
     {{-- SIGNATURES --}}
+
     <div class="signature-area">
 
         <div class="signature">
-
             <div class="signature-line">
                 Parent / Guardian
             </div>
-
         </div>
 
-
         <div class="signature">
-
             <div class="signature-line">
                 Teacher
             </div>
-
         </div>
 
-
         <div class="signature">
-
             <div class="signature-line">
                 Doctor / Medical Officer
             </div>
-
         </div>
 
     </div>
 
+    {{-- FOOTER --}}
 
     <div class="footer">
 
@@ -1299,8 +1449,7 @@
         </span>
 
         <span>
-            Printed on:
-            {{ now()->format('d-m-Y h:i A') }}
+            Printed on: {{ now()->format('d-m-Y h:i A') }}
         </span>
 
     </div>

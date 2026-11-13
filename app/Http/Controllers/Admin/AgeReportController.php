@@ -36,12 +36,13 @@ class AgeReportController extends Controller
     }
 
     public function print(Request $request)
-    {
-        $data = $this->buildReportData($request);
-        $data['schoolSetting'] = $this->getSchoolSetting();
+{
+    $data = $this->buildReportData($request);
 
-        return view('admin.age-reports.print', $data);
-    }
+    $data['schoolSetting'] = $this->getSchoolSetting();
+
+    return view('admin.age-reports.print', $data);
+}
 
     private function buildReportData(Request $request): array
     {

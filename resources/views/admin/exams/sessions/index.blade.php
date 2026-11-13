@@ -7,30 +7,43 @@
 
 <div class="container-fluid py-4 exam-sessions-page">
 
-    {{-- SIMPLE HEADER --}}
+    {{-- DARK GREEN & GOLD HEADER --}}
     <header class="sd-page-header mb-4">
+
+        <div class="sd-header-decoration"></div>
+
         <div class="sd-header-copy">
-            <div class="sd-breadcrumb mb-2">
+
+            <div class="sd-breadcrumb mb-3">
                 <a href="{{ route('admin.exams.show', $exam) }}">Examinations</a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Exam Sessions</span>
             </div>
 
             <div class="sd-header-title-row">
+
                 <div class="sd-header-icon">
                     <i class="bi bi-clock-history"></i>
                 </div>
 
                 <div>
+                    <div class="sd-header-eyebrow">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                        EXAMINATION MANAGEMENT
+                    </div>
+
                     <h1>Exam Sessions</h1>
+
                     <p>
                         Manage examination time slots, timings and session availability.
                     </p>
                 </div>
+
             </div>
         </div>
 
         <div class="sd-header-actions">
+
             <a href="{{ route('admin.exams.show', $exam) }}"
                class="sd-btn sd-btn-outline">
                 <i class="bi bi-arrow-left"></i>
@@ -42,21 +55,28 @@
                 <i class="bi bi-plus-lg"></i>
                 Add Session
             </a>
+
         </div>
+
     </header>
 
     {{-- EXAM SUMMARY --}}
     <section class="sd-exam-card mb-4">
+
         <div class="sd-exam-main">
+
             <div class="sd-exam-icon">
                 <i class="bi bi-journal-text"></i>
             </div>
 
             <div class="sd-exam-details">
+
                 <div class="sd-section-eyebrow">CURRENT EXAMINATION</div>
+
                 <h2>{{ $exam->exam_name }}</h2>
 
                 <div class="sd-meta-list">
+
                     <span class="sd-meta-chip">
                         <i class="bi bi-calendar3"></i>
                         {{ $exam->academic_year }}
@@ -75,11 +95,13 @@
                             {{ ucfirst($exam->status) }}
                         </span>
                     @endif
+
                 </div>
             </div>
         </div>
 
         <div class="sd-configuration-box">
+
             <div class="sd-configuration-icon">
                 <i class="bi bi-calendar2-week"></i>
             </div>
@@ -90,12 +112,15 @@
                     Sessions define the available time slots for your examination timetable.
                 </p>
             </div>
+
         </div>
+
     </section>
 
     {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
         <div class="sd-alert sd-alert-success mb-4" role="alert">
+
             <div class="sd-alert-icon">
                 <i class="bi bi-check-lg"></i>
             </div>
@@ -111,18 +136,21 @@
                     aria-label="Close">
                 <i class="bi bi-x-lg"></i>
             </button>
+
         </div>
     @endif
 
     {{-- VALIDATION ERRORS --}}
     @if($errors->any())
         <div class="sd-alert sd-alert-danger mb-4" role="alert">
+
             <div class="sd-alert-icon">
                 <i class="bi bi-exclamation-triangle"></i>
             </div>
 
             <div class="sd-alert-content">
                 <strong>Please correct the following errors</strong>
+
                 <ul>
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -136,17 +164,20 @@
                     aria-label="Close">
                 <i class="bi bi-x-lg"></i>
             </button>
+
         </div>
     @endif
 
     {{-- INFORMATION NOTICE --}}
     <section class="sd-notice mb-4">
+
         <div class="sd-notice-icon">
             <i class="bi bi-info-lg"></i>
         </div>
 
         <div class="sd-notice-content">
             <h3>About Exam Sessions</h3>
+
             <p>
                 Sessions define the time periods in which exams can be scheduled.
                 Create multiple sessions such as <strong>Morning</strong>,
@@ -157,6 +188,7 @@
         <div class="sd-notice-decoration">
             <i class="bi bi-clock-history"></i>
         </div>
+
     </section>
 
     {{-- SESSION STATISTICS --}}
@@ -181,49 +213,76 @@
 
         <div class="col-xl-4 col-md-6">
             <div class="sd-stat-card sd-stat-sage">
+
                 <div class="sd-stat-top"></div>
+
                 <div class="sd-stat-icon">
                     <i class="bi bi-clock-history"></i>
                 </div>
+
                 <div class="sd-stat-label">Total Sessions</div>
+
                 <div class="sd-stat-value">{{ $totalSessions }}</div>
-                <div class="sd-stat-description">Configured examination time slots</div>
+
+                <div class="sd-stat-description">
+                    Configured examination time slots
+                </div>
+
                 <div class="sd-stat-watermark">
                     <i class="bi bi-clock-history"></i>
                 </div>
+
             </div>
         </div>
 
         <div class="col-xl-4 col-md-6">
             <div class="sd-stat-card sd-stat-green">
+
                 <div class="sd-stat-top"></div>
+
                 <div class="sd-stat-icon">
                     <i class="bi bi-check-circle"></i>
                 </div>
+
                 <div class="sd-stat-label">Active Sessions</div>
+
                 <div class="sd-stat-value">{{ $activeSessions }}</div>
-                <div class="sd-stat-description">Available for scheduling</div>
+
+                <div class="sd-stat-description">
+                    Available for scheduling
+                </div>
+
                 <div class="sd-stat-watermark">
                     <i class="bi bi-check-circle"></i>
                 </div>
+
             </div>
         </div>
 
         <div class="col-xl-4 col-md-6">
             <div class="sd-stat-card sd-stat-amber">
+
                 <div class="sd-stat-top"></div>
+
                 <div class="sd-stat-icon">
                     <i class="bi bi-hourglass-split"></i>
                 </div>
+
                 <div class="sd-stat-label">Total Session Time</div>
+
                 <div class="sd-stat-value">
                     {{ $totalMinutes }}
                     <span class="sd-stat-unit">min</span>
                 </div>
-                <div class="sd-stat-description">Combined configured duration</div>
+
+                <div class="sd-stat-description">
+                    Combined configured duration
+                </div>
+
                 <div class="sd-stat-watermark">
                     <i class="bi bi-hourglass-split"></i>
                 </div>
+
             </div>
         </div>
 
@@ -233,7 +292,9 @@
     <section class="sd-table-card">
 
         <div class="sd-table-heading">
+
             <div class="sd-table-heading-main">
+
                 <div class="sd-table-heading-icon">
                     <i class="bi bi-list-check"></i>
                 </div>
@@ -243,6 +304,7 @@
                     <h2>Configured Sessions</h2>
                     <p>Manage examination session timings and availability.</p>
                 </div>
+
             </div>
 
             @if($totalSessions > 0)
@@ -252,13 +314,17 @@
                     {{ $totalSessions == 1 ? 'Session' : 'Sessions' }}
                 </div>
             @endif
+
         </div>
 
         <div class="sd-table-body">
+
             @if($sessions->count())
 
                 <div class="table-responsive sd-table-responsive">
+
                     <table class="table sd-sessions-table align-middle mb-0">
+
                         <thead>
                             <tr>
                                 <th class="ps-4" width="75">#</th>
@@ -272,7 +338,9 @@
                         </thead>
 
                         <tbody>
+
                             @foreach($sessions as $session)
+
                                 @php
                                     $start = \Carbon\Carbon::parse($session->start_time);
                                     $end = \Carbon\Carbon::parse($session->end_time);
@@ -282,6 +350,7 @@
                                 @endphp
 
                                 <tr>
+
                                     <td class="ps-4">
                                         <span class="sd-row-number">
                                             {{ $loop->iteration }}
@@ -290,6 +359,7 @@
 
                                     <td>
                                         <div class="sd-session-cell">
+
                                             <div class="sd-session-icon">
                                                 <i class="bi bi-clock"></i>
                                             </div>
@@ -298,10 +368,12 @@
                                                 <div class="sd-session-name">
                                                     {{ $session->session_name }}
                                                 </div>
+
                                                 <div class="sd-session-caption">
                                                     Examination time slot
                                                 </div>
                                             </div>
+
                                         </div>
                                     </td>
 
@@ -321,6 +393,7 @@
 
                                     <td>
                                         <span class="sd-duration-chip">
+
                                             <i class="bi bi-hourglass-split"></i>
 
                                             @if($hours > 0)
@@ -334,40 +407,52 @@
                                             @if($hours == 0 && $minutes == 0)
                                                 0m
                                             @endif
+
                                         </span>
                                     </td>
 
                                     <td>
                                         @if($session->status)
+
                                             <span class="sd-session-status is-active">
                                                 <span class="sd-status-dot"></span>
                                                 Active
                                             </span>
+
                                         @else
+
                                             <span class="sd-session-status is-inactive">
                                                 <span class="sd-status-dot"></span>
                                                 Inactive
                                             </span>
+
                                         @endif
                                     </td>
 
                                     <td class="text-end pe-4">
+
                                         <div class="dropdown">
+
                                             <button
                                                 class="sd-action-button dropdown-toggle"
                                                 type="button"
                                                 data-bs-toggle="dropdown"
                                                 aria-expanded="false"
                                                 aria-label="Session actions">
+
                                                 <i class="bi bi-three-dots"></i>
+
                                             </button>
 
                                             <ul class="dropdown-menu dropdown-menu-end sd-dropdown-menu">
+
                                                 <li>
                                                     <a class="dropdown-item"
                                                        href="{{ route('admin.exam-sessions.edit', [$exam, $session]) }}">
+
                                                         <i class="bi bi-pencil"></i>
                                                         Edit Session
+
                                                     </a>
                                                 </li>
 
@@ -376,32 +461,48 @@
                                                 </li>
 
                                                 <li>
+
                                                     <form
                                                         method="POST"
                                                         action="{{ route('admin.exam-sessions.destroy', [$exam, $session]) }}"
                                                         onsubmit="return confirm('Are you sure you want to delete this session?');">
+
                                                         @csrf
                                                         @method('DELETE')
 
                                                         <button type="submit"
                                                                 class="dropdown-item sd-delete-action">
+
                                                             <i class="bi bi-trash3"></i>
                                                             Delete Session
+
                                                         </button>
+
                                                     </form>
+
                                                 </li>
+
                                             </ul>
+
                                         </div>
+
                                     </td>
+
                                 </tr>
+
                             @endforeach
+
                         </tbody>
+
                     </table>
+
                 </div>
 
             @else
+
                 {{-- EMPTY STATE --}}
                 <div class="sd-empty-state">
+
                     <div class="sd-empty-decoration sd-empty-decoration-one"></div>
                     <div class="sd-empty-decoration sd-empty-decoration-two"></div>
 
@@ -409,7 +510,10 @@
                         <i class="bi bi-clock-history"></i>
                     </div>
 
-                    <div class="sd-section-eyebrow">NOTHING SCHEDULED YET</div>
+                    <div class="sd-section-eyebrow">
+                        NOTHING SCHEDULED YET
+                    </div>
+
                     <h3>No Exam Sessions Configured</h3>
 
                     <p>
@@ -419,22 +523,30 @@
 
                     <a href="{{ route('admin.exam-sessions.create', $exam) }}"
                        class="sd-btn sd-btn-forest">
+
                         <i class="bi bi-plus-lg"></i>
                         Add First Session
+
                     </a>
 
                     <div class="sd-empty-footnote">
                         <i class="bi bi-check2-circle"></i>
                         Safe Journeys. Happy Students.
                     </div>
+
                 </div>
+
             @endif
+
         </div>
 
         @if($totalSessions > 0)
+
             <div class="sd-table-footer">
+
                 <span>
                     <i class="bi bi-info-circle"></i>
+
                     Showing {{ $totalSessions }}
                     {{ $totalSessions == 1 ? 'configured session' : 'configured sessions' }}
                 </span>
@@ -443,7 +555,9 @@
                     <i class="bi bi-shield-check"></i>
                     Examination schedule settings
                 </span>
+
             </div>
+
         @endif
 
     </section>
@@ -452,8 +566,8 @@
 
 <style>
 /* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM
-   Simple neutral header; scoped to Exam Sessions only
+   SCHOOL DIARY DESIGN SYSTEM — EXAM SESSIONS
+   DARK GREEN & GOLD HEADER
 ========================================================= */
 
 .exam-sessions-page {
@@ -472,6 +586,7 @@
     --sd-green: #43835d;
     --sd-red: #b95b50;
     --sd-cream-cta: #f1ead8;
+    --sd-gold: #c49a45;
 
     max-width: 1700px;
     margin: 0 auto;
@@ -502,19 +617,61 @@
     color: var(--sd-muted) !important;
 }
 
-/* SIMPLE HEADER — NO COLOURED HERO BACKGROUND */
+/* =========================================================
+   HEADER — SAME CREATE EXAM / EXAM TIMETABLE DESIGN
+========================================================= */
 
 .sd-page-header {
+    position: relative;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 20px;
-    padding: 5px 0 23px;
-    border-bottom: 1px solid var(--sd-line);
+    gap: 22px;
+    overflow: hidden;
+    padding: 25px 27px;
+    border: 1px solid rgba(196, 154, 69, .34);
+    border-left: 4px solid var(--sd-gold);
+    border-radius: 15px;
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+    box-shadow: 0 9px 24px rgba(20, 47, 37, .12);
+}
+
+.sd-header-decoration {
+    position: absolute;
+    top: -105px;
+    right: 95px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.sd-header-decoration::before,
+.sd-header-decoration::after {
+    position: absolute;
+    content: "";
+    border: 1px solid rgba(196, 154, 69, .15);
+    border-radius: 50%;
+}
+
+.sd-header-decoration::before {
+    inset: 22px;
+}
+
+.sd-header-decoration::after {
+    inset: 45px;
 }
 
 .sd-header-copy {
+    position: relative;
+    z-index: 1;
     min-width: 0;
 }
 
@@ -523,65 +680,87 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 9px;
-    color: var(--sd-muted);
+    color: rgba(255, 255, 255, .7);
     font-size: 11px;
 }
 
 .sd-breadcrumb a {
-    color: var(--sd-sage);
-    font-weight: 650;
+    color: #e2c47f;
+    font-weight: 700;
 }
 
 .sd-breadcrumb a:hover {
-    color: var(--sd-ink);
+    color: #fff;
 }
 
 .sd-breadcrumb i {
+    color: rgba(255, 255, 255, .48);
     font-size: 9px;
-    color: #a3a99d;
+}
+
+.sd-breadcrumb span {
+    color: rgba(255, 255, 255, .78);
 }
 
 .sd-header-title-row {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 15px;
 }
 
 .sd-header-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 47px;
-    width: 47px;
-    height: 47px;
-    border: 1px solid var(--sd-line);
-    border-radius: 12px;
-    background: var(--sd-paper);
-    color: var(--sd-sage);
-    font-size: 21px;
+    flex: 0 0 53px;
+    width: 53px;
+    height: 53px;
+    border: 1px solid rgba(226, 196, 127, .38);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .09);
+    color: #e2c47f;
+    font-size: 24px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.sd-header-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+    color: #e2c47f;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.sd-header-eyebrow i {
+    font-size: 11px;
 }
 
 .sd-header-title-row h1 {
     margin-bottom: 5px;
-    color: var(--sd-ink);
+    color: #fff;
     font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(24px, 2.6vw, 31px);
+    font-size: clamp(25px, 2.6vw, 32px);
     font-weight: 700;
     letter-spacing: -.4px;
 }
 
 .sd-header-title-row p {
     margin-bottom: 0;
-    color: var(--sd-muted);
+    color: rgba(255, 255, 255, .76);
     font-size: 12px;
     line-height: 1.7;
 }
 
 .sd-header-actions {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 9px;
+    gap: 10px;
 }
 
 /* BUTTONS */
@@ -591,8 +770,8 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
-    min-height: 39px;
-    padding: 10px 14px;
+    min-height: 40px;
+    padding: 10px 15px;
     border: 1px solid transparent;
     border-radius: 9px;
     font-size: 12px;
@@ -606,26 +785,28 @@
 }
 
 .exam-sessions-page .sd-btn-outline {
-    border-color: var(--sd-line);
-    background: var(--sd-paper);
-    color: var(--sd-soft);
+    border-color: rgba(255, 255, 255, .3);
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
 }
 
 .exam-sessions-page .sd-btn-outline:hover {
-    border-color: #cbd6c7;
-    background: var(--sd-chalk);
-    color: var(--sd-ink);
+    border-color: #e2c47f;
+    background: rgba(255, 255, 255, .16);
+    color: #fff;
 }
 
 .exam-sessions-page .sd-btn-forest {
-    background: var(--sd-dark);
-    color: var(--sd-paper);
-    box-shadow: 0 4px 11px rgba(29, 48, 43, .1);
+    border-color: var(--sd-gold);
+    background: var(--sd-gold);
+    color: #1d302b;
+    box-shadow: 0 4px 11px rgba(0, 0, 0, .12);
 }
 
 .exam-sessions-page .sd-btn-forest:hover {
-    background: var(--sd-sage);
-    color: #fff;
+    border-color: #dfbd72;
+    background: #dfbd72;
+    color: #1d302b;
 }
 
 /* EXAM SUMMARY */
@@ -1394,12 +1575,15 @@
 /* RESPONSIVE */
 
 @media (max-width: 991.98px) {
+
     .sd-exam-card {
         grid-template-columns: 1fr;
     }
+
 }
 
 @media (max-width: 767.98px) {
+
     .exam-sessions-page {
         padding-right: 15px;
         padding-left: 15px;
@@ -1408,6 +1592,7 @@
     .sd-page-header {
         align-items: flex-start;
         flex-direction: column;
+        padding: 22px 19px;
     }
 
     .sd-header-actions {
@@ -1420,10 +1605,22 @@
 
     .sd-header-title-row {
         align-items: flex-start;
+        gap: 12px;
+    }
+
+    .sd-header-icon {
+        flex-basis: 45px;
+        width: 45px;
+        height: 45px;
+        font-size: 21px;
     }
 
     .sd-header-title-row h1 {
         font-size: 25px;
+    }
+
+    .sd-header-decoration {
+        right: -100px;
     }
 
     .sd-exam-card {
@@ -1476,9 +1673,11 @@
     .sd-empty-state h3 {
         font-size: 21px;
     }
+
 }
 
 @media (max-width: 420px) {
+
     .sd-header-actions {
         flex-direction: column;
     }
@@ -1498,9 +1697,11 @@
     .sd-table-heading-main {
         align-items: flex-start;
     }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .exam-sessions-page *,
     .exam-sessions-page *::before,
     .exam-sessions-page *::after {
@@ -1509,6 +1710,7 @@
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
     }
+
 }
 </style>
 

@@ -263,6 +263,35 @@
 
                         <div class="form-grid">
 
+                            {{-- UDISE CODE --}}
+                            <div class="diary-filter-group">
+                                <label for="udise_code">UDISE Code</label>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-barcode input-icon"></i>
+
+                                    <input type="text"
+                                           name="udise_code"
+                                           id="udise_code"
+                                           value="{{ old('udise_code', $school->udise_code ?? '') }}"
+                                           class="diary-control with-icon @error('udise_code') is-invalid @enderror"
+                                           placeholder="Enter 11-digit UDISE code"
+                                           maxlength="11"
+                                           minlength="11"
+                                           inputmode="numeric"
+                                           pattern="[0-9]{11}"
+                                           title="UDISE code must contain exactly 11 digits"
+                                           @error('udise_code') aria-invalid="true" aria-describedby="udise_code_error" @enderror>
+                                </div>
+
+                                @error('udise_code')
+                                    <div class="field-error" id="udise_code_error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
                             {{-- PHONE --}}
                             <div class="diary-filter-group">
                                 <label for="phone">
@@ -278,7 +307,10 @@
                                            value="{{ old('phone', $school->phone ?? '') }}"
                                            class="diary-control with-icon @error('phone') is-invalid @enderror"
                                            placeholder="e.g. +91 98765 43210"
-                                           maxlength="20"
+                                           maxlength="16"
+                                           inputmode="tel"
+                                           pattern="(?:\+91[\s-]?)?[6-9][0-9]{4}[\s-]?[0-9]{5}"
+                                           title="Enter a valid 10-digit Indian mobile number, optionally with +91"
                                            required
                                            @error('phone') aria-invalid="true" aria-describedby="phone_error" @enderror>
                                 </div>
@@ -413,11 +445,11 @@
 
                         <div class="logo-upload-card">
                             <div class="logo-preview-wrap">
-                                @if(!empty($school->logo))
-                                    <img src="{{ asset('storage/' . $school->logo) }}"
-                                         alt="Current school logo"
-                                         class="logo-preview"
-                                         id="logoPreview">
+                                @if(!empty($school?->logo))
+    <img src="{{ $school->logo_url }}"
+         alt="Current school logo"
+         class="logo-preview"
+         id="logoPreview">
                                 @else
                                     <div class="logo-placeholder" id="logoPreview">
                                         <i class="fas fa-image"></i>
@@ -534,7 +566,7 @@
 <style>
 /* =========================================================
    LOCKED SCHOOL DIARY DESIGN SYSTEM
-   SCHOOL PROFILE — EDIT FORM PAGE
+   SCHOOL PROFILE â€” EDIT FORM PAGE
    Same tokens, cards and buttons as Meal Items / Sports.
    Every selector is scoped under .school-form-page.
 ========================================================= */

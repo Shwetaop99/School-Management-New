@@ -31,7 +31,7 @@
                     </h4>
 
                     <span class="badge bg-primary rounded-pill px-3 py-2">
-                        Version {{ $version->version_no }}
+                        Version {{ $version->version_number }}
                     </span>
 
                 </div>

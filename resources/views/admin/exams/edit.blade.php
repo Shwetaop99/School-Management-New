@@ -7,8 +7,10 @@
 <div class="edit-exam-page">
     <div class="edit-exam-container">
 
-        {{-- SIMPLE HEADER — NO COLOURED BACKGROUND --}}
+        {{-- DARK GREEN HEADER — SAME AS CREATE EXAM --}}
         <header class="exam-hero">
+            <div class="exam-hero-decoration"></div>
+
             <div class="exam-hero-content">
                 <div class="exam-breadcrumb">
                     <span>ACADEMIC MANAGEMENT</span>
@@ -18,7 +20,9 @@
                     <span class="exam-breadcrumb-current">EDIT EXAM</span>
                 </div>
 
-                <span class="exam-eyebrow"></span>
+                <span class="exam-eyebrow">
+                    EXAMINATION MANAGEMENT
+                </span>
 
                 <h1>
                     <i class="bi bi-pencil-square"></i>
@@ -585,8 +589,8 @@
 @push('styles')
 <style>
 /* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM — EDIT EXAM
-   Simple neutral header · Warm cream · Forest green
+   SCHOOL DIARY DESIGN SYSTEM — EDIT EXAM
+   Dark forest-green header · Warm cream · Gold accents
 ========================================================= */
 
 .edit-exam-page {
@@ -628,25 +632,63 @@
     padding: 0 24px;
 }
 
-/* SIMPLE HEADER — WHITE/CREAM, NO DARK BACKGROUND */
+/* =========================================================
+   DARK GREEN HEADER — MATCHING CREATE EXAM
+========================================================= */
 
 .edit-exam-page .exam-hero {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    min-height: 0;
+    min-height: 175px;
     margin-bottom: 22px;
-    padding: 20px 0 22px;
-    border: 0;
-    border-bottom: 1px solid var(--exam-line);
-    border-radius: 0;
-    background: transparent;
-    color: var(--exam-ink);
-    box-shadow: none;
+    overflow: hidden;
+    padding: 28px 30px;
+    border: 1px solid rgba(196,154,69,.35);
+    border-left: 5px solid #c49a45;
+    border-radius: 13px;
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+    color: #fffefa;
+    box-shadow: 0 8px 22px rgba(24,49,37,.12);
+}
+
+.edit-exam-page .exam-hero-decoration {
+    position: absolute;
+    top: -110px;
+    right: 8%;
+    width: 310px;
+    height: 310px;
+    border: 1px solid rgba(226,196,127,.13);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.edit-exam-page .exam-hero-decoration::before,
+.edit-exam-page .exam-hero-decoration::after {
+    position: absolute;
+    border: 1px solid rgba(226,196,127,.10);
+    border-radius: 50%;
+    content: "";
+}
+
+.edit-exam-page .exam-hero-decoration::before {
+    inset: 25px;
+}
+
+.edit-exam-page .exam-hero-decoration::after {
+    inset: 55px;
 }
 
 .edit-exam-page .exam-hero-content {
+    position: relative;
+    z-index: 1;
     min-width: 0;
 }
 
@@ -656,28 +698,28 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 12px;
-    color: var(--exam-muted);
+    color: rgba(255,255,255,.68);
     font-size: 9px;
     font-weight: 750;
     letter-spacing: .8px;
 }
 
 .edit-exam-page .exam-breadcrumb i {
-    color: #b3a58d;
+    color: #c49a45;
     font-size: 8px;
 }
 
 .edit-exam-page .exam-breadcrumb-current {
-    color: var(--exam-sage);
+    color: #e2c47f;
 }
 
 .edit-exam-page .exam-eyebrow {
     display: block;
-    margin-bottom: 4px;
-    color: var(--exam-amber);
+    margin-bottom: 5px;
+    color: #e2c47f;
     font-size: 9px;
     font-weight: 800;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.5px;
 }
 
 .edit-exam-page .exam-hero h1 {
@@ -685,7 +727,7 @@
     align-items: center;
     gap: 10px;
     margin: 0;
-    color: var(--exam-ink);
+    color: #fffefa;
     font-family: var(--exam-serif);
     font-size: clamp(25px, 2.5vw, 32px);
     font-weight: 700;
@@ -693,18 +735,20 @@
 }
 
 .edit-exam-page .exam-hero h1 i {
-    color: var(--exam-sage);
+    color: #e2c47f;
     font-size: 22px;
 }
 
 .edit-exam-page .exam-hero-content p {
-    margin: 7px 0 0;
-    color: var(--exam-muted);
+    margin: 8px 0 0;
+    color: rgba(255,255,255,.78);
     font-size: 11px;
     line-height: 1.7;
 }
 
 .edit-exam-page .exam-hero-back {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -712,10 +756,10 @@
     flex: 0 0 auto;
     min-height: 40px;
     padding: 10px 15px;
-    border: 1px solid var(--exam-line);
+    border: 1px solid rgba(226,196,127,.45);
     border-radius: 8px;
-    background: var(--exam-paper);
-    color: var(--exam-ink);
+    background: rgba(255,255,255,.08);
+    color: #fffefa;
     font-size: 11px;
     font-weight: 750;
     text-decoration: none;
@@ -723,14 +767,14 @@
 }
 
 .edit-exam-page .exam-hero-back:hover {
-    border-color: #c7d5c5;
-    background: var(--exam-chalk);
-    color: var(--exam-dark);
+    border-color: #e2c47f;
+    background: rgba(255,255,255,.16);
+    color: #fffefa;
     text-decoration: none;
 }
 
 .edit-exam-page .exam-hero-back:focus-visible {
-    outline: 2px solid var(--exam-sage);
+    outline: 2px solid #e2c47f;
     outline-offset: 3px;
 }
 
@@ -1553,7 +1597,8 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 16px;
-        padding: 17px 0 20px;
+        min-height: 0;
+        padding: 22px 20px;
     }
 
     .edit-exam-page .exam-breadcrumb {
@@ -1638,7 +1683,7 @@
     }
 
     .edit-exam-page .exam-hero {
-        padding: 15px 0 18px;
+        padding: 19px 15px;
     }
 
     .edit-exam-page .exam-hero h1 {

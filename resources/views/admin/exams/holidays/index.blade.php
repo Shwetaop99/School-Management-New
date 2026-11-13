@@ -15,7 +15,11 @@
     <div class="eh-page-header">
 
         <div class="eh-header-copy">
-            <div class="eh-eyebrow">EXAMINATION MANAGEMENT</div>
+
+            <div class="eh-eyebrow">
+                <i class="bi bi-journal-bookmark-fill"></i>
+                EXAMINATION MANAGEMENT
+            </div>
 
             <div class="eh-title-row">
                 <h1 class="eh-page-title">Exam Holidays</h1>
@@ -34,9 +38,11 @@
                 <i class="bi bi-chevron-right"></i>
                 <span>Exam Holidays</span>
             </div>
+
         </div>
 
         <div class="eh-header-actions">
+
             <a href="{{ route('admin.exams.show', $exam) }}"
                class="eh-btn eh-btn-secondary">
                 <i class="bi bi-arrow-left"></i>
@@ -48,6 +54,7 @@
                 <i class="bi bi-plus-lg"></i>
                 <span>Add Holiday</span>
             </a>
+
         </div>
 
     </div>
@@ -168,6 +175,7 @@
     <section class="eh-panel">
 
         <div class="eh-panel-header">
+
             <div class="eh-panel-heading">
                 <div class="eh-panel-icon">
                     <i class="bi bi-calendar-week"></i>
@@ -183,6 +191,7 @@
                 <span class="eh-meta-label">Total holidays</span>
                 <span class="eh-meta-value">{{ $holidayCount }}</span>
             </div>
+
         </div>
 
         <div class="eh-panel-body">
@@ -190,7 +199,9 @@
             @if($holidayCount > 0)
 
                 <div class="eh-table-wrap">
+
                     <table class="eh-table">
+
                         <thead>
                             <tr>
                                 <th class="eh-number-column">#</th>
@@ -203,7 +214,9 @@
                         </thead>
 
                         <tbody>
+
                             @foreach($holidays as $holiday)
+
                                 <tr class="eh-holiday-row">
 
                                     {{-- NUMBER --}}
@@ -216,6 +229,7 @@
                                     {{-- DATE --}}
                                     <td>
                                         <div class="eh-date-cell">
+
                                             <div class="eh-date-icon">
                                                 <i class="bi bi-calendar-event"></i>
                                             </div>
@@ -229,6 +243,7 @@
                                                     Holiday date
                                                 </span>
                                             </div>
+
                                         </div>
                                     </td>
 
@@ -243,27 +258,37 @@
                                     {{-- REASON --}}
                                     <td>
                                         @if($holiday->reason)
+
                                             <div class="eh-reason">
                                                 <i class="bi bi-chat-left-text"></i>
                                                 <span>{{ $holiday->reason }}</span>
                                             </div>
+
                                         @else
-                                            <span class="eh-empty-value">Not provided</span>
+
+                                            <span class="eh-empty-value">
+                                                Not provided
+                                            </span>
+
                                         @endif
                                     </td>
 
                                     {{-- STATUS --}}
                                     <td>
                                         @if($holiday->status)
+
                                             <span class="eh-status eh-status-active">
                                                 <span class="eh-status-dot"></span>
                                                 Active
                                             </span>
+
                                         @else
+
                                             <span class="eh-status eh-status-inactive">
                                                 <span class="eh-status-dot"></span>
                                                 Inactive
                                             </span>
+
                                         @endif
                                     </td>
 
@@ -275,13 +300,16 @@
                                                class="eh-action-btn eh-edit-btn"
                                                title="Edit Holiday"
                                                aria-label="Edit holiday">
+
                                                 <i class="bi bi-pencil"></i>
                                                 <span>Edit</span>
+
                                             </a>
 
                                             <form method="POST"
                                                   action="{{ route('admin.exam-holidays.destroy', [$exam, $holiday]) }}"
                                                   class="eh-delete-form">
+
                                                 @csrf
                                                 @method('DELETE')
 
@@ -289,22 +317,30 @@
                                                         class="eh-action-btn eh-delete-btn"
                                                         title="Delete Holiday"
                                                         aria-label="Delete holiday">
+
                                                     <i class="bi bi-trash3"></i>
                                                     <span>Delete</span>
+
                                                 </button>
+
                                             </form>
 
                                         </div>
                                     </td>
 
                                 </tr>
+
                             @endforeach
+
                         </tbody>
+
                     </table>
+
                 </div>
 
                 {{-- TABLE FOOTER --}}
                 <div class="eh-table-footer">
+
                     <span>
                         Showing <strong>{{ $holidayCount }}</strong>
                         {{ $holidayCount === 1 ? 'holiday' : 'holidays' }}
@@ -314,12 +350,14 @@
                         <i class="bi bi-calendar-check"></i>
                         Examination holiday records
                     </span>
+
                 </div>
 
             @else
 
                 {{-- EMPTY STATE --}}
                 <div class="eh-empty-state">
+
                     <div class="eh-empty-icon">
                         <i class="bi bi-calendar2-check"></i>
                     </div>
@@ -336,16 +374,21 @@
 
                     <a href="{{ route('admin.exam-holidays.create', $exam) }}"
                        class="eh-btn eh-btn-primary">
+
                         <i class="bi bi-plus-lg"></i>
                         <span>Add First Holiday</span>
+
                     </a>
+
                 </div>
 
             @endif
 
         </div>
+
     </section>
 
+    {{-- PAGE FOOTER --}}
     <div class="eh-page-footer">
         <span>Exam Holidays</span>
         <span>Manage examination non-working days</span>
@@ -355,8 +398,7 @@
 
 <style>
 /* =========================================================
-   LOCKED SCHOOL DIARY DESIGN SYSTEM
-   Scoped exclusively to Exam Holidays
+   SCHOOL DIARY DESIGN SYSTEM — EXAM HOLIDAYS
 ========================================================= */
 
 .exam-holidays-page {
@@ -392,61 +434,119 @@
     text-decoration: none;
 }
 
-/* HEADER */
+/* =========================================================
+   HEADER — DARK GREEN & GOLD
+========================================================= */
 
 .eh-page-header {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 24px;
+    flex-wrap: wrap;
+    gap: 22px;
+
+    min-height: 190px;
     margin-bottom: 25px;
+    padding: 25px 27px;
+
+    border: 1px solid rgba(196, 154, 69, .38);
+    border-left: 4px solid #c49a45;
+    border-radius: 15px;
+
+    background: linear-gradient(
+        135deg,
+        #142f25 0%,
+        #1e4535 55%,
+        #285640 100%
+    );
+
+    box-shadow: 0 10px 25px rgba(20, 47, 37, .14);
+}
+
+.eh-page-header::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -125px;
+    right: -55px;
+
+    width: 310px;
+    height: 310px;
+
+    border: 1px solid rgba(226, 196, 127, .25);
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 28px rgba(255, 255, 255, .025),
+        0 0 0 58px rgba(255, 255, 255, .02),
+        0 0 0 88px rgba(255, 255, 255, .015);
+
+    pointer-events: none;
 }
 
 .eh-header-copy {
+    position: relative;
+    z-index: 1;
     min-width: 0;
+    flex: 1;
 }
 
 .eh-eyebrow {
-    margin-bottom: 8px;
-    color: var(--eh-sage);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    color: #e2c47f;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .15em;
+    letter-spacing: .17em;
+}
+
+.eh-eyebrow i {
+    font-size: 13px;
 }
 
 .eh-title-row {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 13px;
 }
 
 .eh-page-title {
     margin: 0;
-    color: var(--eh-ink);
+    color: #fffefa;
     font-family: Georgia, serif;
-    font-size: clamp(26px, 3vw, 34px);
+    font-size: clamp(28px, 3vw, 36px);
     font-weight: 700;
-    letter-spacing: -.045em;
+    letter-spacing: -.04em;
     line-height: 1.2;
 }
 
 .eh-count-chip {
     display: inline-flex;
     align-items: center;
-    padding: 6px 11px;
-    border: 1px solid var(--eh-line);
+    padding: 7px 12px;
+
+    border: 1px solid rgba(226, 196, 127, .4);
     border-radius: 30px;
-    background: var(--eh-paper);
-    color: var(--eh-soft);
+
+    background: rgba(226, 196, 127, .13);
+    color: #f0dba9;
+
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 750;
     white-space: nowrap;
 }
 
 .eh-page-description {
-    margin: 9px 0 13px;
-    color: var(--eh-muted);
+    margin: 10px 0 14px;
+    color: rgba(255, 254, 250, .78);
     font-size: 13px;
     line-height: 1.7;
 }
@@ -455,49 +555,62 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 9px;
-    color: var(--eh-muted);
+    gap: 10px;
+    color: rgba(255, 254, 250, .68);
     font-size: 11px;
 }
 
 .eh-breadcrumb a {
-    color: var(--eh-sage);
-    font-weight: 700;
+    color: #e2c47f;
+    font-weight: 750;
 }
 
 .eh-breadcrumb a:hover {
-    color: var(--eh-dark);
+    color: #fffefa;
 }
 
 .eh-breadcrumb i {
+    color: rgba(226, 196, 127, .8);
     font-size: 9px;
 }
 
 .eh-header-actions {
+    position: relative;
+    z-index: 1;
+
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
+    align-items: center;
     gap: 9px;
     flex-shrink: 0;
-    padding-top: 17px;
 }
 
-/* BUTTONS */
+/* =========================================================
+   BUTTONS
+========================================================= */
 
 .exam-holidays-page .eh-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
+
     min-height: 42px;
     padding: 10px 16px;
+
     border: 1px solid transparent;
     border-radius: 8px;
+
     font-size: 12px;
     font-weight: 700;
     line-height: 1.3;
-    transition: background .18s ease, border-color .18s ease,
-                color .18s ease, transform .18s ease;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease;
 }
 
 .exam-holidays-page .eh-btn:hover {
@@ -528,7 +641,36 @@
     color: var(--eh-dark);
 }
 
-/* SUMMARY */
+/* Header-specific buttons */
+
+.exam-holidays-page .eh-page-header .eh-btn-secondary {
+    border-color: rgba(255, 255, 255, .32);
+    background: rgba(255, 255, 255, .09);
+    color: #fffefa;
+}
+
+.exam-holidays-page .eh-page-header .eh-btn-secondary:hover {
+    border-color: #fffefa;
+    background: #fffefa;
+    color: #20392d;
+}
+
+.exam-holidays-page .eh-page-header .eh-btn-primary {
+    border-color: #c49a45;
+    background: #c49a45;
+    color: #1d302b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+}
+
+.exam-holidays-page .eh-page-header .eh-btn-primary:hover {
+    border-color: #dfbd72;
+    background: #dfbd72;
+    color: #172c22;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
 
 .eh-summary-grid {
     display: grid;
@@ -545,12 +687,17 @@
     min-width: 0;
     padding: 20px;
     overflow: hidden;
+
     border: 1px solid var(--eh-line);
     border-radius: 12px;
     background: var(--eh-paper);
+
     box-shadow: 0 3px 10px rgb(38 59 53 / 3%);
-    transition: border-color .2s ease, box-shadow .2s ease,
-                transform .2s ease;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
 }
 
 .eh-summary-card::before {
@@ -584,6 +731,7 @@
     width: 43px;
     height: 43px;
     flex: 0 0 43px;
+
     border: 1px solid #dce7df;
     border-radius: 10px;
     background: #edf3ed;
@@ -635,7 +783,9 @@
     color: var(--eh-muted);
 }
 
-/* ALERTS */
+/* =========================================================
+   ALERTS
+========================================================= */
 
 .eh-alert {
     position: relative;
@@ -644,6 +794,7 @@
     gap: 13px;
     margin-bottom: 18px;
     padding: 16px;
+
     border: 1px solid var(--eh-line);
     border-radius: 10px;
     background: var(--eh-paper);
@@ -666,6 +817,7 @@
     width: 37px;
     height: 37px;
     flex: 0 0 37px;
+
     border: 1px solid #d4e4d7;
     border-radius: 9px;
     background: #e7f0e5;
@@ -714,6 +866,7 @@
     width: 28px;
     height: 28px;
     flex-shrink: 0;
+
     border: 1px solid transparent;
     border-radius: 6px;
     background: transparent;
@@ -727,7 +880,9 @@
     color: var(--eh-ink);
 }
 
-/* INFORMATION NOTICE */
+/* =========================================================
+   INFORMATION NOTICE
+========================================================= */
 
 .eh-notice {
     display: flex;
@@ -735,6 +890,7 @@
     gap: 13px;
     margin-bottom: 22px;
     padding: 16px 18px;
+
     border: 1px solid #dce5dc;
     border-radius: 10px;
     background: #f1f5ee;
@@ -747,6 +903,7 @@
     width: 35px;
     height: 35px;
     flex: 0 0 35px;
+
     border: 1px solid #dce5dc;
     border-radius: 9px;
     background: var(--eh-paper);
@@ -772,7 +929,9 @@
     line-height: 1.7;
 }
 
-/* MAIN PANEL */
+/* =========================================================
+   MAIN PANEL
+========================================================= */
 
 .eh-panel {
     overflow: hidden;
@@ -788,6 +947,7 @@
     justify-content: space-between;
     gap: 18px;
     padding: 20px 22px;
+
     border-bottom: 1px solid var(--eh-line);
     background: var(--eh-paper);
 }
@@ -806,6 +966,7 @@
     width: 42px;
     height: 42px;
     flex: 0 0 42px;
+
     border: 1px solid #dce7df;
     border-radius: 10px;
     background: #edf3ed;
@@ -835,6 +996,7 @@
     gap: 10px;
     flex-shrink: 0;
     padding: 7px 10px;
+
     border: 1px solid var(--eh-line);
     border-radius: 8px;
     background: var(--eh-chalk);
@@ -853,6 +1015,7 @@
     min-width: 25px;
     height: 25px;
     padding: 0 7px;
+
     border-radius: 6px;
     background: var(--eh-ink);
     color: var(--eh-paper);
@@ -864,7 +1027,9 @@
     min-width: 0;
 }
 
-/* TABLE */
+/* =========================================================
+   TABLE
+========================================================= */
 
 .eh-table-wrap {
     width: 100%;
@@ -927,6 +1092,7 @@
     justify-content: center;
     width: 29px;
     height: 29px;
+
     border: 1px solid var(--eh-line);
     border-radius: 7px;
     background: var(--eh-chalk);
@@ -949,6 +1115,7 @@
     width: 38px;
     height: 38px;
     flex: 0 0 38px;
+
     border: 1px solid #eee0cf;
     border-radius: 9px;
     background: #f7efe4;
@@ -979,6 +1146,7 @@
     align-items: center;
     gap: 6px;
     padding: 7px 9px;
+
     border: 1px solid var(--eh-line);
     border-radius: 7px;
     background: var(--eh-chalk);
@@ -994,6 +1162,7 @@
     gap: 8px;
     min-width: 100px;
     max-width: 280px;
+
     color: var(--eh-text);
     font-size: 12px;
     line-height: 1.65;
@@ -1011,15 +1180,19 @@
     font-size: 12px;
 }
 
-/* STATUS */
+/* =========================================================
+   STATUS
+========================================================= */
 
 .eh-status {
     display: inline-flex;
     align-items: center;
     gap: 7px;
     padding: 7px 10px;
+
     border: 1px solid;
     border-radius: 20px;
+
     font-size: 10px;
     font-weight: 750;
     white-space: nowrap;
@@ -1045,7 +1218,9 @@
     color: var(--eh-muted);
 }
 
-/* ACTIONS */
+/* =========================================================
+   ACTIONS
+========================================================= */
 
 .eh-actions {
     display: flex;
@@ -1065,17 +1240,22 @@
     gap: 6px;
     min-height: 33px;
     padding: 6px 9px;
+
     border: 1px solid var(--eh-line);
     border-radius: 7px;
     background: var(--eh-paper);
+
     font-family: inherit;
     font-size: 10px;
     font-weight: 750;
     line-height: 1.3;
     white-space: nowrap;
     cursor: pointer;
-    transition: background .16s ease, border-color .16s ease,
-                color .16s ease;
+
+    transition:
+        background .16s ease,
+        border-color .16s ease,
+        color .16s ease;
 }
 
 .exam-holidays-page .eh-edit-btn {
@@ -1100,7 +1280,9 @@
     color: #923f37;
 }
 
-/* TABLE FOOTER */
+/* =========================================================
+   TABLE FOOTER
+========================================================= */
 
 .eh-table-footer {
     display: flex;
@@ -1109,6 +1291,7 @@
     flex-wrap: wrap;
     gap: 10px;
     padding: 13px 18px;
+
     border-top: 1px solid var(--eh-line);
     background: #faf9f3;
     color: var(--eh-muted);
@@ -1129,7 +1312,9 @@
     color: var(--eh-sage);
 }
 
-/* EMPTY STATE */
+/* =========================================================
+   EMPTY STATE
+========================================================= */
 
 .eh-empty-state {
     display: flex;
@@ -1148,6 +1333,7 @@
     width: 78px;
     height: 78px;
     margin-bottom: 19px;
+
     border: 1px solid var(--eh-line);
     border-radius: 50%;
     background: var(--eh-chalk);
@@ -1179,7 +1365,9 @@
     line-height: 1.85;
 }
 
-/* PAGE FOOTER */
+/* =========================================================
+   PAGE FOOTER
+========================================================= */
 
 .eh-page-footer {
     display: flex;
@@ -1198,7 +1386,9 @@
     font-weight: 750;
 }
 
-/* ACCESSIBILITY */
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
 
 .exam-holidays-page a:focus-visible,
 .exam-holidays-page button:focus-visible {
@@ -1206,15 +1396,21 @@
     outline-offset: 3px;
 }
 
-/* RESPONSIVE */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 767.98px) {
+
     .exam-holidays-page {
         padding: 20px;
     }
 
     .eh-page-header {
+        align-items: flex-start;
         flex-direction: column;
+        min-height: auto;
+        gap: 20px;
     }
 
     .eh-header-actions {
@@ -1228,13 +1424,21 @@
 }
 
 @media (max-width: 767.98px) {
+
     .exam-holidays-page {
         padding: 14px;
     }
 
     .eh-page-header {
+        padding: 21px 18px;
         gap: 17px;
         margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .eh-page-header::after {
+        top: -100px;
+        right: -150px;
     }
 
     .eh-title-row {
@@ -1261,6 +1465,10 @@
         min-height: 41px;
         padding: 9px 10px;
         font-size: 11px;
+    }
+
+    .eh-header-actions .eh-btn {
+        width: 100%;
     }
 
     .eh-summary-grid {
@@ -1328,9 +1536,14 @@
     }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 767.98px) {
+
     .exam-holidays-page {
         padding: 10px;
+    }
+
+    .eh-page-header {
+        padding: 18px 14px;
     }
 
     .eh-page-title {
@@ -1347,7 +1560,12 @@
     }
 }
 
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
+
     .exam-holidays-page *,
     .exam-holidays-page *::before,
     .exam-holidays-page *::after {
@@ -1362,8 +1580,11 @@
 {{-- DELETE CONFIRMATION --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     document.querySelectorAll('.eh-delete-form').forEach(function (form) {
+
         form.addEventListener('submit', function (event) {
+
             const confirmed = window.confirm(
                 'Are you sure you want to delete this holiday?'
             );
@@ -1371,8 +1592,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!confirmed) {
                 event.preventDefault();
             }
+
         });
+
     });
+
 });
 </script>
 

@@ -47,6 +47,9 @@ class ExamSubjectController extends Controller
      */
     public function store(Request $request, Exam $exam)
     {
+
+   
+
         $validated = $request->validate([
             'subjects' => [
                 'required',
@@ -100,8 +103,9 @@ class ExamSubjectController extends Controller
         */
 
         $selectedClassIds = $exam->examClasses()
-            ->pluck('class_id')
-            ->toArray();
+    ->pluck('class_id')
+    ->map(fn ($id) => (int) $id)
+    ->toArray();
 
         if (empty($selectedClassIds)) {
             return back()
