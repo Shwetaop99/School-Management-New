@@ -22,6 +22,24 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Local recovery and temporary files
+*.bak
+*.backup
+*.disabled
+*.patch
+*.zip
+*.merge-backup
+*.before-*
+*-BACKUP-*/
+*-BACKUP-*.php
+composer-*-BACKUP-*
+composer.lock.broken-backup
+composer.lock.conflicted
+hboard
+tatus --short
+backup/
+*BACKUP*
+*.backup*
 
 # Local SQLite database
 /laravel
