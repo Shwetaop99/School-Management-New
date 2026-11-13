@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Print School Report</title>
+
+    <style>
+
+        .report-header {
+    margin-bottom: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f8fafc;
+    text-align: center;
+}
+
+.header-accent {
+    height: 6px;
+    background: #1e3a5f;
+}
+
+.header-content {
+    padding: 20px 25px 17px;
+}
+
+.header-brand {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.report-header h1 {
+    color: #172b4d;
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.header-subtitle {
+    color: #64748b;
+    font-size: 13px;
+    margin: 5px 0 15px;
+}
+
+.report-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    color: #475569;
+    font-size: 11px;
+}
+
+.meta-divider {
+    height: 14px;
+    border-left: 1px solid #cbd5e1;
+}
+
+@media print {
+    .report-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #263238;
+            margin: 25px;
+            font-size: 12px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #667085;
+        }
+
+        .actions {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .print-button {
+            padding: 9px 18px;
+            border: 0;
+            border-radius: 5px;
+            background: #183c32;
+            color: white;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #dce2df;
+            padding: 9px;
+            text-align: left;
+        }
+
+        th {
+            background: #edf5ef;
+        }
+
+        .footer {
+            margin-top: 20px;
+            color: #667085;
+            text-align: right;
+        }
+
+        @media print {
+            body {
+                margin: 10px;
+            }
+
+            .actions {
+                display: none;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+
+            @page {
+                size: landscape;
+                margin: 12mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="actions">
+        <button class="print-button" onclick="window.print()">
+            Print Report
+        </button>
+    </div>
+
+    <div class="report-header">
+    <div class="header-accent"></div>
+
+    <div class="header-content">
+        <div class="header-brand">
+            SCHOOL MANAGEMENT PLATFORM
+        </div>
+
+        <h1>School Reports</h1>
+        <p class="header-subtitle">Super Admin Report</p>
+
+        <div class="report-meta">
+            <span>
+                <strong>Generated on:</strong>
+                {{ now()->format('d M Y, h:i A') }}
+            </span>
+
+            <span class="meta-divider"></span>
+
+            <span>
+                <strong>Total Schools:</strong>
+                {{ $schools->count() }}
+            </span>
+        </div>
+    </div>
+</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>School Name</th>
+                <th>Code</th>
+                <th>City</th>
+                <th>Type</th>
+                <th>Total Users</th>
+                <th>Active Users</th>
+                <th>Inactive Users</th>
+                <th>Status</th>
+                <th>Registered</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @forelse($schools as $school)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $school->name ?? 'N/A' }}</td>
+                    <td>{{ $school->school_code ?? 'N/A' }}</td>
+                    <td>{{ $school->city ?? 'N/A' }}</td>
+                    <td>{{ $school->school_type ?? 'N/A' }}</td>
+                    <td>{{ $school->total_users ?? 0 }}</td>
+                    <td>{{ $school->active_users ?? 0 }}</td>
+                    <td>{{ $school->inactive_users ?? 0 }}</td>
+                    <td>{{ ucfirst($school->status ?? 'Unknown') }}</td>
+                    <td>{{ $school->created_at?->format('d M Y') ?? 'N/A' }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="10" style="text-align:center;">
+                        No school records found.
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Generated by the Super Admin panel.
+    </div>
+
+</body>
+</html>
