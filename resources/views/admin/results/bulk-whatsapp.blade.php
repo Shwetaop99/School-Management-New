@@ -955,10 +955,7 @@
         display: flex;
 
         align-items: center;
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/main
         justify-content: center;
 
         font-weight: 700;

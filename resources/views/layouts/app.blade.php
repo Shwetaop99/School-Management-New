@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en">
 
@@ -396,7 +396,6 @@
 
     $menu = [
 
-<<<<<<< HEAD
     'Main' => [
 
         [
@@ -405,26 +404,9 @@
             'a' => ['admin.dashboard'],
             'r' => 'admin.dashboard',
             'p' => ['dashboard.view'],
-=======
 
 
-        'Main' => [
-
-
-
-            [
-
-                'l' => 'Dashboard',
-
-                'i' => 'fa-gauge-high',
-
-                'a' => ['admin.dashboard'],
-
-                'r' => 'admin.dashboard',
-
-                'p' => ['dashboard.view'],
-
-            ],
+        
 
 
 
@@ -665,7 +647,6 @@
 
             ],
 
->>>>>>> school-module-updates
         ],
 
         [

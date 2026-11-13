@@ -288,7 +288,7 @@
             </a>
 
             {{-- 10. TRANSPORT --}}
-            <a href="{{ route('admin.reports.transport') }}" class="report-card">
+            <a href="{{ route('admin.reports.transport.index') }}" class="report-card">
 
                 <div class="report-icon transport-icon">
                     <i class="fas fa-bus"></i>
@@ -1633,4 +1633,3 @@
 
 @endsection
 
-@endsection
