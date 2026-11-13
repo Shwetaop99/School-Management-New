@@ -20,14 +20,20 @@ class FeeStructure extends Model
     ];
 
     public function schoolClass()
-    {
-        return $this->belongsTo(SchoolClass::class, 'class_id');
-    }
+{
+    return $this->belongsTo(
+        \App\Models\Class\SchoolClass::class,
+        'class_id'
+    );
+}
 
     public function section()
-    {
-        return $this->belongsTo(Section::class, 'section_id');
-    }
+{
+    return $this->belongsTo(
+        \App\Models\Class\SchoolClass::class,
+        'section_id'
+    );
+}
 
     public function items()
     {
