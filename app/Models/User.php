@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
     use HasFactory, Notifiable, LogsActivity;
 
     /**
@@ -39,10 +39,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    
-
     /**
-     * Casts.
+     * Attribute casts.
      */
     protected function casts(): array
     {
@@ -77,29 +75,32 @@ class User extends Authenticatable
     }
 
     /**
-     * Check school-level permission.
+     * Check a school-level permission or defer to Laravel's Gate abilities.
      */
-    public function can($ability, $arguments = []): bool
-        {
+    public function can($abilities, $arguments = []): bool
+    {
+        if (is_string($abilities) && $this->hasPermission($abilities)) {
+            return true;
+        }
+
+        return parent::can($abilities, $arguments);
     }
 
-   
-
-    
     /**
      * Check school-level permission.
      */
-   public function hasPermission($permission): bool
-{
-    if (!$this->role) {
-        return false;
+    public function hasPermission($permission): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        return $this->role
+            ->permissions()
+            ->where('name', $permission)
+            ->exists();
     }
 
-    return $this->role
-        ->permissions()
-        ->where('name', $permission)
-        ->exists();
-}
     /**
      * Check school-level role.
      */
@@ -151,12 +152,15 @@ class User extends Authenticatable
             ->where('name', $permission)
             ->exists();
     }
-   
+
+    /**
+     * Configure activity logging.
+     */
     public function getActivitylogOptions(): LogOptions
-{
-    return LogOptions::defaults()
-        ->logOnly(['name', 'login_id', 'email', 'status', 'role_id'])
-        ->logOnlyDirty()
-        ->dontSubmitEmptyLogs();
-}
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'login_id', 'email', 'status', 'role_id'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 }

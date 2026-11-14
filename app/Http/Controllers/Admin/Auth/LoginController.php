@@ -12,11 +12,9 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class LoginController extends Controller
 {
-    // Five failed attempts for one email from one IP, then wait 15 minutes.
     private const MAX_ATTEMPTS = 5;
     private const LOCK_SECONDS = 900;
-
-    private const WRONG_LOGIN = 'Invalid email or password.';
+    private const WRONG_LOGIN = 'Invalid Login ID/email or password.';
 
     /**
      * Show the school admin login page.
@@ -27,44 +25,47 @@ class LoginController extends Controller
     }
 
     /**
-     * Authenticate a school admin using their email and password.
+     * Authenticate using either login ID or email.
      */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email', 'max:255'],
+            'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'max:255'],
         ]);
 
-        $email = mb_strtolower(trim($credentials['email']));
+        $login = trim($credentials['login']);
+        $normalizedLogin = mb_strtolower($login);
         $ip = $request->ip();
-        $key = 'login:' . sha1($email . '|' . $ip);
+        $key = 'login:' . sha1($normalizedLogin . '|' . $ip);
 
-        // Stop requests while this email/IP combination is rate limited.
         if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
             $minutes = (int) ceil(RateLimiter::availableIn($key) / 60);
 
-            Log::warning('Login blocked (too many attempts)', [
+            Log::warning('School admin login blocked (too many attempts)', [
                 'ip' => $ip,
             ]);
 
             return back()
                 ->withErrors([
-                    'email' => "Too many login attempts. Please try again in {$minutes} minute(s).",
+                    'login' => "Too many login attempts. Please try again in {$minutes} minute(s).",
                 ])
-                ->withInput($request->only('email'));
+                ->withInput($request->only('login'));
         }
 
-        // Look up the account by the email submitted by the login form.
+        // The form accepts either the user's login ID or email address.
         $user = User::with('role')
-            ->where('email', $email)
+            ->where(function ($query) use ($login, $normalizedLogin) {
+                $query->where('login_id', $login)
+                    ->orWhereRaw('LOWER(email) = ?', [$normalizedLogin]);
+            })
             ->first();
 
-        // Perform a password-hash operation even when the account does not exist.
+        // Do a password-hash operation even if no account matched, reducing
+        // timing differences between an unknown login and an incorrect password.
         if ($user) {
             $passwordOk = Hash::check($credentials['password'], $user->password);
         } else {
-            // Do a hash operation to reduce account-enumeration timing differences.
             Hash::make($credentials['password']);
             $passwordOk = false;
         }
@@ -74,62 +75,58 @@ class LoginController extends Controller
 
             Log::warning('Failed school admin login', [
                 'ip' => $ip,
-                'email' => mb_substr($email, 0, 100),
+                'login' => mb_substr($login, 0, 100),
             ]);
 
             return back()
-                ->withErrors(['email' => self::WRONG_LOGIN])
-                ->withInput($request->only('email'));
+                ->withErrors(['login' => self::WRONG_LOGIN])
+                ->withInput($request->only('login'));
         }
 
-        // Check account and role status only after validating the password.
         if ($user->status !== 'Active') {
             return back()
                 ->withErrors([
-                    'email' => 'This account is inactive. Please contact the administrator.',
+                    'login' => 'This account is inactive. Please contact the administrator.',
                 ])
-                ->withInput($request->only('email'));
+                ->withInput($request->only('login'));
         }
 
         if (!$user->role) {
             return back()
                 ->withErrors([
-                    'email' => 'No role has been assigned to this account. Please contact the administrator.',
+                    'login' => 'No role has been assigned to this account. Please contact the administrator.',
                 ])
-                ->withInput($request->only('email'));
+                ->withInput($request->only('login'));
         }
 
         if ($user->role->status !== 'Active') {
             return back()
                 ->withErrors([
-                    'email' => 'The role assigned to this account is inactive. Please contact the administrator.',
+                    'login' => 'The role assigned to this account is inactive. Please contact the administrator.',
                 ])
-                ->withInput($request->only('email'));
+                ->withInput($request->only('login'));
         }
 
-        // Super admins must use the separate super admin login page.
         if ($user->role->name === 'super_admin') {
             return back()
                 ->withErrors([
-                    'email' => 'Please use the Super Admin login page for this account.',
+                    'login' => 'Please use the Super Admin login page for this account.',
                 ])
-                ->withInput($request->only('email'));
+                ->withInput($request->only('login'));
         }
 
-        // Keep password hashes current when the configured hashing settings change.
         if (Hash::needsRehash($user->password)) {
             $user->forceFill([
                 'password' => Hash::make($credentials['password']),
             ])->save();
         }
 
-        // Password is valid: clear the failed-attempt counter and start the session.
         RateLimiter::clear($key);
 
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        // Require two-factor verification again for every new login.
+        // Require two-factor verification again for each new login.
         $request->session()->forget('two_factor_verified');
         $request->session()->put('user_role', $user->role->name);
 
@@ -148,7 +145,6 @@ class LoginController extends Controller
 
         $this->record('User logged in (password OK, waiting for 2FA)', $user, $ip);
 
-        // Continue the existing two-factor authentication flow.
         return redirect()->route('admin.2fa.setup');
     }
 
@@ -177,7 +173,6 @@ class LoginController extends Controller
         }
 
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

@@ -174,6 +174,9 @@ use App\Http\Controllers\Scholarship\ScholarshipExamController;
 // Sports
 use App\Http\Controllers\Sports\SportsController;
 
+use App\Http\Controllers\Admin\SupplyStockController;
+use App\Http\Controllers\PublicResultController;
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
@@ -197,7 +200,8 @@ Route::prefix('admin')
 
         Route::resource('marks', \App\Http\Controllers\Admin\MarkController::class);
 
-        Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+        Route::get('/login', [LoginController::class, 'showLogin'])
+        ->name('login');
 
         Route::post('/login', [LoginController::class, 'login'])
             ->middleware('throttle:3,1')
@@ -213,15 +217,6 @@ Route::prefix('admin')
 
             /* ---------------- LOGOUT ---------------- */
 
-        Route::get('/login', [
-    \App\Http\Controllers\Admin\Auth\LoginController::class,
-    'showLogin',
-])->name('login');
-
-Route::post('/login', [
-    \App\Http\Controllers\Admin\Auth\LoginController::class,
-    'login',
-])->name('login.submit');
     
             Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
