@@ -203,6 +203,10 @@ Route::prefix('admin')
         Route::get('/login', [LoginController::class, 'showLogin'])
         ->name('login');
 
+        Route::get('/login/branding', [LoginController::class, 'schoolBranding'])
+    ->middleware('throttle:30,1')
+    ->name('login.branding');
+
         Route::post('/login', [LoginController::class, 'login'])
             ->middleware('throttle:3,1')
             ->name('login.submit');

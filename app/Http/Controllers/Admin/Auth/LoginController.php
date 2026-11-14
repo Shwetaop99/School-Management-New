@@ -20,9 +20,46 @@ class LoginController extends Controller
      * Show the school admin login page.
      */
     public function showLogin()
-    {
-        return view('admin.auth.login');
+{
+    return view('admin.auth.login');
+}
+
+public function schoolBranding(Request $request)
+{
+    $login = trim($request->query('login', ''));
+
+    if ($login === '') {
+        return response()->json([
+            'found' => false,
+        ]);
     }
+
+    $user = User::with(['school', 'role'])
+        ->where(function ($query) use ($login) {
+            $query->where('login_id', $login)
+                ->orWhereRaw('LOWER(email) = ?', [mb_strtolower($login)]);
+        })
+        ->first();
+
+    if (
+        !$user ||
+        !$user->school ||
+        $user->role?->name === 'super_admin'
+    ) {
+        return response()->json([
+            'found' => false,
+        ]);
+    }
+
+    return response()->json([
+        'found' => true,
+        'school_name' => $user->school->name,
+        'logo_url' => $user->school->logo_path
+            ? \Illuminate\Support\Facades\Storage::disk('public')
+                ->url($user->school->logo_path)
+            : null,
+    ]);
+}
 
     /**
      * Authenticate using either login ID or email.
