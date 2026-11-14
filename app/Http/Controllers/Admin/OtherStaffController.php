@@ -602,4 +602,20 @@ $staff = $query
                 'Other staff member deleted successfully.'
             );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+public function bulkDestroy(Request $request)
+{
+    $request->validate([
+        'ids'   => 'required|array|min:1',
+        'ids.*' => 'integer|exists:teachers,id',   // ← change table name
+    ]);
+
+    $count = otherStaff::whereIn('id', $request->ids)->delete();  // ← change Model
+
+    return redirect()
+        ->route('admin.other-staff.index')                          // ← change route
+        ->with('success', $count . ' other staff member(s) deleted successfully.');
+}
 }

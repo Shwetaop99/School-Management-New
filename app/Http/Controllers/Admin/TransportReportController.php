@@ -411,4 +411,8 @@ class TransportReportController extends Controller
             'vehicle-report.xlsx'
         );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

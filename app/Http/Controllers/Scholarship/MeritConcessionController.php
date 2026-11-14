@@ -233,19 +233,21 @@ class MeritConcessionController extends Controller
         ]);
 
         $slabs = collect($validated['slabs'])
-            ->map(function ($slab) {
-                $slab['minimum_percentage'] = (float) $slab['minimum_percentage'];
-                $slab['maximum_percentage'] =
-                    ($slab['maximum_percentage'] ?? '') === ''
-                        ? null
-                        : (float) $slab['maximum_percentage'];
-                $slab['scholarship_percentage'] =
-                    (float) $slab['scholarship_percentage'];
+    ->map(function ($slab) {
+        $slab['minimum_percentage'] = (float) $slab['minimum_percentage'];
 
-                return $slab;
-            })
-            ->sortBy('minimum_percentage')
-            ->values();
+        $slab['maximum_percentage'] =
+            ($slab['maximum_percentage'] ?? '') === ''
+                ? null
+                : (float) $slab['maximum_percentage'];
+
+        $slab['scholarship_percentage'] =
+            (float) $slab['scholarship_percentage'];
+
+        return $slab;
+    })
+    ->sortBy('minimum_percentage')
+    ->values();
 
         $previousMaximum = null;
 
@@ -431,4 +433,5 @@ class MeritConcessionController extends Controller
                 'Scholarship record removed from view. Original result remains unchanged.'
             );
     }
+
 }

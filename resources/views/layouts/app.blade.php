@@ -823,6 +823,9 @@
     'merit-concessions.create',
     'merit-concessions.edit',
     'merit-concessions.delete',
+    'scholarship.view',
+    'scholarship.create',
+    'scholarship.edit',
 ],
         ],
 
@@ -865,6 +868,11 @@
     'library.returns.manage',
     'library.reports.export',
 ],
+                'library.view',
+                'library.create',
+                'library.edit',
+                'library.delete',
+            ],
         ],
     ],
 
@@ -907,6 +915,11 @@
     'transport.routes.view',
     'transport.vehicles.view',
 ],
+                'transport.view',
+                'transport.create',
+                'transport.edit',
+                'transport.delete',
+            ],
         ],
 
         [
@@ -943,6 +956,10 @@
     'meal.stock.edit',
     'meal.stock.delete',
 ],
+                'meals.view',
+                'meals.create',
+                'meals.edit',
+            ],
         ],
 
         [
@@ -965,6 +982,10 @@
     'sports.equipment.create',
     'sports.equipment.edit',
 ],
+                'sports.view',
+                'sports.create',
+                'sports.edit',
+            ],
         ],
 
         [

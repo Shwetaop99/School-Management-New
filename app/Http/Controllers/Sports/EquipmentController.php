@@ -156,4 +156,8 @@ class EquipmentController extends Controller
             ->route('admin.sports.equipment.index')
             ->with('success', 'Sports equipment deleted successfully.');
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

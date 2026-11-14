@@ -99,4 +99,8 @@ class SchoolClassController extends Controller
             ->route('admin.classes.index')
             ->with('success', 'Class deleted successfully.');
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

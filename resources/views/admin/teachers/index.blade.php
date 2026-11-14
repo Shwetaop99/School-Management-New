@@ -17,7 +17,8 @@
         border-radius: 10px;
     }
 
-    /* ── Hero ─────────────────────────────────────────── */
+    /* ================= HERO ================= */
+
     .teachers-hero {
         display: grid;
         grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
@@ -62,16 +63,50 @@
         align-items: center;
     }
 
-    /* ── Functional buttons ───────────────────────────── */
+    .teachers-hero-right {
+        background: var(--ink);
+        color: #e9efe2;
+        padding: 26px 28px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        background-image: radial-gradient(ellipse at 20% 0, rgba(255, 255, 255, .09), transparent 60%);
+    }
+
+    .teachers-hero-right .label {
+        font-family: var(--hand);
+        font-size: 22px;
+        color: var(--chalk);
+        line-height: 1;
+    }
+
+    .teachers-hero-right .value {
+        font-family: var(--serif);
+        font-size: 26px;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.15;
+    }
+
+    .teachers-hero-right .sub {
+        font-size: 13px;
+        color: #c5d0bd;
+    }
+
+    /* ================= BUTTONS ================= */
+
     .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
-        padding: 8px 12px;
+        height: 36px;
+        padding: 0 14px;
         border-radius: 8px;
         font-size: 12.5px;
         font-weight: 600;
+        line-height: 1;
         text-decoration: none;
         white-space: nowrap;
         transition: all .15s ease;
@@ -81,9 +116,7 @@
         flex-shrink: 0;
     }
 
-    .btn i {
-        font-size: 13px;
-    }
+    .btn i { font-size: 13px; }
 
     .btn-add {
         background: var(--ink);
@@ -139,44 +172,45 @@
         border-color: #1f4669;
         color: #fff;
     }
-
     .btn-import:disabled {
         opacity: .7;
         cursor: not-allowed;
     }
 
-    .teachers-hero-right {
-        background: var(--ink);
-        color: #e9efe2;
-        padding: 26px 28px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 8px;
-        background-image: radial-gradient(ellipse at 20% 0, rgba(255, 255, 255, .09), transparent 60%);
+    .btn-bulk {
+        background: #fff;
+        color: #e4572e;
+        border: 1px solid #e4572e;
     }
-
-    .teachers-hero-right .label {
-        font-family: var(--hand);
-        font-size: 22px;
-        color: var(--chalk);
-        line-height: 1;
-    }
-
-    .teachers-hero-right .value {
-        font-family: var(--serif);
-        font-size: 26px;
-        font-weight: 700;
+    .btn-bulk:hover {
+        background: #e4572e;
         color: #fff;
-        line-height: 1.15;
     }
 
-    .teachers-hero-right .sub {
-        font-size: 13px;
-        color: #c5d0bd;
+    .btn-cancel {
+        background: #fff;
+        color: var(--ink);
+        border: 1px solid #cfc8b6;
+    }
+    .btn-cancel:hover {
+        background: #f8f6f0;
     }
 
-    /* ── KPI cards ────────────────────────────────────── */
+    .btn-delete-selected {
+        background: #e4572e;
+        color: #fff;
+        border-color: #e4572e;
+    }
+    .btn-delete-selected:hover:not(:disabled) {
+        background: #c93f1a;
+    }
+    .btn-delete-selected:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+    /* ================= KPI ================= */
+
     .kpi-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -251,7 +285,8 @@
     .c-amber { --c: #d58a0b; }
     .c-red   { --c: #e4572e; }
 
-    /* ── Alerts ───────────────────────────────────────── */
+    /* ================= ALERTS ================= */
+
     .success-msg,
     .error-msg,
     .import-errors {
@@ -280,12 +315,8 @@
         padding-left: 20px;
     }
 
-    .import-errors li {
-        margin: 4px 0;
-        overflow-wrap: anywhere;
-    }
+    /* ================= PANEL ================= */
 
-    /* ── Panel ────────────────────────────────────────── */
     .panel {
         overflow: hidden;
         margin-bottom: 22px;
@@ -298,14 +329,10 @@
         gap: 16px;
         padding: 14px 20px;
         border-bottom: 1px dashed #d8d1bf;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
     }
 
-    .panel-head-left {
-        flex-shrink: 0;
-    }
-
-    .panel-head h3 {
+    .panel-head-left h3 {
         font-family: var(--serif);
         font-size: 17px;
         font-weight: 700;
@@ -313,29 +340,18 @@
         margin: 0;
     }
 
-    .panel-head span {
+    .panel-head-left span {
         font-size: 12.5px;
         color: var(--muted);
     }
 
-    /* ── Single-line toolbar ──────────────────────────── */
     .panel-toolbar {
         display: flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 8px;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        padding-bottom: 2px;
-        scrollbar-width: thin;
-    }
-
-    .panel-toolbar::-webkit-scrollbar {
-        height: 4px;
-    }
-
-    .panel-toolbar::-webkit-scrollbar-thumb {
-        background: #cfc8b6;
-        border-radius: 4px;
+        flex-wrap: wrap;
+        flex: 1 1 auto;
     }
 
     .search-box {
@@ -347,15 +363,12 @@
         border: 1px solid #cfc8b6;
         border-radius: 8px;
         background: #fff;
+        flex: 1 1 220px;
         min-width: 200px;
-        max-width: 240px;
-        flex-shrink: 0;
+        max-width: 280px;
     }
 
-    .search-box i {
-        color: var(--muted);
-        font-size: 14px;
-    }
+    .search-box i { color: var(--muted); font-size: 14px; }
 
     .search-box input {
         border: none;
@@ -366,17 +379,58 @@
         width: 100%;
     }
 
-    /* Hidden file input – only Import button is visible */
-    .import-form {
-        margin: 0;
-        flex-shrink: 0;
-    }
+    .import-form { margin: 0; }
+    .import-form input[type="file"] { display: none; }
 
-    .import-form input[type="file"] {
+    /* ================= DELETE MODE BAR ================= */
+
+    .delete-mode-bar {
         display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 20px;
+        background: #fff8f5;
+        border-bottom: 1px solid #f0c6bc;
+        flex-wrap: wrap;
     }
 
-    /* ── Table ────────────────────────────────────────── */
+    .delete-mode-bar.active {
+        display: flex;
+    }
+
+    .delete-mode-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        font-weight: 600;
+        color: #a83b27;
+    }
+
+    .delete-mode-left .mode-badge {
+        background: #e4572e;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .selected-count {
+        font-weight: 700;
+        color: #e4572e;
+    }
+
+    .delete-mode-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ================= TABLE ================= */
+
     .table-wrap {
         width: 100%;
         overflow-x: auto;
@@ -413,8 +467,34 @@
         background: #fffdf6;
     }
 
+    .teachers-table tbody tr.selected td {
+        background: #fff8f5;
+    }
+
     .teachers-table tbody tr:last-child td {
         border-bottom: none;
+    }
+
+    /* Checkbox column - hidden until delete mode */
+    .th-check,
+    .td-check {
+        width: 48px;
+        text-align: center !important;
+        padding-left: 12px !important;
+        padding-right: 8px !important;
+        display: none;
+    }
+
+    .delete-mode .th-check,
+    .delete-mode .td-check {
+        display: table-cell;
+    }
+
+    .teachers-table input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: #e4572e;
     }
 
     .teacher-profile {
@@ -431,9 +511,7 @@
         flex-shrink: 0;
     }
 
-    .teacher-avatar {
-        object-fit: cover;
-    }
+    .teacher-avatar { object-fit: cover; }
 
     .teacher-avatar-ph {
         display: flex;
@@ -448,7 +526,7 @@
     .teacher-name {
         font-weight: 700;
         color: var(--ink);
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .teacher-gender {
@@ -463,7 +541,7 @@
         display: inline-flex;
         padding: 4px 9px;
         border-radius: 6px;
-        font-size: 9px;
+        font-size: 11px;
         font-weight: 700;
     }
 
@@ -475,7 +553,6 @@
     .subject-badge {
         background: color-mix(in srgb, #7a4fb5 10%, #fff);
         color: #7a4fb5;
-        font-weight: 600;
     }
 
     .status-badge {
@@ -504,7 +581,7 @@
         border-radius: 50%;
     }
 
-    .status-badge.active .status-dot  { background: #3a9d6b; }
+    .status-badge.active .status-dot   { background: #3a9d6b; }
     .status-badge.inactive .status-dot { background: #e4572e; }
 
     .actions-cell {
@@ -513,9 +590,7 @@
         gap: 7px;
     }
 
-    .actions-cell form {
-        margin: 0;
-    }
+    .actions-cell form { margin: 0; }
 
     .action-btn {
         width: 34px;
@@ -559,7 +634,12 @@
         color: #fff;
     }
 
-    /* ── Empty state ──────────────────────────────────── */
+    .delete-mode .action-delete {
+        display: none;
+    }
+
+    /* ================= EMPTY ================= */
+
     .empty {
         padding: 55px 20px;
         text-align: center;
@@ -586,7 +666,8 @@
         font-size: 13px;
     }
 
-    /* ── Pagination ───────────────────────────────────── */
+    /* ================= PAGINATION ================= */
+
     .pagination-bar {
         display: flex;
         align-items: center;
@@ -602,61 +683,60 @@
         color: var(--muted);
     }
 
-    /* ── Responsive ───────────────────────────────────── */
-    @media (max-width: 1100px) {
-        .kpi-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+    /* ================= RESPONSIVE ================= */
 
-    @media (max-width: 900px) {
-        .teachers-hero {
-            grid-template-columns: 1fr;
-        }
-        .teachers-hero-left {
-            padding: 22px 20px 22px 44px;
-        }
-        .teachers-hero::before {
-            left: 24px;
-        }
+    @media (max-width: 1100px) {
+        .kpi-grid { grid-template-columns: 1fr; }
 
         .panel-head {
             flex-direction: column;
             align-items: flex-start;
-            gap: 12px;
         }
 
         .panel-toolbar {
             width: 100%;
+            justify-content: flex-start;
         }
+
+        .search-box { max-width: none; }
     }
 
-    @media (max-width: 650px) {
-        .teachers-hero-left h1 {
-            font-size: 23px;
-        }
+    @media (max-width: 900px) {
+        .teachers-hero { grid-template-columns: 1fr; }
+        .teachers-hero-left { padding: 22px 20px 22px 44px; }
+        .teachers-hero::before { left: 24px; }
+    }
+
+    @media (max-width: 640px) {
+        .panel-toolbar { flex-direction: column; align-items: stretch; }
+        .panel-toolbar .btn,
+        .panel-toolbar .import-form,
+        .panel-toolbar .import-form .btn { width: 100%; }
+        .delete-mode-actions { width: 100%; }
+        .delete-mode-actions .btn { flex: 1; }
     }
 </style>
 
 <div class="teachers-page">
 
-    {{-- Flash messages --}}
+    {{-- ================= FLASH MESSAGES ================= --}}
+
     @if(session('success'))
-        <div class="success-msg" role="status">
+        <div class="success-msg" id="successMsg">
             <i class="bi bi-check-circle-fill me-1"></i>
             {{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div class="error-msg" role="alert">
+        <div class="error-msg">
             <i class="bi bi-exclamation-triangle-fill me-1"></i>
             {{ session('error') }}
         </div>
     @endif
 
     @if(session('import_errors') && count(session('import_errors')) > 0)
-        <div class="import-errors" role="alert">
+        <div class="import-errors">
             <strong>Some Excel rows need correction:</strong>
             <ul>
                 @foreach(session('import_errors') as $message)
@@ -667,7 +747,7 @@
     @endif
 
     @if($errors->any())
-        <div class="import-errors" role="alert">
+        <div class="import-errors">
             <strong>Please correct the following:</strong>
             <ul>
                 @foreach($errors->all() as $message)
@@ -677,7 +757,8 @@
         </div>
     @endif
 
-    {{-- Hero – only Add Teacher --}}
+    {{-- ================= HERO ================= --}}
+
     <section class="paper teachers-hero">
         <div class="teachers-hero-left">
             <h1>All Teachers</h1>
@@ -693,20 +774,19 @@
         <div class="teachers-hero-right">
             <div class="label">Faculty</div>
             <div class="value">
-                {{ number_format($totalTeachers ?? $teachers->count()) }} Teachers
+                {{ number_format($totalTeachers ?? $teachers->total()) }} Teachers
             </div>
             <div class="sub">Registered in the school</div>
         </div>
     </section>
 
-    {{-- KPI cards --}}
+    {{-- ================= KPI ================= --}}
+
     <div class="kpi-grid">
         <div class="paper kpi c-blue">
             <span class="kpi-tab">Total</span>
             <div class="kpi-top">
-                <div class="kpi-value">
-                    {{ number_format($totalTeachers ?? $teachers->count()) }}
-                </div>
+                <div class="kpi-value">{{ number_format($totalTeachers ?? $teachers->total()) }}</div>
                 <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
             </div>
             <div class="kpi-label">Total teachers</div>
@@ -715,9 +795,7 @@
         <div class="paper kpi c-amber">
             <span class="kpi-tab">Active</span>
             <div class="kpi-top">
-                <div class="kpi-value">
-                    {{ number_format($activeTeachers ?? $teachers->where('status', 'Active')->count()) }}
-                </div>
+                <div class="kpi-value">{{ number_format($activeTeachers ?? 0) }}</div>
                 <div class="kpi-icon"><i class="bi bi-person-check-fill"></i></div>
             </div>
             <div class="kpi-label">Active teachers</div>
@@ -726,33 +804,33 @@
         <div class="paper kpi c-red">
             <span class="kpi-tab">Inactive</span>
             <div class="kpi-top">
-                <div class="kpi-value">
-                    {{ number_format($inactiveTeachers ?? $teachers->where('status', 'Inactive')->count()) }}
-                </div>
+                <div class="kpi-value">{{ number_format($inactiveTeachers ?? 0) }}</div>
                 <div class="kpi-icon"><i class="bi bi-person-x-fill"></i></div>
             </div>
             <div class="kpi-label">Inactive teachers</div>
         </div>
     </div>
 
-    {{-- Teachers list --}}
-    <section class="paper panel">
+    {{-- ================= TEACHER LIST ================= --}}
+
+    <section class="paper panel" id="teachersPanel">
+
         <div class="panel-head">
             <div class="panel-head-left">
                 <h3>Teacher List</h3>
                 <span>All registered teachers in the school</span>
             </div>
 
-            {{-- Search + all buttons on ONE line --}}
             <div class="panel-toolbar">
+
                 <div class="search-box">
                     <i class="bi bi-search"></i>
-                    <input type="text"
-                           id="teacherSearch"
-                           placeholder="Search name, ID, email..."
-                           autocomplete="off"
-                           aria-label="Search teachers">
+                    <input type="text" id="teacherSearch" placeholder="Search name, ID, email..." autocomplete="off">
                 </div>
+
+                <button type="button" class="btn btn-bulk" id="enterDeleteModeBtn">
+                    <i class="bi bi-trash3"></i> Bulk Delete
+                </button>
 
                 <a href="{{ route('admin.teachers.export.excel') }}" class="btn btn-excel">
                     <i class="bi bi-file-earmark-excel"></i> Export Excel
@@ -766,32 +844,47 @@
                     <i class="bi bi-download"></i> Download Template
                 </a>
 
-                {{-- Import: hidden file + button opens picker then auto-submits --}}
-                <form action="{{ route('admin.teachers.import') }}"
-                      method="POST"
-                      enctype="multipart/form-data"
-                      class="import-form"
-                      id="importTeachersForm">
+                <form action="{{ route('admin.teachers.import') }}" method="POST" enctype="multipart/form-data" class="import-form" id="importTeachersForm">
                     @csrf
-                    <input type="file"
-                           name="file"
-                           id="importFileInput"
-                           accept=".xlsx,.xls,.csv"
-                           required>
-
-                    <button type="button"
-                            class="btn btn-import"
-                            id="importTeachersBtn">
+                    <input type="file" name="file" id="importFileInput" accept=".xlsx,.xls,.csv" required>
+                    <button type="button" class="btn btn-import" id="importTeachersBtn">
                         <i class="bi bi-upload"></i> Import
                     </button>
                 </form>
+
             </div>
         </div>
 
+        {{-- Delete mode bar --}}
+        <div class="delete-mode-bar" id="deleteModeBar">
+            <div class="delete-mode-left">
+                <span class="mode-badge">Delete Mode</span>
+                <span>
+                    <span class="selected-count" id="selectedCount">0</span> record(s) selected
+                </span>
+            </div>
+            <div class="delete-mode-actions">
+                <button type="button" class="btn btn-cancel" id="cancelDeleteModeBtn">Cancel</button>
+                <button type="button" class="btn btn-delete-selected" id="deleteSelectedBtn" disabled>
+                    <i class="bi bi-trash"></i> Delete Selected
+                </button>
+            </div>
+        </div>
+
+        {{-- Hidden bulk delete form --}}
+    <form action="{{ route('admin.teachers.bulk-destroy') }}" method="POST" id="bulkDeleteForm" style="display:none;">
+    @csrf
+    <div id="bulkIdsContainer"></div>
+</form>
+
+        {{-- Table --}}
         <div class="table-wrap">
             <table class="teachers-table" id="teachersTable">
                 <thead>
                     <tr>
+                        <th class="th-check">
+                            <input type="checkbox" id="selectAll" title="Select all on this page">
+                        </th>
                         <th>#</th>
                         <th>Teacher</th>
                         <th>Teacher ID</th>
@@ -806,17 +899,17 @@
                 </thead>
                 <tbody>
                     @forelse($teachers as $teacher)
-                        <tr>
-                            <td>
-                                {{ method_exists($teachers, 'firstItem') ? $teachers->firstItem() + $loop->index : $loop->iteration }}
+                        <tr data-id="{{ $teacher->id }}">
+                            <td class="td-check">
+                                <input type="checkbox" class="row-check" value="{{ $teacher->id }}">
                             </td>
+
+                            <td>{{ $teachers->firstItem() + $loop->index }}</td>
 
                             <td>
                                 <div class="teacher-profile">
                                     @if(!empty($teacher->profile_image))
-                                        <img src="{{ $teacher->profile_image }}"
-                                             alt="{{ $teacher->first_name }} {{ $teacher->last_name }}"
-                                             class="teacher-avatar">
+                                        <img src="{{ $teacher->profile_image }}" alt="{{ $teacher->first_name }}" class="teacher-avatar">
                                     @else
                                         <div class="teacher-avatar-ph">
                                             {{ strtoupper(substr($teacher->first_name ?? 'T', 0, 1)) }}
@@ -826,17 +919,12 @@
                                         <div class="teacher-name">
                                             {{ trim(($teacher->first_name ?? '') . ' ' . ($teacher->last_name ?? '')) ?: '—' }}
                                         </div>
-                                        <div class="teacher-gender">
-                                            {{ $teacher->gender ?? '—' }}
-                                        </div>
+                                        <div class="teacher-gender">{{ $teacher->gender ?? '—' }}</div>
                                     </div>
                                 </div>
                             </td>
 
-                            <td>
-                                <span class="id-badge">{{ $teacher->teacher_id ?? '—' }}</span>
-                            </td>
-
+                            <td><span class="id-badge">{{ $teacher->teacher_id ?? '—' }}</span></td>
                             <td>{{ $teacher->email ?? '—' }}</td>
                             <td>{{ $teacher->phone ?? '—' }}</td>
                             <td>{{ $teacher->qualification ?? '—' }}</td>
@@ -859,41 +947,24 @@
 
                             <td>
                                 @if(strtolower($teacher->status ?? '') === 'active')
-                                    <span class="status-badge active">
-                                        <span class="status-dot"></span> Active
-                                    </span>
+                                    <span class="status-badge active"><span class="status-dot"></span> Active</span>
                                 @else
-                                    <span class="status-badge inactive">
-                                        <span class="status-dot"></span> Inactive
-                                    </span>
+                                    <span class="status-badge inactive"><span class="status-dot"></span> Inactive</span>
                                 @endif
                             </td>
 
                             <td>
                                 <div class="actions-cell">
-                                    <a href="{{ route('admin.teachers.show', $teacher->id) }}"
-                                       class="action-btn action-view"
-                                       title="View"
-                                       aria-label="View teacher">
+                                    <a href="{{ route('admin.teachers.show', $teacher->id) }}" class="action-btn action-view" title="View">
                                         <i class="bi bi-eye"></i>
                                     </a>
-
-                                    <a href="{{ route('admin.teachers.edit', $teacher->id) }}"
-                                       class="action-btn action-edit"
-                                       title="Edit"
-                                       aria-label="Edit teacher">
+                                    <a href="{{ route('admin.teachers.edit', $teacher->id) }}" class="action-btn action-edit" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-
-                                    <form action="{{ route('admin.teachers.destroy', $teacher->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Are you sure you want to delete this teacher?');">
+                                    <form action="{{ route('admin.teachers.destroy', $teacher->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this teacher?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                                class="action-btn action-delete"
-                                                title="Delete"
-                                                aria-label="Delete teacher">
+                                        <button type="submit" class="action-btn action-delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -902,7 +973,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10">
+                            <td colspan="11">
                                 <div class="empty">
                                     <i class="bi bi-person-workspace"></i>
                                     <h4>No Teachers Found</h4>
@@ -918,50 +989,98 @@
             </table>
         </div>
 
-        @if(method_exists($teachers, 'hasPages') && $teachers->hasPages())
+        {{-- Pagination --}}
+        @if($teachers->hasPages())
             <div class="pagination-bar">
                 <div class="pagination-info">
-                    Showing {{ $teachers->firstItem() }} to {{ $teachers->lastItem() }}
-                    of {{ $teachers->total() }} teachers
+                    Showing {{ $teachers->firstItem() }} to {{ $teachers->lastItem() }} of {{ $teachers->total() }} teachers
                 </div>
-                <div>{{ $teachers->links() }}</div>
+                <div>
+                    {{ $teachers->links() }}
+                </div>
             </div>
         @endif
+
     </section>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // ── Live search ────────────────────────────────────
-    const searchInput = document.getElementById('teacherSearch');
-    const table = document.getElementById('teachersTable');
 
+    // ── Auto-hide success message ─────────────────────
+    const successMsg = document.getElementById('successMsg');
+    if (successMsg) {
+        setTimeout(() => {
+            successMsg.style.transition = 'opacity .4s';
+            successMsg.style.opacity = '0';
+            setTimeout(() => successMsg.remove(), 400);
+        }, 4000);
+    }
+
+    // ── Elements ──────────────────────────────────────
+    const panel               = document.getElementById('teachersPanel');
+    const table               = document.getElementById('teachersTable');
+    const searchInput         = document.getElementById('teacherSearch');
+    const enterDeleteModeBtn  = document.getElementById('enterDeleteModeBtn');
+    const cancelDeleteModeBtn = document.getElementById('cancelDeleteModeBtn');
+    const deleteModeBar       = document.getElementById('deleteModeBar');
+    const selectAll           = document.getElementById('selectAll');
+    const deleteSelectedBtn   = document.getElementById('deleteSelectedBtn');
+    const selectedCountEl     = document.getElementById('selectedCount');
+    const bulkDeleteForm      = document.getElementById('bulkDeleteForm');
+    const bulkIdsContainer    = document.getElementById('bulkIdsContainer');
+
+    // ── Helpers ───────────────────────────────────────
+    function getVisibleCheckboxes() {
+        return Array.from(document.querySelectorAll('.row-check')).filter(cb => {
+            const row = cb.closest('tr');
+            return row && row.style.display !== 'none';
+        });
+    }
+
+    function getSelectedVisible() {
+        return getVisibleCheckboxes().filter(cb => cb.checked);
+    }
+
+    function updateSelectedCount() {
+        const visible = getVisibleCheckboxes();
+        const count   = getSelectedVisible().length;
+
+        if (selectedCountEl) selectedCountEl.textContent = count;
+        if (deleteSelectedBtn) deleteSelectedBtn.disabled = count === 0;
+
+        if (selectAll) {
+            selectAll.checked       = visible.length > 0 && count === visible.length;
+            selectAll.indeterminate = count > 0 && count < visible.length;
+        }
+
+        document.querySelectorAll('.row-check').forEach(cb => {
+            const row = cb.closest('tr');
+            if (row) row.classList.toggle('selected', cb.checked);
+        });
+    }
+
+    // ── Live search ───────────────────────────────────
     if (searchInput && table) {
         searchInput.addEventListener('input', function () {
             const query = this.value.toLowerCase().trim();
 
-            table.querySelectorAll('tbody tr').forEach(function (row) {
-                if (row.querySelector('.empty')) return;
-
-                row.style.display = row.textContent.toLowerCase().includes(query)
-                    ? ''
-                    : 'none';
+            table.querySelectorAll('tbody tr[data-id]').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
             });
+
+            updateSelectedCount();
         });
     }
 
-    // ── Import: click button → open file picker → auto submit ─
+    // ── Import ────────────────────────────────────────
     const importBtn  = document.getElementById('importTeachersBtn');
     const fileInput  = document.getElementById('importFileInput');
     const importForm = document.getElementById('importTeachersForm');
 
     if (importBtn && fileInput && importForm) {
-        // Click Import → open file dialog
-        importBtn.addEventListener('click', function () {
-            fileInput.click();
-        });
+        importBtn.addEventListener('click', () => fileInput.click());
 
-        // After file is selected → submit form
         fileInput.addEventListener('change', function () {
             if (this.files && this.files.length > 0) {
                 importBtn.disabled = true;
@@ -970,6 +1089,72 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // ── Bulk delete mode ──────────────────────────────
+    function enterDeleteMode() {
+        panel.classList.add('delete-mode');
+        deleteModeBar.classList.add('active');
+        enterDeleteModeBtn.style.display = 'none';
+        document.querySelectorAll('.row-check').forEach(cb => cb.checked = false);
+        if (selectAll) selectAll.checked = false;
+        updateSelectedCount();
+    }
+
+    function exitDeleteMode() {
+        panel.classList.remove('delete-mode');
+        deleteModeBar.classList.remove('active');
+        enterDeleteModeBtn.style.display = '';
+        document.querySelectorAll('.row-check').forEach(cb => cb.checked = false);
+        if (selectAll) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        }
+        updateSelectedCount();
+    }
+
+    if (enterDeleteModeBtn)  enterDeleteModeBtn.addEventListener('click', enterDeleteMode);
+    if (cancelDeleteModeBtn) cancelDeleteModeBtn.addEventListener('click', exitDeleteMode);
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            getVisibleCheckboxes().forEach(cb => cb.checked = selectAll.checked);
+            updateSelectedCount();
+        });
+    }
+
+    document.querySelectorAll('.row-check').forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+
+    // ── Submit bulk delete (only the rows you can see and ticked) ──
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', function () {
+            const checked = getSelectedVisible();
+            if (checked.length === 0) return;
+
+            const count   = checked.length;
+            const message = 'You selected ' + count + ' record' + (count > 1 ? 's' : '') + '.\n\n' +
+                            'Are you sure you want to delete ' + (count > 1 ? 'these teachers' : 'this teacher') + '?\n' +
+                            'This action cannot be undone.';
+
+            if (!confirm(message)) return;
+
+            bulkIdsContainer.innerHTML = '';
+            checked.forEach(cb => {
+                const input = document.createElement('input');
+                input.type  = 'hidden';
+                input.name  = 'ids[]';
+                input.value = cb.value;
+                bulkIdsContainer.appendChild(input);
+            });
+
+            deleteSelectedBtn.disabled = true;
+            deleteSelectedBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Deleting...';
+
+            bulkDeleteForm.submit();
+        });
+    }
+
 });
 </script>
 

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class OtherStaff extends Model
 {
+   
     protected $table = 'other_staff';
 
     protected $fillable = [
@@ -31,4 +34,11 @@ class OtherStaff extends Model
         'joining_date' => 'date',
         'license_expiry' => 'date',
     ];
-}
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    {
+        return \Spatie\Activitylog\LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }}

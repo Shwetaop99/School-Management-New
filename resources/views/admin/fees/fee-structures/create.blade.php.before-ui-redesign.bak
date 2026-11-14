@@ -1,0 +1,1005 @@
+
+@extends('layouts.app')
+
+@section('title', 'Create Fee Structure')
+
+@section('content')
+
+<style>
+    .fee-page {
+        background: #f4f7fb;
+        min-height: calc(100vh - 64px);
+        padding: 25px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .page-subtitle {
+        margin: 5px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 17px;
+        border-radius: 9px;
+        background: #fff;
+        color: #374151;
+        text-decoration: none;
+        border: 1px solid #e5e7eb;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+    .back-btn:hover {
+        color: #1769d1;
+        border-color: #1769d1;
+        background: #f8fbff;
+    }
+
+    .form-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #e7ebf2;
+        box-shadow: 0 5px 20px rgba(31, 41, 55, .06);
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    .card-header-custom {
+        padding: 18px 22px;
+        background: linear-gradient(135deg, #147cf5, #6c63ff);
+        color: #fff;
+    }
+
+    .card-header-custom h5 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .card-header-custom p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        opacity: .9;
+    }
+
+    .card-body-custom {
+        padding: 24px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 7px;
+        font-size: 14px;
+    }
+
+    .required {
+        color: #dc3545;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 44px;
+        border: 1px solid #dce2ea;
+        border-radius: 9px;
+        font-size: 14px;
+        box-shadow: none !important;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #147cf5;
+        box-shadow: 0 0 0 3px rgba(20, 124, 245, .10) !important;
+    }
+
+    .form-select:disabled {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+    }
+
+    .field-help {
+        font-size: 12px;
+        color: #8a94a6;
+        margin-top: 5px;
+    }
+
+    .fee-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .fee-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .fee-table th {
+        background: #f6f8fc;
+        color: #4b5563;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 13px 10px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    .fee-table td {
+        padding: 10px;
+        border-bottom: 1px solid #edf0f5;
+        vertical-align: top;
+    }
+
+    .fee-table .form-control,
+    .fee-table .form-select {
+        min-width: 130px;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | MANUAL FEE FIELD
+    |--------------------------------------------------------------------------
+    */
+
+    .manual-fee-name {
+        margin-top: 8px;
+        display: none;
+    }
+
+    .manual-label {
+        display: none;
+        margin-top: 6px;
+        font-size: 11px;
+        color: #6c63ff;
+        font-weight: 600;
+    }
+
+    .manual-fee-name.is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    .add-row-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid #147cf5;
+        color: #147cf5;
+        background: #fff;
+        border-radius: 8px;
+        padding: 9px 15px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+    .add-row-btn:hover {
+        background: #147cf5;
+        color: #fff;
+    }
+
+    .remove-row-btn {
+        width: 38px;
+        height: 38px;
+        border: 1px solid #f1c5ca;
+        color: #dc3545;
+        background: #fff;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: .2s;
+    }
+
+    .remove-row-btn:hover {
+        background: #dc3545;
+        color: #fff;
+        border-color: #dc3545;
+    }
+
+    .total-box {
+        background: #f5f8ff;
+        border: 1px solid #dbe7ff;
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 18px;
+    }
+
+    .total-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #4b5563;
+    }
+
+    .total-amount {
+        font-size: 22px;
+        font-weight: 800;
+        color: #1769d1;
+    }
+
+    .bottom-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 5px;
+        padding-bottom: 25px;
+    }
+
+    .btn-cancel {
+        background: #fff;
+        border: 1px solid #d9dee7;
+        color: #4b5563;
+        padding: 11px 20px;
+        border-radius: 9px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .btn-save {
+        border: 0;
+        background: linear-gradient(135deg, #147cf5, #6c63ff);
+        color: #fff;
+        padding: 11px 22px;
+        border-radius: 9px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 5px 14px rgba(20, 124, 245, .20);
+    }
+
+    .btn-save:hover {
+        opacity: .94;
+    }
+
+    .alert-danger-custom {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        color: #9f1239;
+        border-radius: 10px;
+        padding: 14px 17px;
+        margin-bottom: 20px;
+    }
+
+    .alert-danger-custom ul {
+        margin: 6px 0 0 20px;
+    }
+
+    .manual-info {
+        margin-top: 14px;
+        padding: 12px 15px;
+        background: #f6f4ff;
+        border: 1px solid #e4defe;
+        border-radius: 9px;
+        color: #5b52a3;
+        font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+
+        .fee-page {
+            padding: 15px;
+        }
+
+        .page-title {
+            font-size: 22px;
+        }
+
+        .card-body-custom {
+            padding: 17px;
+        }
+
+        .bottom-actions {
+            flex-direction: column;
+        }
+
+        .btn-cancel,
+        .btn-save {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+
+<div class="fee-page">
+
+    {{-- PAGE HEADER --}}
+    <div class="page-header">
+
+        <div>
+
+            <h1 class="page-title">
+                Create Fee Structure
+            </h1>
+
+            <p class="page-subtitle">
+                Create a fee structure for an academic year, class and section.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ route('admin.fees.fee-structures.index') }}"
+            class="back-btn"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Back to Fee Structures
+        </a>
+
+    </div>
+
+
+    {{-- VALIDATION ERRORS --}}
+    @if ($errors->any())
+
+        <div class="alert-danger-custom">
+
+            <strong>
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Please fix the following errors:
+            </strong>
+
+            <ul>
+
+                @foreach ($errors->all() as $error)
+
+                    <li>
+                        {{ $error }}
+                    </li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+    @endif
+
+
+    <form
+        action="{{ route('admin.fees.fee-structures.store') }}"
+        method="POST"
+        id="feeStructureForm"
+    >
+
+        @csrf
+
+
+        {{-- BASIC INFORMATION --}}
+        <div class="form-card">
+
+            <div class="card-header-custom">
+
+                <h5>
+                    <i class="bi bi-building me-2"></i>
+                    Basic Information
+                </h5>
+
+                <p>
+                    Select the academic year, class and section.
+                </p>
+
+            </div>
+
+
+            <div class="card-body-custom">
+
+                <div class="row g-4">
+
+
+                    {{-- ACADEMIC YEAR --}}
+                    <div class="col-md-6">
+
+                        <label
+                            for="academic_year"
+                            class="form-label"
+                        >
+                            Academic Year
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="academic_year"
+                            id="academic_year"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select Academic Year
+                            </option>
+
+                            @foreach($academicYears ?? [] as $year)
+
+                                <option
+                                    value="{{ $year }}"
+                                    {{ old('academic_year') == $year ? 'selected' : '' }}
+                                >
+                                    {{ $year }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        <div class="field-help">
+                            Academic years are taken from existing student data.
+                        </div>
+
+                        @error('academic_year')
+
+                            <div class="text-danger small mt-1">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                 {{-- CLASS --}}
+<div class="col-md-6">
+    <label for="class_id" class="form-label">
+        Class <span class="required">*</span>
+    </label>
+
+    <select name="class_id" id="class_id" class="form-select" required>
+        <option value="">Select Class</option>
+
+        @foreach($classes ?? [] as $class)
+            <option value="{{ $class->id }}"
+                {{ (string) old('class_id') === (string) $class->id ? 'selected' : '' }}>
+                {{ $class->class_name }}
+            </option>
+        @endforeach
+    </select>
+
+    <div class="field-help">
+        Select a class to load its sections.
+    </div>
+
+    @error('class_id')
+        <div class="text-danger small mt-1">{{ $message }}</div>
+    @enderror
+</div>
+
+{{-- SECTION --}}
+<div class="col-md-6">
+    <label for="section_id" class="form-label">Section</label>
+
+    <select name="section_id" id="section_id" class="form-select" disabled>
+        <option value="">All Sections</option>
+    </select>
+
+    <div class="field-help" id="sectionHelp">
+        Select a class first.
+    </div>
+
+    @error('section_id')
+        <div class="text-danger small mt-1">{{ $message }}</div>
+    @enderror
+</div>
+
+
+                    {{-- STRUCTURE NAME --}}
+                    <div class="col-md-6">
+
+                        <label
+                            for="structure_name"
+                            class="form-label"
+                        >
+                            Structure Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="structure_name"
+                            id="structure_name"
+                            class="form-control"
+                            value="{{ old('structure_name') }}"
+                            placeholder="Example: 2026-27 Class 5 Fee Structure"
+                            required
+                        >
+
+                        @error('structure_name')
+
+                            <div class="text-danger small mt-1">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- STATUS --}}
+                    <div class="col-md-6">
+
+                        <label
+                            for="status"
+                            class="form-label"
+                        >
+                            Status
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="status"
+                            id="status"
+                            class="form-select"
+                            required
+                        >
+
+                            <option
+                                value="Active"
+                                {{ old('status', 'Active') == 'Active' ? 'selected' : '' }}
+                            >
+                                Active
+                            </option>
+
+                            <option
+                                value="Inactive"
+                                {{ old('status') == 'Inactive' ? 'selected' : '' }}
+                            >
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- FEE ITEMS --}}
+        <div class="form-card">
+
+            <div class="card-header-custom">
+
+                <h5>
+                    <i class="bi bi-cash-stack me-2"></i>
+                    Fee Items
+                </h5>
+
+                <p>
+                    Select an existing fee type or create a manual fee.
+                </p>
+
+            </div>
+
+
+            <div class="card-body-custom">
+
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+                    <div>
+
+                        <strong class="text-dark">
+                            Fee Components
+                        </strong>
+
+                        <div class="field-help">
+                            You can select an existing fee type or choose Manual / Custom Fee.
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="add-row-btn"
+                        id="addFeeRow"
+                    >
+                        <i class="bi bi-plus-circle"></i>
+                        Add Fee
+                    </button>
+
+                </div>
+
+
+                <div class="fee-table-wrapper">
+
+                    <table class="fee-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th style="width:34%;">
+                                    Fee Type
+                                </th>
+
+                                <th style="width:20%;">
+                                    Amount
+                                </th>
+
+                                <th style="width:22%;">
+                                    Due Date
+                                </th>
+
+                                <th style="width:12%; text-align:center;">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="feeItemsBody">
+
+                            @if(old('fee_type_id'))
+
+                                @foreach(old('fee_type_id') as $index => $oldFeeType)
+
+                                    <tr class="fee-row">
+
+                                        <td>
+
+                                            <select
+                                                name="fee_type_id[]"
+                                                class="form-select fee-type-select"
+                                                required
+                                            >
+
+                                                <option value="">
+                                                    Select Fee Type
+                                                </option>
+
+                                                @foreach($feeTypes ?? [] as $feeType)
+
+                                                    <option
+                                                        value="{{ $feeType->id }}"
+                                                        data-amount="{{ $feeType->amount }}"
+                                                        {{ (string) $oldFeeType === (string) $feeType->id ? 'selected' : '' }}
+                                                    >
+                                                        {{ $feeType->name }}
+                                                    </option>
+
+                                                @endforeach
+
+                                                <option
+                                                    value="manual"
+                                                    {{ (string) $oldFeeType === 'manual' ? 'selected' : '' }}
+                                                >
+                                                    + Manual / Custom Fee
+                                                </option>
+
+                                            </select>
+
+
+                                            <div class="manual-label">
+                                                Custom Fee Name
+                                            </div>
+
+                                            <input
+                                                type="text"
+                                                name="manual_fee_name[]"
+                                                class="form-control manual-fee-name"
+                                                value="{{ old('manual_fee_name.' . $index) }}"
+                                                placeholder="Enter custom fee name"
+                                            >
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <input
+                                                type="number"
+                                                name="amount[]"
+                                                class="form-control amount-input"
+                                                value="{{ old('amount.' . $index) }}"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="0.00"
+                                                required
+                                            >
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <input
+                                                type="date"
+                                                name="due_date[]"
+                                                class="form-control"
+                                                value="{{ old('due_date.' . $index) }}"
+                                            >
+
+                                        </td>
+
+
+                                        <td class="text-center">
+
+                                            <button
+                                                type="button"
+                                                class="remove-row-btn remove-fee-row"
+                                                title="Remove"
+                                            >
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            @else
+
+                                <tr class="fee-row">
+
+                                    <td>
+
+                                        <select
+                                            name="fee_type_id[]"
+                                            class="form-select fee-type-select"
+                                            required
+                                        >
+
+                                            <option value="">
+                                                Select Fee Type
+                                            </option>
+
+                                            @foreach($feeTypes ?? [] as $feeType)
+
+                                                <option
+                                                    value="{{ $feeType->id }}"
+                                                    data-amount="{{ $feeType->amount }}"
+                                                >
+                                                    {{ $feeType->name }}
+                                                </option>
+
+                                            @endforeach
+
+                                            <option value="manual">
+                                                + Manual / Custom Fee
+                                            </option>
+
+                                        </select>
+
+
+                                        <div class="manual-label">
+                                            Custom Fee Name
+                                        </div>
+
+                                        <input
+                                            type="text"
+                                            name="manual_fee_name[]"
+                                            class="form-control manual-fee-name"
+                                            placeholder="Enter custom fee name"
+                                        >
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <input
+                                            type="number"
+                                            name="amount[]"
+                                            class="form-control amount-input"
+                                            min="0"
+                                            step="0.01"
+                                            placeholder="0.00"
+                                            required
+                                        >
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <input
+                                            type="date"
+                                            name="due_date[]"
+                                            class="form-control"
+                                        >
+
+                                    </td>
+
+
+                                    <td class="text-center">
+
+                                        <button
+                                            type="button"
+                                            class="remove-row-btn remove-fee-row"
+                                            title="Remove"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            @endif
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div class="manual-info">
+
+                    <i class="bi bi-info-circle me-1"></i>
+
+                    <strong>Manual Fee:</strong>
+
+                    Choose
+                    <strong>+ Manual / Custom Fee</strong>
+                    when the fee is not available in the existing Fee Type list.
+
+                    Enter its name and amount manually.
+
+                </div>
+
+
+                <div class="total-box">
+
+                    <span class="total-label">
+                        Total Fee Amount
+                    </span>
+
+                    <span class="total-amount">
+                        &#8377;
+                        <span id="totalAmount">
+                            0.00
+                        </span>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ACTIONS --}}
+        <div class="bottom-actions">
+
+            <a
+                href="{{ route('admin.fees.fee-structures.index') }}"
+                class="btn-cancel"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="btn-save"
+            >
+                <i class="bi bi-check-circle me-1"></i>
+                Save Fee Structure
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const classEl = document.getElementById('class_id');
+    const sectionEl = document.getElementById('section_id');
+console.log('Class element:', classEl);
+console.log('Section element:', sectionEl);
+
+if (classEl) {
+    console.log('Selected class:', classEl.value);
+
+    classEl.addEventListener('change', function () {
+        console.log('CLASS CHANGED:', this.value);
+    });
+}
+    const sectionHelp = document.getElementById('sectionHelp');
+
+    const selectedSection = @json(old('section_id', ''));
+
+    const sectionsUrl = "{{ route('admin.fees.fee-structures.sections', ['class' => '__ID__']) }}";
+
+    if (!classEl || !sectionEl) return;
+
+    async function loadSections() {
+
+        sectionEl.innerHTML = '<option value="">All Sections</option>';
+        sectionEl.disabled = true;
+
+        if (!classEl.value) {
+            sectionHelp.textContent = 'Select a class first.';
+            return;
+        }
+
+        sectionHelp.textContent = 'Loading sections...';
+
+        try {
+            const response = await fetch(
+                sectionsUrl.replace('__ID__', encodeURIComponent(classEl.value)),
+                {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('HTTP error: ' + response.status);
+            }
+
+            let result = await response.text();
+
+            // Remove UTF-8 BOM before parsing JSON
+            result = result.replace(/^\uFEFF/, '').trim();
+
+            const sections = JSON.parse(result);
+
+            if (!Array.isArray(sections)) {
+                throw new Error('Invalid sections response');
+            }
+
+            sections.forEach(section => {
+                const option = new Option(
+                    section.section_name,
+                    section.id
+                );
+
+                if (String(section.id) === String(selectedSection)) {
+                    option.selected = true;
+                }
+
+                sectionEl.add(option);
+            });
+
+            // Enable All Sections even when no section records exist
+            sectionEl.disabled = false;
+
+            sectionHelp.textContent = sections.length
+                ? 'Select a section or choose All Sections.'
+                : 'No sections found for this class.';
+
+        } catch (error) {
+            console.error('Could not load sections:', error);
+            sectionHelp.textContent = 'Unable to load sections. Please try again.';
+        }
+    }
+
+    classEl.addEventListener('change', loadSections);
+
+    if (classEl.value) {
+        loadSections();
+    }
+
+});
+
+@endsection

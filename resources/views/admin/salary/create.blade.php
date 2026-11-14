@@ -5,6 +5,25 @@
 
 @section('content')
 
+@php
+    $staffTypes = [
+        'Teacher'      => 'Teacher',
+        'Driver'       => 'Driver',
+        'Peon'         => 'Peon',
+        'Librarian'    => 'Librarian',
+        'Accountant'   => 'Accountant',
+        'Receptionist' => 'Receptionist',
+        'OtherStaff'   => 'Other Staff',
+    ];
+
+    // Priority: validation old input > ?staff_type= from Generate button > Teacher
+    $currentType = old('staff_type', $selectedType ?? request('staff_type', 'Teacher'));
+
+    if (!array_key_exists($currentType, $staffTypes)) {
+        $currentType = 'Teacher';
+    }
+@endphp
+
 <div class="teacher-salary-create-page">
     <div class="tsc-container">
 
@@ -19,11 +38,20 @@
         @endif
 
         @if(session('error'))
-            <div class="tsc-alert tsc-error" role="status">
+            <div class="tsc-alert tsc-danger" role="status">
                 <span class="tsc-alert-icon">
                     <i class="bi bi-exclamation-lg" aria-hidden="true"></i>
                 </span>
                 <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="tsc-alert tsc-danger" role="alert">
+                <span class="tsc-alert-icon">
+                    <i class="bi bi-exclamation-lg" aria-hidden="true"></i>
+                </span>
+                <span>Please fix the highlighted fields and try again.</span>
             </div>
         @endif
 
@@ -38,7 +66,10 @@
 
                     <div>
                         <h3>Salary Information</h3>
-                        <p>Enter teacher salary and payment details below.</p>
+                        <p>
+                            Enter salary and payment details for
+                            <strong id="type-label">{{ $staffTypes[$currentType] }}</strong>.
+                        </p>
                     </div>
                 </div>
 
@@ -85,17 +116,9 @@
                                         required>
                                     <option value="">Select Staff Type</option>
 
-                                    @foreach([
-                                        'Teacher' => 'Teacher',
-                                        'Driver' => 'Driver',
-                                        'Peon' => 'Peon',
-                                        'Librarian' => 'Librarian',
-                                        'Accountant' => 'Accountant',
-                                        'Receptionist' => 'Receptionist',
-                                        'OtherStaff' => 'Other Staff',
-                                    ] as $value => $label)
+                                    @foreach($staffTypes as $value => $label)
                                         <option value="{{ $value }}"
-                                            {{ old('staff_type', 'Teacher') === $value ? 'selected' : '' }}>
+                                            {{ $currentType === $value ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
                                     @endforeach
@@ -103,14 +126,15 @@
                             </div>
 
                             @error('staff_type')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
 
                         {{-- STAFF MEMBER --}}
                         <div class="tsc-field">
                             <label for="staff_member_id">
-                                Staff Member <span class="tsc-required">*</span>
+                                <span id="member-label">{{ $staffTypes[$currentType] }}</span>
+                                Name <span class="tsc-required">*</span>
                             </label>
 
                             <div class="tsc-input-wrap">
@@ -124,11 +148,7 @@
                                     @foreach($teachers as $teacher)
                                         <option
                                             value="{{ $teacher->id }}"
-                                            data-category="Teacher"
-                                            data-designation="Teacher"
-                                            data-other-staff="0"
-                                            {{ old('staff_type', 'Teacher') === 'Teacher'
-                                                && old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                                            data-category="Teacher">
                                             {{ $teacher->first_name }} {{ $teacher->last_name }}
                                             @if($teacher->teacher_id)
                                                 - {{ $teacher->teacher_id }}
@@ -166,11 +186,7 @@
 
                                         <option
                                             value="{{ $staff->id }}"
-                                            data-category="{{ $category }}"
-                                            data-designation="{{ $staff->designation }}"
-                                            data-other-staff="1"
-                                            {{ old('staff_type') === $category
-                                                && old('other_staff_id') == $staff->id ? 'selected' : '' }}>
+                                            data-category="{{ $category }}">
                                             {{ $staff->name }}
                                             @if($staff->staff_id)
                                                 - {{ $staff->staff_id }}
@@ -180,6 +196,7 @@
                                     @endforeach
                                 </select>
 
+                                {{-- Only one of these two is filled, depending on staff type --}}
                                 <input type="hidden"
                                        name="teacher_id"
                                        id="teacher_id"
@@ -197,11 +214,11 @@
                             </small>
 
                             @error('teacher_id')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
 
                             @error('other_staff_id')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -223,7 +240,7 @@
                             </div>
 
                             @error('salary_month')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -264,7 +281,7 @@
                             </div>
 
                             @error('basic_salary')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -285,7 +302,7 @@
                             </div>
 
                             @error('allowances')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -307,7 +324,7 @@
                             </div>
 
                             @error('deduction_rate')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -391,7 +408,7 @@
                             </div>
 
                             @error('payment_status')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -409,7 +426,7 @@
                             </div>
 
                             @error('payment_date')
-                                <div class="tsc-error">{{ $message }}</div>
+                                <div class="tsc-field-error">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -437,7 +454,7 @@
                                   placeholder="Enter any additional salary notes...">{{ old('remarks') }}</textarea>
 
                         @error('remarks')
-                            <div class="tsc-error">{{ $message }}</div>
+                            <div class="tsc-field-error">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -452,7 +469,7 @@
 
                     <button type="submit" class="tsc-save-btn">
                         <i class="bi bi-check-lg" aria-hidden="true"></i>
-                        Generate Salary
+                        <span id="save-label">Generate Salary</span>
                     </button>
                 </div>
             </form>
@@ -461,8 +478,7 @@
 </div>
 
 <style>
-/* TEACHER SALARY CREATE — TRANSPORT PAGE DESIGN SYSTEM
-   No page header or hero. Scoped to this page. */
+/* TEACHER SALARY CREATE — scoped to this page. */
 
 .teacher-salary-create-page {
     --tsc-ink: #263b35;
@@ -533,7 +549,7 @@
     background: #f1f8ef;
 }
 
-.teacher-salary-create-page .tsc-error {
+.teacher-salary-create-page .tsc-danger {
     border: 1px solid #eed6cf;
     color: #b95b50;
     background: #fff1ed;
@@ -597,6 +613,10 @@
     color: var(--tsc-muted);
     font-size: 11px;
     line-height: 1.7;
+}
+
+.teacher-salary-create-page .tsc-title-wrap p strong {
+    color: var(--tsc-ink);
 }
 
 .teacher-salary-create-page .tsc-back-btn {
@@ -742,6 +762,11 @@
     padding: 0 12px 0 38px;
 }
 
+.teacher-salary-create-page .tsc-control:disabled {
+    cursor: not-allowed;
+    background: #f4f3ec;
+}
+
 .teacher-salary-create-page .tsc-textarea {
     min-height: 105px;
     padding: 12px 13px;
@@ -859,6 +884,7 @@
     align-items: center;
     gap: 8px;
     min-height: 44px;
+    margin-bottom: 0;
     padding: 10px 15px;
     border: 1px solid #deded2;
     border-radius: 9px;
@@ -881,9 +907,9 @@
     background: #f1f2e8;
 }
 
-/* ERRORS */
+/* FIELD ERRORS */
 
-.teacher-salary-create-page .tsc-error {
+.teacher-salary-create-page .tsc-field-error {
     margin-top: 6px;
     color: #b95b50;
     font-size: 10px;
@@ -1065,13 +1091,46 @@ document.addEventListener('DOMContentLoaded', function () {
     const otherStaffIdInput = document.getElementById('other_staff_id');
     const staffHelp = document.getElementById('staff-help');
 
+    // Labels that change with the selected staff type
+    const typeLabel = document.getElementById('type-label');
+    const memberLabel = document.getElementById('member-label');
+    const saveLabel = document.getElementById('save-label');
+
+    const typeNames = {
+        Teacher: 'Teacher',
+        Driver: 'Driver',
+        Peon: 'Peon',
+        Librarian: 'Librarian',
+        Accountant: 'Accountant',
+        Receptionist: 'Receptionist',
+        OtherStaff: 'Other Staff'
+    };
+
+    const pluralNames = {
+        Teacher: 'teachers',
+        Driver: 'drivers',
+        Peon: 'peons',
+        Librarian: 'librarians',
+        Accountant: 'accountants',
+        Receptionist: 'receptionists',
+        OtherStaff: 'other staff members'
+    };
+
+    // Keep a copy of every staff option, because the select is rebuilt on each change.
     const allStaffOptions = Array.from(staffSelect.options)
         .filter(option => option.value !== '');
 
-    function updateStaffOptions() {
+    function isTeacher(category) {
+        return category === 'Teacher';
+    }
+
+    function updateStaffOptions(restoreOld) {
         const category = staffType.value;
-        const previousTeacherId = teacherIdInput.value;
-        const previousOtherStaffId = otherStaffIdInput.value;
+
+        // Remember the previous selection only for the first load (old input after a failed submit).
+        const previousValue = restoreOld
+            ? (isTeacher(category) ? teacherIdInput.value : otherStaffIdInput.value)
+            : '';
 
         // Clear IDs so the form cannot submit a stale staff selection.
         teacherIdInput.value = '';
@@ -1082,32 +1141,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const placeholder = document.createElement('option');
         placeholder.value = '';
         placeholder.textContent = category
-            ? 'Select Staff Member'
+            ? 'Select ' + (typeNames[category] || 'Staff Member')
             : 'Select Staff Type First';
-
         staffSelect.appendChild(placeholder);
 
         const matchingOptions = allStaffOptions.filter(option => {
             return option.dataset.category === category;
         });
 
-        matchingOptions.forEach(option => {
-            staffSelect.appendChild(option);
-        });
+        matchingOptions.forEach(option => staffSelect.appendChild(option));
 
-        const previousValue = category === 'Teacher'
-            ? previousTeacherId
-            : previousOtherStaffId;
+        const previousExists = matchingOptions.some(option => option.value === previousValue);
+        staffSelect.value = previousExists ? previousValue : '';
 
-        const previousOptionExists = matchingOptions.some(option => {
-            return option.value === previousValue;
-        });
-
-        staffSelect.value = previousOptionExists ? previousValue : '';
-
-        // Populate the correct hidden field.
+        // Fill the correct hidden field.
         if (staffSelect.value) {
-            if (category === 'Teacher') {
+            if (isTeacher(category)) {
                 teacherIdInput.value = staffSelect.value;
             } else {
                 otherStaffIdInput.value = staffSelect.value;
@@ -1116,30 +1165,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
         staffSelect.disabled = !category || matchingOptions.length === 0;
 
-        const labels = {
-            Teacher: 'teachers',
-            Driver: 'drivers',
-            Peon: 'peons',
-            Librarian: 'librarians',
-            Accountant: 'accountants',
-            Receptionist: 'receptionists',
-            OtherStaff: 'other staff members'
-        };
+        // Labels change with the staff type.
+        const name = typeNames[category] || 'Staff';
+        typeLabel.textContent = name;
+        memberLabel.textContent = name;
+        saveLabel.textContent = category ? 'Generate ' + name + ' Salary' : 'Generate Salary';
 
         if (!category) {
-            staffHelp.textContent =
-                'Choose a staff type to see matching staff members.';
+            staffHelp.textContent = 'Choose a staff type to see matching staff members.';
         } else if (matchingOptions.length === 0) {
-            staffHelp.textContent =
-                'No matching staff found. Check the staff member designations.';
+            staffHelp.textContent = 'No active ' + pluralNames[category] +
+                ' found. Check the staff designation.';
         } else {
-            staffHelp.textContent =
-                'Showing ' + matchingOptions.length + ' ' +
-                labels[category] + '.';
+            staffHelp.textContent = 'Showing ' + matchingOptions.length + ' ' +
+                pluralNames[category] + '.';
         }
     }
 
-    staffType.addEventListener('change', updateStaffOptions);
+    staffType.addEventListener('change', function () {
+        updateStaffOptions(false);
+    });
 
     staffSelect.addEventListener('change', function () {
         teacherIdInput.value = '';
@@ -1149,15 +1194,15 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        if (staffType.value === 'Teacher') {
+        if (isTeacher(staffType.value)) {
             teacherIdInput.value = staffSelect.value;
         } else {
             otherStaffIdInput.value = staffSelect.value;
         }
     });
 
-    // Initialize dropdown and restore any old selection.
-    updateStaffOptions();
+    // Initialise dropdown (restores old selection after a validation error).
+    updateStaffOptions(true);
 
     // Salary calculation
     function getValue(input) {

@@ -449,4 +449,8 @@ class MealStockLogController extends Controller
 
         return $query;
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

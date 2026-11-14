@@ -500,4 +500,8 @@ class TransportVehicleController extends Controller
                 'Vehicle deleted successfully.'
             );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }

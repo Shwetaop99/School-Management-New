@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeacherAttendance extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity; 
 
     protected $fillable = [
         'teacher_id',
@@ -30,4 +32,11 @@ class TeacherAttendance extends Model
     {
         return $this->belongsTo(Teacher::class);
     }
-}
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    {
+        return \Spatie\Activitylog\LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }}

@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+    use HasFactory, Notifiable, LogsActivity;
 
     /**
      * Mass assignable fields.
@@ -35,11 +37,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_secret',
     ];
 
+    
+
     /**
-     * Attribute casts.
+     * Casts.
      */
     protected function casts(): array
     {
@@ -77,32 +80,26 @@ class User extends Authenticatable
      * Check school-level permission.
      */
     public function can($ability, $arguments = []): bool
-    {
-        if (!$this->role) {
-            return false;
-        }
-
-        return $this->role
-            ->permissions()
-            ->where('name', $ability)
-            ->exists();
+        {
     }
 
+   
+
+    
     /**
      * Check school-level permission.
      */
-    public function hasPermission($permission): bool
-    {
-        if (!$this->role) {
-            return false;
-        }
-
-        return $this->role
-            ->permissions()
-            ->where('name', $permission)
-            ->exists();
+   public function hasPermission($permission): bool
+{
+    if (!$this->role) {
+        return false;
     }
 
+    return $this->role
+        ->permissions()
+        ->where('name', $permission)
+        ->exists();
+}
     /**
      * Check school-level role.
      */
@@ -154,4 +151,12 @@ class User extends Authenticatable
             ->where('name', $permission)
             ->exists();
     }
+   
+    public function getActivitylogOptions(): LogOptions
+{
+    return LogOptions::defaults()
+        ->logOnly(['name', 'login_id', 'email', 'status', 'role_id'])
+        ->logOnlyDirty()
+        ->dontSubmitEmptyLogs();
+}
 }

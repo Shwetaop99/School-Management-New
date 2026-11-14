@@ -190,7 +190,7 @@
         </section>
 
         {{-- TRANSACTIONS TABLE --}}
-        <section class="issues-table-card">
+        <section class="issues-table-card" id="issuesPanel">
 
             <div class="issues-panel-header">
                 <div class="panel-title-wrap">
@@ -205,17 +205,78 @@
                     </div>
                 </div>
 
-                <div class="issues-record-count">
-                    <i class="fas fa-folder-open"></i>
-                    <strong>{{ $totalIssues }}</strong>
-                    {{ $totalIssues == 1 ? 'Transaction' : 'Transactions' }}
+                <div class="issues-header-actions">
+                    <div class="issues-record-count">
+                        <i class="fas fa-folder-open"></i>
+                        <strong>{{ $totalIssues }}</strong>
+                        {{ $totalIssues == 1 ? 'Transaction' : 'Transactions' }}
+                    </div>
+
+                    @if($returnedCount > 0)
+                        <button type="button" class="bulk-btn" id="isuEnterDeleteMode">
+                            <i class="fas fa-trash-can"></i>
+                            Bulk Delete
+                        </button>
+                    @endif
                 </div>
             </div>
+
+            {{-- DELETE MODE BAR --}}
+            <div class="bulk-bar" id="isuDeleteBar">
+
+                <div class="bulk-left">
+                    <span class="bulk-mode-badge">
+                        <i class="fas fa-trash-can"></i>
+                        Delete Mode
+                    </span>
+
+                    <label class="bulk-select-all">
+                        <input type="checkbox"
+                               id="isuSelectAllBar"
+                               aria-label="Select all returned transactions on this page">
+                        Select all returned
+                    </label>
+
+                    <span>
+                        <span class="bulk-count" id="isuSelectedCount">0</span>
+                        record(s) selected
+                    </span>
+
+                    <span class="bulk-note">
+                        <i class="fas fa-circle-info"></i>
+                        Only returned records can be deleted
+                    </span>
+                </div>
+
+                <div class="bulk-actions">
+                    <button type="button" class="bulk-cancel-btn" id="isuCancelDeleteMode">
+                        <i class="fas fa-xmark"></i>
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            class="bulk-delete-btn"
+                            id="isuDeleteSelected"
+                            disabled>
+                        <i class="fas fa-trash"></i>
+                        Delete Selected
+                    </button>
+                </div>
+
+            </div>
+
+            {{-- Security token used by bulk delete --}}
+            <input type="hidden" id="isuCsrf" value="{{ csrf_token() }}">
 
             <div class="issues-table-wrapper">
                 <table class="issues-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="check-col">
+                                <input type="checkbox"
+                                       id="isuSelectAllTable"
+                                       aria-label="Select all returned transactions on this page">
+                            </th>
                             <th scope="col">#</th>
                             <th scope="col">Book</th>
                             <th scope="col">Student ID</th>
@@ -240,9 +301,30 @@
                                     : $issue->status;
 
                                 $fineAmount = (float) $issue->fine;
+
+                                $isReturned = $issue->status === 'Returned';
+
+                                $deleteUrl = Route::has('admin.library.issues.destroy')
+                                    ? route('admin.library.issues.destroy', $issue)
+                                    : url('admin/library/issues/' . $issue->id);
                             @endphp
 
                             <tr>
+                                <td class="check-col">
+                                    @if($isReturned)
+                                        <input type="checkbox"
+                                               class="isu-row-check"
+                                               value="{{ $issue->id }}"
+                                               data-url="{{ $deleteUrl }}"
+                                               aria-label="Select returned transaction {{ $issue->id }}">
+                                    @else
+                                        <input type="checkbox"
+                                               disabled
+                                               title="Only returned records can be deleted"
+                                               aria-label="Transaction {{ $issue->id }} is not returned yet">
+                                    @endif
+                                </td>
+
                                 <td>
                                     <span class="record-number">
                                         {{ $issues->firstItem() + $loop->index }}
@@ -350,7 +432,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9">
+                                <td colspan="10">
                                     <div class="issues-empty-state">
                                         <div class="empty-state-icon">
                                             <i class="fas fa-book-reader"></i>
@@ -945,6 +1027,14 @@
     line-height: 1.6;
 }
 
+.issues-page .issues-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 .issues-page .issues-record-count {
     display: inline-flex;
     align-items: center;
@@ -964,6 +1054,166 @@
 .issues-page .issues-record-count i,
 .issues-page .issues-record-count strong {
     color: var(--ink);
+}
+
+/* BULK DELETE */
+
+.issues-page .bulk-btn,
+.issues-page .bulk-cancel-btn,
+.issues-page .bulk-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.issues-page .bulk-btn {
+    border-color: #efcdc6;
+    color: var(--red);
+    background: var(--paper);
+}
+
+.issues-page .bulk-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--red);
+    color: #fff;
+    background: var(--red);
+    box-shadow: 0 5px 13px rgba(189, 81, 72, .2);
+}
+
+.issues-page .bulk-cancel-btn {
+    border-color: var(--line);
+    color: var(--ink);
+    background: #fff;
+}
+
+.issues-page .bulk-cancel-btn:hover {
+    border-color: var(--ink);
+    color: #fff;
+    background: var(--ink);
+}
+
+.issues-page .bulk-delete-btn {
+    border-color: var(--red);
+    color: #fff;
+    background: var(--red);
+}
+
+.issues-page .bulk-delete-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: #a5423a;
+    background: #a5423a;
+}
+
+.issues-page .bulk-delete-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.issues-page .bulk-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 12px 21px;
+    border-bottom: 1px solid #f0d5ce;
+    background: #fff6f3;
+}
+
+.issues-page .bulk-bar.is-active {
+    display: flex;
+}
+
+.issues-page .bulk-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    color: #a5423a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.issues-page .bulk-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    color: #fff;
+    background: var(--red);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+
+.issues-page .bulk-select-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.issues-page .bulk-count {
+    color: var(--red);
+    font-weight: 800;
+}
+
+.issues-page .bulk-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #8b6a5f;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.issues-page .bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Checkbox column: hidden until delete mode */
+.issues-page .check-col {
+    display: none;
+    width: 46px;
+    text-align: center !important;
+}
+
+.issues-page .issues-table-card.delete-mode .check-col {
+    display: table-cell;
+}
+
+.issues-page .issues-table input[type="checkbox"],
+.issues-page .bulk-select-all input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--red);
+}
+
+.issues-page .issues-table input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: .35;
+}
+
+.issues-page .issues-table tbody tr.is-selected,
+.issues-page .issues-table tbody tr.is-selected:hover {
+    background: #fff6f3;
 }
 
 /* TABLE */
@@ -1431,6 +1681,7 @@
 
     .issues-page .issues-panel-header {
         align-items: flex-start;
+        flex-wrap: wrap;
         padding: 15px;
     }
 
@@ -1438,9 +1689,26 @@
         font-size: 16px;
     }
 
-    .issues-page .issues-record-count {
-        gap: 5px;
-        padding: 5px 7px;
+    .issues-page .issues-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .issues-page .issues-header-actions .bulk-btn {
+        flex: 1;
+    }
+
+    .issues-page .bulk-bar {
+        padding: 12px 15px;
+    }
+
+    .issues-page .bulk-actions {
+        width: 100%;
+    }
+
+    .issues-page .bulk-actions .bulk-cancel-btn,
+    .issues-page .bulk-actions .bulk-delete-btn {
+        flex: 1;
     }
 
     .issues-page .issues-card-footer {
@@ -1451,11 +1719,6 @@
 }
 
 @media (max-width: 400px) {
-    .issues-page .issues-panel-header {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
     .issues-page .panel-title-icon {
         flex-basis: 34px;
         width: 34px;
@@ -1490,5 +1753,101 @@
     }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const panel       = document.getElementById('issuesPanel');
+    const enterBtn    = document.getElementById('isuEnterDeleteMode');
+    const cancelBtn   = document.getElementById('isuCancelDeleteMode');
+    const deleteBar   = document.getElementById('isuDeleteBar');
+    const deleteBtn   = document.getElementById('isuDeleteSelected');
+    const selectBar   = document.getElementById('isuSelectAllBar');
+    const selectTable = document.getElementById('isuSelectAllTable');
+    const countEl     = document.getElementById('isuSelectedCount');
+    const csrfInput   = document.getElementById('isuCsrf');
+
+    // No returned records on this page, so there is nothing to bulk delete
+    if (!enterBtn || !panel || !selectTable) return;
+
+    const rowChecks = () => Array.from(document.querySelectorAll('.isu-row-check'));
+
+    function updateCount() {
+        const checks  = rowChecks();
+        const checked = checks.filter(c => c.checked);
+        const all     = checks.length > 0 && checked.length === checks.length;
+        const some    = checked.length > 0 && !all;
+
+        countEl.textContent = checked.length;
+        deleteBtn.disabled  = checked.length === 0;
+
+        selectBar.checked   = all;
+        selectTable.checked = all;
+        selectBar.indeterminate   = some;
+        selectTable.indeterminate = some;
+
+        checks.forEach(c => c.closest('tr').classList.toggle('is-selected', c.checked));
+    }
+
+    function setDeleteMode(on) {
+        panel.classList.toggle('delete-mode', on);
+        deleteBar.classList.toggle('is-active', on);
+        enterBtn.style.display = on ? 'none' : '';
+
+        if (!on) {
+            rowChecks().forEach(c => c.checked = false);
+        }
+
+        updateCount();
+    }
+
+    function toggleAll(state) {
+        rowChecks().forEach(c => c.checked = state);
+        updateCount();
+    }
+
+    enterBtn.addEventListener('click', () => setDeleteMode(true));
+    cancelBtn.addEventListener('click', () => setDeleteMode(false));
+    selectBar.addEventListener('change', e => toggleAll(e.target.checked));
+    selectTable.addEventListener('change', e => toggleAll(e.target.checked));
+    rowChecks().forEach(c => c.addEventListener('change', updateCount));
+
+    deleteBtn.addEventListener('click', async function () {
+        const checked = rowChecks().filter(c => c.checked);
+        if (!checked.length) return;
+
+        const n = checked.length;
+        const message = 'You selected ' + n + ' record' + (n > 1 ? 's' : '') + '.\n\n' +
+                        'Are you sure you want to delete ' + (n > 1 ? 'these transactions' : 'this transaction') + '?\n' +
+                        'This action cannot be undone.';
+
+        if (!confirm(message)) return;
+
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="fas fa-hourglass-half"></i> Deleting...';
+
+        // Sends one delete request per ticked row (one at a time)
+        for (const c of checked) {
+            const body = new FormData();
+            body.append('_token', csrfInput.value);
+            body.append('_method', 'DELETE');
+
+            try {
+                await fetch(c.dataset.url, {
+                    method: 'POST',
+                    body: body,
+                    redirect: 'manual',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+            } catch (e) {
+                // keep going; the reload below shows what is left
+            }
+        }
+
+        window.location.reload();
+    });
+
+});
+</script>
 
 @endsection

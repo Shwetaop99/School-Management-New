@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Notice;
 use App\Models\School;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class NoticeController extends Controller
@@ -40,7 +43,14 @@ class NoticeController extends Controller
     {
         $schoolId = $this->schoolId();
 
-        // Expire only this school's notices.
+        $request->validate([
+            'search'      => ['nullable', 'string', 'max:100'],
+            'category'    => ['nullable', 'string', 'max:100'],
+            'status'      => ['nullable', Rule::in(['Draft', 'Published', 'Expired'])],
+            'date_filter' => ['nullable', Rule::in(['today', 'week', 'month'])],
+        ]);
+
+        // Expire only this school's published notices.
         Notice::where('school_id', $schoolId)
             ->where('status', 'Published')
             ->whereNotNull('expiry_date')
@@ -49,9 +59,8 @@ class NoticeController extends Controller
 
         $query = Notice::where('school_id', $schoolId);
 
-        // Search
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = trim($request->input('search'));
 
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
@@ -59,17 +68,14 @@ class NoticeController extends Controller
             });
         }
 
-        // Category filter
         if ($request->filled('category')) {
             $query->where('category', $request->input('category'));
         }
 
-        // Status filter
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
         }
 
-        // Date filter
         if ($request->filled('date_filter')) {
             if ($request->date_filter === 'today') {
                 $query->whereDate('publish_date', today());
@@ -89,7 +95,6 @@ class NoticeController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // School-specific statistics
         $total = Notice::where('school_id', $schoolId)->count();
 
         $published = Notice::where('school_id', $schoolId)
@@ -137,8 +142,8 @@ class NoticeController extends Controller
                 'date',
                 'after_or_equal:publish_date',
             ],
-            'status' => ['required', 'in:Draft,Published'],
-            'priority' => ['required', 'in:Normal,Important,Urgent'],
+            'status' => ['required', Rule::in(['Draft', 'Published'])],
+            'priority' => ['required', Rule::in(['Normal', 'Important', 'Urgent'])],
             'attachment' => [
                 'nullable',
                 'file',
@@ -153,7 +158,7 @@ class NoticeController extends Controller
                 ->store('notices', 'public');
         }
 
-        // Assign ownership on the server; never trust a submitted school_id.
+        // Set ownership on the server; never trust a submitted school_id.
         $notice = new Notice();
         $notice->fill($validated);
         $notice->school_id = $schoolId;
@@ -197,8 +202,8 @@ class NoticeController extends Controller
                 'date',
                 'after_or_equal:publish_date',
             ],
-            'status' => ['required', 'in:Draft,Published'],
-            'priority' => ['required', 'in:Normal,Important,Urgent'],
+            'status' => ['required', Rule::in(['Draft', 'Published'])],
+            'priority' => ['required', Rule::in(['Normal', 'Important', 'Urgent'])],
             'attachment' => [
                 'nullable',
                 'file',
@@ -208,7 +213,6 @@ class NoticeController extends Controller
         ]);
 
         if ($request->hasFile('attachment')) {
-            // Remove the previous attachment when replacing it.
             if ($notice->attachment) {
                 Storage::disk('public')->delete($notice->attachment);
             }
@@ -218,7 +222,7 @@ class NoticeController extends Controller
                 ->store('notices', 'public');
         }
 
-        // Do not allow school_id or created_by to be changed by this request.
+        // school_id and created_by are intentionally not editable here.
         $notice->fill($validated);
         $notice->save();
 
@@ -252,25 +256,21 @@ class NoticeController extends Controller
         $school = School::find($this->schoolId());
         $schoolName = $school?->name ?? 'School';
 
-        $message =
-            "*{$schoolName}*\n" .
-            "*School Notice*\n\n" .
-            "*{$notice->title}*\n\n" .
-            $notice->content . "\n\n" .
-            "*Priority:* {$notice->priority}\n";
+        $message = "*{$schoolName}*\n"
+            . "*School Notice*\n\n"
+            . "*{$notice->title}*\n\n"
+            . $notice->content . "\n\n"
+            . "*Priority:* {$notice->priority}\n";
 
         if ($notice->publish_date) {
-            $message .=
-                "*Published:* " .
-                \Carbon\Carbon::parse($notice->publish_date)
-                    ->format('d F Y') .
-                "\n";
+            $message .= "*Published:* "
+                . Carbon::parse($notice->publish_date)->format('d F Y')
+                . "\n";
         }
 
         $message .= "\nThank you,\n{$schoolName}";
 
-        $whatsappUrl =
-            'https://wa.me/?text=' . rawurlencode($message);
+        $whatsappUrl = 'https://wa.me/?text=' . rawurlencode($message);
 
         return redirect()->away($whatsappUrl);
     }

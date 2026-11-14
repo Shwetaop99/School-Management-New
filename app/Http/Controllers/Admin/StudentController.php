@@ -23,7 +23,6 @@ class StudentController extends Controller
     | STUDENT LIST
     |--------------------------------------------------------------------------
     */
-
     public function index(Request $request)
     {
         $schoolId = auth()->user()->school_id;
@@ -36,11 +35,9 @@ $query = Student::query()
     ->where('school_id', $schoolId);
 
         if ($request->filled('search')) {
-
             $search = trim($request->input('search'));
 
             $query->where(function ($q) use ($search) {
-
                 $q->where('student_id', 'like', "%{$search}%")
                     ->orWhere('first_name', 'like', "%{$search}%")
                     ->orWhere('middle_name', 'like', "%{$search}%")
@@ -60,17 +57,11 @@ $query = Student::query()
         }
 
         if ($request->filled('academic_year')) {
-            $query->where(
-                'academic_year',
-                $request->input('academic_year')
-            );
+            $query->where('academic_year', $request->input('academic_year'));
         }
 
         if ($request->filled('status')) {
-            $query->where(
-                'status',
-                $request->input('status')
-            );
+            $query->where('status', $request->input('status'));
         }
 
         $academicYears = Student::query()
@@ -80,12 +71,6 @@ $query = Student::query()
     ->distinct()
     ->orderByDesc('academic_year')
     ->pluck('academic_year');
-
-        /*
-        |--------------------------------------------------------------------------
-        | CLASSES FROM SCHOOL CLASSES MODULE
-        |--------------------------------------------------------------------------
-        */
 
         $classes = SchoolClass::query()
             ->where('status', true)
@@ -97,12 +82,6 @@ $query = Student::query()
             ->pluck('class_name')
             ->values()
             ->toArray();
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECTIONS FROM SCHOOL CLASSES MODULE
-        |--------------------------------------------------------------------------
-        */
 
         $sections = SchoolClass::query()
             ->where('status', true)
@@ -154,242 +133,95 @@ $totalFemaleStudents = Student::where('school_id', $schoolId)
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE
-    |--------------------------------------------------------------------------
-    */
+    public function create()
+    {
+        $schoolClasses = SchoolClass::query()
+            ->where('status', true)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->orderBy('class_name')
+            ->orderBy('section')
+            ->get(['class_name', 'section', 'academic_year']);
 
-    /*
-|--------------------------------------------------------------------------
-| CREATE
-|--------------------------------------------------------------------------
-*/
+        $classes = $schoolClasses->pluck('class_name')->filter()->unique()->values()->toArray();
 
+        $sectionsByClass = $schoolClasses
+            ->groupBy('class_name')
+            ->map(function ($rows) {
+                return $rows->pluck('section')->filter()->unique()->values()->toArray();
+            })
+            ->toArray();
 
-public function create()
-{
-    $schoolClasses = SchoolClass::query()
-        ->where('status', true)
-        ->whereNotNull('class_name')
-        ->where('class_name', '!=', '')
-        ->orderBy('class_name')
-        ->orderBy('section')
-        ->get([
-            'class_name',
-            'section',
-            'academic_year',
-        ]);
-
-    $classes = $schoolClasses
-        ->pluck('class_name')
-        ->filter()
-        ->unique()
-        ->values()
-        ->toArray();
-
-    $sectionsByClass = $schoolClasses
-        ->groupBy('class_name')
-        ->map(function ($rows) {
-            return $rows
-                ->pluck('section')
-                ->filter()
-                ->unique()
-                ->values()
-                ->toArray();
-        })
-        ->toArray();
-
-    return view(
-        'admin.students.create',
-        compact(
-            'classes',
-            'sectionsByClass'
-        )
-    );
-}
-
+        return view('admin.students.create', compact('classes', 'sectionsByClass'));
+    }
 
     /*
     |--------------------------------------------------------------------------
     | STORE
     |--------------------------------------------------------------------------
     */
+    public function store(Request $request)
+    {
+        $validated = $this->validateStudent($request);
+        $schoolId = auth()->user()?->school_id;
 
-
-
-public function store(Request $request)
-{
-    // Validate all student fields, including identification numbers.
-    // Ensure validateStudent() contains the format and uniqueness rules.
-    $validated = $this->validateStudent($request);
-
-    $schoolId = auth()->user()->school_id;
-
-if (!$schoolId) {
-    abort(403, 'Your account is not assigned to a school.');
-}
-
-$validated['school_id'] = $schoolId;
-
-    DB::beginTransaction();
-
-    try {
-        /*
-        |--------------------------------------------------------------------------
-        | DEFAULT VALUES
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['country'] = $request->input('country', 'India');
-        $validated['state'] = $request->input('state', 'Maharashtra');
-        $validated['status'] = $request->input('status', 'active');
-
-        /*
-        |--------------------------------------------------------------------------
-        | ADMISSION CLASS AND CLASS
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['admission_class'] = $request->input('admission_class');
-        $validated['class'] = $request->input('admission_class');
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECTION AND MEDIUM
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['section'] = $request->input('section');
-        $validated['medium'] = $request->input('medium');
-
-        /*
-        |--------------------------------------------------------------------------
-        | PREVIOUS SCHOOL BOARD
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['previous_school_board'] = $request->input(
-            'previous_school_board',
-            $request->input('board')
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | DISTRICT AND TALUKA
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['district'] = $request->input(
-            'district',
-            $request->input('district_id')
-        );
-
-        $validated['taluka'] = $request->input(
-            'taluka',
-            $request->input('taluka_id')
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | AUTOMATIC STUDENT ID
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['student_id'] = $this->generateStudentId(
-            $validated['admission_class'] ?? null,
-            $request->input('section'),
-            $request->input('academic_year')
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | STUDENT IDENTIFICATION NUMBERS
-        |--------------------------------------------------------------------------
-        | These values are manually entered and validated by validateStudent().
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['roll_number'] = $request->input('roll_number');
-        $validated['register_no'] = $request->input('register_no');
-        $validated['book_no'] = $request->input('book_no');
-        $validated['appar_id'] = $request->input('appar_id');
-        $validated['pen_no'] = $request->input('pen_no');
-        $validated['saral_id'] = $request->input('saral_id');
-
-        /*
-        |--------------------------------------------------------------------------
-        | BIRTH PLACE
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['birth_place'] = $request->input('birth_place');
-
-        /*
-        |--------------------------------------------------------------------------
-        | PROFILE IMAGE
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['profile_image'] = null;
-
-        if ($request->hasFile('profile_image')) {
-            $validated['profile_image'] = $this->uploadToCloudinary(
-                $request->file('profile_image'),
-                'student_' . uniqid()
-            );
+        if (!$schoolId) {
+            abort(403, 'Your account is not assigned to a school.');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE STUDENT
-        |--------------------------------------------------------------------------
-        */
+        $validated['school_id'] = $schoolId;
+        DB::beginTransaction();
 
-        $student = Student::create($validated);
+        try {
+            $validated['country'] = $request->input('country', 'India');
+            $validated['state'] = $request->input('state', 'Maharashtra');
+            $validated['status'] = $request->input('status', 'active');
+            $validated['admission_class'] = $request->input('admission_class');
+            $validated['class'] = $request->input('admission_class');
+            $validated['section'] = $request->input('section');
+            $validated['medium'] = $request->input('medium');
+            $validated['previous_school_board'] = $request->input('previous_school_board', $request->input('board'));
+            $validated['district'] = $request->input('district', $request->input('district_id'));
+            $validated['taluka'] = $request->input('taluka', $request->input('taluka_id'));
 
-        DB::commit();
-
-        /*
-        |--------------------------------------------------------------------------
-        | SUCCESS
-        |--------------------------------------------------------------------------
-        */
-
-        return redirect()
-            ->route('admin.students.show', $student)
-            ->with(
-                'success',
-                'Student registered successfully. Student ID: '
-                    . $student->student_id
+            $validated['student_id'] = $this->generateStudentId(
+                $validated['admission_class'] ?? null,
+                $request->input('section'),
+                $request->input('academic_year')
             );
 
-    } catch (\Throwable $e) {
-        DB::rollBack();
+            foreach (['roll_number', 'register_no', 'book_no', 'appar_id', 'pen_no', 'saral_id', 'birth_place'] as $field) {
+                $validated[$field] = $request->input($field);
+            }
 
-        report($e);
+            $validated['profile_image'] = null;
+            if ($request->hasFile('profile_image')) {
+                $validated['profile_image'] = $this->uploadToCloudinary(
+                    $request->file('profile_image'),
+                    'student_' . uniqid()
+                );
+            }
 
-        return back()
-            ->withInput()
-            ->with(
+            $student = Student::create($validated);
+            DB::commit();
+
+            return redirect()
+                ->route('admin.students.show', $student)
+                ->with('success', 'Student registered successfully. Student ID: ' . $student->student_id);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return back()->withInput()->with(
                 'error',
                 'Student registration failed. Please check the application logs.'
             );
+        }
     }
-}
-
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW
-    |--------------------------------------------------------------------------
-    */
 
     public function show(Student $student)
     {
-        return view(
-            'admin.students.show',
-            compact('student')
-        );
+        return view('admin.students.show', compact('student'));
     }
 
     /*
@@ -397,529 +229,64 @@ $validated['school_id'] = $schoolId;
     | EDIT
     |--------------------------------------------------------------------------
     */
-
     public function edit(Student $student)
-{
-    $classSections = SchoolClass::query()
-        ->where('status', true)
-        ->whereNotNull('class_name')
-        ->where('class_name', '!=', '')
-        ->whereNotNull('section')
-        ->where('section', '!=', '')
-        ->orderBy('class_name')
-        ->orderBy('section')
-        ->get(['class_name', 'section']);
+    {
+        $classSections = SchoolClass::query()
+            ->where('status', true)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->whereNotNull('section')
+            ->where('section', '!=', '')
+            ->orderBy('class_name')
+            ->orderBy('section')
+            ->get(['class_name', 'section']);
 
-    $classes = $classSections
-        ->pluck('class_name')
-        ->unique()
-        ->values();
+        $classes = $classSections->pluck('class_name')->unique()->values();
+        $sections = $classSections
+            ->where('class_name', old('class', $student->class))
+            ->pluck('section')
+            ->unique()
+            ->values();
 
-    $sections = $classSections
-        ->where('class_name', old('class', $student->class))
-        ->pluck('section')
-        ->unique()
-        ->values();
-
-    return view('admin.students.edit', compact(
-        'student',
-        'classes',
-        'sections',
-        'classSections'
-    ));
-}
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE
-    |--------------------------------------------------------------------------
-    */
+        return view('admin.students.edit', compact('student', 'classes', 'sections', 'classSections'));
+    }
 
     public function update(Request $request, Student $student)
     {
-        $validated = $request->validate([
+        $validated = $this->validateStudent($request, $student);
 
-            'first_name' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-
-            'middle_name' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'last_name' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-
-            'marathi_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'gender' => [
-                'required',
-                'in:Male,Female,Other'
-            ],
-
-            'date_of_birth' => [
-                'required',
-                'date'
-            ],
-
-            'birth_place' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'aadhar_card_no' => [
-                'nullable',
-                'digits:12'
-            ],
-
-            'phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            'email' => [
-                'nullable',
-                'email',
-                'max:255'
-            ],
-
-            'profile_image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120'
-            ],
-
-            'academic_year' => [
-                'required',
-                'string',
-                'max:20'
-            ],
-
-            'class' => [
-                'required',
-                'string',
-                'max:50'
-            ],
-
-            'section' => [
-                'nullable',
-                'string',
-                'max:10'
-            ],
-
-            'admission_class' => [
-                'nullable',
-                'string',
-                'max:50'
-            ],
-
-            'admission_date' => [
-                'nullable',
-                'date'
-            ],
-
-            'medium' => [
-                'nullable',
-                'string',
-                'max:50'
-            ],
-
-            'mother_tongue' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'nationality' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'religion' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'caste' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'sub_caste' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'status' => [
-                'nullable',
-                'in:active,inactive'
-            ],
-
-            'father_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'father_phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            'father_occupation' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'mother_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'mother_phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            'mother_occupation' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'guardian_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'guardian_relation' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'guardian_phone' => [
-                'nullable',
-                'regex:/^[6-9][0-9]{9}$/'
-            ],
-
-            'previous_school_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'previous_school_address' => [
-                'nullable',
-                'string'
-            ],
-
-            'previous_school_class' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_medium' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_board' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_result' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'previous_school_remarks' => [
-                'nullable',
-                'string'
-            ],
-
-            'address' => [
-                'nullable',
-                'string'
-            ],
-
-            'country' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'state' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'district' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'taluka' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'city_village' => [
-                'nullable',
-                'string',
-                'max:150'
-            ],
-
-            'pincode' => [
-                'nullable',
-                'digits:6'
-            ],
-
-            'appar_id' => [
-    'nullable',
-    'string',
-    'regex:/^[0-9]{12}$/',
-    Rule::unique('students', 'appar_id')->ignore($student->id),
-],
-
-'pen_no' => [
-    'nullable',
-    'string',
-    'regex:/^[0-9]{11,14}$/',
-    Rule::unique('students', 'pen_no')->ignore($student->id),
-],
-
-'saral_id' => [
-    'nullable',
-    'string',
-    'max:50',
-    'regex:/^[a-zA-Z0-9\/_-]+$/',
-    Rule::unique('students', 'saral_id')->ignore($student->id),
-],
-
-'register_no' => [
-    'required',
-    'string',
-    'max:50',
-    Rule::unique('students', 'register_no')->ignore($student->id),
-],
-
-'book_no' => [
-    'required',
-    'string',
-    'max:50',
-    Rule::unique('students', 'book_no')->ignore($student->id),
-],
-
-        ], [
-
-            'aadhar_card_no.digits' =>
-                'Aadhar number must contain exactly 12 digits.',
-
-            'phone.regex' =>
-                'Please enter a valid 10-digit mobile number.',
-
-            'father_phone.regex' =>
-                'Please enter a valid 10-digit father mobile number.',
-
-            'mother_phone.regex' =>
-                'Please enter a valid 10-digit mother mobile number.',
-
-            'guardian_phone.regex' =>
-                'Please enter a valid 10-digit guardian mobile number.',
-
-            'pincode.digits' =>
-                'Pincode must contain exactly 6 digits.',
-
-            'profile_image.image' =>
-                'Please upload a valid image file.',
-
-            'profile_image.mimes' =>
-                'Profile image must be JPG, JPEG, PNG or WEBP.',
-
-            'profile_image.max' =>
-                'Profile image must not exceed 5 MB.',
-
-                'appar_id.regex' => 'APAAR ID must contain exactly 12 digits.',
-'appar_id.unique' => 'This APAAR ID is already assigned to another student.',
-
-'pen_no.regex' => 'PEN Number must contain 11 to 14 digits.',
-'pen_no.unique' => 'This PEN Number is already assigned to another student.',
-
-'saral_id.regex' => 'Saral ID can contain letters, numbers, slash, hyphen and underscore only.',
-'saral_id.unique' => 'This Saral ID is already assigned to another student.',
-
-'register_no.required' => 'Register Number is required.',
-'register_no.unique' => 'This Register Number is already assigned to another student.',
-
-'book_no.required' => 'Book Number is required.',
-'book_no.unique' => 'This Book Number is already assigned to another student.',
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | KEEP GENERATED VALUES
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['student_id'] =
-            $student->student_id;
-
-        $validated['roll_number'] =
-            $student->roll_number;
-
-        $validated['register_no'] =
-            $student->register_no;
-
-        $validated['book_no'] =
-            $student->book_no;
-
-        $validated['appar_id'] =
-            $student->appar_id;
-
-        $validated['pen_no'] =
-            $student->pen_no;
-
-        $validated['saral_id'] =
-            $student->saral_id;
-
-        /*
-        |--------------------------------------------------------------------------
-        | DEFAULT VALUES
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['country'] =
-            $request->input(
-                'country',
-                $student->country ?? 'India'
-            );
-
-        $validated['state'] =
-            $request->input(
-                'state',
-                $student->state ?? 'Maharashtra'
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | DISTRICT AS TEXT
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['district'] =
-            $request->input(
-                'district',
-                $student->district
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | TALUKA AS TEXT
-        |--------------------------------------------------------------------------
-        */
-
-        $validated['taluka'] =
-            $request->input(
-                'taluka',
-                $student->taluka
-            );
-
-        $validated['status'] =
-            $request->input(
-                'status',
-                $student->status ?? 'active'
-            );
-
-        
-
-        if ($request->hasFile('profile_image')) {
-
-            $file = $request->file('profile_image');
-
-            if (!$file->isValid()) {
-
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'profile_image' =>
-                            'The uploaded profile image is invalid.'
-                    ]);
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | USE THE SAME CLOUDINARY HELPER AS STORE()
-            |--------------------------------------------------------------------------
-            */
-
-            $validated['profile_image'] =
-                $this->uploadToCloudinary(
-                    $file,
-                    'student_' .
-                    $student->student_id .
-                    '_' .
-                    time()
-                );
-
-        } else {
-
-            $validated['profile_image'] =
-                $student->profile_image;
+        foreach (['student_id', 'roll_number', 'register_no', 'book_no', 'appar_id', 'pen_no', 'saral_id'] as $field) {
+            $validated[$field] = $student->{$field};
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | UPDATE
-        |--------------------------------------------------------------------------
-        */
+        $validated['country'] = $request->input('country', $student->country ?? 'India');
+        $validated['state'] = $request->input('state', $student->state ?? 'Maharashtra');
+        $validated['district'] = $request->input('district', $student->district);
+        $validated['taluka'] = $request->input('taluka', $student->taluka);
+        $validated['status'] = $request->input('status', $student->status ?? 'active');
+
+        if ($request->hasFile('profile_image')) {
+            $file = $request->file('profile_image');
+            if (!$file->isValid()) {
+                return back()->withInput()->withErrors([
+                    'profile_image' => 'The uploaded profile image is invalid.',
+                ]);
+            }
+
+            $validated['profile_image'] = $this->uploadToCloudinary(
+                $file,
+                'student_' . $student->student_id . '_' . time()
+            );
+        } else {
+            $validated['profile_image'] = $student->profile_image;
+        }
 
         $student->update($validated);
 
         return redirect()
-            ->route(
-                'admin.students.show',
-                $student->id
-            )
-            ->with(
-                'success',
-                'Student updated successfully.'
-            );
+            ->route('admin.students.show', $student->id)
+            ->with('success', 'Student updated successfully.');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE
-    |--------------------------------------------------------------------------
-    */
 
     public function destroy(Student $student)
     {
@@ -927,10 +294,7 @@ $validated['school_id'] = $schoolId;
 
         return redirect()
             ->route('admin.students.index')
-            ->with(
-                'success',
-                'Student deleted successfully.'
-            );
+            ->with('success', 'Student deleted successfully.');
     }
 
     /*
@@ -938,140 +302,71 @@ $validated['school_id'] = $schoolId;
     | AJAX - NEXT ROLL NUMBER
     |--------------------------------------------------------------------------
     */
-
     public function nextRollNumber(Request $request)
-{
-    $validated = $request->validate([
-        'class' => [
-            'required',
-            'string',
-            'max:50',
-        ],
+    {
+        $validated = $request->validate([
+            'class' => ['required', 'string', 'max:50'],
+            'section' => ['nullable', 'string', 'max:20'],
+            'academic_year' => ['nullable', 'string', 'max:20'],
+        ]);
 
-        'section' => [
-            'nullable',
-            'string',
-            'max:20',
-        ],
+        $class = trim($validated['class']);
+        $section = isset($validated['section']) ? trim($validated['section']) : null;
+        $academicYear = isset($validated['academic_year']) ? trim($validated['academic_year']) : null;
 
-        'academic_year' => [
-            'nullable',
-            'string',
-            'max:20',
-        ],
-    ]);
+        $rollNumber = $this->generateRollNumber($class, $section, $academicYear);
 
-    $class = trim($validated['class']);
-    $section = isset($validated['section'])
-        ? trim($validated['section'])
-        : null;
-
-    $academicYear = isset($validated['academic_year'])
-        ? trim($validated['academic_year'])
-        : null;
-
-    $rollNumber = $this->generateRollNumber(
-        $class,
-        $section,
-        $academicYear
-    );
-
-    return response()->json([
-        'success' => true,
-        'roll_number' => $rollNumber,
-        'class' => $class,
-        'section' => $section,
-        'academic_year' => $academicYear,
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'roll_number' => $rollNumber,
+            'class' => $class,
+            'section' => $section,
+            'academic_year' => $academicYear,
+        ]);
+    }
 
     /*
     |--------------------------------------------------------------------------
     | SEARCH STUDENT
     |--------------------------------------------------------------------------
     */
-
     public function search(Request $request)
     {
         $request->validate([
-
-            'student_id' => [
-                'required',
-                'string',
-                'max:100'
-            ],
+            'student_id' => ['required', 'string', 'max:100'],
         ]);
 
         $student = Student::query()
-            ->where(
-                'student_id',
-                $request->input('student_id')
-            )
-            ->where(
-                'status',
-                'active'
-            )
+            ->where('student_id', $request->input('student_id'))
+            ->where('status', 'active')
             ->first();
 
         if (!$student) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'Student not found.',
             ], 404);
         }
 
-        $studentName = trim(
-            implode(
-                ' ',
-                array_filter([
-                    $student->first_name,
-                    $student->middle_name,
-                    $student->last_name,
-                ])
-            )
-        );
+        $studentName = trim(implode(' ', array_filter([
+            $student->first_name,
+            $student->middle_name,
+            $student->last_name,
+        ])));
 
         return response()->json([
-
             'success' => true,
-
-            'student_id' =>
-                $student->student_id,
-
-            'student_name' =>
-                $studentName,
-
-            'class' =>
-                $student->class,
-
-            'section' =>
-                $student->section,
-
-            'date_of_birth' =>
-                $student->date_of_birth,
-
-            'parent' =>
-                $student->father_name
-                ??
-                $student->mother_name
-                ??
-                $student->guardian_name,
-
-            'father_name' =>
-                $student->father_name,
-
-            'mother_name' =>
-                $student->mother_name,
-
-            'guardian_name' =>
-                $student->guardian_name,
-
-            'educational_year' =>
-                $student->academic_year,
-
-            'academic_year' =>
-                $student->academic_year,
+            'student_id' => $student->student_id,
+            'student_name' => $studentName,
+            'class' => $student->class,
+            'section' => $student->section,
+            'date_of_birth' => $student->date_of_birth,
+            'parent' => $student->father_name ?? $student->mother_name ?? $student->guardian_name,
+            'father_name' => $student->father_name,
+            'mother_name' => $student->mother_name,
+            'guardian_name' => $student->guardian_name,
+            'educational_year' => $student->academic_year,
+            'academic_year' => $student->academic_year,
         ]);
     }
 
@@ -1080,379 +375,77 @@ $validated['school_id'] = $schoolId;
     | CLOUDINARY UPLOAD
     |--------------------------------------------------------------------------
     */
-
-    private function uploadToCloudinary(
-        $file,
-        string $publicId
-    ): string {
-
+    private function uploadToCloudinary($file, string $publicId): string
+    {
         try {
-
-            /*
-            |--------------------------------------------------------------------------
-            | CHECK FILE
-            |--------------------------------------------------------------------------
-            */
-
-            if (!$file) {
-
-                throw new \RuntimeException(
-                    'No profile image was received.'
-                );
+            if (!$file || !$file->isValid()) {
+                throw new \RuntimeException('Uploaded profile image is invalid.');
             }
-
-            if (!$file->isValid()) {
-
-                throw new \RuntimeException(
-                    'Uploaded profile image is invalid.'
-                );
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | CHECK TEMPORARY FILE
-            |--------------------------------------------------------------------------
-            */
 
             $realPath = $file->getRealPath();
 
-            if (
-                empty($realPath) ||
-                !file_exists($realPath)
-            ) {
-
-                throw new \RuntimeException(
-                    'Temporary uploaded image file could not be found.'
-                );
+            if (empty($realPath) || !file_exists($realPath)) {
+                throw new \RuntimeException('Temporary uploaded image file could not be found.');
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | CLOUDINARY CONFIGURATION
-            |--------------------------------------------------------------------------
-            */
-
-            $cloudUrl =
-                config('cloudinary.cloud_url')
-                ??
-                config('filesystems.disks.cloudinary.url')
-                ??
-                env('CLOUDINARY_URL');
+            $cloudUrl = config('cloudinary.cloud_url')
+                ?? config('filesystems.disks.cloudinary.url')
+                ?? env('CLOUDINARY_URL');
 
             if (empty($cloudUrl)) {
-
-                throw new \RuntimeException(
-                    'Cloudinary configuration is missing. Please check CLOUDINARY_URL in your .env file.'
-                );
+                throw new \RuntimeException('Cloudinary configuration is missing.');
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE CLOUDINARY CLIENT
-            |--------------------------------------------------------------------------
-            */
 
             $cloudinary = new Cloudinary();
 
-            /*
-            |--------------------------------------------------------------------------
-            | UPLOAD
-            |--------------------------------------------------------------------------
-            */
-
-            $result = $cloudinary
-                ->uploadApi()
-                ->upload(
-                    $realPath,
-                    [
-                        'folder' =>
-                            'school-management-db/students',
-
-                        'public_id' =>
-                            $publicId,
-
-                        'resource_type' =>
-                            'image',
-                    ]
-                );
-
-            /*
-            |--------------------------------------------------------------------------
-            | DEBUG CLOUDINARY RESPONSE TYPE
-            |--------------------------------------------------------------------------
-            */
-
-            Log::info(
-                'Cloudinary student image upload response',
-                [
-                    'type' =>
-                        is_object($result)
-                            ? get_class($result)
-                            : gettype($result),
-                ]
-            );
-
-            /*
-            |--------------------------------------------------------------------------
-            | GET SECURE URL
-            |--------------------------------------------------------------------------
-            */
+            $result = $cloudinary->uploadApi()->upload($realPath, [
+                'folder' => 'school-management-db/students',
+                'public_id' => $publicId,
+                'resource_type' => 'image',
+            ]);
 
             $secureUrl = null;
 
-            /*
-            |--------------------------------------------------------------------------
-            | CASE 1: ARRAY RESPONSE
-            |--------------------------------------------------------------------------
-            */
-
             if (is_array($result)) {
-
-                $secureUrl =
-                    $result['secure_url']
-                    ??
-                    $result['url']
-                    ??
-                    null;
+                $secureUrl = $result['secure_url'] ?? $result['url'] ?? null;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | CASE 2: OBJECT RESPONSE
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                empty($secureUrl) &&
-                is_object($result)
-            ) {
-
-                /*
-                |----------------------------------------------------------------------
-                | getSecurePath()
-                |----------------------------------------------------------------------
-                */
-
-                if (
-                    method_exists(
-                        $result,
-                        'getSecurePath'
-                    )
-                ) {
-
-                    $secureUrl =
-                        $result->getSecurePath();
+            if (empty($secureUrl) && is_object($result)) {
+                if (method_exists($result, 'getSecurePath')) {
+                    $secureUrl = $result->getSecurePath();
                 }
-
-                /*
-                |----------------------------------------------------------------------
-                | secure_url property
-                |----------------------------------------------------------------------
-                */
-
-                if (
-                    empty($secureUrl) &&
-                    isset($result->secure_url)
-                ) {
-
-                    $secureUrl =
-                        $result->secure_url;
+                if (empty($secureUrl) && isset($result->secure_url)) {
+                    $secureUrl = $result->secure_url;
                 }
-
-                /*
-                |----------------------------------------------------------------------
-                | url property
-                |----------------------------------------------------------------------
-                */
-
-                if (
-                    empty($secureUrl) &&
-                    isset($result->url)
-                ) {
-
-                    $secureUrl =
-                        $result->url;
+                if (empty($secureUrl) && isset($result->url)) {
+                    $secureUrl = $result->url;
                 }
-
-                /*
-                |----------------------------------------------------------------------
-                | toArray()
-                |----------------------------------------------------------------------
-                */
-
-                if (
-                    empty($secureUrl) &&
-                    method_exists(
-                        $result,
-                        'toArray'
-                    )
-                ) {
-
-                    $response =
-                        $result->toArray();
-
-                    if (is_array($response)) {
-
-                        $secureUrl =
-                            $response['secure_url']
-                            ??
-                            $response['url']
-                            ??
-                            null;
-                    }
-                }
-
-                /*
-                |----------------------------------------------------------------------
-                | getArrayCopy()
-                |----------------------------------------------------------------------
-                */
-
-                if (
-                    empty($secureUrl) &&
-                    method_exists(
-                        $result,
-                        'getArrayCopy'
-                    )
-                ) {
-
-                    $response =
-                        $result->getArrayCopy();
-
-                    if (is_array($response)) {
-
-                        $secureUrl =
-                            $response['secure_url']
-                            ??
-                            $response['url']
-                            ??
-                            null;
-                    }
-                }
-
-                /*
-                |----------------------------------------------------------------------
-                | JSON RESPONSE
-                |----------------------------------------------------------------------
-                */
-
-                if (
-                    empty($secureUrl) &&
-                    method_exists(
-                        $result,
-                        '__toString'
-                    )
-                ) {
-
-                    $json =
-                        (string) $result;
-
-                    $decoded =
-                        json_decode(
-                            $json,
-                            true
-                        );
-
-                    if (is_array($decoded)) {
-
-                        $secureUrl =
-                            $decoded['secure_url']
-                            ??
-                            $decoded['url']
-                            ??
-                            null;
-                    }
+                if (empty($secureUrl) && method_exists($result, 'toArray')) {
+                    $response = $result->toArray();
+                    $secureUrl = $response['secure_url'] ?? $response['url'] ?? null;
                 }
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | FINAL URL CHECK
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                empty($secureUrl) ||
-                !filter_var(
-                    $secureUrl,
-                    FILTER_VALIDATE_URL
-                )
-            ) {
-
-                /*
-                |--------------------------------------------------------------------------
-                | LOG RESPONSE FOR DEBUGGING
-                |--------------------------------------------------------------------------
-                */
-
-                Log::error(
-                    'Cloudinary upload completed but URL was not found.',
-                    [
-                        'response_type' =>
-                            is_object($result)
-                                ? get_class($result)
-                                : gettype($result),
-
-                        'response' =>
-                            is_object($result)
-                                ? print_r(
-                                    $result,
-                                    true
-                                )
-                                : $result,
-                    ]
-                );
-
-                throw new \RuntimeException(
-                    'Cloudinary upload completed, but the image URL could not be read from the response.'
-                );
+            if (empty($secureUrl) || !filter_var($secureUrl, FILTER_VALIDATE_URL)) {
+                throw new \RuntimeException('Cloudinary upload completed, but the image URL could not be read.');
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | SUCCESS
-            |--------------------------------------------------------------------------
-            */
-
-            Log::info(
-                'Student profile image uploaded successfully.',
-                [
-                    'url' => $secureUrl,
-                ]
-            );
 
             return $secureUrl;
 
         } catch (Throwable $e) {
-
-            Log::error(
-                'Cloudinary student profile image upload failed.',
-                [
-                    'message' =>
-                        $e->getMessage(),
-
-                    'file' =>
-                        $file?->getClientOriginalName(),
-
-                    'mime' =>
-                        $file?->getMimeType(),
-
-                    'size' =>
-                        $file?->getSize(),
-                ]
-            );
+            Log::error('Cloudinary student profile image upload failed.', [
+                'message' => $e->getMessage(),
+            ]);
 
             throw ValidationException::withMessages([
-                'profile_image' =>
-                    'Profile image upload failed: ' .
-                    $e->getMessage(),
+                'profile_image' => 'Profile image upload failed: ' . $e->getMessage(),
             ]);
         }
     }
 
     /*
     |--------------------------------------------------------------------------
-    | VALIDATION
+    | VALIDATION (Strong & Secure)
     |--------------------------------------------------------------------------
     */
 
@@ -1716,492 +709,59 @@ private function validateStudent(
 }
 
 
+        private function generateStudentId(?string $class = null, ?string $section = null, ?string $academicYear = null): string
+    {
+        $school = SchoolSetting::query()->lockForUpdate()->first();
 
-private function generateStudentId(
-    ?string $class = null,
-    ?string $section = null,
-    ?string $academicYear = null
-): string {
+        $format = $school?->student_id_format ?: 'STU-{YEAR}-{NUMBER}';
+        $startNumber = (int) ($school?->student_id_start ?: 1);
+        $numberLength = (int) ($school?->student_id_length ?: 4);
 
-    /*
-    |--------------------------------------------------------------------------
-    | GET SCHOOL SETTINGS
-    |--------------------------------------------------------------------------
-    |
-    | lockForUpdate() prevents two students being registered
-    | at exactly the same time from receiving the same number.
-    |
-    */
+        $year = now()->year;
+        $shortYear = substr((string) $year, -2);
 
-    $school = SchoolSetting::query()
-        ->lockForUpdate()
-        ->first();
+        $class = trim((string) ($class ?? ''));
+        $section = trim((string) ($section ?? ''));
 
-    /*
-    |--------------------------------------------------------------------------
-    | DEFAULT SETTINGS
-    |--------------------------------------------------------------------------
-    */
+        $students = Student::withTrashed()->whereNotNull('student_id')->pluck('student_id');
 
-    $format = $school?->student_id_format
-        ?: 'STU-{YEAR}-{NUMBER}';
+        $nextNumber = $startNumber;
 
-    $startNumber = (int) (
-        $school?->student_id_start
-        ?: 1
-    );
+        foreach ($students as $existingId) {
+            $pattern = preg_quote($format, '/');
+            $pattern = str_replace('\{NUMBER\}', '([0-9]+)', $pattern);
+            $pattern = str_replace('\{YEAR\}', preg_quote((string) $year, '/'), $pattern);
+            $pattern = str_replace('\{YY\}', preg_quote($shortYear, '/'), $pattern);
+            $pattern = str_replace('\{CLASS\}', '.*?', $pattern);
+            $pattern = str_replace('\{SECTION\}', '.*?', $pattern);
 
-    $numberLength = (int) (
-        $school?->student_id_length
-        ?: 4
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | CURRENT YEAR
-    |--------------------------------------------------------------------------
-    */
-
-    $year = now()->year;
-
-    $shortYear = substr(
-        (string) $year,
-        -2
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLEAN CLASS / SECTION
-    |--------------------------------------------------------------------------
-    */
-
-    $class = trim(
-        (string) ($class ?? '')
-    );
-
-    $section = trim(
-        (string) ($section ?? '')
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | FIND EXISTING STUDENT IDs
-    |--------------------------------------------------------------------------
-    |
-    | We only consider IDs generated using the CURRENT format.
-    | Existing old IDs such as STU01 are not changed.
-    |
-    */
-
-    $students = Student::withTrashed()
-        ->whereNotNull('student_id')
-        ->pluck('student_id');
-
-    /*
-    |--------------------------------------------------------------------------
-    | FIND NEXT SEQUENCE NUMBER
-    |--------------------------------------------------------------------------
-    */
-
-    $nextNumber = $startNumber;
-
-    foreach ($students as $existingId) {
-
-        /*
-        |----------------------------------------------------------------------
-        | Convert the configured format into a regular expression.
-        |----------------------------------------------------------------------
-        */
-
-        $pattern = preg_quote(
-            $format,
-            '/'
-        );
-
-        /*
-        |----------------------------------------------------------------------
-        | NUMBER PLACEHOLDER
-        |----------------------------------------------------------------------
-        */
-
-        $pattern = str_replace(
-            '\{NUMBER\}',
-            '([0-9]+)',
-            $pattern
-        );
-
-        /*
-        |----------------------------------------------------------------------
-        | Other placeholders
-        |----------------------------------------------------------------------
-        */
-
-        $pattern = str_replace(
-            '\{YEAR\}',
-            preg_quote(
-                (string) $year,
-                '/'
-            ),
-            $pattern
-        );
-
-        $pattern = str_replace(
-            '\{YY\}',
-            preg_quote(
-                $shortYear,
-                '/'
-            ),
-            $pattern
-        );
-
-        $pattern = str_replace(
-            '\{CLASS\}',
-            '.*?',
-            $pattern
-        );
-
-        $pattern = str_replace(
-            '\{SECTION\}',
-            '.*?',
-            $pattern
-        );
-
-        /*
-        |----------------------------------------------------------------------
-        | Match Existing ID
-        |----------------------------------------------------------------------
-        */
-
-        if (
-            preg_match(
-                '/^' . $pattern . '$/',
-                $existingId,
-                $matches
-            )
-        ) {
-
-            if (
-                isset($matches[1]) &&
-                is_numeric($matches[1])
-            ) {
-
-                $existingNumber =
-                    (int) $matches[1];
-
-                if (
-                    $existingNumber >=
-                    $nextNumber
-                ) {
-
-                    $nextNumber =
-                        $existingNumber + 1;
+            if (preg_match('/^' . $pattern . '$/', $existingId, $matches)) {
+                if (isset($matches[1]) && is_numeric($matches[1])) {
+                    $existingNumber = (int) $matches[1];
+                    if ($existingNumber >= $nextNumber) {
+                        $nextNumber = $existingNumber + 1;
+                    }
                 }
             }
         }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | GENERATE ID
-    |--------------------------------------------------------------------------
-    */
-
-    do {
-
-        $number = str_pad(
-            (string) $nextNumber,
-            $numberLength,
-            '0',
-            STR_PAD_LEFT
-        );
-
-        /*
-        |----------------------------------------------------------------------
-        | Replace placeholders
-        |----------------------------------------------------------------------
-        */
-
-        $studentId = str_replace(
-            [
-                '{YEAR}',
-                '{YY}',
-                '{CLASS}',
-                '{SECTION}',
-                '{NUMBER}',
-            ],
-            [
-                $year,
-                $shortYear,
-                $class,
-                $section,
-                $number,
-            ],
-            $format
-        );
-
-        /*
-        |----------------------------------------------------------------------
-        | FINAL UNIQUENESS CHECK
-        |----------------------------------------------------------------------
-        */
-
-        $exists = Student::withTrashed()
-            ->where(
-                'student_id',
-                $studentId
-            )
-            ->exists();
-
-        if ($exists) {
-            $nextNumber++;
-        }
-
-    } while ($exists);
-
-    return $studentId;
-}
-    /*
-    |--------------------------------------------------------------------------
-    | GENERATE REGISTER NUMBER
-    |--------------------------------------------------------------------------
-    */
-
-    private function generateRegisterNumber(): string
-    {
-        $last = Student::withTrashed()
-            ->where(
-                'register_no',
-                'like',
-                'REG%'
-            )
-            ->orderByRaw(
-                "CAST(SUBSTRING(register_no, 4) AS UNSIGNED) DESC"
-            )
-            ->value('register_no');
-
-        $next = 1;
-
-        if (
-            $last &&
-            preg_match(
-                '/^REG(\d+)$/',
-                $last,
-                $matches
-            )
-        ) {
-
-            $next =
-                ((int) $matches[1]) + 1;
-        }
 
         do {
+            $number = str_pad((string) $nextNumber, $numberLength, '0', STR_PAD_LEFT);
 
-            $number =
-                'REG' .
-                str_pad(
-                    $next,
-                    2,
-                    '0',
-                    STR_PAD_LEFT
-                );
+            $studentId = str_replace(
+                ['{YEAR}', '{YY}', '{CLASS}', '{SECTION}', '{NUMBER}'],
+                [$year, $shortYear, $class, $section, $number],
+                $format
+            );
 
-            $exists = Student::withTrashed()
-                ->where(
-                    'register_no',
-                    $number
-                )
-                ->exists();
+            $exists = Student::withTrashed()->where('student_id', $studentId)->exists();
 
             if ($exists) {
-                $next++;
+                $nextNumber++;
             }
-
         } while ($exists);
 
-        return $number;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | GENERATE BOOK NUMBER
-    |--------------------------------------------------------------------------
-    */
-
-    private function generateBookNumber(): string
-    {
-        $last = Student::withTrashed()
-            ->where(
-                'book_no',
-                'like',
-                'BOOK%'
-            )
-            ->orderByRaw(
-                "CAST(SUBSTRING(book_no, 5) AS UNSIGNED) DESC"
-            )
-            ->value('book_no');
-
-        $next = 1;
-
-        if (
-            $last &&
-            preg_match(
-                '/^BOOK(\d+)$/',
-                $last,
-                $matches
-            )
-        ) {
-
-            $next =
-                ((int) $matches[1]) + 1;
-        }
-
-        do {
-
-            $number =
-                'BOOK' .
-                str_pad(
-                    $next,
-                    2,
-                    '0',
-                    STR_PAD_LEFT
-                );
-
-            $exists = Student::withTrashed()
-                ->where(
-                    'book_no',
-                    $number
-                )
-                ->exists();
-
-            if ($exists) {
-                $next++;
-            }
-
-        } while ($exists);
-
-        return $number;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | GENERATE APAAR INTERNAL REFERENCE
-    |--------------------------------------------------------------------------
-    */
-
-    private function generateAparId(): string
-    {
-        $last = Student::withTrashed()
-            ->where(
-                'appar_id',
-                'like',
-                'APAAR%'
-            )
-            ->orderByRaw(
-                "CAST(SUBSTRING(appar_id, 6) AS UNSIGNED) DESC"
-            )
-            ->value('appar_id');
-
-        $next = 1;
-
-        if (
-            $last &&
-            preg_match(
-                '/^APAAR(\d+)$/',
-                $last,
-                $matches
-            )
-        ) {
-
-            $next =
-                ((int) $matches[1]) + 1;
-        }
-
-        do {
-
-            $number =
-                'APAAR' .
-                str_pad(
-                    $next,
-                    2,
-                    '0',
-                    STR_PAD_LEFT
-                );
-
-            $exists = Student::withTrashed()
-                ->where(
-                    'appar_id',
-                    $number
-                )
-                ->exists();
-
-            if ($exists) {
-                $next++;
-            }
-
-        } while ($exists);
-
-        return $number;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | GENERATE PEN INTERNAL REFERENCE
-    |--------------------------------------------------------------------------
-    */
-
-    private function generatePenNumber(): string
-    {
-        $last = Student::withTrashed()
-            ->where(
-                'pen_no',
-                'like',
-                'PEN%'
-            )
-            ->orderByRaw(
-                "CAST(SUBSTRING(pen_no, 4) AS UNSIGNED) DESC"
-            )
-            ->value('pen_no');
-
-        $next = 1;
-
-        if (
-            $last &&
-            preg_match(
-                '/^PEN(\d+)$/',
-                $last,
-                $matches
-            )
-        ) {
-
-            $next =
-                ((int) $matches[1]) + 1;
-        }
-
-        do {
-
-            $number =
-                'PEN' .
-                str_pad(
-                    $next,
-                    2,
-                    '0',
-                    STR_PAD_LEFT
-                );
-
-            $exists = Student::withTrashed()
-                ->where(
-                    'pen_no',
-                    $number
-                )
-                ->exists();
-
-            if ($exists) {
-                $next++;
-            }
-
-        } while ($exists);
-
-        return $number;
+        return $studentId;
     }
 
     /*
@@ -2209,248 +769,129 @@ private function generateStudentId(
     | GENERATE ROLL NUMBER
     |--------------------------------------------------------------------------
     */
+    private function generateRollNumber(string $class, ?string $section = null, ?string $academicYear = null): string
+    {
+        $class = trim($class);
+        $section = $section !== null ? trim($section) : null;
+        $academicYear = $academicYear !== null ? trim($academicYear) : null;
 
-    private function generateRollNumber(
-    string $class,
-    ?string $section = null,
-    ?string $academicYear = null
-): string {
-
-    $class = trim($class);
-    $section = $section !== null
-        ? trim($section)
-        : null;
-
-    $academicYear = $academicYear !== null
-        ? trim($academicYear)
-        : null;
-
-    /*
-    |--------------------------------------------------------------------------
-    | IMPORTANT
-    |--------------------------------------------------------------------------
-    | Roll number is generated ONLY from:
-    |
-    | Current Class
-    | Current Section
-    | Academic Year
-    |
-    | previous_school_class is NOT used.
-    |--------------------------------------------------------------------------
-    */
-
-    $query = Student::query()
-        ->where('class', $class);
-
-    if ($section !== null && $section !== '') {
-        $query->where('section', $section);
-    }
-
-    if ($academicYear !== null && $academicYear !== '') {
-        $query->where('academic_year', $academicYear);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | FIND HIGHEST EXISTING ROLL NUMBER
-    |--------------------------------------------------------------------------
-    */
-
-    $lastRoll = $query
-        ->whereNotNull('roll_number')
-        ->where('roll_number', '!=', '')
-        ->whereRaw("roll_number REGEXP '^[0-9]+$'")
-        ->orderByRaw(
-            "CAST(roll_number AS UNSIGNED) DESC"
-        )
-        ->value('roll_number');
-
-    $nextNumber = 1;
-
-    if ($lastRoll !== null && is_numeric($lastRoll)) {
-        $nextNumber = ((int) $lastRoll) + 1;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | MAKE SURE ROLL NUMBER DOES NOT ALREADY EXIST
-    |--------------------------------------------------------------------------
-    */
-
-    do {
-
-        $rollNumber = str_pad(
-            $nextNumber,
-            2,
-            '0',
-            STR_PAD_LEFT
-        );
-
-        $existsQuery = Student::query()
-            ->where('class', $class)
-            ->where('roll_number', $rollNumber);
+        $query = Student::query()->where('class', $class);
 
         if ($section !== null && $section !== '') {
-            $existsQuery->where(
-                'section',
-                $section
-            );
+            $query->where('section', $section);
         }
 
         if ($academicYear !== null && $academicYear !== '') {
-            $existsQuery->where(
-                'academic_year',
-                $academicYear
-            );
+            $query->where('academic_year', $academicYear);
         }
 
-        $exists = $existsQuery->exists();
+        $lastRoll = $query
+            ->whereNotNull('roll_number')
+            ->where('roll_number', '!=', '')
+            ->whereRaw("roll_number REGEXP '^[0-9]+$'")
+            ->orderByRaw("CAST(roll_number AS UNSIGNED) DESC")
+            ->value('roll_number');
 
-        if ($exists) {
-            $nextNumber++;
+        $nextNumber = 1;
+
+        if ($lastRoll !== null && is_numeric($lastRoll)) {
+            $nextNumber = ((int) $lastRoll) + 1;
         }
 
-    } while ($exists);
+        do {
+            $rollNumber = str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
 
-    return $rollNumber;
-}
+            $existsQuery = Student::query()
+                ->where('class', $class)
+                ->where('roll_number', $rollNumber);
+
+            if ($section !== null && $section !== '') {
+                $existsQuery->where('section', $section);
+            }
+
+            if ($academicYear !== null && $academicYear !== '') {
+                $existsQuery->where('academic_year', $academicYear);
+            }
+
+            $exists = $existsQuery->exists();
+
+            if ($exists) {
+                $nextNumber++;
+            }
+        } while ($exists);
+
+        return $rollNumber;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | CLASS-WISE STUDENTS
     |--------------------------------------------------------------------------
     */
-
     public function classWise(Request $request)
     {
         $query = Student::query();
 
         if ($request->filled('academic_year')) {
-
-            $query->where(
-                'academic_year',
-                $request->input('academic_year')
-            );
+            $query->where('academic_year', $request->input('academic_year'));
         }
-
         if ($request->filled('class')) {
-
-            $query->where(
-                'class',
-                $request->input('class')
-            );
+            $query->where('class', $request->input('class'));
         }
-
         if ($request->filled('section')) {
-
-            $query->where(
-                'section',
-                $request->input('section')
-            );
+            $query->where('section', $request->input('section'));
         }
-
         if ($request->filled('gender')) {
-
-            $query->where(
-                'gender',
-                $request->input('gender')
-            );
+            $query->where('gender', $request->input('gender'));
         }
-
         if ($request->filled('status')) {
-
-            $query->where(
-                'status',
-                $request->input('status')
-            );
+            $query->where('status', $request->input('status'));
         }
 
         $students = $query
-            ->orderByRaw(
-                "CASE
-                    WHEN roll_number REGEXP '^[0-9]+$'
-                    THEN CAST(roll_number AS UNSIGNED)
-                    ELSE 999999
-                 END ASC"
-            )
+            ->orderByRaw("CASE WHEN roll_number REGEXP '^[0-9]+$' THEN CAST(roll_number AS UNSIGNED) ELSE 999999 END ASC")
             ->orderBy('last_name')
             ->paginate(25)
             ->withQueryString();
 
         $countQuery = clone $query;
 
-        $totalStudents =
-            (clone $countQuery)->count();
-
-        $totalBoys =
-            (clone $countQuery)
-                ->where(
-                    'gender',
-                    'Male'
-                )
-                ->count();
-
-        $totalGirls =
-            (clone $countQuery)
-                ->where(
-                    'gender',
-                    'Female'
-                )
-                ->count();
-
-        $totalActive =
-            (clone $countQuery)
-                ->where(
-                    'status',
-                    'active'
-                )
-                ->count();
+        $totalStudents = (clone $countQuery)->count();
+        $totalBoys = (clone $countQuery)->where('gender', 'Male')->count();
+        $totalGirls = (clone $countQuery)->where('gender', 'Female')->count();
+        $totalActive = (clone $countQuery)->where('status', 'active')->count();
 
         $academicYears = Student::query()
             ->whereNotNull('academic_year')
-            ->where(
-                'academic_year',
-                '!=',
-                ''
-            )
+            ->where('academic_year', '!=', '')
             ->distinct()
             ->orderByDesc('academic_year')
             ->pluck('academic_year');
 
         $classes = Student::query()
             ->whereNotNull('class')
-            ->where(
-                'class',
-                '!=',
-                ''
-            )
+            ->where('class', '!=', '')
             ->distinct()
             ->orderBy('class')
             ->pluck('class');
 
         $sections = Student::query()
             ->whereNotNull('section')
-            ->where(
-                'section',
-                '!=',
-                ''
-            )
+            ->where('section', '!=', '')
             ->distinct()
             ->orderBy('section')
             ->pluck('section');
 
-        return view(
-            'admin.students.class-wise',
-            compact(
-                'students',
-                'academicYears',
-                'classes',
-                'sections',
-                'totalStudents',
-                'totalBoys',
-                'totalGirls',
-                'totalActive'
-            )
-        );
+        return view('admin.students.class-wise', compact(
+            'students',
+            'academicYears',
+            'classes',
+            'sections',
+            'totalStudents',
+            'totalBoys',
+            'totalGirls',
+            'totalActive'
+        ));
     }
 
     /*
@@ -2458,278 +899,140 @@ private function generateStudentId(
     | CLASS-WISE PRINT
     |--------------------------------------------------------------------------
     */
-
-    public function classWisePrint(
-        Request $request
-    ) {
-
+    public function classWisePrint(Request $request)
+    {
         $query = Student::query();
 
-        $selectedClass =
-            $request->input('class');
-
-        $selectedSection =
-            $request->input('section');
-
-        $selectedGender =
-            $request->input('gender');
-
-        $selectedStatus =
-            $request->input('status');
-
-        $academicYear =
-            $request->input('academic_year');
+        $selectedClass = $request->input('class');
+        $selectedSection = $request->input('section');
+        $selectedGender = $request->input('gender');
+        $selectedStatus = $request->input('status');
+        $academicYear = $request->input('academic_year');
 
         if (!empty($academicYear)) {
-
-            $query->where(
-                'academic_year',
-                $academicYear
-            );
+            $query->where('academic_year', $academicYear);
         }
-
         if (!empty($selectedClass)) {
-
-            $query->where(
-                'class',
-                $selectedClass
-            );
+            $query->where('class', $selectedClass);
         }
-
         if (!empty($selectedSection)) {
-
-            $query->where(
-                'section',
-                $selectedSection
-            );
+            $query->where('section', $selectedSection);
         }
-
         if (!empty($selectedGender)) {
-
-            $query->where(
-                'gender',
-                $selectedGender
-            );
+            $query->where('gender', $selectedGender);
         }
-
         if (!empty($selectedStatus)) {
-
-            $query->where(
-                'status',
-                $selectedStatus
-            );
+            $query->where('status', $selectedStatus);
         }
 
         $students = $query
             ->orderBy('class')
             ->orderBy('section')
-            ->orderByRaw(
-                "CASE
-                    WHEN roll_number REGEXP '^[0-9]+$'
-                    THEN CAST(roll_number AS UNSIGNED)
-                    ELSE 999999
-                 END ASC"
-            )
+            ->orderByRaw("CASE WHEN roll_number REGEXP '^[0-9]+$' THEN CAST(roll_number AS UNSIGNED) ELSE 999999 END ASC")
             ->orderBy('last_name')
             ->get();
 
-        $totalStudents =
-            $students->count();
+        $totalStudents = $students->count();
+        $totalBoys = $students->where('gender', 'Male')->count();
+        $totalGirls = $students->where('gender', 'Female')->count();
+        $totalActive = $students->where('status', 'active')->count();
 
-        $totalBoys =
-            $students
-                ->where(
-                    'gender',
-                    'Male'
-                )
-                ->count();
+        $academicYear = $academicYear ?? $students->first()?->academic_year ?? (date('Y') . '-' . (date('Y') + 1));
 
-        $totalGirls =
-            $students
-                ->where(
-                    'gender',
-                    'Female'
-                )
-                ->count();
+        return view('admin.students.class-wise-print', compact(
+            'students',
+            'academicYear',
+            'selectedClass',
+            'selectedSection',
+            'selectedGender',
+            'selectedStatus',
+            'totalStudents',
+            'totalBoys',
+            'totalGirls',
+            'totalActive'
+        ));
+    }
 
-        $totalActive =
-            $students
-                ->where(
-                    'status',
-                    'active'
-                )
-                ->count();
+    /*
+    |--------------------------------------------------------------------------
+    | EXPORT
+    |--------------------------------------------------------------------------
+    */
+    public function export(Request $request)
+    {
+        $filters = $request->only(['search', 'class', 'section', 'academic_year', 'status']);
 
-        $academicYear =
-            $academicYear
-            ??
-            $students->first()?->academic_year
-            ??
-            (
-                date('Y') .
-                '-' .
-                (date('Y') + 1)
-            );
-
-        return view(
-            'admin.students.class-wise-print',
-            compact(
-                'students',
-                'academicYear',
-                'selectedClass',
-                'selectedSection',
-                'selectedGender',
-                'selectedStatus',
-                'totalStudents',
-                'totalBoys',
-                'totalGirls',
-                'totalActive'
-            )
+        return Excel::download(
+            new AllStudentsExport($filters),
+            'all_students_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | BULK TEMPLATE
+    |--------------------------------------------------------------------------
+    */
+    public function bulkCreate()
+    {
+        $classes = SchoolClass::query()
+            ->where('status', true)
+            ->orderBy('class_name')
+            ->orderBy('section')
+            ->get();
 
-public function export(Request $request)
-{
-    $filters = $request->only([
-        'search',
-        'class',
-        'section',
-        'academic_year',
-        'status',
-    ]);
-
-    return Excel::download(
-        new AllStudentsExport($filters),
-        'all_students_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
-    );
-}
-/**
- * Download the Excel template for bulk student entry.
- */
-
-public function downloadBulkTemplate()
-{
-    $headings = [
-    'student_id',
-    'first_name',
-    'middle_name',
-    'last_name',
-    'marathi_name',
-    'gender',
-    'date_of_birth',
-    'birth_place',
-    'aadhar_card_no',
-    'academic_year',
-    'class',
-    'admission_class',
-    'section',
-    'admission_date',
-    'roll_number',
-    'register_no',
-    'book_no',
-    'appar_id',
-    'pen_no',
-    'saral_id',
-    'phone',
-    'email',
-    'father_name',
-    'father_phone',
-    'father_occupation',
-    'mother_name',
-    'mother_phone',
-    'mother_occupation',
-    'guardian_name',
-    'guardian_relation',
-    'guardian_phone',
-    'medium',
-    'mother_tongue',
-    'nationality',
-    'religion',
-    'caste',
-    'sub_caste',
-    'previous_school_name',
-    'previous_school_address',
-    'previous_school_class',
-    'previous_school_medium',
-    'previous_school_board',
-    'previous_school_result',
-    'previous_school_remarks',
-    'address',
-    'country',
-    'state',
-    'district',
-    'taluka',
-    'city_village',
-    'pincode',
-    'status',
-];
-
-    // Default values for generating Student IDs.
-    $academicYear = date('Y') . '-' . (date('Y') + 1);
-    $admissionClass = '';
-    $section = '';
-
-    // Generate the first available Student ID using existing logic.
-    $firstStudentId = $this->generateStudentId(
-        $admissionClass,
-        $section,
-        $academicYear
-    );
-
-    // Extract the numeric sequence from the generated ID.
-    $prefix = preg_replace('/\d+$/', '', $firstStudentId);
-    preg_match('/(\d+)$/', $firstStudentId, $matches);
-
-    $nextNumber = isset($matches[1])
-        ? (int) $matches[1]
-        : 1;
-
-    $numberLength = isset($matches[1])
-        ? strlen($matches[1])
-        : 4;
-
-    // Create 100 blank rows with sequential Student IDs.
-    $rows = [];
-
-    for ($i = 0; $i < 100; $i++) {
-        $rows[] = [
-            $prefix . str_pad(
-                (string) ($nextNumber + $i),
-                $numberLength,
-                '0',
-                STR_PAD_LEFT
-            ),
-            '', '', '', '', '', $academicYear,
-            '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        ];
+        return view('admin.students.bulk-create', compact('classes'));
     }
 
-    $export = new class($headings, $rows) implements
-        \Maatwebsite\Excel\Concerns\FromArray,
-        \Maatwebsite\Excel\Concerns\WithHeadings
+    public function downloadBulkTemplate()
     {
-        public function __construct(
-            private array $headings,
-            private array $rows
-        ) {}
+        $headings = [
+            'student_id', 'first_name', 'middle_name', 'last_name', 'marathi_name',
+            'gender', 'date_of_birth', 'birth_place', 'aadhar_card_no',
+            'academic_year', 'class', 'admission_class', 'section', 'admission_date',
+            'roll_number', 'register_no', 'book_no', 'appar_id', 'pen_no', 'saral_id',
+            'phone', 'email', 'father_name', 'father_phone', 'father_occupation',
+            'mother_name', 'mother_phone', 'mother_occupation', 'guardian_name',
+            'guardian_relation', 'guardian_phone', 'medium', 'mother_tongue',
+            'nationality', 'religion', 'caste', 'sub_caste', 'previous_school_name',
+            'previous_school_address', 'previous_school_class', 'previous_school_medium',
+            'previous_school_board', 'previous_school_result', 'previous_school_remarks',
+            'address', 'country', 'state', 'district', 'taluka', 'city_village',
+            'pincode', 'status',
+        ];
 
-        public function array(): array
+        $export = new class($headings) implements
+            \Maatwebsite\Excel\Concerns\FromArray,
+            \Maatwebsite\Excel\Concerns\WithHeadings
         {
-            return $this->rows;
+            public function __construct(private array $headings) {}
+            public function array(): array { return []; }
+            public function headings(): array { return $this->headings; }
+        };
+
+        return Excel::download($export, 'bulk_student_template.xlsx');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'distinct', 'exists:students,id'],
+        ]);
+
+        $schoolId = auth()->user()?->school_id;
+        if (!$schoolId) {
+            abort(403, 'Your account is not assigned to a school.');
         }
 
-        public function headings(): array
-        {
-            return $this->headings;
-        }
-    };
+        $count = Student::where('school_id', $schoolId)
+            ->whereIn('id', $validated['ids'])
+            ->delete();
 
-    return Excel::download(
-        $export,
-        'bulk_student_template.xlsx'
-    );
-}
+        return redirect()
+            ->route('admin.students.index')
+            ->with('success', $count . ' student(s) deleted successfully.');
+    }
 
 public function import(Request $request)
 {
@@ -3010,6 +1313,7 @@ public function import(Request $request)
 
             try {
                 DB::transaction(function () use ($data) {
+                    $data['school_id'] = auth()->user()?->school_id;
                     // Use the same automatic ID generator as normal registration.
                     $data['student_id'] = $this->generateStudentId(
                         $data['admission_class'],
@@ -3053,19 +1357,6 @@ public function import(Request $request)
         ->with('success', "Successfully imported {$imported} student(s).");
 }
 
-public function bulkCreate()
-{
-    $classes = SchoolClass::query()
-        ->where('status', true)
-        ->orderBy('class_name')
-        ->orderBy('section')
-        ->get();
-
-    return view(
-        'admin.students.bulk-create',
-        compact('classes')
-    );
-}
 /**
  * Validate an Aadhaar number using the Verhoeff checksum.
  */

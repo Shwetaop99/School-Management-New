@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StudentFee;
 use App\Models\SchoolSetting;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\SchoolClass;
 use Illuminate\Http\Request;
 
 class FeeReportController extends Controller

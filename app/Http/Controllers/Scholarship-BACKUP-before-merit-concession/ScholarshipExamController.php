@@ -360,4 +360,20 @@ class ScholarshipExamController extends Controller
                 'Scholarship record removed from view. Original result remains unchanged.'
             );
     }
+    /**
+ * Bulk delete multiple records.
+ */
+public function bulkDestroy(Request $request)
+{
+    $request->validate([
+        'ids'   => 'required|array|min:1',
+        'ids.*' => 'integer|exists:teachers,id',   // ← change table name
+    ]);
+
+    $count = Teacher::whereIn('id', $request->ids)->delete();  // ← change Model
+
+    return redirect()
+        ->route('admin.teachers.index')                          // ← change route
+        ->with('success', $count . ' teacher(s) deleted successfully.');
+}
 }

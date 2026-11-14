@@ -8,20 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('supply_items')) {
+            return; // Table already exists, skip
+        }
+
         Schema::create('supply_items', function (Blueprint $table) {
             $table->id();
-
             $table->string('item_name');
-            $table->string('item_code')->nullable()->unique();
-
-            $table->string('unit')
-                ->default('piece');
-
+            $table->string('item_code')->nullable();
+            $table->string('unit')->default('piece');
             $table->text('description')->nullable();
-
-            $table->enum('status', ['active', 'inactive'])
-                ->default('active');
-
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

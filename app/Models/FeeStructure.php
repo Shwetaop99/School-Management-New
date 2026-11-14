@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class FeeStructure extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity; 
 
     protected $fillable = [
         'academic_year',
@@ -18,17 +20,30 @@ class FeeStructure extends Model
     ];
 
     public function schoolClass()
-    {
-        return $this->belongsTo(SchoolClass::class, 'class_id');
-    }
+{
+    return $this->belongsTo(
+        \App\Models\Class\SchoolClass::class,
+        'class_id'
+    );
+}
 
     public function section()
-    {
-        return $this->belongsTo(Section::class, 'section_id');
-    }
+{
+    return $this->belongsTo(
+        \App\Models\Class\SchoolClass::class,
+        'section_id'
+    );
+}
 
     public function items()
     {
         return $this->hasMany(FeeStructureItem::class);
     }
-}
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    {
+        return \Spatie\Activitylog\LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }}

@@ -52,6 +52,12 @@ class TeacherAttendanceController extends Controller
      */
     public function index(Request $request)
     {
+        // UPDATE 1: check the filters first
+        $request->validate([
+            'month'      => ['nullable', 'date_format:Y-m'],
+            'teacher_id' => ['nullable', 'integer', 'exists:teachers,id'],
+        ]);
+
         /*
         |--------------------------------------------------------------------------
         | Month
@@ -129,14 +135,8 @@ class TeacherAttendanceController extends Controller
         |--------------------------------------------------------------------------
         | Attendance Records
         |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        | We DO NOT create Holiday records here.
-        |
-        | Sundays and national holidays are handled automatically
-        | by the controller/view without inserting "Holiday" into
-        | the database.
-        |
+        | Holiday records are NOT created in the database.
+        | Sundays and national holidays are handled by the controller/view.
         |--------------------------------------------------------------------------
         */
 
@@ -220,13 +220,7 @@ class TeacherAttendanceController extends Controller
                 ->where('status', 'Absent')
                 ->count();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Holiday count is calculated from calendar,
-            | not database records.
-            |--------------------------------------------------------------------------
-            */
-
+            // Holiday count comes from the calendar, not the database
             $summary['holiday'] = $holidayDays;
 
         } else {
@@ -251,13 +245,8 @@ class TeacherAttendanceController extends Controller
         |--------------------------------------------------------------------------
         | Attendance Percentage
         |--------------------------------------------------------------------------
-        |
         | Holiday is NOT included.
-        |
-        | Present = 1
-        | Half Day = 0.5
-        | Absent = 0
-        |
+        | Present = 1, Half Day = 0.5, Absent = 0
         |--------------------------------------------------------------------------
         */
 
@@ -303,22 +292,12 @@ class TeacherAttendanceController extends Controller
      */
     public function store(Request $request)
     {
+        // UPDATE 2: check the data before saving
         $request->validate([
-            'attendance_month' => [
-                'required',
-                'date_format:Y-m',
-            ],
-
-            'attendance' => [
-                'required',
-                'array',
-            ],
-
-            'teacher_id' => [
-                'nullable',
-                'integer',
-                'exists:teachers,id',
-            ],
+            'attendance_month' => ['required', 'date_format:Y-m'],
+            'teacher_id'       => ['nullable', 'integer', 'exists:teachers,id'],
+            'attendance'       => ['required', 'array'],
+            'attendance.*'     => ['array'],
         ]);
 
         $monthDate = Carbon::createFromFormat(
@@ -340,12 +319,7 @@ class TeacherAttendanceController extends Controller
 
             foreach ($request->attendance as $teacherId => $dates) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | Selected Teacher Safety
-                |--------------------------------------------------------------------------
-                */
-
+                // Selected teacher safety
                 if (
                     $selectedTeacherId !== null &&
                     (int) $teacherId !== (int) $selectedTeacherId
@@ -353,36 +327,24 @@ class TeacherAttendanceController extends Controller
                     continue;
                 }
 
-                /*
-                |--------------------------------------------------------------------------
-                | Teacher Exists
-                |--------------------------------------------------------------------------
-                */
-
+                // Teacher must exist
                 if (!Teacher::whereKey($teacherId)->exists()) {
                     continue;
                 }
 
                 foreach ($dates as $date => $status) {
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Parse Date
-                    |--------------------------------------------------------------------------
-                    */
-
-                    try {
-                        $attendanceDate = Carbon::parse($date);
-                    } catch (\Exception $e) {
+                    // Date must be exactly Y-m-d (example: 2026-10-31)
+                    if (!Carbon::hasFormat((string) $date, 'Y-m-d')) {
                         continue;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Date Must Belong To Selected Month
-                    |--------------------------------------------------------------------------
-                    */
+                    $attendanceDate = Carbon::createFromFormat(
+                        'Y-m-d',
+                        (string) $date
+                    )->startOfDay();
 
+                    // Date must belong to the selected month
                     if (
                         $attendanceDate->lt($startDate) ||
                         $attendanceDate->gt($endDate)
@@ -390,20 +352,7 @@ class TeacherAttendanceController extends Controller
                         continue;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | HOLIDAY PROTECTION
-                    |--------------------------------------------------------------------------
-                    |
-                    | Sundays and national holidays are NOT saved.
-                    |
-                    | This prevents the database from receiving:
-                    |
-                    | status = Holiday
-                    |
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // Sundays and national holidays are NOT saved
                     $holidayName = $this->getHolidayName(
                         $attendanceDate
                     );
@@ -412,12 +361,7 @@ class TeacherAttendanceController extends Controller
                         continue;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Blank = Remove Existing Attendance
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // Blank = remove existing attendance
                     if (
                         $status === null ||
                         $status === ''
@@ -436,16 +380,7 @@ class TeacherAttendanceController extends Controller
                         continue;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Allowed Attendance Statuses
-                    |--------------------------------------------------------------------------
-                    |
-                    | Holiday is intentionally NOT included.
-                    |
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // Only these statuses are allowed
                     if (!in_array($status, [
                         'Present',
                         'Half Day',
@@ -455,12 +390,7 @@ class TeacherAttendanceController extends Controller
                         continue;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Save Attendance
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // Save attendance
                     TeacherAttendance::updateOrCreate(
                         [
                             'teacher_id' => $teacherId,
@@ -474,12 +404,6 @@ class TeacherAttendanceController extends Controller
                 }
             }
         });
-
-        /*
-        |--------------------------------------------------------------------------
-        | Redirect
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route(
@@ -506,6 +430,11 @@ class TeacherAttendanceController extends Controller
      */
     public function excel(Request $request)
     {
+        // UPDATE 3: check the date before using it in the file name
+        $request->validate([
+            'date' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
         $date = $request->input(
             'date',
             now()->toDateString()

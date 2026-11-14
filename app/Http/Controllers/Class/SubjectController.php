@@ -133,4 +133,8 @@ class SubjectController extends Controller
             ->route('admin.subjects.index')
             ->with('success', 'Subject deleted successfully.');
     }
+    /**
+ * Bulk delete multiple records.
+ */
+
 }
