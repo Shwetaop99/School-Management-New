@@ -64,7 +64,9 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('super-admin.schools.store') }}">
+    <form method="POST"
+      action="{{ route('super-admin.schools.store') }}"
+      enctype="multipart/form-data">
         @csrf
 
         {{-- SCHOOL DETAILS --}}
@@ -82,6 +84,20 @@
                                aria-invalid="{{ $errors->has('name') ? 'true' : 'false' }}">
                         @error('name') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
+
+                    <div class="registration-field">
+    <label for="logo">School Logo</label>
+    <input
+        id="logo"
+        name="logo"
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+    >
+    <small>Upload PNG, JPG or WEBP. Maximum size: 2 MB.</small>
+    @error('logo')
+        <div class="field-error">{{ $message }}</div>
+    @enderror
+</div>
 
                     <div class="registration-field">
                         <label for="school_code">Unique school code <span class="registration-required">*</span></label>
@@ -138,10 +154,17 @@
 
                     <div class="registration-field">
                         <label for="phone">School phone <span class="registration-required">*</span></label>
-                        <input id="phone" name="phone" type="tel" value="{{ old('phone') }}"
-                               maxlength="20" pattern="[0-9+() -]{7,20}"
-                               title="Enter a phone number using digits, spaces, +, hyphens, or parentheses."
-                               required autocomplete="tel">
+                        <input
+    id="phone"
+    name="phone"
+    type="tel"
+    value="{{ old('phone') }}"
+    maxlength="10"
+    pattern="[6-9][0-9]{9}"
+    title="Enter a valid 10-digit phone number starting with 6, 7, 8, or 9."
+    required
+    autocomplete="tel"
+>
                         @error('phone') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
 
@@ -248,10 +271,17 @@
 
                     <div class="registration-field">
                         <label for="admin_phone">Administrator phone <span class="registration-required">*</span></label>
-                        <input id="admin_phone" name="admin_phone" type="tel" value="{{ old('admin_phone') }}"
-                               maxlength="20" pattern="[0-9+() -]{7,20}"
-                               title="Enter a phone number using digits, spaces, +, hyphens, or parentheses."
-                               required autocomplete="tel">
+                        <input
+    id="admin_phone"
+    name="admin_phone"
+    type="tel"
+    value="{{ old('admin_phone') }}"
+    maxlength="10"
+    pattern="[6-9][0-9]{9}"
+    title="Enter a valid 10-digit phone number starting with 6, 7, 8, or 9."
+    required
+    autocomplete="tel"
+>
                         @error('admin_phone') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
 

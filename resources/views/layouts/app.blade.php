@@ -156,6 +156,21 @@
 
         .brand-icon img{width:100%;height:100%;object-fit:contain}
 
+        .brand-text {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.brand-title {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
 
 
         .brand-title{font-family:var(--serif);font-size:16px;font-weight:700;color:#fff;line-height:1.2}
@@ -1010,31 +1025,23 @@
 <div class="sidebar-brand">
 
     <div class="brand-icon">
-
-        <img
-
-            src="{{ $school?->logo_url ?? asset('images/gurukullogo.png') }}"
-
-            alt="{{ $school?->school_name ?? 'School' }} logo"
-
-            onerror="this.onerror=null;this.src='{{ asset('images/gurukullogo.png') }}';"
-
-        >
-
+        @if(!empty($school?->logo_path))
+            <img src="{{ asset('storage/' . $school->logo_path) }}"
+                 alt="{{ $school->name }} Logo">
+        @else
+            <img src="{{ asset('images/gurukullogo.png') }}"
+                 alt="School Logo">
+        @endif
     </div>
 
-
-
-    <div>
-
+    <div class="brand-text">
         <div class="brand-title">
-
-            {{ $school?->school_name ?? 'Gurukul Vidyalaya' }}
-
+            {{ $school?->name ?? 'Gurukul Vidyalaya' }}
         </div>
 
-        <div class="brand-subtitle">School management</div>
-
+        <div class="brand-subtitle">
+            School management
+        </div>
     </div>
 
 </div>

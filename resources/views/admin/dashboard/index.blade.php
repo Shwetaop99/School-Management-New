@@ -125,7 +125,9 @@
     @media (max-width:650px){.kpi-grid{grid-template-columns:1fr}.kpi{margin-top:18px}.actions{grid-template-columns:repeat(2,1fr)}.overview{grid-template-columns:1fr}.overview-item{border-right:none;border-bottom:1px dashed #d8d1bf}.overview-item:last-child{border-bottom:none}.hero-left{padding:22px 20px 22px 44px}.hero::before{left:24px}.hero-left h1{font-size:23px}}
 
     /* ---------- Skeleton loader ---------- */
-    .dash.is-loading{display:none}
+    .dash.is-loading {
+    display: block;
+}
     .dash.reveal{animation:dashIn .35s ease}
     @keyframes dashIn{from{opacity:0}to{opacity:1}}
     #dashSkeleton{max-width:1500px;margin:0 auto}

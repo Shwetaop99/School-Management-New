@@ -5,12 +5,13 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\Subscription;
+use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use App\Models\SubscriptionPayment;
+use Illuminate\Validation\ValidationException;
 
 class SubscriptionController extends Controller
 {
@@ -90,8 +91,9 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Create a pending subscription assignment.
-     * Paid access is not activated by this action.
+     * Create a pending paid subscription.
+     * If the school has an active trial, end it while preserving its history.
+     * Paid access is not activated until payment is confirmed.
      */
     public function storeAssignment(Request $request)
     {
@@ -114,7 +116,7 @@ class SubscriptionController extends Controller
                 'required',
                 'numeric',
                 'min:0',
-                'max:999999999',
+                'max:999999999.99',
             ],
             'notes' => [
                 'nullable',
@@ -123,10 +125,8 @@ class SubscriptionController extends Controller
             ],
         ]);
 
-        // Only active paid plans can be assigned here.
-        $plan = SubscriptionPlan::whereKey(
-            $validated['subscription_plan_id']
-        )
+        // Only active, non-trial plans can be assigned here.
+        $plan = SubscriptionPlan::whereKey($validated['subscription_plan_id'])
             ->where('is_active', true)
             ->where('is_trial', false)
             ->firstOrFail();
@@ -141,33 +141,51 @@ class SubscriptionController extends Controller
                 ]);
         }
 
-        // Prevent multiple current subscriptions for the same school.
-        $hasCurrentSubscription = Subscription::where(
-            'school_id',
-            $validated['school_id']
-        )
-            ->whereIn('status', ['active', 'pending'])
-            ->where('ends_at', '>', now())
-            ->exists();
-
-        if ($hasCurrentSubscription) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'school_id' => 'This school already has an active or pending subscription. Review it before assigning another plan.',
-                ]);
-        }
-
         DB::transaction(function () use ($validated, $plan, $startsAt) {
+            // Lock the school row so simultaneous assignment requests are serialized.
+            School::whereKey($validated['school_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Get the school's active or pending subscriptions that have not ended.
+            $existingSubscriptions = Subscription::where(
+                'school_id',
+                $validated['school_id']
+            )
+                ->whereIn('status', ['active', 'pending'])
+                ->where('ends_at', '>', now())
+                ->lockForUpdate()
+                ->get();
+
+            // A current paid subscription must be reviewed before another is assigned.
+            $hasPaidSubscription = $existingSubscriptions->contains(
+                fn ($subscription) => $subscription->type === 'paid'
+            );
+
+            if ($hasPaidSubscription) {
+                throw ValidationException::withMessages([
+                    'school_id' => 'This school already has an active or pending paid subscription.',
+                ]);
+            }
+
+            // End any current trial, retaining the old record for subscription history.
+            $existingSubscriptions
+                ->where('type', 'trial')
+                ->each(function ($subscription) {
+                    $subscription->update([
+                        'status' => 'expired',
+                        'ends_at' => now(),
+                    ]);
+                });
+
+            // Create the paid subscription as pending. Payment confirmation activates it.
             Subscription::create([
                 'school_id' => $validated['school_id'],
                 'subscription_plan_id' => $plan->id,
                 'type' => 'paid',
                 'status' => 'pending',
                 'starts_at' => $startsAt,
-                'ends_at' => $startsAt->copy()->addDays(
-                    (int) $plan->duration_days
-                ),
+                'ends_at' => $startsAt->copy()->addDays((int) $plan->duration_days),
                 'agreed_price' => $validated['agreed_price'],
                 'notes' => $validated['notes'] ?? null,
             ]);
@@ -179,250 +197,251 @@ class SubscriptionController extends Controller
                 'success',
                 'Plan assigned successfully. Record and confirm payment before activating access.'
             );
-
-            
     }
-    
-/**
- * Show the form for recording an offline payment.
- */
-public function createPayment(Subscription $subscription)
-{
-    $subscription->load(['school', 'plan']);
 
-    abort_unless($subscription->type === 'paid', 404);
+    /**
+     * Show the form for recording an offline payment.
+     */
+    public function createPayment(Subscription $subscription)
+    {
+        $subscription->load(['school', 'plan']);
 
-    if ($subscription->status !== 'pending') {
+        abort_unless($subscription->type === 'paid', 404);
+
+        if ($subscription->status !== 'pending') {
+            return redirect()
+                ->route('super-admin.subscriptions.index')
+                ->with('error', 'Only pending paid subscriptions can receive a payment record.');
+        }
+
+        return view('super-admin.subscriptions.payments.create', [
+            'subscription' => $subscription,
+        ]);
+    }
+
+    /**
+     * Record an offline payment.
+     * Recording a payment does not activate the subscription.
+     */
+    public function storePayment(Request $request, Subscription $subscription)
+    {
+        abort_unless($subscription->type === 'paid', 404);
+
+        if ($subscription->status !== 'pending') {
+            return back()->with('error', 'This subscription is not pending.');
+        }
+
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0', 'max:999999999.99'],
+            'payment_method' => [
+                'required',
+                Rule::in(['cash', 'bank_transfer', 'upi', 'cheque', 'other']),
+            ],
+            'reference_number' => ['nullable', 'string', 'max:255'],
+            'paid_at' => ['required', 'date', 'before_or_equal:today'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        DB::transaction(function () use ($subscription, $validated) {
+            $lockedSubscription = Subscription::whereKey($subscription->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedSubscription->status !== 'pending') {
+                throw ValidationException::withMessages([
+                    'payment' => 'This subscription is no longer pending.',
+                ]);
+            }
+
+            // Prevent multiple pending or confirmed payment records.
+            $existingPayment = SubscriptionPayment::where(
+                'subscription_id',
+                $lockedSubscription->id
+            )
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->exists();
+
+            if ($existingPayment) {
+                throw ValidationException::withMessages([
+                    'payment' => 'A pending or confirmed payment already exists for this subscription.',
+                ]);
+            }
+
+            SubscriptionPayment::create([
+                'subscription_id' => $lockedSubscription->id,
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'reference_number' => $validated['reference_number'] ?? null,
+                'paid_at' => $validated['paid_at'],
+                'status' => 'pending',
+                'notes' => $validated['notes'] ?? null,
+            ]);
+        });
+
         return redirect()
             ->route('super-admin.subscriptions.index')
-            ->with('error', 'Only pending paid subscriptions can receive a payment record.');
+            ->with('success', 'Payment recorded as pending. Verify the payment before confirming it.');
     }
 
-    return view('super-admin.subscriptions.payments.create', [
-        'subscription' => $subscription,
-    ]);
-}
+    /**
+     * Confirm a recorded payment and activate its subscription.
+     */
+    public function confirmPayment(
+        Subscription $subscription,
+        SubscriptionPayment $payment
+    ) {
+        abort_unless(auth('super_admin')->check(), 403);
 
-/**
- * Record an offline payment.
- * Recording a payment does not activate the subscription.
- */
-public function storePayment(Request $request, Subscription $subscription)
-{
-    abort_unless($subscription->type === 'paid', 404);
+        if ((int) $payment->subscription_id !== (int) $subscription->id) {
+            abort(404);
+        }
 
-    if ($subscription->status !== 'pending') {
-        return back()->with('error', 'This subscription is not pending.');
+        if (
+            $subscription->type !== 'paid'
+            || $subscription->status !== 'pending'
+            || $payment->status !== 'pending'
+        ) {
+            return redirect()
+                ->route('super-admin.subscriptions.index')
+                ->with('error', 'This payment cannot be confirmed. Check its current status.');
+        }
+
+        $adminId = auth('super_admin')->id();
+
+        DB::transaction(function () use ($subscription, $payment, $adminId) {
+            $lockedSubscription = Subscription::whereKey($subscription->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $lockedPayment = SubscriptionPayment::whereKey($payment->id)
+                ->where('subscription_id', $lockedSubscription->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (
+                $lockedSubscription->status !== 'pending'
+                || $lockedPayment->status !== 'pending'
+            ) {
+                throw ValidationException::withMessages([
+                    'payment' => 'This payment has already been processed or the subscription is no longer pending.',
+                ]);
+            }
+
+            if (
+                bccomp(
+                    (string) $lockedPayment->amount,
+                    (string) $lockedSubscription->agreed_price,
+                    2
+                ) !== 0
+            ) {
+                throw ValidationException::withMessages([
+                    'payment' => 'The recorded payment amount must match the agreed subscription price.',
+                ]);
+            }
+
+            $lockedPayment->update([
+                'status' => 'confirmed',
+                'confirmed_by' => $adminId,
+                'confirmed_at' => now(),
+            ]);
+
+            $lockedSubscription->update([
+                'status' => 'active',
+            ]);
+        });
+
+        return redirect()
+            ->route('super-admin.subscriptions.index')
+            ->with('success', 'Payment confirmed and subscription activated successfully.');
     }
 
-    $validated = $request->validate([
-        'amount' => ['required', 'numeric', 'min:0', 'max:999999999'],
-        'payment_method' => [
-            'required',
-            Rule::in(['cash', 'bank_transfer', 'upi', 'cheque', 'other']),
-        ],
-        'reference_number' => ['nullable', 'string', 'max:255'],
-        'paid_at' => ['required', 'date', 'before_or_equal:today'],
-        'notes' => ['nullable', 'string', 'max:1000'],
-    ]);
+    public function show(Subscription $subscription)
+    {
+        $subscription->load([
+            'school',
+            'plan',
+            'payments',
+        ]);
 
-    DB::transaction(function () use ($subscription, $validated) {
-        $lockedSubscription = Subscription::whereKey($subscription->id)
-            ->lockForUpdate()
-            ->firstOrFail();
+        return view('super-admin.subscriptions.show', compact('subscription'));
+    }
 
-        if ($lockedSubscription->status !== 'pending') {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'payment' => 'This subscription is no longer pending.',
-            ]);
+    public function edit(Subscription $subscription)
+    {
+        $subscription->load([
+            'school',
+            'plan',
+        ]);
+
+        $plans = SubscriptionPlan::where('is_active', true)
+            ->orderBy('price')
+            ->get();
+
+        return view('super-admin.subscriptions.edit', compact(
+            'subscription',
+            'plans'
+        ));
+    }
+
+    public function update(Request $request, Subscription $subscription)
+    {
+        $validated = $request->validate([
+            'subscription_plan_id' => [
+                'required',
+                'integer',
+                'exists:subscription_plans,id',
+            ],
+            'starts_at' => [
+                'required',
+                'date',
+            ],
+            'agreed_price' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:999999999.99',
+            ],
+            'notes' => [
+                'nullable',
+                'string',
+                'max:2000',
+            ],
+        ]);
+
+        $plan = SubscriptionPlan::query()
+            ->where('is_active', true)
+            ->where('is_trial', false)
+            ->findOrFail($validated['subscription_plan_id']);
+
+        // Do not change the agreed price while a payment is pending or confirmed.
+        $hasRecordedPayment = $subscription->payments()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->exists();
+
+        if (
+            $hasRecordedPayment
+            && (int) round((float) $validated['agreed_price'] * 100)
+                !== (int) round((float) $subscription->agreed_price * 100)
+        ) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'agreed_price' => 'The agreed price cannot be changed while a pending or confirmed payment exists.',
+                ]);
         }
 
-        // Prevent multiple pending or confirmed payment records.
-        $existingPayment = SubscriptionPayment::where(
-            'subscription_id',
-            $lockedSubscription->id
-        )->whereIn('status', ['pending', 'confirmed'])->exists();
+        $startDate = Carbon::parse($validated['starts_at'])->startOfDay();
 
-        if ($existingPayment) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'payment' => 'A pending or confirmed payment already exists for this subscription.',
-            ]);
-        }
-
-        SubscriptionPayment::create([
-            'subscription_id' => $lockedSubscription->id,
-            'amount' => $validated['amount'],
-            'payment_method' => $validated['payment_method'],
-            'reference_number' => $validated['reference_number'] ?? null,
-            'paid_at' => $validated['paid_at'],
-            'status' => 'pending',
+        $subscription->update([
+            'subscription_plan_id' => $plan->id,
+            'starts_at' => $startDate,
+            'ends_at' => $startDate->copy()->addDays((int) $plan->duration_days),
+            'agreed_price' => $validated['agreed_price'],
             'notes' => $validated['notes'] ?? null,
         ]);
-    });
 
-    return redirect()
-        ->route('super-admin.subscriptions.index')
-        ->with('success', 'Payment recorded as pending. Verify the payment before confirming it.');
-}
-
-/**
- * Confirm a recorded payment and activate its subscription.
- */
-public function confirmPayment(
-    Subscription $subscription,
-    SubscriptionPayment $payment
-) {
-    abort_unless(auth('super_admin')->check(), 403);
-
-    if ((int) $payment->subscription_id !== (int) $subscription->id) {
-        abort(404);
-    }
-
-    if ($subscription->type !== 'paid'
-        || $subscription->status !== 'pending'
-        || $payment->status !== 'pending') {
         return redirect()
-            ->route('super-admin.subscriptions.index')
-            ->with('error', 'This payment cannot be confirmed. Check its current status.');
+            ->route('super-admin.subscriptions.show', $subscription)
+            ->with('success', 'Subscription details updated successfully.');
     }
-
-    $adminId = auth('super_admin')->id();
-
-    DB::transaction(function () use ($subscription, $payment, $adminId) {
-        $lockedSubscription = Subscription::whereKey($subscription->id)
-            ->lockForUpdate()
-            ->firstOrFail();
-
-        $lockedPayment = SubscriptionPayment::whereKey($payment->id)
-            ->where('subscription_id', $lockedSubscription->id)
-            ->lockForUpdate()
-            ->firstOrFail();
-
-        if ($lockedSubscription->status !== 'pending'
-            || $lockedPayment->status !== 'pending') {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'payment' => 'This payment has already been processed or the subscription is no longer pending.',
-            ]);
-        }
-
-        if (bccomp(
-            (string) $lockedPayment->amount,
-            (string) $lockedSubscription->agreed_price,
-            2
-        ) !== 0) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'payment' => 'The recorded payment amount must match the agreed subscription price.',
-            ]);
-        }
-
-        $lockedPayment->update([
-            'status' => 'confirmed',
-            'confirmed_by' => $adminId,
-            'confirmed_at' => now(),
-        ]);
-
-        $lockedSubscription->update([
-            'status' => 'active',
-        ]);
-    });
-
-    return redirect()
-        ->route('super-admin.subscriptions.index')
-        ->with('success', 'Payment confirmed and subscription activated successfully.');
-}
-
-public function show(Subscription $subscription)
-{
-    $subscription->load([
-        'school',
-        'plan',
-        'payments',
-    ]);
-
-    return view('super-admin.subscriptions.show', compact('subscription'));
-}
-
-public function edit(Subscription $subscription)
-{
-    $subscription->load([
-        'school',
-        'plan',
-    ]);
-
-    $plans = SubscriptionPlan::where('is_active', true)
-        ->orderBy('price')
-        ->get();
-
-    return view('super-admin.subscriptions.edit', compact(
-        'subscription',
-        'plans'
-    ));
-}
-
-public function update(Request $request, Subscription $subscription)
-{
-    $validated = $request->validate([
-        'subscription_plan_id' => [
-            'required',
-            'integer',
-            'exists:subscription_plans,id',
-        ],
-        'starts_at' => [
-            'required',
-            'date',
-        ],
-        'agreed_price' => [
-            'required',
-            'numeric',
-            'min:0',
-            'max:999999999.99',
-        ],
-        'notes' => [
-            'nullable',
-            'string',
-            'max:2000',
-        ],
-    ]);
-
-    $plan = SubscriptionPlan::query()
-        ->where('is_active', true)
-        ->where('is_trial', false)
-        ->findOrFail($validated['subscription_plan_id']);
-
-    // Do not change the agreed price while a payment is awaiting
-    // confirmation or has already been confirmed.
-    $hasRecordedPayment = $subscription->payments()
-        ->whereIn('status', ['pending', 'confirmed'])
-        ->exists();
-
-    if (
-        $hasRecordedPayment
-        && (int) round((float) $validated['agreed_price'] * 100)
-            !== (int) round((float) $subscription->agreed_price * 100)
-    ) {
-        return back()
-            ->withInput()
-            ->withErrors([
-                'agreed_price' => 'The agreed price cannot be changed while a pending or confirmed payment exists.',
-            ]);
-    }
-
-    $startDate = \Carbon\Carbon::parse($validated['starts_at'])
-        ->startOfDay();
-
-    $subscription->update([
-        'subscription_plan_id' => $plan->id,
-        'starts_at' => $startDate,
-        'ends_at' => $startDate->copy()->addDays(
-            (int) $plan->duration_days
-        ),
-        'agreed_price' => $validated['agreed_price'],
-        'notes' => $validated['notes'] ?? null,
-    ]);
-
-    return redirect()
-        ->route('super-admin.subscriptions.show', $subscription)
-        ->with('success', 'Subscription details updated successfully.');
-}
-
 }

@@ -13,6 +13,7 @@ class School extends Model
 
     protected $fillable = [
         'name',
+        'logo_path',
         'school_code',
         'status',
         'school_type',

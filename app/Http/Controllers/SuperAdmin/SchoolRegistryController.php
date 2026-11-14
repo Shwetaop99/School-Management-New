@@ -10,7 +10,9 @@ use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+
 
 class SchoolRegistryController extends Controller
 {
@@ -80,6 +82,13 @@ class SchoolRegistryController extends Controller
             // School details
             'name' => ['required', 'string', 'max:255'],
 
+            'logo' => [
+    'nullable',
+    'image',
+    'mimes:png,jpg,jpeg,webp',
+    'max:2048',
+],
+
             'school_code' => [
                 'required',
                 'string',
@@ -112,11 +121,11 @@ class SchoolRegistryController extends Controller
 
             'email' => ['nullable', 'email', 'max:255'],
 
-            'phone' => [
-                'required',
-                'string',
-                'regex:/^[0-9+\-\s()]{7,20}$/',
-            ],
+            'admin_phone' => [
+    'required',
+    'digits:10',
+    'regex:/^[6-9][0-9]{9}$/',
+],
 
             'website' => ['nullable', 'url', 'max:255'],
 
@@ -155,10 +164,11 @@ class SchoolRegistryController extends Controller
             ],
 
             'admin_phone' => [
-                'required',
-                'string',
-                'regex:/^[0-9+\-\s()]{7,20}$/',
-            ],
+    'required',
+    'string',
+    'max:20',
+    'regex:/^(?=(?:\D*\d){7,15}\D*$)\+?[0-9][0-9\s()\-]*$/',
+],
 
             'admin_password' => [
                 'required',
@@ -202,15 +212,26 @@ class SchoolRegistryController extends Controller
         $validated['name'] = trim($validated['name']);
         $validated['country'] = trim($validated['country']);
 
+        $logoPath = $request->hasFile('logo')
+    ? $request->file('logo')->store('school-logos', 'public')
+    : null;
+
         // All three records succeed together or roll back together.
+
+        $logoPath = $request->hasFile('logo')
+    ? $request->file('logo')->store('school-logos', 'public')
+    : null;
+
         DB::transaction(function () use (
-            $validated,
-            $adminRole,
-            $trialPlan
-        ) {
+    $validated,
+    $adminRole,
+    $trialPlan,
+    $logoPath
+) {
             // 1. Create the school.
             $school = School::create([
                 'name' => $validated['name'],
+                'logo_path' => $logoPath,
                 'school_code' => $validated['school_code'],
                 'status' => 'active',
                 'school_type' => $validated['school_type'],
@@ -221,7 +242,7 @@ class SchoolRegistryController extends Controller
                 'establishment_year' =>
                     $validated['establishment_year'] ?? null,
                 'email' => $validated['email'] ?? null,
-                'phone' => $validated['phone'],
+                'phone' => $validated['phone'] ?? null,
                 'website' => $validated['website'] ?? null,
                 'address_line' => $validated['address_line'],
                 'city' => $validated['city'],
@@ -272,12 +293,18 @@ class SchoolRegistryController extends Controller
     /**
      * View school details.
      */
-    public function show(School $school)
-    {
-        $school->load('administrator');
+    
+public function show(School $school)
+{
+    $school->load([
+        'administrator.role',
+        'subscriptions.plan',
+        'subscriptions.payments',
+    ]);
 
-        return view('super-admin.schools.show', compact('school'));
-    }
+    return view('super-admin.schools.show', compact('school'));
+}
+
 
     /**
      * Show the school edit form.
