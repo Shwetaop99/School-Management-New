@@ -63,7 +63,7 @@ class Access
             'results.' => 'results',
             'marks.' => 'results',
 
-            'scholarship.' => 'scholarship',
+          
             'library.' => 'library',
             'notices.' => 'notices',
             
@@ -177,6 +177,30 @@ if (
     return 'backup.view';
 }
 
+
+// Scholarship Exams permissions
+if (str_starts_with($name, 'scholarship.exams.')) {
+    $action = match (strtoupper($method)) {
+        'POST' => 'create',
+        'PUT', 'PATCH' => 'edit',
+        'DELETE' => 'delete',
+        default => 'view',
+    };
+
+    return 'scholarship.exams.' . $action;
+}
+
+// Merit Concession permissions
+if (str_starts_with($name, 'scholarship.merit.concession.')) {
+    $action = match (strtoupper($method)) {
+        'POST' => 'create',
+        'PUT', 'PATCH' => 'edit',
+        'DELETE' => 'delete',
+        default => 'view',
+    };
+
+    return 'merit-concessions.' . $action;
+}
 
         $permissionGroup = null;
 
