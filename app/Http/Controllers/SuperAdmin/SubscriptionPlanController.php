@@ -9,26 +9,49 @@ use Illuminate\Validation\Rule;
 
 class SubscriptionPlanController extends Controller
 {
-    private const FEATURES = [
-        'dashboard' => 'Dashboard',
-        'school_profile' => 'School Profile',
-        'students' => 'Student Management',
-        'teachers' => 'Teacher Management',
-        'classes' => 'Class Management',
-        'attendance' => 'Attendance',
-        'basic_reports' => 'Basic Reports',
-        'fees' => 'Fee Management',
-        'examinations' => 'Examinations',
-        'results' => 'Results',
-        'notices' => 'Notice Management',
-        'library' => 'Library Management',
-        'staff_management' => 'Staff Management',
-        'advanced_reports' => 'Advanced Reports',
-        'report_exports' => 'PDF and Excel Exports',
-        'backups' => 'Database Backups',
-        'restore' => 'Database Restore',
-        'analytics' => 'Analytics',
-    ];
+   
+private const FEATURES = [
+    // Core
+    'dashboard' => 'Dashboard',
+    'school_profile' => 'School Profile',
+
+    // Student Management
+    'students' => 'Student Management',
+
+    // Staff Management
+    'teachers' => 'Teacher Management',
+    'staff_management' => 'Staff Management',
+
+    // Academic Management
+    'classes' => 'Class Management',
+    'timetable' => 'Time Table',
+    'attendance' => 'Attendance',
+    'examinations' => 'Examinations',
+    'results' => 'Results',
+
+    // Financial Management
+    'fees' => 'Fee Management',
+
+    // Other School Modules
+    'notices' => 'Notice Management',
+    'library' => 'Library Management',
+    'transport' => 'Transport Management',
+    'sports' => 'Sports Management',
+    'meal_management' => 'Meal Management',
+    'scholarship' => 'Scholarship Management',
+    'support' => 'Support & Complaints',
+
+    // Reports
+    'basic_reports' => 'Basic Reports',
+    'advanced_reports' => 'Advanced Reports',
+    'report_exports' => 'PDF and Excel Exports',
+    'analytics' => 'Analytics',
+
+    // System Management
+    'backups' => 'Database Backups',
+    'restore' => 'Database Restore',
+];
+
 
     public function index()
     {

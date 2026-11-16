@@ -254,16 +254,21 @@ class SchoolRegistryController extends Controller
             ]);
 
             // 2. Create the school administrator.
-            User::create([
-                'name' => $validated['admin_name'],
-                'email' => $validated['admin_email'],
-                'login_id' => $validated['admin_login_id'],
-                'phone' => $validated['admin_phone'],
-                'password' => $validated['admin_password'],
-                'role_id' => $adminRole->id,
-                'school_id' => $school->id,
-                'status' => 'Active',
-            ]);
+           $admin = $school->users()->create([
+    'name' => $validated['admin_name'],
+    'email' => $validated['admin_email'],
+    'login_id' => $validated['admin_login_id'],
+    'phone' => $validated['admin_phone'],
+    'password' => $validated['admin_password'],
+    'role_id' => $adminRole->id,
+    'status' => 'Active',
+]);
+
+if ((int) $admin->school_id !== (int) $school->id) {
+    throw new \RuntimeException(
+        'School administrator was not linked to the newly created school.'
+    );
+}
 
             // 3. Automatically assign the 30-day trial.
             $trialStart = now();

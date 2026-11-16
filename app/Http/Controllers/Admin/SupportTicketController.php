@@ -35,7 +35,7 @@ class SupportTicketController extends Controller
         ->get()
         ->groupBy('category');
 
-    return view('admin.support-tickets.create', compact('templates'));
+    return view('support-tickets.create', compact('templates'));
 }
 
     /**
@@ -85,9 +85,9 @@ public function store(Request $request)
         'description' => $validated['description'],
     ]);
 
-    return redirect()
-        ->route('admin.support-tickets.show', $ticket->id)
-        ->with('success', 'Your support ticket has been submitted successfully.');
+   return redirect()
+    ->route('support-tickets.show', $ticket->id)
+    ->with('success', 'Your reply has been sent successfully.');
 }
 
 
@@ -126,7 +126,13 @@ public function store(Request $request)
 
 public function custom()
 {
-    return view('admin.support-tickets.custom');
+    $templates = SupportTicketTemplate::where('is_active', true)
+        ->orderBy('category')
+        ->orderBy('title')
+        ->get()
+        ->groupBy('category');
+
+    return view('admin.support-tickets.custom', compact('templates'));
 }
 
 public function myTickets()
@@ -182,7 +188,7 @@ public function reply(Request $request, $id)
     ]);
 
     return redirect()
-        ->route('admin.support-tickets.show', $ticket->id)
+        ->route('support-tickets.show', $ticket->id)
         ->with('success', 'Your reply has been sent successfully.');
 }
 

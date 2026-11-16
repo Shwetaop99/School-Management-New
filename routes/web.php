@@ -217,7 +217,7 @@ Route::prefix('admin')
         |----------------------------------------------------------------------
         */
 
-        Route::middleware(['auth', 'access'])->group(function () {
+        Route::middleware(['auth', 'access', 'subscription.feature'])->group(function () {
 
             /* ---------------- LOGOUT ---------------- */
 

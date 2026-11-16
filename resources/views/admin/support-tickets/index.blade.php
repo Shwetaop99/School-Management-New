@@ -34,7 +34,7 @@
             <p>View and manage your support requests.</p>
         </div>
 
-        <a href="{{ route('admin.support-tickets.create') }}" class="btn-solid">
+        <a href="{{ route('support-tickets.create') }}" class="btn-solid">
             <i class="fas fa-plus"></i>
             Create new
         </a>
@@ -103,7 +103,7 @@
                             </td>
 
                             <td>
-                                <a href="{{ route('admin.support-tickets.show', $ticket->id) }}"
+                                <a href="{{ route('support-tickets.show', $ticket->id) }}"
                                    class="btn-line btn-sm">
                                     View
                                     <i class="fas fa-arrow-right"></i>
@@ -119,7 +119,7 @@
                                     </div>
                                     <h4>No support tickets found</h4>
                                     <p>You haven’t raised any support requests yet.</p>
-                                    <a href="{{ route('admin.support-tickets.create') }}" class="btn-solid" style="margin-top:14px;">
+                                    <a href="{{ route('support-tickets.create') }}" class="btn-solid" style="margin-top:14px;">
                                         <i class="fas fa-plus"></i>
                                         Create new
                                     </a>

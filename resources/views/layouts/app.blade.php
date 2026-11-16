@@ -595,7 +595,28 @@
 
         @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+.subscription-locked {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: none;
+    background: transparent;
+    color: inherit;
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-align: left;
+    font: inherit;
+}
 
+.subscription-locked:hover {
+    opacity: 0.6;
+}
+
+.subscription-lock-icon {
+    font-size: 12px;
+    margin-left: 10px;
+}
 
     </style>
 
@@ -674,6 +695,46 @@
     $user = auth()->user();
     $school = $school ?? $user?->school;
     $isSuperAdmin = $user?->role?->name === 'super_admin';
+
+    $subscriptionMiddleware = app(
+    \App\Http\Middleware\CheckSubscriptionFeature::class
+);
+
+$activeSubscription = null;
+
+if ($user && !$isSuperAdmin && $user->school_id) {
+    $activeSubscription = \App\Models\Subscription::query()
+        ->where('school_id', $user->school_id)
+        ->where('status', 'active')
+        ->whereNotNull('starts_at')
+        ->whereNotNull('ends_at')
+        ->where('starts_at', '<=', now())
+        ->where('ends_at', '>', now())
+        ->with('plan')
+        ->orderByDesc('starts_at')
+        ->orderByDesc('created_at')
+        ->first();
+}
+
+$planFeatures = $activeSubscription?->plan?->features ?? [];
+
+$hasSubscriptionFeature = function ($routeName) use (
+    $isSuperAdmin,
+    $subscriptionMiddleware,
+    $planFeatures
+): bool {
+    if ($isSuperAdmin) {
+        return true;
+    }
+
+    $feature = $subscriptionMiddleware->featureFor($routeName);
+
+    if (!$feature) {
+        return true;
+    }
+
+    return in_array($feature, $planFeatures, true);
+};
 
     // Show an item when the user has at least one listed permission.
     $canAny = function (array $permissions) use ($user, $isSuperAdmin): bool {
@@ -962,15 +1023,22 @@
                 'r' => 'admin.reports.index',
                 'p' => ['reports.view'],
             ],
-            [
-                'l' => 'Support & Complaints',
-                'i' => 'fa-headset',
-                'a' => ['admin.support-tickets.*'],
-                'c' => [
-                    ['My Requests', 'admin.support-tickets.my-requests'],
-                ],
-                'p' => ['support-tickets.view', 'support-tickets.create'],
-            ],
+           
+[
+    'l' => 'Support & Complaints',
+    'i' => 'fa-headset',
+    'a' => [
+        'support-tickets.*',
+        'admin.support-tickets.*',
+    ],
+    'c' => [
+        ['All Support Tickets', 'support-tickets.index'],
+        ['My Requests', 'support-tickets.my-requests'],
+        ['Custom Request', 'support-tickets.custom'],
+    ],
+    'p' => ['support-tickets.view', 'support-tickets.create'],
+],
+
             [
                 'l' => 'Settings',
                 'i' => 'fa-gear',
@@ -1066,11 +1134,9 @@
 
     @php
 
-        $visible = collect($items)
-
-            ->filter(fn ($item) => empty($item['p']) || $canAny($item['p']))
-
-            ->values();
+       $visible = collect($items)
+    ->filter(fn ($item) => empty($item['p']) || $canAny($item['p']))
+    ->values();
 
     @endphp
 
@@ -1084,165 +1150,136 @@
 
 
 
-    @foreach ($visible as $item)
+   
+@foreach ($visible as $item)
 
-        @php
+    @php
+        $patterns = $item['a'] ?? [];
+        $isActive = !empty($patterns) && request()->routeIs(...$patterns);
+        $id = \Illuminate\Support\Str::slug($group . '-' . $item['l']);
+        $children = $item['c'] ?? [];
 
-            $patterns = $item['a'] ?? [];
+        $childActive = collect($children)->contains(
+            fn ($child) => isset($child[1]) && request()->routeIs($child[1])
+        );
 
-            $isActive = !empty($patterns) && request()->routeIs(...$patterns);
+        $itemActive = $isActive || $childActive;
+    @endphp
 
-            $id = \Illuminate\Support\Str::slug($group . '-' . $item['l']);
+    @if (!empty($children))
 
-            $children = $item['c'] ?? [];
+        <button
+            type="button"
+            class="nav-item has-submenu {{ $itemActive ? 'active open' : '' }}"
+            data-submenu="{{ $id }}"
+            aria-expanded="{{ $itemActive ? 'true' : 'false' }}"
+        >
+            <span class="nav-icon">
+                <i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i>
+            </span>
 
-            $childActive = collect($children)->contains(
+            <span class="nav-label">{{ $item['l'] }}</span>
 
-                fn ($child) => isset($child[1]) && request()->routeIs($child[1])
+            <i class="fas fa-chevron-right nav-arrow"></i>
+        </button>
 
-            );
+        <div class="submenu {{ $itemActive ? 'open' : '' }}" id="{{ $id }}">
 
-            $itemActive = $isActive || $childActive;
+            @php $matched = false; @endphp
 
-        @endphp
+            @foreach ($children as $child)
 
+                @php
+                    $childRoute = $child[1] ?? null;
 
+                    $childExists = $childRoute
+                        && \Illuminate\Support\Facades\Route::has($childRoute);
 
-        @if (!empty($children))
+                    $childIsActive = !$matched
+                        && $childExists
+                        && request()->routeIs($childRoute);
 
-    <button
+                    $childLocked = $childExists
+                        && !$hasSubscriptionFeature($childRoute);
 
-        type="button"
+                    if ($childIsActive) {
+                        $matched = true;
+                    }
 
-        class="nav-item has-submenu {{ $itemActive ? 'active open' : '' }}"
+                    $unreadCount = 0;
 
-        data-submenu="{{ $id }}"
-
-        aria-expanded="{{ $itemActive ? 'true' : 'false' }}"
-
-    >
-
-        <span class="nav-icon">
-
-            <i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i>
-
-        </span>
-
-        <span class="nav-label">{{ $item['l'] }}</span>
-
-        <i class="fas fa-chevron-right nav-arrow"></i>
-
-    </button>
-
-
-
-    <div class="submenu {{ $itemActive ? 'open' : '' }}" id="{{ $id }}">
-
-        @php $matched = false; @endphp
-
-
-
-        @foreach ($children as $child)
-
-            @php
-
-                $childRoute = $child[1] ?? null;
-
-                $childExists = $childRoute && \Illuminate\Support\Facades\Route::has($childRoute);
-
-                $childIsActive = !$matched && $childExists && request()->routeIs($childRoute);
-
-
-
-                if ($childIsActive) {
-
-                    $matched = true;
-
-                }
-
-
-
-                $unreadCount = 0;
-
-
-
-                if ($childRoute === 'admin.support-tickets.my-requests' && auth()->check()) {
-
-                    $unreadCount = \App\Models\SupportTicketReply::where('sender_type', 'super_admin')
-
+                    if (
+                        $childRoute === 'admin.support-tickets.my-requests'
+                        && auth()->check()
+                    ) {
+                        $unreadCount = \App\Models\SupportTicketReply::where(
+                            'sender_type',
+                            'super_admin'
+                        )
                         ->whereNull('read_at')
-
                         ->whereHas('ticket', function ($query) {
-
-                            $query->where('school_id', auth()->user()->school_id);
-
+                            $query->where(
+                                'school_id',
+                                auth()->user()->school_id
+                            );
                         })
-
                         ->count();
+                    }
+                @endphp
 
-                }
+                @if ($childExists && $childLocked)
 
-            @endphp
+                    <button
+                        type="button"
+                        class="submenu-item subscription-locked"
+                        data-locked-module="true"
+                        data-module-name="{{ $child[0] ?? 'This module' }}"
+                        aria-label="{{ $child[0] ?? 'Module' }} is locked"
+                    >
+                        <span>{{ $child[0] ?? 'Menu item' }}</span>
+                        <i class="fas fa-lock subscription-lock-icon"></i>
+                    </button>
 
+                @elseif ($childExists)
 
+                    <a
+                        href="{{ $route($childRoute) }}"
+                        class="submenu-item {{ $childIsActive ? 'active' : '' }}"
+                        style="display:flex;align-items:center;justify-content:space-between;"
+                    >
+                        <span>{{ $child[0] ?? 'Menu item' }}</span>
 
-            @if ($childExists)
+                        @if ($unreadCount > 0)
+                            <span style="background:#dc3545;color:#fff;font-size:11px;font-weight:700;min-width:19px;height:19px;padding:0 5px;border-radius:50px;display:inline-flex;align-items:center;justify-content:center;">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
+                    </a>
 
-                <a href="{{ $route($childRoute) }}"
+                @endif
 
-                   class="submenu-item {{ $childIsActive ? 'active' : '' }}"
+            @endforeach
 
-                   style="display:flex;align-items:center;justify-content:space-between;">
+        </div>
 
+    @elseif (!empty($item['r']) && \Illuminate\Support\Facades\Route::has($item['r']))
 
+        <a
+            href="{{ $route($item['r']) }}"
+            class="nav-item {{ $itemActive ? 'active' : '' }}"
+        >
+            <span class="nav-icon">
+                <i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i>
+            </span>
 
-                    <span>{{ $child[0] ?? 'Menu item' }}</span>
+            <span class="nav-label">{{ $item['l'] }}</span>
+        </a>
 
-
-
-                    @if ($unreadCount > 0)
-
-                        <span style="background:#dc3545;color:#fff;font-size:11px;font-weight:700;min-width:19px;height:19px;padding:0 5px;border-radius:50px;display:inline-flex;align-items:center;justify-content:center;">
-
-                            {{ $unreadCount }}
-
-                        </span>
-
-                    @endif
-
-                </a>
-
-            @endif
-
-        @endforeach
-
-    </div>
-
-
-
-@elseif (!empty($item['r']) && \Illuminate\Support\Facades\Route::has($item['r']))
-
-    <a href="{{ $route($item['r']) }}" class="nav-item {{ $itemActive ? 'active' : '' }}">
-
-        <span class="nav-icon">
-
-            <i class="fas {{ $item['i'] ?? 'fa-circle' }}"></i>
-
-        </span>
-
-        <span class="nav-label">{{ $item['l'] }}</span>
-
-    </a>
-
-@endif
-
-
-
-    @endforeach
+       @endif
 
 @endforeach
 
-
+@endforeach
 
 </nav>
 
@@ -2028,7 +2065,71 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
+<script>
+document.addEventListener('click', function (event) {
+    const lockedModule = event.target.closest('[data-locked-module="true"]');
 
+    if (!lockedModule) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const moduleName = lockedModule.dataset.moduleName || 'This module';
+
+    const message = document.getElementById('subscriptionLockedMessage');
+
+    if (message) {
+        message.textContent =
+            `${moduleName} is not included in your current subscription plan. Please upgrade your plan to access this module.`;
+    }
+
+    const modalElement = document.getElementById('subscriptionLockedModal');
+
+    if (modalElement && window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalElement).show();
+    }
+});
+</script>
+
+<div class="modal fade" id="subscriptionLockedModal"
+     tabindex="-1"
+     aria-labelledby="subscriptionLockedModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="subscriptionLockedModalLabel">
+                    <i class="fas fa-lock me-2"></i>
+                    Module Locked
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p id="subscriptionLockedMessage">
+                    This module is not included in your current subscription plan.
+                    Please upgrade your plan to access this module.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 </body>
 

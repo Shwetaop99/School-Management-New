@@ -457,11 +457,15 @@ class BackupController extends Controller
 
     public function restoreBackup(string $backup)
     {
- $this->logAction('Backup uploaded', ['file' => $filename]);
+
 
         $path = $this->safeBackupPath($backup);
         abort_unless(File::isFile($path) && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'zip',
             404, 'ZIP backup not found.');
+
+            $this->logAction('Backup restore requested', [
+    'file' => basename($path),
+]);
 
         @set_time_limit(0);
 
