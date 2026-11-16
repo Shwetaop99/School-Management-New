@@ -383,6 +383,27 @@
                                 </div>
                             </div>
 
+                            {{-- Qualification --}}
+<div class="diary-filter-group">
+    <label for="qualification">Qualification</label>
+
+    <div class="input-wrapper">
+        <i class="fas fa-graduation-cap input-icon"></i>
+
+        <input type="text"
+               name="qualification"
+               id="qualification"
+               class="diary-control with-icon @error('qualification') is-invalid @enderror"
+               placeholder="e.g. HSC, B.Com, B.A., Diploma"
+               value="{{ old('qualification') }}"
+               maxlength="150">
+    </div>
+
+    @error('qualification')
+        <div class="field-error">{{ $message }}</div>
+    @enderror
+</div>
+
                             {{-- Role-specific section --}}
                             <div id="roleSpecificSection"
                                  class="role-specific-section form-grid-full">
@@ -1342,84 +1363,84 @@ document.addEventListener('DOMContentLoaded', function () {
     const roleTemplates = {
 
         Driver: {
-            title: 'Driver Information',
-            description: 'Enter vehicle, route and driving license details.',
-            fields: `
-                <div class="diary-filter-group">
-                    <label>Bus Number <span class="required">*</span></label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-bus input-icon"></i>
-                        <input type="text" name="role_details[bus_number]" class="diary-control with-icon"
-                               placeholder="e.g. BUS-101" value="{{ old('role_details.bus_number') }}" required>
-                    </div>
-                </div>
+    title: 'Driver Information',
+    description: 'Enter vehicle, route and driving license details.',
+    fields: `
+        <div class="diary-filter-group">
+            <label>Bus Number <span class="required">*</span></label>
+            <div class="input-wrapper">
+                <i class="fas fa-bus input-icon"></i>
+                <input type="text"
+                       name="role_details[bus_number]"
+                       class="diary-control with-icon"
+                       placeholder="e.g. BUS-101"
+                       value="{{ old('role_details.bus_number') }}"
+                       maxlength="30"
+                       required>
+            </div>
+        </div>
 
-                <div class="diary-filter-group">
-                    <label>Vehicle Number <span class="required">*</span></label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-car input-icon"></i>
-                        <input type="text" name="role_details[vehicle_number]" class="diary-control with-icon"
-                               placeholder="e.g. MH12AB1234" value="{{ old('role_details.vehicle_number') }}" required>
-                    </div>
-                </div>
+        <div class="diary-filter-group">
+            <label>Vehicle Number <span class="required">*</span></label>
+            <div class="input-wrapper">
+                <i class="fas fa-car input-icon"></i>
+                <input type="text"
+                       name="role_details[vehicle_number]"
+                       class="diary-control with-icon"
+                       placeholder="e.g. MH12AB1234"
+                       value="{{ old('role_details.vehicle_number') }}"
+                       maxlength="13"
+                       pattern="([A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{4}|[0-9]{2}BH[0-9]{4}[A-Z]{1,2})"
+                       title="Enter a valid Indian vehicle number, e.g. MH12AB1234 or 22BH1234AA"
+                       oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+                       required>
+            </div>
+        </div>
 
-                <div class="diary-filter-group">
-                    <label>Route Name <span class="required">*</span></label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-route input-icon"></i>
-                        <input type="text" name="role_details[route_name]" class="diary-control with-icon"
-                               placeholder="e.g. Pune Station - School" value="{{ old('role_details.route_name') }}" required>
-                    </div>
-                </div>
+        <div class="diary-filter-group">
+            <label>Route Name <span class="required">*</span></label>
+            <div class="input-wrapper">
+                <i class="fas fa-route input-icon"></i>
+                <input type="text"
+                       name="role_details[route_name]"
+                       class="diary-control with-icon"
+                       placeholder="e.g. Pune Station - School"
+                       value="{{ old('role_details.route_name') }}"
+                       maxlength="150"
+                       required>
+            </div>
+        </div>
 
-                <div class="diary-filter-group">
-                    <label>Driving License Number</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-id-card input-icon"></i>
-                        <input type="text" name="license_number" class="diary-control with-icon"
-                               placeholder="Enter driving license number" value="{{ old('license_number') }}">
-                    </div>
-                    <div class="field-help">
-                        <i class="fas fa-circle-info"></i>
-                        This license number will be available when assigning this driver to a vehicle.
-                    </div>
-                    @if($errors->has('license_number'))
-                        <div class="field-error">
-                            <i class="fas fa-circle-exclamation"></i>
-                            {{ $errors->first('license_number') }}
-                        </div>
-                    @endif
-                </div>
+        <div class="diary-filter-group">
+            <label>Driving License Number <span class="required">*</span></label>
+            <div class="input-wrapper">
+                <i class="fas fa-id-card input-icon"></i>
+                <input type="text"
+                       name="license_number"
+                       id="license_number"
+                       class="diary-control with-icon"
+                       placeholder="Enter driving license number"
+                       value="{{ old('license_number') }}"
+                       maxlength="20"
+                       pattern="[A-Z0-9-]{10,20}"
+                       title="Enter a valid driving license number using 10–20 letters, numbers or hyphens."
+                       oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')"
+                       required>
+            </div>
+        </div>
 
-                <div class="diary-filter-group">
-                    <label>License Expiry Date</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-calendar-xmark input-icon"></i>
-                        <input type="date" name="license_expiry" class="diary-control with-icon"
-                               value="{{ old('license_expiry') }}">
-                    </div>
-                    @if($errors->has('license_expiry'))
-                        <div class="field-error">
-                            <i class="fas fa-circle-exclamation"></i>
-                            {{ $errors->first('license_expiry') }}
-                        </div>
-                    @endif
-                </div>
-
-                <div class="diary-filter-group">
-                    <label>Shift</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-clock input-icon"></i>
-                        <select name="role_details[shift]" class="diary-control with-icon">
-                            <option value="">Select Shift</option>
-                            <option value="Morning">Morning</option>
-                            <option value="General">General</option>
-                            <option value="Evening">Evening</option>
-                        </select>
-                    </div>
-                </div>
-            `
-        },
+        <div class="diary-filter-group">
+            <label>License Expiry Date</label>
+            <div class="input-wrapper">
+                <i class="fas fa-calendar-xmark input-icon"></i>
+                <input type="date"
+                       name="license_expiry"
+                       class="diary-control with-icon"
+                       value="{{ old('license_expiry') }}">
+            </div>
+        </div>
+    `
+},
 
         Receptionist: {
             title: 'Receptionist Information',
@@ -1455,18 +1476,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </div>
 
-                <div class="diary-filter-group">
-                    <label>Shift</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-clock input-icon"></i>
-                        <select name="role_details[shift]" class="diary-control with-icon">
-                            <option value="">Select Shift</option>
-                            <option value="Morning">Morning</option>
-                            <option value="General">General</option>
-                            <option value="Evening">Evening</option>
-                        </select>
-                    </div>
-                </div>
+                
 
                 <div class="diary-filter-group form-grid-full full">
                     <label>Duties / Responsibilities</label>
@@ -1477,38 +1487,19 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         Librarian: {
-            title: 'Librarian Information',
-            description: 'Enter library assignment and working details.',
-            fields: `
-                <div class="diary-filter-group">
-                    <label>Library Section</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-book input-icon"></i>
-                        <input type="text" name="role_details[library_section]" class="diary-control with-icon"
-                               placeholder="e.g. Reference Section" value="{{ old('role_details.library_section') }}">
-                    </div>
-                </div>
-
-                <div class="diary-filter-group">
-                    <label>Shift</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-clock input-icon"></i>
-                        <select name="role_details[shift]" class="diary-control with-icon">
-                            <option value="">Select Shift</option>
-                            <option value="Morning">Morning</option>
-                            <option value="General">General</option>
-                            <option value="Evening">Evening</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="diary-filter-group form-grid-full full">
-                    <label>Library Responsibilities</label>
-                    <textarea name="role_details[responsibilities]" class="diary-textarea" rows="3"
-                              placeholder="Enter library responsibilities">{{ old('role_details.responsibilities') }}</textarea>
-                </div>
-            `
-        },
+    title: 'Librarian Information',
+    description: 'Enter library responsibilities.',
+    fields: `
+        <div class="diary-filter-group form-grid-full full">
+            <label>Library Responsibilities</label>
+            <textarea
+                name="role_details[responsibilities]"
+                class="diary-textarea"
+                rows="3"
+                placeholder="Enter library responsibilities">{{ old('role_details.responsibilities') }}</textarea>
+        </div>
+    `
+},
 
         Accountant: {
             title: 'Accountant Information',
@@ -1523,18 +1514,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </div>
 
-                <div class="diary-filter-group">
-                    <label>Shift</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-clock input-icon"></i>
-                        <select name="role_details[shift]" class="diary-control with-icon">
-                            <option value="">Select Shift</option>
-                            <option value="Morning">Morning</option>
-                            <option value="General">General</option>
-                            <option value="Evening">Evening</option>
-                        </select>
-                    </div>
-                </div>
 
                 <div class="diary-filter-group form-grid-full full">
                     <label>Responsibilities</label>

@@ -2363,7 +2363,21 @@ document.addEventListener(
                         }
                     );
 
-                    const result = await response.json();
+                    const rawResponse = await response.text();
+
+let result;
+
+try {
+    result = JSON.parse(rawResponse);
+
+    // Handle JSON that has accidentally been encoded twice.
+    if (typeof result === 'string') {
+        result = JSON.parse(result);
+    }
+} catch (parseError) {
+    console.error('Invalid save response:', rawResponse);
+    throw new Error('The server returned an invalid response.');
+}
 
                     if (!response.ok) {
                         throw new Error(

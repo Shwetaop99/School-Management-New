@@ -95,15 +95,18 @@ class UserManagementController extends Controller
         // UPDATE 2: cannot give a role stronger than your own
         $this->assertCanAssignRole((int) $validated['role_id']);
 
-        User::create([
-            'name'          => trim($validated['name']),
-            'profile_photo' => $validated['profile_photo'] ?? null,
-            'login_id'      => $validated['login_id'],
-            'email'         => $validated['email'],
-            'password'      => $validated['password'],
-            'role_id'       => $validated['role_id'],
-            'status'        => $validated['status'],
-        ]);
+       $creator = auth()->user();
+
+User::create([
+    'name'          => trim($validated['name']),
+    'profile_photo' => $validated['profile_photo'] ?? null,
+    'login_id'      => $validated['login_id'],
+    'email'         => $validated['email'],
+    'password'      => $validated['password'],
+    'role_id'       => $validated['role_id'],
+    'status'        => $validated['status'],
+    'school_id'     => $creator->school_id,
+]);
 
         return redirect()
             ->route('admin.settings.users.index')

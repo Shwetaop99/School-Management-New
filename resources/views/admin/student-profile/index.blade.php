@@ -2063,7 +2063,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     const form = document.getElementById('studentSearchForm');
     const input = document.getElementById('studentId');
     const button = document.getElementById('searchStudentBtn');
@@ -2074,10 +2073,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const tabLinks = document.querySelectorAll('.sp-tab-link');
     const tabPanes = document.querySelectorAll('.sp-tab-pane');
-
-    /* =====================================================
-       TABS
-    ===================================================== */
 
     function activateTab(targetSelector) {
         tabLinks.forEach(function (link) {
@@ -2098,39 +2093,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    /* =====================================================
-       HELPERS
-    ===================================================== */
-
-    function escapeHtml(text) {
+    function escapeHtml(value) {
         const div = document.createElement('div');
-        div.textContent = text;
+        div.textContent = value == null ? '' : String(value);
         return div.innerHTML;
     }
 
-    function showAlert(message, type = 'danger') {
+    function showAlert(message, type) {
         if (!alertArea) return;
 
-        alertArea.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="status">
-                ${escapeHtml(message)}
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                </button>
-            </div>
-        `;
+        const alertType = type || 'danger';
+        alertArea.innerHTML =
+            '<div class="alert alert-' + alertType +
+            ' alert-dismissible fade show" role="status">' +
+            escapeHtml(message) +
+            '<button type="button" class="btn-close" ' +
+            'data-bs-dismiss="alert" aria-label="Close"></button>' +
+            '</div>';
     }
 
     function setText(id, value) {
-        const el = document.getElementById(id);
+        const element = document.getElementById(id);
 
-        if (el) {
-            el.textContent =
-                value === null ||
-                value === undefined ||
-                value === ''
+        if (element) {
+            element.textContent =
+                value === null || value === undefined || value === ''
                     ? '-'
                     : value;
         }
@@ -2141,7 +2128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const date = new Date(value);
 
-        if (isNaN(date.getTime())) {
+        if (Number.isNaN(date.getTime())) {
             return value;
         }
 
@@ -2152,19 +2139,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /* =====================================================
-       LOAD STUDENT
-    ===================================================== */
-
     function loadStudent(student) {
-
         const fullName = [
             student.first_name,
             student.middle_name,
             student.last_name
         ].filter(Boolean).join(' ');
 
-        /* Header */
+        // Profile header
         setText('studentFullName', fullName);
         setText('studentMarathiName', student.marathi_name);
         setText('profileStudentId', student.student_id);
@@ -2172,13 +2154,15 @@ document.addEventListener('DOMContentLoaded', function () {
         setText('profileSection', student.section);
         setText('profileRollNumber', student.roll_number);
 
-        /* Status */
+        // Student status
         const statusValue = String(student.status || 'active').toLowerCase();
-        const status = document.getElementById('profileStatus');
+        const statusElement = document.getElementById('profileStatus');
 
-        if (status) {
-            status.classList.remove('active', 'inactive');
-            status.classList.add(statusValue === 'active' ? 'active' : 'inactive');
+        if (statusElement) {
+            statusElement.classList.remove('active', 'inactive');
+            statusElement.classList.add(
+                statusValue === 'active' ? 'active' : 'inactive'
+            );
         }
 
         setText(
@@ -2186,7 +2170,7 @@ document.addEventListener('DOMContentLoaded', function () {
             statusValue.charAt(0).toUpperCase() + statusValue.slice(1)
         );
 
-        /* Image */
+        // Student photo
         const image = document.getElementById('studentProfileImage');
 
         if (image) {
@@ -2196,7 +2180,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '&background=263b35&color=f1ead8&size=300';
         }
 
-        /* Basic */
+        // Basic information
         setText('basicFirstName', student.first_name);
         setText('basicMiddleName', student.middle_name);
         setText('basicLastName', student.last_name);
@@ -2207,7 +2191,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setText('basicPhone', student.phone);
         setText('basicEmail', student.email);
 
-        /* Academic */
+        // Academic information
         setText('academicYear', student.academic_year);
         setText('academicClass', student.class);
         setText('academicSection', student.section);
@@ -2225,20 +2209,18 @@ document.addEventListener('DOMContentLoaded', function () {
         setText('academicCaste', student.caste);
         setText('academicSubCaste', student.sub_caste);
 
-        /* Parents */
+        // Parents / guardian
         setText('fatherName', student.father_name);
         setText('fatherPhone', student.father_phone);
         setText('fatherOccupation', student.father_occupation);
-
         setText('motherName', student.mother_name);
         setText('motherPhone', student.mother_phone);
         setText('motherOccupation', student.mother_occupation);
-
         setText('guardianName', student.guardian_name);
         setText('guardianRelation', student.guardian_relation);
         setText('guardianPhone', student.guardian_phone);
 
-        /* Previous School */
+        // Previous school
         setText('previousSchoolName', student.previous_school_name);
         setText('previousSchoolClass', student.previous_school_class);
         setText('previousSchoolMedium', student.previous_school_medium);
@@ -2247,7 +2229,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setText('previousSchoolRemarks', student.previous_school_remarks);
         setText('previousSchoolAddress', student.previous_school_address);
 
-        /* Address */
+        // Address
         setText('addressValue', student.address);
         setText('addressCountry', student.country);
         setText('addressState', student.state);
@@ -2256,31 +2238,17 @@ document.addEventListener('DOMContentLoaded', function () {
         setText('addressCityVillage', student.city_village);
         setText('addressPincode', student.pincode);
 
-        /* Reset to first tab and show profile */
         activateTab('#basicTab');
 
-        if (profile) {
-            profile.style.display = 'block';
-        }
-
-        if (empty) {
-            empty.style.display = 'none';
-        }
+        if (profile) profile.style.display = 'block';
+        if (empty) empty.style.display = 'none';
     }
 
-    /* =====================================================
-       SEARCH
-    ===================================================== */
-
     if (form) {
-
-        form.addEventListener('submit', function (event) {
-
+        form.addEventListener('submit', async function (event) {
             event.preventDefault();
 
-            const studentId = input
-                ? input.value.trim()
-                : '';
+            const studentId = input ? input.value.trim() : '';
 
             if (!studentId) {
                 showAlert('Please enter a Student ID.', 'warning');
@@ -2293,112 +2261,76 @@ document.addEventListener('DOMContentLoaded', function () {
                     '<i class="fas fa-spinner fa-spin"></i> Searching...';
             }
 
-            if (loading) {
-                loading.style.display = 'block';
-            }
+            if (loading) loading.style.display = 'block';
+            if (profile) profile.style.display = 'none';
+            if (empty) empty.style.display = 'none';
+            if (alertArea) alertArea.innerHTML = '';
 
-            if (profile) {
-                profile.style.display = 'none';
-            }
+            try {
+                const url =
+                    '/admin/students/profile/search?student_id=' +
+                    encodeURIComponent(studentId);
 
-            if (empty) {
-                empty.style.display = 'none';
-            }
-
-            if (alertArea) {
-                alertArea.innerHTML = '';
-            }
-
-            const url =
-                '/admin/students/profile/search?student_id=' +
-                encodeURIComponent(studentId);
-
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(function (response) {
-
-                return response.text().then(function (text) {
-
-                    let data;
-
-                    try {
-                        data = JSON.parse(text);
-                    } catch (error) {
-                        throw new Error(
-                            'Server returned an invalid response.'
-                        );
-                    }
-
-                    return {
-                        ok: response.ok,
-                        status: response.status,
-                        data: data
-                    };
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
                 });
-            })
-            .then(function (result) {
 
-                if (!result.ok) {
+                const contentType =
+                    response.headers.get('content-type') || '';
+
+                if (!contentType.includes('application/json')) {
+                    const responseText = await response.text();
+                    console.error('Unexpected server response:', responseText);
                     throw new Error(
-                        result.data.message ||
-                        'Student not found.'
+                        'The server did not return JSON. Please check the Laravel route or response.'
                     );
                 }
 
-                if (
-                    !result.data.success ||
-                    !result.data.student
-                ) {
+                const data = await response.json();
+
+                if (!response.ok) {
                     throw new Error(
-                        result.data.message ||
-                        'Student data was not returned.'
+                        data.message || 'Unable to find student.'
                     );
                 }
 
-                loadStudent(result.data.student);
+                if (!data.success || !data.student) {
+                    throw new Error(
+                        data.message || 'Student data was not returned.'
+                    );
+                }
 
+                loadStudent(data.student);
                 showAlert(
                     'Student profile loaded successfully.',
                     'success'
                 );
-            })
-            .catch(function (error) {
+            } catch (error) {
+                console.error('Student profile search error:', error);
 
-                console.error('SEARCH ERROR:', error);
-
-                if (profile) {
-                    profile.style.display = 'none';
-                }
-
-                if (empty) {
-                    empty.style.display = 'block';
-                }
+                if (profile) profile.style.display = 'none';
+                if (empty) empty.style.display = 'block';
 
                 showAlert(
-                    error.message ||
-                    'Unable to load student profile.',
+                    error.message || 'Unable to load student profile.',
                     'danger'
                 );
-            })
-            .finally(function () {
-
-                if (loading) {
-                    loading.style.display = 'none';
-                }
+            } finally {
+                if (loading) loading.style.display = 'none';
 
                 if (button) {
                     button.disabled = false;
                     button.innerHTML =
                         '<i class="fas fa-search"></i> Search Student';
                 }
-            });
+            }
         });
     }
-
 });
 </script>
 

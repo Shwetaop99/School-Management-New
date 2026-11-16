@@ -70,4 +70,8 @@ return [
         'api_version' => env('WHATSAPP_API_VERSION', 'v23.0'),
     ],
 
+    'tesseract' => [
+    'executable' => 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe',
+],
+
 ];

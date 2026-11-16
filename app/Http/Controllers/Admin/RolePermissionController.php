@@ -50,7 +50,6 @@ class RolePermissionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // UPDATE 1: simple role names only (small letters, numbers, _)
             'name' => [
                 'required',
                 'string',
@@ -58,16 +57,15 @@ class RolePermissionController extends Controller
                 'regex:/^[a-z][a-z0-9_]*$/',
                 Rule::unique('roles', 'name'),
             ],
-            'display_name'  => ['required', 'string', 'max:100'],
-            'description'   => ['nullable', 'string', 'max:500'],
-            'status'        => ['required', Rule::in(['Active', 'Inactive'])],
-            'permissions'   => ['nullable', 'array'],
-            'permissions.*' => ['integer', 'distinct', 'exists:permissions,id'],
+            'display_name'   => ['required', 'string', 'max:100'],
+            'description'    => ['nullable', 'string', 'max:500'],
+            'status'         => ['required', Rule::in(['Active', 'Inactive'])],
+            'permissions'    => ['nullable', 'array'],
+            'permissions.*'  => ['integer', 'distinct', 'exists:permissions,id'],
         ]);
 
         $permissionIds = $validated['permissions'] ?? [];
 
-        // UPDATE 2: cannot give permissions you do not have yourself
         $this->assertCanGrant($permissionIds);
 
         $role = Role::create([
@@ -81,7 +79,6 @@ class RolePermissionController extends Controller
 
         $role->permissions()->sync($permissionIds);
 
-        // UPDATE 3: write it in the activity log
         activity()
             ->performedOn($role)
             ->causedBy(auth()->user())
@@ -124,7 +121,6 @@ class RolePermissionController extends Controller
 
     public function update(Request $request, Role $role)
     {
-        // UPDATE 4: Super Admin role and stronger roles cannot be edited
         if ($blocked = $this->blockedMessage($role)) {
             return redirect()
                 ->route('admin.settings.roles.index')
@@ -132,14 +128,13 @@ class RolePermissionController extends Controller
         }
 
         $validated = $request->validate([
-            'display_name'  => ['required', 'string', 'max:100'],
-            'description'   => ['nullable', 'string', 'max:500'],
-            'status'        => ['required', Rule::in(['Active', 'Inactive'])],
-            'permissions'   => ['nullable', 'array'],
-            'permissions.*' => ['integer', 'distinct', 'exists:permissions,id'],
+            'display_name'   => ['required', 'string', 'max:100'],
+            'description'    => ['nullable', 'string', 'max:500'],
+            'status'         => ['required', Rule::in(['Active', 'Inactive'])],
+            'permissions'    => ['nullable', 'array'],
+            'permissions.*'  => ['integer', 'distinct', 'exists:permissions,id'],
         ]);
 
-        // UPDATE 5: a role that still has users cannot be made Inactive
         if ($validated['status'] === 'Inactive' && $role->users()->exists()) {
             throw ValidationException::withMessages([
                 'status' => 'This role still has users. Move them to another role first.',
@@ -164,7 +159,6 @@ class RolePermissionController extends Controller
 
         $after = $role->permissions()->pluck('name')->all();
 
-        // UPDATE 3: write exactly what was added and removed
         activity()
             ->performedOn($role)
             ->causedBy(auth()->user())
@@ -233,66 +227,92 @@ class RolePermissionController extends Controller
             : collect();
     }
 
-    // Returns a message when this role must not be changed, otherwise null
-    private function blockedMessage(Role $role): ?string
+    /**
+     * Modules in which the current user has at least one permission.
+     * Non-Super Admin users can manage permissions only within these modules.
+     */
+    private function grantableModuleNames(): Collection
     {
         if ($this->isSuperAdmin()) {
-            // even a Super Admin does not edit the Super Admin role here
-            return $role->name === 'super_admin'
-                ? 'The Super Admin role cannot be edited.'
-                : null;
+            return Permission::query()
+                ->distinct()
+                ->pluck('module');
         }
 
+        return Permission::whereIn('id', $this->myPermissionIds())
+            ->whereNotNull('module')
+            ->pluck('module')
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * Returns a message when this role must not be changed, otherwise null.
+     */
+    private function blockedMessage(Role $role): ?string
+    {
         if ($role->name === 'super_admin') {
             return 'The Super Admin role cannot be edited.';
         }
 
-        // Others can only manage roles with the same or fewer permissions
-        $roleIds = $role->permissions()->pluck('permissions.id');
+        if ($this->isSuperAdmin()) {
+            return null;
+        }
 
-        if ($roleIds->diff($this->myPermissionIds())->isNotEmpty()) {
-            return 'You cannot manage a role with more permissions than your own.';
+        // A user may manage roles only when all their permission modules
+        // are within the modules that the current user is allowed to manage.
+        $roleModules = $role->permissions()
+            ->whereNotNull('permissions.module')
+            ->pluck('permissions.module')
+            ->unique();
+
+        $allowedModules = $this->grantableModuleNames();
+
+        if ($roleModules->diff($allowedModules)->isNotEmpty()) {
+            return 'You cannot manage a role that has permissions outside the modules available to your role.';
         }
 
         return null;
     }
 
+    /**
+     * Prevent assigning permissions outside the modules available to this user.
+     */
     private function assertCanGrant(array $permissionIds): void
     {
-        if ($this->isSuperAdmin()) {
+        if ($this->isSuperAdmin() || empty($permissionIds)) {
             return;
         }
 
-        $notMine = collect($permissionIds)
-            ->map(fn ($id) => (int) $id)
-            ->diff($this->myPermissionIds());
+        $allowedModules = $this->grantableModuleNames();
 
-        if ($notMine->isNotEmpty()) {
+        $hasUnauthorizedPermission = Permission::whereIn('id', $permissionIds)
+            ->whereNotIn('module', $allowedModules)
+            ->exists();
+
+        if ($hasUnauthorizedPermission) {
             throw ValidationException::withMessages([
-                'permissions' => 'You cannot give permissions that you do not have yourself.',
+                'permissions' => 'You cannot assign permissions outside the modules available to your role.',
             ]);
         }
     }
 
-    // Permissions shown on the create and edit pages
+    /**
+     * Permissions shown on the create and edit pages.
+     * If a user has access to a module, all permissions in that module are shown.
+     */
     private function grantablePermissions()
     {
-        $permissions = Permission::orderBy('module')
-            ->orderBy('display_name')
-            ->get();
+        $query = Permission::query()
+            ->orderBy('module')
+            ->orderBy('display_name');
 
         if (!$this->isSuperAdmin()) {
-            $mine = $this->myPermissionIds();
+            $allowedModules = $this->grantableModuleNames();
 
-            $permissions = $permissions
-                ->filter(fn ($permission) => $mine->contains($permission->id))
-                ->values();
+            $query->whereIn('module', $allowedModules);
         }
 
-        return $permissions->groupBy('module');
+        return $query->get()->groupBy('module');
     }
-    /**
- * Bulk delete multiple records.
- */
-
 }

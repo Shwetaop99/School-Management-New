@@ -24,6 +24,7 @@ class OtherStaff extends Model
         'department',
         'qualification',
         'license_number',
+        'vehicle_number',
         'license_expiry',
         'joining_date',
         'status',
