@@ -1,14 +1,125 @@
-﻿@extends('layouts.app')
+﻿
+@extends('layouts.app')
 
 @section('title', 'Reports')
 @section('page-title', 'Reports')
 
 @section('content')
 
-<div class="school-reports-page">
-    <div class="container-fluid py-4">
+@php
+    $reportModules = [
+        [
+            'title' => 'Student Reports',
+            'description' => 'Student information, profiles and academic records.',
+            'route' => 'admin.reports.students',
+            'icon' => 'fa-user-graduate',
+            'color' => 'student',
+        ],
+        [
+            'title' => 'Faculty Reports',
+            'description' => 'Faculty details, allocation and teaching records.',
+            'route' => 'admin.teachers.reports.index',
+            'icon' => 'fa-chalkboard-teacher',
+            'color' => 'faculty',
+        ],
+        [
+            'title' => 'Staff Reports',
+            'description' => 'Non-teaching staff and employee information.',
+            'route' => 'admin.reports.staff',
+            'icon' => 'fa-users',
+            'color' => 'staff',
+        ],
+        [
+            'title' => 'Student Attendance Reports',
+            'description' => 'Student attendance records and daily summaries.',
+            'route' => 'admin.reports.student-attendance',
+            'icon' => 'fa-calendar-check',
+            'color' => 'attendance',
+        ],
+        [
+            'title' => 'Faculty Attendance Reports',
+            'description' => 'Faculty attendance, leave records and overtime.',
+            'route' => 'admin.reports.teacher-attendance',
+            'icon' => 'fa-user-check',
+            'color' => 'faculty-attendance',
+        ],
+        [
+            'title' => 'Fee Reports',
+            'description' => 'Fee collection, payments and pending fees.',
+            'route' => 'admin.reports.fees',
+            'icon' => 'fa-indian-rupee-sign',
+            'color' => 'fees',
+        ],
+        [
+            'title' => 'Exam Reports',
+            'description' => 'Examination schedules and examination records.',
+            'route' => 'admin.reports.exams',
+            'icon' => 'fa-file-alt',
+            'color' => 'exam',
+        ],
+        [
+            'title' => 'Result Reports',
+            'description' => 'Marks, grades and student result summaries.',
+            'route' => 'admin.reports.results.index',
+            'icon' => 'fa-chart-column',
+            'color' => 'result',
+        ],
+        [
+            'title' => 'Library Reports',
+            'description' => 'Books, issues, returns, overdue books and fines.',
+            'route' => 'admin.library.reports.index',
+            'icon' => 'fa-book',
+            'color' => 'library',
+        ],
+        [
+            'title' => 'Transport Reports',
+            'description' => 'Routes, vehicles, drivers and student transport.',
+            'route' => 'admin.reports.transport',
+            'icon' => 'fa-bus',
+            'color' => 'transport',
+        ],
+        [
+            'title' => 'Meal Reports',
+            'description' => 'Meal stock, usage and inventory records.',
+            'route' => 'admin.reports.meal',
+            'icon' => 'fa-utensils',
+            'color' => 'meal',
+        ],
+        [
+            'title' => 'Payroll Reports',
+            'description' => 'Salary, payroll and employee payment records.',
+            'route' => 'admin.reports.payroll',
+            'icon' => 'fa-money-check-dollar',
+            'color' => 'payroll',
+        ],
+        [
+            'title' => 'Sports Reports',
+            'description' => 'Sports activities and student participation.',
+            'route' => 'admin.reports.sports',
+            'icon' => 'fa-futbol',
+            'color' => 'sports',
+        ],
+        [
+            'title' => 'Scholarship Reports',
+            'description' => 'Scholarship applications and student records.',
+            'route' => 'admin.reports.scholarship',
+            'icon' => 'fa-graduation-cap',
+            'color' => 'scholarship',
+        ],
+        [
+            'title' => 'Class Reports',
+            'description' => 'Classes, divisions, subjects and class records.',
+            'route' => 'admin.class-reports.index',
+            'icon' => 'fa-chalkboard',
+            'color' => 'class',
+        ],
+    ];
+@endphp
 
-        {{-- PAGE HERO --}}
+<div class="school-reports-page">
+    <div class="container-fluid">
+
+        {{-- HERO SECTION --}}
         <section class="reports-hero">
 
             <div class="reports-hero-left">
@@ -92,14 +203,12 @@
 
                 <div>
                     <h3>Explore Reports</h3>
-                    <p>
-                        Choose a module to access its reports and records.
-                    </p>
+                    <p>Choose a module to access its reports and records.</p>
                 </div>
             </div>
 
             <div class="reports-count">
-                <span class="count-number">15</span>
+                <span class="count-number">{{ count($reportModules) }}</span>
                 <span class="count-label">Available Modules</span>
             </div>
         </div>
@@ -107,309 +216,29 @@
         {{-- REPORT CARDS --}}
         <div class="reports-grid">
 
-            {{-- 1. STUDENT --}}
-            <a href="{{ route('admin.reports.students') }}" class="report-card">
-
-                <div class="report-icon student-icon">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Student Reports</h3>
-                    <p>
-                        Student information, profiles and academic records.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 2. FACULTY --}}
-            <a href="{{ route('admin.teachers.reports.index') }}" class="report-card">
-
-                <div class="report-icon faculty-icon">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Faculty Reports</h3>
-                    <p>
-                        Faculty details, allocation and teaching records.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 3. STAFF --}}
-            <a href="{{ route('admin.reports.staff') }}" class="report-card">
-
-                <div class="report-icon staff-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Staff Reports</h3>
-                    <p>
-                        Non-teaching staff and employee information.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 4. STUDENT ATTENDANCE --}}
-            <a href="{{ route('admin.reports.student-attendance') }}" class="report-card">
-
-                <div class="report-icon attendance-icon">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Student Attendance Reports</h3>
-                    <p>
-                        Student attendance records, daily summaries and reports.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 5. FACULTY ATTENDANCE --}}
-            <a href="{{ route('admin.reports.teacher-attendance') }}" class="report-card">
-
-                <div class="report-icon faculty-attendance-icon">
-                    <i class="fas fa-user-check"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Faculty Attendance Reports</h3>
-                    <p>
-                        Faculty attendance, leave records, overtime and individual profiles.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 6. FEES --}}
-            <a href="{{ route('admin.reports.fees') }}" class="report-card">
-
-                <div class="report-icon fees-icon">
-                    <i class="fas fa-indian-rupee-sign"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Fee Reports</h3>
-                    <p>
-                        Fee collection, payments and pending fees.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 7. EXAM --}}
-            <a href="{{ route('admin.reports.exams') }}" class="report-card">
-
-                <div class="report-icon exam-icon">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Exam Reports</h3>
-                    <p>
-                        Examination schedules and examination records.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 8. RESULT --}}
-            <a href="{{ route('admin.reports.results.index') }}" class="report-card">
-
-                <div class="report-icon result-icon">
-                    <i class="fas fa-chart-column"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Result Reports</h3>
-                    <p>
-                        Marks, grades and student result summaries.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 9. LIBRARY --}}
-            <a href="{{ route('admin.library.reports.index') }}" class="report-card">
-
-                <div class="report-icon library-icon">
-                    <i class="fas fa-book"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Library Reports</h3>
-                    <p>
-                        Books, issues, returns, overdue books and fines.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 10. TRANSPORT --}}
-            <a href="{{ route('admin.reports.transport') }}" class="report-card">
-
-                <div class="report-icon transport-icon">
-                    <i class="fas fa-bus"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Transport Reports</h3>
-                    <p>
-                        Routes, vehicles, drivers and student transport.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 11. MEAL --}}
-            <a href="{{ route('admin.reports.meal') }}" class="report-card">
-
-                <div class="report-icon meal-icon">
-                    <i class="fas fa-utensils"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Meal Reports</h3>
-                    <p>
-                        Meal stock, usage and inventory records.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 12. PAYROLL --}}
-            <a href="{{ route('admin.reports.payroll') }}" class="report-card">
-
-                <div class="report-icon payroll-icon">
-                    <i class="fas fa-money-check-dollar"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Payroll Reports</h3>
-                    <p>
-                        Salary, payroll and employee payment records.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 13. SPORTS --}}
-            <a href="{{ route('admin.reports.sports') }}" class="report-card">
-
-                <div class="report-icon sports-icon">
-                    <i class="fas fa-futbol"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Sports Reports</h3>
-                    <p>
-                        Sports activities and student participation.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 14. SCHOLARSHIP --}}
-            <a href="{{ route('admin.reports.scholarship') }}" class="report-card">
-
-                <div class="report-icon scholarship-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Scholarship Reports</h3>
-                    <p>
-                        Scholarship applications and student records.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
-
-            {{-- 15. CLASS --}}
-            <a href="{{ route('admin.class-reports.index') }}" class="report-card">
-
-                <div class="report-icon class-icon">
-                    <i class="fas fa-chalkboard"></i>
-                </div>
-
-                <div class="report-info">
-                    <h3>Class Reports</h3>
-                    <p>
-                        Classes, divisions, subjects and class records.
-                    </p>
-                </div>
-
-                <div class="report-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-            </a>
+            @foreach($reportModules as $module)
+                <a href="{{ route($module['route']) }}"
+                   class="report-card">
+
+                    <div class="report-icon {{ $module['color'] }}-icon">
+                        <i class="fas {{ $module['icon'] }}"></i>
+                    </div>
+
+                    <div class="report-info">
+                        <h3>{{ $module['title'] }}</h3>
+                        <p>{{ $module['description'] }}</p>
+                    </div>
+
+                    <div class="report-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                </a>
+            @endforeach
 
         </div>
 
-        {{-- BOTTOM INFORMATION STRIP --}}
+        {{-- BOTTOM INFORMATION --}}
         <div class="reports-footer-note">
             <div class="footer-note-icon">
                 <i class="fas fa-lightbulb"></i>
@@ -428,23 +257,23 @@
 </div>
 
 <style>
-/* =========================================================
-   SCHOOL REPORTS — LOCKED PAYROLL DESIGN LANGUAGE
-   All styling is scoped to .school-reports-page
-========================================================= */
+/* =====================================================
+   SCHOOL REPORTS - MODERN DASHBOARD DESIGN
+===================================================== */
 
 .school-reports-page {
-    --bg: #f5f4f0;
-    --text: #1e2a25;
-    --muted: #5c6b64;
-    --border: #d4cfc2;
-    --primary: #2c3e36;
-    --primary-hover: #3a4f45;
-    --cream: #f3ead8;
-    --cream-border: #e5d9c0;
+    --primary: #365b49;
+    --primary-dark: #294637;
+    --primary-light: #eaf2eb;
+    --text: #26352d;
+    --muted: #748078;
+    --border: #e5eae5;
+    --surface: #ffffff;
+    --background: #f6f7f5;
 
     min-height: calc(100vh - 70px);
-    background: var(--bg);
+    padding-bottom: 30px;
+    background: var(--background);
     color: var(--text);
     font-family: Inter, "Public Sans", Arial, sans-serif;
 }
@@ -457,44 +286,43 @@
 
 .school-reports-page .container-fluid {
     width: 100%;
-    max-width: 1400px;
+    max-width: 1450px;
     margin: 0 auto;
-    padding-right: 24px;
-    padding-left: 24px;
+    padding: 28px 26px;
 }
 
 /* HERO */
 
 .school-reports-page .reports-hero {
     display: grid;
-    grid-template-columns: 1.55fr 1fr;
+    grid-template-columns: 1.5fr 1fr;
     overflow: hidden;
-    margin-bottom: 32px;
+    margin-bottom: 35px;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    background: #fff;
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 0 5px 20px rgba(35, 60, 45, .04);
 }
 
 .school-reports-page .reports-hero-left {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
-    padding: 34px 30px;
-    background: #fdfbf7;
+    gap: 22px;
+    padding: 40px 35px;
+    background: linear-gradient(135deg, #fff, #f5f9f5);
 }
 
 .school-reports-page .reports-hero-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 58px;
-    height: 58px;
-    flex: 0 0 58px;
-    border: 1px solid var(--cream-border);
-    border-radius: 12px;
-    background: var(--cream);
-    color: #5c4a32;
-    font-size: 23px;
+    width: 60px;
+    height: 60px;
+    flex: 0 0 60px;
+    border-radius: 14px;
+    background: #dce9df;
+    color: var(--primary);
+    font-size: 24px;
 }
 
 .school-reports-page .reports-hero-content {
@@ -502,27 +330,27 @@
 }
 
 .school-reports-page .reports-eyebrow {
-    margin-bottom: 9px;
-    color: #9c7b4a;
+    margin-bottom: 10px;
+    color: #718b79;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: 1.4px;
+    letter-spacing: 1.5px;
 }
 
 .school-reports-page .reports-hero-content h2 {
-    margin: 0 0 10px;
+    margin: 0 0 12px;
     color: var(--text);
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 750;
     line-height: 1.25;
-    letter-spacing: -.5px;
+    letter-spacing: -.7px;
 }
 
 .school-reports-page .reports-hero-content > p {
-    max-width: 510px;
+    max-width: 520px;
     margin: 0;
     color: var(--muted);
-    font-size: 13.5px;
+    font-size: 13px;
     line-height: 1.8;
 }
 
@@ -530,9 +358,9 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 22px;
-    color: #526158;
+    gap: 14px;
+    margin-top: 23px;
+    color: #536b5c;
     font-size: 11px;
     font-weight: 600;
 }
@@ -544,7 +372,7 @@
 }
 
 .school-reports-page .reports-hero-meta i {
-    color: #8c7958;
+    color: var(--primary);
 }
 
 .school-reports-page .reports-hero-meta .meta-divider {
@@ -553,7 +381,7 @@
     background: var(--border);
 }
 
-/* HERO RIGHT — CREAM DASHBOARD ILLUSTRATION */
+/* HERO ILLUSTRATION */
 
 .school-reports-page .reports-hero-right {
     position: relative;
@@ -564,26 +392,21 @@
     gap: 14px;
     min-width: 0;
     overflow: hidden;
-    padding: 28px 25px;
-    border-left: 1px solid #e5d9c4;
-    background: linear-gradient(
-        145deg,
-        #f8f1e3 0%,
-        #f0e6d2 50%,
-        #e8dcc6 100%
-    );
+    padding: 30px;
+    border-left: 1px solid #e6eee7;
+    background: linear-gradient(145deg, #eaf2eb, #dce9df);
 }
 
 .school-reports-page .hero-decoration {
     position: absolute;
-    border: 1px solid rgba(140, 112, 72, .13);
+    border: 1px solid rgba(54, 91, 73, .12);
     border-radius: 50%;
     pointer-events: none;
 }
 
 .school-reports-page .hero-decoration-one {
     top: -95px;
-    right: -65px;
+    right: -55px;
     width: 240px;
     height: 240px;
 }
@@ -599,32 +422,32 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 310px;
-    padding: 17px 19px 15px;
-    border: 1px solid rgba(151, 130, 95, .28);
-    border-radius: 10px;
-    background: rgba(255, 254, 250, .82);
-    box-shadow: 0 10px 28px rgba(74, 59, 34, .07);
+    max-width: 320px;
+    padding: 18px 20px;
+    border: 1px solid rgba(54, 91, 73, .12);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .9);
+    box-shadow: 0 12px 30px rgba(35, 60, 45, .08);
 }
 
 .school-reports-page .illustration-top {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #eee6d8;
+    gap: 6px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid #edf1ed;
 }
 
 .school-reports-page .illustration-dot {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: #c4b49a;
+    background: #a8b9ac;
 }
 
 .school-reports-page .illustration-label {
     margin-left: auto;
-    color: #87765c;
+    color: #718477;
     font-size: 8px;
     font-weight: 800;
     letter-spacing: 1px;
@@ -637,12 +460,12 @@
     gap: 13px;
     height: 95px;
     padding: 14px 12px 0;
-    border-bottom: 1px solid #e9e0d1;
+    border-bottom: 1px solid #e8eee8;
     background: repeating-linear-gradient(
         to bottom,
         transparent 0,
         transparent 22px,
-        rgba(180, 164, 135, .16) 23px,
+        rgba(54, 91, 73, .06) 23px,
         transparent 24px
     );
 }
@@ -650,40 +473,35 @@
 .school-reports-page .chart-bar {
     width: 27px;
     max-width: 18%;
-    border-radius: 4px 4px 0 0;
-    background: #718778;
-    animation: reportsBarRise .65s ease-out both;
+    border-radius: 5px 5px 0 0;
+    background: #718e79;
     transform-origin: bottom;
+    animation: reportsBarRise .65s ease-out both;
 }
 
 .school-reports-page .chart-bar-one {
     height: 38%;
-    background: #c7b18a;
-    animation-delay: .04s;
+    background: #b6cbb9;
 }
 
 .school-reports-page .chart-bar-two {
     height: 62%;
-    background: #899b83;
-    animation-delay: .10s;
+    background: #8cae96;
 }
 
 .school-reports-page .chart-bar-three {
     height: 48%;
-    background: #bba47a;
-    animation-delay: .16s;
+    background: #a6bea9;
 }
 
 .school-reports-page .chart-bar-four {
     height: 85%;
-    background: #527564;
-    animation-delay: .22s;
+    background: #416c53;
 }
 
 .school-reports-page .chart-bar-five {
     height: 70%;
-    background: #839783;
-    animation-delay: .28s;
+    background: #789982;
 }
 
 @keyframes reportsBarRise {
@@ -691,6 +509,7 @@
         transform: scaleY(.15);
         opacity: .4;
     }
+
     to {
         transform: scaleY(1);
         opacity: 1;
@@ -701,20 +520,20 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-top: 13px;
+    padding-top: 14px;
 }
 
 .school-reports-page .illustration-check {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 29px;
-    height: 29px;
+    width: 30px;
+    height: 30px;
     flex-shrink: 0;
-    border-radius: 7px;
-    background: #e6eee4;
-    color: #42674b;
-    font-size: 11px;
+    border-radius: 8px;
+    background: #e5f1e7;
+    color: #3f7650;
+    font-size: 12px;
 }
 
 .school-reports-page .illustration-footer strong,
@@ -723,34 +542,34 @@
 }
 
 .school-reports-page .illustration-footer strong {
-    color: #33443a;
+    color: #344b3b;
     font-size: 10px;
     font-weight: 750;
 }
 
 .school-reports-page .illustration-footer span {
     margin-top: 3px;
-    color: #7b8072;
+    color: #829087;
     font-size: 9px;
 }
 
 .school-reports-page .hero-caption {
     position: relative;
     z-index: 1;
-    color: #796448;
-    font-family: "Segoe Print", "Comic Sans MS", cursive;
-    font-size: 16px;
+    color: #54735e;
+    font-size: 13px;
+    font-weight: 600;
     text-align: center;
 }
 
-/* SECTION HEADER */
+/* SECTION HEADING */
 
 .school-reports-page .reports-section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    margin-bottom: 19px;
+    margin-bottom: 20px;
 }
 
 .school-reports-page .reports-section-title {
@@ -764,18 +583,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 43px;
-    height: 43px;
+    width: 45px;
+    height: 45px;
     flex-shrink: 0;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 11px;
     background: #fff;
     color: var(--primary);
-    font-size: 17px;
+    font-size: 18px;
 }
 
 .school-reports-page .reports-section-title h3 {
-    margin: 0 0 4px;
+    margin: 0 0 5px;
     color: var(--text);
     font-size: 19px;
     font-weight: 750;
@@ -793,19 +612,19 @@
     align-items: center;
     gap: 10px;
     flex-shrink: 0;
-    padding: 9px 13px;
-    border: 1px solid var(--cream-border);
-    border-radius: 7px;
-    background: #fdfbf7;
+    padding: 9px 14px;
+    border: 1px solid #dce8de;
+    border-radius: 9px;
+    background: #f0f6f1;
 }
 
 .school-reports-page .count-number {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
     background: var(--primary);
     color: #fff;
     font-size: 13px;
@@ -813,7 +632,7 @@
 }
 
 .school-reports-page .count-label {
-    color: #665d4e;
+    color: #536c5b;
     font-size: 11px;
     font-weight: 650;
 }
@@ -823,7 +642,7 @@
 .school-reports-page .reports-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 18px;
 }
 
 /* REPORT CARDS */
@@ -834,19 +653,18 @@
     align-items: center;
     gap: 15px;
     min-width: 0;
-    min-height: 144px;
-    padding: 21px 18px;
+    min-height: 132px;
+    padding: 22px 19px;
     overflow: hidden;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    background: #fff;
+    border-radius: 13px;
+    background: var(--surface);
     color: var(--text);
     text-decoration: none;
-    transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        border-color .2s ease,
-        background .2s ease;
+    box-shadow: 0 3px 12px rgba(35, 60, 45, .025);
+    transition: transform .22s ease,
+                box-shadow .22s ease,
+                border-color .22s ease;
 }
 
 .school-reports-page .report-card::before {
@@ -854,19 +672,20 @@
     top: 0;
     bottom: 0;
     left: 0;
-    width: 3px;
-    background: #a7b5a7;
+    width: 4px;
+    background: var(--primary);
     content: "";
     opacity: 0;
     transition: opacity .2s ease;
 }
 
 .school-reports-page .report-card:hover {
-    transform: translateY(-3px);
-    border-color: #c6c0b1;
-    background: #fffefa;
-    box-shadow: 0 9px 22px rgba(44, 62, 54, .075);
+    transform: translateY(-4px);
+    border-color: #b9d0be;
+    background: #fff;
+    box-shadow: 0 10px 25px rgba(35, 60, 45, .09);
     color: var(--text);
+    text-decoration: none;
 }
 
 .school-reports-page .report-card:hover::before {
@@ -882,21 +701,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 51px;
-    height: 51px;
-    flex: 0 0 51px;
-    border: 1px solid #e5e0d4;
-    border-radius: 9px;
-    background: #f5f2e9;
-    color: #526b59;
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border: 1px solid #e1e9e2;
+    border-radius: 12px;
+    background: #edf4ee;
+    color: var(--primary);
     font-size: 20px;
-    transition:
-        transform .2s ease,
-        background .2s ease;
+    transition: transform .22s ease;
 }
 
 .school-reports-page .report-card:hover .report-icon {
-    transform: scale(1.045);
+    transform: scale(1.07);
 }
 
 .school-reports-page .report-info {
@@ -906,7 +723,7 @@
 
 .school-reports-page .report-info h3 {
     margin: 0;
-    color: #26352d;
+    color: #2c3c32;
     font-size: 14px;
     font-weight: 750;
     line-height: 1.5;
@@ -914,7 +731,7 @@
 
 .school-reports-page .report-info p {
     margin: 6px 0 0;
-    color: #6b766e;
+    color: var(--muted);
     font-size: 11.5px;
     line-height: 1.7;
 }
@@ -923,19 +740,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 29px;
-    height: 29px;
-    flex: 0 0 29px;
-    border: 1px solid #e4dfd4;
-    border-radius: 6px;
-    background: #fdfbf7;
-    color: #777f73;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border: 1px solid #e5ebe5;
+    border-radius: 8px;
+    background: #f7f9f7;
+    color: #748379;
     font-size: 11px;
-    transition:
-        transform .2s ease,
-        background .2s ease,
-        color .2s ease,
-        border-color .2s ease;
+    transition: transform .2s ease,
+                background .2s ease,
+                color .2s ease;
 }
 
 .school-reports-page .report-card:hover .report-arrow {
@@ -945,136 +760,130 @@
     color: #fff;
 }
 
-/* Individual icon accents — muted to complement the locked palette */
+/* INDIVIDUAL ICON COLORS */
 
 .school-reports-page .student-icon {
-    background: #e9efe8;
-    border-color: #d9e3d6;
-    color: #456b50;
+    background: #e8f2eb;
+    border-color: #d9e8dc;
+    color: #3f7650;
 }
 
 .school-reports-page .faculty-icon {
-    background: #eee9df;
-    border-color: #e1d8c6;
-    color: #786447;
+    background: #edf0f8;
+    border-color: #dfe4f0;
+    color: #586b9a;
 }
 
 .school-reports-page .staff-icon {
-    background: #e8eee8;
-    border-color: #d8e1d6;
-    color: #4b7058;
+    background: #f0ebf7;
+    border-color: #e4dcef;
+    color: #8063a1;
 }
 
-.school-reports-page .attendance-icon {
-    background: #e6eeeb;
-    border-color: #d5e2dc;
-    color: #456e60;
-}
-
+.school-reports-page .attendance-icon,
 .school-reports-page .faculty-attendance-icon {
-    background: #e6eeeb;
-    border-color: #d5e2dc;
-    color: #456e60;
+    background: #e8f3f2;
+    border-color: #d6e9e6;
+    color: #397d75;
 }
 
 .school-reports-page .fees-icon {
-    background: #f4ecdc;
-    border-color: #e8dcc2;
-    color: #977039;
+    background: #f5f0df;
+    border-color: #ece2c3;
+    color: #94752f;
 }
 
 .school-reports-page .exam-icon {
-    background: #f2e9e3;
-    border-color: #e8d7cc;
-    color: #9a5a43;
+    background: #f8ece8;
+    border-color: #f0dcd5;
+    color: #a65d48;
 }
 
 .school-reports-page .result-icon {
-    background: #e9ece6;
-    border-color: #d8dfd2;
-    color: #5b7155;
+    background: #eaf0e6;
+    border-color: #dce7d5;
+    color: #607d4d;
 }
 
 .school-reports-page .library-icon {
-    background: #f3ecdf;
-    border-color: #e7dcc6;
-    color: #8c7042;
+    background: #f4eee3;
+    border-color: #eae0cc;
+    color: #927344;
 }
 
 .school-reports-page .transport-icon {
-    background: #e7ece9;
-    border-color: #d8e0da;
-    color: #4b6a5a;
+    background: #e9eff5;
+    border-color: #dce5ef;
+    color: #52769a;
 }
 
 .school-reports-page .meal-icon {
-    background: #f5efdc;
-    border-color: #e9dfbf;
-    color: #92753d;
+    background: #f8f0e4;
+    border-color: #eee1ca;
+    color: #a47b3c;
 }
 
 .school-reports-page .payroll-icon {
-    background: #e5efe7;
-    border-color: #d0e1d3;
-    color: #39734b;
+    background: #e6f2eb;
+    border-color: #d4e8db;
+    color: #3c8055;
 }
 
 .school-reports-page .sports-icon {
-    background: #f1e9e3;
-    border-color: #e5d7cb;
-    color: #986247;
+    background: #f8eae9;
+    border-color: #efd9d7;
+    color: #a95750;
 }
 
 .school-reports-page .scholarship-icon {
-    background: #ecebe1;
-    border-color: #dfdfce;
-    color: #6b7650;
+    background: #f0edf8;
+    border-color: #e2dcf0;
+    color: #7866a4;
 }
 
 .school-reports-page .class-icon {
-    background: #e9eee7;
-    border-color: #d9e2d5;
-    color: #4e6e50;
+    background: #e9f0e9;
+    border-color: #dbe7dc;
+    color: #527457;
 }
 
-/* BOTTOM NOTE */
+/* BOTTOM INFORMATION */
 
 .school-reports-page .reports-footer-note {
     display: flex;
     align-items: flex-start;
-    gap: 13px;
-    margin-top: 24px;
-    padding: 17px 19px;
-    border: 1px solid #e5d9c4;
-    border-radius: 8px;
-    background: #fdfbf7;
+    gap: 14px;
+    margin-top: 26px;
+    padding: 19px 21px;
+    border: 1px solid #dce8de;
+    border-radius: 12px;
+    background: #f0f6f1;
 }
 
 .school-reports-page .footer-note-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    flex: 0 0 34px;
-    border: 1px solid var(--cream-border);
-    border-radius: 7px;
-    background: var(--cream);
-    color: #806744;
-    font-size: 14px;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 9px;
+    background: #deebdf;
+    color: var(--primary);
+    font-size: 15px;
 }
 
 .school-reports-page .reports-footer-note strong {
     display: block;
-    margin-bottom: 4px;
-    color: var(--text);
+    margin-bottom: 5px;
+    color: #344d3b;
     font-size: 12px;
     font-weight: 750;
 }
 
 .school-reports-page .reports-footer-note p {
     margin: 0;
-    color: var(--muted);
+    color: #708076;
     font-size: 12px;
     line-height: 1.7;
 }
@@ -1091,22 +900,17 @@
     }
 
     .school-reports-page .reports-hero-left {
-        padding: 28px 23px;
+        padding: 30px 24px;
     }
 
     .school-reports-page .reports-hero-content h2 {
-        font-size: 24px;
-    }
-
-    .school-reports-page .reports-hero-meta {
-        gap: 8px;
+        font-size: 26px;
     }
 }
 
 @media (max-width: 760px) {
     .school-reports-page .container-fluid {
-        padding-right: 16px;
-        padding-left: 16px;
+        padding: 20px 16px;
     }
 
     .school-reports-page .reports-hero {
@@ -1114,70 +918,49 @@
     }
 
     .school-reports-page .reports-hero-left {
-        padding: 24px 20px;
+        padding: 26px 22px;
     }
 
     .school-reports-page .reports-hero-right {
         min-height: 250px;
-        border-top: 1px solid #e5d9c4;
+        border-top: 1px solid #dce8de;
         border-left: none;
     }
 
     .school-reports-page .reports-hero-content h2 {
-        font-size: 22px;
-    }
-
-    .school-reports-page .reports-section-title h3 {
-        font-size: 17px;
+        font-size: 24px;
     }
 
     .school-reports-page .report-card {
-        gap: 12px;
-        padding: 17px 14px;
-    }
-
-    .school-reports-page .report-icon {
-        width: 44px;
-        height: 44px;
-        flex-basis: 44px;
-        font-size: 17px;
-    }
-
-    .school-reports-page .report-info h3 {
-        font-size: 13px;
-    }
-
-    .school-reports-page .report-info p {
-        font-size: 11px;
+        min-height: 120px;
+        padding: 17px 15px;
     }
 }
 
 @media (max-width: 540px) {
     .school-reports-page .container-fluid {
-        padding-right: 12px;
-        padding-left: 12px;
+        padding: 16px 12px;
     }
 
     .school-reports-page .reports-hero-left {
-        align-items: flex-start;
-        gap: 13px;
-        padding: 22px 15px;
+        gap: 14px;
+        padding: 23px 16px;
     }
 
     .school-reports-page .reports-hero-icon {
-        width: 45px;
-        height: 45px;
-        flex-basis: 45px;
-        font-size: 18px;
+        width: 46px;
+        height: 46px;
+        flex-basis: 46px;
+        font-size: 19px;
     }
 
     .school-reports-page .reports-eyebrow {
         font-size: 9px;
-        letter-spacing: .8px;
+        letter-spacing: 1px;
     }
 
     .school-reports-page .reports-hero-content h2 {
-        font-size: 20px;
+        font-size: 21px;
     }
 
     .school-reports-page .reports-hero-content > p {
@@ -1187,6 +970,7 @@
     .school-reports-page .reports-hero-meta {
         align-items: flex-start;
         flex-direction: column;
+        gap: 9px;
         font-size: 10px;
     }
 
@@ -1195,13 +979,17 @@
     }
 
     .school-reports-page .reports-hero-right {
-        padding: 23px 15px;
+        padding: 24px 15px;
     }
 
     .school-reports-page .reports-section-header {
         align-items: flex-start;
         flex-direction: column;
         gap: 13px;
+    }
+
+    .school-reports-page .reports-section-title h3 {
+        font-size: 17px;
     }
 
     .school-reports-page .reports-count {
@@ -1214,22 +1002,31 @@
     }
 
     .school-reports-page .report-card {
-        min-height: 112px;
-        padding: 17px;
+        min-height: 110px;
+        padding: 16px;
+    }
+
+    .school-reports-page .report-icon {
+        width: 45px;
+        height: 45px;
+        flex-basis: 45px;
+        font-size: 18px;
     }
 
     .school-reports-page .report-info h3 {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .school-reports-page .report-info p {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .school-reports-page .reports-footer-note {
-        padding: 14px;
+        padding: 15px;
     }
 }
+
+/* ACCESSIBILITY */
 
 @media (prefers-reduced-motion: reduce) {
     .school-reports-page *,
@@ -1241,395 +1038,4 @@
 }
 </style>
 
-
-<div class="reports-page">
-
-    {{-- PAGE HEADER --}}
-    <div class="reports-header">
-
-        <h2>
-            Reports
-        </h2>
-
-        <p>
-            Generate and view reports for different areas of the school.
-        </p>
-
-    </div>
-
-
-    {{-- REPORT CARDS --}}
-    <div class="reports-grid">
-
-
-        {{-- 1. STUDENT --}}
-        <a href="{{ route('admin.reports.students') }}" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-user-graduate"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Student Reports
-                </h3>
-
-                <p>
-                    Student information, profiles and academic records.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 2. FACULTY --}}
-        <a href="{{ route('admin.teachers.reports.index') }}" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-chalkboard-teacher"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Faculty Reports
-                </h3>
-
-                <p>
-                    Faculty details, allocation and teaching records.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 3. STAFF --}}
-        <a href="{{ route('admin.reports.staff') }}" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-users"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Staff Reports
-                </h3>
-
-                <p>
-                    Non-teaching staff and employee information.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 5. ATTENDANCE --}}
-        <a href="{{ route('admin.attendance.report') }}" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-calendar-check"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Attendance Reports
-                </h3>
-
-                <p>
-                    Student and faculty attendance summaries.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 6. FEES --}}
-       <a href="{{ route('admin.fees.student-fees.index') }}" class="report-card">
-            <div class="report-icon">
-                <i class="fas fa-indian-rupee-sign"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Fee Reports
-                </h3>
-
-                <p>
-                    Fee collection, payments and pending fees.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 7. EXAM --}}
-
-<a href="{{ route('admin.reports.exams') }}" class="report-card">
-
-
-            <div class="report-icon">
-                <i class="fas fa-file-alt"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Exam Reports
-                </h3>
-
-                <p>
-                    Examination schedules and examination records.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 8. RESULT --}}
-        <a href="{{ route('admin.reports.results.index') }}" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-chart-column"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Result Reports
-                </h3>
-
-                <p>
-                    Marks, grades and student result summaries.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 9. LIBRARY --}}
-        <a href="{{ route('admin.library.reports.index') }}" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-book"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Library Reports
-                </h3>
-
-                <p>
-                    Books, issues, returns, overdue books and fines.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 10. TRANSPORT --}}
-        <a href="{{ route('admin.transport.reports.student-search') }}" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-bus"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Transport Reports
-                </h3>
-
-                <p>
-                    Routes, vehicles, drivers and student transport.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 11. MEAL --}}
-        <a href="{{ route('admin.meal.logs.index') }}" class="report-card">
-
-    <div class="report-icon">
-        <i class="fas fa-utensils"></i>
-    </div>
-
-    <div class="report-info">
-
-        <h3>
-            Meal Reports
-        </h3>
-
-        <p>
-            Meal stock, usage and inventory records.
-        </p>
-
-    </div>
-
-    <div class="report-arrow">
-        <i class="fas fa-chevron-right"></i>
-    </div>
-
-</a>
-
-
-        {{-- 12. PAYROLL --}}
-        <a href="#" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-money-check-dollar"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Payroll Reports
-                </h3>
-
-                <p>
-                    Salary, payroll and employee payment records.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 13. SPORTS --}}
-        <a href="#" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-futbol"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Sports Reports
-                </h3>
-
-                <p>
-                    Sports activities and student participation.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 14. SCHOLARSHIP --}}
-        <a href="#" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-graduation-cap"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Scholarship Reports
-                </h3>
-
-                <p>
-                    Scholarship applications and student records.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-        {{-- 15. CLASS --}}
-        <a href="#" class="report-card">
-
-            <div class="report-icon">
-                <i class="fas fa-chalkboard"></i>
-            </div>
-
-            <div class="report-info">
-
-                <h3>
-                    Class Reports
-                </h3>
-
-                <p>
-                    Classes, divisions, subjects and class records.
-                </p>
-
-            </div>
-
-            <div class="report-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-
-        </a>
-
-
-    </div>
-
-</div>
-
 @endsection
-
